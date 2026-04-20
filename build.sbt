@@ -1,12 +1,13 @@
 import play.sbt.routes.RoutesKeys
 import sbt.Def
 import scoverage.ScoverageKeys
+import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, scalaSettings}
 import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
 
 lazy val appName: String = "euvat-filing-frontend"
 
 ThisBuild / majorVersion := 0
-ThisBuild / scalaVersion := "3.3.5"
+ThisBuild / scalaVersion := "3.3.6"
 
 lazy val microservice = (project in file("."))
   .enablePlugins(PlayScala, SbtDistributablesPlugin)
@@ -15,6 +16,15 @@ lazy val microservice = (project in file("."))
   .settings(ThisBuild / useSuperShell := false)
   .settings(
     name := appName,
+    PlayKeys.playDefaultPort := 18501,
+    scalaSettings,
+    defaultSettings(),
+    Test / parallelExecution := false,
+    Test / fork := false,
+    Compile / run / fork := true,
+    retrieveManaged := true,
+    routesGenerator := InjectedRoutesGenerator,
+    Compile / unmanagedResourceDirectories += baseDirectory.value / "resources",
     RoutesKeys.routesImport ++= Seq(
       "models._",
       "uk.gov.hmrc.play.bootstrap.binders.RedirectUrl"
@@ -31,15 +41,19 @@ lazy val microservice = (project in file("."))
       "controllers.routes._",
       "viewmodels.govuk.all._"
     ),
-    PlayKeys.playDefaultPort := 9000,
     ScoverageKeys.coverageExcludedFiles := "<empty>;Reverse.*;.*handlers.*;.*components.*;" +
-      ".*Routes.*;.*viewmodels.govuk.*;",
-    ScoverageKeys.coverageMinimumStmtTotal := 78,
+      ".*Routes.*;.*viewmodels.govuk.*;.*views.*;testOnlyDoNotUseInAppConf.*;",
+    ScoverageKeys.coverageMinimumStmtTotal := 80,
     ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true,
+    scalacOptions := scalacOptions.value.filterNot(_.startsWith("-Wunused")),
     scalacOptions ++= Seq(
       "-feature",
-      "-Wconf:cat=deprecation:ws,cat=feature:ws,cat=optimizer:ws,src=target/.*:s"
+      "-deprecation",
+      "-Werror",                // or -Xfatal-warnings for Scala 2
+      "-Wconf:src=html/.*:s",
+      "-Wconf:src=routes/.*:s",
+      "-Wconf:msg=Flag.*repeatedly:s"
     ),
     libraryDependencies ++= AppDependencies(),
     retrieveManaged := true,
