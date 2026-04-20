@@ -18,9 +18,9 @@
 
     <logger name="uk.gov" level="INFO"/>
 
-    <logger name="application" level="DEBUG"/>
+    <logger name="application" level="INFO"/>
 
-    <logger name="connector" level="TRACE"/>
+    <logger name="connector" level="INFO"/>
 
     <root level="INFO">
         <appender-ref ref="FILE"/>
