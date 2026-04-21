@@ -18,4 +18,6 @@ GET         /account/sign-out-survey                     controllers.auth.AuthCo
 GET         /account/sign-out                            controllers.auth.AuthController.signOutNoSurvey()
 GET         /account/signed-out                          controllers.auth.SignedOutController.onPageLoad()
 
+GET         /make-eu-vat-claim                           controllers.TaskListDashboardController.onPageLoad()
+
 GET         /unauthorised                                controllers.UnauthorisedController.onPageLoad()
