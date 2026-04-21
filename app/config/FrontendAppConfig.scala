@@ -36,6 +36,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val loginUrl: String = configuration.get[String]("urls.login")
   val loginContinueUrl: String = configuration.get[String]("urls.loginContinue")
   val signOutUrl: String = configuration.get[String]("urls.signOut")
+  val claimDashboardUrl: String = configuration.get[String]("urls.claimDashboardUrl")
 
   private val exitSurveyBaseUrl: String = configuration.get[Service]("microservice.services.feedback-frontend").baseUrl
   val exitSurveyUrl: String = s"$exitSurveyBaseUrl/feedback/euvat-filing-frontend"

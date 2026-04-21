@@ -50,3 +50,9 @@ unauthorised.heading = You can’t access this service with this account
 
 taskListDashboard.title = Make an EU VAT claim
 taskListDashboard.heading = Make an EU VAT claim
+taskListDashboard.listItem1 = Add claim details
+taskListDashboard.listItem2 = Add a purchase
+taskListDashboard.listItem3 = Add an import
+taskListDashboard.listItem4 = Add supporting documents
+taskListDashboard.listItem5 = Add bank details
+taskListDashboard.dashboardLink = Go to the claims dashboard

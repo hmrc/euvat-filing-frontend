@@ -14,14 +14,85 @@
  * limitations under the License.
  *@
 
-@this(
+ @import uk.gov.hmrc.govukfrontend.views.html.components._
+
+ @this(
         layout: templates.Layout,
-        govukButton: GovukButton
-)
+        govukButton: GovukButton,
+        govukTaskList : GovukTaskList
+ )
 
-@()(implicit request: Request[_], messages: Messages)
+ @(claimDashboardUrl: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("taskListDashboard.title"))) {
+ @layout(pageTitle = titleNoForm(messages("taskListDashboard.title"))) {
 
-    <h1 class="govuk-heading-xl">@messages("taskListDashboard.heading")</h1>
+    <h1 class="govuk-heading-l">@messages("taskListDashboard.heading")</h1>
+
+    @govukTaskList(TaskList(
+     items = Seq(
+      TaskListItem(
+       title = TaskListItemTitle(
+        content = Text(messages("taskListDashboard.listItem1"))
+       ),
+      status = TaskListItemStatus(
+       tag = Some(Tag(
+        content = Text("Not yet started")
+       ))
+      ),
+      href = Some("#")
+      ),
+
+      TaskListItem(
+       title = TaskListItemTitle(
+        content = Text(messages("taskListDashboard.listItem2"))
+       ),
+      status = TaskListItemStatus(
+       tag = Some(Tag(
+        content = Text("Cannot start yet"),
+        classes = "govuk-tag--grey"
+       ))
+       )
+       ),
+
+      TaskListItem(
+       title = TaskListItemTitle(
+        content = Text(messages("taskListDashboard.listItem3"))
+       ),
+      status = TaskListItemStatus(
+       tag = Some(Tag(
+        content = Text("Cannot start yet"),
+        classes = "govuk-tag--grey"
+       ))
+      )
+     ),
+
+      TaskListItem(
+       title = TaskListItemTitle(
+        content = Text(messages("taskListDashboard.listItem4"))
+       ),
+       status = TaskListItemStatus(
+        tag = Some(Tag(
+         content = Text("Cannot start yet"),
+         classes = "govuk-tag--grey"
+        ))
+       )
+      ),
+
+      TaskListItem(
+       title = TaskListItemTitle(
+        content = Text(messages("taskListDashboard.listItem5"))
+       ),
+       status = TaskListItemStatus(
+        tag = Some(Tag(
+         content = Text("Cannot start yet"),
+         classes = "govuk-tag--grey"
+        ))
+       )
+      ),
+     ),
+   idPrefix = "make-eu-vat-claim"
+  ))
+<p class="govuk-body">
+ <a href="@claimDashboardUrl" class="govuk-link" >@messages("taskListDashboard.dashboardLink")</a>
+</p>
 }
