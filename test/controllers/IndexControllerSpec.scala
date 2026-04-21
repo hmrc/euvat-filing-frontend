@@ -25,7 +25,7 @@ class IndexControllerSpec extends SpecBase {
 
   "Index Controller" - {
 
-    "must return OK and the correct view for a GET" in {
+    "must redirect to the task list dashboard and display the correct view for a GET" in {
 
       val application = applicationBuilder(userAnswers = None).build()
 
@@ -36,9 +36,9 @@ class IndexControllerSpec extends SpecBase {
 
         val view = application.injector.instanceOf[IndexView]
 
-        status(result) mustEqual OK
+        status(result) `mustEqual` SEE_OTHER
 
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+        redirectLocation(result).value mustBe controllers.routes.TaskListDashboardController.onPageLoad().url
       }
     }
   }

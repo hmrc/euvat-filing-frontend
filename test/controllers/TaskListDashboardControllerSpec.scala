@@ -17,8 +17,9 @@
 package controllers
 
 import base.SpecBase
+import config.FrontendAppConfig
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import views.html.TaskListDashboardView
 
 class TaskListDashboardControllerSpec extends SpecBase {
@@ -33,11 +34,12 @@ class TaskListDashboardControllerSpec extends SpecBase {
         val request = FakeRequest(GET, routes.TaskListDashboardController.onPageLoad().url)
 
         val result = route(application, request).value
+        val config = application.injector.instanceOf[FrontendAppConfig]
 
         val view = application.injector.instanceOf[TaskListDashboardView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+        contentAsString(result) mustEqual view(config.claimDashboardUrl)(request, messages(application)).toString
       }
     }
   }
