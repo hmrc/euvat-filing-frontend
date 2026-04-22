@@ -56,3 +56,5 @@ taskListDashboard.listItem3 = Add an import
 taskListDashboard.listItem4 = Add supporting documents
 taskListDashboard.listItem5 = Add bank details
 taskListDashboard.dashboardLink = Go to the claims dashboard
+taskListDashboard.errorSummary1 = There is a problem
+taskListDashboard.errorSummary2 = Select add claim details to start a claim

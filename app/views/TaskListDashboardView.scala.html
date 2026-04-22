@@ -24,7 +24,7 @@
 
  @(claimDashboardUrl: String)(implicit request: Request[_], messages: Messages)
 
- @layout(pageTitle = titleNoForm(messages("taskListDashboard.title"))) {
+ @layout(pageTitle = titleNoForm(messages("taskListDashboard.title")), backLinkUrl = Some(claimDashboardUrl)) {
 
     <h1 class="govuk-heading-l">@messages("taskListDashboard.heading")</h1>
 
