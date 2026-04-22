@@ -18,10 +18,11 @@ package controllers
 
 import base.SpecBase
 import forms.ContactDetailsFormProvider
-import models.{ContactDetails, NormalMode, UserAnswers}
+import models.{CheckMode, ContactDetails, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{never, reset, times, verify, when}
+import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.ContactDetailsPage
 import play.api.inject.bind
@@ -33,14 +34,15 @@ import views.html.ContactDetailsView
 
 import scala.concurrent.Future
 
-class ContactDetailsControllerSpec extends SpecBase with MockitoSugar {
+class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
 
   private def onwardRoute = Call("GET", "/foo")
 
   private val formProvider = new ContactDetailsFormProvider()
   private val form         = formProvider()
 
-  private lazy val contactDetailsRoute = routes.ContactDetailsController.onPageLoad(NormalMode).url
+  private lazy val contactDetailsNormalRoute = routes.ContactDetailsController.onPageLoad(NormalMode).url
+  private lazy val contactDetailsCheckRoute  = routes.ContactDetailsController.onPageLoad(CheckMode).url
 
   private val validFormData = Map(
     "contactEmail"     -> "test@example.com",
@@ -56,15 +58,30 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar {
     telephone = Some("07700900000")
   )
 
+  private val mockSessionRepository: SessionRepository = mock[SessionRepository]
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockSessionRepository)
+  }
+
+  private def applicationWithMockedRepo(userAnswers: Option[UserAnswers]) =
+    applicationBuilder(userAnswers = userAnswers)
+      .overrides(
+        bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+        bind[SessionRepository].toInstance(mockSessionRepository)
+      )
+      .build()
+
   "ContactDetailsController" - {
 
-    "onPageLoad" - {
+    "onPageLoad (NormalMode)" - {
 
       "must return OK and render the view with an empty form when no existing data" in {
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
         running(application) {
-          val request = FakeRequest(GET, contactDetailsRoute)
+          val request = FakeRequest(GET, contactDetailsNormalRoute)
           val result  = route(application, request).value
           val view    = application.injector.instanceOf[ContactDetailsView]
 
@@ -78,7 +95,7 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar {
         val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
         running(application) {
-          val request = FakeRequest(GET, contactDetailsRoute)
+          val request = FakeRequest(GET, contactDetailsNormalRoute)
           val result  = route(application, request).value
           val view    = application.injector.instanceOf[ContactDetailsView]
 
@@ -88,45 +105,58 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar {
       }
 
       "must redirect to Journey Recovery when no user answers exist" in {
-        val application = applicationBuilder(userAnswers = None).build()
+        val application = applicationWithMockedRepo(userAnswers = None)
 
         running(application) {
-          val request = FakeRequest(GET, contactDetailsRoute)
+          val request = FakeRequest(GET, contactDetailsNormalRoute)
           val result  = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+          verify(mockSessionRepository, never).set(any())
         }
       }
     }
 
-    "onSubmit" - {
+    "onPageLoad (CheckMode)" - {
 
-      "must save data and redirect on valid submission" in {
-        val mockSessionRepository = mock[SessionRepository]
-        when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-
-        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
-          .build()
+      "must return OK and pre-populate the form with existing data" in {
+        val userAnswers = emptyUserAnswers.set(ContactDetailsPage, contactDetails).success.value
+        val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
         running(application) {
-          val request = FakeRequest(POST, contactDetailsRoute).withFormUrlEncodedBody(validFormData.toSeq*)
+          val request = FakeRequest(GET, contactDetailsCheckRoute)
+          val result  = route(application, request).value
+          val view    = application.injector.instanceOf[ContactDetailsView]
+
+          status(result) mustEqual OK
+          contentAsString(result) mustEqual view(form.fill(contactDetails), CheckMode)(request, messages(application)).toString
+        }
+      }
+    }
+
+    "onSubmit (NormalMode)" - {
+
+      "must save data and redirect to the next page on valid submission" in {
+        when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+        val application = applicationWithMockedRepo(Some(emptyUserAnswers))
+
+        running(application) {
+          val request = FakeRequest(POST, contactDetailsNormalRoute).withFormUrlEncodedBody(validFormData.toSeq*)
           val result  = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual onwardRoute.url
+          verify(mockSessionRepository, times(1)).set(any())
         }
       }
 
-      "must return BAD_REQUEST and render the view with errors when email is missing" in {
-        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      "must return BAD_REQUEST and not persist when email is missing" in {
+        val application = applicationWithMockedRepo(Some(emptyUserAnswers))
 
         running(application) {
-          val request = FakeRequest(POST, contactDetailsRoute).withFormUrlEncodedBody("contactEmail" -> "")
+          val request = FakeRequest(POST, contactDetailsNormalRoute).withFormUrlEncodedBody("contactEmail" -> "")
           val result  = route(application, request).value
           val view    = application.injector.instanceOf[ContactDetailsView]
 
@@ -135,30 +165,51 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar {
             form.bind(Map("contactEmail" -> "")),
             NormalMode
           )(request, messages(application)).toString
+          verify(mockSessionRepository, never).set(any())
         }
       }
 
-      "must return BAD_REQUEST when email format is invalid" in {
-        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      "must return BAD_REQUEST and not persist when email format is invalid" in {
+        val application = applicationWithMockedRepo(Some(emptyUserAnswers))
 
         running(application) {
-          val request = FakeRequest(POST, contactDetailsRoute)
+          val request = FakeRequest(POST, contactDetailsNormalRoute)
             .withFormUrlEncodedBody(validFormData.updated("contactEmail", "not-an-email").toSeq*)
           val result = route(application, request).value
 
           status(result) mustEqual BAD_REQUEST
+          verify(mockSessionRepository, never).set(any())
         }
       }
 
-      "must redirect to Journey Recovery when no user answers exist" in {
-        val application = applicationBuilder(userAnswers = None).build()
+      "must redirect to Journey Recovery and not persist when no user answers exist" in {
+        val application = applicationWithMockedRepo(userAnswers = None)
 
         running(application) {
-          val request = FakeRequest(POST, contactDetailsRoute).withFormUrlEncodedBody(validFormData.toSeq*)
+          val request = FakeRequest(POST, contactDetailsNormalRoute).withFormUrlEncodedBody(validFormData.toSeq*)
           val result  = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+          verify(mockSessionRepository, never).set(any())
+        }
+      }
+    }
+
+    "onSubmit (CheckMode)" - {
+
+      "must save data and redirect on valid submission" in {
+        when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+        val application = applicationWithMockedRepo(Some(emptyUserAnswers))
+
+        running(application) {
+          val request = FakeRequest(POST, contactDetailsCheckRoute).withFormUrlEncodedBody(validFormData.toSeq*)
+          val result  = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual onwardRoute.url
+          verify(mockSessionRepository, times(1)).set(any())
         }
       }
     }

@@ -17,17 +17,26 @@
 package forms
 
 import forms.behaviours.{FieldBehaviours, StringFieldBehaviours}
+import models.ContactDetails
 import play.api.data.FormError
 
 class ContactDetailsFormProviderSpec extends StringFieldBehaviours with FieldBehaviours {
 
-  private val form = new ContactDetailsFormProvider()()
+  private val formProvider = new ContactDetailsFormProvider()
+  private val form         = formProvider()
 
   private val validData = Map(
     "contactEmail"     -> "test@example.com",
     "contactFirstName" -> "Jane",
     "contactLastName"  -> "Doe",
     "contactTelephone" -> "07700900000"
+  )
+
+  private val modelFromValidData = ContactDetails(
+    email     = "test@example.com",
+    firstName = Some("Jane"),
+    lastName  = Some("Doe"),
+    telephone = Some("07700900000")
   )
 
   ".contactEmail" - {
@@ -48,53 +57,145 @@ class ContactDetailsFormProviderSpec extends StringFieldBehaviours with FieldBeh
 
     "reject an invalid email format" in {
       val result = form.bind(validData.updated(fieldName, "not-an-email")).apply(fieldName)
-      result.errors must contain only FormError(fieldName, "contactDetails.error.email.invalidFormat")
+      result.errors must contain only FormError(
+        fieldName,
+        "contactDetails.error.email.invalidFormat",
+        Seq(formProvider.validateEmailAddress)
+      )
     }
 
     behave like fieldWithMaxLength(
       form,
       fieldName,
       maxLength   = 100,
-      lengthError = FormError(fieldName, "contactDetails.error.email.invalidFormat")
+      lengthError = FormError(fieldName, "contactDetails.error.email.invalidFormat", Seq(100))
     )
   }
 
   ".contactFirstName" - {
 
-    "bind when present" in {
-      val result = form.bind(validData).apply("contactFirstName")
-      result.errors mustBe empty
+    val fieldName = "contactFirstName"
+
+    behave like fieldThatBindsValidData(form, fieldName, nonEmptyString)
+
+    "bind to None when absent" in {
+      val result = form.bind(validData - fieldName).value.value
+      result.firstName mustBe None
     }
 
-    "bind when absent" in {
-      val result = form.bind(validData - "contactFirstName")
-      result.errors mustBe empty
+    "bind to None when blank" in {
+      val result = form.bind(validData.updated(fieldName, "")).value.value
+      result.firstName mustBe None
     }
   }
 
   ".contactLastName" - {
 
-    "bind when present" in {
-      val result = form.bind(validData).apply("contactLastName")
-      result.errors mustBe empty
+    val fieldName = "contactLastName"
+
+    behave like fieldThatBindsValidData(form, fieldName, nonEmptyString)
+
+    "bind to None when absent" in {
+      val result = form.bind(validData - fieldName).value.value
+      result.lastName mustBe None
     }
 
-    "bind when absent" in {
-      val result = form.bind(validData - "contactLastName")
-      result.errors mustBe empty
+    "bind to None when blank" in {
+      val result = form.bind(validData.updated(fieldName, "")).value.value
+      result.lastName mustBe None
     }
   }
 
   ".contactTelephone" - {
 
-    "bind when present" in {
-      val result = form.bind(validData).apply("contactTelephone")
-      result.errors mustBe empty
+    val fieldName = "contactTelephone"
+
+    behave like fieldThatBindsValidData(form, fieldName, nonEmptyString)
+
+    "bind to None when absent" in {
+      val result = form.bind(validData - fieldName).value.value
+      result.telephone mustBe None
     }
 
-    "bind when absent" in {
-      val result = form.bind(validData - "contactTelephone")
-      result.errors mustBe empty
+    "bind to None when blank" in {
+      val result = form.bind(validData.updated(fieldName, "")).value.value
+      result.telephone mustBe None
+    }
+  }
+
+  "ContactDetailsFormProvider" - {
+
+    "apply ContactDetails correctly (bind → model round-trip)" in {
+      val bound = form.bind(validData).value.value
+      bound mustBe modelFromValidData
+    }
+
+    "unapply ContactDetails correctly (fill → form round-trip)" in {
+      val filled = form.fill(modelFromValidData)
+      filled("contactEmail").value.value     mustBe "test@example.com"
+      filled("contactFirstName").value.value mustBe "Jane"
+      filled("contactLastName").value.value  mustBe "Doe"
+      filled("contactTelephone").value.value mustBe "07700900000"
+    }
+
+    "unapply ContactDetails with missing optionals" in {
+      val model  = ContactDetails(email = "a@b.co", firstName = None, lastName = None, telephone = None)
+      val filled = form.fill(model)
+      filled("contactEmail").value.value mustBe "a@b.co"
+      filled("contactFirstName").value   mustBe None
+      filled("contactLastName").value    mustBe None
+      filled("contactTelephone").value   mustBe None
+    }
+  }
+
+  "validateEmailAddress regex" - {
+
+    "return valid" - {
+      "for test@example.com" in {
+        "test@example.com" must fullyMatch regex formProvider.validateEmailAddress
+      }
+
+      "for firstname.lastname@domain.com" in {
+        "firstname.lastname@domain.com" must fullyMatch regex formProvider.validateEmailAddress
+      }
+
+      "for firstname-lastname@domain.co.uk" in {
+        "firstname-lastname@domain.co.uk" must fullyMatch regex formProvider.validateEmailAddress
+      }
+
+      "for user_name@sub-domain.example.com" in {
+        "user_name@sub-domain.example.com" must fullyMatch regex formProvider.validateEmailAddress
+      }
+    }
+
+    "return invalid" - {
+      "for abc@gmail (no TLD)" in {
+        "abc@gmail" mustNot fullyMatch regex formProvider.validateEmailAddress
+      }
+
+      "for no-at-symbol.example.com" in {
+        "no-at-symbol.example.com" mustNot fullyMatch regex formProvider.validateEmailAddress
+      }
+
+      "for spaces in local@domain.com" in {
+        "spaces in local@domain.com" mustNot fullyMatch regex formProvider.validateEmailAddress
+      }
+
+      "for pipe-in-domain@example.com|gov.uk" in {
+        "pipe-in-domain@example.com|gov.uk" mustNot fullyMatch regex formProvider.validateEmailAddress
+      }
+
+      "for brackets(in)local@domain.com" in {
+        "brackets(in)local@domain.com" mustNot fullyMatch regex formProvider.validateEmailAddress
+      }
+
+      "for comma-in-domain@domain,gov.uk" in {
+        "comma-in-domain@domain,gov.uk" mustNot fullyMatch regex formProvider.validateEmailAddress
+      }
+
+      "for single-char TLD user@domain.a" in {
+        "user@domain.a" mustNot fullyMatch regex formProvider.validateEmailAddress
+      }
     }
   }
 }
