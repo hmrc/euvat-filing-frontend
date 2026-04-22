@@ -1,4 +1,4 @@
-service.name = euvat-filing-frontend
+service.name = EU VAT
 
 site.back = Back
 site.remove = Remove
@@ -47,3 +47,13 @@ signedOut.guidance = We did not save your answers.
 
 unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
+
+contactDetails.title = Who should we contact about this claim?
+contactDetails.heading = Who should we contact about this claim?
+contactDetails.caption = Add claim details
+contactDetails.contactEmail.label = Email address
+contactDetails.contactFirstName.label = First name (optional)
+contactDetails.contactLastName.label = Last name (optional)
+contactDetails.contactTelephone.label = Telephone number (optional)
+contactDetails.error.email.required = Enter an email address
+contactDetails.error.email.invalidFormat = Enter an email address in the correct format, like name@example.com
