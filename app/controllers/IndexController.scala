@@ -25,8 +25,7 @@ import views.html.IndexView
 
 class IndexController @Inject() (
   val controllerComponents: MessagesControllerComponents,
-  identify: IdentifierAction,
-  view: IndexView
+  identify: IdentifierAction
 ) extends FrontendBaseController
     with I18nSupport {
 
