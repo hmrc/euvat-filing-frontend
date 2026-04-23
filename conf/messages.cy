@@ -1,4 +1,4 @@
-service.name = euvat-filing-frontend
+service.name = EU VAT
 
 site.back = Back
 site.remove = Remove
