@@ -1,0 +1,62 @@
+service.name = EU VAT
+
+site.back = Back
+site.remove = Remove
+site.change = Change
+site.no = No
+site.yes = Yes
+site.continue = Continue
+site.start = Start now
+site.startAgain = Start again
+site.signIn = Sign in
+site.govuk = GOV.UK
+
+date.day = Day
+date.month = Month
+date.year = Year
+date.error.day = day
+date.error.month = month
+date.error.year = year
+
+timeout.title = You’re about to be signed out
+timeout.message = For security reasons, you will be signed out of this service in
+timeout.keepAlive = Stay signed in
+timeout.signOut = Sign out
+
+error.title.prefix = Error:
+error.prefix = Error
+error.summary.title = There is a problem
+
+index.title = euvat-filing-frontend
+index.heading = euvat-filing-frontend
+index.guidance = Welcome to your new frontend. Please see the README file for a guide to getting started.
+
+checkYourAnswers.title = Check your answers
+checkYourAnswers.heading = Check your answers
+
+journeyRecovery.continue.title = Sorry, there is a problem with the service
+journeyRecovery.continue.heading = Sorry, there is a problem with the service
+journeyRecovery.continue.guidance = [Add content to explain how to proceed.]
+journeyRecovery.startAgain.title = Sorry, there is a problem with the service
+journeyRecovery.startAgain.heading = Sorry, there is a problem with the service
+journeyRecovery.startAgain.guidance = [Add content to explain why the user needs to start again.]
+
+signedOut.title = For your security, we signed you out
+signedOut.heading = For your security, we signed you out
+signedOut.guidance = We did not save your answers.
+
+unauthorised.title = You can’t access this service with this account
+unauthorised.heading = You can’t access this service with this account
+
+# Refunding country / which EU member state
+refundingCountry.title = Which EU member state are you claiming back VAT from? - EU VAT - GOV.UK
+refundingCountry.heading = Which EU member state are you claiming back VAT from?
+refundingCountry.hint = Start typing to find the member state
+refundingCountry.error.required = Select an EU member state
+refundingCountry.error.length = Enter a value 100 characters or fewer
+
+# Business level error messages for refunding country
+onlyOneDraftPerMemberStatePerTrader = Only one claim per EU member state may be held in draft at any one time
+refundingCountryNotValidOnRefundDate = The refunding EU member state you selected is not valid for the claim period
+overlappingRefundPeriods = The period you selected for this EU member state overlaps a claim period already used
+
