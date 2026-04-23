@@ -28,8 +28,6 @@ import views.html.TaskListDashboardView
 class TaskListDashboardController @Inject()(
                                              override val messagesApi: MessagesApi,
                                              identify: IdentifierAction,
-                                             getData: DataRetrievalAction,
-                                             requireData: DataRequiredAction,
                                              appConfig: FrontendAppConfig,
                                              val controllerComponents: MessagesControllerComponents,
                                              view: TaskListDashboardView
