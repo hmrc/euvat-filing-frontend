@@ -54,9 +54,3 @@ refundingCountry.heading = Which EU member state are you claiming back VAT from?
 refundingCountry.hint = Start typing to find the member state
 refundingCountry.error.required = Select an EU member state
 refundingCountry.error.length = Enter a value 100 characters or fewer
-
-# Business level error messages for refunding country
-onlyOneDraftPerMemberStatePerTrader = Only one claim per EU member state may be held in draft at any one time
-refundingCountryNotValidOnRefundDate = The refunding EU member state you selected is not valid for the claim period
-overlappingRefundPeriods = The period you selected for this EU member state overlaps a claim period already used
-
