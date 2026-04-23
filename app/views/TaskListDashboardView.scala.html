@@ -1,0 +1,98 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+ @import uk.gov.hmrc.govukfrontend.views.html.components._
+
+ @this(
+        layout: templates.Layout,
+        govukButton: GovukButton,
+        govukTaskList : GovukTaskList
+ )
+
+ @(claimDashboardUrl: String)(implicit request: Request[_], messages: Messages)
+
+ @layout(pageTitle = titleNoForm(messages("taskListDashboard.title")), backLinkUrl = Some(claimDashboardUrl)) {
+
+    <h1 class="govuk-heading-l">@messages("taskListDashboard.heading")</h1>
+
+    @govukTaskList(TaskList(
+     items = Seq(
+      TaskListItem(
+       title = TaskListItemTitle(
+        content = Text(messages("taskListDashboard.listItem1"))
+       ),
+      status = TaskListItemStatus(
+       tag = Some(Tag(
+        content = Text("Not yet started")
+       ))
+      ),
+      href = Some("#")
+      ),
+
+      TaskListItem(
+       title = TaskListItemTitle(
+        content = Text(messages("taskListDashboard.listItem2"))
+       ),
+      status = TaskListItemStatus(
+       tag = Some(Tag(
+        content = Text("Cannot start yet"),
+        classes = "govuk-tag--grey"
+       ))
+       )
+       ),
+
+      TaskListItem(
+       title = TaskListItemTitle(
+        content = Text(messages("taskListDashboard.listItem3"))
+       ),
+      status = TaskListItemStatus(
+       tag = Some(Tag(
+        content = Text("Cannot start yet"),
+        classes = "govuk-tag--grey"
+       ))
+      )
+     ),
+
+      TaskListItem(
+       title = TaskListItemTitle(
+        content = Text(messages("taskListDashboard.listItem4"))
+       ),
+       status = TaskListItemStatus(
+        tag = Some(Tag(
+         content = Text("Cannot start yet"),
+         classes = "govuk-tag--grey"
+        ))
+       )
+      ),
+
+      TaskListItem(
+       title = TaskListItemTitle(
+        content = Text(messages("taskListDashboard.listItem5"))
+       ),
+       status = TaskListItemStatus(
+        tag = Some(Tag(
+         content = Text("Cannot start yet"),
+         classes = "govuk-tag--grey"
+        ))
+       )
+      ),
+     ),
+   idPrefix = "make-eu-vat-claim"
+  ))
+<p class="govuk-body">
+ <a href="@claimDashboardUrl" class="govuk-link" >@messages("taskListDashboard.dashboardLink")</a>
+</p>
+}

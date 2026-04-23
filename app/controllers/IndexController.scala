@@ -25,12 +25,11 @@ import views.html.IndexView
 
 class IndexController @Inject() (
   val controllerComponents: MessagesControllerComponents,
-  identify: IdentifierAction,
-  view: IndexView
+  identify: IdentifierAction
 ) extends FrontendBaseController
     with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = identify { implicit request =>
-    Ok(view())
+    Redirect(routes.TaskListDashboardController.onPageLoad())
   }
 }

@@ -17,26 +17,29 @@
 package controllers
 
 import base.SpecBase
+import config.FrontendAppConfig
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import views.html.IndexView
+import views.html.TaskListDashboardView
 
-class IndexControllerSpec extends SpecBase {
+class TaskListDashboardControllerSpec extends SpecBase {
 
-  "Index Controller" - {
+  "TaskListDashboard Controller" - {
 
-    "must redirect to the task list dashboard and display the correct view for a GET" in {
+    "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.IndexController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.TaskListDashboardController.onPageLoad().url)
 
         val result = route(application, request).value
+        val config = application.injector.instanceOf[FrontendAppConfig]
 
-        status(result) `mustEqual` SEE_OTHER
+        val view = application.injector.instanceOf[TaskListDashboardView]
 
-        redirectLocation(result).value mustBe controllers.routes.TaskListDashboardController.onPageLoad().url
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(config.claimDashboardUrl)(request, messages(application)).toString
       }
     }
   }
