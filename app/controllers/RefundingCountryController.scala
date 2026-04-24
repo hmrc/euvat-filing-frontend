@@ -46,9 +46,9 @@ class RefundingCountryController @Inject()(
 
   val form = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+  def onPageLoad(): Action[AnyContent] = (identify andThen getData) { implicit request =>
 
-    val preparedForm = request.userAnswers.get(RefundingCountryPage) match {
+    val preparedForm = request.userAnswers.flatMap(_.get(RefundingCountryPage)) match {
       case None => form
       case Some(value) => form.fill(value)
     }
@@ -64,7 +64,7 @@ class RefundingCountryController @Inject()(
     Ok(view(preparedForm, countries))
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+  def onSubmit(): Action[AnyContent] = (identify andThen getData).async { implicit request =>
 
     val countries = config.getOptional[Seq[String]]("eu.member-states").getOrElse(Seq.empty).map { s =>
       s.split("\\|") match {
@@ -79,8 +79,9 @@ class RefundingCountryController @Inject()(
         Future.successful(BadRequest(view(formWithErrors, countries))),
 
       value =>
+        val baseAnswers = request.userAnswers.getOrElse(models.UserAnswers(request.userId))
         for {
-          updatedAnswers <- Future.fromTry(request.userAnswers.set(RefundingCountryPage, value))
+          updatedAnswers <- Future.fromTry(baseAnswers.set(RefundingCountryPage, value))
           _ <- sessionRepository.set(updatedAnswers)
         } yield Redirect(navigator.nextPage(RefundingCountryPage, NormalMode, updatedAnswers))
     )

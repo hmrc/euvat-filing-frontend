@@ -54,7 +54,7 @@ class RefundingCountryControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to Journey Recovery for a GET if no existing data is found" in {
+    "must return OK and the correct view for a GET when no existing data is found" in {
 
       val application = applicationBuilder(userAnswers = None).build()
 
@@ -63,8 +63,19 @@ class RefundingCountryControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        val view = application.injector.instanceOf[views.html.RefundingCountryView]
+        val formProvider = application.injector.instanceOf[forms.RefundingCountryFormProvider]
+        val form = formProvider()
+        val countries: Seq[(String, String)] = application.configuration.getOptional[Seq[String]]("eu.member-states").getOrElse(Seq.empty).map { s =>
+          s.split("\\|") match {
+            case Array(name, code) => (name.trim, code.trim)
+            case Array(name)       => (name.trim, "")
+            case _                 => (s, "")
+          }
+        }
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, countries)(request, messages(application)).toString
       }
     }
 
