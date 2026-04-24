@@ -48,6 +48,18 @@ signedOut.guidance = We did not save your answers.
 unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
 
+taskListDashboard.title = Make an EU VAT claim
+taskListDashboard.heading = Make an EU VAT claim
+taskListDashboard.listItem1 = Add claim details
+taskListDashboard.listItem2 = Add a purchase
+taskListDashboard.listItem3 = Add an import
+taskListDashboard.listItem4 = Add supporting documents
+taskListDashboard.listItem5 = Add bank details
+taskListDashboard.dashboardLink = Go to the claims dashboard
+taskListDashboard.errorSummary1 = There is a problem
+taskListDashboard.errorSummary2 = Select add claim details to start a claim
+
+
 contactDetails.title = Who should we contact about this claim?
 contactDetails.heading = Who should we contact about this claim?
 contactDetails.caption = Add claim details
