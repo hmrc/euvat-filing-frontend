@@ -18,7 +18,7 @@ package controllers
 
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import forms.ContactDetailsFormProvider
-import models.Mode
+import models.{Mode, UserAnswers}
 import navigation.Navigator
 import pages.ContactDetailsPage
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -46,20 +46,26 @@ class ContactDetailsController @Inject() (
 
   private val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = request.userAnswers.get(ContactDetailsPage) match {
+  // LOCAL-DEV: `andThen requireData` temporarily removed until RA2.1 (DTR-4263)
+  // lands and seeds UserAnswers. Restore by adding `andThen requireData` back and
+  // replacing the `getOrElse(...)` with `request.userAnswers` once the upstream
+  // page creates the session row. See docs/decisions.md.
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData) { implicit request =>
+    val answers = request.userAnswers.getOrElse(UserAnswers(request.userId))
+    val preparedForm = answers.get(ContactDetailsPage) match {
       case None        => form
       case Some(value) => form.fill(value)
     }
     Ok(view(preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData).async { implicit request =>
+    val answers = request.userAnswers.getOrElse(UserAnswers(request.userId))
     form.bindFromRequest().fold(
       formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
       value =>
         for {
-          updatedAnswers <- Future.fromTry(request.userAnswers.set(ContactDetailsPage, value))
+          updatedAnswers <- Future.fromTry(answers.set(ContactDetailsPage, value))
           _              <- sessionRepository.set(updatedAnswers)
         } yield Redirect(navigator.nextPage(ContactDetailsPage, mode, updatedAnswers))
     )
