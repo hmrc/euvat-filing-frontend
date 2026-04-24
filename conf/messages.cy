@@ -59,7 +59,6 @@ taskListDashboard.dashboardLink = Go to the claims dashboard
 taskListDashboard.errorSummary1 = There is a problem
 taskListDashboard.errorSummary2 = Select add claim details to start a claim
 
-
 contactDetails.title = Who should we contact about this claim?
 contactDetails.heading = Who should we contact about this claim?
 contactDetails.caption = Add claim details
@@ -69,3 +68,4 @@ contactDetails.contactLastName.label = Last name (optional)
 contactDetails.contactTelephone.label = Telephone number (optional)
 contactDetails.error.email.required = Enter an email address
 contactDetails.error.email.invalidFormat = Enter an email address in the correct format, like name@example.com
+
