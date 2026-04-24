@@ -20,6 +20,7 @@
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.select._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.errormessage.ErrorMessage
 
 @this(
     layout: templates.Layout,
@@ -45,13 +46,14 @@
                 <h1 class="govuk-heading-l">@messages("refundingCountry.heading")</h1>
 
                 @defining(Select(
-                    id = "country",
+                    id = form("value").id,
                     name = "value",
                     items = Seq(SelectItem(value = Some(""), text = "Select a country", selected = form("value").value.isEmpty)) ++ countries.map { case (name, code) =>
                         SelectItem(value = Some(code), text = name, selected = form("value").value.contains(code))
                     },
                     label = Label(content = Text(messages("refundingCountry.heading")), classes = "govuk-visually-hidden"),
-                    hint = Some(Hint(content = messages("refundingCountry.hint")))
+                    hint = Some(Hint(content = messages("refundingCountry.hint"))),
+                    errorMessage = form.error("value").map { e => ErrorMessage(content = Text(messages(e.message, e.args: _*))) }
                 ).asAccessibleAutocomplete(Some(AccessibleAutocomplete(showAllValues = false, autoSelect = false, minLength = None)))) { selectModel =>
 
                     @govukSelect(selectModel)
