@@ -58,3 +58,10 @@ taskListDashboard.listItem5 = Add bank details
 taskListDashboard.dashboardLink = Go to the claims dashboard
 taskListDashboard.errorSummary1 = There is a problem
 taskListDashboard.errorSummary2 = Select add claim details to start a claim
+# Refunding country / which EU member state
+refundingCountry.title = Which EU member state are you claiming back VAT from?
+refundingCountry.heading = Which EU member state are you claiming back VAT from?
+refundingCountry.hint = Start typing to find the EU member state
+refundingCountry.error.summary = Select an EU member state
+refundingCountry.error.required = Enter the first letters and select the EU member state for this claim
+refundingCountry.error.length = Enter a value 100 characters or fewer
