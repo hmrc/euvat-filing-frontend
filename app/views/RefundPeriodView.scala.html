@@ -1,0 +1,92 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.input._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.label._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.hint._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.errormessage.ErrorMessage
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.dateinput.{DateInput, InputItem}
+@import viewmodels.govuk.date.DateViewModel
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.fieldset._
+
+@this(
+  layout: templates.Layout,
+  formHelper: FormWithCSRF,
+  govukErrorSummary: GovukErrorSummary,
+  govukDateInput: GovukDateInput,
+  govukButton: GovukButton
+)
+
+@(form: play.api.data.Form[_])(implicit request: play.api.mvc.Request[_], messages: play.api.i18n.Messages)
+
+@layout(pageTitle = messages("refundPeriod.title")) {
+
+  @formHelper(action = controllers.routes.RefundPeriodController.onSubmit()) {
+
+    @if(form.errors.nonEmpty) {
+      @govukErrorSummary(ErrorSummaryViewModel(form))
+    }
+
+    <span class="govuk-caption-l">Add claim details</span>
+    <h1 class="govuk-heading-l">@messages("refundPeriod.heading")</h1>
+
+    <p class="govuk-body">
+      @messages("refundPeriod.rules.heading")
+    </p>
+
+    <ul class="govuk-list govuk-list--bullet">
+      <li>@messages("refundPeriod.rule.1")</li>
+      <li>@messages("refundPeriod.rule.2")</li>
+      <li>@messages("refundPeriod.rule.3")</li>
+      <li>@messages("refundPeriod.rule.4")</li>
+    </ul>
+
+    @defining(form.error("start")) { startError =>
+      @defining(
+        DateInput(
+          fieldset = Some(Fieldset(legend = Some(Legend(content = HtmlContent(messages("refundPeriod.start.heading")), classes = "govuk-fieldset__legend--m")))),
+          items = Seq(
+            InputItem(id = s"${form("start").id}.month", name = s"${form("start").name}.month", value = form("start.month").value, label = Some(messages("date.month")), classes = "govuk-input--width-2"),
+            InputItem(id = s"${form("start").id}.year", name = s"${form("start").name}.year", value = form("start.year").value, label = Some(messages("date.year")), classes = "govuk-input--width-4")
+          ),
+          id = form("start").id,
+          errorMessage = startError.map(e => ErrorMessage(content = Text(messages(e.message, e.args: _*))))
+        )
+      ) { startDate =>
+        @govukDateInput(startDate.withHint(HintViewModel(messages("refundPeriod.start.hint"))))
+      }
+    }
+
+    @defining(form.error("end")) { endError =>
+      @defining(
+        DateInput(
+          fieldset = Some(Fieldset(legend = Some(Legend(content = HtmlContent(messages("refundPeriod.end.heading")), classes = "govuk-fieldset__legend--m")))),
+          items = Seq(
+            InputItem(id = s"${form("end").id}.month", name = s"${form("end").name}.month", value = form("end.month").value, label = Some(messages("date.month")), classes = "govuk-input--width-2"),
+            InputItem(id = s"${form("end").id}.year", name = s"${form("end").name}.year", value = form("end.year").value, label = Some(messages("date.year")), classes = "govuk-input--width-4")
+          ),
+          id = form("end").id,
+          errorMessage = endError.map(e => ErrorMessage(content = Text(messages(e.message, e.args: _*))))
+        )
+      ) { endDate =>
+        @govukDateInput(endDate.withHint(HintViewModel(messages("refundPeriod.end.hint"))))
+      }
+    }
+
+    @govukButton(ButtonViewModel(messages("site.continue")))
+
+  }
+}
