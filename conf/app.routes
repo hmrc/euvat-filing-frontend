@@ -21,3 +21,8 @@ GET         /account/signed-out                          controllers.auth.Signed
 GET         /make-eu-vat-claim                           controllers.TaskListDashboardController.onPageLoad()
 
 GET         /unauthorised                                controllers.UnauthorisedController.onPageLoad()
+
+GET         /who-contact-about-this-claim                controllers.ContactDetailsController.onPageLoad(mode: Mode = NormalMode)
+POST        /who-contact-about-this-claim                controllers.ContactDetailsController.onSubmit(mode: Mode = NormalMode)
+GET         /change-who-contact-about-this-claim         controllers.ContactDetailsController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-who-contact-about-this-claim         controllers.ContactDetailsController.onSubmit(mode: Mode = CheckMode)
