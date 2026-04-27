@@ -21,6 +21,7 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.select._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.errormessage.ErrorMessage
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.errorsummary._
 
 @this(
     layout: templates.Layout,
@@ -38,7 +39,11 @@
     @formHelper(action = routes.RefundingCountryController.onSubmit()) {
 
         @if(form.errors.nonEmpty) {
-            @govukErrorSummary(ErrorSummaryViewModel(form))
+                        @defining(ErrorSummaryViewModel(form).copy(errorList = ErrorSummaryViewModel(form).errorList.map(el => el.copy(content = Text(messages("refundingCountry.error.summary")))))) { summaryModel =>
+
+                            @govukErrorSummary(summaryModel)
+
+                        }
         }
 
                 <span class="govuk-caption-l">Add claim details</span>
