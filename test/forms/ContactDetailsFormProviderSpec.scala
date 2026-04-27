@@ -76,7 +76,11 @@ class ContactDetailsFormProviderSpec extends StringFieldBehaviours with FieldBeh
 
     val fieldName = "contactFirstName"
 
-    behave like fieldThatBindsValidData(form, fieldName, nonEmptyString)
+    "bind a valid first name" in {
+      val result = form.bind(validData.updated(fieldName, "Jane")).apply(fieldName)
+      result.value.value mustBe "Jane"
+      result.errors mustBe empty
+    }
 
     "bind to None when absent" in {
       val result = form.bind(validData - fieldName).value.value
@@ -86,6 +90,21 @@ class ContactDetailsFormProviderSpec extends StringFieldBehaviours with FieldBeh
     "bind to None when blank" in {
       val result = form.bind(validData.updated(fieldName, "")).value.value
       result.firstName mustBe None
+    }
+
+    "reject a first name longer than 35 characters" in {
+      val tooLong = "a" * 36
+      val result  = form.bind(validData.updated(fieldName, tooLong)).apply(fieldName)
+      result.errors must contain only FormError(fieldName, "contactDetails.error.firstName.maxLength", Seq(35))
+    }
+
+    "reject a first name with invalid characters" in {
+      val result = form.bind(validData.updated(fieldName, "Jane@Doe")).apply(fieldName)
+      result.errors must contain only FormError(
+        fieldName,
+        "contactDetails.error.firstName.format",
+        Seq(formProvider.validateNameField)
+      )
     }
   }
 
@@ -93,7 +112,11 @@ class ContactDetailsFormProviderSpec extends StringFieldBehaviours with FieldBeh
 
     val fieldName = "contactLastName"
 
-    behave like fieldThatBindsValidData(form, fieldName, nonEmptyString)
+    "bind a valid last name" in {
+      val result = form.bind(validData.updated(fieldName, "Doe")).apply(fieldName)
+      result.value.value mustBe "Doe"
+      result.errors mustBe empty
+    }
 
     "bind to None when absent" in {
       val result = form.bind(validData - fieldName).value.value
@@ -103,6 +126,21 @@ class ContactDetailsFormProviderSpec extends StringFieldBehaviours with FieldBeh
     "bind to None when blank" in {
       val result = form.bind(validData.updated(fieldName, "")).value.value
       result.lastName mustBe None
+    }
+
+    "reject a last name longer than 35 characters" in {
+      val tooLong = "a" * 36
+      val result  = form.bind(validData.updated(fieldName, tooLong)).apply(fieldName)
+      result.errors must contain only FormError(fieldName, "contactDetails.error.lastName.maxLength", Seq(35))
+    }
+
+    "reject a last name with invalid characters" in {
+      val result = form.bind(validData.updated(fieldName, "<script>")).apply(fieldName)
+      result.errors must contain only FormError(
+        fieldName,
+        "contactDetails.error.lastName.format",
+        Seq(formProvider.validateNameField)
+      )
     }
   }
 
@@ -110,7 +148,17 @@ class ContactDetailsFormProviderSpec extends StringFieldBehaviours with FieldBeh
 
     val fieldName = "contactTelephone"
 
-    behave like fieldThatBindsValidData(form, fieldName, nonEmptyString)
+    "bind a valid UK telephone number" in {
+      val result = form.bind(validData.updated(fieldName, "07700900000")).apply(fieldName)
+      result.value.value mustBe "07700900000"
+      result.errors mustBe empty
+    }
+
+    "bind a valid international telephone number with plus prefix" in {
+      val result = form.bind(validData.updated(fieldName, "+44 808 157 0192")).apply(fieldName)
+      result.value.value mustBe "+44 808 157 0192"
+      result.errors mustBe empty
+    }
 
     "bind to None when absent" in {
       val result = form.bind(validData - fieldName).value.value
@@ -120,6 +168,24 @@ class ContactDetailsFormProviderSpec extends StringFieldBehaviours with FieldBeh
     "bind to None when blank" in {
       val result = form.bind(validData.updated(fieldName, "")).value.value
       result.telephone mustBe None
+    }
+
+    "reject a telephone number with letters" in {
+      val result = form.bind(validData.updated(fieldName, "0770call_me")).apply(fieldName)
+      result.errors must contain only FormError(
+        fieldName,
+        "contactDetails.error.telephone.format",
+        Seq(formProvider.validateTelephoneNumber)
+      )
+    }
+
+    "reject a telephone number shorter than 10 digits" in {
+      val result = form.bind(validData.updated(fieldName, "12345")).apply(fieldName)
+      result.errors must contain only FormError(
+        fieldName,
+        "contactDetails.error.telephone.format",
+        Seq(formProvider.validateTelephoneNumber)
+      )
     }
   }
 

@@ -68,4 +68,9 @@ contactDetails.contactLastName.label = Last name (optional)
 contactDetails.contactTelephone.label = Telephone number (optional)
 contactDetails.error.email.required = Enter an email address
 contactDetails.error.email.invalidFormat = Enter an email address in the correct format, like name@example.com
+contactDetails.error.firstName.maxLength = First name must be 35 characters or fewer
+contactDetails.error.firstName.format = First name must only include letters, hyphens, apostrophes, commas, full stops and spaces
+contactDetails.error.lastName.maxLength = Last name must be 35 characters or fewer
+contactDetails.error.lastName.format = Last name must only include letters, hyphens, apostrophes, commas, full stops and spaces
+contactDetails.error.telephone.format = Enter a telephone number in the correct format, like 01632 960 001 or +44 808 157 0192
 
