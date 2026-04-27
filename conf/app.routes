@@ -32,3 +32,8 @@ POST       /what-language                                controllers.RefundingLa
 GET        /change-what-language                         controllers.RefundingLanguageController.onPageLoad(mode: models.Mode = CheckMode)
 POST       /change-what-language                         controllers.RefundingLanguageController.onSubmit(mode: models.Mode = CheckMode)
 
+
+# Refund period (start/end month year)
+GET        /what-refund-period                           controllers.RefundPeriodController.onPageLoad()
+POST       /what-refund-period                           controllers.RefundPeriodController.onSubmit()
+
