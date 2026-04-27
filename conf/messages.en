@@ -59,7 +59,7 @@ taskListDashboard.dashboardLink = Go to the claims dashboard
 taskListDashboard.errorSummary1 = There is a problem
 taskListDashboard.errorSummary2 = Select add claim details to start a claim
 # Refunding country / which EU member state
-refundingCountry.title = Which EU member state are you claiming back VAT from? - EU VAT - GOV.UK
+refundingCountry.title = Which EU member state are you claiming back VAT from?
 refundingCountry.heading = Which EU member state are you claiming back VAT from?
 refundingCountry.hint = Start typing to find the member state
 refundingCountry.error.required = Select an EU member state
