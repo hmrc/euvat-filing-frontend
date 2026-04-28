@@ -31,6 +31,7 @@ import views.html.RefundingCountryView
 
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.data.FormError
+import utils.CountryList
 
 class RefundingCountryController @Inject()(
                                            override val messagesApi: MessagesApi,
@@ -49,31 +50,32 @@ class RefundingCountryController @Inject()(
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData) { implicit request =>
 
-    val preparedForm = request.userAnswers.flatMap(_.get(RefundingCountryPage)) match {
-      case None => form
-      case Some(value) => form.fill(value)
-    }
+    val cameFromTaskList = request.headers.get("Referer").exists(_.contains(controllers.routes.TaskListDashboardController.onPageLoad().url))
 
-    val countries = config.getOptional[Seq[String]]("eu.member-states").getOrElse(Seq.empty).map { s =>
-      s.split("\\|") match {
-        case Array(name, code) => (name.trim, code.trim)
-        case Array(name)       => (name.trim, "")
-        case _                 => (s, "")
+    val preparedForm = if (cameFromTaskList) {
+      form
+    } else {
+      request.userAnswers.flatMap(_.get(RefundingCountryPage)) match {
+        case None => form
+        case Some(value) => form.fill(value)
       }
     }
 
-    Ok(view(preparedForm, countries))
+    val countries = CountryList.fromConfig(config)
+
+    // Always provide an explicit task-list back link so the page does not rely on
+    // client-side history behavior which can return users to a POSTed page.
+    val backUrl = Some(controllers.routes.TaskListDashboardController.onPageLoad().url)
+
+    Ok(view(preparedForm, countries, backUrl))
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData).async { implicit request =>
 
-    val countries = config.getOptional[Seq[String]]("eu.member-states").getOrElse(Seq.empty).map { s =>
-      s.split("\\|") match {
-        case Array(name, code) => (name.trim, code.trim)
-        case Array(name)       => (name.trim, "")
-        case _                 => (s, "")
-      }
-    }
+    val countries = CountryList.fromConfig(config)
+
+    // Ensure the back link always points to the task list for deterministic navigation.
+    val backUrl = Some(controllers.routes.TaskListDashboardController.onPageLoad().url)
 
     form.bindFromRequest().fold(
       formWithErrors => {
@@ -84,13 +86,13 @@ class RefundingCountryController @Inject()(
         } else {
           formWithErrors
         }
-        Future.successful(BadRequest(view(adjustedForm, countries)))
+        Future.successful(BadRequest(view(adjustedForm, countries, backUrl)))
       },
       value => {
         val allowed = countries.exists { case (name, code) => code == value || name == value }
         if (!allowed) {
           val formWithInvalid = form.bindFromRequest().withError("value", "refundingCountry.error.invalid")
-          Future.successful(BadRequest(view(formWithInvalid, countries)))
+          Future.successful(BadRequest(view(formWithInvalid, countries, backUrl)))
         } else {
           val baseAnswers = request.userAnswers.getOrElse(models.UserAnswers(request.userId))
           for {

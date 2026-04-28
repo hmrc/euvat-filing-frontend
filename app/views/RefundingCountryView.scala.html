@@ -32,9 +32,9 @@
     govukSelect: GovukSelect
 )
 
-@(form: Form[_], countries: Seq[(String,String)])(implicit request: Request[_], messages: Messages)
+@(form: Form[_], countries: Seq[(String,String)], backLinkUrl: Option[String] = None)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("refundingCountry.title"))) {
+@layout(pageTitle = title(form, messages("refundingCountry.title")), backLinkUrl = backLinkUrl) {
 
     @formHelper(action = routes.RefundingCountryController.onSubmit()) {
 
