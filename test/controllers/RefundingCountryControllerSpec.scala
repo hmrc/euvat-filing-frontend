@@ -107,6 +107,30 @@ class RefundingCountryControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
+
+        val body = contentAsString(result)
+        body must include(messages(application)("refundingCountry.error.required"))
+        body must include(messages(application)("refundingCountry.error.summary"))
+
+        // typed-but-unmatched input should show invalid message
+        val typedRequest = FakeRequest(POST, routes.RefundingCountryController.onSubmit().url)
+          .withFormUrlEncodedBody(("value", ""), ("valueTyped", "NotACountry"))
+
+        val typedResult = route(application, typedRequest).value
+        status(typedResult) mustEqual BAD_REQUEST
+        val typedBody = contentAsString(typedResult)
+        typedBody must include(messages(application)("refundingCountry.error.invalid"))
+        typedBody must include(messages(application)("refundingCountry.error.invalid.summary"))
+
+        // non-existent code should also show invalid message
+        val rawInvalidRequest = FakeRequest(POST, routes.RefundingCountryController.onSubmit().url)
+          .withFormUrlEncodedBody(("value", "ZZ"))
+
+        val rawInvalidResult = route(application, rawInvalidRequest).value
+        status(rawInvalidResult) mustEqual BAD_REQUEST
+        val rawInvalidBody = contentAsString(rawInvalidResult)
+        rawInvalidBody must include(messages(application)("refundingCountry.error.invalid"))
+        rawInvalidBody must include(messages(application)("refundingCountry.error.invalid.summary"))
       }
     }
   }

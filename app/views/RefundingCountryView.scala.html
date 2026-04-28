@@ -38,13 +38,23 @@
 
     @formHelper(action = routes.RefundingCountryController.onSubmit()) {
 
-        @if(form.errors.nonEmpty) {
-                        @defining(ErrorSummaryViewModel(form).copy(errorList = ErrorSummaryViewModel(form).errorList.map(el => el.copy(content = Text(messages("refundingCountry.error.summary")))))) { summaryModel =>
+                @if(form.errors.nonEmpty) {
+                        @defining(uk.gov.hmrc.govukfrontend.views.viewmodels.errorsummary.ErrorSummary(
+                            errorList = form.errors.map { error =>
+                                val summaryText = error.message match {
+                                    case "refundingCountry.error.invalid" => messages("refundingCountry.error.invalid.summary")
+                                    case "refundingCountry.error.required" => messages("refundingCountry.error.summary")
+                                    case other => messages(other, error.args: _*)
+                                }
+                                uk.gov.hmrc.govukfrontend.views.viewmodels.errorsummary.ErrorLink(href = Some(s"#${error.key}"), content = Text(summaryText))
+                            },
+                            title = Text(messages("error.summary.title"))
+                        )) { summaryModel =>
 
-                            @govukErrorSummary(summaryModel)
+                                @govukErrorSummary(summaryModel)
 
                         }
-        }
+                }
 
                 <span class="govuk-caption-l">Add claim details</span>
 
@@ -62,12 +72,16 @@
                 ).asAccessibleAutocomplete(Some(AccessibleAutocomplete(showAllValues = false, autoSelect = false, minLength = None)))) { selectModel =>
 
                     @govukSelect(selectModel)
+                    <input type="hidden" id="valueTyped" name="valueTyped" value="">
 
                 }
 
-                @govukButton(
-                        ButtonViewModel(messages("site.continue"))
-                )
+    
 
+        @govukButton(
+                ButtonViewModel(messages("site.continue"))
+        )
+
+        <script @views.html.helper.CSPNonce.attr src="@routes.Assets.versioned("javascripts/refunding-country.js")"></script>
     }
 }
