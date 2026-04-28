@@ -21,6 +21,7 @@ import navigation.FakeNavigator
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.api.inject.bind
+import utils.CountryList
 import play.api.mvc.Call
 
 class RefundingCountryControllerSpec extends SpecBase {
@@ -41,16 +42,12 @@ class RefundingCountryControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[views.html.RefundingCountryView]
         val formProvider = application.injector.instanceOf[forms.RefundingCountryFormProvider]
         val form = formProvider()
-        val countries: Seq[(String, String)] = application.configuration.getOptional[Seq[String]]("eu.member-states").getOrElse(Seq.empty).map { s =>
-          s.split("\\|") match {
-            case Array(name, code) => (name.trim, code.trim)
-            case Array(name)       => (name.trim, "")
-            case _                 => (s, "")
-          }
-        }
+        val countries: Seq[(String, String)] = CountryList.fromConfig(application.configuration)
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, countries)(request, messages(application)).toString
+        val body = contentAsString(result)
+        body must include(s"href=\"${controllers.routes.TaskListDashboardController.onPageLoad().url}\"")
+        body mustEqual view(form, countries, Some(controllers.routes.TaskListDashboardController.onPageLoad().url))(request, messages(application)).toString
       }
     }
 
@@ -66,16 +63,12 @@ class RefundingCountryControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[views.html.RefundingCountryView]
         val formProvider = application.injector.instanceOf[forms.RefundingCountryFormProvider]
         val form = formProvider()
-        val countries: Seq[(String, String)] = application.configuration.getOptional[Seq[String]]("eu.member-states").getOrElse(Seq.empty).map { s =>
-          s.split("\\|") match {
-            case Array(name, code) => (name.trim, code.trim)
-            case Array(name)       => (name.trim, "")
-            case _                 => (s, "")
-          }
-        }
+        val countries: Seq[(String, String)] = CountryList.fromConfig(application.configuration)
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, countries)(request, messages(application)).toString
+        val body2 = contentAsString(result)
+        body2 must include(s"href=\"${controllers.routes.TaskListDashboardController.onPageLoad().url}\"")
+        body2 mustEqual view(form, countries, Some(controllers.routes.TaskListDashboardController.onPageLoad().url))(request, messages(application)).toString
       }
     }
 
