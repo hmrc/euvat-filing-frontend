@@ -72,6 +72,28 @@ class RefundingCountryControllerSpec extends SpecBase {
       }
     }
 
+    "must return OK and an empty form when arriving from the task list (Referer)" in {
+
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+        running(application) {
+          val request = FakeRequest(GET, routes.RefundingCountryController.onPageLoad().url)
+            .withHeaders("Referer" -> controllers.routes.TaskListDashboardController.onPageLoad().url)
+
+          val result = route(application, request).value
+
+          val view = application.injector.instanceOf[views.html.RefundingCountryView]
+          val formProvider = application.injector.instanceOf[forms.RefundingCountryFormProvider]
+          val form = formProvider()
+          val countries: Seq[(String, String)] = CountryList.fromConfig(application.configuration)
+
+          status(result) mustEqual OK
+          val body = contentAsString(result)
+          body must include(s"href=\"${controllers.routes.TaskListDashboardController.onPageLoad().url}\"")
+          body mustEqual view(form, countries, Some(controllers.routes.TaskListDashboardController.onPageLoad().url))(request, messages(application)).toString
+        }
+      }
+
     "must redirect to the next page when valid data is submitted" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
