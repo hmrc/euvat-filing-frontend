@@ -23,7 +23,7 @@ import play.api.data.FormError
 class ContactDetailsFormProviderSpec extends StringFieldBehaviours with FieldBehaviours {
 
   private val formProvider = new ContactDetailsFormProvider()
-  private val form         = formProvider()
+  private val form = formProvider()
 
   private val validData = Map(
     "contactEmail"     -> "test@example.com",
@@ -94,7 +94,7 @@ class ContactDetailsFormProviderSpec extends StringFieldBehaviours with FieldBeh
 
     "reject a first name longer than 35 characters" in {
       val tooLong = "a" * 36
-      val result  = form.bind(validData.updated(fieldName, tooLong)).apply(fieldName)
+      val result = form.bind(validData.updated(fieldName, tooLong)).apply(fieldName)
       result.errors must contain only FormError(fieldName, "contactDetails.error.firstName.maxLength", Seq(35))
     }
 
@@ -130,7 +130,7 @@ class ContactDetailsFormProviderSpec extends StringFieldBehaviours with FieldBeh
 
     "reject a last name longer than 35 characters" in {
       val tooLong = "a" * 36
-      val result  = form.bind(validData.updated(fieldName, tooLong)).apply(fieldName)
+      val result = form.bind(validData.updated(fieldName, tooLong)).apply(fieldName)
       result.errors must contain only FormError(fieldName, "contactDetails.error.lastName.maxLength", Seq(35))
     }
 
@@ -198,19 +198,19 @@ class ContactDetailsFormProviderSpec extends StringFieldBehaviours with FieldBeh
 
     "unapply ContactDetails correctly (fill → form round-trip)" in {
       val filled = form.fill(modelFromValidData)
-      filled("contactEmail").value.value     mustBe "test@example.com"
+      filled("contactEmail").value.value mustBe "test@example.com"
       filled("contactFirstName").value.value mustBe "Jane"
-      filled("contactLastName").value.value  mustBe "Doe"
+      filled("contactLastName").value.value mustBe "Doe"
       filled("contactTelephone").value.value mustBe "07700900000"
     }
 
     "unapply ContactDetails with missing optionals" in {
-      val model  = ContactDetails(email = "a@b.co", firstName = None, lastName = None, telephone = None)
+      val model = ContactDetails(email = "a@b.co", firstName = None, lastName = None, telephone = None)
       val filled = form.fill(model)
       filled("contactEmail").value.value mustBe "a@b.co"
-      filled("contactFirstName").value   mustBe None
-      filled("contactLastName").value    mustBe None
-      filled("contactTelephone").value   mustBe None
+      filled("contactFirstName").value mustBe None
+      filled("contactLastName").value mustBe None
+      filled("contactTelephone").value mustBe None
     }
   }
 

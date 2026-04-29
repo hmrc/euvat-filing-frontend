@@ -39,10 +39,10 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
   private def onwardRoute = Call("GET", "/foo")
 
   private val formProvider = new ContactDetailsFormProvider()
-  private val form         = formProvider()
+  private val form = formProvider()
 
   private lazy val contactDetailsNormalRoute = routes.ContactDetailsController.onPageLoad(NormalMode).url
-  private lazy val contactDetailsCheckRoute  = routes.ContactDetailsController.onPageLoad(CheckMode).url
+  private lazy val contactDetailsCheckRoute = routes.ContactDetailsController.onPageLoad(CheckMode).url
 
   private val validFormData = Map(
     "contactEmail"     -> "test@example.com",
@@ -82,8 +82,8 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
 
         running(application) {
           val request = FakeRequest(GET, contactDetailsNormalRoute)
-          val result  = route(application, request).value
-          val view    = application.injector.instanceOf[ContactDetailsView]
+          val result = route(application, request).value
+          val view = application.injector.instanceOf[ContactDetailsView]
 
           status(result) mustEqual OK
           contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
@@ -96,8 +96,8 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
 
         running(application) {
           val request = FakeRequest(GET, contactDetailsNormalRoute)
-          val result  = route(application, request).value
-          val view    = application.injector.instanceOf[ContactDetailsView]
+          val result = route(application, request).value
+          val view = application.injector.instanceOf[ContactDetailsView]
 
           status(result) mustEqual OK
           contentAsString(result) mustEqual view(form.fill(contactDetails), NormalMode)(request, messages(application)).toString
@@ -109,7 +109,7 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
 
         running(application) {
           val request = FakeRequest(GET, contactDetailsNormalRoute)
-          val result  = route(application, request).value
+          val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
@@ -126,8 +126,8 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
 
         running(application) {
           val request = FakeRequest(GET, contactDetailsCheckRoute)
-          val result  = route(application, request).value
-          val view    = application.injector.instanceOf[ContactDetailsView]
+          val result = route(application, request).value
+          val view = application.injector.instanceOf[ContactDetailsView]
 
           status(result) mustEqual OK
           contentAsString(result) mustEqual view(form.fill(contactDetails), CheckMode)(request, messages(application)).toString
@@ -144,7 +144,7 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
 
         running(application) {
           val request = FakeRequest(POST, contactDetailsNormalRoute).withFormUrlEncodedBody(validFormData.toSeq*)
-          val result  = route(application, request).value
+          val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual onwardRoute.url
@@ -157,8 +157,8 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
 
         running(application) {
           val request = FakeRequest(POST, contactDetailsNormalRoute).withFormUrlEncodedBody("contactEmail" -> "")
-          val result  = route(application, request).value
-          val view    = application.injector.instanceOf[ContactDetailsView]
+          val result = route(application, request).value
+          val view = application.injector.instanceOf[ContactDetailsView]
 
           status(result) mustEqual BAD_REQUEST
           contentAsString(result) mustEqual view(
@@ -187,7 +187,7 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
 
         running(application) {
           val request = FakeRequest(POST, contactDetailsNormalRoute).withFormUrlEncodedBody(validFormData.toSeq*)
-          val result  = route(application, request).value
+          val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
@@ -205,7 +205,7 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
 
         running(application) {
           val request = FakeRequest(POST, contactDetailsCheckRoute).withFormUrlEncodedBody(validFormData.toSeq*)
-          val result  = route(application, request).value
+          val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual onwardRoute.url

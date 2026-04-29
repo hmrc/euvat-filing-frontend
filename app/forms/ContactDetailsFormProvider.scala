@@ -19,7 +19,7 @@ package forms
 import forms.mappings.Mappings
 import models.ContactDetails
 import play.api.data.Form
-import play.api.data.Forms.{optional, mapping}
+import play.api.data.Forms.{mapping, optional}
 
 import javax.inject.Inject
 
@@ -28,28 +28,34 @@ class ContactDetailsFormProvider @Inject() extends Mappings {
   def apply(): Form[ContactDetails] =
     Form(
       mapping(
-        "contactEmail"     -> text("contactDetails.error.email.required")
-                               .verifying(firstError(
-                                 maxLength(emailMaxLength,       "contactDetails.error.email.invalidFormat"),
-                                 regexp(validateEmailAddress,    "contactDetails.error.email.invalidFormat")
-                               )),
+        "contactEmail" -> text("contactDetails.error.email.required")
+          .verifying(
+            firstError(
+              maxLength(emailMaxLength, "contactDetails.error.email.invalidFormat"),
+              regexp(validateEmailAddress, "contactDetails.error.email.invalidFormat")
+            )
+          ),
         "contactFirstName" -> optional(
-                                text().verifying(firstError(
-                                  maxLength(nameMaxLength,       "contactDetails.error.firstName.maxLength"),
-                                  regexp(validateNameField,      "contactDetails.error.firstName.format")
-                                ))
-                              ),
-        "contactLastName"  -> optional(
-                                text().verifying(firstError(
-                                  maxLength(nameMaxLength,       "contactDetails.error.lastName.maxLength"),
-                                  regexp(validateNameField,      "contactDetails.error.lastName.format")
-                                ))
-                              ),
+          text().verifying(
+            firstError(
+              maxLength(nameMaxLength, "contactDetails.error.firstName.maxLength"),
+              regexp(validateNameField, "contactDetails.error.firstName.format")
+            )
+          )
+        ),
+        "contactLastName" -> optional(
+          text().verifying(
+            firstError(
+              maxLength(nameMaxLength, "contactDetails.error.lastName.maxLength"),
+              regexp(validateNameField, "contactDetails.error.lastName.format")
+            )
+          )
+        ),
         "contactTelephone" -> optional(
-                                text().verifying(
-                                  regexp(validateTelephoneNumber, "contactDetails.error.telephone.format")
-                                )
-                              )
+          text().verifying(
+            regexp(validateTelephoneNumber, "contactDetails.error.telephone.format")
+          )
+        )
       )(ContactDetails.apply)(o => Some(Tuple.fromProductTyped(o)))
     )
 }
