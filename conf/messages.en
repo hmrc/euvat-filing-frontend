@@ -64,6 +64,5 @@ refundingCountry.heading = Which EU member state are you claiming back VAT from?
 refundingCountry.hint = Start typing to find the EU member state
 refundingCountry.error.summary = Select an EU member state
 refundingCountry.error.required = Select an EU member state
-refundingCountry.error.length = Enter a value 100 characters or fewer
 refundingCountry.error.invalid = Select a valid EU member state
 refundingCountry.error.invalid.summary = Select a valid EU member state

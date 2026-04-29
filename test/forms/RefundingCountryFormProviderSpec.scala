@@ -35,12 +35,7 @@ class RefundingCountryFormProviderSpec extends StringFieldBehaviours with FieldB
       requiredError = FormError(fieldName, "refundingCountry.error.required")
     )
 
-    behave like fieldWithMaxLength(
-      form,
-      fieldName,
-      maxLength = 100,
-      lengthError = FormError(fieldName, "refundingCountry.error.length", Seq(100))
-    )
+    // max length constraint removed per review
 
     "bind valid data" in {
       val validValues = Seq("DE", "Germany", "United Kingdom", "Some Country")

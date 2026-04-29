@@ -31,7 +31,6 @@ class RefundingCountryFormProvider @Inject() extends Mappings {
         .verifying(firstError[
           String
         ](
-          maxLength(100, "refundingCountry.error.length"),
           Constraint {
             case v if allowedValues.contains(v) => Valid
             case _                              => Invalid("refundingCountry.error.invalid")
