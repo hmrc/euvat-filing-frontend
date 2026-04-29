@@ -32,12 +32,16 @@
 
 @(form: play.api.data.Form[_])(implicit request: play.api.mvc.Request[_], messages: play.api.i18n.Messages)
 
-@layout(pageTitle = messages("refundPeriod.title")) {
+@layout(pageTitle = views.ViewUtils.title(form, "refundPeriod.title")) {
 
   @formHelper(action = controllers.routes.RefundPeriodController.onSubmit()) {
 
     @if(form.errors.nonEmpty) {
-      @govukErrorSummary(ErrorSummaryViewModel(form))
+      @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map(
+        "" -> s"${form("start").id}.month",
+        "start" -> s"${form("start").id}.month",
+        "end" -> s"${form("end").id}.month"
+      )))
     }
 
     <span class="govuk-caption-l">Add claim details</span>
