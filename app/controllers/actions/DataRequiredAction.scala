@@ -30,7 +30,14 @@ class DataRequiredActionImpl @Inject() (implicit val executionContext: Execution
 
     request.userAnswers match {
       case None =>
-        Future.successful(Left(Redirect(routes.JourneyRecoveryController.onPageLoad())))
+        // If the user arrived from the task list, allow an empty UserAnswers so
+        // the page can render a blank form without forcing a JourneyRecovery redirect.
+        val cameFromTaskList = request.request.headers.get("Referer").exists(_.contains(routes.TaskListDashboardController.onPageLoad().url))
+        if (cameFromTaskList) {
+          Future.successful(Right(DataRequest(request.request, request.userId, models.UserAnswers(request.userId))))
+        } else {
+          Future.successful(Left(Redirect(routes.JourneyRecoveryController.onPageLoad())))
+        }
       case Some(data) =>
         Future.successful(Right(DataRequest(request.request, request.userId, data)))
     }

@@ -17,14 +17,18 @@
 package controllers
 
 import base.SpecBase
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{times, verify, when}
+import org.scalatestplus.mockito.MockitoSugar
 import navigation.FakeNavigator
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.api.inject.bind
 import utils.CountryList
+import pages.RefundingCountryPage
 import play.api.mvc.Call
 
-class RefundingCountryControllerSpec extends SpecBase {
+class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
 
   val onwardRoute = Call("GET", "/foo")
 
@@ -41,17 +45,19 @@ class RefundingCountryControllerSpec extends SpecBase {
 
         val view = application.injector.instanceOf[views.html.RefundingCountryView]
         val formProvider = application.injector.instanceOf[forms.RefundingCountryFormProvider]
-        val form = formProvider()
         val countries: Seq[(String, String)] = CountryList.fromConfig(application.configuration)
+        val allowed: Set[String] = countries.flatMap { case (n, c) => Seq(n, c) }.toSet
+        val form = formProvider(allowed)
 
         status(result) mustEqual OK
         val body = contentAsString(result)
-        body must include(s"href=\"${controllers.routes.TaskListDashboardController.onPageLoad().url}\"")
-        body mustEqual view(form, countries, Some(controllers.routes.TaskListDashboardController.onPageLoad().url))(request, messages(application)).toString
+        val backUrl = application.configuration.get[String]("urls.loginContinue") + controllers.routes.TaskListDashboardController.onPageLoad().url
+        body must include(s"href=\"$backUrl\"")
+        body mustEqual view(form, countries, Some(backUrl))(request, messages(application)).toString
       }
     }
 
-    "must return OK and the correct view for a GET when no existing data is found" in {
+    "must redirect to JourneyRecovery when no existing data is found" in {
 
       val application = applicationBuilder(userAnswers = None).build()
 
@@ -60,15 +66,8 @@ class RefundingCountryControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[views.html.RefundingCountryView]
-        val formProvider = application.injector.instanceOf[forms.RefundingCountryFormProvider]
-        val form = formProvider()
-        val countries: Seq[(String, String)] = CountryList.fromConfig(application.configuration)
-
-        status(result) mustEqual OK
-        val body2 = contentAsString(result)
-        body2 must include(s"href=\"${controllers.routes.TaskListDashboardController.onPageLoad().url}\"")
-        body2 mustEqual view(form, countries, Some(controllers.routes.TaskListDashboardController.onPageLoad().url))(request, messages(application)).toString
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 
@@ -84,20 +83,28 @@ class RefundingCountryControllerSpec extends SpecBase {
 
           val view = application.injector.instanceOf[views.html.RefundingCountryView]
           val formProvider = application.injector.instanceOf[forms.RefundingCountryFormProvider]
-          val form = formProvider()
           val countries: Seq[(String, String)] = CountryList.fromConfig(application.configuration)
+          val allowed: Set[String] = countries.flatMap { case (n, c) => Seq(n, c) }.toSet
+          val form = formProvider(allowed)
 
           status(result) mustEqual OK
           val body = contentAsString(result)
-          body must include(s"href=\"${controllers.routes.TaskListDashboardController.onPageLoad().url}\"")
-          body mustEqual view(form, countries, Some(controllers.routes.TaskListDashboardController.onPageLoad().url))(request, messages(application)).toString
+          val backUrl = application.configuration.get[String]("urls.loginContinue") + controllers.routes.TaskListDashboardController.onPageLoad().url
+          body must include(s"href=\"$backUrl\"")
+          body mustEqual view(form, countries, Some(backUrl), cameFromTaskList = true)(request, messages(application)).toString
         }
       }
 
     "must redirect to the next page when valid data is submitted" in {
 
+      val mockSessionRepository = mock[repositories.SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn scala.concurrent.Future.successful(true)
+
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(bind[navigation.Navigator].toInstance(new FakeNavigator(onwardRoute)))
+        .overrides(
+          bind[navigation.Navigator].toInstance(new FakeNavigator(onwardRoute)),
+          bind[repositories.SessionRepository].toInstance(mockSessionRepository)
+        )
         .build()
 
       running(application) {
@@ -108,6 +115,34 @@ class RefundingCountryControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
+
+        verify(mockSessionRepository, times(1)).set(any())
+      }
+    }
+
+    "must pre-fill the form when arriving from the task list and a saved value exists" in {
+
+      val userAnswers = emptyUserAnswers.set(RefundingCountryPage, "DE").success.value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.RefundingCountryController.onPageLoad().url)
+          .withHeaders("Referer" -> controllers.routes.TaskListDashboardController.onPageLoad().url)
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[views.html.RefundingCountryView]
+        val formProvider = application.injector.instanceOf[forms.RefundingCountryFormProvider]
+        val countries: Seq[(String, String)] = CountryList.fromConfig(application.configuration)
+        val allowed: Set[String] = countries.flatMap { case (n, c) => Seq(n, c) }.toSet
+        val form = formProvider(allowed).fill("DE")
+
+        status(result) mustEqual OK
+        val body = contentAsString(result)
+        val backUrl = application.configuration.get[String]("urls.loginContinue") + controllers.routes.TaskListDashboardController.onPageLoad().url
+        body must include(s"href=\"$backUrl\"")
+        body mustEqual view(form, countries, Some(backUrl), cameFromTaskList = true)(request, messages(application)).toString
       }
     }
 

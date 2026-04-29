@@ -23,9 +23,19 @@ import play.api.data.Form
 
 class RefundingCountryFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[String] =
+  def apply(allowedValues: Set[String]): Form[String] =
+    import play.api.data.validation.{Constraint, Invalid, Valid}
+
     Form(
       "value" -> text("refundingCountry.error.required")
-        .verifying(maxLength(100, "refundingCountry.error.length"))
+        .verifying(firstError[
+          String
+        ](
+          maxLength(100, "refundingCountry.error.length"),
+          Constraint {
+            case v if allowedValues.contains(v) => Valid
+            case _                              => Invalid("refundingCountry.error.invalid")
+          }
+        ))
     )
 }
