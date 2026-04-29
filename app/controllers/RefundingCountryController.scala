@@ -18,89 +18,97 @@ package controllers
 
 import controllers.actions._
 import forms.RefundingCountryFormProvider
-import javax.inject.Inject
-import models.{Mode, NormalMode}
+import models.{NormalMode, UserAnswers}
 import navigation.Navigator
 import pages.RefundingCountryPage
-import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.Configuration
+import play.api.data.FormError
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.CountryList
 import views.html.RefundingCountryView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import play.api.data.FormError
-import utils.CountryList
+import play.api.Logger
+import scala.util.control.NonFatal
 
 class RefundingCountryController @Inject()(
-                                           override val messagesApi: MessagesApi,
-                                           sessionRepository: SessionRepository,
-                                           navigator: Navigator,
-                                           identify: IdentifierAction,
-                                           getData: DataRetrievalAction,
-                                           requireData: DataRequiredAction,
-                                          formProvider: RefundingCountryFormProvider,
-                                          config: Configuration,
-                                           val controllerComponents: MessagesControllerComponents,
-                                           view: RefundingCountryView
-                                         )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                            override val messagesApi: MessagesApi,
+                                            sessionRepository: SessionRepository,
+                                            navigator: Navigator,
+                                            identify: IdentifierAction,
+                                            getData: DataRetrievalAction,
+                                            requireData: DataRequiredAction,
+                                            formProvider: RefundingCountryFormProvider,
+                                            config: Configuration,
+                                            val controllerComponents: MessagesControllerComponents,
+                                            view: RefundingCountryView
+                                          )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  val form = formProvider()
+  // Build back URL using `urls.loginContinue` which includes the configured context path
+  private val taskListBackUrl: Option[String] = Some(config.get[String]("urls.loginContinue") + controllers.routes.TaskListDashboardController.onPageLoad().url)
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData) { implicit request =>
+  private def buildFormAndCountries() = {
+    val countries = CountryList.fromConfig(config)
+    val allowed: Set[String] = countries.flatMap { case (name, code) => Seq(name, code) }.toSet
+    val form = formProvider(allowed)
+    (countries, form)
+  }
+
+  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
     val cameFromTaskList = request.headers.get("Referer").exists(_.contains(controllers.routes.TaskListDashboardController.onPageLoad().url))
 
-    val preparedForm = if (cameFromTaskList) {
-      form
-    } else {
-      request.userAnswers.flatMap(_.get(RefundingCountryPage)) match {
-        case None => form
-        case Some(value) => form.fill(value)
-      }
-    }
+    val (countries, form) = buildFormAndCountries()
 
-    val countries = CountryList.fromConfig(config)
+    // If we have a previously selected country, pre-fill the form even when
+    // the user arrived from the task list. Otherwise render an empty form.
+    val preparedForm = request.userAnswers.get(RefundingCountryPage).fold(form)(form.fill)
 
-    // Always provide an explicit task-list back link so the page does not rely on
-    // client-side history behavior which can return users to a POSTed page.
-    val backUrl = Some(controllers.routes.TaskListDashboardController.onPageLoad().url)
-
-    Ok(view(preparedForm, countries, backUrl))
+    Ok(view(preparedForm, countries, taskListBackUrl, cameFromTaskList))
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData).async { implicit request =>
 
-    val countries = CountryList.fromConfig(config)
+    val (countries, form) = buildFormAndCountries()
 
-    // Ensure the back link always points to the task list for deterministic navigation.
-    val backUrl = Some(controllers.routes.TaskListDashboardController.onPageLoad().url)
+    val backUrl = taskListBackUrl
 
-    form.bindFromRequest().fold(
-      formWithErrors => {
-        val typed = request.body.asFormUrlEncoded.flatMap(_.get("valueTyped").flatMap(_.headOption)).getOrElse("")
-        val adjustedForm = if (typed.trim.nonEmpty) {
-          val filtered = formWithErrors.errors.filterNot(e => e.key == "value" && e.message == "refundingCountry.error.required")
-          formWithErrors.copy(errors = filtered :+ FormError("value", "refundingCountry.error.invalid"))
-        } else {
-          formWithErrors
-        }
-        Future.successful(BadRequest(view(adjustedForm, countries, backUrl)))
-      },
-      value => {
-        val allowed = countries.exists { case (name, code) => code == value || name == value }
-        if (!allowed) {
-          val formWithInvalid = form.bindFromRequest().withError("value", "refundingCountry.error.invalid")
-          Future.successful(BadRequest(view(formWithInvalid, countries, backUrl)))
-        } else {
-          val baseAnswers = request.userAnswers.getOrElse(models.UserAnswers(request.userId))
+    val cameFromTaskListFormFlag: Boolean = request.body.asFormUrlEncoded.flatMap(_.get("cameFromTaskList").flatMap(_.headOption)).contains("true")
+
+    if (request.userAnswers.isEmpty && !cameFromTaskListFormFlag) {
+      Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+    } else {
+
+      val baseAnswers: UserAnswers = request.userAnswers.getOrElse(UserAnswers(request.userId))
+
+      val boundResult = form.bindFromRequest().fold(
+        formWithErrors => {
+          val typed = request.body.asFormUrlEncoded.flatMap(_.get("valueTyped").flatMap(_.headOption)).getOrElse("")
+          val adjustedForm = if (typed.trim.nonEmpty) {
+            val filtered = formWithErrors.errors.filterNot(e => e.key == "value" && e.message == "refundingCountry.error.required")
+            formWithErrors.copy(errors = filtered :+ FormError("value", "refundingCountry.error.invalid"))
+          } else {
+            formWithErrors
+          }
+          Future.successful(BadRequest(view(adjustedForm, countries, backUrl, cameFromTaskListFormFlag)))
+        },
+        value => {
           for {
             updatedAnswers <- Future.fromTry(baseAnswers.set(RefundingCountryPage, value))
             _ <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(RefundingCountryPage, NormalMode, updatedAnswers))
         }
+      )
+
+      boundResult.recover {
+        case NonFatal(e) =>
+          Logger(getClass).error("Error in RefundingCountryController.onSubmit", e)
+          BadRequest(view(form.bindFromRequest(), countries, backUrl, cameFromTaskListFormFlag))
       }
-    )
+    }
   }
 }

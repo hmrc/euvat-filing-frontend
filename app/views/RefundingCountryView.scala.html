@@ -32,7 +32,7 @@
     govukSelect: GovukSelect
 )
 
-@(form: Form[_], countries: Seq[(String,String)], backLinkUrl: Option[String] = None)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], countries: Seq[(String,String)], backLinkUrl: Option[String] = None, cameFromTaskList: Boolean = false)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("refundingCountry.title")), backLinkUrl = backLinkUrl) {
 
@@ -73,6 +73,9 @@
 
                     @govukSelect(selectModel)
                     <input type="hidden" id="valueTyped" name="valueTyped" value="">
+                    @if(cameFromTaskList) {
+                        <input type="hidden" name="cameFromTaskList" value="true">
+                    }
 
                 }
 
