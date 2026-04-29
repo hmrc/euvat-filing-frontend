@@ -35,7 +35,9 @@
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
-        <span class="govuk-caption-l">@messages("contactDetails.caption")</span>
+        <h2 class="govuk-caption-l hmrc-caption-l">
+            <span class="govuk-visually-hidden">@messages("contactDetails.caption.visuallyHidden") </span>@messages("contactDetails.caption")
+        </h2>
 
         <h1 class="govuk-heading-l">@messages("contactDetails.heading")</h1>
 
