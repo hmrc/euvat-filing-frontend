@@ -43,3 +43,39 @@
     init();
   }
 })();
+
+// We rely on HMRC accessible-autocomplete initialisation for accessible
+// attributes. Keep a small submit-sync helper only: copy visible input into
+// hidden `#valueTyped` and set the underlying select value when a matching
+// option exists.
+// (The initial IIFE above already implements the needed submit handler.)
+
+// Small runtime patch: ensure the autocomplete input and listbox use the
+// visible page heading as their `aria-labelledby` source. Retry briefly to
+// catch the HMRC component initialising after our script.
+(function () {
+  function patchLabelledby() {
+    try {
+      var heading = document.getElementById('refunding-country-heading');
+      if (!heading) return;
+      var acInput = document.querySelector('.accessible-autocomplete__wrapper input, .autocomplete__input, input[role="combobox"], input[id$="-input"]');
+      var listbox = document.querySelector('[role="listbox"][id$="__listbox"]');
+      if (acInput) acInput.setAttribute('aria-labelledby', 'refunding-country-heading');
+      if (listbox) listbox.setAttribute('aria-labelledby', 'refunding-country-heading');
+    } catch (e) {
+      // silent
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () {
+      patchLabelledby();
+      var tries = 0;
+      var iv = setInterval(function () { patchLabelledby(); if (++tries > 6) clearInterval(iv); }, 100);
+    });
+  } else {
+    patchLabelledby();
+    var tries = 0;
+    var iv = setInterval(function () { patchLabelledby(); if (++tries > 6) clearInterval(iv); }, 100);
+  }
+})();

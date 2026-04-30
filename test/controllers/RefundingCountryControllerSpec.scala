@@ -52,8 +52,8 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual OK
         val body = contentAsString(result)
         val backUrl = application.configuration.get[String]("urls.loginContinue") + controllers.routes.TaskListDashboardController.onPageLoad().url
-        body must include(s"href=\"$backUrl\"")
-        body mustEqual view(form, countries, Some(backUrl))(request, messages(application)).toString
+        body must not include s"href=\"$backUrl\""
+        body mustEqual view(form, countries, None)(request, messages(application)).toString
       }
     }
 
@@ -90,8 +90,8 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual OK
         val body = contentAsString(result)
         val backUrl = application.configuration.get[String]("urls.loginContinue") + controllers.routes.TaskListDashboardController.onPageLoad().url
-        body must include(s"href=\"$backUrl\"")
-        body mustEqual view(form, countries, Some(backUrl), cameFromTaskList = true)(request, messages(application)).toString
+        body must not include s"href=\"$backUrl\""
+        body mustEqual view(form, countries, None)(request, messages(application)).toString
       }
     }
 
@@ -141,8 +141,8 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual OK
         val body = contentAsString(result)
         val backUrl = application.configuration.get[String]("urls.loginContinue") + controllers.routes.TaskListDashboardController.onPageLoad().url
-        body must include(s"href=\"$backUrl\"")
-        body mustEqual view(form, countries, Some(backUrl), cameFromTaskList = true)(request, messages(application)).toString
+        body must not include s"href=\"$backUrl\""
+        body mustEqual view(form, countries, None)(request, messages(application)).toString
       }
     }
 
