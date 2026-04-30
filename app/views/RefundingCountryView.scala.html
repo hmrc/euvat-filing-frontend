@@ -38,103 +38,104 @@
 
     @formHelper(action = routes.RefundingCountryController.onSubmit()) {
 
-                @if(form.errors.nonEmpty) {
-                    @govukErrorSummary(ErrorSummaryViewModel(form))
-                }
+        @if(form.errors.nonEmpty) {
+            @govukErrorSummary(ErrorSummaryViewModel(form))
+        }
 
-                <h2 class="govuk-caption-l">Add claim details</h2>
+        <h2 class="govuk-caption-l">Add claim details</h2>
 
-                     <h1 id="refunding-country-heading" class="govuk-heading-l">@messages("refundingCountry.heading")</h1>
+        <h1 id="refunding-country-heading" class="govuk-heading-l">@messages("refundingCountry.heading")</h1>
 
-                                          @* Make the hidden label use the form field id so any client-side listbox
-                                              that references the input id (e.g. aria-labelledby="value") will
-                                              point to this label element which contains the text. The actual
-                                              input id is suffixed with "-input" to avoid duplicate ids. *@
-                                                        <label id='@{form("value").id}' class="govuk-label govuk-visually-hidden" for='@{form("value").id}-input'>@messages("refundingCountry.heading")</label>
-                                                        @* Also include a duplicate hidden label with the "-input" id because some
-                                                           accessible-autocomplete implementations create or reference an element
-                                                           with id="value-input" (or similar) as an aria-labelledby target.
-                                                           Providing this element ensures aria-labelledby targets always have copy. *@
-                                                        <label id='@{form("value").id}-input' class="govuk-label govuk-visually-hidden" for='@{form("value").id}-input'>@messages("refundingCountry.heading")</label>
+        @* Make the hidden label use the form field id so any client-side listbox
+           that references the input id (e.g. aria-labelledby="value") will
+           point to this label element which contains the text. The actual
+           input id is suffixed with "-input" to avoid duplicate ids. *@
+        <label id='@{form("value").id}' class="govuk-label govuk-visually-hidden" for='@{form("value").id}-input'>@messages("refundingCountry.heading")</label>
 
-                                @govukSelect(
-                                        Select(
-                                            id = form("value").id + "-input",
-                                            name = "value",
-                                            items = Seq(SelectItem(value = Some(""), text = "Select a country", selected = form("value").value.isEmpty)) ++ countries.map { case (name, code) =>
-                                                SelectItem(value = Some(code), text = name, selected = form("value").value.contains(code))
-                                            },
-                                            // label omitted: page heading serves as the visible label
-                                            hint = Some(Hint(content = messages("refundingCountry.hint"))),
-                                            // The visible label element has id = form("value").id; input id is suffixed
-                                            attributes = Map(
-                                                "aria-describedby" -> (form("value").id + "-input-hint")
-                                            ),
-                                            errorMessage = form.error("value").map { e => ErrorMessage(content = Text(messages(e.message, e.args: _*))) }
-                                        ).asAccessibleAutocomplete(Some(AccessibleAutocomplete(showAllValues = false, autoSelect = false, minLength = None)))
-                                )
+        @* Also include a duplicate hidden label with the "-input" id because some
+           accessible-autocomplete implementations create or reference an element
+           with id="value-input" (or similar) as an aria-labelledby target.
+           Providing this element ensures aria-labelledby targets always have copy. *@
+        <label id='@{form("value").id}-input' class="govuk-label govuk-visually-hidden" for='@{form("value").id}-input'>@messages("refundingCountry.heading")</label>
 
-                                <input type="hidden" id="valueTyped" name="valueTyped" value="">
-                                @if(cameFromTaskList) {
-                                    <input type="hidden" name="cameFromTaskList" value="true">
-                                }
-
-    
-
-        @govukButton(
-                ButtonViewModel(messages("site.continue"))
+        @govukSelect(
+            Select(
+                id = form("value").id + "-input",
+                name = "value",
+                items = Seq(SelectItem(value = Some(""), text = "Select a country", selected = form("value").value.isEmpty)) ++ countries.map { case (name, code) =>
+                    SelectItem(value = Some(code), text = name, selected = form("value").value.contains(code))
+                },
+                // label omitted: page heading serves as the visible label
+                hint = Some(Hint(content = messages("refundingCountry.hint"))),
+                // The visible label element has id = form("value").id; input id is suffixed
+                attributes = Map(
+                    "aria-describedby" -> (form("value").id + "-input-hint")
+                ),
+                errorMessage = form.error("value").map { e => ErrorMessage(content = Text(messages(e.message, e.args: _*))) }
+            ).asAccessibleAutocomplete(Some(AccessibleAutocomplete(showAllValues = false, autoSelect = false, minLength = None)))
         )
-                <script @views.html.helper.CSPNonce.attr src="@routes.Assets.versioned("javascripts/refunding-country.js")"></script>
 
-                @* Ensure the hint is associated with the accessible-autocomplete input for screen readers *@
-                <script @views.html.helper.CSPNonce.attr>
-                    (function () {
+        <input type="hidden" id="valueTyped" name="valueTyped" value="">
+
+        @if(cameFromTaskList) {
+            <input type="hidden" name="cameFromTaskList" value="true">
+        }
+
+        @govukButton(ButtonViewModel(messages("site.continue")))
+
+        <script @views.html.helper.CSPNonce.attr src="@routes.Assets.versioned("javascripts/refunding-country.js")"></script>
+
+        @* Ensure the hint is associated with the accessible-autocomplete input for screen readers *@
+        <script @views.html.helper.CSPNonce.attr>
+            (function () {
+                try {
+                    var hintId = "@{form("value").id}-hint";
+                    var hint = document.getElementById(hintId);
+                    var acInput = document.querySelector('.accessible-autocomplete__wrapper .autocomplete__input') || document.querySelector('.accessible-autocomplete__input') || document.querySelector('input[name="value"]');
+
+                    if (hint && acInput) {
+                        var described = acInput.getAttribute('aria-describedby') || '';
+                        if (described.indexOf(hintId) === -1) {
+                            acInput.setAttribute('aria-describedby', (described + ' ' + hintId).trim());
+                        }
+                    }
+
+                    // Ensure the listbox is labelled by the real label (not the input element)
+                    function fixListbox(listbox) {
                         try {
-                            var hintId = "@{form("value").id}-hint";
-                            var hint = document.getElementById(hintId);
-                            var acInput = document.querySelector('.accessible-autocomplete__wrapper .autocomplete__input') || document.querySelector('.accessible-autocomplete__input') || document.querySelector('input[name="value"]');
-                            if (hint && acInput) {
-                                var described = acInput.getAttribute('aria-describedby') || '';
-                                if (described.indexOf(hintId) === -1) {
-                                    acInput.setAttribute('aria-describedby', (described + ' ' + hintId).trim());
+                            if (!listbox) return;
+                            listbox.setAttribute('aria-labelledby', '@{form("value").id}');
+                        } catch (e) {}
+                    }
+
+                    var listboxId = "@{form("value").id}-input__listbox";
+                    var existing = document.getElementById(listboxId);
+                    if (existing) fixListbox(existing);
+
+                    // Watch for the listbox being created/modified (accessible-autocomplete may create it later)
+                    var observer = new MutationObserver(function (mutations) {
+                        for (var i = 0; i < mutations.length; i++) {
+                            var m = mutations[i];
+                            if (m.addedNodes && m.addedNodes.length) {
+                                for (var j = 0; j < m.addedNodes.length; j++) {
+                                    var n = m.addedNodes[j];
+                                    if (n && n.id === listboxId) fixListbox(n);
                                 }
                             }
-
-                            // Ensure the listbox is labelled by the real label (not the input element)
-                            function fixListbox(listbox) {
-                                try {
-                                    if (!listbox) return;
-                                    listbox.setAttribute('aria-labelledby', '@{form("value").id}');
-                                } catch (e) {}
+                            if (m.type === 'attributes' && m.target && m.target.id === listboxId) {
+                                fixListbox(m.target);
                             }
+                        }
+                    });
+                    observer.observe(document.body, { childList: true, subtree: true, attributes: true });
 
-                            var listboxId = "@{form("value").id}-input__listbox";
-                            var existing = document.getElementById(listboxId);
-                            if (existing) fixListbox(existing);
+                    // If the input has aria-labelledby pointing to itself, remove it
+                    if (acInput && acInput.getAttribute('aria-labelledby') === "@{form("value").id}") {
+                        acInput.removeAttribute('aria-labelledby');
+                    }
+                } catch (e) { /* fail silently */ }
+            })();
+        </script>
 
-                            // Watch for the listbox being created/modified (accessible-autocomplete may create it later)
-                            var observer = new MutationObserver(function (mutations) {
-                                for (var i = 0; i < mutations.length; i++) {
-                                    var m = mutations[i];
-                                    if (m.addedNodes && m.addedNodes.length) {
-                                        for (var j = 0; j < m.addedNodes.length; j++) {
-                                            var n = m.addedNodes[j];
-                                            if (n && n.id === listboxId) fixListbox(n);
-                                        }
-                                    }
-                                    if (m.type === 'attributes' && m.target && m.target.id === listboxId) {
-                                        fixListbox(m.target);
-                                    }
-                                }
-                            });
-                            observer.observe(document.body, { childList: true, subtree: true, attributes: true });
-
-                            // If the input has aria-labelledby pointing to itself, remove it
-                            if (acInput && acInput.getAttribute('aria-labelledby') === "@{form("value").id}") {
-                                acInput.removeAttribute('aria-labelledby');
-                            }
-                        } catch (e) { /* fail silently */ }
-                    })();
-                </script>
     }
 }

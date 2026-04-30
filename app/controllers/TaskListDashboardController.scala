@@ -25,16 +25,16 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.TaskListDashboardView
 
-class TaskListDashboardController @Inject()(
-                                             override val messagesApi: MessagesApi,
-                                             identify: IdentifierAction,
-                                             appConfig: FrontendAppConfig,
-                                             val controllerComponents: MessagesControllerComponents,
-                                             view: TaskListDashboardView
-                                           ) extends FrontendBaseController with I18nSupport {
+class TaskListDashboardController @Inject() (
+  override val messagesApi: MessagesApi,
+  identify: IdentifierAction,
+  appConfig: FrontendAppConfig,
+  val controllerComponents: MessagesControllerComponents,
+  view: TaskListDashboardView
+) extends FrontendBaseController
+    with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = identify {
-    implicit request =>
-      Ok(view(appConfig.claimDashboardUrl))
+  def onPageLoad: Action[AnyContent] = identify { implicit request =>
+    Ok(view(appConfig.claimDashboardUrl))
   }
 }

@@ -28,13 +28,15 @@ class RefundingCountryFormProvider @Inject() extends Mappings {
 
     Form(
       "value" -> text("refundingCountry.error.required")
-        .verifying(firstError[
-          String
-        ](
-          Constraint {
-            case v if allowedValues.contains(v) => Valid
-            case _                              => Invalid("refundingCountry.error.invalid")
-          }
-        ))
+        .verifying(
+          firstError[
+            String
+          ](
+            Constraint {
+              case v if allowedValues.contains(v) => Valid
+              case _                              => Invalid("refundingCountry.error.invalid")
+            }
+          )
+        )
     )
 }

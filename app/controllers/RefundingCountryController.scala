@@ -16,7 +16,7 @@
 
 package controllers
 
-import controllers.actions._
+import controllers.actions.*
 import forms.RefundingCountryFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.Navigator
@@ -35,21 +35,25 @@ import scala.concurrent.{ExecutionContext, Future}
 import play.api.Logger
 import scala.util.control.NonFatal
 
-class RefundingCountryController @Inject()(
-                                            override val messagesApi: MessagesApi,
-                                            sessionRepository: SessionRepository,
-                                            navigator: Navigator,
-                                            identify: IdentifierAction,
-                                            getData: DataRetrievalAction,
-                                            requireData: DataRequiredAction,
-                                            formProvider: RefundingCountryFormProvider,
-                                            config: Configuration,
-                                            val controllerComponents: MessagesControllerComponents,
-                                            view: RefundingCountryView
-                                          )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+class RefundingCountryController @Inject() (
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  navigator: Navigator,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: RefundingCountryFormProvider,
+  config: Configuration,
+  val controllerComponents: MessagesControllerComponents,
+  view: RefundingCountryView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
 
   // Build back URL using `urls.loginContinue` which includes the configured context path
-  private val taskListBackUrl: Option[String] = Some(config.get[String]("urls.loginContinue") + controllers.routes.TaskListDashboardController.onPageLoad().url)
+  private val taskListBackUrl: Option[String] = Some(
+    config.get[String]("urls.loginContinue") + controllers.routes.TaskListDashboardController.onPageLoad().url
+  )
 
   private def buildFormAndCountries() = {
     val countries = CountryList.fromConfig(config)
@@ -85,29 +89,30 @@ class RefundingCountryController @Inject()(
 
       val baseAnswers: UserAnswers = request.userAnswers.getOrElse(UserAnswers(request.userId))
 
-      val boundResult = form.bindFromRequest().fold(
-        formWithErrors => {
-          val typed = request.body.asFormUrlEncoded.flatMap(_.get("valueTyped").flatMap(_.headOption)).getOrElse("")
-          val adjustedForm = if (typed.trim.nonEmpty) {
-            val filtered = formWithErrors.errors.filterNot(e => e.key == "value" && e.message == "refundingCountry.error.required")
-            formWithErrors.copy(errors = filtered :+ FormError("value", "refundingCountry.error.invalid"))
-          } else {
-            formWithErrors
+      val boundResult = form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => {
+            val typed = request.body.asFormUrlEncoded.flatMap(_.get("valueTyped").flatMap(_.headOption)).getOrElse("")
+            val adjustedForm = if (typed.trim.nonEmpty) {
+              val filtered = formWithErrors.errors.filterNot(e => e.key == "value" && e.message == "refundingCountry.error.required")
+              formWithErrors.copy(errors = filtered :+ FormError("value", "refundingCountry.error.invalid"))
+            } else {
+              formWithErrors
+            }
+            Future.successful(BadRequest(view(adjustedForm, countries, backUrl, cameFromTaskListFormFlag)))
+          },
+          value => {
+            for {
+              updatedAnswers <- Future.fromTry(baseAnswers.set(RefundingCountryPage, value))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(navigator.nextPage(RefundingCountryPage, NormalMode, updatedAnswers))
           }
-          Future.successful(BadRequest(view(adjustedForm, countries, backUrl, cameFromTaskListFormFlag)))
-        },
-        value => {
-          for {
-            updatedAnswers <- Future.fromTry(baseAnswers.set(RefundingCountryPage, value))
-            _ <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(RefundingCountryPage, NormalMode, updatedAnswers))
-        }
-      )
+        )
 
-      boundResult.recover {
-        case NonFatal(e) =>
-          Logger(getClass).error("Error in RefundingCountryController.onSubmit", e)
-          BadRequest(view(form.bindFromRequest(), countries, backUrl, cameFromTaskListFormFlag))
+      boundResult.recover { case NonFatal(e) =>
+        Logger(getClass).error("Error in RefundingCountryController.onSubmit", e)
+        BadRequest(view(form.bindFromRequest(), countries, backUrl, cameFromTaskListFormFlag))
       }
     }
   }
