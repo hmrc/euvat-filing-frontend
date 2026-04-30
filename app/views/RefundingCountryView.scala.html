@@ -104,7 +104,10 @@
                     function fixListbox(listbox) {
                         try {
                             if (!listbox) return;
-                            listbox.setAttribute('aria-labelledby', '@{form("value").id}');
+                            var current = listbox.getAttribute('aria-labelledby');
+                            if (current !== '@{form("value").id}') {
+                                listbox.setAttribute('aria-labelledby', '@{form("value").id}');
+                            }
                         } catch (e) {}
                     }
 
@@ -127,7 +130,8 @@
                             }
                         }
                     });
-                    observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+                    // Don't observe attribute changes to avoid feedback loops when we update aria attributes
+                    observer.observe(document.body, { childList: true, subtree: true, attributes: false });
 
                     // If the input has aria-labelledby pointing to itself, remove it
                     if (acInput && acInput.getAttribute('aria-labelledby') === "@{form("value").id}") {
