@@ -22,7 +22,7 @@ import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import navigation.FakeNavigator
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.api.inject.bind
 import utils.CountryList
 import pages.RefundingCountryPage
@@ -73,27 +73,27 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and an empty form when arriving from the task list (Referer)" in {
 
-        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
-        running(application) {
-          val request = FakeRequest(GET, routes.RefundingCountryController.onPageLoad().url)
-            .withHeaders("Referer" -> controllers.routes.TaskListDashboardController.onPageLoad().url)
+      running(application) {
+        val request = FakeRequest(GET, routes.RefundingCountryController.onPageLoad().url)
+          .withHeaders("Referer" -> controllers.routes.TaskListDashboardController.onPageLoad().url)
 
-          val result = route(application, request).value
+        val result = route(application, request).value
 
-          val view = application.injector.instanceOf[views.html.RefundingCountryView]
-          val formProvider = application.injector.instanceOf[forms.RefundingCountryFormProvider]
-          val countries: Seq[(String, String)] = CountryList.fromConfig(application.configuration)
-          val allowed: Set[String] = countries.flatMap { case (n, c) => Seq(n, c) }.toSet
-          val form = formProvider(allowed)
+        val view = application.injector.instanceOf[views.html.RefundingCountryView]
+        val formProvider = application.injector.instanceOf[forms.RefundingCountryFormProvider]
+        val countries: Seq[(String, String)] = CountryList.fromConfig(application.configuration)
+        val allowed: Set[String] = countries.flatMap { case (n, c) => Seq(n, c) }.toSet
+        val form = formProvider(allowed)
 
-          status(result) mustEqual OK
-          val body = contentAsString(result)
-          val backUrl = application.configuration.get[String]("urls.loginContinue") + controllers.routes.TaskListDashboardController.onPageLoad().url
-          body must include(s"href=\"$backUrl\"")
-          body mustEqual view(form, countries, Some(backUrl), cameFromTaskList = true)(request, messages(application)).toString
-        }
+        status(result) mustEqual OK
+        val body = contentAsString(result)
+        val backUrl = application.configuration.get[String]("urls.loginContinue") + controllers.routes.TaskListDashboardController.onPageLoad().url
+        body must include(s"href=\"$backUrl\"")
+        body mustEqual view(form, countries, Some(backUrl), cameFromTaskList = true)(request, messages(application)).toString
       }
+    }
 
     "must redirect to the next page when valid data is submitted" in {
 
