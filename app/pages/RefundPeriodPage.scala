@@ -14,22 +14,13 @@
  * limitations under the License.
  */
 
-package controllers.auth
+package pages
 
-import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.auth.SignedOutView
+import play.api.libs.json.JsPath
 
-import javax.inject.Inject
+case object RefundPeriodPage extends QuestionPage[models.RefundPeriod] {
 
-class SignedOutController @Inject() (
-  val controllerComponents: MessagesControllerComponents,
-  view: SignedOutView
-) extends FrontendBaseController
-    with I18nSupport {
+  override def path: JsPath = JsPath \ toString
 
-  def onPageLoad(): Action[AnyContent] = Action { implicit request =>
-    Ok(view())
-  }
+  override def toString: String = "refundPeriod"
 }

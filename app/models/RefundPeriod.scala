@@ -14,22 +14,12 @@
  * limitations under the License.
  */
 
-package controllers.auth
+package models
 
-import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.auth.SignedOutView
+import play.api.libs.json.{Json, OFormat}
 
-import javax.inject.Inject
+case class RefundPeriod(startMonth: Int, startYear: Int, endMonth: Int, endYear: Int)
 
-class SignedOutController @Inject() (
-  val controllerComponents: MessagesControllerComponents,
-  view: SignedOutView
-) extends FrontendBaseController
-    with I18nSupport {
-
-  def onPageLoad(): Action[AnyContent] = Action { implicit request =>
-    Ok(view())
-  }
+object RefundPeriod {
+  implicit val format: OFormat[RefundPeriod] = Json.format[RefundPeriod]
 }

@@ -21,3 +21,6 @@ GET         /account/signed-out                          controllers.auth.Signed
 GET         /make-eu-vat-claim                           controllers.TaskListDashboardController.onPageLoad()
 
 GET         /unauthorised                                controllers.UnauthorisedController.onPageLoad()
+
+GET        /what-refund-period                           controllers.RefundPeriodController.onPageLoad()
+POST       /what-refund-period                           controllers.RefundPeriodController.onSubmit()
