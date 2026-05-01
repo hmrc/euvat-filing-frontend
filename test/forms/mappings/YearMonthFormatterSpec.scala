@@ -18,7 +18,8 @@ package forms.mappings
 
 import base.SpecBase
 import play.api.i18n.Messages
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
+
 import java.time.YearMonth
 
 class YearMonthFormatterSpec extends SpecBase {
@@ -31,10 +32,10 @@ class YearMonthFormatterSpec extends SpecBase {
       running(application) {
         implicit val msgs: Messages = messages(application)
         val formatter = new YearMonthFormatter(
-          invalidKey = "invalid",
+          invalidKey     = "invalid",
           allRequiredKey = "all",
           twoRequiredKey = "two",
-          requiredKey = "req"
+          requiredKey    = "req"
         )
 
         val data = Map("start.month" -> "03", "start.year" -> "2010")

@@ -22,7 +22,5 @@ GET         /make-eu-vat-claim                           controllers.TaskListDas
 
 GET         /unauthorised                                controllers.UnauthorisedController.onPageLoad()
 
-# Refund period (start/end month year)
 GET        /what-refund-period                           controllers.RefundPeriodController.onPageLoad()
 POST       /what-refund-period                           controllers.RefundPeriodController.onSubmit()
-

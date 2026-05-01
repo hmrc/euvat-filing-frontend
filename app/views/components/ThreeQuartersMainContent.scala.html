@@ -14,18 +14,13 @@
  * limitations under the License.
  *@
 
-@this(
-    layout: templates.Layout
-)
+@this()
 
-@()(implicit request: Request[_], messages: Messages)
+@(content: Html)
 
-@layout(
-    pageTitle    = titleNoForm(messages("index.title")),
-    showBackLink = false
-) {
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-three-quarters">
+        @content
+    </div>
+</div>
 
-    <h1 class="govuk-heading-xl">@messages("index.heading")</h1>
-
-    <p class="govuk-body">@messages("index.guidance")</p>
-}

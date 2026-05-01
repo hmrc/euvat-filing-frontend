@@ -16,56 +16,67 @@
 
 @import config.FrontendAppConfig
 @import uk.gov.hmrc.hmrcfrontend.views.config.StandardAlphaBanner
-@import uk.gov.hmrc.hmrcfrontend.views.html.helpers._
-@import uk.gov.hmrc.hmrcfrontend.views.html.components._
-@import uk.gov.hmrc.govukfrontend.views.html.components._
-@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage._
+@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.*
+@import uk.gov.hmrc.hmrcfrontend.views.html.components.*
+@import uk.gov.hmrc.govukfrontend.views.html.components.*
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.*
+@import views.html.components.ThreeQuartersMainContent
+@import views.html.helper.CSPNonce
 
 @this(
-    appConfig: FrontendAppConfig,
-    hmrcTimeoutDialog: HmrcTimeoutDialog,
-    hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
-    alphaBanner: StandardAlphaBanner,
-    hmrcStandardPage: HmrcStandardPage
+appConfig: FrontendAppConfig,
+hmrcTimeoutDialog: HmrcTimeoutDialog,
+hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
+alphaBanner: StandardAlphaBanner,
+hmrcStandardPage: HmrcStandardPage,
+threeQuartersMainContent: ThreeQuartersMainContent,
+twoThirdsMainContent: TwoThirdsMainContent,
+hmrcTrackingConsentSnippet: HmrcTrackingConsentSnippet
 )
 
-@(pageTitle: String, showBackLink: Boolean = true, backLinkUrl: Option[String] = None, timeout: Boolean = true, showSignOut: Boolean = true, showHmrcBanner: Boolean = false)(contentBlock: Html)(implicit rh: RequestHeader, messages: Messages)
+@(pageTitle: String, showBackLink: Boolean = true, backLinkUrl: Option[String] = None, timeout: Boolean = true, showSignOut: Boolean = true, showHmrcBanner: Boolean = false, useThreeQuartersGrid: Boolean = false)(contentBlock: Html)(implicit rh: RequestHeader, messages: Messages)
 
 @head = {
-
-    @if(timeout) {
-        @hmrcTimeoutDialog(TimeoutDialog(
-            timeout             = Some(appConfig.timeout),
-            countdown           = Some(appConfig.countdown),
-            keepAliveUrl        = Some(routes.KeepAliveController.keepAlive().url),
-            keepAliveButtonText = Some(messages("timeout.keepAlive")),
-            signOutUrl          = Some(controllers.auth.routes.AuthController.signOut().url),
-            signOutButtonText   = Some(messages("timeout.signOut")),
-            title               = Some(messages("timeout.title")),
-            message             = Some(messages("timeout.message")),
-            language            = Some(messages.lang.code)
-        ))
-    }
+@if(timeout) {
+<link @{CSPNonce.attr} href='@controllers.routes.Assets.versioned("stylesheets/application.css")' media="screen"
+      rel="stylesheet" type="text/css"/>
+<link @{CSPNonce.attr} href='@controllers.routes.Assets.versioned("stylesheets/print.css")' media="print"
+      rel="stylesheet" type="text/css"/>
+@hmrcTimeoutDialog(TimeoutDialog(
+timeout             = Some(appConfig.timeout),
+countdown           = Some(appConfig.countdown),
+keepAliveUrl        = Some(routes.KeepAliveController.keepAlive().url),
+keepAliveButtonText = Some(messages("timeout.keepAlive")),
+signOutUrl          = Some(controllers.auth.routes.AuthController.signOut().url),
+signOutButtonText   = Some(messages("timeout.signOut")),
+title               = Some(messages("timeout.title")),
+message             = Some(messages("timeout.message")),
+language            = Some(messages.lang.code)
+))
+}
 }
 
 @content = {
-    @contentBlock
+@contentBlock
+<div class="govuk-!-margin-top-3">
     @hmrcReportTechnicalIssueHelper()
+</div>
 }
 
 @hmrcStandardPage(HmrcStandardPageParams(
-    pageTitle = Some(pageTitle),
-    templateOverrides = TemplateOverrides(
-        additionalHeadBlock = Some(head)
-    ),
-    serviceURLs = ServiceURLs(
-        serviceUrl = Some(routes.IndexController.onPageLoad().url),
-        signOutUrl = if(showSignOut) Some(controllers.auth.routes.AuthController.signOut().url) else None
-    ),
-    banners = Banners(
-        displayHmrcBanner = showHmrcBanner,
-        phaseBanner = Some(alphaBanner(appConfig.feedbackUrl))
-    ),
-    isWelshTranslationAvailable = appConfig.languageTranslationEnabled,
-    backLink = if (showBackLink) Some(backLinkUrl.fold(BackLink.mimicsBrowserBackButtonViaJavaScript)(url => BackLink(href = url))) else None
+pageTitle = Some(pageTitle),
+templateOverrides = TemplateOverrides(
+additionalHeadBlock = Some(head),
+mainContentLayout = Some(if(useThreeQuartersGrid) threeQuartersMainContent(_) else twoThirdsMainContent(_))
+),
+serviceURLs = ServiceURLs(
+serviceUrl = Some(routes.IndexController.onPageLoad().url),
+signOutUrl = if(showSignOut) Some(controllers.auth.routes.AuthController.signOut().url) else None
+),
+banners = Banners(
+displayHmrcBanner = showHmrcBanner,
+phaseBanner = Some(alphaBanner(appConfig.feedbackUrl))
+),
+isWelshTranslationAvailable = appConfig.languageTranslationEnabled,
+backLink = if (showBackLink) Some(backLinkUrl.fold(BackLink.mimicsBrowserBackButtonViaJavaScript)(url => BackLink(href = url))) else None
 ))(content)

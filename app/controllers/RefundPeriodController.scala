@@ -16,9 +16,8 @@
 
 package controllers
 
-import controllers.actions._
-import forms.RefundPeriodFormProvider
-import javax.inject.Inject
+import controllers.actions.*
+import forms.{RefundPeriodData, RefundPeriodFormProvider}
 import models.RefundPeriod
 import navigation.Navigator
 import pages.RefundPeriodPage
@@ -28,18 +27,18 @@ import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.RefundPeriodView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import forms.RefundPeriodData
 
-class RefundPeriodController @Inject()(
-    override val messagesApi: MessagesApi,
-    sessionRepository: SessionRepository,
-    navigator: Navigator,
-    identify: IdentifierAction,
-    getData: DataRetrievalAction,
-    formProvider: RefundPeriodFormProvider,
-    val controllerComponents: MessagesControllerComponents,
-    view: RefundPeriodView
+class RefundPeriodController @Inject() (
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  navigator: Navigator,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  formProvider: RefundPeriodFormProvider,
+  val controllerComponents: MessagesControllerComponents,
+  view: RefundPeriodView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
@@ -59,14 +58,21 @@ class RefundPeriodController @Inject()(
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData).async { implicit request =>
 
-    formProvider().bindFromRequest().fold(
-      formWithErrors => Future.successful(BadRequest(view(formWithErrors))),
-      value =>
-        val baseAnswers = request.userAnswers.getOrElse(models.UserAnswers(request.userId))
-        for {
-          updatedAnswers <- Future.fromTry(baseAnswers.set(RefundPeriodPage, RefundPeriod(value.start.getMonthValue, value.start.getYear, value.end.getMonthValue, value.end.getYear)))
-          _ <- sessionRepository.set(updatedAnswers)
-        } yield Redirect(navigator.nextPage(RefundPeriodPage, models.NormalMode, updatedAnswers))
-    )
+    formProvider()
+      .bindFromRequest()
+      .fold(
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors))),
+        value =>
+          val baseAnswers = request.userAnswers.getOrElse(models.UserAnswers(request.userId))
+          for {
+            updatedAnswers <-
+              Future.fromTry(
+                baseAnswers.set(RefundPeriodPage,
+                                RefundPeriod(value.start.getMonthValue, value.start.getYear, value.end.getMonthValue, value.end.getYear)
+                               )
+              )
+            _ <- sessionRepository.set(updatedAnswers)
+          } yield Redirect(navigator.nextPage(RefundPeriodPage, models.NormalMode, updatedAnswers))
+      )
   }
 }

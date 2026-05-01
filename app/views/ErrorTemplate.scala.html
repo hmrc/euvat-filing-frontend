@@ -15,13 +15,13 @@
  *@
 
 @this(
-    layout: templates.Layout
+layout: templates.Layout
 )
 
 @(pageTitle: String, heading: String, message: String)(implicit rh: RequestHeader, messages: Messages)
 
 @layout(pageTitle = titleNoForm(pageTitle)) {
-    <h1 class="govuk-heading-xl">@messages(heading)</h1>
+<h1 class="govuk-heading-xl">@messages(heading)</h1>
 
-    <p class="govuk-body">@messages(message)</p>
+<p class="govuk-body">@messages(message)</p>
 }

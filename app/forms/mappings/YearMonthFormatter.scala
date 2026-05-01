@@ -16,8 +16,8 @@
 
 package forms.mappings
 
-import play.api.data.format.Formatter
 import play.api.data.FormError
+import play.api.data.format.Formatter
 import play.api.i18n.Messages
 
 import java.time.YearMonth
@@ -38,15 +38,15 @@ class YearMonthFormatter(
   private def toYearMonth(key: String, month: Int, year: Int): Either[Seq[FormError], YearMonth] =
     Try(YearMonth.of(year, month)) match {
       case Success(ym) => Right(ym)
-      case Failure(_)   => Left(Seq(FormError(key, invalidKey, args)))
+      case Failure(_)  => Left(Seq(FormError(key, invalidKey, args)))
     }
 
   private def formatYearMonth(key: String, data: Map[String, String]): Either[Seq[FormError], YearMonth] = {
 
     val int = intFormatter(
-      requiredKey = invalidKey,
+      requiredKey    = invalidKey,
       wholeNumberKey = invalidKey,
-      nonNumericKey = invalidKey,
+      nonNumericKey  = invalidKey,
       args
     )
 
@@ -54,8 +54,8 @@ class YearMonthFormatter(
 
     for {
       month <- month.bind(s"$key.month", data)
-      year <- int.bind(s"$key.year", data)
-      ym <- toYearMonth(key, month, year)
+      year  <- int.bind(s"$key.year", data)
+      ym    <- toYearMonth(key, month, year)
     } yield ym
   }
 

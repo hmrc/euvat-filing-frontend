@@ -14,28 +14,26 @@
  * limitations under the License.
  */
 
-package controllers
+package views.components
 
 import base.SpecBase
-import play.api.test.FakeRequest
-import play.api.test.Helpers.*
+import org.scalatest.matchers.must.Matchers
+import play.twirl.api.Html
+import views.html.components.ThreeQuartersMainContent
 
-class LanguageSwitchControllerSpec extends SpecBase {
+class ThreeQuartersMainContentSpec extends SpecBase with Matchers {
 
-  "LanguageSwitchController" - {
+  "ThreeQuartersMainContent" - {
 
-    "must return the configured fallback URL and language map" in {
-      val application = applicationBuilder().build()
+    "must render content inside a three-quarters grid column" in {
+      val component = new ThreeQuartersMainContent()
+      val inner = Html("<p>Inner content</p>")
 
-      running(application) {
-        val controller = application.injector.instanceOf[controllers.LanguageSwitchController]
+      val html = component.apply(inner).toString
 
-        controller.fallbackURL mustEqual controllers.routes.IndexController.onPageLoad().url
-
-        val langs = controller.languageMap
-        langs.keySet must contain("en")
-        langs.keySet must contain("cy")
-      }
+      html must include("govuk-grid-row")
+      html must include("govuk-grid-column-three-quarters")
+      html must include("<p>Inner content</p>")
     }
   }
 }
