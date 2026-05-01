@@ -18,23 +18,33 @@ package controllers
 
 import config.FrontendAppConfig
 import controllers.actions.*
+import models.UserAnswers
 
 import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.TaskListDashboardView
+
+import scala.concurrent.ExecutionContext
 
 class TaskListDashboardController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  sessionRepository: SessionRepository,
   appConfig: FrontendAppConfig,
   val controllerComponents: MessagesControllerComponents,
   view: TaskListDashboardView
-) extends FrontendBaseController
+)(using ExecutionContext) extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = identify { implicit request =>
-    Ok(view(appConfig.claimDashboardUrl))
+  def onPageLoad: Action[AnyContent] = (identify andThen getData).async { implicit request =>
+    val originalAnswers = request.userAnswers.getOrElse(UserAnswers(request.userId))
+    sessionRepository.set(originalAnswers).map(_ =>
+      Ok(view(appConfig.claimDashboardUrl))
+    )
+
   }
 }
