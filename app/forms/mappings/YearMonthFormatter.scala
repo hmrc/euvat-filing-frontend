@@ -75,7 +75,9 @@ class YearMonthFormatter(
       case 2 =>
         formatYearMonth(key, data).left.map(_.map(_.copy(key = key, args = args)))
       case 1 =>
-        Left(List(FormError(key, twoRequiredKey, missingFields ++ args)))
+        val missingField = fields.find(_._2.isEmpty).map(_._1).getOrElse("month")
+        val errorKey = s"$twoRequiredKey.$missingField"
+        Left(List(FormError(key, errorKey, args)))
       case _ =>
         Left(List(FormError(key, allRequiredKey, args)))
     }
