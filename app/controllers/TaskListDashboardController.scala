@@ -18,23 +18,54 @@ package controllers
 
 import config.FrontendAppConfig
 import controllers.actions.*
-
-import javax.inject.Inject
+import models.UserAnswers
+import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import viewmodels.taskList.ClaimDetailsStatus
 import views.html.TaskListDashboardView
 
-class TaskListDashboardController @Inject()(
-                                             override val messagesApi: MessagesApi,
-                                             identify: IdentifierAction,
-                                             appConfig: FrontendAppConfig,
-                                             val controllerComponents: MessagesControllerComponents,
-                                             view: TaskListDashboardView
-                                           ) extends FrontendBaseController with I18nSupport {
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
-  def onPageLoad: Action[AnyContent] = identify {
-    implicit request =>
-      Ok(view(appConfig.claimDashboardUrl))
+class TaskListDashboardController @Inject() (
+  override val messagesApi: MessagesApi,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  sessionRepository: SessionRepository,
+  appConfig: FrontendAppConfig,
+  val controllerComponents: MessagesControllerComponents,
+  view: TaskListDashboardView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport
+    with Logging {
+
+  /** Renders the TaskListDashboard.
+    *
+    * On a user's first visit (no UserAnswers row exists), an empty UserAnswers(request.userId)
+    * is created and persisted via SessionRepository. Returning users keep their existing row
+    * untouched. The "Add claim details" task row's status tag is computed from the user's data
+    * via [[ClaimDetailsStatus.from]] (currently always NotStarted — see helper TODOs).
+    *
+    * TODO(DTR-5078): emit a NewUser audit event in the new-user branch once the audit/
+    *   package lands. Tracked as a separate ticket; out of scope here.
+    */
+  def onPageLoad: Action[AnyContent] = (identify andThen getData).async { implicit request =>
+    val userAnswersF: Future[UserAnswers] = request.userAnswers match {
+      case Some(existing) =>
+        Future.successful(existing)
+      case None           =>
+        val seeded = UserAnswers(request.userId)
+        logger.info("[TaskListDashboardController] seeding UserAnswers for new user")
+        sessionRepository.set(seeded).map(_ => seeded)
+    }
+
+    userAnswersF.map { userAnswers =>
+      val claimDetailsStatus = ClaimDetailsStatus.from(userAnswers)
+      Ok(view(appConfig.claimDashboardUrl, claimDetailsStatus))
+    }
   }
 }
