@@ -71,7 +71,37 @@ class YearMonthFormatterSpec extends SpecBase {
 
         val res = formatter.bind("x", data)
         res.isLeft mustBe true
-        res.swap.toOption.get.head.message mustEqual "two"
+        res.swap.toOption.get.head.message mustEqual "two.year"
+      }
+    }
+
+    "must return two.month error when only year is present" in {
+      val application = applicationBuilder().build()
+
+      running(application) {
+        implicit val msgs: Messages = messages(application)
+        val formatter = new YearMonthFormatter("invalid", "all", "two", "req")
+
+        val data = Map("x.year" -> "2010")
+
+        val res = formatter.bind("x", data)
+        res.isLeft mustBe true
+        res.swap.toOption.get.head.message mustEqual "two.month"
+      }
+    }
+
+    "must return all-required error when both fields are missing" in {
+      val application = applicationBuilder().build()
+
+      running(application) {
+        implicit val msgs: Messages = messages(application)
+        val formatter = new YearMonthFormatter("invalid", "all", "two", "req")
+
+        val data = Map.empty[String, String]
+
+        val res = formatter.bind("x", data)
+        res.isLeft mustBe true
+        res.swap.toOption.get.head.message mustEqual "all"
       }
     }
 

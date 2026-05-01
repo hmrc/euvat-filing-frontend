@@ -17,15 +17,31 @@
 package forms
 
 import forms.mappings.YearMonthFormatter
+
 import javax.inject.Inject
 import play.api.data.Form
 import play.api.data.Forms.{mapping, of}
+import play.api.data.validation.{Constraint, Invalid, Valid}
 import play.api.i18n.Messages
-import java.time.YearMonth
+
+import java.time.{LocalDate, YearMonth}
 
 case class RefundPeriodData(start: YearMonth, end: YearMonth)
 
 class RefundPeriodFormProvider @Inject()() {
+
+  protected def today: LocalDate = LocalDate.now()
+
+  private val septemberCutoffConstraint: Constraint[RefundPeriodData] =
+    Constraint { data =>
+      val (cutoff, errorKey) = if (today.isAfter(java.time.LocalDate.of(today.getYear, 9, 30)))
+        (YearMonth.of(today.getYear, 1), "refundPeriod.error.periodStartDateafter30thSept")
+      else
+        (YearMonth.of(today.getYear - 1, 1), "refundPeriod.error.periodStartDate30thSeptOrEarlier")
+
+      if (!data.start.isBefore(cutoff)) Valid
+      else Invalid(errorKey)
+    }
 
   def apply()(implicit messages: Messages): Form[RefundPeriodData] =
     Form(
@@ -46,9 +62,11 @@ class RefundPeriodFormProvider @Inject()() {
         .verifying("refundPeriod.error.periodStartDatenotAfterEndDate", data => data.start.isBefore(data.end))
         .verifying("refundPeriod.error.periodEndDaterefundPeriodInSingleYear", data => data.start.getYear == data.end.getYear)
         .verifying("refundPeriod.error.periodStartDateperiodNotLessThan3Months", data => {
-          if (data.end.getMonthValue == 12) true
-          else java.time.temporal.ChronoUnit.MONTHS.between(data.start, data.end) >= 3
+          if (!data.start.isBefore(data.end)) true
+          else if (data.end.getMonthValue == 12) true
+          else java.time.temporal.ChronoUnit.MONTHS.between(data.start, data.end) >= 2
         })
         .verifying("refundPeriod.error.periodEndDateInvalid", data => data.end.isBefore(YearMonth.now()) || data.end.equals(YearMonth.now()))
+        .verifying(septemberCutoffConstraint)
     )
 }

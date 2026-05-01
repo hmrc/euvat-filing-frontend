@@ -64,7 +64,7 @@
           fieldset = Some(Fieldset(legend = Some(Legend(content = HtmlContent(messages("refundPeriod.start.heading")), classes = "govuk-fieldset__legend--m")))),
           items = Seq(
             InputItem(id = s"${form("start").id}.month", name = s"${form("start").name}.month", value = form("start.month").value, label = Some(messages("date.month")), classes = "govuk-input--width-2"),
-            InputItem(id = s"${form("start").id}.year", name = s"${form("start").name}.year", value = form("start.year").value, label = Some(messages("date.year")), classes = "govuk-input--width-4")
+            InputItem(id = s"${form("start").id}.year", name = s"${form("start").name}.year", value = form("start.year").value, label = Some(messages("date.year")), classes = "govuk-input--width-4", inputmode = Some("numeric"), pattern = Some("[0-9]*"))
           ),
           id = form("start").id,
           errorMessage = startError.map(e => ErrorMessage(content = Text(messages(e.message, e.args: _*))))
@@ -80,7 +80,7 @@
           fieldset = Some(Fieldset(legend = Some(Legend(content = HtmlContent(messages("refundPeriod.end.heading")), classes = "govuk-fieldset__legend--m")))),
           items = Seq(
             InputItem(id = s"${form("end").id}.month", name = s"${form("end").name}.month", value = form("end.month").value, label = Some(messages("date.month")), classes = "govuk-input--width-2"),
-            InputItem(id = s"${form("end").id}.year", name = s"${form("end").name}.year", value = form("end.year").value, label = Some(messages("date.year")), classes = "govuk-input--width-4")
+            InputItem(id = s"${form("end").id}.year", name = s"${form("end").name}.year", value = form("end.year").value, label = Some(messages("date.year")), classes = "govuk-input--width-4", inputmode = Some("numeric"), pattern = Some("[0-9]*"))
           ),
           id = form("end").id,
           errorMessage = endError.map(e => ErrorMessage(content = Text(messages(e.message, e.args: _*))))

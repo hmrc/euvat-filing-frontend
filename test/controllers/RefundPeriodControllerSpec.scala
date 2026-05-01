@@ -18,240 +18,348 @@ package controllers
 
 import base.SpecBase
 import navigation.FakeNavigator
-import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{times, verify, when}
+import org.scalatestplus.mockito.MockitoSugar
+import pages.RefundPeriodPage
 import play.api.inject.bind
 import play.api.mvc.Call
+import play.api.test.FakeRequest
+import play.api.test.Helpers._
 
-class RefundPeriodControllerSpec extends SpecBase {
+class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
+
+  val formProviderBeforeSept30 = new forms.RefundPeriodFormProvider() {
+    override protected def today: java.time.LocalDate = java.time.LocalDate.of(2024, 6, 1)
+  }
+
+  val formProviderAfterSept30 = new forms.RefundPeriodFormProvider() {
+    override protected def today: java.time.LocalDate = java.time.LocalDate.of(2024, 10, 1)
+  }
 
   val onwardRoute = Call("GET", "/foo")
 
   "RefundPeriod Controller" - {
 
-    "must return OK and the correct view for a GET" in {
+    ".onPageLoad" - {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      "must return OK and the correct view for a GET" in {
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
-      running(application) {
-        val request = FakeRequest(GET, routes.RefundPeriodController.onPageLoad().url)
+        running(application) {
+          val request = FakeRequest(GET, routes.RefundPeriodController.onPageLoad().url)
+          val result = route(application, request).value
 
-        val result = route(application, request).value
+          status(result) mustEqual OK
 
-        status(result) mustEqual OK
+          val body = contentAsString(result)
+          body must include("govuk-list govuk-list--bullet")
+          body must include("govuk-date-input")
+          body must include("govuk-input--width-2")
+          body must include("govuk-input--width-4")
+        }
+      }
 
-        val body = contentAsString(result)
+      "must pre-fill the form when saved answers exist" in {
+        val userAnswers = emptyUserAnswers.set(RefundPeriodPage, models.RefundPeriod(3, 2025, 8, 2025)).success.value
+        val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
-        // the rules should be rendered as a bullet list with govuk classes
-        body must include ("govuk-list govuk-list--bullet")
+        running(application) {
+          val request = FakeRequest(GET, routes.RefundPeriodController.onPageLoad().url)
+          val result = route(application, request).value
 
-        // date inputs should use govuk date input markup and width classes
-        body must include ("govuk-date-input")
-        body must include ("govuk-input--width-2")
-        body must include ("govuk-input--width-4")
+          status(result) `mustEqual` OK
+          val body = contentAsString(result)
+          body must include("2025")
+          body must include("3")
+        }
       }
     }
 
-    "must redirect to the next page when valid data is submitted" in {
+    ".onSubmit" - {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(bind[navigation.Navigator].toInstance(new FakeNavigator(onwardRoute)))
-        .build()
+      "must redirect to the next page when valid data is submitted" in {
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(bind[navigation.Navigator].toInstance(new FakeNavigator(onwardRoute)))
+          .build()
 
-      running(application) {
-        val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit().url)
-          .withFormUrlEncodedBody(
-            "start.month" -> "03",
-            "start.year" -> "2010",
-            "end.month" -> "08",
-            "end.year" -> "2010"
-          )
+        running(application) {
+          val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit().url)
+            .withFormUrlEncodedBody(
+              "start.month" -> "03",
+              "start.year"  -> "2025",
+              "end.month"   -> "08",
+              "end.year"    -> "2025"
+            )
+          val result = route(application, request).value
 
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
+          status(result) `mustEqual` SEE_OTHER
+          redirectLocation(result).value mustEqual onwardRoute.url
+        }
       }
-    }
 
-    "must return a Bad Request and errors when invalid data is submitted" in {
+      "must save answers and redirect when valid data submitted with no existing user answers" in {
+        val mockSessionRepository = mock[repositories.SessionRepository]
+        when(mockSessionRepository.set(any())) thenReturn scala.concurrent.Future.successful(true)
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-
-      running(application) {
-        val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit().url)
-          .withFormUrlEncodedBody(
-            "start.month" -> "",
-            "start.year" -> "",
-            "end.month" -> "",
-            "end.year" -> ""
+        val application = applicationBuilder(userAnswers = None)
+          .overrides(
+            bind[navigation.Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[repositories.SessionRepository].toInstance(mockSessionRepository)
           )
+          .build()
 
-        val result = route(application, request).value
+        running(application) {
+          val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit().url)
+            .withFormUrlEncodedBody(
+              "start.month" -> "03",
+              "start.year"  -> "2025",
+              "end.month"   -> "08",
+              "end.year"    -> "2025"
+            )
+          val result = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
+          status(result) `mustEqual` SEE_OTHER
+          redirectLocation(result).value `mustEqual` onwardRoute.url
+          verify(mockSessionRepository, times(1)).set(any())
+        }
       }
-    }
 
-    "must show start-before-end validation and link to start field" in {
+      "must return a Bad Request when both fields are empty" in {
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+        running(application) {
+          val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit().url)
+            .withFormUrlEncodedBody(
+              "start.month" -> "",
+              "start.year"  -> "",
+              "end.month"   -> "",
+              "end.year"    -> ""
+            )
+          val result = route(application, request).value
 
-      running(application) {
-        val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit().url)
-          .withFormUrlEncodedBody(
-            "start.month" -> "05",
-            "start.year" -> "2011",
-            "end.month" -> "03",
-            "end.year" -> "2011"
-          )
-
-        val result = route(application, request).value
-
-        status(result) mustEqual BAD_REQUEST
-
-        val body = contentAsString(result)
-
-        body must include (messages(application)("refundPeriod.error.periodStartDatenotAfterEndDate"))
-        body must include ("href=\"#\"")
+          status(result) mustEqual BAD_REQUEST
+        }
       }
-    }
 
-    "must show single-year validation and link to end field" in {
+      "must show start-before-end error when start date is after end date" in {
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+        running(application) {
+          val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit().url)
+            .withFormUrlEncodedBody(
+              "start.month" -> "05",
+              "start.year"  -> "2011",
+              "end.month"   -> "03",
+              "end.year"    -> "2011"
+            )
+          val result = route(application, request).value
 
-      running(application) {
-        val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit().url)
-          .withFormUrlEncodedBody(
-            "start.month" -> "03",
-            "start.year" -> "2010",
-            "end.month" -> "08",
-            "end.year" -> "2011"
-          )
-
-        val result = route(application, request).value
-
-        status(result) mustEqual BAD_REQUEST
-
-        val body = contentAsString(result)
-
-        body must include (messages(application)("refundPeriod.error.periodEndDaterefundPeriodInSingleYear"))
-        body must include ("href=\"#\"")
+          status(result) `mustEqual` BAD_REQUEST
+          contentAsString(result) must include(messages(application)("refundPeriod.error.periodStartDatenotAfterEndDate"))
+        }
       }
-    }
 
-    "must show minimum-length validation when period < 3 months" in {
+      "must show single-year error when start and end are in different years" in {
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+        running(application) {
+          val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit().url)
+            .withFormUrlEncodedBody(
+              "start.month" -> "03",
+              "start.year"  -> "2010",
+              "end.month"   -> "08",
+              "end.year"    -> "2011"
+            )
+          val result = route(application, request).value
 
-      running(application) {
-        val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit().url)
-          .withFormUrlEncodedBody(
-            "start.month" -> "03",
-            "start.year" -> "2010",
-            "end.month" -> "05",
-            "end.year" -> "2010"
-          )
-
-        val result = route(application, request).value
-
-        status(result) mustEqual BAD_REQUEST
-
-        val body = contentAsString(result)
-
-        body must include (messages(application)("refundPeriod.error.periodStartDateperiodNotLessThan3Months"))
+          status(result) `mustEqual` BAD_REQUEST
+          contentAsString(result) must include(messages(application)("refundPeriod.error.periodEndDaterefundPeriodInSingleYear"))
+        }
       }
-    }
 
-    "must show end-date-in-past validation when end is in the future" in {
+      "must show minimum-length error when period is less than 3 months" in {
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+        running(application) {
+          val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit().url)
+            .withFormUrlEncodedBody(
+              "start.month" -> "03",
+              "start.year"  -> "2010",
+              "end.month"   -> "04",
+              "end.year"    -> "2010"
+            )
+          val result = route(application, request).value
 
-      running(application) {
-        val future = java.time.YearMonth.now().plusMonths(1)
-        val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit().url)
-          .withFormUrlEncodedBody(
-            "start.month" -> "03",
-            "start.year" -> "2010",
-            "end.month" -> future.getMonthValue.toString,
-            "end.year" -> future.getYear.toString
-          )
-
-        val result = route(application, request).value
-
-        status(result) mustEqual BAD_REQUEST
-
-        val body = contentAsString(result)
-
-        body must include (messages(application)("refundPeriod.error.periodEndDateInvalid"))
+          status(result) `mustEqual` BAD_REQUEST
+          contentAsString(result) must include(messages(application)("refundPeriod.error.periodStartDateperiodNotLessThan3Months"))
+        }
       }
-    }
 
-    "must allow short period when it ends in December (December exception)" in {
+      "must show end-date-in-past error when end date is in the future" in {
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(bind[navigation.Navigator].toInstance(new FakeNavigator(onwardRoute)))
-        .build()
+        running(application) {
+          val future = java.time.YearMonth.now().plusMonths(1)
+          val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit().url)
+            .withFormUrlEncodedBody(
+              "start.month" -> "03",
+              "start.year"  -> "2010",
+              "end.month"   -> future.getMonthValue.toString,
+              "end.year"    -> future.getYear.toString
+            )
+          val result = route(application, request).value
 
-      running(application) {
-        val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit().url)
-          .withFormUrlEncodedBody(
-            "start.month" -> "11",
-            "start.year" -> "2010",
-            "end.month" -> "12",
-            "end.year" -> "2010"
-          )
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
+          status(result) `mustEqual` BAD_REQUEST
+          contentAsString(result) must include(messages(application)("refundPeriod.error.periodEndDateInvalid"))
+        }
       }
-    }
 
-    "must allow a period exactly 3 months long" in {
+      "must allow a short period when it ends in December" in {
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(bind[navigation.Navigator].toInstance(new FakeNavigator(onwardRoute)))
+          .build()
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(bind[navigation.Navigator].toInstance(new FakeNavigator(onwardRoute)))
-        .build()
+        running(application) {
+          val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit().url)
+            .withFormUrlEncodedBody(
+              "start.month" -> "11",
+              "start.year"  -> "2025",
+              "end.month"   -> "12",
+              "end.year"    -> "2025"
+            )
+          val result = route(application, request).value
 
-      running(application) {
-        val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit().url)
-          .withFormUrlEncodedBody(
-            "start.month" -> "03",
-            "start.year" -> "2010",
-            "end.month" -> "06",
-            "end.year" -> "2010"
-          )
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
+          status(result) `mustEqual` SEE_OTHER
+          redirectLocation(result).value mustEqual onwardRoute.url
+        }
       }
-    }
 
-    "must reject equal start and end month/year" in {
+      "must allow a period exactly 3 months long" in {
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(bind[navigation.Navigator].toInstance(new FakeNavigator(onwardRoute)))
+          .build()
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+        running(application) {
+          val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit().url)
+            .withFormUrlEncodedBody(
+              "start.month" -> "03",
+              "start.year"  -> "2025",
+              "end.month"   -> "05",
+              "end.year"    -> "2025"
+            )
+          val result = route(application, request).value
 
-      running(application) {
-        val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit().url)
-          .withFormUrlEncodedBody(
-            "start.month" -> "03",
-            "start.year" -> "2010",
-            "end.month" -> "03",
-            "end.year" -> "2010"
-          )
+          status(result) `mustEqual` SEE_OTHER
+          redirectLocation(result).value mustEqual onwardRoute.url
+        }
+      }
 
-        val result = route(application, request).value
+      "must show start-before-end error when start and end are equal" in {
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
-        status(result) mustEqual BAD_REQUEST
+        running(application) {
+          val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit().url)
+            .withFormUrlEncodedBody(
+              "start.month" -> "03",
+              "start.year"  -> "2010",
+              "end.month"   -> "03",
+              "end.year"    -> "2010"
+            )
+          val result = route(application, request).value
 
-        val body = contentAsString(result)
+          status(result) `mustEqual` BAD_REQUEST
+          contentAsString(result) must include(messages(application)("refundPeriod.error.periodStartDatenotAfterEndDate"))
+        }
+      }
 
-        body must include (messages(application)("refundPeriod.error.periodStartDatenotAfterEndDate"))
+      "September cutoff" - {
+
+        "must reject start date before January of current year when today is after 30 September" in {
+          val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+            .overrides(bind[forms.RefundPeriodFormProvider].toInstance(formProviderAfterSept30))
+            .build()
+
+          running(application) {
+            val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit().url)
+              .withFormUrlEncodedBody(
+                "start.month" -> "03",
+                "start.year"  -> "2023",
+                "end.month"   -> "08",
+                "end.year"    -> "2023"
+              )
+            val result = route(application, request).value
+
+            status(result) `mustEqual` BAD_REQUEST
+            contentAsString(result) must include(messages(application)("refundPeriod.error.periodStartDateafter30thSept"))
+          }
+        }
+
+        "must accept start date in January of current year when today is after 30 September" in {
+          val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+            .overrides(
+              bind[navigation.Navigator].toInstance(new FakeNavigator(onwardRoute)),
+              bind[forms.RefundPeriodFormProvider].toInstance(formProviderAfterSept30)
+            )
+            .build()
+
+          running(application) {
+            val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit().url)
+              .withFormUrlEncodedBody(
+                "start.month" -> "01",
+                "start.year"  -> "2024",
+                "end.month"   -> "06",
+                "end.year"    -> "2024"
+              )
+            val result = route(application, request).value
+
+            status(result) `mustEqual` SEE_OTHER
+            redirectLocation(result).value mustEqual onwardRoute.url
+          }
+        }
+
+        "must reject start date before January of previous year when today is on or before 30 September" in {
+          val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+            .overrides(bind[forms.RefundPeriodFormProvider].toInstance(formProviderBeforeSept30))
+            .build()
+
+          running(application) {
+            val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit().url)
+              .withFormUrlEncodedBody(
+                "start.month" -> "03",
+                "start.year"  -> "2022",
+                "end.month"   -> "08",
+                "end.year"    -> "2022"
+              )
+            val result = route(application, request).value
+
+            status(result) `mustEqual` BAD_REQUEST
+            contentAsString(result) must include(messages(application)("refundPeriod.error.periodStartDate30thSeptOrEarlier"))
+          }
+        }
+
+        "must accept start date in January of previous year when today is on or before 30 September" in {
+          val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+            .overrides(
+              bind[navigation.Navigator].toInstance(new FakeNavigator(onwardRoute)),
+              bind[forms.RefundPeriodFormProvider].toInstance(formProviderBeforeSept30)
+            )
+            .build()
+
+          running(application) {
+            val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit().url)
+              .withFormUrlEncodedBody(
+                "start.month" -> "01",
+                "start.year"  -> "2023",
+                "end.month"   -> "06",
+                "end.year"    -> "2023"
+              )
+            val result = route(application, request).value
+
+            status(result) `mustEqual` SEE_OTHER
+            redirectLocation(result).value mustEqual onwardRoute.url
+          }
+        }
       }
     }
   }

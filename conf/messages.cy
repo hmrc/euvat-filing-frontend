@@ -78,7 +78,7 @@ refundPeriod.rule.2 = not overlap with a period you have already claimed for
 refundPeriod.rule.3 = be within the same calendar year
 refundPeriod.rule.4 = be at least 3 months long, unless it ends in December
 refundPeriod.start.heading = When is the refund period start date?
-refundPeriod.start.hint = For example, 03 2008
+refundPeriod.start.hint = For example, 03 2010
 refundPeriod.end.heading = When is the refund period end date?
 refundPeriod.end.hint = For example, 08 2010
 
@@ -92,3 +92,5 @@ refundPeriod.error.periodStartDateInvalid = The claim period start date must be 
 refundPeriod.error.periodEndDatecompleteFieldname = Enter the claim period end date
 refundPeriod.error.periodEndDateinvalidStartEndDateFormat = End date must include a month and year
 refundPeriod.error.periodEndDateInvalid = Enter a date for a valid claim period
+refundPeriod.error.periodStartDateafter30thSept = The refund period start date cannot be before January of this year.
+refundPeriod.error.periodStartDate30thSeptOrEarlier = The refund period start date cannot be before January of last year.
