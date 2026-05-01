@@ -14,85 +14,67 @@
  * limitations under the License.
  *@
 
- @import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.govukfrontend.views.html.components.*
 
- @this(
-        layout: templates.Layout,
-        govukButton: GovukButton,
-        govukTaskList : GovukTaskList
- )
+@this(
+  layout: templates.Layout,
+  govukButton: GovukButton,
+  govukTaskList : GovukTaskList
+)
 
- @(claimDashboardUrl: String)(implicit request: Request[_], messages: Messages)
+@(claimDashboardUrl: String)(implicit request: Request[_], messages: Messages)
 
- @layout(pageTitle = titleNoForm(messages("taskListDashboard.title")), backLinkUrl = Some(claimDashboardUrl)) {
+@layout(pageTitle = titleNoForm(messages("taskListDashboard.title")), showBackLink = false) {
 
-    <h1 class="govuk-heading-l">@messages("taskListDashboard.heading")</h1>
+  <h1 class="govuk-heading-l">@messages("taskListDashboard.heading")</h1>
 
-    @govukTaskList(TaskList(
-     items = Seq(
+  @govukTaskList(TaskList(
+    items = Seq(
       TaskListItem(
-       title = TaskListItemTitle(
-        content = Text(messages("taskListDashboard.listItem1"))
-       ),
-      status = TaskListItemStatus(
-       tag = Some(Tag(
-        content = Text("Not yet started")
-       ))
+        title = TaskListItemTitle(content = Text(messages("taskListDashboard.listItem1"))),
+        status = TaskListItemStatus(tag = Some(Tag(content = Text(messages("taskListDashboard.status1"))))),
+        href = Some("#")
       ),
-      href = Some("#")
+      TaskListItem(
+        title = TaskListItemTitle(content = Text(messages("taskListDashboard.listItem2"))),
+        status = TaskListItemStatus(tag = Some(Tag(
+          content = Text(messages("taskListDashboard.status2")),
+          classes = "govuk-tag--grey"
+        )))
       ),
-
       TaskListItem(
-       title = TaskListItemTitle(
-        content = Text(messages("taskListDashboard.listItem2"))
-       ),
-      status = TaskListItemStatus(
-       tag = Some(Tag(
-        content = Text("Cannot start yet"),
-        classes = "govuk-tag--grey"
-       ))
-       )
-       ),
-
+        title = TaskListItemTitle(content = Text(messages("taskListDashboard.listItem3"))),
+        status = TaskListItemStatus(tag = Some(Tag(
+          content = Text(messages("taskListDashboard.status2")),
+          classes = "govuk-tag--grey"
+        )))
+      ),
       TaskListItem(
-       title = TaskListItemTitle(
-        content = Text(messages("taskListDashboard.listItem3"))
-       ),
-      status = TaskListItemStatus(
-       tag = Some(Tag(
-        content = Text("Cannot start yet"),
-        classes = "govuk-tag--grey"
-       ))
+        title = TaskListItemTitle(content = Text(messages("taskListDashboard.listItem4"))),
+        status = TaskListItemStatus(tag = Some(Tag(
+          content = Text(messages("taskListDashboard.status2")),
+          classes = "govuk-tag--grey"
+        )))
+      ),
+      TaskListItem(
+        title = TaskListItemTitle(content = Text(messages("taskListDashboard.listItem5"))),
+        status = TaskListItemStatus(tag = Some(Tag(
+          content = Text(messages("taskListDashboard.status2")),
+          classes = "govuk-tag--grey"
+        )))
+      ),
+      TaskListItem(
+        title = TaskListItemTitle(content = Text(messages("taskListDashboard.listItem6"))),
+        status = TaskListItemStatus(tag = Some(Tag(
+          content = Text(messages("taskListDashboard.status2")),
+          classes = "govuk-tag--grey"
+        )))
       )
-     ),
-
-      TaskListItem(
-       title = TaskListItemTitle(
-        content = Text(messages("taskListDashboard.listItem4"))
-       ),
-       status = TaskListItemStatus(
-        tag = Some(Tag(
-         content = Text("Cannot start yet"),
-         classes = "govuk-tag--grey"
-        ))
-       )
-      ),
-
-      TaskListItem(
-       title = TaskListItemTitle(
-        content = Text(messages("taskListDashboard.listItem5"))
-       ),
-       status = TaskListItemStatus(
-        tag = Some(Tag(
-         content = Text("Cannot start yet"),
-         classes = "govuk-tag--grey"
-        ))
-       )
-      ),
-     ),
-   idPrefix = "make-eu-vat-claim"
+    ),
+    idPrefix = "make-eu-vat-claim"
   ))
-<p class="govuk-body">
- <a href="@claimDashboardUrl" class="govuk-link" >@messages("taskListDashboard.dashboardLink")</a>
-</p>
+
+  <p class="govuk-body">
+   <a href="@claimDashboardUrl" class="govuk-link" >@messages("taskListDashboard.dashboardLink")</a>
+  </p>
 }

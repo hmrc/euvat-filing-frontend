@@ -27,10 +27,6 @@ error.title.prefix = Error:
 error.prefix = Error
 error.summary.title = There is a problem
 
-index.title = euvat-filing-frontend
-index.heading = euvat-filing-frontend
-index.guidance = Welcome to your new frontend. Please see the README file for a guide to getting started.
-
 checkYourAnswers.title = Check your answers
 checkYourAnswers.heading = Check your answers
 
@@ -47,6 +43,7 @@ signedOut.guidance = We did not save your answers.
 
 unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
+unauthorised.guidance = You do not have access to this service.
 
 taskListDashboard.title = Make an EU VAT claim
 taskListDashboard.heading = Make an EU VAT claim
@@ -55,6 +52,9 @@ taskListDashboard.listItem2 = Add a purchase
 taskListDashboard.listItem3 = Add an import
 taskListDashboard.listItem4 = Add supporting documents
 taskListDashboard.listItem5 = Add bank details
+taskListDashboard.listItem6 = Submit claim
+taskListDashboard.status1 = Not yet started
+taskListDashboard.status2 = Cannot start yet
 taskListDashboard.dashboardLink = Go to the claims dashboard
 taskListDashboard.errorSummary1 = There is a problem
 taskListDashboard.errorSummary2 = Select add claim details to start a claim
@@ -74,4 +74,3 @@ contactDetails.error.firstName.format = First name must only include letters, hy
 contactDetails.error.lastName.maxLength = Last name must be 35 characters or fewer
 contactDetails.error.lastName.format = Last name must only include letters, hyphens, apostrophes, commas, full stops and spaces
 contactDetails.error.telephone.format = Enter a telephone number in the correct format, like 01632 960 001 or +44 808 157 0192
-
