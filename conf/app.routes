@@ -26,3 +26,5 @@ GET         /unauthorised                                controllers.Unauthorise
 GET        /which-eu-member-state                        controllers.RefundingCountryController.onPageLoad()
 POST       /which-eu-member-state                        controllers.RefundingCountryController.onSubmit()
 
+
+GET         /about-the-purchase                          controllers.AboutThePurchaseController.onPageLoad()
