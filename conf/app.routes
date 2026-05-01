@@ -32,3 +32,5 @@ POST       /what-language                                controllers.RefundingLa
 GET        /change-what-language                         controllers.RefundingLanguageController.onPageLoad(mode: models.Mode = CheckMode)
 POST       /change-what-language                         controllers.RefundingLanguageController.onSubmit(mode: models.Mode = CheckMode)
 
+
+GET         /about-the-purchase                          controllers.AboutThePurchaseController.onPageLoad()
