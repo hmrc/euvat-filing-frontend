@@ -38,7 +38,7 @@
 
         @formHelper(action = routes.RefundingCountryController.onSubmit()) {
 
-            @mainErrorSummary(form)
+            @mainErrorSummary(form, Map("value" -> (form("value").id + "-input")))
 
             <h2 class="govuk-caption-l">Add claim details</h2>
 
