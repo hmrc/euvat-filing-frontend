@@ -18,28 +18,60 @@ package controllers
 
 import base.SpecBase
 import config.FrontendAppConfig
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import repositories.SessionRepository
 import views.html.TaskListDashboardView
 
-class TaskListDashboardControllerSpec extends SpecBase {
+import scala.concurrent.Future
+
+class TaskListDashboardControllerSpec extends SpecBase with MockitoSugar {
 
   "TaskListDashboard Controller" - {
 
     "must return OK and the correct view for a GET" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val application = applicationBuilder(userAnswers = None)
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+          .build()
 
       running(application) {
         val request = FakeRequest(GET, routes.TaskListDashboardController.onPageLoad().url)
 
         val result = route(application, request).value
         val config = application.injector.instanceOf[FrontendAppConfig]
-
         val view = application.injector.instanceOf[TaskListDashboardView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(config.claimDashboardUrl)(request, messages(application)).toString
       }
     }
+
+    "must still return OK even if sessionRepository.set returns false" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(false)
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+          .build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.TaskListDashboardController.onPageLoad().url)
+
+        val result = route(application, request).value
+        val config = application.injector.instanceOf[FrontendAppConfig]
+        val view = application.injector.instanceOf[TaskListDashboardView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(config.claimDashboardUrl)(request, messages(application)).toString
+      }
+    }
+
   }
 }
