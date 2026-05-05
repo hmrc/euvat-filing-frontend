@@ -31,7 +31,9 @@
     hmrcStandardPage: HmrcStandardPage,
     threeQuartersMainContent: ThreeQuartersMainContent,
     twoThirdsMainContent: TwoThirdsMainContent,
-    hmrcTrackingConsentSnippet: HmrcTrackingConsentSnippet
+    hmrcTrackingConsentSnippet: HmrcTrackingConsentSnippet,
+    autocompleteCss: uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcAccessibleAutocompleteCss,
+    autocompleteJavascript: uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcAccessibleAutocompleteJavascript
 )
 
 @(pageTitle: String, showBackLink: Boolean = true, backLinkUrl: Option[String] = None, timeout: Boolean = true, showSignOut: Boolean = true, showHmrcBanner: Boolean = false, useThreeQuartersGrid: Boolean = false)(contentBlock: Html)(implicit rh: RequestHeader, messages: Messages)
@@ -61,10 +63,11 @@
     </div>
 }
 
-@hmrcStandardPage(HmrcStandardPageParams(
+    @hmrcStandardPage(HmrcStandardPageParams(
     pageTitle = Some(pageTitle),
     templateOverrides = TemplateOverrides(
-        additionalHeadBlock = Some(head),
+        additionalHeadBlock = Some(play.twirl.api.Html(head.toString + autocompleteCss().toString)),
+        additionalScriptsBlock = Some(autocompleteJavascript()),
         mainContentLayout = Some(if(useThreeQuartersGrid) threeQuartersMainContent(_) else twoThirdsMainContent(_))
     ),
     serviceURLs = ServiceURLs(

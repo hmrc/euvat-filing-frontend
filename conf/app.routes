@@ -18,9 +18,12 @@ GET         /account/sign-out-survey                     controllers.auth.AuthCo
 GET         /account/sign-out                            controllers.auth.AuthController.signOutNoSurvey()
 GET         /account/signed-out                          controllers.auth.SignedOutController.onPageLoad()
 
+GET         /unauthorised                                controllers.UnauthorisedController.onPageLoad()
+
 GET         /make-eu-vat-claim                           controllers.TaskListDashboardController.onPageLoad()
 
-GET         /unauthorised                                controllers.UnauthorisedController.onPageLoad()
+GET         /which-eu-member-state                       controllers.RefundingCountryController.onPageLoad()
+POST        /which-eu-member-state                       controllers.RefundingCountryController.onSubmit()
 
 GET         /who-contact-about-this-claim                controllers.ContactDetailsController.onPageLoad(mode: Mode = NormalMode)
 POST        /who-contact-about-this-claim                controllers.ContactDetailsController.onSubmit(mode: Mode = NormalMode)
