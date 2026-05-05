@@ -43,16 +43,6 @@ class TaskListDashboardController @Inject() (
     with I18nSupport
     with Logging {
 
-  /** Renders the TaskListDashboard.
-    *
-    * On a user's first visit (no UserAnswers row exists), an empty UserAnswers(request.userId)
-    * is created and persisted via SessionRepository. Returning users keep their existing row
-    * untouched. The "Add claim details" task row's status tag is computed from the user's data
-    * via [[ClaimDetailsStatus.from]] (currently always NotStarted — see helper TODOs).
-    *
-    * TODO(DTR-5078): emit a NewUser audit event in the new-user branch once the audit/
-    *   package lands. Tracked as a separate ticket; out of scope here.
-    */
   def onPageLoad: Action[AnyContent] = (identify andThen getData).async { implicit request =>
     val userAnswersF: Future[UserAnswers] = request.userAnswers match {
       case Some(existing) =>

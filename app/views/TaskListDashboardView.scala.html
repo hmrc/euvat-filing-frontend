@@ -25,11 +25,6 @@
 
 @(claimDashboardUrl: String, claimDetailsStatus: ClaimDetailsStatus)(implicit request: Request[_], messages: Messages)
 
-@*
- * "Add claim details" row link target.
- * TODO(DTR-4263): once RA2.1 lands, replace "#" with
- *   controllers.routes.RefundingCountryController.onPageLoad().url
- *@
 @claimDetailsHref = @{
     claimDetailsStatus match {
         case ClaimDetailsStatus.Completed => None

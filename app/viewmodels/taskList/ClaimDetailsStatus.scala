@@ -39,23 +39,6 @@ enum ClaimDetailsStatus {
 
 object ClaimDetailsStatus {
 
-  /** Compute the claim-details task status from the user's session data.
-    *
-    * Currently always returns NotStarted because the claim-detail Page objects
-    * (RA2.1 RefundingCountryPage, RA2.2 RefundPeriodPage, RA2.3 ContactDetailsPage)
-    * don't exist on main yet. As each of those tickets lands, a follow-up commit
-    * widens this method to detect data on the new Page.
-    *
-    * TaskListDashboard hook — extend when a claim-detail Page lands:
-    *   add `userAnswers.get(YourPage).isDefined` to a `||` chain so the row flips
-    *   to InProgress. Mirror with a unit test in TaskListDashboardControllerSpec.
-    *
-    * TODO(DTR-4263 RA2.1): once RefundingCountryPage exists, add it to the InProgress check.
-    * TODO(DTR-4264 RA2.2): once RefundPeriodPage exists, add it to the InProgress check.
-    * TODO(DTR-4266 RA2.3): once ContactDetailsPage exists, add it to the InProgress check.
-    * TODO(RA4.0): once Check-your-claim-details lands, return Completed when the
-    *   section has been signed off.
-    */
   def from(userAnswers: UserAnswers): ClaimDetailsStatus = {
     val _ = userAnswers // referenced here so future widenings don't change the signature
     NotStarted
