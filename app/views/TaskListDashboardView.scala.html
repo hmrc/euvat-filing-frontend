@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.govukfrontend.views.html.components.*
+ @import uk.gov.hmrc.govukfrontend.views.html.components._
 
 @this(
   layout: templates.Layout,
@@ -22,7 +22,7 @@
   govukTaskList : GovukTaskList
 )
 
-@(claimDashboardUrl: String)(implicit request: Request[_], messages: Messages)
+ @(claimDashboardUrl: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("taskListDashboard.title")), showBackLink = false) {
 
@@ -33,7 +33,7 @@
       TaskListItem(
         title = TaskListItemTitle(content = Text(messages("taskListDashboard.listItem1"))),
         status = TaskListItemStatus(tag = Some(Tag(content = Text(messages("taskListDashboard.status1"))))),
-        href = Some("#")
+        href = Some(controllers.routes.RefundingCountryController.onPageLoad().url)
       ),
       TaskListItem(
         title = TaskListItemTitle(content = Text(messages("taskListDashboard.listItem2"))),

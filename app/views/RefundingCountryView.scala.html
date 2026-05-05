@@ -1,0 +1,77 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import viewmodels.InputWidth._
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.accessibleautocomplete.AccessibleAutocomplete
+@import play.api.libs.json.Json
+@import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.select._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.label.Label
+@import views.html.components.*
+
+@this(
+    layout: templates.Layout,
+    formHelper: FormWithCSRF,
+    govukInput: GovukInput,
+    govukButton: GovukButton,
+    govukSelect: GovukSelect,
+    mainErrorSummary: MainErrorSummary
+)
+
+@(form: Form[_], countries: Seq[(String,String)], backLinkCall: Option[String])(implicit request: Request[_], messages: Messages)
+
+@layout(pageTitle = views.ViewUtils.title(form, "refundingCountry.title"), backLinkUrl = backLinkCall) {
+
+        @formHelper(action = routes.RefundingCountryController.onSubmit()) {
+
+            @mainErrorSummary(form, Map("value" -> (form("value").id + "-input")))
+
+            <h2 class="govuk-caption-l">Add claim details</h2>
+
+                     <h1 id="refunding-country-heading" class="govuk-heading-l">@messages("refundingCountry.heading")</h1>
+
+                     @* The visible page heading (`refunding-country-heading`) is
+                        used as the accessible name source. We remove the extra
+                        hidden label to avoid duplicate/ambiguous name sources. *@
+
+            @govukSelect(
+                Select(
+                    id = form("value").id + "-input",
+                    name = "value",
+                    label = Label(content = Text(messages("refundingCountry.heading")), classes = "govuk-visually-hidden"),
+                    items = Seq(SelectItem(value = Some(""), text = "Select a country", selected = form("value").value.isEmpty)) ++ countries.map { case (name, code) =>
+                        SelectItem(value = Some(code), text = name, selected = form("value").value.contains(code))
+                    },
+                    hint = Some(Hint(content = messages("refundingCountry.hint"))),
+                    attributes = Map(
+                        "aria-describedby" -> (form("value").id + "-input-hint")
+                    ),
+                    errorMessage = form.error("value").map { e => ErrorMessage(content = Text(messages(e.message, e.args: _*))) }
+                ).asAccessibleAutocomplete(Some(AccessibleAutocomplete(showAllValues = false, autoSelect = false, minLength = None)))
+            )
+
+            <input type="hidden" id="valueTyped" name="valueTyped" value="">
+
+            @govukButton(ButtonViewModel(messages("site.continue")))
+
+            @* The shared script `refunding-country.js` patches accessible-autocomplete
+                 nodes (aria attributes) and synchronises values. Logic centralised
+                 in the external JS to keep a single source of truth. *@
+            <script @views.html.helper.CSPNonce.attr src='@routes.Assets.versioned("javascripts/refunding-country.js")'></script>
+
+        }
+}

@@ -20,6 +20,7 @@ import config.FrontendAppConfig
 import controllers.actions.IdentifierAction
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.http.SessionKeys
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
@@ -36,18 +37,28 @@ class AuthController @Inject() (
     with I18nSupport {
 
   def signOut(): Action[AnyContent] = identify.async { implicit request =>
-    sessionRepository
-      .clear(request.userId)
-      .map { _ =>
-        Redirect(config.signOutUrl, Map("continue" -> Seq(config.exitSurveyUrl)))
-      }
+    val authIdClear = sessionRepository.clear(request.userId)
+    val sessionIdClear = request.session.get(SessionKeys.sessionId) match {
+      case Some(sid) => sessionRepository.clear(sid)
+      case None      => scala.concurrent.Future.successful(true)
+    }
+
+    for {
+      _ <- authIdClear
+      _ <- sessionIdClear
+    } yield Redirect(config.signOutUrl, Map("continue" -> Seq(config.exitSurveyUrl))).withNewSession
   }
 
   def signOutNoSurvey(): Action[AnyContent] = identify.async { implicit request =>
-    sessionRepository
-      .clear(request.userId)
-      .map { _ =>
-        Redirect(config.signOutUrl, Map("continue" -> Seq(routes.SignedOutController.onPageLoad().url)))
-      }
+    val authIdClear = sessionRepository.clear(request.userId)
+    val sessionIdClear = request.session.get(SessionKeys.sessionId) match {
+      case Some(sid) => sessionRepository.clear(sid)
+      case None      => scala.concurrent.Future.successful(true)
+    }
+
+    for {
+      _ <- authIdClear
+      _ <- sessionIdClear
+    } yield Redirect(config.signOutUrl, Map("continue" -> Seq(routes.SignedOutController.onPageLoad().url))).withNewSession
   }
 }
