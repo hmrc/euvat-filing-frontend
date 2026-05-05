@@ -15,6 +15,7 @@
  *@
 
 @import uk.gov.hmrc.govukfrontend.views.html.components.*
+@import _root_.models.NormalMode
 
 @this(
   layout: templates.Layout,
@@ -33,7 +34,7 @@
       TaskListItem(
         title = TaskListItemTitle(content = Text(messages("taskListDashboard.listItem1"))),
         status = TaskListItemStatus(tag = Some(Tag(content = Text(messages("taskListDashboard.status1"))))),
-        href = Some("#")
+        href = Some(routes.ContactDetailsController.onPageLoad(NormalMode).url)
       ),
       TaskListItem(
         title = TaskListItemTitle(content = Text(messages("taskListDashboard.listItem2"))),
