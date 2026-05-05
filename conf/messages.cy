@@ -112,5 +112,3 @@ aboutThePurchase.bullet3 = the VAT registration number
 aboutThePurchase.bullet4 = the supplier name and address
 aboutThePurchase.bullet5 = the VAT amount
 
-site.back = Back
-site.continue = Continue

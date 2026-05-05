@@ -24,17 +24,12 @@
         formHelper: FormWithCSRF
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(backLinkCall: Call)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("aboutThePurchase.title"))) {
+@layout(pageTitle = titleNoForm(messages("aboutThePurchase.title")), backLinkUrl = Some(backLinkCall.url)) {
 
-
-    @govukBackLink(BackLink(
-    href = controllers.routes.TaskListDashboardController.onPageLoad().url,
-    content = Text(messages("site.back"))
-))
     <span class="govuk-caption-l">@messages("aboutThePurchase.subheading")</span>
-    <h1 class="govuk-heading-xl">@messages("aboutThePurchase.heading")</h1>
+    <h1 class="govuk-heading-l">@messages("aboutThePurchase.heading")</h1>
 
     <p class="govuk-body">@messages("aboutThePurchase.p1")</p>
 
@@ -46,7 +41,7 @@
         <li>@messages("aboutThePurchase.bullet5")</li>
     </ul>
 
-@formHelper(action = routes.AboutThePurchaseController.onSubmit()) {
-@govukButton(ButtonViewModel(Text(messages("site.continue"))))
-}
+    @formHelper(action = routes.AboutThePurchaseController.onSubmit()) {
+        @govukButton(ButtonViewModel(Text(messages("site.continue"))))
+    }
 }

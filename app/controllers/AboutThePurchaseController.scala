@@ -34,7 +34,7 @@ class AboutThePurchaseController @Inject()(
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) {
     implicit request =>
-      Ok(view())
+      Ok(view(routes.TaskListDashboardController.onPageLoad()))
   }
 
   def onSubmit(): Action[AnyContent] = Action { implicit request =>
