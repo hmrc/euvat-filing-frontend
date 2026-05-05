@@ -67,8 +67,8 @@ refundingCountry.error.required = Select an EU member state
 refundingCountry.error.invalid = Select a valid EU member state
 refundingCountry.error.invalid.summary = Select a valid EU member state
 
-
 aboutThePurchase.title = About the purchase
+aboutThePurchase.heading = About the purchase
 aboutThePurchase.subheading = Add purchase details
 aboutThePurchase.p1 = You’ll need the following information about the purchase:
 aboutThePurchase.bullet1 = the purchase type
@@ -77,5 +77,3 @@ aboutThePurchase.bullet3 = the VAT registration number
 aboutThePurchase.bullet4 = the supplier name and address
 aboutThePurchase.bullet5 = the VAT amount
 
-site.back = Back
-site.continue = Continue
