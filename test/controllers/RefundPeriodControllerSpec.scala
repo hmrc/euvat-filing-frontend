@@ -49,29 +49,35 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
         running(application) {
           val request = FakeRequest(GET, routes.RefundPeriodController.onPageLoad().url)
           val result = route(application, request).value
+          val view = application.injector.instanceOf[views.html.RefundPeriodView]
+          implicit val msgs = messages(application)
+          val form = application.injector.instanceOf[forms.RefundPeriodFormProvider].apply()
 
           status(result) mustEqual OK
-
-          val body = contentAsString(result)
-          body must include("govuk-list govuk-list--bullet")
-          body must include("govuk-date-input")
-          body must include("govuk-input--width-2")
-          body must include("govuk-input--width-4")
+          contentAsString(result) mustEqual view(form)(request, msgs).toString
         }
       }
 
       "must pre-fill the form when saved answers exist" in {
-        val userAnswers = emptyUserAnswers.set(RefundPeriodPage, models.RefundPeriod(3, 2025, 8, 2025)).success.value
+        val savedPeriod = models.RefundPeriod(
+          java.time.LocalDate.of(2025, 3, 1),
+          java.time.LocalDate.of(2025, 8, 1)
+        )
+        val userAnswers = emptyUserAnswers.set(RefundPeriodPage, savedPeriod).success.value
         val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
         running(application) {
           val request = FakeRequest(GET, routes.RefundPeriodController.onPageLoad().url)
           val result = route(application, request).value
+          val view = application.injector.instanceOf[views.html.RefundPeriodView]
+          val formProvider = application.injector.instanceOf[forms.RefundPeriodFormProvider]
+          implicit val msgs = messages(application)
+          val start = java.time.YearMonth.of(savedPeriod.startDate.getYear, savedPeriod.startDate.getMonthValue)
+          val end = java.time.YearMonth.of(savedPeriod.endDate.getYear, savedPeriod.endDate.getMonthValue)
+          val form = formProvider().fill(forms.RefundPeriodData(start, end))
 
-          status(result) `mustEqual` OK
-          val body = contentAsString(result)
-          body must include("2025")
-          body must include("3")
+          status(result) mustEqual OK
+          contentAsString(result) mustEqual view(form)(request, msgs).toString
         }
       }
     }

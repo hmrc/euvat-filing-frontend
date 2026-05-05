@@ -16,10 +16,11 @@
 
 package models
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{Format, Json}
+import java.time.LocalDate
 
-case class RefundPeriod(startMonth: Int, startYear: Int, endMonth: Int, endYear: Int)
+case class RefundPeriod(startDate: LocalDate, endDate: LocalDate)
 
 object RefundPeriod {
-  implicit val format: OFormat[RefundPeriod] = Json.format[RefundPeriod]
+  implicit val format: Format[RefundPeriod] = Json.format[RefundPeriod]
 }

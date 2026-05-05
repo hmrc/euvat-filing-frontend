@@ -16,8 +16,8 @@
 
 package forms.mappings
 
-import play.api.data.format.Formatter
 import play.api.data.FormError
+import play.api.data.format.Formatter
 import play.api.i18n.Messages
 
 import java.time.YearMonth
@@ -35,25 +35,47 @@ class YearMonthFormatter(
 
   private val fieldKeys: List[String] = List("month", "year")
 
+  private def parseMonthName(input: String): Option[String] = {
+    val normalised = input.trim.toLowerCase
+    val months = Map(
+      "january" -> 1, "jan" -> 1,
+      "february" -> 2, "feb" -> 2,
+      "march" -> 3, "mar" -> 3,
+      "april" -> 4, "apr" -> 4,
+      "may" -> 5,
+      "june" -> 6, "jun" -> 6,
+      "july" -> 7, "jul" -> 7,
+      "august" -> 8, "aug" -> 8,
+      "september" -> 9, "sep" -> 9,
+      "october" -> 10, "oct" -> 10,
+      "november" -> 11, "nov" -> 11,
+      "december" -> 12, "dec" -> 12
+    )
+    months.get(normalised).map(_.toString)
+  }
+
+  private def normaliseData(key: String, data: Map[String, String]): Map[String, String] =
+    data.map {
+      case (k, v) if k == s"$key.month" =>
+        k -> (if (v.matches("""\d{1,2}""")) v else parseMonthName(v).getOrElse(v))
+      case other => other
+    }
+
   private def toYearMonth(key: String, month: Int, year: Int): Either[Seq[FormError], YearMonth] =
     Try(YearMonth.of(year, month)) match {
       case Success(ym) => Right(ym)
-      case Failure(_)   => Left(Seq(FormError(key, invalidKey, args)))
+      case Failure(_)  => Left(Seq(FormError(key, invalidKey, args)))
     }
 
   private def formatYearMonth(key: String, data: Map[String, String]): Either[Seq[FormError], YearMonth] = {
-
     val int = intFormatter(
       requiredKey = invalidKey,
       wholeNumberKey = invalidKey,
       nonNumericKey = invalidKey,
       args
     )
-
-    val month = new MonthFormatter(invalidKey, args)
-
     for {
-      month <- month.bind(s"$key.month", data)
+      month <- int.bind(s"$key.month", data)
       year <- int.bind(s"$key.year", data)
       ym <- toYearMonth(key, month, year)
     } yield ym
@@ -65,15 +87,9 @@ class YearMonthFormatter(
       field -> data.get(s"$key.$field").filter(_.nonEmpty)
     }.toMap
 
-    lazy val missingFields = fields
-      .withFilter(_._2.isEmpty)
-      .map(_._1)
-      .toList
-      .map(field => messages(s"date.error.$field"))
-
     fields.count(_._2.isDefined) match {
       case 2 =>
-        formatYearMonth(key, data).left.map(_.map(_.copy(key = key, args = args)))
+        formatYearMonth(key, normaliseData(key, data)).left.map(_.map(_.copy(key = key, args = args)))
       case 1 =>
         val missingField = fields.find(_._2.isEmpty).map(_._1).getOrElse("month")
         val errorKey = s"$twoRequiredKey.$missingField"
