@@ -66,3 +66,38 @@ refundingCountry.error.summary = Select an EU member state
 refundingCountry.error.required = Select an EU member state
 refundingCountry.error.invalid = Select a valid EU member state
 refundingCountry.error.invalid.summary = Select a valid EU member state
+
+# Refunding language page
+refundingLanguage.caption = Add claim details
+refundingLanguage.title = What language do you want to use for this claim?
+refundingLanguage.heading = What language do you want to use for this claim?
+refundingLanguage.error.required = Select a language for this claim
+refundingLanguage.checkYourAnswersLabel = Language for claim
+refundingLanguage.change.hidden = Change language
+refundingLanguage.hint = All supporting documents must be uploaded in the language you select.
+
+# Language labels (used as message keys in the radios)
+refundingLanguage.english = English
+refundingLanguage.german = German
+refundingLanguage.french = French
+refundingLanguage.dutch = Dutch
+refundingLanguage.bulgarian = Bulgarian
+refundingLanguage.spanish = Spanish
+refundingLanguage.turkish = Turkish
+refundingLanguage.czech = Czech
+refundingLanguage.danish = Danish
+refundingLanguage.estonian = Estonian
+refundingLanguage.finnish = Finnish
+refundingLanguage.swedish = Swedish
+refundingLanguage.italian = Italian
+refundingLanguage.latvian = Latvian
+refundingLanguage.lithuanian = Lithuanian
+refundingLanguage.maltese = Maltese
+refundingLanguage.polish = Polish
+refundingLanguage.portuguese = Portuguese
+refundingLanguage.romanian = Romanian
+refundingLanguage.slovak = Slovak
+refundingLanguage.slovenian = Slovenian
+refundingLanguage.irish = Irish
+refundingLanguage.hungarian = Hungarian
+refundingLanguage.greek = Greek

@@ -26,3 +26,9 @@ GET         /unauthorised                                controllers.Unauthorise
 GET        /which-eu-member-state                        controllers.RefundingCountryController.onPageLoad()
 POST       /which-eu-member-state                        controllers.RefundingCountryController.onSubmit()
 
+# Refunding language (what language to use for this claim)
+GET        /what-language                                controllers.RefundingLanguageController.onPageLoad(mode: models.Mode = NormalMode)
+POST       /what-language                                controllers.RefundingLanguageController.onSubmit(mode: models.Mode = NormalMode)
+GET        /change-what-language                         controllers.RefundingLanguageController.onPageLoad(mode: models.Mode = CheckMode)
+POST       /change-what-language                         controllers.RefundingLanguageController.onSubmit(mode: models.Mode = CheckMode)
+
