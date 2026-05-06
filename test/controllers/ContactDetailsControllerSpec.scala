@@ -37,6 +37,7 @@ import scala.concurrent.Future
 class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
 
   private def onwardRoute = Call("GET", "/foo")
+  private def backUrl: Call = routes.RefundingCountryController.onPageLoad()
 
   private val formProvider = new ContactDetailsFormProvider()
   private val form = formProvider()
@@ -86,7 +87,7 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
           val view = application.injector.instanceOf[ContactDetailsView]
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+          contentAsString(result) mustEqual view(form, NormalMode, backUrl)(request, messages(application)).toString
         }
       }
 
@@ -100,7 +101,7 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
           val view = application.injector.instanceOf[ContactDetailsView]
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(form.fill(contactDetails), NormalMode)(request, messages(application)).toString
+          contentAsString(result) mustEqual view(form.fill(contactDetails), NormalMode, backUrl)(request, messages(application)).toString
         }
       }
 
@@ -130,7 +131,7 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
           val view = application.injector.instanceOf[ContactDetailsView]
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(form.fill(contactDetails), CheckMode)(request, messages(application)).toString
+          contentAsString(result) mustEqual view(form.fill(contactDetails), CheckMode, backUrl)(request, messages(application)).toString
         }
       }
     }
@@ -163,7 +164,8 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
           status(result) mustEqual BAD_REQUEST
           contentAsString(result) mustEqual view(
             form.bind(Map("contactEmail" -> "")),
-            NormalMode
+            NormalMode,
+            backUrl
           )(request, messages(application)).toString
           verify(mockSessionRepository, never).set(any())
         }

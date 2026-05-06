@@ -16,25 +16,26 @@
 
 @import models.Mode
 @import viewmodels.InputWidth.*
+@import views.html.components.*
 
 @this(
     layout: templates.Layout,
     formHelper: FormWithCSRF,
     govukErrorSummary: GovukErrorSummary,
     govukInput: GovukInput,
-    govukButton: GovukButton
+    govukButton: GovukButton,
+    mainErrorSummary: MainErrorSummary
 )
 
-@(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, call:Call)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("contactDetails.title"))) {
+@layout(pageTitle = title(form, messages("contactDetails.title")), backLinkUrl = Some(call.url)) {
 
     @formHelper(action = routes.ContactDetailsController.onSubmit(mode), Symbol("novalidate") -> "novalidate") {
 
-        @if(form.errors.nonEmpty) {
-            @govukErrorSummary(ErrorSummaryViewModel(form))
-        }
+        @mainErrorSummary(form)
 
+        <span class="govuk-caption-l">@messages("claim.caption.add")</span>
         <h1 class="govuk-heading-l">@messages("contactDetails.heading")</h1>
 
         @govukInput(
