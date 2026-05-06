@@ -58,7 +58,7 @@ trait Mappings extends Formatters with Constraints {
                         ): FieldMapping[BigDecimal] =
     of(currencyFormatter(requiredKey, invalidNumeric, nonNumericKey, args))
 
-  val validateEmailAddress: String = """^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,})$"""
+  val validateEmailAddress: String = """^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9][a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,})$"""
   val emailMaxLength: Int = 100
   val validateNameField: String = """^[a-zA-Z0-9\-, '’.]+$"""
   val nameMaxLength: Int = 35

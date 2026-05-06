@@ -262,6 +262,18 @@ class ContactDetailsFormProviderSpec extends StringFieldBehaviours with FieldBeh
       "for single-char TLD user@domain.a" in {
         "user@domain.a" mustNot fullyMatch regex formProvider.validateEmailAddress
       }
+
+      "for hyphen-starting domain user@-domain.com" in {
+        "user@-domain.com" mustNot fullyMatch regex formProvider.validateEmailAddress
+      }
+
+      "for underscore-starting domain user@_domain.com" in {
+        "user@_domain.com" mustNot fullyMatch regex formProvider.validateEmailAddress
+      }
+
+      "for dot-starting domain user@.domain.com" in {
+        "user@.domain.com" mustNot fullyMatch regex formProvider.validateEmailAddress
+      }
     }
   }
 }
