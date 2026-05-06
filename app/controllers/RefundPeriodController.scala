@@ -17,8 +17,7 @@
 package controllers
 
 import controllers.actions._
-import forms.RefundPeriodFormProvider
-import javax.inject.Inject
+import forms.{RefundPeriodData, RefundPeriodFormProvider}
 import models.RefundPeriod
 import navigation.Navigator
 import pages.RefundPeriodPage
@@ -28,10 +27,9 @@ import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.RefundPeriodView
 
-import javax.inject.Inject
 import java.time.LocalDate
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import forms.RefundPeriodData
 
 class RefundPeriodController @Inject()(
                                         override val messagesApi: MessagesApi,
@@ -39,43 +37,43 @@ class RefundPeriodController @Inject()(
                                         navigator: Navigator,
                                         identify: IdentifierAction,
                                         getData: DataRetrievalAction,
+                                        requireData: DataRequiredAction,
                                         formProvider: RefundPeriodFormProvider,
                                         val controllerComponents: MessagesControllerComponents,
                                         view: RefundPeriodView
                                       )(implicit ec: ExecutionContext)
   extends FrontendBaseController
     with I18nSupport {
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData) { implicit request =>
 
-    val preparedForm = request.userAnswers.flatMap(_.get(RefundPeriodPage)) match {
+  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+
+    val preparedForm = request.userAnswers.get(RefundPeriodPage) match {
       case None => formProvider()
       case Some(value) =>
         val start = java.time.YearMonth.of(value.startDate.getYear, value.startDate.getMonthValue)
-        val end = java.time.YearMonth.of(value.endDate.getYear, value.endDate.getMonthValue)
+        val end   = java.time.YearMonth.of(value.endDate.getYear, value.endDate.getMonthValue)
         formProvider().fill(RefundPeriodData(start, end))
     }
 
-    Ok(view(preparedForm))
+    Ok(view(formProvider.withMappedErrors(preparedForm)))
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen getData).async { implicit request =>
+  def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
 
     formProvider()
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors))),
+        formWithErrors => Future.successful(BadRequest(view(formProvider.withMappedErrors(formWithErrors)))),
         value =>
-          val baseAnswers = request.userAnswers.getOrElse(models.UserAnswers(request.userId))
           for {
-            updatedAnswers <-
-              Future.fromTry(
-                baseAnswers.set(RefundPeriodPage,
-                  RefundPeriod(
-                    LocalDate.of(value.start.getYear, value.start.getMonthValue, 1),
-                    LocalDate.of(value.end.getYear, value.end.getMonthValue, 1)
-                  )
+            updatedAnswers <- Future.fromTry(
+              request.userAnswers.set(RefundPeriodPage,
+                RefundPeriod(
+                  LocalDate.of(value.start.getYear, value.start.getMonthValue, 1),
+                  LocalDate.of(value.end.getYear, value.end.getMonthValue, 1)
                 )
               )
+            )
             _ <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(RefundPeriodPage, models.NormalMode, updatedAnswers))
       )

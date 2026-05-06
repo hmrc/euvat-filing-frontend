@@ -104,30 +104,15 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must save answers and redirect when valid data submitted with no existing user answers" in {
-        val mockSessionRepository = mock[repositories.SessionRepository]
-        when(mockSessionRepository.set(any())) thenReturn scala.concurrent.Future.successful(true)
-
-        val application = applicationBuilder(userAnswers = None)
-          .overrides(
-            bind[navigation.Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[repositories.SessionRepository].toInstance(mockSessionRepository)
-          )
-          .build()
+      "must redirect to journey recovery when no user answers exist" in {
+        val application = applicationBuilder(userAnswers = None).build()
 
         running(application) {
-          val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit().url)
-            .withFormUrlEncodedBody(
-              "start.month" -> "03",
-              "start.year"  -> "2025",
-              "end.month"   -> "08",
-              "end.year"    -> "2025"
-            )
+          val request = FakeRequest(GET, routes.RefundPeriodController.onPageLoad().url)
           val result = route(application, request).value
 
-          status(result) `mustEqual` SEE_OTHER
-          redirectLocation(result).value `mustEqual` onwardRoute.url
-          verify(mockSessionRepository, times(1)).set(any())
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
         }
       }
 
@@ -276,6 +261,23 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) `mustEqual` BAD_REQUEST
           contentAsString(result) must include(messages(application)("refundPeriod.error.periodStartDatenotAfterEndDate"))
+        }
+      }
+
+      "must show start-date-in-past error when start date is in the future" in {
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+        running(application) {
+          val future = java.time.YearMonth.now().plusMonths(1)
+          val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit().url)
+            .withFormUrlEncodedBody(
+              "start.month" -> future.getMonthValue.toString,
+              "start.year" -> future.getYear.toString,
+              "end.month" -> future.plusMonths(3).getMonthValue.toString,
+              "end.year" -> future.plusMonths(3).getYear.toString
+            )
+          val result = route(application, request).value
+          status(result) mustEqual BAD_REQUEST
+          contentAsString(result) must include(messages(application)("refundPeriod.error.periodBothDatesInvalid"))
         }
       }
 

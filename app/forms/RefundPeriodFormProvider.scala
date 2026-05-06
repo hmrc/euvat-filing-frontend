@@ -57,6 +57,28 @@ class RefundPeriodFormProvider @Inject()() {
       else Invalid(errorKey)
     }
 
+  def withMappedErrors(form: Form[RefundPeriodData]): Form[RefundPeriodData] = {
+    val errorMappings = Map(
+      "refundPeriod.error.periodStartDatenotAfterEndDate"          -> "start",
+      "refundPeriod.error.periodEndDaterefundPeriodInSingleYear"   -> "end",
+      "refundPeriod.error.periodStartDateperiodNotLessThan3Months" -> "start",
+      "refundPeriod.error.periodStartDateInvalid"                  -> "start",
+      "refundPeriod.error.periodEndDateInvalid"                    -> "end",
+      "refundPeriod.error.periodBothDatesInvalid"                  -> "start",
+      "refundPeriod.error.periodStartDateafter30thSept"            -> "start",
+      "refundPeriod.error.periodStartDate30thSeptOrEarlier"        -> "start"
+    )
+
+    val remappedErrors = form.errors.map { error =>
+      errorMappings.get(error.message) match {
+        case Some(fieldKey) => error.copy(key = fieldKey)
+        case None           => error
+      }
+    }
+
+    form.copy(errors = remappedErrors)
+  }
+
   def apply()(implicit messages: Messages): Form[RefundPeriodData] =
     Form(
       mapping(
