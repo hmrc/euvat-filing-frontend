@@ -27,6 +27,7 @@ import models.*
 class Navigator @Inject() () {
 
   private val normalRoutes: Page => UserAnswers => Call = {
+    case RefundingCountryPage     => _ => routes.ContactDetailsController.onPageLoad(NormalMode)
     case ContactDetailsPage       => _ => routes.JourneyRecoveryController.onPageLoad()
     case _                        => _ => routes.IndexController.onPageLoad()
   }

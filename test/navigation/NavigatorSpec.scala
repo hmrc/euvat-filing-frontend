@@ -24,25 +24,34 @@ import models.*
 class NavigatorSpec extends SpecBase {
 
   val navigator = new Navigator
+  val userAnswers: UserAnswers = UserAnswers("id")
 
   "Navigator" - {
 
     "in Normal mode" - {
 
       "must go from a page that doesn't exist in the route map to Index" in {
-
         case object UnknownPage extends Page
-        navigator.nextPage(UnknownPage, NormalMode, UserAnswers("id")) mustBe routes.IndexController.onPageLoad()
+        navigator.nextPage(UnknownPage, NormalMode, userAnswers) mustBe routes.IndexController.onPageLoad()
       }
+
+      "must go from RefundingCountryPage page to ContactDetailsPage page" in {
+        navigator.nextPage(RefundingCountryPage, NormalMode, userAnswers) mustBe routes.ContactDetailsController.onPageLoad(NormalMode)
+      }
+
+      "must go from ContactDetailsPage page to JourneyRecovery page" in {
+        navigator.nextPage(ContactDetailsPage, NormalMode, userAnswers) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
     }
 
     "in Check mode" - {
 
       "must go from a page that doesn't exist in the edit route map to CheckYourAnswers" in {
-
         case object UnknownPage extends Page
-        navigator.nextPage(UnknownPage, CheckMode, UserAnswers("id")) mustBe routes.CheckYourAnswersController.onPageLoad()
+        navigator.nextPage(UnknownPage, CheckMode, userAnswers) mustBe routes.CheckYourAnswersController.onPageLoad()
       }
     }
+
   }
 }
