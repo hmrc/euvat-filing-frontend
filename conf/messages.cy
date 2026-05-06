@@ -69,8 +69,6 @@ refundingCountry.error.invalid.summary = Select a valid EU member state
 
 contactDetails.title = Who should we contact about this claim?
 contactDetails.heading = Who should we contact about this claim?
-contactDetails.caption = Add claim details
-contactDetails.caption.visuallyHidden = This section is
 contactDetails.contactEmail.label = Email address
 contactDetails.contactFirstName.label = First name (optional)
 contactDetails.contactLastName.label = Last name (optional)
