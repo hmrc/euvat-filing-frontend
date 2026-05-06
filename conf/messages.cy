@@ -58,6 +58,7 @@ taskListDashboard.status2 = Cannot start yet
 taskListDashboard.dashboardLink = Go to the claims dashboard
 taskListDashboard.errorSummary1 = There is a problem
 taskListDashboard.errorSummary2 = Select add claim details to start a claim
+
 # Refunding country / which EU member state
 refundingCountry.title = Which EU member state are you claiming back VAT from?
 refundingCountry.heading = Which EU member state are you claiming back VAT from?
@@ -114,7 +115,8 @@ refundingCountry.error.invalid = Select a valid EU member state
 refundingCountry.error.invalid.summary = Select a valid EU member state
 
 # Refund period
-refundPeriod.title = What is the refund period? EU-VAT - GOV.UK
+refundPeriod.caption = Add claim details
+refundPeriod.title = What is the refund period?
 refundPeriod.heading = What is the refund period?
 refundPeriod.rules.heading = Your refund period must:
 refundPeriod.rule.1 = be in the past when you send your claim
@@ -127,14 +129,31 @@ refundPeriod.end.heading = When is the refund period end date?
 refundPeriod.end.hint = For example, 08 2010
 
 ## Refund period error indicators
+
+## Missing field errors
+refundPeriod.error.periodStartDatecompleteFieldname = Enter the start date
+refundPeriod.error.periodStartDatecompleteFieldname.month = Enter the start month
+refundPeriod.error.periodStartDatecompleteFieldname.year = Enter the start year
+refundPeriod.error.periodEndDatecompleteFieldname = Enter the end date
+refundPeriod.error.periodEndDatecompleteFieldname.month = Enter the end month
+refundPeriod.error.periodEndDatecompleteFieldname.year = Enter the end year
+
+## Invalid format errors
+refundPeriod.error.periodStartDateinvalidStartEndDateFormat = Enter a valid start date
+refundPeriod.error.periodStartDateinvalidStartEndDateFormat.month = Enter a valid start month
+refundPeriod.error.periodStartDateinvalidStartEndDateFormat.year = Enter a valid start year
+refundPeriod.error.periodEndDateinvalidStartEndDateFormat = Enter a valid end date
+refundPeriod.error.periodEndDateinvalidStartEndDateFormat.month = Enter a valid end month
+refundPeriod.error.periodEndDateinvalidStartEndDateFormat.year = Enter a valid end year
+
+## Future date errors
+refundPeriod.error.periodStartDateInvalid = Refund period start date must be in the past
+refundPeriod.error.periodEndDateInvalid = Refund period end date must be in the past
+refundPeriod.error.periodBothDatesInvalid = Refund period start date and end date must be in the past
+
+## Refund period rule errors
 refundPeriod.error.periodStartDatenotAfterEndDate = Enter a start date that comes before the refund period end date
-refundPeriod.error.periodEndDaterefundPeriodInSingleYear = Enter an end month in the same calendar year as the start month
-refundPeriod.error.periodStartDateperiodNotLessThan3Months = The refund period must be at least 3 months long unless it ends in December
-refundPeriod.error.periodStartDatecompleteFieldname = Enter the claim period start date
-refundPeriod.error.periodStartDateinvalidStartEndDateFormat = Start date must include a month and year
-refundPeriod.error.periodStartDateInvalid = The claim period start date must be in the past
-refundPeriod.error.periodEndDatecompleteFieldname = Enter the claim period end date
-refundPeriod.error.periodEndDateinvalidStartEndDateFormat = End date must include a month and year
-refundPeriod.error.periodEndDateInvalid = Enter a date for a valid claim period
+refundPeriod.error.periodEndDaterefundPeriodInSingleYear = Refund period start date and end date must be in the same calendar year
+refundPeriod.error.periodStartDateperiodNotLessThan3Months = Refund period must be at least 3 months long unless it ends in December
 refundPeriod.error.periodStartDateafter30thSept = The refund period start date cannot be before January of this year.
 refundPeriod.error.periodStartDate30thSeptOrEarlier = The refund period start date cannot be before January of last year.
