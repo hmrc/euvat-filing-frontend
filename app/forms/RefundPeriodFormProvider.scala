@@ -39,10 +39,10 @@ class RefundPeriodFormProvider @Inject()() {
       val endInFuture = data.end.isAfter(now)
 
       (startInFuture, endInFuture) match {
-        case (true, true)  => Invalid("refundPeriod.error.periodBothDatesInvalid")
+        case (true, true) => Invalid("refundPeriod.error.periodBothDatesInvalid")
         case (true, false) => Invalid("refundPeriod.error.periodStartDateInvalid")
         case (false, true) => Invalid("refundPeriod.error.periodEndDateInvalid")
-        case _             => Valid
+        case _ => Valid
       }
     }
 
@@ -59,20 +59,20 @@ class RefundPeriodFormProvider @Inject()() {
 
   def withMappedErrors(form: Form[RefundPeriodData]): Form[RefundPeriodData] = {
     val errorMappings = Map(
-      "refundPeriod.error.periodStartDatenotAfterEndDate"          -> "start",
-      "refundPeriod.error.periodEndDaterefundPeriodInSingleYear"   -> "end",
+      "refundPeriod.error.periodStartDatenotAfterEndDate" -> "start",
+      "refundPeriod.error.periodEndDaterefundPeriodInSingleYear" -> "end",
       "refundPeriod.error.periodStartDateperiodNotLessThan3Months" -> "start",
-      "refundPeriod.error.periodStartDateInvalid"                  -> "start",
-      "refundPeriod.error.periodEndDateInvalid"                    -> "end",
-      "refundPeriod.error.periodBothDatesInvalid"                  -> "start",
-      "refundPeriod.error.periodStartDateafter30thSept"            -> "start",
-      "refundPeriod.error.periodStartDate30thSeptOrEarlier"        -> "start"
+      "refundPeriod.error.periodStartDateInvalid" -> "start",
+      "refundPeriod.error.periodEndDateInvalid" -> "end",
+      "refundPeriod.error.periodBothDatesInvalid" -> "start",
+      "refundPeriod.error.periodStartDateafter30thSept" -> "start",
+      "refundPeriod.error.periodStartDate30thSeptOrEarlier" -> "start"
     )
 
     val remappedErrors = form.errors.map { error =>
       errorMappings.get(error.message) match {
         case Some(fieldKey) => error.copy(key = fieldKey)
-        case None           => error
+        case None => error
       }
     }
 
@@ -83,22 +83,32 @@ class RefundPeriodFormProvider @Inject()() {
     Form(
       mapping(
         "start" -> of(new YearMonthFormatter(
-          invalidKey     = "refundPeriod.error.periodStartDateinvalidStartEndDateFormat",
+          invalidKey = "refundPeriod.error.periodStartDateinvalidStartEndDateFormat",
           allRequiredKey = "refundPeriod.error.periodStartDatecompleteFieldname",
           twoRequiredKey = "refundPeriod.error.periodStartDatecompleteFieldname",
-          requiredKey    = "refundPeriod.error.periodStartDatecompleteFieldname"
+          requiredKey = "refundPeriod.error.periodStartDatecompleteFieldname"
         )),
         "end" -> of(new YearMonthFormatter(
-          invalidKey     = "refundPeriod.error.periodEndDateinvalidStartEndDateFormat",
+          invalidKey = "refundPeriod.error.periodEndDateinvalidStartEndDateFormat",
           allRequiredKey = "refundPeriod.error.periodEndDatecompleteFieldname",
           twoRequiredKey = "refundPeriod.error.periodEndDatecompleteFieldname",
-          requiredKey    = "refundPeriod.error.periodEndDatecompleteFieldname"
+          requiredKey = "refundPeriod.error.periodEndDatecompleteFieldname"
         ))
-      )((s,e) => RefundPeriodData(s,e)) (rd => Some(rd.start, rd.end))
-        .verifying("refundPeriod.error.periodStartDatenotAfterEndDate", data => data.start.isBefore(data.end))
-        .verifying("refundPeriod.error.periodEndDaterefundPeriodInSingleYear", data => data.start.getYear == data.end.getYear)
+      )((s, e) => RefundPeriodData(s, e))(rd => Some(rd.start, rd.end))
+        .verifying("refundPeriod.error.periodStartDatenotAfterEndDate", data => {
+          val now = YearMonth.now()
+          if (data.start.isAfter(now) || data.end.isAfter(now)) true
+          else data.start.isBefore(data.end)
+        })
+        .verifying("refundPeriod.error.periodEndDaterefundPeriodInSingleYear", data => {
+          val now = YearMonth.now()
+          if (data.start.isAfter(now) || data.end.isAfter(now)) true
+          else data.start.getYear == data.end.getYear
+        })
         .verifying("refundPeriod.error.periodStartDateperiodNotLessThan3Months", data => {
-          if (!data.start.isBefore(data.end)) true
+          val now = YearMonth.now()
+          if (data.start.isAfter(now) || data.end.isAfter(now)) true
+          else if (!data.start.isBefore(data.end)) true
           else if (data.end.getMonthValue == 12) true
           else java.time.temporal.ChronoUnit.MONTHS.between(data.start, data.end) >= 2
         })

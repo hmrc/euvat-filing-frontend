@@ -84,9 +84,9 @@ class YearMonthFormatter(
       case (Left(_), Left(_)) =>
         Left(Seq(FormError(key, invalidKey, args)))
       case (Left(_), Right(_)) =>
-        Left(Seq(FormError(key, s"$invalidKey.month", args)))
+        Left(Seq(FormError(s"$key.month", s"$invalidKey.month", args)))
       case (Right(_), Left(_)) =>
-        Left(Seq(FormError(key, s"$invalidKey.year", args)))
+        Left(Seq(FormError(s"$key.year", s"$invalidKey.year", args)))
     }
   }
 
@@ -102,7 +102,7 @@ class YearMonthFormatter(
       case 1 =>
         val missingField = fields.find(_._2.isEmpty).map(_._1).getOrElse("month")
         val errorKey = s"$twoRequiredKey.$missingField"
-        Left(List(FormError(key, errorKey, args)))
+        Left(List(FormError(s"$key.$missingField", errorKey, args)))
       case _ =>
         Left(List(FormError(key, allRequiredKey, args)))
     }

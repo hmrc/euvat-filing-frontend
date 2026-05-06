@@ -34,7 +34,7 @@ class YearMonthFormatterSpec extends SpecBase {
           val formatter = new YearMonthFormatter("invalid", "all", "two", "req")
           val data = Map("start.month" -> "03", "start.year" -> "2010")
           val res = formatter.bind("start", data)
-          res.isRight mustBe true
+          res.isRight `mustBe` true
           res.toOption.get mustEqual YearMonth.of(2010, 3)
         }
       }
@@ -69,7 +69,7 @@ class YearMonthFormatterSpec extends SpecBase {
           val formatter = new YearMonthFormatter("invalid", "all", "two", "req")
           val data = Map("x.month" -> "03")
           val res = formatter.bind("x", data)
-          res.isLeft mustBe true
+          res.isLeft `mustBe` true
           res.swap.toOption.get.head.message mustEqual "two.year"
         }
       }
@@ -81,7 +81,7 @@ class YearMonthFormatterSpec extends SpecBase {
           val formatter = new YearMonthFormatter("invalid", "all", "two", "req")
           val data = Map("x.year" -> "2010")
           val res = formatter.bind("x", data)
-          res.isLeft mustBe true
+          res.isLeft `mustBe` true
           res.swap.toOption.get.head.message mustEqual "two.month"
         }
       }
@@ -93,7 +93,7 @@ class YearMonthFormatterSpec extends SpecBase {
           val formatter = new YearMonthFormatter("invalid", "all", "two", "req")
           val data = Map.empty[String, String]
           val res = formatter.bind("x", data)
-          res.isLeft mustBe true
+          res.isLeft `mustBe` true
           res.swap.toOption.get.head.message mustEqual "all"
         }
       }
@@ -108,8 +108,9 @@ class YearMonthFormatterSpec extends SpecBase {
           val formatter = new YearMonthFormatter("invalid", "all", "two", "req")
           val data = Map("k.month" -> "03", "k.year" -> "20.10")
           val res = formatter.bind("k", data)
-          res.isLeft mustBe true
+          res.isLeft `mustBe` true
           res.swap.toOption.get.head.message mustEqual "invalid.year"
+          res.swap.toOption.get.head.key mustEqual "k.year"
         }
       }
 
@@ -120,8 +121,9 @@ class YearMonthFormatterSpec extends SpecBase {
           val formatter = new YearMonthFormatter("invalid", "all", "two", "req")
           val data = Map("x.month" -> "abc", "x.year" -> "2010")
           val res = formatter.bind("x", data)
-          res.isLeft mustBe true
+          res.isLeft `mustBe` true
           res.swap.toOption.get.head.message mustEqual "invalid.month"
+          res.swap.toOption.get.head.key mustEqual "x.month"
         }
       }
 
@@ -132,7 +134,7 @@ class YearMonthFormatterSpec extends SpecBase {
           val formatter = new YearMonthFormatter("invalid", "all", "two", "req")
           val data = Map("x.month" -> "abc", "x.year" -> "abc")
           val res = formatter.bind("x", data)
-          res.isLeft mustBe true
+          res.isLeft `mustBe` true
           res.swap.toOption.get.head.message mustEqual "invalid"
         }
       }
@@ -144,7 +146,7 @@ class YearMonthFormatterSpec extends SpecBase {
           val formatter = new YearMonthFormatter("invalid", "all", "two", "req")
           val data = Map("z.month" -> "13", "z.year" -> "2010")
           val res = formatter.bind("z", data)
-          res.isLeft mustBe true
+          res.isLeft `mustBe` true
           res.swap.toOption.get.head.message mustEqual "invalid"
         }
       }

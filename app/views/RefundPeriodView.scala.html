@@ -40,7 +40,11 @@
       @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map(
         "" -> s"${form("start").id}.month",
         "start" -> s"${form("start").id}.month",
-        "end" -> s"${form("end").id}.month"
+        "end" -> s"${form("end").id}.month",
+        s"${form("start").id}.year" -> s"${form("start").id}.year",
+        s"${form("end").id}.year"   -> s"${form("end").id}.year",
+        s"${form("start").id}.month" -> s"${form("start").id}.month",
+        s"${form("end").id}.month"   -> s"${form("end").id}.month"
       )))
     }
 
@@ -58,7 +62,7 @@
       <li>@messages("refundPeriod.rule.4")</li>
     </ul>
 
-    @defining(form.error("start")) { startError =>
+    @defining(form.error("start").orElse(form.error("start.month")).orElse(form.error("start.year"))) { startError =>
       @defining(
         DateInput(
           fieldset = Some(Fieldset(legend = Some(Legend(content = HtmlContent(messages("refundPeriod.start.heading")), classes = "govuk-fieldset__legend--m")))),
@@ -74,7 +78,7 @@
       }
     }
 
-    @defining(form.error("end")) { endError =>
+    @defining(form.error("end").orElse(form.error("end.month")).orElse(form.error("end.year"))) { endError =>
       @defining(
         DateInput(
           fieldset = Some(Fieldset(legend = Some(Legend(content = HtmlContent(messages("refundPeriod.end.heading")), classes = "govuk-fieldset__legend--m")))),
