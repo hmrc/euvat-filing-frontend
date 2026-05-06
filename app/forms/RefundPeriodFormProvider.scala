@@ -32,6 +32,20 @@ class RefundPeriodFormProvider @Inject()() {
 
   protected def today: LocalDate = LocalDate.now()
 
+  private val futureDateConstraint: Constraint[RefundPeriodData] =
+    Constraint { data =>
+      val now = YearMonth.now()
+      val startInFuture = data.start.isAfter(now)
+      val endInFuture = data.end.isAfter(now)
+
+      (startInFuture, endInFuture) match {
+        case (true, true)  => Invalid("refundPeriod.error.periodBothDatesInvalid")
+        case (true, false) => Invalid("refundPeriod.error.periodStartDateInvalid")
+        case (false, true) => Invalid("refundPeriod.error.periodEndDateInvalid")
+        case _             => Valid
+      }
+    }
+
   private val septemberCutoffConstraint: Constraint[RefundPeriodData] =
     Constraint { data =>
       val (cutoff, errorKey) = if (today.isAfter(java.time.LocalDate.of(today.getYear, 9, 30)))
@@ -47,16 +61,16 @@ class RefundPeriodFormProvider @Inject()() {
     Form(
       mapping(
         "start" -> of(new YearMonthFormatter(
-          invalidKey = "refundPeriod.error.periodStartDateinvalidStartEndDateFormat",
+          invalidKey     = "refundPeriod.error.periodStartDateinvalidStartEndDateFormat",
           allRequiredKey = "refundPeriod.error.periodStartDatecompleteFieldname",
-          twoRequiredKey = "refundPeriod.error.periodStartDateinvalidStartEndDateFormat",
-          requiredKey = "refundPeriod.error.periodStartDatecompleteFieldname"
+          twoRequiredKey = "refundPeriod.error.periodStartDatecompleteFieldname",
+          requiredKey    = "refundPeriod.error.periodStartDatecompleteFieldname"
         )),
         "end" -> of(new YearMonthFormatter(
-          invalidKey = "refundPeriod.error.periodEndDateinvalidStartEndDateFormat",
+          invalidKey     = "refundPeriod.error.periodEndDateinvalidStartEndDateFormat",
           allRequiredKey = "refundPeriod.error.periodEndDatecompleteFieldname",
-          twoRequiredKey = "refundPeriod.error.periodEndDateinvalidStartEndDateFormat",
-          requiredKey = "refundPeriod.error.periodEndDatecompleteFieldname"
+          twoRequiredKey = "refundPeriod.error.periodEndDatecompleteFieldname",
+          requiredKey    = "refundPeriod.error.periodEndDatecompleteFieldname"
         ))
       )((s,e) => RefundPeriodData(s,e)) (rd => Some(rd.start, rd.end))
         .verifying("refundPeriod.error.periodStartDatenotAfterEndDate", data => data.start.isBefore(data.end))
@@ -66,7 +80,7 @@ class RefundPeriodFormProvider @Inject()() {
           else if (data.end.getMonthValue == 12) true
           else java.time.temporal.ChronoUnit.MONTHS.between(data.start, data.end) >= 2
         })
-        .verifying("refundPeriod.error.periodEndDateInvalid", data => data.end.isBefore(YearMonth.now()) || data.end.equals(YearMonth.now()))
+        .verifying(futureDateConstraint)
         .verifying(septemberCutoffConstraint)
     )
 }

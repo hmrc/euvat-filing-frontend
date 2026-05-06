@@ -25,114 +25,128 @@ class YearMonthFormatterSpec extends SpecBase {
 
   "YearMonthFormatter" - {
 
-    "must bind numeric month and year" in {
-      val application = applicationBuilder().build()
+    "Binding valid data" - {
 
-      running(application) {
-        implicit val msgs: Messages = messages(application)
-        val formatter = new YearMonthFormatter(
-          invalidKey = "invalid",
-          allRequiredKey = "all",
-          twoRequiredKey = "two",
-          requiredKey = "req"
-        )
+      "must bind numeric month and year" in {
+        val application = applicationBuilder().build()
+        running(application) {
+          implicit val msgs: Messages = messages(application)
+          val formatter = new YearMonthFormatter("invalid", "all", "two", "req")
+          val data = Map("start.month" -> "03", "start.year" -> "2010")
+          val res = formatter.bind("start", data)
+          res.isRight mustBe true
+          res.toOption.get mustEqual YearMonth.of(2010, 3)
+        }
+      }
 
-        val data = Map("start.month" -> "03", "start.year" -> "2010")
+      "must bind month by short name" in {
+        val application = applicationBuilder().build()
+        running(application) {
+          implicit val msgs: Messages = messages(application)
+          val formatter = new YearMonthFormatter("invalid", "all", "two", "req")
+          val data = Map("m.month" -> "Mar", "m.year" -> "2010")
+          formatter.bind("m", data).toOption.get mustEqual YearMonth.of(2010, 3)
+        }
+      }
 
-        val res = formatter.bind("start", data)
-        res.isRight mustBe true
-        res.toOption.get mustEqual YearMonth.of(2010, 3)
+      "must bind month by full name" in {
+        val application = applicationBuilder().build()
+        running(application) {
+          implicit val msgs: Messages = messages(application)
+          val formatter = new YearMonthFormatter("invalid", "all", "two", "req")
+          val data = Map("m.month" -> "March", "m.year" -> "2010")
+          formatter.bind("m", data).toOption.get mustEqual YearMonth.of(2010, 3)
+        }
       }
     }
 
-    "must bind month by short or full name" in {
-      val application = applicationBuilder().build()
+    "Missing field errors" - {
 
-      running(application) {
-        implicit val msgs: Messages = messages(application)
-        val formatter = new YearMonthFormatter("invalid", "all", "two", "req")
+      "must return two.year error when only month is present" in {
+        val application = applicationBuilder().build()
+        running(application) {
+          implicit val msgs: Messages = messages(application)
+          val formatter = new YearMonthFormatter("invalid", "all", "two", "req")
+          val data = Map("x.month" -> "03")
+          val res = formatter.bind("x", data)
+          res.isLeft mustBe true
+          res.swap.toOption.get.head.message mustEqual "two.year"
+        }
+      }
 
-        val short = Map("m.month" -> "Mar", "m.year" -> "2010")
-        val full = Map("m.month" -> "March", "m.year" -> "2010")
+      "must return two.month error when only year is present" in {
+        val application = applicationBuilder().build()
+        running(application) {
+          implicit val msgs: Messages = messages(application)
+          val formatter = new YearMonthFormatter("invalid", "all", "two", "req")
+          val data = Map("x.year" -> "2010")
+          val res = formatter.bind("x", data)
+          res.isLeft mustBe true
+          res.swap.toOption.get.head.message mustEqual "two.month"
+        }
+      }
 
-        formatter.bind("m", short).toOption.get mustEqual YearMonth.of(2010, 3)
-        formatter.bind("m", full).toOption.get mustEqual YearMonth.of(2010, 3)
+      "must return all-required error when both fields are missing" in {
+        val application = applicationBuilder().build()
+        running(application) {
+          implicit val msgs: Messages = messages(application)
+          val formatter = new YearMonthFormatter("invalid", "all", "two", "req")
+          val data = Map.empty[String, String]
+          val res = formatter.bind("x", data)
+          res.isLeft mustBe true
+          res.swap.toOption.get.head.message mustEqual "all"
+        }
       }
     }
 
-    "must return two-required when only one field present" in {
-      val application = applicationBuilder().build()
+    "Invalid format errors" - {
 
-      running(application) {
-        implicit val msgs: Messages = messages(application)
-        val formatter = new YearMonthFormatter("invalid", "all", "two", "req")
-
-        val data = Map("x.month" -> "03")
-
-        val res = formatter.bind("x", data)
-        res.isLeft mustBe true
-        res.swap.toOption.get.head.message mustEqual "two.year"
+      "must return invalid.year when only year is invalid" in {
+        val application = applicationBuilder().build()
+        running(application) {
+          implicit val msgs: Messages = messages(application)
+          val formatter = new YearMonthFormatter("invalid", "all", "two", "req")
+          val data = Map("k.month" -> "03", "k.year" -> "20.10")
+          val res = formatter.bind("k", data)
+          res.isLeft mustBe true
+          res.swap.toOption.get.head.message mustEqual "invalid.year"
+        }
       }
-    }
 
-    "must return two.month error when only year is present" in {
-      val application = applicationBuilder().build()
-
-      running(application) {
-        implicit val msgs: Messages = messages(application)
-        val formatter = new YearMonthFormatter("invalid", "all", "two", "req")
-
-        val data = Map("x.year" -> "2010")
-
-        val res = formatter.bind("x", data)
-        res.isLeft mustBe true
-        res.swap.toOption.get.head.message mustEqual "two.month"
+      "must return invalid.month when only month is invalid" in {
+        val application = applicationBuilder().build()
+        running(application) {
+          implicit val msgs: Messages = messages(application)
+          val formatter = new YearMonthFormatter("invalid", "all", "two", "req")
+          val data = Map("x.month" -> "abc", "x.year" -> "2010")
+          val res = formatter.bind("x", data)
+          res.isLeft mustBe true
+          res.swap.toOption.get.head.message mustEqual "invalid.month"
+        }
       }
-    }
 
-    "must return all-required error when both fields are missing" in {
-      val application = applicationBuilder().build()
-
-      running(application) {
-        implicit val msgs: Messages = messages(application)
-        val formatter = new YearMonthFormatter("invalid", "all", "two", "req")
-
-        val data = Map.empty[String, String]
-
-        val res = formatter.bind("x", data)
-        res.isLeft mustBe true
-        res.swap.toOption.get.head.message mustEqual "all"
+      "must return invalid when both month and year are invalid" in {
+        val application = applicationBuilder().build()
+        running(application) {
+          implicit val msgs: Messages = messages(application)
+          val formatter = new YearMonthFormatter("invalid", "all", "two", "req")
+          val data = Map("x.month" -> "abc", "x.year" -> "abc")
+          val res = formatter.bind("x", data)
+          res.isLeft mustBe true
+          res.swap.toOption.get.head.message mustEqual "invalid"
+        }
       }
-    }
 
-    "must return invalid when non-numeric year provided" in {
-      val application = applicationBuilder().build()
-
-      running(application) {
-        implicit val msgs: Messages = messages(application)
-        val formatter = new YearMonthFormatter("invalid", "all", "two", "req")
-
-        val data = Map("k.month" -> "03", "k.year" -> "20.10")
-
-        val res = formatter.bind("k", data)
-        res.isLeft mustBe true
-        res.swap.toOption.get.head.message mustEqual "invalid"
-      }
-    }
-
-    "must return invalid when month is out of range" in {
-      val application = applicationBuilder().build()
-
-      running(application) {
-        implicit val msgs: Messages = messages(application)
-
-        val formatter = new YearMonthFormatter("invalid", "all", "two", "req")
-
-        val data = Map("z.month" -> "13", "z.year" -> "2010")
-
-        val res = formatter.bind("z", data)
-        res.isLeft mustBe true
-        res.swap.toOption.get.head.message mustEqual "invalid"
+      "must return invalid when month is out of range" in {
+        val application = applicationBuilder().build()
+        running(application) {
+          implicit val msgs: Messages = messages(application)
+          val formatter = new YearMonthFormatter("invalid", "all", "two", "req")
+          val data = Map("z.month" -> "13", "z.year" -> "2010")
+          val res = formatter.bind("z", data)
+          res.isLeft mustBe true
+          res.swap.toOption.get.head.message mustEqual "invalid"
+        }
       }
     }
   }

@@ -69,16 +69,25 @@ class YearMonthFormatter(
 
   private def formatYearMonth(key: String, data: Map[String, String]): Either[Seq[FormError], YearMonth] = {
     val int = intFormatter(
-      requiredKey = invalidKey,
+      requiredKey    = invalidKey,
       wholeNumberKey = invalidKey,
-      nonNumericKey = invalidKey,
+      nonNumericKey  = invalidKey,
       args
     )
-    for {
-      month <- int.bind(s"$key.month", data)
-      year <- int.bind(s"$key.year", data)
-      ym <- toYearMonth(key, month, year)
-    } yield ym
+
+    val monthResult = int.bind(s"$key.month", data)
+    val yearResult  = int.bind(s"$key.year", data)
+
+    (monthResult, yearResult) match {
+      case (Right(month), Right(year)) =>
+        toYearMonth(key, month, year)
+      case (Left(_), Left(_)) =>
+        Left(Seq(FormError(key, invalidKey, args)))
+      case (Left(_), Right(_)) =>
+        Left(Seq(FormError(key, s"$invalidKey.month", args)))
+      case (Right(_), Left(_)) =>
+        Left(Seq(FormError(key, s"$invalidKey.year", args)))
+    }
   }
 
   override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], YearMonth] = {
@@ -89,7 +98,7 @@ class YearMonthFormatter(
 
     fields.count(_._2.isDefined) match {
       case 2 =>
-        formatYearMonth(key, normaliseData(key, data)).left.map(_.map(_.copy(key = key, args = args)))
+        formatYearMonth(key, normaliseData(key, data))
       case 1 =>
         val missingField = fields.find(_._2.isEmpty).map(_._1).getOrElse("month")
         val errorKey = s"$twoRequiredKey.$missingField"
