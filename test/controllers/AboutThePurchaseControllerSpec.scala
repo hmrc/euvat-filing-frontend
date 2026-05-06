@@ -21,8 +21,10 @@ class AboutThePurchaseControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[AboutThePurchaseView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+        contentAsString(result) mustEqual view(routes.TaskListDashboardController.onPageLoad())(request, messages(application)).toString
       }
     }
   }
+
+
 }
