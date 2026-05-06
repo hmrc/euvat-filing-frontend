@@ -35,22 +35,8 @@ class ContactDetailsFormProvider @Inject() extends Mappings {
               regexp(validateEmailAddress, "contactDetails.error.email.invalidFormat")
             )
           ),
-        "contactFirstName" -> optional(
-          text().verifying(
-            firstError(
-              maxLength(nameMaxLength, "contactDetails.error.firstName.maxLength"),
-              regexp(validateNameField, "contactDetails.error.firstName.format")
-            )
-          )
-        ),
-        "contactLastName" -> optional(
-          text().verifying(
-            firstError(
-              maxLength(nameMaxLength, "contactDetails.error.lastName.maxLength"),
-              regexp(validateNameField, "contactDetails.error.lastName.format")
-            )
-          )
-        ),
+        "contactFirstName" -> optional(text()),
+        "contactLastName"  -> optional(text()),
         "contactTelephone" -> optional(
           text().verifying(
             regexp(validateTelephoneNumber, "contactDetails.error.telephone.format")

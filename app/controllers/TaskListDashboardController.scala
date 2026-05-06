@@ -37,14 +37,13 @@ class TaskListDashboardController @Inject() (
   appConfig: FrontendAppConfig,
   val controllerComponents: MessagesControllerComponents,
   view: TaskListDashboardView
-)(using ExecutionContext) extends FrontendBaseController
+)(using ExecutionContext)
+    extends FrontendBaseController
     with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData).async { implicit request =>
     val originalAnswers = request.userAnswers.getOrElse(UserAnswers(request.userId))
-    sessionRepository.set(originalAnswers).map(_ =>
-      Ok(view(appConfig.claimDashboardUrl))
-    )
+    sessionRepository.set(originalAnswers).map(_ => Ok(view(appConfig.claimDashboardUrl)))
 
   }
 }

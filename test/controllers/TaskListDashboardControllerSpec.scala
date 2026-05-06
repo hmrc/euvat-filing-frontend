@@ -38,8 +38,8 @@ class TaskListDashboardControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val application = applicationBuilder(userAnswers = None)
-          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
-          .build()
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, routes.TaskListDashboardController.onPageLoad().url)
@@ -58,8 +58,8 @@ class TaskListDashboardControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(false)
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
-          .build()
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, routes.TaskListDashboardController.onPageLoad().url)

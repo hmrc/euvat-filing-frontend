@@ -92,19 +92,11 @@ class ContactDetailsFormProviderSpec extends StringFieldBehaviours with FieldBeh
       result.firstName mustBe None
     }
 
-    "reject a first name longer than 35 characters" in {
-      val tooLong = "a" * 36
-      val result = form.bind(validData.updated(fieldName, tooLong)).apply(fieldName)
-      result.errors must contain only FormError(fieldName, "contactDetails.error.firstName.maxLength", Seq(35))
-    }
-
-    "reject a first name with invalid characters" in {
-      val result = form.bind(validData.updated(fieldName, "Jane@Doe")).apply(fieldName)
-      result.errors must contain only FormError(
-        fieldName,
-        "contactDetails.error.firstName.format",
-        Seq(formProvider.validateNameField)
-      )
+    "accept any string per spec (no format or length validation)" in {
+      val unusual = "Mary-Jane O’Neil, Sr. " + ("a" * 80)
+      val result = form.bind(validData.updated(fieldName, unusual)).apply(fieldName)
+      result.value.value mustBe unusual
+      result.errors mustBe empty
     }
   }
 
@@ -128,19 +120,11 @@ class ContactDetailsFormProviderSpec extends StringFieldBehaviours with FieldBeh
       result.lastName mustBe None
     }
 
-    "reject a last name longer than 35 characters" in {
-      val tooLong = "a" * 36
-      val result = form.bind(validData.updated(fieldName, tooLong)).apply(fieldName)
-      result.errors must contain only FormError(fieldName, "contactDetails.error.lastName.maxLength", Seq(35))
-    }
-
-    "reject a last name with invalid characters" in {
-      val result = form.bind(validData.updated(fieldName, "<script>")).apply(fieldName)
-      result.errors must contain only FormError(
-        fieldName,
-        "contactDetails.error.lastName.format",
-        Seq(formProvider.validateNameField)
-      )
+    "accept any string per spec (no format or length validation)" in {
+      val unusual = "Smith-Jones O’Reilly " + ("z" * 80)
+      val result = form.bind(validData.updated(fieldName, unusual)).apply(fieldName)
+      result.value.value mustBe unusual
+      result.errors mustBe empty
     }
   }
 
@@ -155,8 +139,14 @@ class ContactDetailsFormProviderSpec extends StringFieldBehaviours with FieldBeh
     }
 
     "bind a valid international telephone number with plus prefix" in {
-      val result = form.bind(validData.updated(fieldName, "+44 808 157 0192")).apply(fieldName)
-      result.value.value mustBe "+44 808 157 0192"
+      val result = form.bind(validData.updated(fieldName, "+448081570192")).apply(fieldName)
+      result.value.value mustBe "+448081570192"
+      result.errors mustBe empty
+    }
+
+    "bind a short telephone number per spec (1-20 digits accepted)" in {
+      val result = form.bind(validData.updated(fieldName, "12345")).apply(fieldName)
+      result.value.value mustBe "12345"
       result.errors mustBe empty
     }
 
@@ -179,8 +169,18 @@ class ContactDetailsFormProviderSpec extends StringFieldBehaviours with FieldBeh
       )
     }
 
-    "reject a telephone number shorter than 10 digits" in {
-      val result = form.bind(validData.updated(fieldName, "12345")).apply(fieldName)
+    "reject a telephone number with whitespace per spec" in {
+      val result = form.bind(validData.updated(fieldName, "01632 960 001")).apply(fieldName)
+      result.errors must contain only FormError(
+        fieldName,
+        "contactDetails.error.telephone.format",
+        Seq(formProvider.validateTelephoneNumber)
+      )
+    }
+
+    "reject a telephone number longer than 20 digits" in {
+      val tooLong = "1" * 21
+      val result = form.bind(validData.updated(fieldName, tooLong)).apply(fieldName)
       result.errors must contain only FormError(
         fieldName,
         "contactDetails.error.telephone.format",
