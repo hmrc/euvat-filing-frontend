@@ -24,11 +24,11 @@ sealed trait PurchaseType
 
 object PurchaseType extends Enumerable.Implicits {
 
-  case object Fuel         extends WithName("fuel")         with PurchaseType
-  case object Transport    extends WithName("transport")    with PurchaseType
+  case object Fuel         extends WithName("fuel") with PurchaseType
+  case object Transport    extends WithName("transport") with PurchaseType
   case object FoodAndDrink extends WithName("foodAndDrink") with PurchaseType
-  case object Luxuries     extends WithName("luxuries")     with PurchaseType
-  case object Other        extends WithName("other")        with PurchaseType
+  case object Luxuries     extends WithName("luxuries") with PurchaseType
+  case object Other        extends WithName("other") with PurchaseType
 
   val values: Seq[PurchaseType] = Seq(Fuel, Transport, FoodAndDrink, Luxuries, Other)
 

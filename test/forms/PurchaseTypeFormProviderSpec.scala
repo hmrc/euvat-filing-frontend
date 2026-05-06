@@ -24,8 +24,8 @@ class PurchaseTypeFormProviderSpec extends FieldBehaviours {
 
   private val form = new PurchaseTypeFormProvider().apply()
 
-  private val fieldName   = "value"
-  private val errorKey    = "purchaseType.error.required"
+  private val fieldName = "value"
+  private val errorKey = "purchaseType.error.required"
 
   ".value" - {
 

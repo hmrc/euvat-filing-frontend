@@ -37,7 +37,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
   val onwardRoute = Call("GET", "/foo")
 
-  lazy val purchaseTypeRoute       = routes.PurchaseTypeController.onPageLoad(NormalMode).url
+  lazy val purchaseTypeRoute = routes.PurchaseTypeController.onPageLoad(NormalMode).url
   lazy val purchaseTypeSubmitRoute = routes.PurchaseTypeController.onSubmit(NormalMode).url
 
   "PurchaseType Controller" - {
@@ -48,11 +48,11 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(GET, purchaseTypeRoute)
-        val result  = route(application, request).value
+        val result = route(application, request).value
 
-        val view         = application.injector.instanceOf[PurchaseTypeView]
+        val view = application.injector.instanceOf[PurchaseTypeView]
         val formProvider = application.injector.instanceOf[PurchaseTypeFormProvider]
-        val form         = formProvider()
+        val form = formProvider()
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode, None)(request, messages(application)).toString
@@ -65,7 +65,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(GET, purchaseTypeRoute)
-        val result  = route(application, request).value
+        val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
@@ -79,11 +79,11 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(GET, purchaseTypeRoute)
-        val result  = route(application, request).value
+        val result = route(application, request).value
 
-        val view         = application.injector.instanceOf[PurchaseTypeView]
+        val view = application.injector.instanceOf[PurchaseTypeView]
         val formProvider = application.injector.instanceOf[PurchaseTypeFormProvider]
-        val form         = formProvider().fill(PurchaseType.Fuel)
+        val form = formProvider().fill(PurchaseType.Fuel)
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode, None)(request, messages(application)).toString
