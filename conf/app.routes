@@ -18,13 +18,13 @@ GET         /account/sign-out-survey                     controllers.auth.AuthCo
 GET         /account/sign-out                            controllers.auth.AuthController.signOutNoSurvey()
 GET         /account/signed-out                          controllers.auth.SignedOutController.onPageLoad()
 
-GET         /make-eu-vat-claim                           controllers.TaskListDashboardController.onPageLoad()
-
 GET         /unauthorised                                controllers.UnauthorisedController.onPageLoad()
 
+GET         /make-eu-vat-claim                           controllers.TaskListDashboardController.onPageLoad()
+
 # Refunding country (which EU member state)
-GET        /which-eu-member-state                        controllers.RefundingCountryController.onPageLoad()
-POST       /which-eu-member-state                        controllers.RefundingCountryController.onSubmit()
+GET        /which-eu-member-state                       controllers.RefundingCountryController.onPageLoad()
+POST       /which-eu-member-state                       controllers.RefundingCountryController.onSubmit()
 
 # Refunding language (what language to use for this claim)
 GET        /what-language                                controllers.RefundingLanguageController.onPageLoad(mode: models.Mode = NormalMode)
@@ -38,3 +38,9 @@ GET         /what-refund-period                          controllers.RefundPerio
 POST        /what-refund-period                          controllers.RefundPeriodController.onSubmit(mode: Mode = NormalMode)
 GET         /change-refund-period                        controllers.RefundPeriodController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-refund-period                        controllers.RefundPeriodController.onSubmit(mode: Mode = CheckMode)
+
+# Contact details (who should we contact about this claim)
+GET         /who-contact-about-this-claim                controllers.ContactDetailsController.onPageLoad(mode: Mode = NormalMode)
+POST        /who-contact-about-this-claim                controllers.ContactDetailsController.onSubmit(mode: Mode = NormalMode)
+GET         /change-who-contact-about-this-claim         controllers.ContactDetailsController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-who-contact-about-this-claim         controllers.ContactDetailsController.onSubmit(mode: Mode = CheckMode)

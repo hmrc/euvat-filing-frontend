@@ -70,7 +70,6 @@ class RefundingCountryController @Inject() (
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
 
     val (countries, form) = buildFormAndCountries()
-
     val baseAnswers: UserAnswers = request.userAnswers
 
     val boundResult = form

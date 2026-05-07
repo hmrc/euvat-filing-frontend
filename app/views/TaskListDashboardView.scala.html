@@ -14,7 +14,8 @@
  * limitations under the License.
  *@
 
- @import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.govukfrontend.views.html.components.*
+@import _root_.models.NormalMode
 
 @this(
   layout: templates.Layout,
@@ -22,7 +23,7 @@
   govukTaskList : GovukTaskList
 )
 
- @(claimDashboardUrl: String)(implicit request: Request[_], messages: Messages)
+@(claimDashboardUrl: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("taskListDashboard.title")), showBackLink = false) {
 

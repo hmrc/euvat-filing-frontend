@@ -30,7 +30,7 @@ import play.api.mvc.Call
 
 class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
 
-  val onwardRoute = Call("GET", "/foo")
+  private val onwardRoute = Call("GET", "/foo")
 
   "RefundingCountry Controller" - {
 
@@ -40,7 +40,6 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(GET, routes.RefundingCountryController.onPageLoad().url)
-
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[views.html.RefundingCountryView]

@@ -45,6 +45,9 @@ unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
 unauthorised.guidance = You do not have access to this service.
 
+claim.caption.add = Add claim details
+purchase.caption.add = Add purchase details
+
 taskListDashboard.claim.caption = Add claim details
 taskListDashboard.title = Make an EU VAT claim
 taskListDashboard.heading = Make an EU VAT claim
@@ -157,3 +160,18 @@ refundPeriod.error.periodEndDaterefundPeriodInSingleYear = Refund period start d
 refundPeriod.error.periodStartDateperiodNotLessThan3Months = Refund period must be at least 3 months long unless it ends in December
 refundPeriod.error.periodStartDateafter30thSept = Refund period start date must be on or after 1 January {0}
 refundPeriod.error.periodStartDate30thSeptOrEarlier = Refund period start date must be on or after 1 January {0}
+
+# Contact details
+contactDetails.title = Who should we contact about this claim?
+contactDetails.heading = Who should we contact about this claim?
+contactDetails.contactEmail.label = Email address
+contactDetails.contactFirstName.label = First name (optional)
+contactDetails.contactLastName.label = Last name (optional)
+contactDetails.contactTelephone.label = Telephone number (optional)
+contactDetails.error.email.required = Enter an email address
+contactDetails.error.email.invalidFormat = Enter an email address in the correct format, like name@example.com
+contactDetails.error.firstName.maxLength = Your first name must be between 1 and 100 characters
+contactDetails.error.firstName.format = Enter your first name in the correct format
+contactDetails.error.lastName.maxLength = Your last name must be between 1 and 100 characters
+contactDetails.error.lastName.format = Enter your last name in the correct format
+contactDetails.error.telephone.format = Enter a telephone number in the correct format, like 01632960001 or +448081570192
