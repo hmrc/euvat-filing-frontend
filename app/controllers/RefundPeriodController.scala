@@ -18,7 +18,7 @@ package controllers
 
 import controllers.actions.*
 import forms.{RefundPeriodData, RefundPeriodFormProvider}
-import models.RefundPeriod
+import models.{Mode, RefundPeriod}
 import navigation.Navigator
 import pages.RefundPeriodPage
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -45,7 +45,7 @@ class RefundPeriodController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
     val preparedForm = request.userAnswers.get(RefundPeriodPage) match {
       case None => formProvider()
@@ -55,15 +55,15 @@ class RefundPeriodController @Inject() (
         formProvider().fill(RefundPeriodData(start, end))
     }
 
-    Ok(view(formProvider.withMappedErrors(preparedForm)))
+    Ok(view(formProvider.withMappedErrors(preparedForm), mode))
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
 
     formProvider()
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formProvider.withMappedErrors(formWithErrors)))),
+        formWithErrors => Future.successful(BadRequest(view(formProvider.withMappedErrors(formWithErrors), mode))),
         value =>
           for {
             updatedAnswers <- Future.fromTry(
@@ -76,7 +76,7 @@ class RefundPeriodController @Inject() (
                                 )
                               )
             _ <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(RefundPeriodPage, models.NormalMode, updatedAnswers))
+          } yield Redirect(navigator.nextPage(RefundPeriodPage, mode, updatedAnswers))
       )
   }
 }

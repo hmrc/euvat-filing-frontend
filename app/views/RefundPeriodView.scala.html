@@ -30,11 +30,11 @@
   govukButton: GovukButton
 )
 
-@(form: play.api.data.Form[_])(implicit request: play.api.mvc.Request[_], messages: play.api.i18n.Messages)
+@(form: play.api.data.Form[_], mode: models.Mode)(implicit request: play.api.mvc.Request[_], messages: play.api.i18n.Messages)
 
 @layout(pageTitle = views.ViewUtils.title(form, "refundPeriod.title")) {
 
-  @formHelper(action = controllers.routes.RefundPeriodController.onSubmit()) {
+  @formHelper(action = controllers.routes.RefundPeriodController.onSubmit(mode)) {
 
     @if(form.errors.nonEmpty) {
       @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map(
