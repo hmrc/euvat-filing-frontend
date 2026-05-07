@@ -35,12 +35,14 @@
 @(form: Form[_], countries: Seq[(String,String)], call: Call)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = views.ViewUtils.title(form, "refundingCountry.title"), backLinkUrl = Some(call.url)) {
-    @formHelper(action = routes.RefundingCountryController.onSubmit()) {
+    <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is: </span>@messages("claim.caption.add")</h2>
 
+    @formHelper(action = routes.RefundingCountryController.onSubmit()) {
         @mainErrorSummary(form, Map("value" -> (form("value").id + "-input")))
 
-        <span class="govuk-caption-l">@messages("claim.caption.add")</span>
-        <h1 id="refunding-country-heading" class="govuk-heading-l">@messages("refundingCountry.heading")</h1>
+        <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+            <h1 class="govuk-fieldset__heading">@messages("refundingCountry.heading")</h1>
+        </legend>
 
         @govukSelect(
             Select(
