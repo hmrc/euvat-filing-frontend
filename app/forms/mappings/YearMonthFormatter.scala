@@ -73,10 +73,12 @@ class YearMonthFormatter(
     }
 
   private def toYearMonth(key: String, month: Int, year: Int): Either[Seq[FormError], YearMonth] =
-    Try(YearMonth.of(year, month)) match {
-      case Success(ym) => Right(ym)
-      case Failure(_)  => Left(Seq(FormError(key, invalidKey, args)))
-    }
+    if (year > 9999) Left(Seq(FormError(s"$key.year", s"$invalidKey.year", args)))
+    else
+      Try(YearMonth.of(year, month)) match {
+        case Success(ym) => Right(ym)
+        case Failure(_)  => Left(Seq(FormError(key, invalidKey, args)))
+      }
 
   private def formatYearMonth(key: String, data: Map[String, String]): Either[Seq[FormError], YearMonth] = {
     val int = intFormatter(
