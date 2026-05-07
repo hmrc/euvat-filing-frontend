@@ -34,6 +34,16 @@ class NavigatorSpec extends SpecBase {
         case object UnknownPage extends Page
         navigator.nextPage(UnknownPage, NormalMode, UserAnswers("id")) mustBe routes.IndexController.onPageLoad()
       }
+
+      "must go from RefundingCountryPage to RefundPeriodController in NormalMode" in {
+        navigator.nextPage(pages.RefundingCountryPage, NormalMode, UserAnswers("id")) mustBe
+          routes.RefundPeriodController.onPageLoad(NormalMode)
+      }
+
+      "must go from RefundPeriodPage to JourneyRecoveryController in NormalMode" in {
+        navigator.nextPage(pages.RefundPeriodPage, NormalMode, UserAnswers("id")) mustBe
+          routes.JourneyRecoveryController.onPageLoad()
+      }
     }
 
     "in Check mode" - {
