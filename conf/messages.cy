@@ -45,6 +45,9 @@ unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
 unauthorised.guidance = You do not have access to this service.
 
+claim.caption.add = Add claim details
+purchase.caption.add = Add purchase details
+
 taskListDashboard.title = Make an EU VAT claim
 taskListDashboard.heading = Make an EU VAT claim
 taskListDashboard.listItem1 = Add claim details
