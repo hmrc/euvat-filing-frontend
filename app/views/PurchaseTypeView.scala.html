@@ -26,22 +26,23 @@
     mainErrorSummary: MainErrorSummary
 )
 
-@(form: Form[?], mode: Mode, backLinkCall: Option[String] = None)(implicit request: Request[?], messages: Messages)
+@(form: Form[?], mode: Mode, call: Call)(implicit request: Request[?], messages: Messages)
 
 @radioLegend = {<h2 class="govuk-fieldset__heading">@messages("purchaseType.h2")</h2>}
 
-@layout(pageTitle = views.ViewUtils.title(form, "purchaseType.title"), backLinkUrl = backLinkCall) {
-
-    @mainErrorSummary(form, Map("value" -> "value_0"))
-
-    <span class="govuk-caption-l">@messages("purchaseType.caption")</span>
-    <h1 class="govuk-heading-l">@messages("purchaseType.heading")</h1>
-
-    <p class="govuk-body">@messages("purchaseType.p1")</p>
-    <p class="govuk-body">@messages("purchaseType.p2")</p>
-    <p class="govuk-body">@messages("purchaseType.p3")</p>
+@layout(pageTitle = views.ViewUtils.title(form, "purchaseType.title"), backLinkUrl = Some(call.url)) {
+    <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is: </span>@messages("purchase.caption.add")</h2>
 
     @formHelper(action = routes.PurchaseTypeController.onSubmit(mode)) {
+        @mainErrorSummary(form, Map("value" -> "value_0"))
+
+        <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+            <h1 class="govuk-fieldset__heading">@messages("purchaseType.heading")</h1>
+        </legend>
+
+        <p class="govuk-body">@messages("purchaseType.p1")</p>
+        <p class="govuk-body">@messages("purchaseType.p2")</p>
+        <p class="govuk-body">@messages("purchaseType.p3")</p>
 
         @govukRadios(
             RadiosViewModel(

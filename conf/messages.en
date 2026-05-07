@@ -157,10 +157,11 @@ refundPeriod.error.periodStartDateperiodNotLessThan3Months = Refund period must 
 refundPeriod.error.periodStartDateafter30thSept = Refund period start date must be on or after 1 January {0}
 refundPeriod.error.periodStartDate30thSeptOrEarlier = Refund period start date must be on or after 1 January {0}
 
+purchase.caption.add = Add purchase details
+
 # Purchase type
 purchaseType.title = Purchase type
 purchaseType.heading = Purchase type
-purchaseType.caption = Add purchase details
 purchaseType.h2 = What is the purchase type that best describes the item on your invoice?
 purchaseType.p1 = If the invoice includes more than one type of purchase, do not split the invoice over more than one line using the same purchase reference number.
 purchaseType.p2 = This may be treated as a duplicate entry and could delay or reject your claim.
