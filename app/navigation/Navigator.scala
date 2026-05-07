@@ -29,12 +29,12 @@ class Navigator @Inject() () {
   private val normalRoutes: Page => UserAnswers => Call = {
     case pages.RefundingCountryPage => _ => routes.RefundingLanguageController.onPageLoad(models.NormalMode)
     case RefundingLanguagePage => _ => routes.RefundPeriodController.onPageLoad(NormalMode)
-    case RefundPeriodPage      => _ => routes.JourneyRecoveryController.onPageLoad()
-    case _ => _ => routes.IndexController.onPageLoad()
+    case RefundPeriodPage     => _ => routes.JourneyRecoveryController.onPageLoad()
+    case _                    => _ => routes.IndexController.onPageLoad()
   }
 
-  private val checkRouteMap: Page => UserAnswers => Call = {
-    _ => _ => routes.CheckYourAnswersController.onPageLoad()
+  private val checkRouteMap: Page => UserAnswers => Call = { _ => _ =>
+    routes.CheckYourAnswersController.onPageLoad()
   }
 
   def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call = mode match {

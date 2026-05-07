@@ -34,8 +34,8 @@ class ConfigSpec extends SpecBase {
 
     "ConfigLoader should build a Service from configuration" in {
       val config = Configuration(
-        "microservice.services.feedback-frontend.host" -> "fb.local",
-        "microservice.services.feedback-frontend.port" -> "9514",
+        "microservice.services.feedback-frontend.host"     -> "fb.local",
+        "microservice.services.feedback-frontend.port"     -> "9514",
         "microservice.services.feedback-frontend.protocol" -> "http"
       )
 
@@ -49,23 +49,23 @@ class ConfigSpec extends SpecBase {
   "FrontendAppConfig" - {
     "languageMap contains English and Welsh" in {
       val base = Map(
-        "host" -> "http://localhost:18501",
-        "appName" -> "euvat",
-        "contact-frontend.host" -> "http://localhost:9250",
-        "microservice.services.feedback-frontend.host" -> "fb.local",
-        "microservice.services.feedback-frontend.port" -> "9514",
+        "host"                                             -> "http://localhost:18501",
+        "appName"                                          -> "euvat",
+        "contact-frontend.host"                            -> "http://localhost:9250",
+        "microservice.services.feedback-frontend.host"     -> "fb.local",
+        "microservice.services.feedback-frontend.port"     -> "9514",
         "microservice.services.feedback-frontend.protocol" -> "http",
-        "urls.login" -> "http://login",
-        "urls.loginContinue" -> "http://continue",
-        "urls.signOut" -> "http://signout",
-        "urls.claimDashboardUrl" -> "http://dashboard",
-        "features.welsh-translation" -> true,
-        "timeout-dialog.timeout" -> 900,
-        "timeout-dialog.countdown" -> 120,
-        "mongodb.timeToLiveInSeconds" -> 900
+        "urls.login"                                       -> "http://login",
+        "urls.loginContinue"                               -> "http://continue",
+        "urls.signOut"                                     -> "http://signout",
+        "urls.claimDashboardUrl"                           -> "http://dashboard",
+        "features.welsh-translation"                       -> true,
+        "timeout-dialog.timeout"                           -> 900,
+        "timeout-dialog.countdown"                         -> 120,
+        "mongodb.timeToLiveInSeconds"                      -> 900
       )
 
-      val config = Configuration(base.toSeq: _*)
+      val config = Configuration(base.toSeq*)
       val appConfig = new FrontendAppConfig(config)
 
       val langs = appConfig.languageMap
@@ -75,23 +75,23 @@ class ConfigSpec extends SpecBase {
 
     "feedbackUrl should include the host and request uri" in {
       val base = Map(
-        "host" -> "http://localhost:18501",
-        "appName" -> "euvat",
-        "contact-frontend.host" -> "http://localhost:9250",
-        "microservice.services.feedback-frontend.host" -> "fb.local",
-        "microservice.services.feedback-frontend.port" -> "9514",
+        "host"                                             -> "http://localhost:18501",
+        "appName"                                          -> "euvat",
+        "contact-frontend.host"                            -> "http://localhost:9250",
+        "microservice.services.feedback-frontend.host"     -> "fb.local",
+        "microservice.services.feedback-frontend.port"     -> "9514",
         "microservice.services.feedback-frontend.protocol" -> "http",
-        "urls.login" -> "http://login",
-        "urls.loginContinue" -> "http://continue",
-        "urls.signOut" -> "http://signout",
-        "urls.claimDashboardUrl" -> "http://dashboard",
-        "features.welsh-translation" -> true,
-        "timeout-dialog.timeout" -> 900,
-        "timeout-dialog.countdown" -> 120,
-        "mongodb.timeToLiveInSeconds" -> 900
+        "urls.login"                                       -> "http://login",
+        "urls.loginContinue"                               -> "http://continue",
+        "urls.signOut"                                     -> "http://signout",
+        "urls.claimDashboardUrl"                           -> "http://dashboard",
+        "features.welsh-translation"                       -> true,
+        "timeout-dialog.timeout"                           -> 900,
+        "timeout-dialog.countdown"                         -> 120,
+        "mongodb.timeToLiveInSeconds"                      -> 900
       )
 
-      val config = Configuration(base.toSeq: _*)
+      val config = Configuration(base.toSeq*)
       val appConfig = new FrontendAppConfig(config)
 
       implicit val request = FakeRequest("GET", "/some/path?x=1")

@@ -18,7 +18,7 @@ package forms.mappings
 
 import base.SpecBase
 import play.api.i18n.Messages
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import java.time.YearMonth
 
 class YearMonthFormatterSpec extends SpecBase {

@@ -25,7 +25,7 @@ import pages.RefundPeriodPage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 
 class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
 
@@ -271,9 +271,9 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
           val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit().url)
             .withFormUrlEncodedBody(
               "start.month" -> future.getMonthValue.toString,
-              "start.year" -> future.getYear.toString,
-              "end.month" -> future.plusMonths(3).getMonthValue.toString,
-              "end.year" -> future.plusMonths(3).getYear.toString
+              "start.year"  -> future.getYear.toString,
+              "end.month"   -> future.plusMonths(3).getMonthValue.toString,
+              "end.year"    -> future.plusMonths(3).getYear.toString
             )
           val result = route(application, request).value
           status(result) mustEqual BAD_REQUEST
