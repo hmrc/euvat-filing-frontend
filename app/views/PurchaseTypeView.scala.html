@@ -15,7 +15,8 @@
  *@
 
 @import models.{Mode, PurchaseType}
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.errormessage.ErrorMessage
 @import views.html.components.MainErrorSummary
 
 @this(
@@ -49,7 +50,12 @@
                 field  = form("value"),
                 legend = LegendViewModel(HtmlContent(radioLegend)).withCssClass("govuk-fieldset__legend--m"),
                 items  = PurchaseType.options
-            )
+            ).copy(errorMessage = form.error("value").map { e =>
+                ErrorMessage(
+                    content    = Text(messages(e.message, e.args*)),
+                    attributes = Map("role" -> "alert")
+                )
+            })
         )
 
         @govukButton(ButtonViewModel(messages("site.continue")))
