@@ -78,7 +78,7 @@ class RefundingLanguageController @Inject() (
             )
           }
         }
-        Ok(view(preparedForm, items, routes.RefundingCountryController.onPageLoad(), mode))
+        Ok(view(preparedForm, items, routes.RefundingCountryController.onPageLoad(models.NormalMode), mode))
     }
   }
 
@@ -107,7 +107,7 @@ class RefundingLanguageController @Inject() (
                   )
                 }
               }
-              Future.successful(BadRequest(view(formWithErrors, items, routes.RefundingCountryController.onPageLoad(), mode)))
+              Future.successful(BadRequest(view(formWithErrors, items, routes.RefundingCountryController.onPageLoad(models.NormalMode), mode)))
           },
         value =>
           for {
