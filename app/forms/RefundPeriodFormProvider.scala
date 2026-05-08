@@ -55,7 +55,7 @@ class RefundPeriodFormProvider @Inject() () {
           (YearMonth.of(today.getYear - 1, 1), "refundPeriod.error.periodStartDate30thSeptOrEarlier")
 
       if (!data.start.isBefore(cutoff)) Valid
-      else Invalid(errorKey)
+      else Invalid(errorKey, cutoff.getYear.toString)
     }
 
   def withMappedErrors(form: Form[RefundPeriodData]): Form[RefundPeriodData] = {

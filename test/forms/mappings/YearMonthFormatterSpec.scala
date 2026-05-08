@@ -150,6 +150,18 @@ class YearMonthFormatterSpec extends SpecBase {
           res.swap.toOption.get.head.message mustEqual "invalid"
         }
       }
+      "must return invalid.year when year is greater than 9999" in {
+        val application = applicationBuilder().build()
+        running(application) {
+          implicit val msgs: Messages = messages(application)
+          val formatter = new YearMonthFormatter("invalid", "all", "two", "req")
+          val data = Map("k.month" -> "03", "k.year" -> "10000")
+          val res = formatter.bind("k", data)
+          res.isLeft mustBe true
+          res.swap.toOption.get.head.message mustEqual "invalid.year"
+          res.swap.toOption.get.head.key mustEqual "k.year"
+        }
+      }
     }
   }
 }

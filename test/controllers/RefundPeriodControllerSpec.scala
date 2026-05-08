@@ -281,6 +281,22 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
+      "must show invalid year error when year is greater than 9999" in {
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+        running(application) {
+          val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit(models.NormalMode).url)
+            .withFormUrlEncodedBody(
+              "start.month" -> "03",
+              "start.year"  -> "10000",
+              "end.month"   -> "08",
+              "end.year"    -> "2025"
+            )
+          val result = route(application, request).value
+          status(result) mustEqual BAD_REQUEST
+          contentAsString(result) must include(messages(application)("refundPeriod.error.periodStartDateinvalidStartEndDateFormat.year"))
+        }
+      }
+
       "September cutoff" - {
 
         "must reject start date before January of current year when today is after 30 September" in {
@@ -299,7 +315,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
             val result = route(application, request).value
 
             status(result) `mustEqual` BAD_REQUEST
-            contentAsString(result) must include(messages(application)("refundPeriod.error.periodStartDateafter30thSept"))
+            contentAsString(result) must include(messages(application)("Refund period start date must be on or after 1 January 2024"))
           }
         }
 
@@ -342,7 +358,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
             val result = route(application, request).value
 
             status(result) `mustEqual` BAD_REQUEST
-            contentAsString(result) must include(messages(application)("refundPeriod.error.periodStartDate30thSeptOrEarlier"))
+            contentAsString(result) must include(messages(application)("Refund period start date must be on or after 1 January 2023"))
           }
         }
 
