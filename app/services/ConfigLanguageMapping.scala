@@ -19,7 +19,7 @@ package services
 import javax.inject.Inject
 import play.api.Configuration
 
-class ConfigLanguageMapping @Inject()(config: Configuration) {
+class ConfigLanguageMapping @Inject() (config: Configuration) {
 
   private val mapping: Map[String, Seq[String]] = {
     val cfg = config.get[Configuration]("language.mapping")
