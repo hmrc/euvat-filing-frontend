@@ -46,7 +46,8 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
           bind[_root_.services.ConfigLanguageMapping].toInstance(mappingSvc)
-        ).build()
+        )
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, routes.RefundingLanguageController.onPageLoad(models.NormalMode).url)
@@ -69,13 +70,18 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
         }
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, items, routes.RefundingCountryController.onPageLoad(), models.NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, items, routes.RefundingCountryController.onPageLoad(), models.NormalMode)(request,
+                                                                                                                               messages(application)
+                                                                                                                              ).toString
 
         // also supports CheckMode change route
         val changeRequest = FakeRequest(GET, routes.RefundingLanguageController.onPageLoad(models.CheckMode).url)
         val changeResult = route(application, changeRequest).value
         status(changeResult) mustEqual OK
-        contentAsString(changeResult) mustEqual view(form, items, routes.RefundingCountryController.onPageLoad(), models.CheckMode)(changeRequest, messages(application)).toString
+        contentAsString(changeResult) mustEqual view(form, items, routes.RefundingCountryController.onPageLoad(), models.CheckMode)(
+          changeRequest,
+          messages(application)
+        ).toString
       }
     }
 
@@ -108,7 +114,8 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
           bind[navigation.Navigator].toInstance(new navigation.FakeNavigator(onwardRoute)),
           bind[repositories.SessionRepository].toInstance(mockSessionRepository),
           bind[_root_.services.ConfigLanguageMapping].toInstance(mappingSvc)
-        ).build()
+        )
+        .build()
 
       running(application) {
         val request = FakeRequest(POST, routes.RefundingLanguageController.onSubmit(models.NormalMode).url)
@@ -139,7 +146,8 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
       val mappingSvc = new _root_.services.ConfigLanguageMapping(cfg)
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(bind[_root_.services.ConfigLanguageMapping].toInstance(mappingSvc)).build()
+        .overrides(bind[_root_.services.ConfigLanguageMapping].toInstance(mappingSvc))
+        .build()
 
       running(application) {
         val request = FakeRequest(POST, routes.RefundingLanguageController.onSubmit(models.NormalMode).url)

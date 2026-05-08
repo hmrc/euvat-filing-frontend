@@ -27,10 +27,11 @@ import models.*
 class Navigator @Inject() () {
 
   private val normalRoutes: Page => UserAnswers => Call = {
-    case RefundingCountryPage => _ => routes.RefundingLanguageController.onPageLoad(models.NormalMode)
+    case RefundingCountryPage       => _ => routes.RefundingLanguageController.onPageLoad(models.NormalMode)
     case RefundingLanguagePage      => _ => routes.RefundPeriodController.onPageLoad(NormalMode)
     case RefundPeriodPage           => _ => routes.JourneyRecoveryController.onPageLoad()
-    case _                          => _ => routes.IndexController.onPageLoad()  }
+    case _                          => _ => routes.IndexController.onPageLoad()
+  }
 
   private val checkRouteMap: Page => UserAnswers => Call = { _ => _ =>
     routes.CheckYourAnswersController.onPageLoad()

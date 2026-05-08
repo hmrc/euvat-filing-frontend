@@ -14,21 +14,13 @@
  * limitations under the License.
  */
 
-package services
+package models
 
-import javax.inject.Inject
-import play.api.Configuration
+import play.api.libs.json.{Format, Json}
+import java.time.LocalDate
 
-class ConfigLanguageMapping @Inject() (config: Configuration) {
+case class RefundPeriod(startDate: LocalDate, endDate: LocalDate)
 
-  private val mapping: Map[String, Seq[String]] = {
-    val cfg = config.get[Configuration]("language.mapping")
-    cfg.entrySet.map { case (key, sub) =>
-      // play Configuration represents lists as ConfigValue; read as Seq[String]
-      val seq = cfg.get[Seq[String]](key)
-      key -> seq
-    }.toMap
-  }
-
-  def languagesFor(code: String): Seq[String] = mapping.getOrElse(code, Seq("english")).map(_.capitalize)
+object RefundPeriod {
+  implicit val format: Format[RefundPeriod] = Json.format[RefundPeriod]
 }

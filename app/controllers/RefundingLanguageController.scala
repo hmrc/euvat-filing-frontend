@@ -34,62 +34,66 @@ import play.api.Logger
 import models.RefundingLanguage
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 
-class RefundingLanguageController @Inject()( 
-                                       override val messagesApi: MessagesApi,
-                                       sessionRepository: SessionRepository,
-                                       navigator: Navigator,
-                                       identify: IdentifierAction,
-                                       getData: DataRetrievalAction,
-                                       requireData: DataRequiredAction,
-                                       formProvider: RefundingLanguageFormProvider,
-                                       configLanguageMapping: ConfigLanguageMapping,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       view: RefundingLanguageView
-                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+class RefundingLanguageController @Inject() (
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  navigator: Navigator,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: RefundingLanguageFormProvider,
+  configLanguageMapping: ConfigLanguageMapping,
+  val controllerComponents: MessagesControllerComponents,
+  view: RefundingLanguageView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
 
   val form = formProvider()
 
   private val logger = Logger(getClass)
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
-      // Data guard: require a previously selected refunding country
-      val maybeCountry = request.userAnswers.get(pages.RefundingCountryPage)
+    // Data guard: require a previously selected refunding country
+    val maybeCountry = request.userAnswers.get(pages.RefundingCountryPage)
 
-      maybeCountry match {
-        case None =>
-          logger.warn("RefundingLanguageController.onPageLoad - no refunding country in session, redirecting to JourneyRecovery")
-          Redirect(routes.JourneyRecoveryController.onPageLoad())
-        case Some(countryCode) =>
-          val preparedForm = request.userAnswers.get(RefundingLanguagePage) match {
-            case None => form
-            case Some(value) => form.fill(value)
+    maybeCountry match {
+      case None =>
+        logger.warn("RefundingLanguageController.onPageLoad - no refunding country in session, redirecting to JourneyRecovery")
+        Redirect(routes.JourneyRecoveryController.onPageLoad())
+      case Some(countryCode) =>
+        val preparedForm = request.userAnswers.get(RefundingLanguagePage) match {
+          case None        => form
+          case Some(value) => form.fill(value)
+        }
+        val langs = configLanguageMapping.languagesFor(countryCode)
+        val msgs = messagesApi.preferred(request)
+        val items = langs.zipWithIndex.flatMap { case (lang, idx) =>
+          RefundingLanguage.values.find(_.toString.equalsIgnoreCase(lang)).map { v =>
+            uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+              content = uk.gov.hmrc.govukfrontend.views.Aliases.Text(msgs(s"refundingLanguage.${v.toString}")),
+              value   = Some(v.toString),
+              id      = Some(s"value_$idx")
+            )
           }
-            val langs = configLanguageMapping.languagesFor(countryCode)
-            val msgs = messagesApi.preferred(request)
-            val items = langs.zipWithIndex.flatMap { case (lang, idx) =>
-              RefundingLanguage.values.find(_.toString.equalsIgnoreCase(lang)).map { v =>
-                uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
-                  content = uk.gov.hmrc.govukfrontend.views.Aliases.Text(msgs(s"refundingLanguage.${v.toString}")),
-                  value   = Some(v.toString),
-                  id      = Some(s"value_$idx")
-                )
-              }
-            }
-            Ok(view(preparedForm, items, routes.RefundingCountryController.onPageLoad(), mode))
-      }
+        }
+        Ok(view(preparedForm, items, routes.RefundingCountryController.onPageLoad(), mode))
+    }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
-    implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
 
-      form.bindFromRequest().fold(
+    form
+      .bindFromRequest()
+      .fold(
         formWithErrors =>
           // need country to rebuild options
           request.userAnswers.get(pages.RefundingCountryPage) match {
             case None =>
-              logger.warn("RefundingLanguageController.onSubmit - no refunding country in session while binding form errors; redirecting to JourneyRecovery")
+              logger.warn(
+                "RefundingLanguageController.onSubmit - no refunding country in session while binding form errors; redirecting to JourneyRecovery"
+              )
               Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
             case Some(countryCode) =>
               val langs = configLanguageMapping.languagesFor(countryCode)
@@ -105,7 +109,6 @@ class RefundingLanguageController @Inject()(
               }
               Future.successful(BadRequest(view(formWithErrors, items, routes.RefundingCountryController.onPageLoad(), mode)))
           },
-
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(RefundingLanguagePage, value))

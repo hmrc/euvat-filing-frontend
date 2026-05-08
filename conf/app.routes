@@ -30,5 +30,10 @@ POST        /what-language                               controllers.RefundingLa
 GET         /change-what-language                        controllers.RefundingLanguageController.onPageLoad(mode: models.Mode = CheckMode)
 POST        /change-what-language                        controllers.RefundingLanguageController.onSubmit(mode: models.Mode = CheckMode)
 
+GET         /what-refund-period                          controllers.RefundPeriodController.onPageLoad(mode: Mode = NormalMode)
+POST        /what-refund-period                          controllers.RefundPeriodController.onSubmit(mode: Mode = NormalMode)
+GET         /change-refund-period                        controllers.RefundPeriodController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-refund-period                        controllers.RefundPeriodController.onSubmit(mode: Mode = CheckMode)
+
 GET         /about-the-purchase                          controllers.AboutThePurchaseController.onPageLoad()
 POST        /about-the-purchase                          controllers.AboutThePurchaseController.onSubmit()
