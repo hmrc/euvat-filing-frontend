@@ -61,7 +61,7 @@ class RefundPeriodFormProvider @Inject() () {
   def withMappedErrors(form: Form[RefundPeriodData]): Form[RefundPeriodData] = {
     val errorMappings = Map(
       "refundPeriod.error.periodStartDatenotAfterEndDate"          -> "start",
-      "refundPeriod.error.periodEndDaterefundPeriodInSingleYear"   -> "end",
+      "refundPeriod.error.periodEndDaterefundPeriodInSingleYear"   -> "start",
       "refundPeriod.error.periodStartDateperiodNotLessThan3Months" -> "start",
       "refundPeriod.error.periodStartDateInvalid"                  -> "start",
       "refundPeriod.error.periodEndDateInvalid"                    -> "end",
@@ -113,6 +113,7 @@ class RefundPeriodFormProvider @Inject() () {
           data => {
             val now = YearMonth.now()
             if (data.start.isAfter(now) || data.end.isAfter(now)) true
+            else if (!data.start.isBefore(data.end)) true
             else data.start.getYear == data.end.getYear
           }
         )
