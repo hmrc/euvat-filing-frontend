@@ -32,7 +32,7 @@
     mainErrorSummary: MainErrorSummary
 )
 
-@(form: Form[_], activities: Seq[(String,String)], backLinkCall: Option[String], mode: models.Mode)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], activities: Seq[(String,String)], backLinkCall: Option[String], mode: models.Mode = models.NormalMode)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = views.ViewUtils.title(form, "businessActivityTwo.title"), backLinkUrl = backLinkCall) {
 
