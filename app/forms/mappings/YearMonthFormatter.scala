@@ -73,7 +73,7 @@ class YearMonthFormatter(
     }
 
   private def toYearMonth(key: String, month: Int, year: Int): Either[Seq[FormError], YearMonth] =
-    if (year > 9999) Left(Seq(FormError(s"$key.year", s"$invalidKey.year", args)))
+    if (!year.toString.matches("[0-9]{4}")) Left(Seq(FormError(s"$key.year", s"$invalidKey.year", args)))
     else
       Try(YearMonth.of(year, month)) match {
         case Success(ym) => Right(ym)
