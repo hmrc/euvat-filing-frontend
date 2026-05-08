@@ -31,6 +31,8 @@ import views.html.RefundingLanguageView
 
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.Logger
+import models.RefundingLanguage
+import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 
 class RefundingLanguageController @Inject()( 
                                        override val messagesApi: MessagesApi,
@@ -65,7 +67,17 @@ class RefundingLanguageController @Inject()(
             case Some(value) => form.fill(value)
           }
             val langs = configLanguageMapping.languagesFor(countryCode)
-            Ok(view(preparedForm, langs, Some(routes.RefundingCountryController.onPageLoad().url), mode))
+            val msgs = messagesApi.preferred(request)
+            val items = langs.zipWithIndex.flatMap { case (lang, idx) =>
+              RefundingLanguage.values.find(_.toString.equalsIgnoreCase(lang)).map { v =>
+                uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+                  content = uk.gov.hmrc.govukfrontend.views.Aliases.Text(msgs(s"refundingLanguage.${v.toString}")),
+                  value   = Some(v.toString),
+                  id      = Some(s"value_$idx")
+                )
+              }
+            }
+            Ok(view(preparedForm, items, routes.RefundingCountryController.onPageLoad(), mode))
       }
   }
 
@@ -81,7 +93,17 @@ class RefundingLanguageController @Inject()(
               Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
             case Some(countryCode) =>
               val langs = configLanguageMapping.languagesFor(countryCode)
-              Future.successful(BadRequest(view(formWithErrors, langs, Some(routes.RefundingCountryController.onPageLoad().url), mode)))
+              val msgs = messagesApi.preferred(request)
+              val items = langs.zipWithIndex.flatMap { case (lang, idx) =>
+                RefundingLanguage.values.find(_.toString.equalsIgnoreCase(lang)).map { v =>
+                  uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+                    content = Text(msgs(s"refundingLanguage.${v.toString}")),
+                    value   = Some(v.toString),
+                    id      = Some(s"value_$idx")
+                  )
+                }
+              }
+              Future.successful(BadRequest(view(formWithErrors, items, routes.RefundingCountryController.onPageLoad(), mode)))
           },
 
         value =>

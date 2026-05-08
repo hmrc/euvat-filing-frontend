@@ -22,6 +22,7 @@
 @import models.Mode
 @import models.RefundingLanguage
 @import viewmodels.govuk.all.*
+@import viewmodels.LegendSize
 @import views.html.components.*
 
 @this(
@@ -32,9 +33,9 @@
   govukButton: GovukButton
 )
 
-@(form: play.api.data.Form[_], languages: Seq[String], backLinkCall: Option[String], mode: models.Mode)(implicit request: play.api.mvc.Request[_], messages: play.api.i18n.Messages)
+@(form: play.api.data.Form[_], items: Seq[uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem], call: Call, mode: models.Mode)(implicit request: play.api.mvc.Request[_], messages: play.api.i18n.Messages)
 
-@layout(pageTitle = title(form, messages("refundingLanguage.title")), backLinkUrl = backLinkCall) {
+@layout(pageTitle = title(form, messages("refundingLanguage.title")), backLinkUrl = Some(call.url)) {
 
     @formHelper(action = routes.RefundingLanguageController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
@@ -42,21 +43,10 @@
 
         <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is: </span>@messages("refundingLanguage.caption")</h2>
         @{
-            val items = languages.zipWithIndex.flatMap { case (lang, idx) =>
-              // match to enumerable values
-              RefundingLanguage.values.find(_.toString.equalsIgnoreCase(lang)) match {
-                case Some(v) => Some(uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
-                  content = Text(messages(s"refundingLanguage.${v.toString}")),
-                  value = Some(v.toString),
-                  id = Some(s"value_$idx")
-                ))
-                case None => None
-              }
-            }
             govukRadios(
               RadiosViewModel(
                 field  = form("value"),
-                legend = LegendViewModel(messages("refundingLanguage.heading")).asPageHeading(),
+                legend = LegendViewModel(messages("refundingLanguage.heading")).asPageHeading(LegendSize.Large),
                 items  = items
               ).withHint(HintViewModel(Text(messages("refundingLanguage.hint"))))
             )

@@ -64,7 +64,7 @@ class RefundingCountryController @Inject() (
     // If we have a previously selected country, pre-fill the form.
     val preparedForm = request.userAnswers.get(RefundingCountryPage).fold(form)(form.fill)
 
-    Ok(view(preparedForm, countries, None))
+    Ok(view(preparedForm, countries, routes.TaskListDashboardController.onPageLoad()))
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -84,7 +84,7 @@ class RefundingCountryController @Inject() (
           } else {
             formWithErrors
           }
-          Future.successful(BadRequest(view(adjustedForm, countries, None)))
+          Future.successful(BadRequest(view(adjustedForm, countries, routes.TaskListDashboardController.onPageLoad())))
         },
         value => {
           for {
@@ -96,7 +96,7 @@ class RefundingCountryController @Inject() (
 
     boundResult.recover { case NonFatal(e) =>
       Logger(getClass).error("Error in RefundingCountryController.onSubmit", e)
-      BadRequest(view(form.bindFromRequest(), countries, None))
+      BadRequest(view(form.bindFromRequest(), countries, routes.TaskListDashboardController.onPageLoad()))
     }
   }
 }
