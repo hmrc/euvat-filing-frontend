@@ -15,8 +15,7 @@
  *@
 
 @import models.{Mode, PurchaseType}
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.errormessage.ErrorMessage
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import views.html.components.MainErrorSummary
 
 @this(
@@ -34,28 +33,27 @@
 @layout(pageTitle = views.ViewUtils.title(form, "purchaseType.title"), backLinkUrl = Some(call.url)) {
     <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is: </span>@messages("purchase.caption.add")</h2>
 
+    <h1 class="govuk-heading-l">@messages("purchaseType.heading")</h1>
+
     @formHelper(action = routes.PurchaseTypeController.onSubmit(mode)) {
         @mainErrorSummary(form, Map("value" -> "value_0"))
-
-        <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
-            <h1 class="govuk-fieldset__heading">@messages("purchaseType.heading")</h1>
-        </legend>
 
         <p class="govuk-body">@messages("purchaseType.p1")</p>
         <p class="govuk-body">@messages("purchaseType.p2")</p>
         <p class="govuk-body">@messages("purchaseType.p3")</p>
+
+        @form.error("value").map { e =>
+            <span id="value-error" class="govuk-error-message" role="alert">
+                <span class="govuk-visually-hidden">@messages("error.prefix"):</span> @messages(e.message, e.args*)
+            </span>
+        }
 
         @govukRadios(
             RadiosViewModel(
                 field  = form("value"),
                 legend = LegendViewModel(HtmlContent(radioLegend)).withCssClass("govuk-fieldset__legend--m"),
                 items  = PurchaseType.options
-            ).copy(errorMessage = form.error("value").map { e =>
-                ErrorMessage(
-                    content    = Text(messages(e.message, e.args*)),
-                    attributes = Map("role" -> "alert")
-                )
-            })
+            ).copy(errorMessage = None)
         )
 
         @govukButton(ButtonViewModel(messages("site.continue")))
