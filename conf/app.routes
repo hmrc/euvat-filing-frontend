@@ -23,8 +23,11 @@ GET         /unauthorised                                controllers.Unauthorise
 GET         /make-eu-vat-claim                           controllers.TaskListDashboardController.onPageLoad()
 GET         /redirect-to-manage-claim                    controllers.TaskListDashboardController.redirectToManageClaim()
 
-GET         /which-eu-member-state                       controllers.RefundingCountryController.onPageLoad()
-POST        /which-eu-member-state                       controllers.RefundingCountryController.onSubmit()
+GET         /which-eu-member-state                       controllers.RefundingCountryController.onPageLoad(mode: models.Mode = NormalMode)
+POST        /which-eu-member-state                       controllers.RefundingCountryController.onSubmit(mode: models.Mode = NormalMode)
+GET         /change-which-eu-member-state                controllers.RefundingCountryController.onPageLoad(mode: models.Mode = CheckMode)
+POST        /change-which-eu-member-state                controllers.RefundingCountryController.onSubmit(mode: models.Mode = CheckMode)
+
 
 GET         /what-language                               controllers.RefundingLanguageController.onPageLoad(mode: models.Mode = NormalMode)
 POST        /what-language                               controllers.RefundingLanguageController.onSubmit(mode: models.Mode = NormalMode)

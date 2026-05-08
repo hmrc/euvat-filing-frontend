@@ -39,7 +39,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.RefundingCountryController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.RefundingCountryController.onPageLoad(models.NormalMode).url)
 
         val result = route(application, request).value
 
@@ -62,7 +62,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.RefundingCountryController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.RefundingCountryController.onPageLoad(models.NormalMode).url)
 
         val result = route(application, request).value
 
@@ -76,7 +76,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.RefundingCountryController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.RefundingCountryController.onPageLoad(models.NormalMode).url)
           .withHeaders("Referer" -> controllers.routes.TaskListDashboardController.onPageLoad().url)
 
         val result = route(application, request).value
@@ -108,7 +108,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit().url)
+        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
           .withFormUrlEncodedBody(("value", "DE"))
 
         val result = route(application, request).value
@@ -127,7 +127,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.RefundingCountryController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.RefundingCountryController.onPageLoad(models.NormalMode).url)
           .withHeaders("Referer" -> controllers.routes.TaskListDashboardController.onPageLoad().url)
 
         val result = route(application, request).value
@@ -151,7 +151,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit().url)
+        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
           .withFormUrlEncodedBody(("value", ""))
 
         val result = route(application, request).value
@@ -163,7 +163,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         body must include(messages(application)("refundingCountry.error.summary"))
 
         // typed-but-unmatched input should show invalid message
-        val typedRequest = FakeRequest(POST, routes.RefundingCountryController.onSubmit().url)
+        val typedRequest = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
           .withFormUrlEncodedBody(("value", ""), ("valueTyped", "NotACountry"))
 
         val typedResult = route(application, typedRequest).value
@@ -173,7 +173,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         typedBody must include(messages(application)("refundingCountry.error.invalid.summary"))
 
         // non-existent code should also show invalid message
-        val rawInvalidRequest = FakeRequest(POST, routes.RefundingCountryController.onSubmit().url)
+        val rawInvalidRequest = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
           .withFormUrlEncodedBody(("value", "ZZ"))
 
         val rawInvalidResult = route(application, rawInvalidRequest).value

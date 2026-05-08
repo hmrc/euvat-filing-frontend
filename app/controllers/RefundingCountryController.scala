@@ -18,7 +18,7 @@ package controllers
 
 import controllers.actions.*
 import forms.RefundingCountryFormProvider
-import models.{NormalMode, UserAnswers}
+import models.{Mode, NormalMode, UserAnswers}
 import navigation.Navigator
 import pages.RefundingCountryPage
 import play.api.Configuration
@@ -57,7 +57,7 @@ class RefundingCountryController @Inject() (
     (countries, form)
   }
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+  def onPageLoad(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
     val (countries, form) = buildFormAndCountries()
 
@@ -67,7 +67,7 @@ class RefundingCountryController @Inject() (
     Ok(view(preparedForm, countries, routes.TaskListDashboardController.onPageLoad()))
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+  def onSubmit(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
 
     val (countries, form) = buildFormAndCountries()
     val baseAnswers: UserAnswers = request.userAnswers
@@ -89,7 +89,7 @@ class RefundingCountryController @Inject() (
           for {
             updatedAnswers <- Future.fromTry(baseAnswers.set(RefundingCountryPage, value))
             _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(RefundingCountryPage, NormalMode, updatedAnswers))
+          } yield Redirect(navigator.nextPage(RefundingCountryPage, mode, updatedAnswers))
         }
       )
 
