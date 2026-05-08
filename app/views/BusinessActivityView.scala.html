@@ -46,12 +46,6 @@
     @formHelper(action = routes.BusinessActivityController.onSubmit(mode)) {
         @mainErrorSummary(form, Map("value" -> "value_0"))
 
-        @form.error("value").map { e =>
-            <span id="value-error" class="govuk-error-message" role="alert">
-                <span class="govuk-visually-hidden">@messages("error.prefix"):</span> @messages(e.message, e.args*)
-            </span>
-        }
-
         @govukRadios(
             RadiosViewModel(
                 field  = form("value"),
@@ -60,7 +54,6 @@
             )
             .withHint(HintViewModel(HtmlContent(hintHtml)))
             .inline()
-            .copy(errorMessage = None)
         )
 
         @govukButton(ButtonViewModel(messages("site.continue")))
