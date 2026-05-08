@@ -27,6 +27,7 @@ import models.*
 class Navigator @Inject() () {
 
   private val normalRoutes: Page => UserAnswers => Call = {
+    case pages.RefundingCountryPage => _ => routes.RefundingLanguageController.onPageLoad(models.NormalMode)
     case _ => _ => routes.IndexController.onPageLoad()
   }
 
