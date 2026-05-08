@@ -32,9 +32,9 @@
     mainErrorSummary: MainErrorSummary
 )
 
-@(form: Form[_], countries: Seq[(String,String)], backLinkCall: Option[String])(implicit request: Request[_], messages: Messages)
+@(form: Form[_], countries: Seq[(String,String)], call: Call)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = views.ViewUtils.title(form, "refundingCountry.title"), backLinkUrl = backLinkCall) {
+@layout(pageTitle = views.ViewUtils.title(form, "refundingCountry.title"), backLinkUrl = Some(call.url)) {
 
         @formHelper(action = routes.RefundingCountryController.onSubmit()) {
 

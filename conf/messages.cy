@@ -61,7 +61,7 @@ taskListDashboard.status2 = Cannot start yet
 taskListDashboard.dashboardLink = Go to the claims dashboard
 taskListDashboard.errorSummary1 = There is a problem
 taskListDashboard.errorSummary2 = Select add claim details to start a claim
-# Refunding country / which EU member state
+
 refundingCountry.title = Which EU member state are you claiming back VAT from?
 refundingCountry.heading = Which EU member state are you claiming back VAT from?
 refundingCountry.hint = Start typing to find the EU member state
@@ -70,13 +70,43 @@ refundingCountry.error.required = Select an EU member state
 refundingCountry.error.invalid = Select a valid EU member state
 refundingCountry.error.invalid.summary = Select a valid EU member state
 
+refundingLanguage.caption = Add claim details
+refundingLanguage.title = What language do you want to use for this claim?
+refundingLanguage.heading = What language do you want to use for this claim?
+refundingLanguage.error.required = Select a language for this claim
+refundingLanguage.checkYourAnswersLabel = Language for claim
+refundingLanguage.change.hidden = Change language
+refundingLanguage.hint = All supporting documents must be uploaded in the language you select.
+refundingLanguage.english = English
+refundingLanguage.german = German
+refundingLanguage.french = French
+refundingLanguage.dutch = Dutch
+refundingLanguage.bulgarian = Bulgarian
+refundingLanguage.spanish = Spanish
+refundingLanguage.turkish = Turkish
+refundingLanguage.czech = Czech
+refundingLanguage.danish = Danish
+refundingLanguage.estonian = Estonian
+refundingLanguage.finnish = Finnish
+refundingLanguage.swedish = Swedish
+refundingLanguage.italian = Italian
+refundingLanguage.latvian = Latvian
+refundingLanguage.lithuanian = Lithuanian
+refundingLanguage.maltese = Maltese
+refundingLanguage.polish = Polish
+refundingLanguage.portuguese = Portuguese
+refundingLanguage.romanian = Romanian
+refundingLanguage.slovak = Slovak
+refundingLanguage.slovenian = Slovenian
+refundingLanguage.irish = Irish
+refundingLanguage.hungarian = Hungarian
+refundingLanguage.greek = Greek
+
 aboutThePurchase.title = About the purchase
 aboutThePurchase.heading = About the purchase
-aboutThePurchase.subheading = Add purchase details
 aboutThePurchase.p1 = You’ll need the following information about the purchase:
 aboutThePurchase.bullet1 = the purchase type
 aboutThePurchase.bullet2 = the invoice dates
 aboutThePurchase.bullet3 = the VAT registration number
 aboutThePurchase.bullet4 = the supplier name and address
 aboutThePurchase.bullet5 = the VAT amount
-
