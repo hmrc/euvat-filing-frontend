@@ -26,25 +26,24 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
-object RefundingLanguageSummary  {
+object RefundingLanguageSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(RefundingLanguagePage).map {
-      answer =>
+    answers.get(RefundingLanguagePage).map { answer =>
 
-        val value = ValueViewModel(
-          HtmlContent(
-            HtmlFormat.escape(messages(s"refundingLanguage.$answer"))
-          )
+      val value = ValueViewModel(
+        HtmlContent(
+          HtmlFormat.escape(messages(s"refundingLanguage.$answer"))
         )
+      )
 
-        SummaryListRowViewModel(
-          key     = "refundingLanguage.checkYourAnswersLabel",
-          value   = value,
-          actions = Seq(
-            ActionItemViewModel("site.change", routes.RefundingLanguageController.onPageLoad(models.CheckMode).url)
-              .withVisuallyHiddenText(messages("refundingLanguage.change.hidden"))
-          )
+      SummaryListRowViewModel(
+        key   = "refundingLanguage.checkYourAnswersLabel",
+        value = value,
+        actions = Seq(
+          ActionItemViewModel("site.change", routes.RefundingLanguageController.onPageLoad(models.CheckMode).url)
+            .withVisuallyHiddenText(messages("refundingLanguage.change.hidden"))
         )
+      )
     }
 }

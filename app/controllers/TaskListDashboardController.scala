@@ -37,7 +37,8 @@ class TaskListDashboardController @Inject() (
   appConfig: FrontendAppConfig,
   val controllerComponents: MessagesControllerComponents,
   view: TaskListDashboardView
-)(using ExecutionContext) extends FrontendBaseController
+)(using ExecutionContext)
+    extends FrontendBaseController
     with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData).async { implicit request =>
