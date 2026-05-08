@@ -19,6 +19,8 @@ package controllers
 import controllers.actions.*
 import forms.BusinessActivityTwoFormProvider
 import models.{NormalMode, UserAnswers}
+import models.Mode
+import models.CheckMode
 import navigation.Navigator
 import pages.BusinessActivityTwoPage
 import play.api.Configuration
@@ -58,16 +60,16 @@ class BusinessActivityTwoController @Inject() (
   }
 
   // Allow access even when there is no existing UserAnswers (for dev/debug).
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData) { implicit request =>
+  def onPageLoad(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen getData) { implicit request =>
 
     val (activities, form) = buildListAndForm()
 
     val preparedForm = request.userAnswers.flatMap(_.get(BusinessActivityTwoPage)).fold(form)(form.fill)
 
-    Ok(view(preparedForm, activities, None))
+    Ok(view(preparedForm, activities, None, mode))
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen getData).async { implicit request =>
+  def onSubmit(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen getData).async { implicit request =>
 
     val (activities, form) = buildListAndForm()
 
@@ -84,19 +86,19 @@ class BusinessActivityTwoController @Inject() (
           } else {
             formWithErrors
           }
-          Future.successful(BadRequest(view(adjustedForm, activities, None)))
+          Future.successful(BadRequest(view(adjustedForm, activities, None, mode)))
         },
         value => {
           for {
             updatedAnswers <- Future.fromTry(baseAnswers.set(BusinessActivityTwoPage, value))
             _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(BusinessActivityTwoPage, NormalMode, updatedAnswers))
+          } yield Redirect(navigator.nextPage(BusinessActivityTwoPage, mode, updatedAnswers))
         }
       )
 
     boundResult.recover { case NonFatal(e) =>
       Logger(getClass).error("Error in BusinessActivityTwoController.onSubmit", e)
-      BadRequest(view(form.bindFromRequest(), activities, None))
+      BadRequest(view(form.bindFromRequest(), activities, None, mode))
     }
   }
 }

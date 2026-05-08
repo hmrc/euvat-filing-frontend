@@ -49,8 +49,10 @@ POST        /business-activity-code-two                  controllers.BusinessAct
 GET         /change-business-activity-code-two           controllers.BusinessActivityCodeTwoController.onPageLoad(mode: models.Mode = CheckMode)
 POST        /change-business-activity-code-two           controllers.BusinessActivityCodeTwoController.onSubmit(mode: models.Mode = CheckMode)
 
-GET         /about-the-purchase                          controllers.AboutThePurchaseController.onPageLoad()
-POST        /about-the-purchase                          controllers.AboutThePurchaseController.onSubmit()
+GET         /business-activity-two                       controllers.BusinessActivityTwoController.onPageLoad(mode: models.Mode = NormalMode)
+POST        /business-activity-two                       controllers.BusinessActivityTwoController.onSubmit(mode: models.Mode = NormalMode)
+GET         /change-business-activity-two                controllers.BusinessActivityTwoController.onPageLoad(mode: models.Mode = CheckMode)
+POST        /change-business-activity-two                controllers.BusinessActivityTwoController.onSubmit(mode: models.Mode = CheckMode)
 
 GET         /purchase-type                               controllers.PurchaseTypeController.onPageLoad(mode: Mode = NormalMode)
 POST        /purchase-type                               controllers.PurchaseTypeController.onSubmit(mode: Mode = NormalMode)
