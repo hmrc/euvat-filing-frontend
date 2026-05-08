@@ -34,14 +34,29 @@ class NavigatorSpec extends SpecBase {
         case object UnknownPage extends Page
         navigator.nextPage(UnknownPage, NormalMode, UserAnswers("id")) mustBe routes.IndexController.onPageLoad()
       }
-    }
 
-    "in Check mode" - {
+      "must go from RefundingCountryPage to RefundingLanguageController in NormalMode" in {
+        navigator.nextPage(pages.RefundingCountryPage, NormalMode, UserAnswers("id")) mustBe
+          routes.RefundingLanguageController.onPageLoad(NormalMode)
+      }
 
-      "must go from a page that doesn't exist in the edit route map to CheckYourAnswers" in {
+      "must go from RefundingLanguagePage to RefundPeriodController in NormalMode" in {
+        navigator.nextPage(pages.RefundingLanguagePage, NormalMode, UserAnswers("id")) mustBe
+          routes.RefundPeriodController.onPageLoad(NormalMode)
+      }
 
-        case object UnknownPage extends Page
-        navigator.nextPage(UnknownPage, CheckMode, UserAnswers("id")) mustBe routes.CheckYourAnswersController.onPageLoad()
+      "must go from RefundPeriodPage to JourneyRecoveryController in NormalMode" in {
+        navigator.nextPage(pages.RefundPeriodPage, NormalMode, UserAnswers("id")) mustBe
+          routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "in Check mode" - {
+
+        "must go from a page that doesn't exist in the edit route map to CheckYourAnswers" in {
+
+          case object UnknownPage extends Page
+          navigator.nextPage(UnknownPage, CheckMode, UserAnswers("id")) mustBe routes.CheckYourAnswersController.onPageLoad()
+        }
       }
     }
   }

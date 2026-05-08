@@ -35,8 +35,8 @@ class ConfigLanguageMappingSpec extends AnyWordSpec with Matchers {
       val cfg = Configuration(ConfigFactory.parseString(confString))
       val svc = new ConfigLanguageMapping(cfg)
 
-      svc.languagesFor("AT") shouldBe Seq("German", "English")
-      svc.languagesFor("ZZ") shouldBe Seq("Foo")
+      svc.languagesFor("AT")      shouldBe Seq("German", "English")
+      svc.languagesFor("ZZ")      shouldBe Seq("Foo")
       svc.languagesFor("UNKNOWN") shouldBe Seq("English")
 
       // Also verify the application's `conf/application.conf` mappings

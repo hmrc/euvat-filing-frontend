@@ -14,21 +14,13 @@
  * limitations under the License.
  */
 
-package services
+package pages
 
-import javax.inject.Inject
-import play.api.Configuration
+import play.api.libs.json.JsPath
 
-class ConfigLanguageMapping @Inject() (config: Configuration) {
+case object RefundPeriodPage extends QuestionPage[models.RefundPeriod] {
 
-  private val mapping: Map[String, Seq[String]] = {
-    val cfg = config.get[Configuration]("language.mapping")
-    cfg.entrySet.map { case (key, sub) =>
-      // play Configuration represents lists as ConfigValue; read as Seq[String]
-      val seq = cfg.get[Seq[String]](key)
-      key -> seq
-    }.toMap
-  }
+  override def path: JsPath = JsPath \ toString
 
-  def languagesFor(code: String): Seq[String] = mapping.getOrElse(code, Seq("english")).map(_.capitalize)
+  override def toString: String = "refundPeriod"
 }
