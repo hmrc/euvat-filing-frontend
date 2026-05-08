@@ -42,18 +42,12 @@
         <p class="govuk-body">@messages("purchaseType.p2")</p>
         <p class="govuk-body">@messages("purchaseType.p3")</p>
 
-        @form.error("value").map { e =>
-            <span id="value-error" class="govuk-error-message" role="alert">
-                <span class="govuk-visually-hidden">@messages("error.prefix"):</span> @messages(e.message, e.args*)
-            </span>
-        }
-
         @govukRadios(
             RadiosViewModel(
                 field  = form("value"),
                 legend = LegendViewModel(HtmlContent(radioLegend)).withCssClass("govuk-fieldset__legend--m"),
                 items  = PurchaseType.options
-            ).copy(errorMessage = None)
+            )
         )
 
         @govukButton(ButtonViewModel(messages("site.continue")))
