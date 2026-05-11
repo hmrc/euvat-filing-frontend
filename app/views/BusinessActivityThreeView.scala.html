@@ -25,7 +25,7 @@
 
 @()(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("businessActivityThree.title")), backLinkUrl = Some(routes.JourneyRecoveryController.onPageLoad().url)) {
+@layout(pageTitle = titleNoForm(messages("businessActivityThree.title")), backLinkUrl = Some(routes.RefundPeriodController.onPageLoad(NormalMode).url)) {
 
         <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is: </span>@messages("businessActivityThree.caption")</h2>
         <h1 class="govuk-heading-l">@messages("businessActivityThree.heading")</h1>
