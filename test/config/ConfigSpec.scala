@@ -63,7 +63,7 @@ class ConfigSpec extends SpecBase {
         "timeout-dialog.timeout"                           -> 900,
         "timeout-dialog.countdown"                         -> 120,
         "mongodb.timeToLiveInSeconds"                      -> 900,
-        "placeholders.primaryBusinessActivity"             -> "8765 - Freight transport by road"
+        "placeholders.primaryBusinessActivity"             -> "6547 (Freight transport by road)"
       )
 
       val config = Configuration(base.toSeq*)
@@ -90,7 +90,7 @@ class ConfigSpec extends SpecBase {
         "timeout-dialog.timeout"                           -> 900,
         "timeout-dialog.countdown"                         -> 120,
         "mongodb.timeToLiveInSeconds"                      -> 900,
-        "placeholders.primaryBusinessActivity"             -> "8765 - Freight transport by road"
+        "placeholders.primaryBusinessActivity"             -> "6547 (Freight transport by road)"
       )
 
       val config = Configuration(base.toSeq*)
