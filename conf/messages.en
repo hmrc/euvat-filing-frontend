@@ -45,7 +45,8 @@ unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
 unauthorised.guidance = You do not have access to this service.
 
-taskListDashboard.claim.caption = Add claim details
+claim.caption.add = Add claim details
+
 taskListDashboard.title = Make an EU VAT claim
 taskListDashboard.heading = Make an EU VAT claim
 taskListDashboard.listItem1 = Add claim details
@@ -70,7 +71,6 @@ refundingCountry.error.invalid = Select a valid EU member state
 refundingCountry.error.invalid.summary = Select a valid EU member state
 
 # Refunding language page
-refundingLanguage.caption = Add claim details
 refundingLanguage.title = What language do you want to use for this claim?
 refundingLanguage.heading = What language do you want to use for this claim?
 refundingLanguage.error.required = Select a language for this claim
