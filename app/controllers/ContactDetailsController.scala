@@ -16,52 +16,54 @@
 
 package controllers
 
-import controllers.actions.*
-import forms.PurchaseTypeFormProvider
-import models.{Mode, PurchaseType}
+import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
+import forms.ContactDetailsFormProvider
+import models.{Mode, NormalMode}
 import navigation.Navigator
-import pages.PurchaseTypePage
-import play.api.data.Form
+import pages.ContactDetailsPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.PurchaseTypeView
+import views.html.ContactDetailsView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class PurchaseTypeController @Inject() (
+class ContactDetailsController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
   navigator: Navigator,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  formProvider: PurchaseTypeFormProvider,
+  formProvider: ContactDetailsFormProvider,
   val controllerComponents: MessagesControllerComponents,
-  view: PurchaseTypeView
+  view: ContactDetailsView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
-  val form: Form[PurchaseType] = formProvider()
+  private val form = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = request.userAnswers.get(PurchaseTypePage).fold(form)(form.fill)
-    Ok(view(preparedForm, mode, routes.AboutThePurchaseController.onPageLoad()))
+    val preparedForm = request.userAnswers.get(ContactDetailsPage) match {
+      case None        => form
+      case Some(value) => form.fill(value)
+    }
+    Ok(view(preparedForm, mode, routes.RefundPeriodController.onPageLoad(NormalMode)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, routes.AboutThePurchaseController.onPageLoad()))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, routes.RefundPeriodController.onPageLoad(NormalMode)))),
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(PurchaseTypePage, value))
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(ContactDetailsPage, value))
             _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(PurchaseTypePage, mode, updatedAnswers))
+          } yield Redirect(navigator.nextPage(ContactDetailsPage, mode, updatedAnswers))
       )
   }
 }

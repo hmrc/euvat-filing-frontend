@@ -46,7 +46,6 @@ class RefundPeriodController @Inject() (
     with I18nSupport {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-
     val preparedForm = request.userAnswers.get(RefundPeriodPage) match {
       case None => formProvider()
       case Some(value) =>
@@ -59,7 +58,6 @@ class RefundPeriodController @Inject() (
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-
     formProvider()
       .bindFromRequest()
       .fold(

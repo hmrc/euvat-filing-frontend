@@ -17,6 +17,7 @@
 package controllers
 
 import base.SpecBase
+import models.NormalMode
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.AboutThePurchaseView
@@ -51,7 +52,7 @@ class AboutThePurchaseControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
 
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.PurchaseTypeController.onPageLoad(NormalMode).url
       }
     }
 

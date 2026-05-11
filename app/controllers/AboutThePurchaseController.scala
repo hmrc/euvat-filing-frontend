@@ -17,6 +17,8 @@
 package controllers
 
 import controllers.actions.*
+import models.NormalMode
+
 import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -38,6 +40,6 @@ class AboutThePurchaseController @Inject() (
   }
 
   def onSubmit(): Action[AnyContent] = Action { implicit request =>
-    Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+    Redirect(controllers.routes.PurchaseTypeController.onPageLoad(NormalMode))
   }
 }

@@ -35,43 +35,36 @@
 @(form: Form[_], countries: Seq[(String,String)], call: Call)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = views.ViewUtils.title(form, "refundingCountry.title"), backLinkUrl = Some(call.url)) {
+    @formHelper(action = routes.RefundingCountryController.onSubmit()) {
+        @mainErrorSummary(form, Map("value" -> (form("value").id + "-input")))
 
-        @formHelper(action = routes.RefundingCountryController.onSubmit()) {
+        <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is: </span>@messages("claim.caption.add")</h2>
+        <h1 id="refunding-country-heading" class="govuk-heading-l">@messages("refundingCountry.heading")</h1>
 
-            @mainErrorSummary(form, Map("value" -> (form("value").id + "-input")))
+        @govukSelect(
+            Select(
+                id = form("value").id + "-input",
+                name = "value",
+                label = Label(content = Text(messages("refundingCountry.heading")), classes = "govuk-visually-hidden"),
+                items = Seq(SelectItem(value = Some(""), text = "Select a country", selected = form("value").value.isEmpty)) ++ countries.map { case (name, code) =>
+                    SelectItem(value = Some(code), text = name, selected = form("value").value.contains(code))
+                },
+                hint = Some(Hint(content = messages("refundingCountry.hint"))),
+                attributes = Map(
+                    "aria-describedby" -> (form("value").id + "-input-hint")
+                ),
+                errorMessage = form.error("value").map { e => ErrorMessage(content = Text(messages(e.message, e.args: _*))) }
+            ).asAccessibleAutocomplete(Some(AccessibleAutocomplete(showAllValues = false, autoSelect = false, minLength = None)))
+        )
 
-            <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is: </span>@messages("claim.caption.add")</h2>
+        <input type="hidden" id="valueTyped" name="valueTyped" value="">
 
-                     <h1 id="refunding-country-heading" class="govuk-heading-l">@messages("refundingCountry.heading")</h1>
+        @govukButton(ButtonViewModel(messages("site.continue")))
 
-                     @* The visible page heading (`refunding-country-heading`) is
-                        used as the accessible name source. We remove the extra
-                        hidden label to avoid duplicate/ambiguous name sources. *@
+        @* The shared script `refunding-country.js` patches accessible-autocomplete
+             nodes (aria attributes) and synchronises values. Logic centralised
+             in the external JS to keep a single source of truth. *@
+        <script @views.html.helper.CSPNonce.attr src='@routes.Assets.versioned("javascripts/refunding-country.js")'></script>
 
-            @govukSelect(
-                Select(
-                    id = form("value").id + "-input",
-                    name = "value",
-                    label = Label(content = Text(messages("refundingCountry.heading")), classes = "govuk-visually-hidden"),
-                    items = Seq(SelectItem(value = Some(""), text = "Select a country", selected = form("value").value.isEmpty)) ++ countries.map { case (name, code) =>
-                        SelectItem(value = Some(code), text = name, selected = form("value").value.contains(code))
-                    },
-                    hint = Some(Hint(content = messages("refundingCountry.hint"))),
-                    attributes = Map(
-                        "aria-describedby" -> (form("value").id + "-input-hint")
-                    ),
-                    errorMessage = form.error("value").map { e => ErrorMessage(content = Text(messages(e.message, e.args: _*))) }
-                ).asAccessibleAutocomplete(Some(AccessibleAutocomplete(showAllValues = false, autoSelect = false, minLength = None)))
-            )
-
-            <input type="hidden" id="valueTyped" name="valueTyped" value="">
-
-            @govukButton(ButtonViewModel(messages("site.continue")))
-
-            @* The shared script `refunding-country.js` patches accessible-autocomplete
-                 nodes (aria attributes) and synchronises values. Logic centralised
-                 in the external JS to keep a single source of truth. *@
-            <script @views.html.helper.CSPNonce.attr src='@routes.Assets.versioned("javascripts/refunding-country.js")'></script>
-
-        }
+    }
 }
