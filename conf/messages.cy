@@ -142,3 +142,16 @@ aboutThePurchase.bullet2 = the invoice dates
 aboutThePurchase.bullet3 = the VAT registration number
 aboutThePurchase.bullet4 = the supplier name and address
 aboutThePurchase.bullet5 = the VAT amount
+
+purchaseType.title = Purchase type
+purchaseType.heading = Purchase type
+purchaseType.h2 = What is the purchase type that best describes the item on your invoice?
+purchaseType.p1 = If the invoice includes more than one type of purchase, do not split the invoice over more than one line using the same purchase reference number.
+purchaseType.p2 = This may be treated as a duplicate entry and could delay or reject your claim.
+purchaseType.p3 = Instead, select ‘Other’ and itemise the different items and amounts in the purchase description, or select the highest-value item on the invoice.
+purchaseType.fuel = Fuel
+purchaseType.transport = Expenditure relating to means of transport
+purchaseType.foodAndDrink = Food, drink and restaurant services
+purchaseType.luxuries = Expenditure on luxuries, amusements and entertainment
+purchaseType.other = Other
+purchaseType.error.required = Select a purchase type

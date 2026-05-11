@@ -30,6 +30,7 @@ class Navigator @Inject() () {
     case RefundingCountryPage       => _ => routes.RefundingLanguageController.onPageLoad(models.NormalMode)
     case RefundingLanguagePage      => _ => routes.RefundPeriodController.onPageLoad(NormalMode)
     case RefundPeriodPage           => _ => routes.JourneyRecoveryController.onPageLoad()
+    case PurchaseTypePage           => _ => routes.JourneyRecoveryController.onPageLoad()
     case _                          => _ => routes.IndexController.onPageLoad()
   }
 

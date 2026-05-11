@@ -22,7 +22,7 @@
   govukTaskList : GovukTaskList
 )
 
-@(claimDashboardUrl: String)(implicit request: Request[_], messages: Messages)
+@()(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("taskListDashboard.title")), showBackLink = false) {
 
@@ -75,6 +75,6 @@
   ))
 
   <p class="govuk-body">
-   <a href="@claimDashboardUrl" class="govuk-link" >@messages("taskListDashboard.dashboardLink")</a>
+   <a href="@controllers.routes.TaskListDashboardController.redirectToManageClaim().url" class="govuk-link" >@messages("taskListDashboard.dashboardLink")</a>
   </p>
 }

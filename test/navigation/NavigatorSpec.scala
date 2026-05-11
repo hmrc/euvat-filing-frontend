@@ -50,6 +50,11 @@ class NavigatorSpec extends SpecBase {
           routes.JourneyRecoveryController.onPageLoad()
       }
 
+      "must go from PurchaseTypePage to JourneyRecoveryController in NormalMode" in {
+        navigator.nextPage(pages.PurchaseTypePage, NormalMode, UserAnswers("id")) mustBe
+          routes.JourneyRecoveryController.onPageLoad()
+      }
+
       "in Check mode" - {
 
         "must go from a page that doesn't exist in the edit route map to CheckYourAnswers" in {
