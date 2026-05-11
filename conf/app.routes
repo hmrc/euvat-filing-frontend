@@ -21,6 +21,7 @@ GET         /account/signed-out                          controllers.auth.Signed
 GET         /unauthorised                                controllers.UnauthorisedController.onPageLoad()
 
 GET         /make-eu-vat-claim                           controllers.TaskListDashboardController.onPageLoad()
+GET         /redirect-to-manage-claim                    controllers.TaskListDashboardController.redirectToManageClaim()
 
 GET         /which-eu-member-state                       controllers.RefundingCountryController.onPageLoad()
 POST        /which-eu-member-state                       controllers.RefundingCountryController.onSubmit()
@@ -39,3 +40,8 @@ GET         /who-contact-about-this-claim                controllers.ContactDeta
 POST        /who-contact-about-this-claim                controllers.ContactDetailsController.onSubmit(mode: Mode = NormalMode)
 GET         /change-who-contact-about-this-claim         controllers.ContactDetailsController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-who-contact-about-this-claim         controllers.ContactDetailsController.onSubmit(mode: Mode = CheckMode)
+
+GET         /purchase-type                               controllers.PurchaseTypeController.onPageLoad(mode: Mode = NormalMode)
+POST        /purchase-type                               controllers.PurchaseTypeController.onSubmit(mode: Mode = NormalMode)
+GET         /change-purchase-type                        controllers.PurchaseTypeController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-purchase-type                        controllers.PurchaseTypeController.onSubmit(mode: Mode = CheckMode)

@@ -70,7 +70,6 @@ refundingCountry.error.required = Select an EU member state
 refundingCountry.error.invalid = Select a valid EU member state
 refundingCountry.error.invalid.summary = Select a valid EU member state
 
-refundingLanguage.caption = Add claim details
 refundingLanguage.title = What language do you want to use for this claim?
 refundingLanguage.heading = What language do you want to use for this claim?
 refundingLanguage.error.required = Select a language for this claim
@@ -147,3 +146,16 @@ contactDetails.error.firstName.format = Enter your first name in the correct for
 contactDetails.error.lastName.maxLength = Your last name must be between 1 and 100 characters
 contactDetails.error.lastName.format = Enter your last name in the correct format
 contactDetails.error.telephone.format = Enter a telephone number in the correct format, like 01632960001 or +448081570192
+
+purchaseType.title = Purchase type
+purchaseType.heading = Purchase type
+purchaseType.h2 = What is the purchase type that best describes the item on your invoice?
+purchaseType.p1 = If the invoice includes more than one type of purchase, do not split the invoice over more than one line using the same purchase reference number.
+purchaseType.p2 = This may be treated as a duplicate entry and could delay or reject your claim.
+purchaseType.p3 = Instead, select ‘Other’ and itemise the different items and amounts in the purchase description, or select the highest-value item on the invoice.
+purchaseType.fuel = Fuel
+purchaseType.transport = Expenditure relating to means of transport
+purchaseType.foodAndDrink = Food, drink and restaurant services
+purchaseType.luxuries = Expenditure on luxuries, amusements and entertainment
+purchaseType.other = Other
+purchaseType.error.required = Select a purchase type

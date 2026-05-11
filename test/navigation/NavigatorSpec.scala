@@ -54,7 +54,6 @@ class NavigatorSpec extends SpecBase {
         navigator.nextPage(ContactDetailsPage, NormalMode, userAnswers) mustBe
           routes.JourneyRecoveryController.onPageLoad()
       }
-
     }
 
     "in Check mode" - {
