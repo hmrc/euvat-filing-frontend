@@ -37,7 +37,7 @@ import scala.concurrent.Future
 class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
 
   private def onwardRoute = Call("GET", "/foo")
-  private def backUrl: Call = routes.RefundingCountryController.onPageLoad()
+  private def backUrl: Call = routes.RefundPeriodController.onPageLoad(NormalMode)
 
   private val formProvider = new ContactDetailsFormProvider()
   private val form = formProvider()

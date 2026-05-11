@@ -23,7 +23,7 @@ import models.*
 
 class NavigatorSpec extends SpecBase {
 
-  val navigator = new Navigator
+  val navigator                = new Navigator
   val userAnswers: UserAnswers = UserAnswers("id")
 
   "Navigator" - {
@@ -35,12 +35,24 @@ class NavigatorSpec extends SpecBase {
         navigator.nextPage(UnknownPage, NormalMode, userAnswers) mustBe routes.IndexController.onPageLoad()
       }
 
-      "must go from RefundingCountryPage page to ContactDetailsPage page" in {
-        navigator.nextPage(RefundingCountryPage, NormalMode, userAnswers) mustBe routes.ContactDetailsController.onPageLoad(NormalMode)
+      "must go from RefundingCountryPage to RefundingLanguageController" in {
+        navigator.nextPage(pages.RefundingCountryPage, NormalMode, userAnswers) mustBe
+          routes.RefundingLanguageController.onPageLoad(NormalMode)
       }
 
-      "must go from ContactDetailsPage page to JourneyRecovery page" in {
-        navigator.nextPage(ContactDetailsPage, NormalMode, userAnswers) mustBe routes.JourneyRecoveryController.onPageLoad()
+      "must go from RefundingLanguagePage to RefundPeriodController" in {
+        navigator.nextPage(pages.RefundingLanguagePage, NormalMode, userAnswers) mustBe
+          routes.RefundPeriodController.onPageLoad(NormalMode)
+      }
+
+      "must go from RefundPeriodPage to ContactDetailsController" in {
+        navigator.nextPage(pages.RefundPeriodPage, NormalMode, userAnswers) mustBe
+          routes.ContactDetailsController.onPageLoad(NormalMode)
+      }
+
+      "must go from ContactDetailsPage to JourneyRecoveryController" in {
+        navigator.nextPage(ContactDetailsPage, NormalMode, userAnswers) mustBe
+          routes.JourneyRecoveryController.onPageLoad()
       }
 
     }

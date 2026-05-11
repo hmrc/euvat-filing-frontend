@@ -82,6 +82,18 @@ class ContactDetailsFormProviderSpec extends StringFieldBehaviours with FieldBeh
       result.errors mustBe empty
     }
 
+    "bind a hyphenated first name" in {
+      val result = form.bind(validData.updated(fieldName, "Mary-Jane")).apply(fieldName)
+      result.value.value mustBe "Mary-Jane"
+      result.errors mustBe empty
+    }
+
+    "bind a first name with an apostrophe" in {
+      val result = form.bind(validData.updated(fieldName, "O'Neil")).apply(fieldName)
+      result.value.value mustBe "O'Neil"
+      result.errors mustBe empty
+    }
+
     "bind to None when absent" in {
       val result = form.bind(validData - fieldName).value.value
       result.firstName mustBe None
@@ -92,11 +104,29 @@ class ContactDetailsFormProviderSpec extends StringFieldBehaviours with FieldBeh
       result.firstName mustBe None
     }
 
-    "accept any string per spec (no format or length validation)" in {
-      val unusual = "Mary-Jane O’Neil, Sr. " + ("a" * 80)
-      val result = form.bind(validData.updated(fieldName, unusual)).apply(fieldName)
-      result.value.value mustBe unusual
-      result.errors mustBe empty
+    "reject a first name longer than 100 characters" in {
+      val tooLong = "a" * 101
+      val result = form.bind(validData.updated(fieldName, tooLong)).apply(fieldName)
+      result.errors must contain only FormError(fieldName, "contactDetails.error.firstName.maxLength", Seq(100))
+    }
+
+    "reject a first name with disallowed characters" in {
+      val result = form.bind(validData.updated(fieldName, "Jane@Doe")).apply(fieldName)
+      result.errors must contain only FormError(
+        fieldName,
+        "contactDetails.error.firstName.format",
+        Seq(formProvider.validateNameField)
+      )
+    }
+
+    "reject a first name containing a comma or full stop (per spec regex)" in {
+      val withPunctuation = "Jane, Sr."
+      val result = form.bind(validData.updated(fieldName, withPunctuation)).apply(fieldName)
+      result.errors must contain only FormError(
+        fieldName,
+        "contactDetails.error.firstName.format",
+        Seq(formProvider.validateNameField)
+      )
     }
   }
 
@@ -110,6 +140,18 @@ class ContactDetailsFormProviderSpec extends StringFieldBehaviours with FieldBeh
       result.errors mustBe empty
     }
 
+    "bind a hyphenated last name" in {
+      val result = form.bind(validData.updated(fieldName, "Smith-Jones")).apply(fieldName)
+      result.value.value mustBe "Smith-Jones"
+      result.errors mustBe empty
+    }
+
+    "bind a last name with an apostrophe" in {
+      val result = form.bind(validData.updated(fieldName, "O'Reilly")).apply(fieldName)
+      result.value.value mustBe "O'Reilly"
+      result.errors mustBe empty
+    }
+
     "bind to None when absent" in {
       val result = form.bind(validData - fieldName).value.value
       result.lastName mustBe None
@@ -120,11 +162,19 @@ class ContactDetailsFormProviderSpec extends StringFieldBehaviours with FieldBeh
       result.lastName mustBe None
     }
 
-    "accept any string per spec (no format or length validation)" in {
-      val unusual = "Smith-Jones O’Reilly " + ("z" * 80)
-      val result = form.bind(validData.updated(fieldName, unusual)).apply(fieldName)
-      result.value.value mustBe unusual
-      result.errors mustBe empty
+    "reject a last name longer than 100 characters" in {
+      val tooLong = "z" * 101
+      val result = form.bind(validData.updated(fieldName, tooLong)).apply(fieldName)
+      result.errors must contain only FormError(fieldName, "contactDetails.error.lastName.maxLength", Seq(100))
+    }
+
+    "reject a last name with disallowed characters" in {
+      val result = form.bind(validData.updated(fieldName, "<script>")).apply(fieldName)
+      result.errors must contain only FormError(
+        fieldName,
+        "contactDetails.error.lastName.format",
+        Seq(formProvider.validateNameField)
+      )
     }
   }
 

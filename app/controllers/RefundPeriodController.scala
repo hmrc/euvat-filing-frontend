@@ -16,54 +16,65 @@
 
 package controllers
 
-import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
-import forms.ContactDetailsFormProvider
-import models.{Mode, NormalMode}
+import controllers.actions.*
+import forms.{RefundPeriodData, RefundPeriodFormProvider}
+import models.{Mode, RefundPeriod}
 import navigation.Navigator
-import pages.ContactDetailsPage
+import pages.RefundPeriodPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.ContactDetailsView
+import views.html.RefundPeriodView
 
+import java.time.LocalDate
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class ContactDetailsController @Inject() (
+class RefundPeriodController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
   navigator: Navigator,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  formProvider: ContactDetailsFormProvider,
+  formProvider: RefundPeriodFormProvider,
   val controllerComponents: MessagesControllerComponents,
-  view: ContactDetailsView
+  view: RefundPeriodView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
-  private val form = formProvider()
-
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = request.userAnswers.get(ContactDetailsPage) match {
-      case None        => form
-      case Some(value) => form.fill(value)
+    val preparedForm = request.userAnswers.get(RefundPeriodPage) match {
+      case None => formProvider()
+      case Some(value) =>
+        val start = java.time.YearMonth.of(value.startDate.getYear, value.startDate.getMonthValue)
+        val end = java.time.YearMonth.of(value.endDate.getYear, value.endDate.getMonthValue)
+        formProvider().fill(RefundPeriodData(start, end))
     }
-    Ok(view(preparedForm, mode, routes.RefundPeriodController.onPageLoad(NormalMode)))
+
+    Ok(view(formProvider.withMappedErrors(preparedForm), mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    form
+    formProvider()
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, routes.RefundPeriodController.onPageLoad(NormalMode)))),
+        formWithErrors => Future.successful(BadRequest(view(formProvider.withMappedErrors(formWithErrors), mode))),
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(ContactDetailsPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(ContactDetailsPage, mode, updatedAnswers))
+            updatedAnswers <- Future.fromTry(
+                                request.userAnswers.set(
+                                  RefundPeriodPage,
+                                  RefundPeriod(
+                                    LocalDate.of(value.start.getYear, value.start.getMonthValue, 1),
+                                    LocalDate.of(value.end.getYear, value.end.getMonthValue, 1)
+                                  )
+                                )
+                              )
+            _ <- sessionRepository.set(updatedAnswers)
+          } yield Redirect(navigator.nextPage(RefundPeriodPage, mode, updatedAnswers))
       )
   }
 }

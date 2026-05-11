@@ -21,7 +21,6 @@
 @this(
     layout: templates.Layout,
     formHelper: FormWithCSRF,
-    govukErrorSummary: GovukErrorSummary,
     govukInput: GovukInput,
     govukButton: GovukButton,
     mainErrorSummary: MainErrorSummary
@@ -31,13 +30,10 @@
 
 @layout(pageTitle = title(form, messages("contactDetails.title")), backLinkUrl = Some(call.url)) {
     <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is: </span>@messages("claim.caption.add")</h2>
+    <h1 class="govuk-heading-l">@messages("contactDetails.heading")</h1>
 
     @formHelper(action = routes.ContactDetailsController.onSubmit(mode), Symbol("novalidate") -> "novalidate") {
         @mainErrorSummary(form)
-
-        <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
-            <h1 class="govuk-fieldset__heading">@messages("contactDetails.heading")</h1>
-        </legend>
 
         @govukInput(
             InputViewModel(
@@ -53,6 +49,7 @@
                 field = form("contactFirstName"),
                 label = LabelViewModel(messages("contactDetails.contactFirstName.label"))
             )
+            .withAutocomplete("given-name")
             .withWidth(Full)
         )
 
@@ -61,6 +58,7 @@
                 field = form("contactLastName"),
                 label = LabelViewModel(messages("contactDetails.contactLastName.label"))
             )
+            .withAutocomplete("family-name")
             .withWidth(Full)
         )
 
@@ -69,6 +67,8 @@
                 field = form("contactTelephone"),
                 label = LabelViewModel(messages("contactDetails.contactTelephone.label"))
             )
+            .withInputType("tel")
+            .withAutocomplete("tel")
             .withWidth(Fixed20)
         )
 
