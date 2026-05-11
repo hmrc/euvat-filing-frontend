@@ -35,11 +35,11 @@ import scala.concurrent.Future
 
 class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
-  val onwardRoute = Call("GET", "/foo")
+  val onwardRoute: Call = Call("GET", "/foo")
 
-  lazy val purchaseTypeRoute = routes.PurchaseTypeController.onPageLoad(NormalMode).url
-  lazy val purchaseTypeSubmitRoute = routes.PurchaseTypeController.onSubmit(NormalMode).url
-  lazy val backLinkCall: Call = routes.RefundingCountryController.onPageLoad()
+  lazy val purchaseTypeRoute: String = routes.PurchaseTypeController.onPageLoad(NormalMode).url
+  lazy val purchaseTypeSubmitRoute: String = routes.PurchaseTypeController.onSubmit(NormalMode).url
+  lazy val backLinkCall: Call = routes.AboutThePurchaseController.onPageLoad()
 
   "PurchaseType Controller" - {
 

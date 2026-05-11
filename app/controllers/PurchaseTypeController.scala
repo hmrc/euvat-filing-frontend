@@ -18,9 +18,10 @@ package controllers
 
 import controllers.actions.*
 import forms.PurchaseTypeFormProvider
-import models.Mode
+import models.{Mode, PurchaseType}
 import navigation.Navigator
 import pages.PurchaseTypePage
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -44,18 +45,18 @@ class PurchaseTypeController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  val form = formProvider()
+  val form: Form[PurchaseType] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(PurchaseTypePage).fold(form)(form.fill)
-    Ok(view(preparedForm, mode, routes.RefundingCountryController.onPageLoad()))
+    Ok(view(preparedForm, mode, routes.AboutThePurchaseController.onPageLoad()))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, routes.RefundingCountryController.onPageLoad()))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, routes.AboutThePurchaseController.onPageLoad()))),
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(PurchaseTypePage, value))

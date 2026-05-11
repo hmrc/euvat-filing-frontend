@@ -54,6 +54,11 @@ class NavigatorSpec extends SpecBase {
         navigator.nextPage(ContactDetailsPage, NormalMode, userAnswers) mustBe
           routes.JourneyRecoveryController.onPageLoad()
       }
+
+      "must go from PurchaseTypeController to JourneyRecoveryController" in {
+        navigator.nextPage(ContactDetailsPage, NormalMode, userAnswers) mustBe
+          routes.JourneyRecoveryController.onPageLoad()
+      }
     }
 
     "in Check mode" - {
