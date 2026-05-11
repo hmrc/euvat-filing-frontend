@@ -23,7 +23,7 @@ import models.*
 
 class NavigatorSpec extends SpecBase {
 
-  val navigator                = new Navigator
+  val navigator = new Navigator
   val userAnswers: UserAnswers = UserAnswers("id")
 
   "Navigator" - {
