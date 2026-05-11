@@ -32,7 +32,7 @@
 
 @(form: play.api.data.Form[_], mode: models.Mode)(implicit request: play.api.mvc.Request[_], messages: play.api.i18n.Messages)
 
-@layout(pageTitle = views.ViewUtils.title(form, "refundPeriod.title")) {
+@layout(pageTitle = title(form, "refundPeriod.title")) {
 
   @formHelper(action = controllers.routes.RefundPeriodController.onSubmit(mode)) {
 

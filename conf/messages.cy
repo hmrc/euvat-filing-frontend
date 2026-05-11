@@ -147,6 +147,15 @@ contactDetails.error.lastName.maxLength = Your last name must be between 1 and 1
 contactDetails.error.lastName.format = Enter your last name in the correct format
 contactDetails.error.telephone.format = Enter a telephone number in the correct format, like 01632960001 or +448081570192
 
+aboutThePurchase.title = About the purchase
+aboutThePurchase.heading = About the purchase
+aboutThePurchase.p1 = You’ll need the following information about the purchase:
+aboutThePurchase.bullet1 = the purchase type
+aboutThePurchase.bullet2 = the invoice dates
+aboutThePurchase.bullet3 = the VAT registration number
+aboutThePurchase.bullet4 = the supplier name and address
+aboutThePurchase.bullet5 = the VAT amount
+
 purchaseType.title = Purchase type
 purchaseType.heading = Purchase type
 purchaseType.h2 = What is the purchase type that best describes the item on your invoice?
