@@ -43,17 +43,13 @@ class TaskListDashboardController @Inject() (
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData).async { implicit request =>
     val originalAnswers = request.userAnswers.getOrElse(UserAnswers(request.userId))
-    sessionRepository.set(originalAnswers).map(_ =>
-      Ok(view())
-    )
+    sessionRepository.set(originalAnswers).map(_ => Ok(view()))
   }
 
-  //Clear session before calling the manage frontend
+  // Clear session before calling the manage frontend
   def redirectToManageClaim: Action[AnyContent] = (identify andThen getData).async { implicit request =>
     val clearSessionAnswer = request.userAnswers.getOrElse(UserAnswers(request.userId)).clear()
-    sessionRepository.set(clearSessionAnswer).map(_ =>
-      Redirect(appConfig.claimDashboardUrl)
-    )
+    sessionRepository.set(clearSessionAnswer).map(_ => Redirect(appConfig.claimDashboardUrl))
   }
 
 }
