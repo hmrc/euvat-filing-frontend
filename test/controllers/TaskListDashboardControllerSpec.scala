@@ -18,28 +18,135 @@ package controllers
 
 import base.SpecBase
 import config.FrontendAppConfig
+import models.UserAnswers
+import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.*
+import org.scalatestplus.mockito.MockitoSugar
+import pages.QuestionPage
+import play.api.inject.bind
+import play.api.libs.json.{JsPath, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import repositories.SessionRepository
 import views.html.TaskListDashboardView
 
-class TaskListDashboardControllerSpec extends SpecBase {
+import scala.concurrent.Future
+
+class TaskListDashboardControllerSpec extends SpecBase with MockitoSugar {
 
   "TaskListDashboard Controller" - {
 
+    case object DummyPage extends QuestionPage[String] {
+      override def path: JsPath = JsPath \ "dummy"
+    }
+
     "must return OK and the correct view for a GET" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val application = applicationBuilder(userAnswers = None)
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.TaskListDashboardController.onPageLoad().url)
+        val result = route(application, request).value
+        val config = application.injector.instanceOf[FrontendAppConfig]
+        val view = application.injector.instanceOf[TaskListDashboardView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view()(request, messages(application)).toString
+      }
+    }
+
+    "must still return OK even if sessionRepository.set returns false" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(false)
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, routes.TaskListDashboardController.onPageLoad().url)
 
         val result = route(application, request).value
         val config = application.injector.instanceOf[FrontendAppConfig]
-
         val view = application.injector.instanceOf[TaskListDashboardView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(config.claimDashboardUrl)(request, messages(application)).toString
+        contentAsString(result) mustEqual view()(request, messages(application)).toString
       }
     }
+
+    "redirectToManageClaim must clear session data and redirect" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val populatedAnswers = emptyUserAnswers.set(DummyPage, "value").success.value
+
+      val application =
+        applicationBuilder(userAnswers = Some(populatedAnswers))
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+          .build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.TaskListDashboardController.redirectToManageClaim().url)
+        val result = route(application, request).value
+
+        val config = application.injector.instanceOf[FrontendAppConfig]
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual config.claimDashboardUrl
+
+        // Verify session was cleared
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(mockSessionRepository).set(captor.capture())
+
+        captor.getValue.data mustBe Json.obj()
+      }
+    }
+
+    "redirectToManageClaim must still redirect even if sessionRepository.set returns true" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val application =
+        applicationBuilder(userAnswers = None)
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+          .build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.TaskListDashboardController.redirectToManageClaim().url)
+        val result = route(application, request).value
+
+        val config = application.injector.instanceOf[FrontendAppConfig]
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual config.claimDashboardUrl
+      }
+    }
+
+    "redirectToManageClaim must still redirect even if sessionRepository.set returns false" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(false)
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+          .build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.TaskListDashboardController.redirectToManageClaim().url)
+        val result = route(application, request).value
+
+        val config = application.injector.instanceOf[FrontendAppConfig]
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual config.claimDashboardUrl
+      }
+    }
+
   }
 }
