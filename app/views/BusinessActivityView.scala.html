@@ -30,8 +30,6 @@
 
 @(form: Form[?], mode: Mode, primaryBusinessActivity: String, call: Call)(implicit request: Request[?], messages: Messages)
 
-@hintHtml = {@Html(messages("businessActivity.hint"))}
-
 @insetHtml = {<strong>@messages("businessActivity.insetText.label"):</strong> @primaryBusinessActivity}
 
 @layout(pageTitle = views.ViewUtils.title(form, "businessActivity.title"), backLinkUrl = Some(call.url)) {
@@ -43,6 +41,8 @@
 
     @govukInsetText(InsetText(content = HtmlContent(insetHtml)))
 
+    <p class="govuk-body">@Html(messages("businessActivity.hint"))</p>
+
     @formHelper(action = routes.BusinessActivityController.onSubmit(mode)) {
         @mainErrorSummary(form, Map("value" -> "value_0"))
 
@@ -52,7 +52,6 @@
                 legend = LegendViewModel(messages("businessActivity.h2")).withCssClass("govuk-fieldset__legend--m"),
                 items  = AddAnotherBusinessActivity.options
             )
-            .withHint(HintViewModel(HtmlContent(hintHtml)))
             .inline()
         )
 
