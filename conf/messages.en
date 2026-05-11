@@ -70,7 +70,6 @@ refundingCountry.error.required = Select an EU member state
 refundingCountry.error.invalid = Select a valid EU member state
 refundingCountry.error.invalid.summary = Select a valid EU member state
 
-refundingLanguage.caption = Add claim details
 refundingLanguage.title = What language do you want to use for this claim?
 refundingLanguage.heading = What language do you want to use for this claim?
 refundingLanguage.error.required = Select a language for this claim
