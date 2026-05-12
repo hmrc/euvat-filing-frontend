@@ -16,7 +16,6 @@
 
 package controllers
 
-import config.FrontendAppConfig
 import controllers.actions.*
 import forms.AddAnotherBusinessActivityFormProvider
 import models.Mode
@@ -33,7 +32,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class BusinessActivityController @Inject() (
   override val messagesApi: MessagesApi,
-  appConfig: FrontendAppConfig,
   sessionRepository: SessionRepository,
   navigator: Navigator,
   identify: IdentifierAction,
@@ -52,7 +50,7 @@ class BusinessActivityController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(AddAnotherBusinessActivityPage).fold(form)(form.fill)
-    Ok(view(preparedForm, mode, appConfig.placeholderPrimaryBusinessActivity, backLink))
+    Ok(view(preparedForm, mode, backLink))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -60,7 +58,7 @@ class BusinessActivityController @Inject() (
       .bindFromRequest()
       .fold(
         formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode, appConfig.placeholderPrimaryBusinessActivity, backLink))),
+          Future.successful(BadRequest(view(formWithErrors, mode, backLink))),
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(AddAnotherBusinessActivityPage, value))

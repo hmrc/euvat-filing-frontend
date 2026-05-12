@@ -17,7 +17,6 @@
 package controllers
 
 import base.SpecBase
-import config.FrontendAppConfig
 import forms.AddAnotherBusinessActivityFormProvider
 import models.{AddAnotherBusinessActivity, NormalMode}
 import navigation.{FakeNavigator, Navigator}
@@ -54,11 +53,10 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
 
         val view = application.injector.instanceOf[BusinessActivityView]
         val formProvider = application.injector.instanceOf[AddAnotherBusinessActivityFormProvider]
-        val appConfig = application.injector.instanceOf[FrontendAppConfig]
         val form = formProvider()
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, appConfig.placeholderPrimaryBusinessActivity, backLink)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, backLink)(request, messages(application)).toString
       }
     }
 
@@ -86,11 +84,10 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
 
         val view = application.injector.instanceOf[BusinessActivityView]
         val formProvider = application.injector.instanceOf[AddAnotherBusinessActivityFormProvider]
-        val appConfig = application.injector.instanceOf[FrontendAppConfig]
         val form = formProvider().fill(AddAnotherBusinessActivity.Yes)
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, appConfig.placeholderPrimaryBusinessActivity, backLink)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, backLink)(request, messages(application)).toString
       }
     }
 

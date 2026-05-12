@@ -27,9 +27,9 @@
     mainErrorSummary: MainErrorSummary
 )
 
-@(form: Form[?], mode: Mode, primaryBusinessActivity: String, call: Call)(implicit request: Request[?], messages: Messages)
+@(form: Form[?], mode: Mode, call: Call)(implicit request: Request[?], messages: Messages)
 
-@insetHtml = {<strong>@messages("businessActivity.insetText.label"):</strong> @primaryBusinessActivity}
+@insetHtml = {<strong>@messages("businessActivity.insetText.label"):</strong> 49200 (Freight rail transport)}
 
 @errored = @{form.error("value").isDefined}
 
