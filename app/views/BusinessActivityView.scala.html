@@ -33,6 +33,8 @@
 @insetHtml = {<strong>@messages("businessActivity.insetText.label"):</strong> @primaryBusinessActivity}
 
 @layout(pageTitle = views.ViewUtils.title(form, "businessActivity.title"), backLinkUrl = Some(call.url)) {
+    @mainErrorSummary(form, Map("value" -> "value_0"))
+
     <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is: </span>@messages("businessActivity.caption")</h2>
 
     <h1 class="govuk-heading-l">@messages("businessActivity.heading")</h1>
@@ -44,8 +46,6 @@
     <p class="govuk-body">@Html(messages("businessActivity.hint"))</p>
 
     @formHelper(action = routes.BusinessActivityController.onSubmit(mode)) {
-        @mainErrorSummary(form, Map("value" -> "value_0"))
-
         @govukRadios(
             RadiosViewModel(
                 field  = form("value"),
