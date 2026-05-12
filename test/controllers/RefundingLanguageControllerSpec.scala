@@ -76,7 +76,7 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
         val changeRequest = FakeRequest(GET, routes.RefundingLanguageController.onPageLoad(models.CheckMode).url)
         val changeResult = route(application, changeRequest).value
         status(changeResult) mustEqual OK
-        contentAsString(changeResult) mustEqual view(form, items, routes.RefundingCountryController.onPageLoad(models.NormalMode), models.CheckMode)(changeRequest, messages(application)).toString
+        contentAsString(changeResult) mustEqual view(form, items, routes.RefundingCountryController.onPageLoad(models.CheckMode), models.CheckMode)(changeRequest, messages(application)).toString
       }
     }
 
