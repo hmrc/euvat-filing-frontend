@@ -1,3 +1,19 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
 @import uk.gov.hmrc.govukfrontend.views.html.components
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.insettext.InsetText
@@ -16,65 +32,56 @@
 
 @(form: Form[_], mode: Mode, primaryBusinessActivity: String, businessActivityTwoCode: String, call: Call)(implicit request: Request[_], messages: Messages)
 
-@hintHtml = @{Html(messages(businessActivityTwo.hint))}
-
-@insetHtml = @{<strong>@messages(businessActivityTwo.insetText.label):</strong>@PrimaryBusinessActivity}
-
-@layout(pageTitle = views.ViewUtils.title(form, messages("businessActivityTwo.title)), backLinkUrl = Some(call.url)) {
+@layout(pageTitle = views.ViewUtils.title(form, messages("businessActivityTwo.title")), backLinkUrl = Some(call.url)) {
 
     <h2 class="govuk-caption-l hmrc-caption-l">
-        <span class="govuk-visually-hidden">This section is: </span>@(businessActivity.caption)
+     <span class="govuk-visually-hidden">This section is: </span>@(businessActivity.caption)
     </h2>
     <h1 class="govuk-heading-l">@messages("businessActivityTwo.heading")</h1>
 
-    <p class="govuk-body-l">@messages(businessActivityTwo.lead")</p>
-
-    @govukInsetText(InsetText(content = HtmlContent(insetHtml)))
+    @defining(Html(s"<strong>${messages("businessActivityTwo.insetText.label")}:</strong> $primaryBusinessActivity")) { insetHtml =>
+     <p class="govuk-body-l">@messages("businessActivityTwo.lead")</p>
+     @govukInsetText(InsetText(content = HtmlContent(insetHtml)))
+    }
 
     @formHelper(action = routes.BusinessActivityTwoController.onSubmit(mode)) {
         @mainErrorSummary(form, Map("value" -> "value_0"))
         @businessActivity2.map { case(label, value) =>
-            @govukSummaryList(SummaryList
-                rows = Seq(
-                    SummaryListRow(
-                        key = Key(content = Text(label)),
-                        value = Value(content = Text(value)),
-                        actions = Some(Actions(
-                            items = Seq(
-                                ActionItem(
-                                    href = routesBusinessActivityController.onRemove(mode).url,
-                                    content = Text(messages("site.remove")),
-                                    visuallyHiddenText = Some(label)
-                                ),
-                                ActionItem(
-                                href = routesBusinessActivityController.onRemove(mode).url,
-                                content = Text(messages("site.remove")),
-                                visuallyHiddenText = Some(label)
-                                )
-                            )
-                        ))
-                    )
-                )
-            ))
+           @govukSummaryList(SummaryList(
+              rows = Seq(
+                  SummaryListRow(
+                      key = Key(content = Text(label)),
+                      value = Value(content = Text(value)),
+                      actions = Some(Actions(
+                          items = Seq(
+                              ActionItem(
+                                  href = routesBusinessActivityController.onRemove(mode).url,
+                                  content = Text(messages("site.change")),
+                                  visuallyHiddenText = Some(label)
+                              ),
+                              ActionItem(
+                                   href = routesBusinessActivityController.onRemove(mode).url,
+                                   content = Text(messages("site.remove")),
+                                   visuallyHiddenText = Some(label)
+                              )
+                          )
+                      ))
+                  )
+              )
+           ))
         }
 
-        @form.error("value").map {
-            <span id="value-error" class="govuk-error-message" role="alert">
-                <span class="govuk-visually-hidden">@messages("error.prefix"):</span>@messages(e.message, e.args*)
-            </span>
-        }
+         @govukRadios(
+             RadiosViewModel(
+                 field = form("value"),
+                 legend = LegendViewModel(messages("businessActivityTwo.h2")).withCssClass("govuk-fieldset__legend--m"),
+                 items = AddAnotherBusinessActivity.options
+             )
+             .withHint(HintViewModel(HtmlContent(messages("businessActivity.hint"))))
+             .inline()
+             .copy(errorMessage = None)
+         )
 
-        @govukRadios(
-            RadiosViewModel(
-                field = form("value"),
-                legend = LegendViewModel(messages("businessActivityTwo.h2")).withCssClass("govuk-fieldset__legend--m)
-                items = AddAnotherBusinessActivity.options
-            )
-            .withHint(HintViewModel(HtmlContent(hintHtml)))
-            .inline()
-            .copy(errorMessage = None)
-        )
-
-        @govukButton(ButtonViewModel(messages("site.continue"))
+         @govukButton(ButtonViewModel(messages("site.continue")))
     }
 }
