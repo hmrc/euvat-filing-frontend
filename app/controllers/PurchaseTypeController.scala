@@ -50,14 +50,14 @@ class PurchaseTypeController @Inject() (
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(PurchaseTypePage).fold(form)(form.fill)
 
-    Ok(view(preparedForm, mode, routes.RefundingCountryController.onPageLoad(models.NormalMode)))
+    Ok(view(preparedForm, mode, routes.AboutThePurchaseController.onPageLoad()))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, routes.RefundingCountryController.onPageLoad(mode)))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, routes.AboutThePurchaseController.onPageLoad()))),
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(PurchaseTypePage, value))
