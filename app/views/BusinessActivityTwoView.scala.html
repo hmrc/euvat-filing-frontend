@@ -54,7 +54,9 @@
                     },
                     hint = Some(Hint(content = messages("businessActivityTwo.hint"))),
                     attributes = Map(
-                        "aria-describedby" -> (form("value").id + "-input-hint")
+                        "aria-describedby" -> (form("value").id + "-input-hint"),
+                        "data-ac-typed" -> "#valueTyped",
+                        "data-ac-heading" -> "#business-activity-two-heading"
                     ),
                     errorMessage = form.error("value").map { e => ErrorMessage(content = Text(messages(e.message, e.args: _*))) }
                 ).asAccessibleAutocomplete(Some(AccessibleAutocomplete(showAllValues = false, autoSelect = false, minLength = None)))
@@ -64,7 +66,7 @@
 
             @govukButton(ButtonViewModel(messages("site.continue")))
 
-            <script @views.html.helper.CSPNonce.attr src='@routes.Assets.versioned("javascripts/business-activity-two.js")'></script>
+            @* Shared autocomplete sync handled globally via `autocomplete-sync.js` included in the layout. *@
 
         }
 }
