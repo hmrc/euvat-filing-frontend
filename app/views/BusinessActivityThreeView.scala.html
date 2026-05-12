@@ -33,10 +33,10 @@
         <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is: </span>@messages("businessActivityThree.caption")</h2>
         <h1 class="govuk-heading-l">@messages("businessActivityThree.heading")</h1>
 
-        <p class="govuk-body">@messages("businessActivityThree.p1")</p>
+        <p class="govuk-body-l">@messages("businessActivityThree.p1")</p>
 
         @govukInsetText(InsetText(
-          content = Text(messages("businessActivityThree.inset"))
+            content = HtmlContent(s"<strong>${messages("businessActivityThree.insetLabel")}</strong> ${messages("businessActivityThree.insetValue")}")
         ))
 
         @govukSummaryList(SummaryList(
@@ -45,16 +45,16 @@
               key = Key(content = Text(messages("businessActivityThree.ba2.label"))),
               value = Value(content = Text("10110 (Processing and preserving of meat)")),
               actions = Some(Actions(items = Seq(
-                    ActionItem(href = "#", content = Text(messages("site.change")), visuallyHiddenText = Some(messages("businessActivityThree.ba2.label"))),
-                    ActionItem(href = "#", content = Text(messages("site.remove")), visuallyHiddenText = Some(messages("businessActivityThree.ba2.label")))
+                    ActionItem(href = "#", content = Text(messages("site.remove")), visuallyHiddenText = Some(messages("businessActivityThree.ba2.label"))),
+                    ActionItem(href = "#", content = Text(messages("site.change")), visuallyHiddenText = Some(messages("businessActivityThree.ba2.label")))
               ), classes = "govuk-summary-list__actions govuk-!-width-one-third"))
             ),
             SummaryListRow(
               key = Key(content = Text(messages("businessActivityThree.ba3.label"))),
               value = Value(content = Text("10130 (Production of meat and poultry meat products)")),
               actions = Some(Actions(items = Seq(
-                    ActionItem(href = "#", content = Text(messages("site.change")), visuallyHiddenText = Some(messages("businessActivityThree.ba3.label"))),
-                    ActionItem(href = "#", content = Text(messages("site.remove")), visuallyHiddenText = Some(messages("businessActivityThree.ba3.label")))
+                    ActionItem(href = "#", content = Text(messages("site.remove")), visuallyHiddenText = Some(messages("businessActivityThree.ba3.label"))),
+                    ActionItem(href = "#", content = Text(messages("site.change")), visuallyHiddenText = Some(messages("businessActivityThree.ba3.label")))
               )))
             )
         )
