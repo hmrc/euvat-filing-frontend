@@ -200,3 +200,15 @@ businessActivityThree.ba2.remove.hidden = Remove business activity code 2
 businessActivityThree.ba3.remove.hidden = Remove business activity code 3
 businessActivityThree.ba2.change.hidden = Change business activity code 2
 businessActivityThree.ba3.change.hidden = Change business activity code 3
+
+# Business activity for this claim (State 2)
+businessActivity.title = Business activity for this claim
+businessActivity.heading = Business activity for this claim
+businessActivity.caption = Add claim details
+businessActivity.lead = This is the Standard Industrial Classification (SIC) listed for your business.
+businessActivity.insetText.label = Primary business activity
+businessActivity.h2 = Do you need to add another business activity?
+businessActivity.hint = You can find the SIC codes on the <a class="govuk-link" href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2026" target="_blank" rel="noreferrer noopener">Office for National Statistics website (opens in new tab)</a>.
+businessActivity.yes = Yes
+businessActivity.no = No
+businessActivity.error.required = Select yes if you want to add another business activity
