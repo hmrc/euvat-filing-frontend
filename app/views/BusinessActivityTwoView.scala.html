@@ -30,21 +30,29 @@
 
     <p class="govuk-body-l">@messages(businessActivityTwo.lead")</p>
 
+    @govukInsetText(InsetText(content = HtmlContent(insetHtml)))
+
     @formHelper(action = routes.BusinessActivityTwoController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @mainErrorSummary(form, Map("value" -> "value_0"))
 
-        @govukInsetText(InsetText(content = HtmlContent(insetHtml)))
+        @form.error("value").map {
+            <span id="value-error" class="govuk-error-message" role="alert">
+                <span class="govuk-visually-hidden">@messages("error.prefix"):</span>@messages(e.message)
+            </span>, e.args*)
+        }
 
         @govukRadios(
-            RadiosViewModel.yesNo(
+            RadiosViewModel(
                 field = form("value"),
                 legend = LegendViewModel(messages("businessActivityTwo.h2")).withCssClass("govuk-fieldset__legend--m)
+                items = AddAnotherBusinessActivity.options
             )
             .withHint(HintViewModel(HtmlContent(hintHtml)))
-            .imline()
+            .inline()
+            .copy(errorMessage = None)
         )
 
-        @govukButton(ButtonViewModel(messages("site.continue")).withAttribute(("id", "continue")))
+        @govukButton(ButtonViewModel(messages("site.continue"))
     }
 }
