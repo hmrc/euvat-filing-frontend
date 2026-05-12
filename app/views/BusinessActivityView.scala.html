@@ -23,7 +23,6 @@
     layout: templates.Layout,
     formHelper: FormWithCSRF,
     govukInsetText: GovukInsetText,
-    govukRadios: GovukRadios,
     govukButton: GovukButton,
     mainErrorSummary: MainErrorSummary
 )
@@ -31,6 +30,8 @@
 @(form: Form[?], mode: Mode, primaryBusinessActivity: String, call: Call)(implicit request: Request[?], messages: Messages)
 
 @insetHtml = {<strong>@messages("businessActivity.insetText.label"):</strong> @primaryBusinessActivity}
+
+@errored = @{form.error("value").isDefined}
 
 @layout(pageTitle = views.ViewUtils.title(form, "businessActivity.title"), backLinkUrl = Some(call.url)) {
     @mainErrorSummary(form, Map("value" -> "value_0"))
@@ -43,17 +44,33 @@
 
     @govukInsetText(InsetText(content = HtmlContent(insetHtml)))
 
-    <p class="govuk-body">@Html(messages("businessActivity.hint"))</p>
-
     @formHelper(action = routes.BusinessActivityController.onSubmit(mode)) {
-        @govukRadios(
-            RadiosViewModel(
-                field  = form("value"),
-                legend = LegendViewModel(messages("businessActivity.h2")).withCssClass("govuk-fieldset__legend--m"),
-                items  = AddAnotherBusinessActivity.options
-            )
-            .inline()
-        )
+        <div class="govuk-form-group @if(errored){govuk-form-group--error}">
+            <fieldset class="govuk-fieldset" @if(errored){aria-describedby="value-error"}>
+                <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                    @messages("businessActivity.h2")
+                </legend>
+
+                <p class="govuk-body">@Html(messages("businessActivity.hint"))</p>
+
+                @form.error("value").map { e =>
+                    <p id="value-error" class="govuk-error-message">
+                        <span class="govuk-visually-hidden">@messages("error.prefix"):</span> @messages(e.message, e.args*)
+                    </p>
+                }
+
+                <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
+                    @AddAnotherBusinessActivity.values.zipWithIndex.map { case (value, index) =>
+                        <div class="govuk-radios__item">
+                            <input class="govuk-radios__input" id="value_@index" name="value" type="radio" value="@value.toString"@if(form("value").value.contains(value.toString)){ checked}>
+                            <label class="govuk-label govuk-radios__label" for="value_@index">
+                                @messages(s"businessActivity.${value.toString}")
+                            </label>
+                        </div>
+                    }
+                </div>
+            </fieldset>
+        </div>
 
         @govukButton(ButtonViewModel(messages("site.continue")))
     }
