@@ -18,8 +18,9 @@ package controllers
 
 import controllers.actions.*
 import forms.BusinessActivityTwoFormProvider
+
 import javax.inject.Inject
-import models.Mode
+import models.{Mode, NormalMode}
 import navigation.Navigator
 import pages.BusinessActivityTwoPage
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -46,27 +47,29 @@ class BusinessActivityTwoController @Inject() (
 
   val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+  private def backLink: play.api.mvc.Call = routes.RefundingCountryController.onPageLoad()
+
+  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
     val preparedForm = request.userAnswers.get(BusinessActivityTwoPage) match {
       case None        => form
       case Some(value) => form.fill(value)
     }
 
-    Ok(view(preparedForm, mode))
+    Ok(view(preparedForm, backLink))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+  def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
 
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, backLink))),
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(BusinessActivityTwoPage, value))
             _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(BusinessActivityTwoPage, mode, updatedAnswers))
+          } yield Redirect(navigator.nextPage(BusinessActivityTwoPage, NormalMode, updatedAnswers))
       )
   }
 }

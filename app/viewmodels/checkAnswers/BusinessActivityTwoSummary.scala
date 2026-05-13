@@ -35,7 +35,7 @@ object BusinessActivityTwoSummary {
         key   = "businessActivityTwo.checkYourAnswersLabel",
         value = ValueViewModel(value),
         actions = Seq(
-          ActionItemViewModel("site.change", routes.BusinessActivityTwoController.onPageLoad(CheckMode).url)
+          ActionItemViewModel("site.change", routes.BusinessActivityTwoController.onPageLoad().url)
             .withVisuallyHiddenText(messages("businessActivityTwo.change.hidden"))
         )
       )
