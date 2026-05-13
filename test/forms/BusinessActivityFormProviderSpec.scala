@@ -20,9 +20,9 @@ import forms.behaviours.FieldBehaviours
 import models.AddAnotherBusinessActivity
 import play.api.data.FormError
 
-class AddAnotherBusinessActivityFormProviderSpec extends FieldBehaviours {
+class BusinessActivityFormProviderSpec extends FieldBehaviours {
 
-  private val form = new AddAnotherBusinessActivityFormProvider().apply()
+  private val form = new BusinessActivityFormProvider().apply()
 
   private val fieldName = "value"
   private val errorKey = "businessActivity.error.required"

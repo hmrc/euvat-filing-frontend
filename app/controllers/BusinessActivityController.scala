@@ -17,7 +17,7 @@
 package controllers
 
 import controllers.actions.*
-import forms.AddAnotherBusinessActivityFormProvider
+import forms.BusinessActivityFormProvider
 import models.Mode
 import navigation.Navigator
 import pages.AddAnotherBusinessActivityPage
@@ -37,7 +37,7 @@ class BusinessActivityController @Inject() (
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  formProvider: AddAnotherBusinessActivityFormProvider,
+  formProvider: BusinessActivityFormProvider,
   val controllerComponents: MessagesControllerComponents,
   view: BusinessActivityView
 )(implicit ec: ExecutionContext)

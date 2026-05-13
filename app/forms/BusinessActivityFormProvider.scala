@@ -22,7 +22,7 @@ import forms.mappings.Mappings
 import models.AddAnotherBusinessActivity
 import play.api.data.Form
 
-class AddAnotherBusinessActivityFormProvider @Inject() extends Mappings {
+class BusinessActivityFormProvider @Inject() extends Mappings {
 
   def apply(): Form[AddAnotherBusinessActivity] =
     Form(

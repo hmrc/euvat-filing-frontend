@@ -17,7 +17,7 @@
 package controllers
 
 import base.SpecBase
-import forms.AddAnotherBusinessActivityFormProvider
+import forms.BusinessActivityFormProvider
 import models.{AddAnotherBusinessActivity, NormalMode}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
@@ -52,7 +52,7 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[BusinessActivityView]
-        val formProvider = application.injector.instanceOf[AddAnotherBusinessActivityFormProvider]
+        val formProvider = application.injector.instanceOf[BusinessActivityFormProvider]
         val form = formProvider()
 
         status(result) mustEqual OK
@@ -83,7 +83,7 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[BusinessActivityView]
-        val formProvider = application.injector.instanceOf[AddAnotherBusinessActivityFormProvider]
+        val formProvider = application.injector.instanceOf[BusinessActivityFormProvider]
         val form = formProvider().fill(AddAnotherBusinessActivity.Yes)
 
         status(result) mustEqual OK
