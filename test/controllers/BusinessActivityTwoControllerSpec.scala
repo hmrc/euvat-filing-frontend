@@ -23,6 +23,7 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
 
   val formProvider = new BusinessActivityTwoFormProvider()
   val form = formProvider()
+  val backLink = routes.RefundingCountryController.onPageLoad()
 
   lazy val businessActivityTwoRoute = routes.BusinessActivityTwoController.onPageLoad(NormalMode).url
 
@@ -40,7 +41,7 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[BusinessActivityTwoView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, backLink)(request, messages(application)).toString
       }
     }
 
@@ -58,7 +59,7 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(true), NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(true), backLink)(request, messages(application)).toString
       }
     }
 
@@ -104,7 +105,7 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, backLink)(request, messages(application)).toString
       }
     }
 
