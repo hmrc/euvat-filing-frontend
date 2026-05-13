@@ -49,7 +49,7 @@
            @govukSummaryList(SummaryList(
               rows = Seq(
                   SummaryListRow(
-                      key = Key(content = Text(messages("businessActivityThree.ba2.label"))),
+                      key = Key(content = Text(messages("businessActivityTwo.ba2.label"))),
                       value = Value(content = Text("10110 (Processing and preserving of meat)")),
                       actions = Some(Actions(items = Seq(
                             ActionItem(href = "#", content = Text(messages("site.change")), visuallyHiddenText = Some(messages("businessActivityTwo.ba2.label"))),
@@ -64,10 +64,9 @@
                  field = form("value"),
                  legend = LegendViewModel(messages("businessActivityTwo.h2")).withCssClass("govuk-fieldset__legend--m"),
              )
-             .withHint(HintViewModel(HtmlContent(messages("businessActivityTwo.hint"))))
+             .withHint(HintViewModel(HtmlContent(messages("businessActivityTwo.hint"))).withCssClass("govuk-body"))
              .inline()
              .copy(errorMessage = None)
-         )
 
          @govukButton(ButtonViewModel(messages("site.continue")))
     }
