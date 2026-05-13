@@ -172,7 +172,7 @@ class AuthActionSpec extends SpecBase {
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
           val appConfig = application.injector.instanceOf[FrontendAppConfig]
-          val enrolments = Enrolments(Set(Enrolment("HMRC-EU-REF-ORG", Seq(EnrolmentIdentifier(key = "VatRegNo", value = "123456789")), "Activated")))
+          val enrolments = Enrolments(Set(Enrolment("HMRC-EU-REF-ORG", Seq(EnrolmentIdentifier(key = "VATRegNo", value = "123456789")), "Activated")))
 
           val authConnector = new FakeSuccessfulAuthConnector(
             affinityGroup = Some(AffinityGroup.Organisation),
@@ -194,7 +194,7 @@ class AuthActionSpec extends SpecBase {
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
           val appConfig = application.injector.instanceOf[FrontendAppConfig]
-          val enrolments = Enrolments(Set(Enrolment("HMRC-EU-REF-ORG", Seq(EnrolmentIdentifier(key = "VatRegNo", value = "123456789")), "Activated")))
+          val enrolments = Enrolments(Set(Enrolment("HMRC-EU-REF-ORG", Seq(EnrolmentIdentifier(key = "VATRegNo", value = "123456789")), "Activated")))
 
           val authConnector = new FakeSuccessfulAuthConnector(
             affinityGroup = Some(AffinityGroup.Individual),
@@ -239,7 +239,7 @@ class AuthActionSpec extends SpecBase {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
           val appConfig = application.injector.instanceOf[FrontendAppConfig]
           val enrolments =
-            Enrolments(Set(Enrolment("HMRC-NOVRN-AGNT", Seq(EnrolmentIdentifier(key = "AgentRegNo", value = "123456789")), "Activated")))
+            Enrolments(Set(Enrolment("HMRC-NOVRN-AGNT", Seq(EnrolmentIdentifier(key = "VATAgentRefNo", value = "123456789")), "Activated")))
 
           val authConnector = new FakeSuccessfulAuthConnector(
             affinityGroup = Some(AffinityGroup.Agent),
