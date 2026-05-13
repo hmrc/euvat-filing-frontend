@@ -25,8 +25,8 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.authorise.Predicate
-import uk.gov.hmrc.auth.core.retrieve.Retrieval
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Retrieval, ~}
+import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
@@ -40,9 +40,7 @@ class AuthActionSpec extends SpecBase {
   "Auth Action" - {
 
     "when the user hasn't logged in" - {
-
       "must redirect the user to log in " in {
-
         val application = applicationBuilder(userAnswers = None).build()
 
         running(application) {
@@ -60,9 +58,7 @@ class AuthActionSpec extends SpecBase {
     }
 
     "the user's session has expired" - {
-
       "must redirect the user to log in " in {
-
         val application = applicationBuilder(userAnswers = None).build()
 
         running(application) {
@@ -80,9 +76,7 @@ class AuthActionSpec extends SpecBase {
     }
 
     "the user doesn't have sufficient enrolments" - {
-
       "must redirect the user to the unauthorised page" in {
-
         val application = applicationBuilder(userAnswers = None).build()
 
         running(application) {
@@ -100,9 +94,7 @@ class AuthActionSpec extends SpecBase {
     }
 
     "the user doesn't have sufficient confidence level" - {
-
       "must redirect the user to the unauthorised page" in {
-
         val application = applicationBuilder(userAnswers = None).build()
 
         running(application) {
@@ -120,9 +112,7 @@ class AuthActionSpec extends SpecBase {
     }
 
     "the user used an unaccepted auth provider" - {
-
       "must redirect the user to the unauthorised page" in {
-
         val application = applicationBuilder(userAnswers = None).build()
 
         running(application) {
@@ -140,9 +130,7 @@ class AuthActionSpec extends SpecBase {
     }
 
     "the user has an unsupported affinity group" - {
-
       "must redirect the user to the unauthorised page" in {
-
         val application = applicationBuilder(userAnswers = None).build()
 
         running(application) {
@@ -160,9 +148,7 @@ class AuthActionSpec extends SpecBase {
     }
 
     "the user has an unsupported credential role" - {
-
       "must redirect the user to the unauthorised page" in {
-
         val application = applicationBuilder(userAnswers = None).build()
 
         running(application) {
@@ -178,6 +164,174 @@ class AuthActionSpec extends SpecBase {
         }
       }
     }
+
+    "when the user is authenticated with supported affinity and enrolments" - {
+      "must allow the request to proceed for Organisation users with HMRC-EU-REF-ORG enrolment" in {
+        val application = applicationBuilder(userAnswers = None).build()
+
+        running(application) {
+          val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
+          val appConfig = application.injector.instanceOf[FrontendAppConfig]
+          val enrolments = Enrolments(Set(Enrolment("HMRC-EU-REF-ORG", Seq(EnrolmentIdentifier(key = "VatRegNo", value = "123456789")), "Activated")))
+
+          val authConnector = new FakeSuccessfulAuthConnector(
+            affinityGroup = Some(AffinityGroup.Organisation),
+            credentials   = Some(Credentials("credId", "provider")),
+            enrolments    = enrolments
+          )
+
+          val authAction = new AuthenticatedIdentifierAction(authConnector, appConfig, bodyParsers)
+          val controller = new Harness(authAction)
+          val result = controller.onPageLoad()(FakeRequest())
+
+          status(result) mustBe OK
+        }
+      }
+
+      "must allow the request to proceed for Individual users with HMRC-EU-REF-ORG enrolment" in {
+        val application = applicationBuilder(userAnswers = None).build()
+
+        running(application) {
+          val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
+          val appConfig = application.injector.instanceOf[FrontendAppConfig]
+          val enrolments = Enrolments(Set(Enrolment("HMRC-EU-REF-ORG", Seq(EnrolmentIdentifier(key = "VatRegNo", value = "123456789")), "Activated")))
+
+          val authConnector = new FakeSuccessfulAuthConnector(
+            affinityGroup = Some(AffinityGroup.Individual),
+            credentials   = Some(Credentials("credId", "provider")),
+            enrolments    = enrolments
+          )
+
+          val authAction = new AuthenticatedIdentifierAction(authConnector, appConfig, bodyParsers)
+          val controller = new Harness(authAction)
+          val result = controller.onPageLoad()(FakeRequest())
+
+          status(result) mustBe OK
+        }
+      }
+
+      "must allow the request to proceed for Agent users with HMCE-VAT-AGNT enrolment" in {
+        val application = applicationBuilder(userAnswers = None).build()
+
+        running(application) {
+          val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
+          val appConfig = application.injector.instanceOf[FrontendAppConfig]
+          val enrolments = Enrolments(Set(Enrolment("HMCE-VAT-AGNT", Seq(EnrolmentIdentifier(key = "AgentRefNo", value = "123456789")), "Activated")))
+
+          val authConnector = new FakeSuccessfulAuthConnector(
+            affinityGroup = Some(AffinityGroup.Agent),
+            credentials   = Some(Credentials("credId", "provider")),
+            enrolments    = enrolments
+          )
+
+          val authAction = new AuthenticatedIdentifierAction(authConnector, appConfig, bodyParsers)
+          val controller = new Harness(authAction)
+          val result = controller.onPageLoad()(FakeRequest())
+
+          status(result) mustBe OK
+        }
+      }
+
+      "must allow the request to proceed for Agent users with HMRC-NOVRN-AGNT enrolment" in {
+        val application = applicationBuilder(userAnswers = None).build()
+
+        running(application) {
+          val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
+          val appConfig = application.injector.instanceOf[FrontendAppConfig]
+          val enrolments =
+            Enrolments(Set(Enrolment("HMRC-NOVRN-AGNT", Seq(EnrolmentIdentifier(key = "AgentRegNo", value = "123456789")), "Activated")))
+
+          val authConnector = new FakeSuccessfulAuthConnector(
+            affinityGroup = Some(AffinityGroup.Agent),
+            credentials   = Some(Credentials("credId", "provider")),
+            enrolments    = enrolments
+          )
+
+          val authAction = new AuthenticatedIdentifierAction(authConnector, appConfig, bodyParsers)
+          val controller = new Harness(authAction)
+          val result = controller.onPageLoad()(FakeRequest())
+
+          status(result) mustBe OK
+        }
+      }
+    }
+
+    "when the user is authenticated but missing credentials" - {
+      "must throw UnauthorizedException" in {
+        val application = applicationBuilder(userAnswers = None).build()
+
+        running(application) {
+          val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
+          val appConfig = application.injector.instanceOf[FrontendAppConfig]
+          val enrolments = Enrolments(Set(Enrolment("HMRC-EU-REF-ORG", Seq(), "Activated")))
+
+          val authConnector = new FakeSuccessfulAuthConnector(
+            affinityGroup = Some(AffinityGroup.Organisation),
+            credentials   = None,
+            enrolments    = enrolments
+          )
+
+          val authAction = new AuthenticatedIdentifierAction(authConnector, appConfig, bodyParsers)
+          val controller = new Harness(authAction)
+
+          assertThrows[UnauthorizedException] {
+            await(controller.onPageLoad()(FakeRequest()))
+          }
+        }
+      }
+    }
+
+    "when the user is authenticated but has unsupported enrolments" - {
+      "must redirect to the unauthorised page" in {
+        val application = applicationBuilder(userAnswers = None).build()
+
+        running(application) {
+          val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
+          val appConfig = application.injector.instanceOf[FrontendAppConfig]
+          val enrolments = Enrolments(Set(Enrolment("SOME-OTHER-ENROLMENT", Seq(), "Activated")))
+
+          val authConnector = new FakeSuccessfulAuthConnector(
+            affinityGroup = Some(AffinityGroup.Organisation),
+            credentials   = Some(Credentials("credId", "provider")),
+            enrolments    = enrolments
+          )
+
+          val authAction = new AuthenticatedIdentifierAction(authConnector, appConfig, bodyParsers)
+          val controller = new Harness(authAction)
+          val result = controller.onPageLoad()(FakeRequest())
+
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result).value mustBe routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+    }
+
+    "when the user is authenticated but missing affinity group" - {
+      "must redirect to the unauthorised page" in {
+        val application = applicationBuilder(userAnswers = None).build()
+
+        running(application) {
+          val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
+          val appConfig = application.injector.instanceOf[FrontendAppConfig]
+          val enrolments = Enrolments(Set.empty)
+
+          val authConnector = new FakeSuccessfulAuthConnector(
+            affinityGroup = None,
+            credentials   = Some(Credentials("credId", "provider")),
+            enrolments    = enrolments
+          )
+
+          val authAction = new AuthenticatedIdentifierAction(authConnector, appConfig, bodyParsers)
+          val controller = new Harness(authAction)
+          val result = controller.onPageLoad()(FakeRequest())
+
+          assertThrows[UnauthorizedException] {
+            await(controller.onPageLoad()(FakeRequest()))
+          }
+        }
+      }
+    }
+
   }
 }
 
@@ -186,4 +340,17 @@ class FakeFailingAuthConnector @Inject() (exceptionToReturn: Throwable) extends 
 
   override def authorise[A](predicate: Predicate, retrieval: Retrieval[A])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[A] =
     Future.failed(exceptionToReturn)
+}
+
+class FakeSuccessfulAuthConnector(
+  affinityGroup: Option[AffinityGroup],
+  credentials: Option[Credentials],
+  enrolments: Enrolments
+) extends AuthConnector {
+  val serviceUrl: String = ""
+
+  override def authorise[A](predicate: Predicate, retrieval: Retrieval[A])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[A] = {
+    val result = new ~(new ~(affinityGroup, credentials), enrolments)
+    Future.successful(result.asInstanceOf[A])
+  }
 }
