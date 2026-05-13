@@ -24,19 +24,19 @@
 
 @(form: Form[_], errorLinkOverrides: Map[String, String] = Map.empty)(implicit messages: Messages)
 
-@form.errors.headOption.map { error =>
+@if(form.errors.nonEmpty) {
     @govukErrorSummary(
         ErrorSummary(
             title = Text(messages("error.summary.title")),
-            errorList = Seq(
+            errorList = form.errors.map { error =>
                 ErrorLink(
                     href = error.key match {
-                        case "" => None
+                        case ""  => None
                         case key => Some(s"#${errorLinkOverrides.getOrElse(key, key)}")
                     },
                     content = Text(messages(error.message, error.args: _*))
                 )
-            )
+            }
         )
     )
 }

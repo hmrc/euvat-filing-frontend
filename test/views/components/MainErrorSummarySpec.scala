@@ -85,6 +85,56 @@ class MainErrorSummarySpec extends SpecBase with Matchers {
       doc.select(".govuk-error-summary__list a").isEmpty mustBe true
       doc.select(".govuk-error-summary__list li").text mustBe messages("error.without.key")
     }
+
+    "must render every error when the form has multiple errors, preserving order" in new Setup {
+      val formWithErrors = form
+        .withError(key = "fieldA", message = "error.a")
+        .withError(key = "fieldB", message = "error.b")
+        .withError(key = "fieldC", message = "error.c")
+
+      val html = mainErrorSummary(formWithErrors)
+      val doc  = Jsoup.parse(html.body)
+
+      val items = doc.select(".govuk-error-summary__list li")
+      items.size mustBe 3
+      items.get(0).select("a").attr("href") mustBe "#fieldA"
+      items.get(0).select("a").text mustBe messages("error.a")
+      items.get(1).select("a").attr("href") mustBe "#fieldB"
+      items.get(1).select("a").text mustBe messages("error.b")
+      items.get(2).select("a").attr("href") mustBe "#fieldC"
+      items.get(2).select("a").text mustBe messages("error.c")
+    }
+
+    "must apply errorLinkOverrides to anchor hrefs across all errors" in new Setup {
+      val formWithErrors = form
+        .withError(key = "fieldA", message = "error.a")
+        .withError(key = "fieldB", message = "error.b")
+
+      val html = mainErrorSummary(formWithErrors, Map("fieldA" -> "fieldA-input", "fieldB" -> "fieldB-input"))
+      val doc  = Jsoup.parse(html.body)
+
+      val items = doc.select(".govuk-error-summary__list li a")
+      items.size mustBe 2
+      items.get(0).attr("href") mustBe "#fieldA-input"
+      items.get(1).attr("href") mustBe "#fieldB-input"
+    }
+
+    "must mix anchor and plain text entries when some errors have an empty key" in new Setup {
+      val formWithErrors = form
+        .withError(key = "fieldA", message = "error.a")
+        .withError(key = "",       message = "error.cross.field")
+        .withError(key = "fieldB", message = "error.b")
+
+      val html = mainErrorSummary(formWithErrors)
+      val doc  = Jsoup.parse(html.body)
+
+      val items = doc.select(".govuk-error-summary__list li")
+      items.size mustBe 3
+      items.get(0).select("a").attr("href") mustBe "#fieldA"
+      items.get(1).select("a").isEmpty mustBe true
+      items.get(1).text mustBe messages("error.cross.field")
+      items.get(2).select("a").attr("href") mustBe "#fieldB"
+    }
   }
 
   trait Setup {
