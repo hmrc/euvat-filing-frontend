@@ -15,13 +15,14 @@
  *@
 
 @import uk.gov.hmrc.govukfrontend.views.html.components._
+@import views.html.components.*
 
 @this(
         layout: templates.Layout,
         govukButton: GovukButton,
         govukInsetText: GovukInsetText,
         formHelper: FormWithCSRF,
-        govukSummaryList: GovukSummaryList
+        customSummaryList: CustomSummaryList
 )
 
 @()(implicit request: Request[_], messages: Messages)
@@ -39,26 +40,18 @@
             content = HtmlContent(s"<strong>${messages("businessActivityThree.insetLabel")}</strong> ${messages("businessActivityThree.insetValue")}")
         ))
 
-        @govukSummaryList(SummaryList(
-          rows = Seq(
-            SummaryListRow(
-              key = Key(content = Text(messages("businessActivityThree.ba2.label"))),
-              value = Value(content = Text("10110 (Processing and preserving of meat)")),
-              actions = Some(Actions(items = Seq(
-                    ActionItem(href = "#", content = Text(messages("site.change")), visuallyHiddenText = Some(messages("businessActivityThree.ba2.label"))),
-                    ActionItem(href = "#", content = Text(messages("site.remove")), visuallyHiddenText = Some(messages("businessActivityThree.ba2.remove.hidden")))
-              ), classes = "govuk-summary-list__actions govuk-!-width-one-third"))
-            ),
-            SummaryListRow(
-              key = Key(content = Text(messages("businessActivityThree.ba3.label"))),
-              value = Value(content = Text("10130 (Production of meat and poultry meat products)")),
-              actions = Some(Actions(items = Seq(
-                    ActionItem(href = "#", content = Text(messages("site.change")), visuallyHiddenText = Some(messages("businessActivityThree.ba3.label"))),
-                    ActionItem(href = "#", content = Text(messages("site.remove")), visuallyHiddenText = Some(messages("businessActivityThree.ba3.remove.hidden")))
-              )))
+        @customSummaryList(
+            rows = Seq(
+                (messages("businessActivityThree.ba2.label"), "10110 (Processing and preserving of meat)", Seq(
+                    ("#", "site.change", "businessActivityThree.ba2.change.hidden"),
+                    ("#", "site.remove", "businessActivityThree.ba2.remove.hidden")
+                )),
+                (messages("businessActivityThree.ba3.label"), "10130 (Production of meat and poultry meat products)", Seq(
+                    ("#", "site.change", "businessActivityThree.ba3.change.hidden"),
+                    ("#", "site.remove", "businessActivityThree.ba3.remove.hidden")
+                ))
             )
         )
-       ))
 
 
         @govukButton(ButtonViewModel(messages("site.continue")))
