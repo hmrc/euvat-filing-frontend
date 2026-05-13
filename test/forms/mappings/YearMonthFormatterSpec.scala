@@ -157,9 +157,21 @@ class YearMonthFormatterSpec extends SpecBase {
           val formatter = new YearMonthFormatter("invalid", "all", "two", "req")
           val data = Map("k.month" -> "03", "k.year" -> "10000")
           val res = formatter.bind("k", data)
-          res.isLeft mustBe true
-          res.swap.toOption.get.head.message mustEqual "invalid.year"
+          res.isLeft `mustBe` true
+          res.swap.toOption.get.head.message `mustEqual` "invalid.year"
           res.swap.toOption.get.head.key mustEqual "k.year"
+        }
+      }
+      "must return invalid when both month and year are invalid including out of range year" in {
+        val application = applicationBuilder().build()
+        running(application) {
+          implicit val msgs: Messages = messages(application)
+          val formatter = new YearMonthFormatter("invalid", "all", "two", "req")
+          val data = Map("k.month" -> "abc", "k.year" -> "12345")
+          val res = formatter.bind("k", data)
+          res.isLeft `mustBe` true
+          res.swap.toOption.get.head.message `mustEqual` "invalid"
+          res.swap.toOption.get.head.key mustEqual "k"
         }
       }
     }
