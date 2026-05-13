@@ -17,7 +17,7 @@
 package forms
 
 import forms.behaviours.FieldBehaviours
-import models.AddAnotherBusinessActivity
+import models.BusinessActivity
 import play.api.data.FormError
 
 class BusinessActivityFormProviderSpec extends FieldBehaviours {
@@ -35,8 +35,8 @@ class BusinessActivityFormProviderSpec extends FieldBehaviours {
       requiredError = FormError(fieldName, errorKey)
     )
 
-    "bind every defined AddAnotherBusinessActivity value" in {
-      AddAnotherBusinessActivity.values.foreach { value =>
+    "bind every defined BusinessActivity value" in {
+      BusinessActivity.values.foreach { value =>
         val result = form.bind(Map(fieldName -> value.toString))
         result.errors mustBe empty
         result.value.value mustEqual value

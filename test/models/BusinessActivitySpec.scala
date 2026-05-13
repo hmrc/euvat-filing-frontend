@@ -24,35 +24,35 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.libs.json.{JsError, JsString, Json}
 
-class AddAnotherBusinessActivitySpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChecks with OptionValues {
+class BusinessActivitySpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChecks with OptionValues {
 
-  "AddAnotherBusinessActivity" - {
+  "BusinessActivity" - {
 
     "must list exactly two values in spec order" in {
-      AddAnotherBusinessActivity.values mustEqual Seq(
-        AddAnotherBusinessActivity.Yes,
-        AddAnotherBusinessActivity.No
+      BusinessActivity.values mustEqual Seq(
+        BusinessActivity.Yes,
+        BusinessActivity.No
       )
     }
 
     "must deserialise valid values" in {
-      val gen = Gen.oneOf(AddAnotherBusinessActivity.values)
+      val gen = Gen.oneOf(BusinessActivity.values)
 
       forAll(gen) { value =>
-        JsString(value.toString).validate[AddAnotherBusinessActivity].asOpt.value mustEqual value
+        JsString(value.toString).validate[BusinessActivity].asOpt.value mustEqual value
       }
     }
 
     "must fail to deserialise invalid values" in {
-      val gen = arbitrary[String] suchThat (s => !AddAnotherBusinessActivity.values.map(_.toString).contains(s))
+      val gen = arbitrary[String] suchThat (s => !BusinessActivity.values.map(_.toString).contains(s))
 
       forAll(gen) { invalidValue =>
-        JsString(invalidValue).validate[AddAnotherBusinessActivity] mustEqual JsError("error.invalid")
+        JsString(invalidValue).validate[BusinessActivity] mustEqual JsError("error.invalid")
       }
     }
 
     "must serialise" in {
-      val gen = Gen.oneOf(AddAnotherBusinessActivity.values)
+      val gen = Gen.oneOf(BusinessActivity.values)
 
       forAll(gen) { value =>
         Json.toJson(value) mustEqual JsString(value.toString)

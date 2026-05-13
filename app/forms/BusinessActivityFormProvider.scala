@@ -19,14 +19,14 @@ package forms
 import javax.inject.Inject
 
 import forms.mappings.Mappings
-import models.AddAnotherBusinessActivity
+import models.BusinessActivity
 import play.api.data.Form
 
 class BusinessActivityFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[AddAnotherBusinessActivity] =
+  def apply(): Form[BusinessActivity] =
     Form(
-      "value" -> enumerable[AddAnotherBusinessActivity](
+      "value" -> enumerable[BusinessActivity](
         requiredKey = "businessActivity.error.required",
         invalidKey = "businessActivity.error.required"
       )

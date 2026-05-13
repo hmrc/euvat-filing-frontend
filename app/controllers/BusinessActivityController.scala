@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.BusinessActivityFormProvider
 import models.Mode
 import navigation.Navigator
-import pages.AddAnotherBusinessActivityPage
+import pages.BusinessActivityPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -49,7 +49,7 @@ class BusinessActivityController @Inject() (
   private def backLink: play.api.mvc.Call = routes.RefundingCountryController.onPageLoad()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = request.userAnswers.get(AddAnotherBusinessActivityPage).fold(form)(form.fill)
+    val preparedForm = request.userAnswers.get(BusinessActivityPage).fold(form)(form.fill)
     Ok(view(preparedForm, mode, backLink))
   }
 
@@ -61,9 +61,9 @@ class BusinessActivityController @Inject() (
           Future.successful(BadRequest(view(formWithErrors, mode, backLink))),
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(AddAnotherBusinessActivityPage, value))
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(BusinessActivityPage, value))
             _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(AddAnotherBusinessActivityPage, mode, updatedAnswers))
+          } yield Redirect(navigator.nextPage(BusinessActivityPage, mode, updatedAnswers))
       )
   }
 }

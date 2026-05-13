@@ -20,14 +20,14 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 
-sealed trait AddAnotherBusinessActivity
+sealed trait BusinessActivity
 
-object AddAnotherBusinessActivity extends Enumerable.Implicits {
+object BusinessActivity extends Enumerable.Implicits {
 
-  case object Yes extends WithName("yes") with AddAnotherBusinessActivity
-  case object No  extends WithName("no") with AddAnotherBusinessActivity
+  case object Yes extends WithName("yes") with BusinessActivity
+  case object No  extends WithName("no") with BusinessActivity
 
-  val values: Seq[AddAnotherBusinessActivity] = Seq(Yes, No)
+  val values: Seq[BusinessActivity] = Seq(Yes, No)
 
   def options(implicit messages: Messages): Seq[RadioItem] = values.zipWithIndex.map { case (value, index) =>
     RadioItem(
@@ -37,6 +37,6 @@ object AddAnotherBusinessActivity extends Enumerable.Implicits {
     )
   }
 
-  implicit val enumerable: Enumerable[AddAnotherBusinessActivity] =
+  implicit val enumerable: Enumerable[BusinessActivity] =
     Enumerable(values.map(v => v.toString -> v)*)
 }

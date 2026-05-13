@@ -18,12 +18,12 @@ package controllers
 
 import base.SpecBase
 import forms.BusinessActivityFormProvider
-import models.{AddAnotherBusinessActivity, NormalMode}
+import models.{BusinessActivity, NormalMode}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.AddAnotherBusinessActivityPage
+import pages.BusinessActivityPage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -75,7 +75,7 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view with the saved value on GET" in {
 
-      val userAnswers = emptyUserAnswers.set(AddAnotherBusinessActivityPage, AddAnotherBusinessActivity.Yes).success.value
+      val userAnswers = emptyUserAnswers.set(BusinessActivityPage, BusinessActivity.Yes).success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -84,7 +84,7 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
 
         val view = application.injector.instanceOf[BusinessActivityView]
         val formProvider = application.injector.instanceOf[BusinessActivityFormProvider]
-        val form = formProvider().fill(AddAnotherBusinessActivity.Yes)
+        val form = formProvider().fill(BusinessActivity.Yes)
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode, backLink)(request, messages(application)).toString
@@ -105,7 +105,7 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(POST, submitRoute)
-          .withFormUrlEncodedBody("value" -> AddAnotherBusinessActivity.Yes.toString)
+          .withFormUrlEncodedBody("value" -> BusinessActivity.Yes.toString)
 
         val result = route(application, request).value
 
@@ -129,7 +129,7 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(POST, submitRoute)
-          .withFormUrlEncodedBody("value" -> AddAnotherBusinessActivity.No.toString)
+          .withFormUrlEncodedBody("value" -> BusinessActivity.No.toString)
 
         val result = route(application, request).value
 
@@ -173,7 +173,7 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(POST, submitRoute)
-          .withFormUrlEncodedBody("value" -> AddAnotherBusinessActivity.Yes.toString)
+          .withFormUrlEncodedBody("value" -> BusinessActivity.Yes.toString)
 
         val result = route(application, request).value
 

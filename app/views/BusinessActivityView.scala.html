@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import models.{Mode, AddAnotherBusinessActivity}
+@import models.{Mode, BusinessActivity}
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.insettext.InsetText
 @import views.html.components.MainErrorSummary
@@ -60,7 +60,7 @@
                 }
 
                 <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
-                    @AddAnotherBusinessActivity.values.zipWithIndex.map { case (value, index) =>
+                    @BusinessActivity.values.zipWithIndex.map { case (value, index) =>
                         <div class="govuk-radios__item">
                             <input class="govuk-radios__input" id="value_@index" name="value" type="radio" value="@value.toString"@if(form("value").value.contains(value.toString)){ checked}>
                             <label class="govuk-label govuk-radios__label" for="value_@index">
