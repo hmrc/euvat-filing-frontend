@@ -190,3 +190,5 @@ businessActivityThree.insetLabel = Primary business activity:
 businessActivityThree.insetValue = 49200 (Freight rail transport)
 businessActivityThree.ba2.label = Business activity code 2
 businessActivityThree.ba3.label = Business activity code 3
+businessActivityThree.ba2.remove.hidden = business activity code 2
+businessActivityThree.ba3.remove.hidden = business activity code 3
