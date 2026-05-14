@@ -1,0 +1,59 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import views.html.components.*
+
+@this(
+        layout: templates.Layout,
+        govukButton: GovukButton,
+        govukInsetText: GovukInsetText,
+        formHelper: FormWithCSRF,
+        customSummaryList: CustomSummaryList
+)
+
+@()(implicit request: Request[_], messages: Messages)
+
+@layout(pageTitle = titleNoForm(messages("businessActivityThree.title")), backLinkUrl = Some(routes.RefundPeriodController.onPageLoad(NormalMode).url)) {
+
+    @formHelper(action = routes.BusinessActivityThreeController.onSubmit()) {
+
+        <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is: </span>@messages("businessActivityThree.caption")</h2>
+        <h1 class="govuk-heading-l">@messages("businessActivityThree.heading")</h1>
+
+        <p class="govuk-body-l">@messages("businessActivityThree.p1")</p>
+
+        @govukInsetText(InsetText(
+            content = HtmlContent(s"<strong>${messages("businessActivityThree.insetLabel")}</strong> ${messages("businessActivityThree.insetValue")}")
+        ))
+
+        @customSummaryList(
+            rows = Seq(
+                (messages("businessActivityThree.ba2.label"), "10110 (Processing and preserving of meat)", Seq(
+                    ("#", "site.change", "businessActivityThree.ba2.change.hidden"),
+                    ("#", "site.remove", "businessActivityThree.ba2.remove.hidden")
+                )),
+                (messages("businessActivityThree.ba3.label"), "10130 (Production of meat and poultry meat products)", Seq(
+                    ("#", "site.change", "businessActivityThree.ba3.change.hidden"),
+                    ("#", "site.remove", "businessActivityThree.ba3.remove.hidden")
+                ))
+            )
+        )
+
+
+        @govukButton(ButtonViewModel(messages("site.continue")))
+    }
+}
