@@ -48,3 +48,8 @@ GET         /purchase-type                               controllers.PurchaseTyp
 POST        /purchase-type                               controllers.PurchaseTypeController.onSubmit(mode: Mode = NormalMode)
 GET         /change-purchase-type                        controllers.PurchaseTypeController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-purchase-type                        controllers.PurchaseTypeController.onSubmit(mode: Mode = CheckMode)
+
+GET         /what-business-activity                      controllers.BusinessActivityController.onPageLoad(mode: Mode = NormalMode)
+POST        /what-business-activity                      controllers.BusinessActivityController.onSubmit(mode: Mode = NormalMode)
+GET         /change-what-business-activity               controllers.BusinessActivityController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-what-business-activity               controllers.BusinessActivityController.onSubmit(mode: Mode = CheckMode)
