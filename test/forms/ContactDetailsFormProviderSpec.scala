@@ -63,8 +63,8 @@ class ContactDetailsFormProviderSpec extends StringFieldBehaviours with FieldBeh
     behave like fieldWithMaxLength(
       form,
       fieldName,
-      maxLength   = 100,
-      lengthError = FormError(fieldName, "contactDetails.error.email.invalidFormat", Seq(100))
+      maxLength   = 129,
+      lengthError = FormError(fieldName, "contactDetails.error.email.invalidFormat", Seq(129))
     )
   }
 
