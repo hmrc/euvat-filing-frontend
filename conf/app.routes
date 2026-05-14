@@ -73,3 +73,10 @@ GET         /purchase-type                               controllers.PurchaseTyp
 POST        /purchase-type                               controllers.PurchaseTypeController.onSubmit(mode: Mode = NormalMode)
 GET         /change-purchase-type                        controllers.PurchaseTypeController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-purchase-type                        controllers.PurchaseTypeController.onSubmit(mode: Mode = CheckMode)
+GET        /business-activity-three                      controllers.BusinessActivityThreeController.onPageLoad()
+POST       /business-activity-three                      controllers.BusinessActivityThreeController.onSubmit()
+
+GET        /what-supplier-name                           controllers.SuppliersNameController.onPageLoad(mode: Mode = NormalMode)
+POST       /what-supplier-name                           controllers.SuppliersNameController.onSubmit(mode: Mode = NormalMode)
+GET        /change-what-supplier-name                    controllers.SuppliersNameController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-what-supplier-name                    controllers.SuppliersNameController.onSubmit(mode: Mode = CheckMode)
