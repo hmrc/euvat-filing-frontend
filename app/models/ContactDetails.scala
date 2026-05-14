@@ -20,8 +20,6 @@ import play.api.libs.json.{Json, OFormat}
 
 final case class ContactDetails(
   email: String,
-  firstName: Option[String],
-  lastName: Option[String],
   telephone: Option[String]
 )
 

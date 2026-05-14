@@ -47,15 +47,11 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
 
   private val validFormData = Map(
     "contactEmail"     -> "test@example.com",
-    "contactFirstName" -> "Jane",
-    "contactLastName"  -> "Doe",
     "contactTelephone" -> "07700900000"
   )
 
   private val contactDetails = ContactDetails(
     email     = "test@example.com",
-    firstName = Some("Jane"),
-    lastName  = Some("Doe"),
     telephone = Some("07700900000")
   )
 

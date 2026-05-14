@@ -46,24 +46,6 @@
 
         @govukInput(
             InputViewModel(
-                field = form("contactFirstName"),
-                label = LabelViewModel(messages("contactDetails.contactFirstName.label"))
-            )
-            .withAutocomplete("given-name")
-            .withWidth(Full)
-        )
-
-        @govukInput(
-            InputViewModel(
-                field = form("contactLastName"),
-                label = LabelViewModel(messages("contactDetails.contactLastName.label"))
-            )
-            .withAutocomplete("family-name")
-            .withWidth(Full)
-        )
-
-        @govukInput(
-            InputViewModel(
                 field = form("contactTelephone"),
                 label = LabelViewModel(messages("contactDetails.contactTelephone.label"))
             )
