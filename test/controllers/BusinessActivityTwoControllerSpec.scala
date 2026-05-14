@@ -25,7 +25,7 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
   val form = formProvider()
   val backLink = routes.RefundingCountryController.onPageLoad()
 
-  lazy val businessActivityTwoRoute = routes.BusinessActivityTwoController.onPageLoad(NormalMode).url
+  lazy val businessActivityTwoRoute = routes.BusinessActivityTwoController.onPageLoad().url
 
   "BusinessActivityTwo Controller" - {
 
@@ -136,6 +136,69 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must have the correct back link" in {
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(POST, businessActivityTwoRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) must include (
+            routes.RefundingCountryController.onPageLoad().url
+        )
+      }
+    }
+
+    "must display error message when no radio button is selected" in {
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(POST, businessActivityTwoRoute)
+            .withFormUrlEncodedBody(("value", ""))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual BAD_REQUEST
+        contentAsString(result) must include (
+          "Select yes if you want to add another business activity"
+        )
+      }
+    }
+
+    "must display the business activity code in the summary list" in{
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, businessActivityTwoRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) must include("Business activity code 2")
+        contentAsString(result) must include("10110 (Processing and preserving of meat)")
+      }
+    }
+
+    "must display the correct inset text" in {
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, businessActivityTwoRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) must include("Primary business activity")
+        contentAsString(result) must include("49200 (Freight rail transport)")
       }
     }
   }
