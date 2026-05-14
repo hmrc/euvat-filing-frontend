@@ -65,7 +65,7 @@ class BusinessActivityCodeTwoController @Inject() (
 
     val preparedForm = request.userAnswers.get(BusinessActivityCodeTwoPage).fold(form)(form.fill)
 
-    Ok(view(preparedForm, activities, None, mode))
+    Ok(view(preparedForm, activities, Some(routes.BusinessActivityController.onPageLoad(mode).url), mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -85,7 +85,7 @@ class BusinessActivityCodeTwoController @Inject() (
           } else {
             formWithErrors
           }
-          Future.successful(BadRequest(view(adjustedForm, activities, None, mode)))
+          Future.successful(BadRequest(view(adjustedForm, activities, Some(routes.BusinessActivityController.onPageLoad(mode).url), mode)))
         },
         value => {
           for {
@@ -97,7 +97,7 @@ class BusinessActivityCodeTwoController @Inject() (
 
     boundResult.recover { case NonFatal(e) =>
       Logger(getClass).error("Error in BusinessActivityCodeTwoController.onSubmit", e)
-      BadRequest(view(form.bindFromRequest(), activities, None, mode))
+      BadRequest(view(form.bindFromRequest(), activities, Some(routes.BusinessActivityController.onPageLoad(mode).url), mode))
     }
   }
 }
