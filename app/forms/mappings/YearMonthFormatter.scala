@@ -86,7 +86,12 @@ class YearMonthFormatter(
       args
     )
 
-    val monthResult = int.bind(s"$key.month", data)
+    val rawMonthResult = int.bind(s"$key.month", data)
+    val monthResult = rawMonthResult.flatMap { m =>
+      if (m < 1 || m > 12) Left(Seq(FormError(s"$key.month", s"$invalidKey.month", args)))
+      else Right(m)
+    }
+
     val rawYearResult = int.bind(s"$key.year", data)
     val yearResult = rawYearResult.flatMap { y =>
       if (!y.toString.matches("[0-9]{4}")) Left(Seq(FormError(s"$key.year", s"$invalidKey.year", args)))

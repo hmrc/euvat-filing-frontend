@@ -69,7 +69,7 @@ class RefundPeriodController @Inject() (
                                   RefundPeriodPage,
                                   RefundPeriod(
                                     LocalDate.of(value.start.getYear, value.start.getMonthValue, 1),
-                                    LocalDate.of(value.end.getYear, value.end.getMonthValue, 1)
+                                    java.time.YearMonth.of(value.end.getYear, value.end.getMonthValue).atEndOfMonth()
                                   )
                                 )
                               )
