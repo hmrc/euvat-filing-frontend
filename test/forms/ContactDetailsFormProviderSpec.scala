@@ -118,13 +118,20 @@ class ContactDetailsFormProviderSpec extends StringFieldBehaviours with FieldBeh
       )
     }
 
-    "reject a telephone number longer than 20 digits" in {
-      val tooLong = "1" * 21
+    "bind a telephone number with exactly 21 digits" in {
+      val maxLength = "1" * 21
+      val result = form.bind(validData.updated(fieldName, maxLength)).apply(fieldName)
+      result.value.value mustBe maxLength
+      result.errors mustBe empty
+    }
+
+    "reject a telephone number longer than 21 characters" in {
+      val tooLong = "1" * 22
       val result = form.bind(validData.updated(fieldName, tooLong)).apply(fieldName)
       result.errors must contain only FormError(
         fieldName,
         "contactDetails.error.telephone.format",
-        Seq(formProvider.validateTelephoneNumber)
+        Seq(formProvider.telephoneMaxLength)
       )
     }
   }

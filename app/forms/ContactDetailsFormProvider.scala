@@ -37,7 +37,10 @@ class ContactDetailsFormProvider @Inject() extends Mappings {
           ),
         "contactTelephone" -> optional(
           text().verifying(
-            regexp(validateTelephoneNumber, "contactDetails.error.telephone.format")
+            firstError(
+              maxLength(telephoneMaxLength, "contactDetails.error.telephone.format"),
+              regexp(validateTelephoneNumber, "contactDetails.error.telephone.format")
+            )
           )
         )
       )(ContactDetails.apply)(o => Some(Tuple.fromProductTyped(o)))

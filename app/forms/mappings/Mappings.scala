@@ -62,5 +62,6 @@ trait Mappings extends Formatters with Constraints {
   val emailMaxLength: Int = 129
   val validateNameField: String = """^[A-Za-z 0-9-']{1,100}$"""
   val nameMaxLength: Int = 100
-  val validateTelephoneNumber: String = """^(\+)?[0-9]{1,20}$"""
+  val validateTelephoneNumber: String = """^(\+)?[0-9]{1,21}$"""
+  val telephoneMaxLength: Int = 21
 }
