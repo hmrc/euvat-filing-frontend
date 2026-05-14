@@ -18,13 +18,13 @@ package pages
 
 import base.SpecBase
 
-class BusinessActivityTwoPageSpec extends SpecBase {
+class BusinessActivityCodeTwoPageSpec extends SpecBase {
 
-  "BusinessActivityTwoPage" - {
+  "BusinessActivityCodeTwoPage" - {
 
     "must be able to be set and retrieved from UserAnswers" in {
-      val answers = emptyUserAnswers.set(BusinessActivityTwoPage, "25344").success.value
-      answers.get(BusinessActivityTwoPage) mustBe Some("25344")
+      val answers = emptyUserAnswers.set(BusinessActivityCodeTwoPage, "25344").success.value
+      answers.get(BusinessActivityCodeTwoPage) mustBe Some("25344")
     }
   }
 }

@@ -17,21 +17,21 @@
 package viewmodels.checkAnswers
 
 import base.SpecBase
-import pages.BusinessActivityTwoPage
+import pages.BusinessActivityCodeTwoPage
 
-class BusinessActivityTwoSummarySpec extends SpecBase {
+class BusinessActivityCodeTwoSummarySpec extends SpecBase {
 
-  "BusinessActivityTwoSummary" - {
+  "BusinessActivityCodeTwoSummary" - {
 
     "must return None when no value present" in new Setup {
       val answers = emptyUserAnswers
-      BusinessActivityTwoSummary.row(answers) mustBe None
+      BusinessActivityCodeTwoSummary.row(answers) mustBe None
     }
 
     "must return a summary row when value present" in new Setup {
-      val answers = emptyUserAnswers.set(BusinessActivityTwoPage, "25344").success.value
-      val row = BusinessActivityTwoSummary.row(answers).value
-      row.toString must include("businessActivityTwo.checkYourAnswersLabel")
+      val answers = emptyUserAnswers.set(BusinessActivityCodeTwoPage, "25344").success.value
+      val row = BusinessActivityCodeTwoSummary.row(answers).value
+      row.toString must include("businessActivityCodeTwo.checkYourAnswersLabel")
       row.toString must include("25344")
     }
   }
