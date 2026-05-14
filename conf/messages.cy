@@ -180,3 +180,17 @@ businessActivity.hint = You can find the SIC codes on the <a class="govuk-link" 
 businessActivity.yes = Yes
 businessActivity.no = No
 businessActivity.error.required = Select yes if you want to add another business activity
+
+#Business activity three
+businessActivityThree.title = Business activity for this claim
+businessActivityThree.heading = Business activity for this claim
+businessActivityThree.caption = Add claim details
+businessActivityThree.p1 = This is the Standard Industrial Classification (SIC) listed for your business.
+businessActivityThree.insetLabel = Primary business activity:
+businessActivityThree.insetValue = 49200 (Freight rail transport)
+businessActivityThree.ba2.label = Business activity code 2
+businessActivityThree.ba3.label = Business activity code 3
+businessActivityThree.ba2.remove.hidden = Remove business activity code 2
+businessActivityThree.ba3.remove.hidden = Remove business activity code 3
+businessActivityThree.ba2.change.hidden = Change business activity code 2
+businessActivityThree.ba3.change.hidden = Change business activity code 3

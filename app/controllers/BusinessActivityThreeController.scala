@@ -16,40 +16,28 @@
 
 package controllers
 
-import config.FrontendAppConfig
 import controllers.actions.*
-import models.UserAnswers
-
 import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.TaskListDashboardView
+import views.html.BusinessActivityThreeView
 
-import scala.concurrent.ExecutionContext
-
-class TaskListDashboardController @Inject() (
+class BusinessActivityThreeController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
-  sessionRepository: SessionRepository,
-  appConfig: FrontendAppConfig,
+  requireData: DataRequiredAction,
   val controllerComponents: MessagesControllerComponents,
-  view: TaskListDashboardView
-)(using ExecutionContext)
-    extends FrontendBaseController
+  view: BusinessActivityThreeView
+) extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData).async { implicit request =>
-    val originalAnswers = request.userAnswers.getOrElse(UserAnswers(request.userId))
-    sessionRepository.set(originalAnswers).map(_ => Ok(view()))
+  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+    Ok(view())
   }
 
-  // Clear session before calling the manage frontend
-  def redirectToManageClaim: Action[AnyContent] = (identify andThen getData).async { implicit request =>
-    val clearSessionAnswer = request.userAnswers.getOrElse(UserAnswers(request.userId)).clear()
-    sessionRepository.set(clearSessionAnswer).map(_ => Redirect(appConfig.claimDashboardUrl))
+  def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+    Redirect(routes.JourneyRecoveryController.onPageLoad())
   }
-
 }
