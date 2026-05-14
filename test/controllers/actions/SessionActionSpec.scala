@@ -35,16 +35,12 @@ class SessionActionSpec extends SpecBase {
     "when there is no active session" - {
 
       "must redirect to the session expired page" in {
-
         val application = applicationBuilder(userAnswers = None).build()
 
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
-
           val sessionAction = new SessionIdentifierAction(bodyParsers)
-
           val controller = new Harness(sessionAction)
-
           val result = controller.onPageLoad()(FakeRequest())
 
           status(result) mustBe SEE_OTHER
@@ -56,19 +52,15 @@ class SessionActionSpec extends SpecBase {
     "when there is an active session" - {
 
       "must perform the action" in {
-
         val application = applicationBuilder(userAnswers = None).build()
 
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
-
           val sessionAction = new SessionIdentifierAction(bodyParsers)
-
           val controller = new Harness(sessionAction)
-
           val request = FakeRequest().withSession(SessionKeys.sessionId -> "foo")
-
           val result = controller.onPageLoad()(request)
+
           status(result) mustBe OK
         }
       }
