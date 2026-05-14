@@ -25,7 +25,7 @@
     govukRadios: GovukRadios,
     govukButton: GovukButton,
     govukInsetText: GovukInsetText,
-    govukSummaryList: GovukSummaryList,
+    customSummaryList: views.html.components.CustomSummaryList,
     mainErrorSummary: MainErrorSummary
 )
 
@@ -46,18 +46,14 @@
 
     @formHelper(action = routes.BusinessActivityTwoController.onSubmit()) {
         @mainErrorSummary(form, Map("value" -> "value_0"))
-           @govukSummaryList(SummaryList(
-              rows = Seq(
-                  SummaryListRow(
-                      key = Key(content = Text(messages("businessActivityTwo.ba2.label"))),
-                      value = Value(content = Text("10110 (Processing and preserving of meat)")),
-                      actions = Some(Actions(items = Seq(
-                            ActionItem(href = "#", content = Text(messages("site.change")), visuallyHiddenText = Some(messages("businessActivityTwo.ba2.label"))),
-                            ActionItem(href = "#", content = Text(messages("site.remove")), visuallyHiddenText = Some(messages("businessActivityTwo.ba2.remove.hidden")))
-                        ), classes = "govuk-summary-list__actions govuk-!-width-one-third"))
-                    )
-              )
-           ))
+            @customSummaryList(
+                rows = Seq(
+                    (messages("businessActivityTwo.ba2.label"), "10110 (Processing and preserving of meat)", Seq(
+                        ("#", "site.change", "businessActivityTwo.ba2.label"),
+                        ("#", "site.remove", "businessActivityTwo.ba2.remove.hidden")
+                    ))
+                )
+            )
 
          @govukRadios(
              RadiosViewModel.yesNo(
