@@ -55,6 +55,7 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from BusinessActivityPage to BusinessActivityCodeTwoController" in {
+      "must go from BusinessActivityPage to BusinessActivityTwoController" in {
         navigator.nextPage(BusinessActivityPage, NormalMode, userAnswers) mustBe
           routes.BusinessActivityCodeTwoController.onPageLoad(NormalMode)
       }
