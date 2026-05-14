@@ -54,7 +54,7 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must return OK when no existing data is found (dev mode)" in {
+    "must redirect to Journey Recovery when no existing data is found" in {
 
       val application = applicationBuilder(userAnswers = None).build()
 
@@ -63,7 +63,8 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
 
-        status(result) mustEqual OK
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 

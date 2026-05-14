@@ -57,7 +57,7 @@ class RefundingCountryController @Inject() (
     (countries, form)
   }
 
-  def onPageLoad(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
     val (countries, form) = buildFormAndCountries()
 
@@ -67,7 +67,7 @@ class RefundingCountryController @Inject() (
     Ok(view(preparedForm, countries, routes.TaskListDashboardController.onPageLoad(), mode))
   }
 
-  def onSubmit(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
 
     val (countries, form) = buildFormAndCountries()
     val baseAnswers: UserAnswers = request.userAnswers

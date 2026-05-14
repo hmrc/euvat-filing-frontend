@@ -59,21 +59,20 @@ class BusinessActivityCodeTwoController @Inject() (
     (activities, form)
   }
 
-  // Allow access even when there is no existing UserAnswers (for dev/debug).
-  def onPageLoad(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen getData) { implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
     val (activities, form) = buildListAndForm()
 
-    val preparedForm = request.userAnswers.flatMap(_.get(BusinessActivityCodeTwoPage)).fold(form)(form.fill)
+    val preparedForm = request.userAnswers.get(BusinessActivityCodeTwoPage).fold(form)(form.fill)
 
     Ok(view(preparedForm, activities, None, mode))
   }
 
-  def onSubmit(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen getData).async { implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
 
     val (activities, form) = buildListAndForm()
 
-    val baseAnswers: UserAnswers = request.userAnswers.getOrElse(UserAnswers(request.userId))
+    val baseAnswers: UserAnswers = request.userAnswers
 
     val boundResult = form
       .bindFromRequest()
