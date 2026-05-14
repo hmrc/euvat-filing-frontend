@@ -46,11 +46,11 @@ class BusinessActivityController @Inject() (
 
   val form = formProvider()
 
-  private def backLink: play.api.mvc.Call = routes.RefundingCountryController.onPageLoad()
+  private def backLink(mode: Mode): play.api.mvc.Call = routes.RefundingCountryController.onPageLoad(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(BusinessActivityPage).fold(form)(form.fill)
-    Ok(view(preparedForm, mode, backLink))
+    Ok(view(preparedForm, mode, backLink(mode)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -58,7 +58,7 @@ class BusinessActivityController @Inject() (
       .bindFromRequest()
       .fold(
         formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode, backLink))),
+          Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)))),
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(BusinessActivityPage, value))
