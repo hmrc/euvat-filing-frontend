@@ -19,9 +19,9 @@ package forms
 import forms.behaviours.{FieldBehaviours, StringFieldBehaviours}
 import play.api.data.FormError
 
-class BusinessActivityTwoFormProviderSpec extends StringFieldBehaviours with FieldBehaviours {
+class BusinessActivityCodeTwoFormProviderSpec extends StringFieldBehaviours with FieldBehaviours {
 
-  private val formProvider = new BusinessActivityTwoFormProvider()
+  private val formProvider = new BusinessActivityCodeTwoFormProvider()
   private val allowed = Set("25344", "45200", "47110", "11010")
   private val form = formProvider(allowed)
 
@@ -32,7 +32,7 @@ class BusinessActivityTwoFormProviderSpec extends StringFieldBehaviours with Fie
     behave like mandatoryField(
       form,
       fieldName,
-      requiredError = FormError(fieldName, "businessActivityTwo.error.required")
+      requiredError = FormError(fieldName, "businessActivityCodeTwo.error.required")
     )
 
     "bind valid data" in {

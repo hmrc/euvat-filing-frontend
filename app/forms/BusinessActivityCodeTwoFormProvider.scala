@@ -21,20 +21,20 @@ import javax.inject.Inject
 import forms.mappings.Mappings
 import play.api.data.Form
 
-class BusinessActivityTwoFormProvider @Inject() extends Mappings {
+class BusinessActivityCodeTwoFormProvider @Inject() extends Mappings {
 
   def apply(allowedValues: Set[String]): Form[String] =
     import play.api.data.validation.{Constraint, Invalid, Valid}
 
     Form(
-      "value" -> text("businessActivityTwo.error.required")
+      "value" -> text("businessActivityCodeTwo.error.required")
         .verifying(
           firstError[
             String
           ](
             Constraint {
               case v if allowedValues.contains(v) => Valid
-              case _                              => Invalid("businessActivityTwo.error.invalid")
+              case _                              => Invalid("businessActivityCodeTwo.error.invalid")
             }
           )
         )

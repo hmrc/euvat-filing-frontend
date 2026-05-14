@@ -17,12 +17,12 @@
 package controllers
 
 import controllers.actions.*
-import forms.BusinessActivityTwoFormProvider
+import forms.BusinessActivityCodeTwoFormProvider
 import models.{NormalMode, UserAnswers}
 import models.Mode
 import models.CheckMode
 import navigation.Navigator
-import pages.BusinessActivityTwoPage
+import pages.BusinessActivityCodeTwoPage
 import play.api.Configuration
 import play.api.data.FormError
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -30,24 +30,24 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.BusinessActivityList
-import views.html.BusinessActivityTwoView
+import views.html.BusinessActivityCodeTwoView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.Logger
 import scala.util.control.NonFatal
 
-class BusinessActivityTwoController @Inject() (
+class BusinessActivityCodeTwoController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
   navigator: Navigator,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  formProvider: BusinessActivityTwoFormProvider,
+  formProvider: BusinessActivityCodeTwoFormProvider,
   config: Configuration,
   val controllerComponents: MessagesControllerComponents,
-  view: BusinessActivityTwoView
+  view: BusinessActivityCodeTwoView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
@@ -64,7 +64,7 @@ class BusinessActivityTwoController @Inject() (
 
     val (activities, form) = buildListAndForm()
 
-    val preparedForm = request.userAnswers.flatMap(_.get(BusinessActivityTwoPage)).fold(form)(form.fill)
+    val preparedForm = request.userAnswers.flatMap(_.get(BusinessActivityCodeTwoPage)).fold(form)(form.fill)
 
     Ok(view(preparedForm, activities, None, mode))
   }
@@ -81,8 +81,8 @@ class BusinessActivityTwoController @Inject() (
         formWithErrors => {
           val typed = request.body.asFormUrlEncoded.flatMap(_.get("valueTyped").flatMap(_.headOption)).getOrElse("")
           val adjustedForm = if (typed.trim.nonEmpty) {
-            val filtered = formWithErrors.errors.filterNot(e => e.key == "value" && e.message == "businessActivityTwo.error.required")
-            formWithErrors.copy(errors = filtered :+ FormError("value", "businessActivityTwo.error.invalid"))
+            val filtered = formWithErrors.errors.filterNot(e => e.key == "value" && e.message == "businessActivityCodeTwo.error.required")
+            formWithErrors.copy(errors = filtered :+ FormError("value", "businessActivityCodeTwo.error.invalid"))
           } else {
             formWithErrors
           }
@@ -90,14 +90,14 @@ class BusinessActivityTwoController @Inject() (
         },
         value => {
           for {
-            updatedAnswers <- Future.fromTry(baseAnswers.set(BusinessActivityTwoPage, value))
+            updatedAnswers <- Future.fromTry(baseAnswers.set(BusinessActivityCodeTwoPage, value))
             _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(BusinessActivityTwoPage, mode, updatedAnswers))
+          } yield Redirect(navigator.nextPage(BusinessActivityCodeTwoPage, mode, updatedAnswers))
         }
       )
 
     boundResult.recover { case NonFatal(e) =>
-      Logger(getClass).error("Error in BusinessActivityTwoController.onSubmit", e)
+      Logger(getClass).error("Error in BusinessActivityCodeTwoController.onSubmit", e)
       BadRequest(view(form.bindFromRequest(), activities, None, mode))
     }
   }

@@ -19,24 +19,24 @@ package viewmodels.checkAnswers
 import controllers.routes
 import models.CheckMode
 import models.UserAnswers
-import pages.BusinessActivityTwoPage
+import pages.BusinessActivityCodeTwoPage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist._
 import viewmodels.implicits._
 
-object BusinessActivityTwoSummary {
+object BusinessActivityCodeTwoSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(BusinessActivityTwoPage).map { answer =>
+    answers.get(BusinessActivityCodeTwoPage).map { answer =>
 
       SummaryListRowViewModel(
-        key     = "businessActivityTwo.checkYourAnswersLabel",
+        key     = "businessActivityCodeTwo.checkYourAnswersLabel",
         value   = ValueViewModel(HtmlFormat.escape(answer).toString),
         actions = Seq(
-          ActionItemViewModel("site.change", routes.BusinessActivityTwoController.onPageLoad(CheckMode).url)
-            .withVisuallyHiddenText(messages("businessActivityTwo.change.hidden"))
+          ActionItemViewModel("site.change", routes.BusinessActivityCodeTwoController.onPageLoad(CheckMode).url)
+            .withVisuallyHiddenText(messages("businessActivityCodeTwo.change.hidden"))
         )
       )
     }
