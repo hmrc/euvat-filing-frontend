@@ -31,14 +31,14 @@ class ContactDetailsFormProvider @Inject() extends Mappings {
         "contactEmail" -> text("contactDetails.error.email.required")
           .verifying(
             firstError(
-              maxLength(emailMaxLength, "contactDetails.error.email.invalidFormat"),
+              maxLength(emailMaxLength, "contactDetails.error.email.maxLength"),
               regexp(validateEmailAddress, "contactDetails.error.email.invalidFormat")
             )
           ),
         "contactTelephone" -> optional(
           text().verifying(
             firstError(
-              maxLength(telephoneMaxLength, "contactDetails.error.telephone.format"),
+              maxLength(telephoneMaxLength, "contactDetails.error.telephone.maxLength"),
               regexp(validateTelephoneNumber, "contactDetails.error.telephone.format")
             )
           )

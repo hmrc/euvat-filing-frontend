@@ -64,7 +64,7 @@ class ContactDetailsFormProviderSpec extends StringFieldBehaviours with FieldBeh
       form,
       fieldName,
       maxLength   = 129,
-      lengthError = FormError(fieldName, "contactDetails.error.email.invalidFormat", Seq(129))
+      lengthError = FormError(fieldName, "contactDetails.error.email.maxLength", Seq(129))
     )
   }
 
@@ -130,7 +130,7 @@ class ContactDetailsFormProviderSpec extends StringFieldBehaviours with FieldBeh
       val result = form.bind(validData.updated(fieldName, tooLong)).apply(fieldName)
       result.errors must contain only FormError(
         fieldName,
-        "contactDetails.error.telephone.format",
+        "contactDetails.error.telephone.maxLength",
         Seq(formProvider.telephoneMaxLength)
       )
     }
