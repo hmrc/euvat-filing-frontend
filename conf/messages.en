@@ -168,3 +168,15 @@ purchaseType.foodAndDrink = Food, drink and restaurant services
 purchaseType.luxuries = Expenditure on luxuries, amusements and entertainment
 purchaseType.other = Other
 purchaseType.error.required = Select a purchase type
+
+# Business activity for this claim (RA2.4 State 1)
+businessActivity.title = Business activity for this claim
+businessActivity.heading = Business activity for this claim
+businessActivity.caption = Add claim details
+businessActivity.lead = This is the Standard Industrial Classification (SIC) listed for your business.
+businessActivity.insetText.label = Primary business activity
+businessActivity.h2 = Do you need to add another business activity?
+businessActivity.hint = You can find the SIC codes on the <a class="govuk-link" href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2026" target="_blank" rel="noreferrer noopener">Office for National Statistics website (opens in new tab)</a>.
+businessActivity.yes = Yes
+businessActivity.no = No
+businessActivity.error.required = Select yes if you want to add another business activity
