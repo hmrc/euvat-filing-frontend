@@ -179,7 +179,7 @@ businessActivity.error.required = Select yes if you want to add another business
 
 # Business activity two (2nd SIC code)
 businessActivityTwo.caption = Add claim details
-businessActivityTwo.title = 2nd business activity for this claim - EU VAT - GOV.UK
+businessActivityTwo.title = 2nd business activity for this claim
 businessActivityTwo.heading = Add a 2nd business activity code
 businessActivityTwo.hint = Enter your SIC code or search term, for example "motor"
 businessActivityTwo.error.summary = Enter a business activity code or search term
