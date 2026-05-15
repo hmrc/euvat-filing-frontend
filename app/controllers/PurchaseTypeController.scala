@@ -49,6 +49,7 @@ class PurchaseTypeController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(PurchaseTypePage).fold(form)(form.fill)
+
     Ok(view(preparedForm, mode, routes.AboutThePurchaseController.onPageLoad()))
   }
 

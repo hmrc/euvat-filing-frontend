@@ -14,21 +14,17 @@
  * limitations under the License.
  */
 
-package forms
+package utils
 
-import javax.inject.Inject
+import play.api.Configuration
 
-import forms.mappings.Mappings
-import models.BusinessActivity
-import play.api.data.Form
-
-class BusinessActivityFormProvider @Inject() extends Mappings {
-
-  def apply(): Form[BusinessActivity] =
-    Form(
-      "value" -> enumerable[BusinessActivity](
-        requiredKey = "businessActivity.error.required",
-        invalidKey  = "businessActivity.error.required"
-      )
-    )
+object BusinessActivityList {
+  def fromConfig(config: Configuration, key: String = "sic.codes"): Seq[(String, String)] =
+    config.getOptional[Seq[String]](key).getOrElse(Seq.empty).map { s =>
+      s.split("\\|") match {
+        case Array(name, code) => (name.trim, code.trim)
+        case Array(name)       => (name.trim, "")
+        case _                 => (s, "")
+      }
+    }
 }

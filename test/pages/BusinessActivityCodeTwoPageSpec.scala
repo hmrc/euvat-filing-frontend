@@ -14,21 +14,17 @@
  * limitations under the License.
  */
 
-package forms
+package pages
 
-import javax.inject.Inject
+import base.SpecBase
 
-import forms.mappings.Mappings
-import models.BusinessActivity
-import play.api.data.Form
+class BusinessActivityCodeTwoPageSpec extends SpecBase {
 
-class BusinessActivityFormProvider @Inject() extends Mappings {
+  "BusinessActivityCodeTwoPage" - {
 
-  def apply(): Form[BusinessActivity] =
-    Form(
-      "value" -> enumerable[BusinessActivity](
-        requiredKey = "businessActivity.error.required",
-        invalidKey  = "businessActivity.error.required"
-      )
-    )
+    "must be able to be set and retrieved from UserAnswers" in {
+      val answers = emptyUserAnswers.set(BusinessActivityCodeTwoPage, "25344").success.value
+      answers.get(BusinessActivityCodeTwoPage) mustBe Some("25344")
+    }
+  }
 }

@@ -30,9 +30,9 @@
   govukButton: GovukButton
 )
 
-@(form: play.api.data.Form[_], mode: models.Mode)(implicit request: play.api.mvc.Request[_], messages: play.api.i18n.Messages)
+@(form: play.api.data.Form[_], mode: models.Mode, call: Call)(implicit request: play.api.mvc.Request[_], messages: play.api.i18n.Messages)
 
-@layout(pageTitle = title(form, "refundPeriod.title")) {
+@layout(pageTitle = title(form, "refundPeriod.title"), backLinkUrl = Some(call.url)) {
 
   @formHelper(action = controllers.routes.RefundPeriodController.onSubmit(mode)) {
 

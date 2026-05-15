@@ -23,8 +23,11 @@ GET         /unauthorised                                controllers.Unauthorise
 GET         /make-eu-vat-claim                           controllers.TaskListDashboardController.onPageLoad()
 GET         /redirect-to-manage-claim                    controllers.TaskListDashboardController.redirectToManageClaim()
 
-GET         /which-eu-member-state                       controllers.RefundingCountryController.onPageLoad()
-POST        /which-eu-member-state                       controllers.RefundingCountryController.onSubmit()
+GET         /which-eu-member-state                       controllers.RefundingCountryController.onPageLoad(mode: models.Mode = NormalMode)
+POST        /which-eu-member-state                       controllers.RefundingCountryController.onSubmit(mode: models.Mode = NormalMode)
+GET         /change-which-eu-member-state                controllers.RefundingCountryController.onPageLoad(mode: models.Mode = CheckMode)
+POST        /change-which-eu-member-state                controllers.RefundingCountryController.onSubmit(mode: models.Mode = CheckMode)
+
 
 GET         /what-language                               controllers.RefundingLanguageController.onPageLoad(mode: models.Mode = NormalMode)
 POST        /what-language                               controllers.RefundingLanguageController.onSubmit(mode: models.Mode = NormalMode)
@@ -40,6 +43,11 @@ GET         /who-contact-about-this-claim                controllers.ContactDeta
 POST        /who-contact-about-this-claim                controllers.ContactDetailsController.onSubmit(mode: Mode = NormalMode)
 GET         /change-who-contact-about-this-claim         controllers.ContactDetailsController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-who-contact-about-this-claim         controllers.ContactDetailsController.onSubmit(mode: Mode = CheckMode)
+
+GET         /business-activity-code-two                  controllers.BusinessActivityCodeTwoController.onPageLoad(mode: models.Mode = NormalMode)
+POST        /business-activity-code-two                  controllers.BusinessActivityCodeTwoController.onSubmit(mode: models.Mode = NormalMode)
+GET         /change-business-activity-code-two           controllers.BusinessActivityCodeTwoController.onPageLoad(mode: models.Mode = CheckMode)
+POST        /change-business-activity-code-two           controllers.BusinessActivityCodeTwoController.onSubmit(mode: models.Mode = CheckMode)
 
 GET         /about-the-purchase                          controllers.AboutThePurchaseController.onPageLoad()
 POST        /about-the-purchase                          controllers.AboutThePurchaseController.onSubmit()

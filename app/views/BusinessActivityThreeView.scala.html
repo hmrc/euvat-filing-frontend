@@ -27,7 +27,7 @@
 
 @()(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("businessActivityThree.title")), backLinkUrl = Some(routes.RefundPeriodController.onPageLoad(NormalMode).url)) {
+@layout(pageTitle = titleNoForm(messages("businessActivityThree.title")), backLinkUrl = Some(routes.BusinessActivityCodeTwoController.onPageLoad(NormalMode).url)) {
 
     @formHelper(action = routes.BusinessActivityThreeController.onSubmit()) {
 

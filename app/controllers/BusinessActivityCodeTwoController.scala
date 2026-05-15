@@ -17,59 +17,61 @@
 package controllers
 
 import controllers.actions.*
-import forms.RefundingCountryFormProvider
-import models.{Mode, NormalMode, UserAnswers}
+import forms.BusinessActivityCodeTwoFormProvider
+import models.{NormalMode, UserAnswers}
+import models.Mode
+import models.CheckMode
 import navigation.Navigator
-import pages.RefundingCountryPage
+import pages.BusinessActivityCodeTwoPage
 import play.api.Configuration
 import play.api.data.FormError
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.CountryList
-import views.html.RefundingCountryView
+import utils.BusinessActivityList
+import views.html.BusinessActivityCodeTwoView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.Logger
 import scala.util.control.NonFatal
 
-class RefundingCountryController @Inject() (
+class BusinessActivityCodeTwoController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
   navigator: Navigator,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  formProvider: RefundingCountryFormProvider,
+  formProvider: BusinessActivityCodeTwoFormProvider,
   config: Configuration,
   val controllerComponents: MessagesControllerComponents,
-  view: RefundingCountryView
+  view: BusinessActivityCodeTwoView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
-  private def buildFormAndCountries() = {
-    val countries = CountryList.fromConfig(config)
-    val allowed: Set[String] = countries.flatMap { case (name, code) => Seq(name, code) }.toSet
+  private def buildListAndForm() = {
+    val activities = BusinessActivityList.fromConfig(config)
+    val allowed: Set[String] = activities.flatMap { case (name, code) => Seq(code, s"$code ($name)") }.toSet
     val form = formProvider(allowed)
-    (countries, form)
+    (activities, form)
   }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
-    val (countries, form) = buildFormAndCountries()
+    val (activities, form) = buildListAndForm()
 
-    // If we have a previously selected country, pre-fill the form.
-    val preparedForm = request.userAnswers.get(RefundingCountryPage).fold(form)(form.fill)
+    val preparedForm = request.userAnswers.get(BusinessActivityCodeTwoPage).fold(form)(form.fill)
 
-    Ok(view(preparedForm, countries, routes.TaskListDashboardController.onPageLoad(), mode))
+    Ok(view(preparedForm, activities, Some(routes.BusinessActivityController.onPageLoad(mode).url), mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
 
-    val (countries, form) = buildFormAndCountries()
+    val (activities, form) = buildListAndForm()
+
     val baseAnswers: UserAnswers = request.userAnswers
 
     val boundResult = form
@@ -78,24 +80,24 @@ class RefundingCountryController @Inject() (
         formWithErrors => {
           val typed = request.body.asFormUrlEncoded.flatMap(_.get("valueTyped").flatMap(_.headOption)).getOrElse("")
           val adjustedForm = if (typed.trim.nonEmpty) {
-            val filtered = formWithErrors.errors.filterNot(e => e.key == "value" && e.message == "refundingCountry.error.required")
-            formWithErrors.copy(errors = filtered :+ FormError("value", "refundingCountry.error.invalid"))
+            val filtered = formWithErrors.errors.filterNot(e => e.key == "value" && e.message == "businessActivityCodeTwo.error.required")
+            formWithErrors.copy(errors = filtered :+ FormError("value", "businessActivityCodeTwo.error.invalid"))
           } else {
             formWithErrors
           }
-          Future.successful(BadRequest(view(adjustedForm, countries, routes.TaskListDashboardController.onPageLoad(), mode)))
+          Future.successful(BadRequest(view(adjustedForm, activities, Some(routes.BusinessActivityController.onPageLoad(mode).url), mode)))
         },
         value => {
           for {
-            updatedAnswers <- Future.fromTry(baseAnswers.set(RefundingCountryPage, value))
+            updatedAnswers <- Future.fromTry(baseAnswers.set(BusinessActivityCodeTwoPage, value))
             _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(RefundingCountryPage, mode, updatedAnswers))
+          } yield Redirect(navigator.nextPage(BusinessActivityCodeTwoPage, mode, updatedAnswers))
         }
       )
 
     boundResult.recover { case NonFatal(e) =>
-      Logger(getClass).error("Error in RefundingCountryController.onSubmit", e)
-      BadRequest(view(form.bindFromRequest(), countries, routes.TaskListDashboardController.onPageLoad(), mode))
+      Logger(getClass).error("Error in BusinessActivityCodeTwoController.onSubmit", e)
+      BadRequest(view(form.bindFromRequest(), activities, Some(routes.BusinessActivityController.onPageLoad(mode).url), mode))
     }
   }
 }

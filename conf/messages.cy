@@ -177,6 +177,16 @@ businessActivity.yes = Yes
 businessActivity.no = No
 businessActivity.error.required = Select yes if you want to add another business activity
 
+# Business activity two (2nd SIC code)
+businessActivityCodeTwo.caption = Add claim details
+businessActivityCodeTwo.title = 2nd business activity for this claim
+businessActivityCodeTwo.heading = Add a 2nd business activity code
+businessActivityCodeTwo.hint = Enter your SIC code or search term, for example "motor"
+businessActivityCodeTwo.error.summary = Enter a business activity code
+businessActivityCodeTwo.error.required = Enter a business activity code
+businessActivityCodeTwo.error.invalid = Enter a valid business activity code
+businessActivityCodeTwo.error.invalid.summary = Enter a valid business activity code
+
 #Business activity three
 businessActivityThree.title = Business activity for this claim
 businessActivityThree.heading = Business activity for this claim
