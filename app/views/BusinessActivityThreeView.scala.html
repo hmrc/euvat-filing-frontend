@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.govukfrontend.views.html.components.*
 @import views.html.components.*
 
 @this(
@@ -42,17 +42,16 @@
 
         @customSummaryList(
             rows = Seq(
-                (messages("businessActivityThree.ba2.label"), "10110 (Processing and preserving of meat)", Seq(
+                (messages("businessActivityThree.ba2.label"), Some("10110 (Processing and preserving of meat)"), Seq(
                     ("#", "site.change", "businessActivityThree.ba2.change.hidden"),
                     ("#", "site.remove", "businessActivityThree.ba2.remove.hidden")
                 )),
-                (messages("businessActivityThree.ba3.label"), "10130 (Production of meat and poultry meat products)", Seq(
+                (messages("businessActivityThree.ba3.label"), Some("10130 (Production of meat and poultry meat products)"), Seq(
                     ("#", "site.change", "businessActivityThree.ba3.change.hidden"),
                     ("#", "site.remove", "businessActivityThree.ba3.remove.hidden")
                 ))
             )
         )
-
 
         @govukButton(ButtonViewModel(messages("site.continue")))
     }

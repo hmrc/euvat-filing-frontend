@@ -37,7 +37,7 @@ class Navigator @Inject() () {
   }
 
   private val checkRouteMap: Page => UserAnswers => Call = { _ => _ =>
-    routes.CheckYourAnswersController.onPageLoad()
+    routes.CheckYourClaimDetailsController.onPageLoad()
   }
 
   def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call = mode match {

@@ -15,7 +15,7 @@
  *@
 
 @this()
-@(rows: Seq[(String, String, Seq[(String, String, String)])])(implicit messages: Messages)
+@(rows: Seq[(String, Option[String], Seq[(String, String, String)])])(implicit messages: Messages)
 <dl class="govuk-summary-list">
     @for((key, value, links) <- rows) {
     <div class="govuk-summary-list__row">

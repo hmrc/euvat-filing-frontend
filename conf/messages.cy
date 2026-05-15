@@ -10,6 +10,7 @@ site.start = Start now
 site.startAgain = Start again
 site.signIn = Sign in
 site.govuk = GOV.UK
+site.accept.submit = Accept and submit
 
 date.day = Day
 date.month = Month
@@ -26,9 +27,6 @@ timeout.signOut = Sign out
 error.title.prefix = Error:
 error.prefix = Error
 error.summary.title = There is a problem
-
-checkYourAnswers.title = Check your answers
-checkYourAnswers.heading = Check your answers
 
 journeyRecovery.continue.title = Sorry, there is a problem with the service
 journeyRecovery.continue.heading = Sorry, there is a problem with the service
@@ -47,6 +45,7 @@ unauthorised.guidance = You do not have access to this service.
 
 claim.caption.add = Add claim details
 purchase.caption.add = Add purchase details
+caption.hidden.text = This section is:
 
 taskListDashboard.title = Make an EU VAT claim
 taskListDashboard.heading = Make an EU VAT claim
@@ -147,6 +146,53 @@ contactDetails.error.lastName.maxLength = Your last name must be between 1 and 1
 contactDetails.error.lastName.format = Enter your last name in the correct format
 contactDetails.error.telephone.format = Enter a telephone number in the correct format, like 01632960001 or +448081570192
 
+businessActivity.title = Business activity for this claim
+businessActivity.heading = Business activity for this claim
+businessActivity.caption = Add claim details
+businessActivity.lead = This is the Standard Industrial Classification (SIC) listed for your business.
+businessActivity.insetText.label = Primary business activity
+businessActivity.h2 = Do you need to add another business activity?
+businessActivity.hint = You can find the SIC codes on the <a class="govuk-link" href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2026" target="_blank" rel="noreferrer noopener">Office for National Statistics website (opens in new tab)</a>.
+businessActivity.yes = Yes
+businessActivity.no = No
+businessActivity.error.required = Select yes if you want to add another business activity
+
+businessActivityThree.title = Business activity for this claim
+businessActivityThree.heading = Business activity for this claim
+businessActivityThree.caption = Add claim details
+businessActivityThree.p1 = This is the Standard Industrial Classification (SIC) listed for your business.
+businessActivityThree.insetLabel = Primary business activity:
+businessActivityThree.insetValue = 49200 (Freight rail transport)
+businessActivityThree.ba2.label = Business activity code 2
+businessActivityThree.ba3.label = Business activity code 3
+businessActivityThree.ba2.remove.hidden = Remove business activity code 2
+businessActivityThree.ba3.remove.hidden = Remove business activity code 3
+businessActivityThree.ba2.change.hidden = Change business activity code 2
+businessActivityThree.ba3.change.hidden = Change business activity code 3
+
+checkYourClaimDetails.title = Check your claim details
+checkYourClaimDetails.heading = Check your claim details
+checkYourClaimDetails.refundingCountry.label = Refunding EU member state
+checkYourClaimDetails.refundingCountry.change.hidden = eu member state
+checkYourClaimDetails.refundingCountry.subLabel = EU member state
+checkYourClaimDetails.refundingLanguage.label = Claim language
+checkYourClaimDetails.refundingLanguage.change.hidden = language
+checkYourClaimDetails.refundingLanguage.subLabel = Language
+checkYourClaimDetails.refundingPeriod.label = Refund period
+checkYourClaimDetails.refundingPeriod.change.hidden = refund period
+checkYourClaimDetails.refundingPeriodStart.subLabel = Start date
+checkYourClaimDetails.refundingPeriodEnd.subLabel = End date
+checkYourClaimDetails.contactDetails.label = Contact details
+checkYourClaimDetails.contactDetails.change.hidden = contact details
+checkYourClaimDetails.contactEmail.subLabel = Email address
+checkYourClaimDetails.contactTelephone.subLabel = Telephone number
+checkYourClaimDetails.businessActivity.label = Business activity
+checkYourClaimDetails.businessActivity.change.hidden = business activity
+checkYourClaimDetails.businessActivity1.subLabel = Primary business activity
+checkYourClaimDetails.businessActivity2.subLabel = Business activity code 2
+checkYourClaimDetails.businessActivity3.subLabel = Business activity code 3
+checkYourClaimDetails.paragraph = You cannot change the refunding EU member state after your save and continue.
+
 aboutThePurchase.title = About the purchase
 aboutThePurchase.heading = About the purchase
 aboutThePurchase.p1 = You’ll need the following information about the purchase:
@@ -168,29 +214,3 @@ purchaseType.foodAndDrink = Food, drink and restaurant services
 purchaseType.luxuries = Expenditure on luxuries, amusements and entertainment
 purchaseType.other = Other
 purchaseType.error.required = Select a purchase type
-
-# Business activity for this claim (RA2.4 State 1)
-businessActivity.title = Business activity for this claim
-businessActivity.heading = Business activity for this claim
-businessActivity.caption = Add claim details
-businessActivity.lead = This is the Standard Industrial Classification (SIC) listed for your business.
-businessActivity.insetText.label = Primary business activity
-businessActivity.h2 = Do you need to add another business activity?
-businessActivity.hint = You can find the SIC codes on the <a class="govuk-link" href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2026" target="_blank" rel="noreferrer noopener">Office for National Statistics website (opens in new tab)</a>.
-businessActivity.yes = Yes
-businessActivity.no = No
-businessActivity.error.required = Select yes if you want to add another business activity
-
-#Business activity three
-businessActivityThree.title = Business activity for this claim
-businessActivityThree.heading = Business activity for this claim
-businessActivityThree.caption = Add claim details
-businessActivityThree.p1 = This is the Standard Industrial Classification (SIC) listed for your business.
-businessActivityThree.insetLabel = Primary business activity:
-businessActivityThree.insetValue = 49200 (Freight rail transport)
-businessActivityThree.ba2.label = Business activity code 2
-businessActivityThree.ba3.label = Business activity code 3
-businessActivityThree.ba2.remove.hidden = Remove business activity code 2
-businessActivityThree.ba3.remove.hidden = Remove business activity code 3
-businessActivityThree.ba2.change.hidden = Change business activity code 2
-businessActivityThree.ba3.change.hidden = Change business activity code 3

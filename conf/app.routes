@@ -12,17 +12,17 @@ GET         /refresh-session                             controllers.KeepAliveCo
 
 GET         /there-is-a-problem                          controllers.JourneyRecoveryController.onPageLoad(continueUrl: Option[RedirectUrl] ?= None)
 
-GET         /check-your-answers                          controllers.CheckYourAnswersController.onPageLoad()
-
 GET         /account/sign-out-survey                     controllers.auth.AuthController.signOut()
 GET         /account/sign-out                            controllers.auth.AuthController.signOutNoSurvey()
 GET         /account/signed-out                          controllers.auth.SignedOutController.onPageLoad()
 
 GET         /unauthorised                                controllers.UnauthorisedController.onPageLoad()
 
+# Task list Dashboard
 GET         /make-eu-vat-claim                           controllers.TaskListDashboardController.onPageLoad()
 GET         /redirect-to-manage-claim                    controllers.TaskListDashboardController.redirectToManageClaim()
 
+# Claim details journey
 GET         /which-eu-member-state                       controllers.RefundingCountryController.onPageLoad()
 POST        /which-eu-member-state                       controllers.RefundingCountryController.onSubmit()
 
@@ -41,6 +41,18 @@ POST        /who-contact-about-this-claim                controllers.ContactDeta
 GET         /change-who-contact-about-this-claim         controllers.ContactDetailsController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-who-contact-about-this-claim         controllers.ContactDetailsController.onSubmit(mode: Mode = CheckMode)
 
+GET         /business-activity                           controllers.BusinessActivityController.onPageLoad(mode: Mode = NormalMode)
+POST        /business-activity                           controllers.BusinessActivityController.onSubmit(mode: Mode = NormalMode)
+GET         /change-business-activity                    controllers.BusinessActivityController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-business-activity                    controllers.BusinessActivityController.onSubmit(mode: Mode = CheckMode)
+
+GET         /business-activity-three                     controllers.BusinessActivityThreeController.onPageLoad()
+POST        /business-activity-three                     controllers.BusinessActivityThreeController.onSubmit()
+
+GET         /check-your-claim-details                    controllers.CheckYourClaimDetailsController.onPageLoad()
+POST        /check-your-claim-details                    controllers.CheckYourClaimDetailsController.onSubmit()
+
+# Purchase details journey
 GET         /about-the-purchase                          controllers.AboutThePurchaseController.onPageLoad()
 POST        /about-the-purchase                          controllers.AboutThePurchaseController.onSubmit()
 
@@ -48,12 +60,3 @@ GET         /purchase-type                               controllers.PurchaseTyp
 POST        /purchase-type                               controllers.PurchaseTypeController.onSubmit(mode: Mode = NormalMode)
 GET         /change-purchase-type                        controllers.PurchaseTypeController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-purchase-type                        controllers.PurchaseTypeController.onSubmit(mode: Mode = CheckMode)
-
-GET         /what-business-activity                      controllers.BusinessActivityController.onPageLoad(mode: Mode = NormalMode)
-POST        /what-business-activity                      controllers.BusinessActivityController.onSubmit(mode: Mode = NormalMode)
-GET         /change-what-business-activity               controllers.BusinessActivityController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-what-business-activity               controllers.BusinessActivityController.onSubmit(mode: Mode = CheckMode)
-
-#Business Activity three
-GET        /business-activity-three                      controllers.BusinessActivityThreeController.onPageLoad()
-POST       /business-activity-three                      controllers.BusinessActivityThreeController.onSubmit()
