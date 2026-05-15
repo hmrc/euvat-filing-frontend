@@ -56,7 +56,7 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[SuppliersNameView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, routes.PurchaseTypeController.onPageLoad(NormalMode))(request, messages(application)).toString
       }
     }
 
@@ -74,7 +74,7 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode, routes.PurchaseTypeController.onPageLoad(NormalMode))(request, messages(application)).toString
       }
     }
 
@@ -120,7 +120,27 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode, routes.PurchaseTypeController.onPageLoad(NormalMode))(request, messages(application)).toString
+      }
+    }
+
+    "must return a Bad Request and errors when more than 35 characters are submitted" in {
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, suppliersNameRoute)
+            .withFormUrlEncodedBody(("value", "a" * 36))
+
+        val boundForm = form.bind(Map("value" -> "a" * 36))
+
+        val view = application.injector.instanceOf[SuppliersNameView]
+
+        val result = route(application, request).value
+
+        status(result) mustEqual BAD_REQUEST
+        contentAsString(result) mustEqual view(boundForm, NormalMode, routes.PurchaseTypeController.onPageLoad(NormalMode))(request, messages(application)).toString
       }
     }
 
