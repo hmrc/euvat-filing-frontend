@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-package models
+package pages
 
-import play.api.libs.json.{Json, OFormat}
+import base.SpecBase
 
-final case class ContactDetails(
-  email: String,
-  telephone: Option[String]
-)
+class BusinessActivityCodeTwoPageSpec extends SpecBase {
 
-object ContactDetails {
-  implicit val format: OFormat[ContactDetails] = Json.format[ContactDetails]
+  "BusinessActivityCodeTwoPage" - {
+
+    "must be able to be set and retrieved from UserAnswers" in {
+      val answers = emptyUserAnswers.set(BusinessActivityCodeTwoPage, "25344").success.value
+      answers.get(BusinessActivityCodeTwoPage) mustBe Some("25344")
+    }
+  }
 }

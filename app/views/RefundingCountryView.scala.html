@@ -32,10 +32,10 @@
     mainErrorSummary: MainErrorSummary
 )
 
-@(form: Form[_], countries: Seq[(String,String)], call: Call)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], countries: Seq[(String,String)], call: Call, mode: models.Mode = models.NormalMode)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = views.ViewUtils.title(form, "refundingCountry.title"), backLinkUrl = Some(call.url)) {
-    @formHelper(action = routes.RefundingCountryController.onSubmit()) {
+    @formHelper(action = routes.RefundingCountryController.onSubmit(mode)) {
         @mainErrorSummary(form, Map("value" -> (form("value").id + "-input")))
 
         <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is: </span>@messages("claim.caption.add")</h2>
@@ -51,7 +51,9 @@
                 },
                 hint = Some(Hint(content = messages("refundingCountry.hint"))),
                 attributes = Map(
-                    "aria-describedby" -> (form("value").id + "-input-hint")
+                    "aria-describedby" -> (form("value").id + "-input-hint"),
+                    "data-ac-typed" -> "#valueTyped",
+                    "data-ac-heading" -> "#refunding-country-heading"
                 ),
                 errorMessage = form.error("value").map { e => ErrorMessage(content = Text(messages(e.message, e.args: _*))) }
             ).asAccessibleAutocomplete(Some(AccessibleAutocomplete(showAllValues = false, autoSelect = false, minLength = None)))
@@ -61,10 +63,7 @@
 
         @govukButton(ButtonViewModel(messages("site.continue")))
 
-        @* The shared script `refunding-country.js` patches accessible-autocomplete
-             nodes (aria attributes) and synchronises values. Logic centralised
-             in the external JS to keep a single source of truth. *@
-        <script @views.html.helper.CSPNonce.attr src='@routes.Assets.versioned("javascripts/refunding-country.js")'></script>
+           @* Shared autocomplete sync handled globally via `autocomplete-sync.js` included in the layout. *@
 
     }
 }

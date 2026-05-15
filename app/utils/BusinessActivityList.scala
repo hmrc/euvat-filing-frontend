@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-package models
+package utils
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.Configuration
 
-final case class ContactDetails(
-  email: String,
-  telephone: Option[String]
-)
-
-object ContactDetails {
-  implicit val format: OFormat[ContactDetails] = Json.format[ContactDetails]
+object BusinessActivityList {
+  def fromConfig(config: Configuration, key: String = "sic.codes"): Seq[(String, String)] =
+    config.getOptional[Seq[String]](key).getOrElse(Seq.empty).map { s =>
+      s.split("\\|") match {
+        case Array(name, code) => (name.trim, code.trim)
+        case Array(name)       => (name.trim, "")
+        case _                 => (s, "")
+      }
+    }
 }

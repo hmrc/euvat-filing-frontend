@@ -35,7 +35,7 @@ object CheckYourClaimsSummary {
         key   = "checkYourClaimDetails.refundingCountry.label",
         value = ValueViewModel(""),
         actions = Seq(
-          ActionItemViewModel("site.change", routes.RefundingCountryController.onPageLoad().url)
+          ActionItemViewModel("site.change", routes.RefundingCountryController.onPageLoad(CheckMode).url)
             .withVisuallyHiddenText(messages("checkYourClaimDetails.refundingCountry.change.hidden"))
         )
       )

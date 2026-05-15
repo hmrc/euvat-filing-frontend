@@ -32,7 +32,7 @@
   govukButton: GovukButton
 )
 
-@(form: play.api.data.Form[_], items: Seq[uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem], call: Call, mode: models.Mode)(implicit request: play.api.mvc.Request[_], messages: play.api.i18n.Messages)
+@(form: play.api.data.Form[_], items: Seq[uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem], call: Call, mode: models.Mode = models.NormalMode)(implicit request: play.api.mvc.Request[_], messages: play.api.i18n.Messages)
 
 @layout(pageTitle = title(form, messages("refundingLanguage.title")), backLinkUrl = Some(call.url)) {
 

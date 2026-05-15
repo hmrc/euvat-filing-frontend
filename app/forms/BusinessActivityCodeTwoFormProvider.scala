@@ -19,16 +19,24 @@ package forms
 import javax.inject.Inject
 
 import forms.mappings.Mappings
-import models.BusinessActivity
 import play.api.data.Form
 
-class BusinessActivityFormProvider @Inject() extends Mappings {
+class BusinessActivityCodeTwoFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[BusinessActivity] =
+  def apply(allowedValues: Set[String]): Form[String] =
+    import play.api.data.validation.{Constraint, Invalid, Valid}
+
     Form(
-      "value" -> enumerable[BusinessActivity](
-        requiredKey = "businessActivity.error.required",
-        invalidKey  = "businessActivity.error.required"
-      )
+      "value" -> text("businessActivityCodeTwo.error.required")
+        .verifying(
+          firstError[
+            String
+          ](
+            Constraint {
+              case v if allowedValues.contains(v) => Valid
+              case _                              => Invalid("businessActivityCodeTwo.error.invalid")
+            }
+          )
+        )
     )
 }

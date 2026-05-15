@@ -135,15 +135,11 @@ refundPeriod.error.periodStartDate30thSeptOrEarlier = Refund period start date m
 contactDetails.title = Who should we contact about this claim?
 contactDetails.heading = Who should we contact about this claim?
 contactDetails.contactEmail.label = Email address
-contactDetails.contactFirstName.label = First name (optional)
-contactDetails.contactLastName.label = Last name (optional)
 contactDetails.contactTelephone.label = Telephone number (optional)
 contactDetails.error.email.required = Enter an email address
+contactDetails.error.email.maxLength = Email address must be 129 characters or fewer
 contactDetails.error.email.invalidFormat = Enter an email address in the correct format, like name@example.com
-contactDetails.error.firstName.maxLength = Your first name must be between 1 and 100 characters
-contactDetails.error.firstName.format = Enter your first name in the correct format
-contactDetails.error.lastName.maxLength = Your last name must be between 1 and 100 characters
-contactDetails.error.lastName.format = Enter your last name in the correct format
+contactDetails.error.telephone.maxLength = Telephone number must be 21 characters or fewer
 contactDetails.error.telephone.format = Enter a telephone number in the correct format, like 01632960001 or +448081570192
 
 businessActivity.title = Business activity for this claim
@@ -156,6 +152,15 @@ businessActivity.hint = You can find the SIC codes on the <a class="govuk-link" 
 businessActivity.yes = Yes
 businessActivity.no = No
 businessActivity.error.required = Select yes if you want to add another business activity
+
+businessActivityCodeTwo.caption = Add claim details
+businessActivityCodeTwo.title = 2nd business activity for this claim
+businessActivityCodeTwo.heading = Add a 2nd business activity code
+businessActivityCodeTwo.hint = Enter your SIC code or search term, for example "motor"
+businessActivityCodeTwo.error.summary = Enter a business activity code
+businessActivityCodeTwo.error.required = Enter a business activity code
+businessActivityCodeTwo.error.invalid = Enter a valid business activity code
+businessActivityCodeTwo.error.invalid.summary = Enter a valid business activity code
 
 businessActivityThree.title = Business activity for this claim
 businessActivityThree.heading = Business activity for this claim
