@@ -34,9 +34,6 @@ POST        /what-language                               controllers.RefundingLa
 GET         /change-what-language                        controllers.RefundingLanguageController.onPageLoad(mode: models.Mode = CheckMode)
 POST        /change-what-language                        controllers.RefundingLanguageController.onSubmit(mode: models.Mode = CheckMode)
 
-GET        /business-activity-two                        controllers.BusinessActivityTwoController.onPageLoad()
-POST       /business-activity-two                        controllers.BusinessActivityTwoController.onSubmit()
-
 # Refund period (start/end month year)
 GET         /what-refund-period                          controllers.RefundPeriodController.onPageLoad(mode: Mode = NormalMode)
 POST        /what-refund-period                          controllers.RefundPeriodController.onSubmit(mode: Mode = NormalMode)
@@ -53,6 +50,17 @@ POST        /business-activity-code-two                  controllers.BusinessAct
 GET         /change-business-activity-code-two           controllers.BusinessActivityCodeTwoController.onPageLoad(mode: models.Mode = CheckMode)
 POST        /change-business-activity-code-two           controllers.BusinessActivityCodeTwoController.onSubmit(mode: models.Mode = CheckMode)
 
+GET         /what-business-activity                      controllers.BusinessActivityController.onPageLoad(mode: Mode = NormalMode)
+POST        /what-business-activity                      controllers.BusinessActivityController.onSubmit(mode: Mode = NormalMode)
+GET         /change-what-business-activity               controllers.BusinessActivityController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-what-business-activity               controllers.BusinessActivityController.onSubmit(mode: Mode = CheckMode)
+
+GET        /business-activity-two                        controllers.BusinessActivityTwoController.onPageLoad()
+POST       /business-activity-two                        controllers.BusinessActivityTwoController.onSubmit()
+
+GET        /business-activity-three                      controllers.BusinessActivityThreeController.onPageLoad()
+POST       /business-activity-three                      controllers.BusinessActivityThreeController.onSubmit()
+
 GET         /about-the-purchase                          controllers.AboutThePurchaseController.onPageLoad()
 POST        /about-the-purchase                          controllers.AboutThePurchaseController.onSubmit()
 
@@ -60,12 +68,3 @@ GET         /purchase-type                               controllers.PurchaseTyp
 POST        /purchase-type                               controllers.PurchaseTypeController.onSubmit(mode: Mode = NormalMode)
 GET         /change-purchase-type                        controllers.PurchaseTypeController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-purchase-type                        controllers.PurchaseTypeController.onSubmit(mode: Mode = CheckMode)
-
-GET         /what-business-activity                      controllers.BusinessActivityController.onPageLoad(mode: Mode = NormalMode)
-POST        /what-business-activity                      controllers.BusinessActivityController.onSubmit(mode: Mode = NormalMode)
-GET         /change-what-business-activity               controllers.BusinessActivityController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-what-business-activity               controllers.BusinessActivityController.onSubmit(mode: Mode = CheckMode)
-
-#Business Activity three
-GET        /business-activity-three                      controllers.BusinessActivityThreeController.onPageLoad()
-POST       /business-activity-three                      controllers.BusinessActivityThreeController.onSubmit()
