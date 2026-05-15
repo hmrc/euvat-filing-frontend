@@ -54,14 +54,14 @@ class RefundPeriodController @Inject() (
         formProvider().fill(RefundPeriodData(start, end))
     }
 
-    Ok(view(formProvider.withMappedErrors(preparedForm), mode))
+    Ok(view(formProvider.withMappedErrors(preparedForm), mode, controllers.routes.RefundingLanguageController.onPageLoad(mode)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     formProvider()
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formProvider.withMappedErrors(formWithErrors), mode))),
+        formWithErrors => Future.successful(BadRequest(view(formProvider.withMappedErrors(formWithErrors), mode, controllers.routes.RefundingLanguageController.onPageLoad(mode)))),
         value =>
           for {
             updatedAnswers <- Future.fromTry(
