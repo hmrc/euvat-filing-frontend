@@ -61,7 +61,10 @@ class RefundPeriodController @Inject() (
     formProvider()
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formProvider.withMappedErrors(formWithErrors), mode, controllers.routes.RefundingLanguageController.onPageLoad(mode)))),
+        formWithErrors =>
+          Future.successful(
+            BadRequest(view(formProvider.withMappedErrors(formWithErrors), mode, controllers.routes.RefundingLanguageController.onPageLoad(mode)))
+          ),
         value =>
           for {
             updatedAnswers <- Future.fromTry(

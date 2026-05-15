@@ -28,7 +28,7 @@ class BusinessActivityFormProvider @Inject() extends Mappings {
     Form(
       "value" -> enumerable[BusinessActivity](
         requiredKey = "businessActivity.error.required",
-        invalidKey = "businessActivity.error.required"
+        invalidKey  = "businessActivity.error.required"
       )
     )
 }

@@ -93,7 +93,7 @@ class MainErrorSummarySpec extends SpecBase with Matchers {
         .withError(key = "fieldC", message = "error.c")
 
       val html = mainErrorSummary(formWithErrors)
-      val doc  = Jsoup.parse(html.body)
+      val doc = Jsoup.parse(html.body)
 
       val items = doc.select(".govuk-error-summary__list li")
       items.size mustBe 3
@@ -111,7 +111,7 @@ class MainErrorSummarySpec extends SpecBase with Matchers {
         .withError(key = "fieldB", message = "error.b")
 
       val html = mainErrorSummary(formWithErrors, Map("fieldA" -> "fieldA-input", "fieldB" -> "fieldB-input"))
-      val doc  = Jsoup.parse(html.body)
+      val doc = Jsoup.parse(html.body)
 
       val items = doc.select(".govuk-error-summary__list li a")
       items.size mustBe 2
@@ -122,11 +122,11 @@ class MainErrorSummarySpec extends SpecBase with Matchers {
     "must mix anchor and plain text entries when some errors have an empty key" in new Setup {
       val formWithErrors = form
         .withError(key = "fieldA", message = "error.a")
-        .withError(key = "",       message = "error.cross.field")
+        .withError(key = "", message = "error.cross.field")
         .withError(key = "fieldB", message = "error.b")
 
       val html = mainErrorSummary(formWithErrors)
-      val doc  = Jsoup.parse(html.body)
+      val doc = Jsoup.parse(html.body)
 
       val items = doc.select(".govuk-error-summary__list li")
       items.size mustBe 3

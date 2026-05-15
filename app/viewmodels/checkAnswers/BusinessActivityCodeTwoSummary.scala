@@ -23,8 +23,8 @@ import pages.BusinessActivityCodeTwoPage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import viewmodels.govuk.summarylist._
-import viewmodels.implicits._
+import viewmodels.govuk.summarylist.*
+import viewmodels.implicits.*
 
 object BusinessActivityCodeTwoSummary {
 
@@ -32,8 +32,8 @@ object BusinessActivityCodeTwoSummary {
     answers.get(BusinessActivityCodeTwoPage).map { answer =>
 
       SummaryListRowViewModel(
-        key     = "businessActivityCodeTwo.checkYourAnswersLabel",
-        value   = ValueViewModel(HtmlFormat.escape(answer).toString),
+        key   = "businessActivityCodeTwo.checkYourAnswersLabel",
+        value = ValueViewModel(HtmlFormat.escape(answer).toString),
         actions = Seq(
           ActionItemViewModel("site.change", routes.BusinessActivityCodeTwoController.onPageLoad(CheckMode).url)
             .withVisuallyHiddenText(messages("businessActivityCodeTwo.change.hidden"))

@@ -57,8 +57,7 @@ class BusinessActivityController @Inject() (
     form
       .bindFromRequest()
       .fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)))),
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(BusinessActivityPage, value))
