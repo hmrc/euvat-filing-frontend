@@ -36,14 +36,13 @@
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
-        <p class="govuk-body">@messages("suppliersName.paragraph")</p>
-
         @govukInput(
             InputViewModel(
                 field = form("value"),
                 label = LabelViewModel(messages("suppliersName.heading")).asPageHeading()
             )
             .withWidth(Full)
+            .withHint(HintViewModel(HtmlContent(messages("suppliersName.paragraph"))).withCssClass("govuk-body"))
         )
 
         @govukButton(
