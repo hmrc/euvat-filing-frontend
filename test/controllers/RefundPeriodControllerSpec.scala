@@ -54,9 +54,13 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
           val form = application.injector.instanceOf[forms.RefundPeriodFormProvider].apply()
 
           status(result) mustEqual OK
+<<<<<<< HEAD
           contentAsString(result) mustEqual view(form, models.NormalMode, routes.RefundingLanguageController.onPageLoad(models.NormalMode))(request,
                                                                                                                                             msgs
                                                                                                                                            ).toString
+=======
+          contentAsString(result) mustEqual view(form, models.NormalMode, routes.RefundingLanguageController.onPageLoad(models.NormalMode))(request, msgs).toString
+>>>>>>> 2493455 (fix refundingperiods page back link navigtion)
         }
       }
 
@@ -79,9 +83,13 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
           val form = formProvider().fill(forms.RefundPeriodData(start, end))
 
           status(result) mustEqual OK
+<<<<<<< HEAD
           contentAsString(result) mustEqual view(form, models.NormalMode, routes.RefundingLanguageController.onPageLoad(models.NormalMode))(request,
                                                                                                                                             msgs
                                                                                                                                            ).toString
+=======
+          contentAsString(result) mustEqual view(form, models.NormalMode, routes.RefundingLanguageController.onPageLoad(models.NormalMode))(request, msgs).toString
+>>>>>>> 2493455 (fix refundingperiods page back link navigtion)
         }
       }
     }
