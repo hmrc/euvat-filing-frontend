@@ -187,6 +187,19 @@ businessActivityCodeTwo.error.required = Enter a business activity code
 businessActivityCodeTwo.error.invalid = Enter a valid business activity code
 businessActivityCodeTwo.error.invalid.summary = Enter a valid business activity code
 
+# Business activity for this claim (State 2)
+businessActivityTwo.title = Business activity for this claim
+businessActivityTwo.caption = Add claim details
+businessActivityTwo.heading = Business activity for this claim
+businessActivityTwo.lead = This is the Standard Industrial Classification (SIC) listed for your business.
+businessActivityTwo.insetText.label = Primary business activity
+businessActivityTwo.ba2.label = Business activity code 2
+businessActivityTwo.ba2.change.hidden = Change business activity code 2
+businessActivityTwo.ba2.remove.hidden = Remove business activity code 2
+businessActivityTwo.h2 = Do you need to add another business activity?
+businessActivityTwo.hint = You can find the SIC codes on the <a class="govuk-link" href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2026" target="_blank" rel="noreferrer noopener">Office for National Statistics website (opens in new tab)</a>.
+businessActivityTwo.error.required = Select yes if you want to add another business activity
+
 #Business activity three
 businessActivityThree.title = Business activity for this claim
 businessActivityThree.heading = Business activity for this claim
@@ -200,16 +213,3 @@ businessActivityThree.ba2.remove.hidden = Remove business activity code 2
 businessActivityThree.ba3.remove.hidden = Remove business activity code 3
 businessActivityThree.ba2.change.hidden = Change business activity code 2
 businessActivityThree.ba3.change.hidden = Change business activity code 3
-
-# Business activity for this claim (State 2)
-businessActivityTwo.title = Business activity for this claim
-businessActivityTwo.heading = Business activity for this claim
-businessActivityTwo.caption = Add claim details
-businessActivityTwo.lead = This is the Standard Industrial Classification (SIC) listed for your business.
-businessActivityTwo.insetText.label = Primary business activity
-businessActivityTwo.h2 = Do you need to add another business activity?
-businessActivityTwo.ba2.label = Business activity code 2
-businessActivityTwo.hint = You can find the SIC codes on the <a class="govuk-link" href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2026" target="_blank" rel="noreferrer noopener">Office for National Statistics website (opens in new tab)</a>.
-businessActivityTwo.yes = Yes
-businessActivityTwo.no = No
-businessActivityTwo.error.required = Select yes if you want to add another business activity
