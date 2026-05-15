@@ -46,7 +46,7 @@ class BusinessActivityController @Inject() (
 
   val form = formProvider()
 
-  private def backLink(mode: Mode): play.api.mvc.Call = routes.RefundingCountryController.onPageLoad(mode)
+  private def backLink(mode: Mode): play.api.mvc.Call = routes.ContactDetailsController.onPageLoad(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(BusinessActivityPage).fold(form)(form.fill)

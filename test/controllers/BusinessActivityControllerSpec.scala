@@ -39,7 +39,7 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
 
   private lazy val pageLoadRoute = routes.BusinessActivityController.onPageLoad(NormalMode).url
   private lazy val submitRoute = routes.BusinessActivityController.onSubmit(NormalMode).url
-  private lazy val backLink: Call = routes.RefundingCountryController.onPageLoad(NormalMode)
+  private lazy val backLink: Call = routes.ContactDetailsController.onPageLoad(NormalMode)
 
   "BusinessActivity Controller" - {
 
