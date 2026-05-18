@@ -164,8 +164,8 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) must include (
-            routes.BusinessActivityCodeTwoController.onPageLoad(NormalMode).url
+        contentAsString(result) must include(
+          routes.BusinessActivityCodeTwoController.onPageLoad(NormalMode).url
         )
       }
     }
@@ -176,18 +176,18 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(POST, businessActivityTwoRoute)
-            .withFormUrlEncodedBody(("value", ""))
+          .withFormUrlEncodedBody(("value", ""))
 
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) must include (
+        contentAsString(result) must include(
           "Select yes if you want to add another business activity"
         )
       }
     }
 
-    "must display the business activity code in the summary list" in{
+    "must display the business activity code in the summary list" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
