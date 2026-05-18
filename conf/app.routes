@@ -55,8 +55,10 @@ POST        /what-business-activity                      controllers.BusinessAct
 GET         /change-what-business-activity               controllers.BusinessActivityController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-what-business-activity               controllers.BusinessActivityController.onSubmit(mode: Mode = CheckMode)
 
-GET        /business-activity-two                        controllers.BusinessActivityTwoController.onPageLoad()
-POST       /business-activity-two                        controllers.BusinessActivityTwoController.onSubmit()
+GET        /business-activity-two                        controllers.BusinessActivityTwoController.onPageLoad(mode: Mode = NormalMode)
+POST       /business-activity-two                        controllers.BusinessActivityTwoController.onSubmit(mode: Mode = NormalMode)
+GET        /change-business-activity-two                 controllers.BusinessActivityTwoController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-business-activity-two                 controllers.BusinessActivityTwoController.onSubmit(mode: Mode = CheckMode)
 
 GET        /business-activity-three                      controllers.BusinessActivityThreeController.onPageLoad()
 POST       /business-activity-three                      controllers.BusinessActivityThreeController.onSubmit()

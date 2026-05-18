@@ -32,7 +32,7 @@ class Navigator @Inject() () {
     case RefundPeriodPage            => _ => routes.ContactDetailsController.onPageLoad(NormalMode)
     case ContactDetailsPage          => _ => routes.BusinessActivityController.onPageLoad(NormalMode)
     case BusinessActivityPage        => _ => routes.BusinessActivityCodeTwoController.onPageLoad(NormalMode)
-    case BusinessActivityCodeTwoPage => _ => routes.BusinessActivityTwoController.onPageLoad()
+    case BusinessActivityCodeTwoPage => _ => routes.BusinessActivityTwoController.onPageLoad(NormalMode)
     case BusinessActivityTwoPage     => _ => routes.BusinessActivityThreeController.onPageLoad()
     case PurchaseTypePage            => _ => routes.JourneyRecoveryController.onPageLoad()
     case _                           => _ => routes.IndexController.onPageLoad()

@@ -29,11 +29,11 @@
     mainErrorSummary: MainErrorSummary
 )
 
-@(form: Form[_], call: Call)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, call: Call)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = views.ViewUtils.title(form, messages("businessActivityTwo.title")), backLinkUrl = Some(call.url)) {
 
-    @formHelper(action = routes.BusinessActivityTwoController.onSubmit()) {
+    @formHelper(action = routes.BusinessActivityTwoController.onSubmit(mode)) {
 
         @mainErrorSummary(form, Map("value" -> "value_0"))
             <h2 class="govuk-caption-l hmrc-caption-l">

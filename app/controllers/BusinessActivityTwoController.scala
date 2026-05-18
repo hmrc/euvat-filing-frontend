@@ -49,27 +49,27 @@ class BusinessActivityTwoController @Inject() (
 
   private def backLink: play.api.mvc.Call = routes.BusinessActivityCodeTwoController.onPageLoad(NormalMode)
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
     val preparedForm = request.userAnswers.get(BusinessActivityTwoPage) match {
       case None        => form
       case Some(value) => form.fill(value)
     }
 
-    Ok(view(preparedForm, backLink))
+    Ok(view(preparedForm, mode, backLink))
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
 
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, backLink))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink))),
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(BusinessActivityTwoPage, value))
             _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(BusinessActivityTwoPage, NormalMode, updatedAnswers))
+          } yield Redirect(navigator.nextPage(BusinessActivityTwoPage, mode, updatedAnswers))
       )
   }
 }

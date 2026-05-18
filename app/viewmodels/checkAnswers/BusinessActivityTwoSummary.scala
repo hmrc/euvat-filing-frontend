@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers
 
 import controllers.routes
-import models.{CheckMode, UserAnswers}
+import models.{CheckMode, NormalMode, UserAnswers}
 import pages.BusinessActivityTwoPage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
@@ -35,7 +35,7 @@ object BusinessActivityTwoSummary {
         key   = "businessActivityTwo.checkYourAnswersLabel",
         value = ValueViewModel(value),
         actions = Seq(
-          ActionItemViewModel("site.change", routes.BusinessActivityTwoController.onPageLoad().url)
+          ActionItemViewModel("site.change", routes.BusinessActivityTwoController.onPageLoad(CheckMode).url)
             .withVisuallyHiddenText(messages("businessActivityTwo.change.hidden"))
         )
       )

@@ -42,7 +42,7 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
   val form = formProvider()
   val backLink = routes.BusinessActivityCodeTwoController.onPageLoad(NormalMode)
 
-  lazy val businessActivityTwoRoute: String = routes.BusinessActivityTwoController.onPageLoad().url
+  lazy val businessActivityTwoRoute: String = routes.BusinessActivityTwoController.onPageLoad(NormalMode).url
 
   "BusinessActivityTwo Controller" - {
 
@@ -258,6 +258,45 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual BAD_REQUEST
         contentAsString(result) must include("Select yes if you want to add another business activity")
+      }
+    }
+
+    "must return OK for a GET in Check mode" in {
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.BusinessActivityTwoController.onPageLoad(CheckMode).url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+      }
+    }
+
+    "must redirect to the next page when valid data is submitted in Check mode" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, routes.BusinessActivityTwoController.onSubmit(CheckMode).url)
+            .withFormUrlEncodedBody(("value", "true"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
       }
     }
   }
