@@ -54,10 +54,14 @@ class NavigatorSpec extends SpecBase {
           routes.BusinessActivityController.onPageLoad(NormalMode)
       }
 
-      "must go from BusinessActivityPage to BusinessActivityCodeTwoController" in {
-        "must go from BusinessActivityPage to BusinessActivityTwoController" in {
+        "must go from BusinessActivityPage to BusinessActivityCodeTwoController" in {
           navigator.nextPage(BusinessActivityPage, NormalMode, userAnswers) mustBe
             routes.BusinessActivityCodeTwoController.onPageLoad(NormalMode)
+        }
+
+        "must go from BusinessActivityCodeTwoPage to BusinessActivityTwoController" in {
+          navigator.nextPage(BusinessActivityCodeTwoPage, NormalMode, userAnswers) mustBe
+            routes.BusinessActivityThreeController.onPageLoad()
         }
 
         "must go from BusinessActivityCodeTwoPage to BusinessActivityThreeController" in {
@@ -65,7 +69,7 @@ class NavigatorSpec extends SpecBase {
             routes.BusinessActivityThreeController.onPageLoad()
         }
 
-        "must go from PurchaseTypePage to JourneyRecoveryController" in {
+          "must go from PurchaseTypePage to JourneyRecoveryController" in {
           navigator.nextPage(PurchaseTypePage, NormalMode, userAnswers) mustBe
             routes.JourneyRecoveryController.onPageLoad()
         }
@@ -79,4 +83,3 @@ class NavigatorSpec extends SpecBase {
       }
     }
   }
-}

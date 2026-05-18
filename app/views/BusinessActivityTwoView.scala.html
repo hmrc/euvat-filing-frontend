@@ -50,7 +50,7 @@
             @customSummaryList(
                 rows = Seq(
                     (messages("businessActivityTwo.ba2.label"), "10110 (Processing and preserving of meat)", Seq(
-                        ("#", "site.change", "businessActivityTwo.ba2.change.hidden"),
+                        (routes.BusinessActivityCodeTwoController.onPageLoad(CheckMode).url, "site.change", "businessActivityTwo.ba2.change.hidden"),
                         ("#", "site.remove", "businessActivityTwo.ba2.remove.hidden")
                     ))
                 )

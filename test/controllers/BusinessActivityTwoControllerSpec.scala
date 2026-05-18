@@ -18,7 +18,7 @@ package controllers
 
 import base.SpecBase
 import forms.BusinessActivityTwoFormProvider
-import models.{NormalMode, UserAnswers}
+import models.{CheckMode, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -26,6 +26,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import pages.BusinessActivityTwoPage
 import play.api.inject.bind
 import play.api.mvc.Call
+import play.api.test.CSRFTokenHelper.CSRFRequest
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
@@ -50,7 +51,7 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, businessActivityTwoRoute)
+        val request = FakeRequest(GET, businessActivityTwoRoute).withCSRFToken
 
         val result = route(application, request).value
 
@@ -67,7 +68,7 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, businessActivityTwoRoute)
+        val request = FakeRequest(GET, businessActivityTwoRoute).withCSRFToken
 
         val view = application.injector.instanceOf[BusinessActivityTwoView]
 
@@ -128,7 +129,7 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(GET, businessActivityTwoRoute)
+        val request = FakeRequest(GET, businessActivityTwoRoute).withCSRFToken
 
         val result = route(application, request).value
 
@@ -158,7 +159,7 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, businessActivityTwoRoute)
+        val request = FakeRequest(GET, businessActivityTwoRoute).withCSRFToken
 
         val result = route(application, request).value
 
@@ -191,7 +192,7 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, businessActivityTwoRoute)
+        val request = FakeRequest(GET, businessActivityTwoRoute).withCSRFToken
 
         val result = route(application, request).value
 
@@ -201,18 +202,62 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must display the correct change link for business activity code two" in {
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, businessActivityTwoRoute).withCSRFToken
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) must include("business-activity-code-two")
+      }
+    }
+
     "must display the correct inset text" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, businessActivityTwoRoute)
+        val request = FakeRequest(GET, businessActivityTwoRoute).withCSRFToken
 
         val result = route(application, request).value
 
         status(result) mustEqual OK
         contentAsString(result) must include("Primary business activity")
         contentAsString(result) must include("49200 (Freight rail transport)")
+      }
+    }
+
+    "must display There is a problem in the error summary when no radio button is selected" in {
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(POST, businessActivityTwoRoute)
+          .withFormUrlEncodedBody(("value", ""))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual BAD_REQUEST
+        contentAsString(result) must include("There is a problem")
+      }
+    }
+
+    "must display inline error message above radio buttons when no radio button is selected" in {
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(POST, businessActivityTwoRoute)
+          .withFormUrlEncodedBody(("value", ""))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual BAD_REQUEST
+        contentAsString(result) must include("Select yes if you want to add another business activity")
       }
     }
   }
