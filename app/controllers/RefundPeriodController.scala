@@ -71,8 +71,8 @@ class RefundPeriodController @Inject() (
                                 request.userAnswers.set(
                                   RefundPeriodPage,
                                   RefundPeriod(
-                                    LocalDate.of(value.start.getYear, value.start.getMonthValue, 1),
-                                    java.time.YearMonth.of(value.end.getYear, value.end.getMonthValue).atEndOfMonth()
+                                    java.time.YearMonth.of(value.start.getYear, value.start.getMonthValue).atDay(1).atStartOfDay(),
+                                    java.time.YearMonth.of(value.end.getYear, value.end.getMonthValue).atEndOfMonth().atTime(23, 59, 59, 999000000)
                                   )
                                 )
                               )
