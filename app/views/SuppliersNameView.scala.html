@@ -29,16 +29,18 @@
 
 @layout(pageTitle = title(form, messages("suppliersName.title")), backLinkUrl = Some(call.url)) {
 
-    @formHelper(action = routes.SuppliersNameController.onSubmit(mode)) {
+    @formHelper(action = routes.SuppliersNameController.onSubmit(mode), Symbol("autocomplete") -> "off") {
 
     @mainErrorSummary(form, Map.empty)
 
     <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is: </span>@messages("purchase.caption.add")</h2>
+    <h1 class="govuk-heading-l">@messages("suppliersName.heading")</h1>
 
         @govukInput(
             InputViewModel(
                 field = form("value"),
-                label = LabelViewModel(messages("suppliersName.heading")).asPageHeading()
+                label = LabelViewModel(messages("suppliersName.heading")).withCssClass("govuk-visually-hidden")
+
             )
             .withWidth(Full)
             .withHint(HintViewModel(HtmlContent(s"""<p class="govuk-body">${messages("suppliersName.paragraph")}</p>""".stripMargin)))
