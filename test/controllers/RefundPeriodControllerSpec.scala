@@ -62,8 +62,8 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
 
       "must pre-fill the form when saved answers exist" in {
         val savedPeriod = models.RefundPeriod(
-          java.time.LocalDate.of(2025, 3, 1),
-          java.time.LocalDate.of(2025, 8, 1)
+          java.time.YearMonth.of(2025, 3).atDay(1).atStartOfDay(),
+          java.time.YearMonth.of(2025, 8).atEndOfMonth().atTime(23, 59, 59, 999000000)
         )
         val userAnswers = emptyUserAnswers.set(RefundPeriodPage, savedPeriod).success.value
         val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
