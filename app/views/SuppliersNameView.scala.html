@@ -29,11 +29,11 @@
 
 @layout(pageTitle = title(form, messages("suppliersName.title")), backLinkUrl = Some(call.url)) {
 
+    @formHelper(action = routes.SuppliersNameController.onSubmit(mode)) {
+
     @mainErrorSummary(form, Map.empty)
 
-    <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is: </span>@messages("businessActivityThree.caption")</h2>
-
-    @formHelper(action = routes.SuppliersNameController.onSubmit(mode)) {
+    <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is: </span>@messages("purchase.caption.add")</h2>
 
         @govukInput(
             InputViewModel(
