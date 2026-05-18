@@ -47,7 +47,7 @@ class BusinessActivityTwoController @Inject() (
 
   val form = formProvider()
 
-  private def backLink: play.api.mvc.Call = routes.RefundingCountryController.onPageLoad()
+  private def backLink: play.api.mvc.Call = routes.BusinessActivityCodeTwoController.onPageLoad(NormalMode)
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 

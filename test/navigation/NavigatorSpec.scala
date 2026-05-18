@@ -55,28 +55,28 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from BusinessActivityPage to BusinessActivityCodeTwoController" in {
-      "must go from BusinessActivityPage to BusinessActivityTwoController" in {
-        navigator.nextPage(BusinessActivityPage, NormalMode, userAnswers) mustBe
-          routes.BusinessActivityCodeTwoController.onPageLoad(NormalMode)
+        "must go from BusinessActivityPage to BusinessActivityTwoController" in {
+          navigator.nextPage(BusinessActivityPage, NormalMode, userAnswers) mustBe
+            routes.BusinessActivityCodeTwoController.onPageLoad(NormalMode)
+        }
+
+        "must go from BusinessActivityCodeTwoPage to BusinessActivityThreeController" in {
+          navigator.nextPage(BusinessActivityCodeTwoPage, NormalMode, userAnswers) mustBe
+            routes.BusinessActivityThreeController.onPageLoad()
+        }
+
+        "must go from PurchaseTypePage to JourneyRecoveryController" in {
+          navigator.nextPage(PurchaseTypePage, NormalMode, userAnswers) mustBe
+            routes.JourneyRecoveryController.onPageLoad()
+        }
       }
 
-      "must go from BusinessActivityCodeTwoPage to BusinessActivityThreeController" in {
-        navigator.nextPage(BusinessActivityCodeTwoPage, NormalMode, userAnswers) mustBe
-          routes.BusinessActivityThreeController.onPageLoad()
-      }
-
-      "must go from PurchaseTypePage to JourneyRecoveryController" in {
-        navigator.nextPage(PurchaseTypePage, NormalMode, userAnswers) mustBe
-          routes.JourneyRecoveryController.onPageLoad()
+      "in Check mode" - {
+        "must go from a page that doesn't exist in the edit route map to CheckYourAnswers" in {
+          case object UnknownPage extends Page
+          navigator.nextPage(UnknownPage, CheckMode, userAnswers) mustBe routes.CheckYourAnswersController.onPageLoad()
+        }
       }
     }
-
-    "in Check mode" - {
-      "must go from a page that doesn't exist in the edit route map to CheckYourAnswers" in {
-        case object UnknownPage extends Page
-        navigator.nextPage(UnknownPage, CheckMode, userAnswers) mustBe routes.CheckYourAnswersController.onPageLoad()
-      }
-    }
-
   }
 }

@@ -39,7 +39,7 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
 
   val formProvider = new BusinessActivityTwoFormProvider()
   val form = formProvider()
-  val backLink = routes.RefundingCountryController.onPageLoad()
+  val backLink = routes.BusinessActivityCodeTwoController.onPageLoad(NormalMode)
 
   lazy val businessActivityTwoRoute: String = routes.BusinessActivityTwoController.onPageLoad().url
 
@@ -164,7 +164,7 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) must include (
-            routes.RefundingCountryController.onPageLoad().url
+            routes.BusinessActivityCodeTwoController.onPageLoad(NormalMode).url
         )
       }
     }
