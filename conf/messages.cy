@@ -207,3 +207,5 @@ suppliersName.heading = What is the supplier''s name?
 suppliersName.paragraph = The supplier is found on the invoice or receipt and is responsible for including the VAT.
 suppliersName.error.required = The supplier's name cannot be blank
 suppliersName.error.length = You cannot enter more than 35 characters
+suppliersName.checkYourAnswersLabel = Supplier''s name
+suppliersName.change.hidden = Change supplier''s name
