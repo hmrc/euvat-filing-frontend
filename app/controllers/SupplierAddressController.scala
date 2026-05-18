@@ -46,7 +46,7 @@ class SupplierAddressController @Inject() (
 
   val form = formProvider()
 
-  private def backLink: play.api.mvc.Call = routes.PurchaseTypeController.onPageLoad(NormalMode)
+  private def backLink: play.api.mvc.Call = routes.SuppliersNameController.onPageLoad(NormalMode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(SupplierAddressPage).fold(form)(form.fill)

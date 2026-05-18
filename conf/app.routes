@@ -69,22 +69,27 @@ POST        /business-activity-3                         controllers.BusinessAct
 GET         /about-the-purchase                          controllers.AboutThePurchaseController.onPageLoad()
 POST        /about-the-purchase                          controllers.AboutThePurchaseController.onSubmit()
 
+GET         /invoice-number                              controllers.InvoiceNumberController.onPageLoad(mode: models.Mode = NormalMode)
+POST        /invoice-number                              controllers.InvoiceNumberController.onSubmit(mode: models.Mode = NormalMode)
+GET         /change-invoice-number                       controllers.InvoiceNumberController.onPageLoad(mode: models.Mode = CheckMode)
+POST        /change-invoice-number                       controllers.InvoiceNumberController.onSubmit(mode: models.Mode = CheckMode)
+
+GET         /what-is-the-invoice-date                    controllers.InvoiceDateController.onPageLoad(mode: Mode = NormalMode)
+POST        /what-is-the-invoice-date                    controllers.InvoiceDateController.onSubmit(mode: Mode = NormalMode)
+GET         /change-what-is-the-invoice-date             controllers.InvoiceDateController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-what-is-the-invoice-date             controllers.InvoiceDateController.onSubmit(mode: Mode = CheckMode)
+
 GET         /purchase-type                               controllers.PurchaseTypeController.onPageLoad(mode: Mode = NormalMode)
 POST        /purchase-type                               controllers.PurchaseTypeController.onSubmit(mode: Mode = NormalMode)
 GET         /change-purchase-type                        controllers.PurchaseTypeController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-purchase-type                        controllers.PurchaseTypeController.onSubmit(mode: Mode = CheckMode)
 
-GET        /what-supplier-name                           controllers.SuppliersNameController.onPageLoad(mode: Mode = NormalMode)
-POST       /what-supplier-name                           controllers.SuppliersNameController.onSubmit(mode: Mode = NormalMode)
-GET        /change-what-supplier-name                    controllers.SuppliersNameController.onPageLoad(mode: Mode = CheckMode)
-POST       /change-what-supplier-name                    controllers.SuppliersNameController.onSubmit(mode: Mode = CheckMode)
+GET         /what-supplier-name                          controllers.SuppliersNameController.onPageLoad(mode: Mode = NormalMode)
+POST        /what-supplier-name                          controllers.SuppliersNameController.onSubmit(mode: Mode = NormalMode)
+GET         /change-what-supplier-name                   controllers.SuppliersNameController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-what-supplier-name                   controllers.SuppliersNameController.onSubmit(mode: Mode = CheckMode)
 
 GET         /what-supplier-address                       controllers.SupplierAddressController.onPageLoad(mode: Mode = NormalMode)
 POST        /what-supplier-address                       controllers.SupplierAddressController.onSubmit(mode: Mode = NormalMode)
 GET         /change-what-supplier-address                controllers.SupplierAddressController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-what-supplier-address                controllers.SupplierAddressController.onSubmit(mode: Mode = CheckMode)
-
-GET         /invoice-number                              controllers.InvoiceNumberController.onPageLoad(mode: models.Mode = NormalMode)
-POST        /invoice-number                              controllers.InvoiceNumberController.onSubmit(mode: models.Mode = NormalMode)
-GET         /change-invoice-number                       controllers.InvoiceNumberController.onPageLoad(mode: models.Mode = CheckMode)
-POST        /change-invoice-number                       controllers.InvoiceNumberController.onSubmit(mode: models.Mode = CheckMode)

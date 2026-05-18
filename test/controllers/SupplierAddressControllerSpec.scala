@@ -39,7 +39,7 @@ class SupplierAddressControllerSpec extends SpecBase with MockitoSugar {
 
   private lazy val pageLoadRoute  = routes.SupplierAddressController.onPageLoad(NormalMode).url
   private lazy val submitRoute    = routes.SupplierAddressController.onSubmit(NormalMode).url
-  private lazy val backLink: Call = routes.PurchaseTypeController.onPageLoad(NormalMode)
+  private lazy val backLink: Call = routes.SuppliersNameController.onPageLoad(NormalMode)
 
   private val validFormData = Map(
     "addressLine1" -> "1 High Street",

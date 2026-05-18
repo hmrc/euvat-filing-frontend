@@ -35,10 +35,11 @@ class Navigator @Inject() () {
     case BusinessActivityCodeTwoPage   => _ => routes.BusinessActivityTwoController.onPageLoad(NormalMode)
     case BusinessActivityTwoPage       => userAnswer => navigateFromBusinessActivity2Page(NormalMode)(userAnswer)
     case BusinessActivityCodeThreePage => _ => routes.BusinessActivityThreeController.onPageLoad()
-    case PurchaseTypePage              => _ => routes.SuppliersNameController.onPageLoad(NormalMode)
+    case PurchaseTypePage              => _ => routes.InvoiceNumberController.onPageLoad(NormalMode)
+    case InvoiceNumberPage             => _ => routes.InvoiceDateController.onPageLoad(NormalMode)
+    case InvoiceDatePage               => _ => routes.SuppliersNameController.onPageLoad(NormalMode)
     case SuppliersNamePage             => _ => routes.SupplierAddressController.onPageLoad(NormalMode)
-    case SupplierAddressPage           => _ => routes.InvoiceNumberController.onPageLoad(NormalMode)
-    case InvoiceNumberPage             => _ => routes.JourneyRecoveryController.onPageLoad()
+    case SupplierAddressPage           => _ => routes.JourneyRecoveryController.onPageLoad()
     case _                             => _ => routes.IndexController.onPageLoad()
   }
 
@@ -51,10 +52,11 @@ class Navigator @Inject() () {
     case BusinessActivityCodeTwoPage => _ => routes.BusinessActivityTwoController.onPageLoad(CheckMode)
     case BusinessActivityTwoPage     => userAnswer => navigateFromBusinessActivity2Page(CheckMode)(userAnswer)
     case BusinessActivityCodeThreePage => _ => routes.BusinessActivityThreeController.onPageLoad()
-    case PurchaseTypePage            => _ => routes.SuppliersNameController.onPageLoad(CheckMode)
+    case PurchaseTypePage            => _ => routes.InvoiceNumberController.onPageLoad(CheckMode)
+    case InvoiceNumberPage           => _ => routes.InvoiceDateController.onPageLoad(CheckMode)
+    case InvoiceDatePage             => _ => routes.SuppliersNameController.onPageLoad(CheckMode)
     case SuppliersNamePage           => _ => routes.SupplierAddressController.onPageLoad(CheckMode)
-    case SupplierAddressPage         => _ => routes.InvoiceNumberController.onPageLoad(CheckMode)
-    case InvoiceNumberPage           => _ => routes.CheckYourAnswersController.onPageLoad()
+    case SupplierAddressPage         => _ => routes.CheckYourAnswersController.onPageLoad()
     case _                           => _ => routes.CheckYourAnswersController.onPageLoad()
   }
 
