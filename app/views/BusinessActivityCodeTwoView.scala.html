@@ -40,7 +40,7 @@
         @mainErrorSummary(form, Map("value" -> (form("value").id + "-input")))
 
         <h2 class="govuk-caption-l hmrc-caption-l">
-            <span class="govuk-visually-hidden">This section is: </span>@messages("businessActivityCodeTwo.caption")
+            <span class="govuk-visually-hidden">This section is: </span>@messages("claim.caption.add")
         </h2>
         <h1 id="business-activity-code-two-heading" class="govuk-heading-l">@messages("businessActivityCodeTwo.heading")</h1>
 
@@ -65,8 +65,5 @@
         <input type="hidden" id="valueTyped" name="valueTyped" value="">
 
         @govukButton(ButtonViewModel(messages("site.continue")))
-
-        @* Shared autocomplete sync handled globally via `autocomplete-sync.js` included in the layout. *@
-
     }
 }

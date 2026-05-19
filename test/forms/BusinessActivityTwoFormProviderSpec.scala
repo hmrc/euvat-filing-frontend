@@ -21,7 +21,7 @@ import play.api.data.FormError
 
 class BusinessActivityTwoFormProviderSpec extends BooleanFieldBehaviours {
 
-  val requiredKey = "businessActivityTwo.error.required"
+  val requiredKey = "businessActivity.error.required"
   val invalidKey = "error.boolean"
 
   val form = new BusinessActivityTwoFormProvider()()

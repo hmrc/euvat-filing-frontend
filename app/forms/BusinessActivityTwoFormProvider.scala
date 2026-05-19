@@ -25,6 +25,6 @@ class BusinessActivityTwoFormProvider @Inject() extends Mappings {
 
   def apply(): Form[Boolean] =
     Form(
-      "value" -> boolean("businessActivityTwo.error.required")
+      "value" -> boolean("businessActivity.error.required")
     )
 }

@@ -35,22 +35,22 @@
         @mainErrorSummary(form)
 
         <h2 class="govuk-caption-l hmrc-caption-l">
-            <span class="govuk-visually-hidden">This section is: </span>@messages("businessActivity.caption")
+            <span class="govuk-visually-hidden">This section is: </span>@messages("claim.caption.add")
         </h2>
         <h1 class="govuk-heading-l">@messages("businessActivity.heading")</h1>
 
         <p class="govuk-body-l">@messages("businessActivity.lead")</p>
 
         @govukInsetText(InsetText(
-            content = HtmlContent(s"<strong>${messages("businessActivityTwo.insetText.label")}:</strong> 49200 (Freight rail transport)")
+            content = HtmlContent(s"<strong>${messages("businessActivity.insetText.label")}:</strong> 49200 (Freight rail transport)")
         ))
 
         @govukRadios(
             RadiosViewModel.yesNo(
             field = form("value"),
-            legend = LegendViewModel(messages("businessActivityTwo.h2")).withCssClass("govuk-fieldset__legend--m"),
+            legend = LegendViewModel(messages("businessActivity.h2")).withCssClass("govuk-fieldset__legend--m"),
         )
-        .withHint(HintViewModel(HtmlContent(s"""<p class="govuk-body">${messages("businessActivityTwo.hint")}</p>""".stripMargin)))
+        .withHint(HintViewModel(HtmlContent(s"""<p class="govuk-body">${messages("businessActivity.p1")}</p>""".stripMargin)))
         .inline()
         )
 
