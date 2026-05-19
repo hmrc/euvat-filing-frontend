@@ -201,9 +201,9 @@ businessActivityThree.ba3.remove.hidden = Remove business activity code 3
 businessActivityThree.ba2.change.hidden = Change business activity code 2
 businessActivityThree.ba3.change.hidden = Change business activity code 3
 
-supplierAddress.title = What is the supplier's address?
-supplierAddress.heading = What is the supplier's address?
-supplierAddress.lead = Enter the supplier's address as it appears on the invoice or receipt.
+supplierAddress.title = What is the supplier’s address?
+supplierAddress.heading = What is the supplier’s address?
+supplierAddress.lead = Enter the supplier’s address as it appears on the invoice or receipt.
 supplierAddress.line1.label = Address line 1
 supplierAddress.line2.label = Address line 2 (optional)
 supplierAddress.line3.label = Address line 3 (optional)
