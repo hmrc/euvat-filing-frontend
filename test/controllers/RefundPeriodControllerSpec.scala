@@ -54,7 +54,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
           val form = application.injector.instanceOf[forms.RefundPeriodFormProvider].apply()
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(form, models.NormalMode, routes.RefundingLanguageController.onPageLoad(models.NormalMode))(request,
+          contentAsString(result) mustEqual view(form, models.NormalMode, routes.RefundingLanguageController.onPageLoad(models.NormalMode), None, None)(request,
                                                                                                                                             msgs
                                                                                                                                            ).toString
         }
@@ -79,7 +79,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
           val form = formProvider().fill(forms.RefundPeriodData(start, end))
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(form, models.NormalMode, routes.RefundingLanguageController.onPageLoad(models.NormalMode))(request,
+          contentAsString(result) mustEqual view(form, models.NormalMode, routes.RefundingLanguageController.onPageLoad(models.NormalMode), None, None)(request,
                                                                                                                                             msgs
                                                                                                                                            ).toString
         }
@@ -264,7 +264,25 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) `mustEqual` BAD_REQUEST
-          contentAsString(result) must include(messages(application)("refundPeriod.error.periodStartDatenotAfterEndDate"))
+          contentAsString(result) must include(messages(application)("refundPeriod.error.periodStartDateperiodNotLessThan3Months"))
+        }
+      }
+
+      "must show minimum-length error when start and end are the same month" in {
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+        running(application) {
+          val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit(models.NormalMode).url)
+            .withFormUrlEncodedBody(
+              "start.month" -> "04",
+              "start.year" -> "2025",
+              "end.month" -> "04",
+              "end.year" -> "2025"
+            )
+          val result = route(application, request).value
+
+          status(result) mustEqual BAD_REQUEST
+          contentAsString(result) must include(messages(application)("refundPeriod.error.periodStartDateperiodNotLessThan3Months"))
         }
       }
 

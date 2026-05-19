@@ -105,7 +105,7 @@ class RefundPeriodFormProvider @Inject() () {
           data => {
             val now = YearMonth.now()
             if (data.start.isAfter(now) || data.end.isAfter(now)) true
-            else data.start.isBefore(data.end)
+            else !data.start.isAfter(data.end)
           }
         )
         .verifying(
@@ -122,7 +122,7 @@ class RefundPeriodFormProvider @Inject() () {
           data => {
             val now = YearMonth.now()
             if (data.start.isAfter(now) || data.end.isAfter(now)) true
-            else if (!data.start.isBefore(data.end)) true
+            else if (data.start.isAfter(data.end)) true
             else if (data.end.getMonthValue == 12) true
             else java.time.temporal.ChronoUnit.MONTHS.between(data.start, data.end) >= 2
           }
