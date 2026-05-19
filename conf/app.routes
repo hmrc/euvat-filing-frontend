@@ -62,6 +62,10 @@ POST        /what-business-activity                      controllers.BusinessAct
 GET         /change-what-business-activity               controllers.BusinessActivityController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-what-business-activity               controllers.BusinessActivityController.onSubmit(mode: Mode = CheckMode)
 
-#Business Activity three
 GET        /business-activity-three                      controllers.BusinessActivityThreeController.onPageLoad()
 POST       /business-activity-three                      controllers.BusinessActivityThreeController.onSubmit()
+
+GET        /what-supplier-name                           controllers.SuppliersNameController.onPageLoad(mode: Mode = NormalMode)
+POST       /what-supplier-name                           controllers.SuppliersNameController.onSubmit(mode: Mode = NormalMode)
+GET        /change-what-supplier-name                    controllers.SuppliersNameController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-what-supplier-name                    controllers.SuppliersNameController.onSubmit(mode: Mode = CheckMode)

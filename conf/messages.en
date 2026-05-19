@@ -200,3 +200,12 @@ businessActivityThree.ba2.remove.hidden = Remove business activity code 2
 businessActivityThree.ba3.remove.hidden = Remove business activity code 3
 businessActivityThree.ba2.change.hidden = Change business activity code 2
 businessActivityThree.ba3.change.hidden = Change business activity code 3
+
+#Supplier's name
+suppliersName.title = What is the supplier’s name?
+suppliersName.heading = What is the supplier’s name?
+suppliersName.paragraph = The supplier is found on the invoice or receipt and is responsible for including the VAT.
+suppliersName.error.required = Enter a supplier’s name
+suppliersName.error.length = You cannot enter more than 35 characters
+suppliersName.checkYourAnswersLabel = Supplier’s name
+suppliersName.change.hidden = Change supplier’s name
