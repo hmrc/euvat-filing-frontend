@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.govukfrontend.views.html.components.*
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.insettext.InsetText
 @import views.html.components.MainErrorSummary
@@ -34,36 +34,36 @@
 @layout(pageTitle = views.ViewUtils.title(form, messages("businessActivityTwo.title")), backLinkUrl = Some(call.url)) {
 
     @formHelper(action = routes.BusinessActivityTwoController.onSubmit(mode)) {
+        @mainErrorSummary(form)
 
-        @mainErrorSummary(form, Map("value" -> "value_0"))
-            <h2 class="govuk-caption-l hmrc-caption-l">
-             <span class="govuk-visually-hidden">This section is: </span>@messages("businessActivityTwo.caption")
-            </h2>
-            <h1 class="govuk-heading-l">@messages("businessActivityTwo.heading")</h1>
+        <h2 class="govuk-caption-l hmrc-caption-l">
+         <span class="govuk-visually-hidden">This section is: </span>@messages("businessActivityTwo.caption")
+        </h2>
+        <h1 class="govuk-heading-l">@messages("businessActivityTwo.heading")</h1>
 
-            <p class="govuk-body-l">@messages("businessActivityTwo.lead")</p>
+        <p class="govuk-body-l">@messages("businessActivityTwo.lead")</p>
 
-            @govukInsetText(InsetText(
+        @govukInsetText(InsetText(
             content = HtmlContent(s"<strong>${messages("businessActivityTwo.insetText.label")}:</strong> 49200 (Freight rail transport)")
-            ))
+        ))
 
-            @customSummaryList(
-                rows = Seq(
-                    (messages("businessActivityTwo.ba2.label"), "10110 (Processing and preserving of meat)", Seq(
-                        (routes.BusinessActivityCodeTwoController.onPageLoad(CheckMode).url, "site.change", "businessActivityTwo.ba2.change.hidden"),
-                        ("#", "site.remove", "businessActivityTwo.ba2.remove.hidden")
-                    ))
-                )
+        @customSummaryList(
+            rows = Seq(
+                (messages("businessActivityTwo.ba2.label"), "10110 (Processing and preserving of meat)", Seq(
+                    (routes.BusinessActivityCodeTwoController.onPageLoad(CheckMode).url, "site.change", "businessActivityTwo.ba2.change.hidden"),
+                    ("#", "site.remove", "businessActivityTwo.ba2.remove.hidden")
+                ))
             )
+        )
 
-             @govukRadios(
-                 RadiosViewModel.yesNo(
-                     field = form("value"),
-                     legend = LegendViewModel(messages("businessActivityTwo.h2")).withCssClass("govuk-fieldset__legend--m"),
-                 )
-                .withHint(HintViewModel(HtmlContent(s"""<p class="govuk-body">${messages("businessActivityTwo.hint")}</p>""".stripMargin)))
-                .inline()
+         @govukRadios(
+             RadiosViewModel.yesNo(
+                 field = form("value"),
+                 legend = LegendViewModel(messages("businessActivityTwo.h2")).withCssClass("govuk-fieldset__legend--m"),
              )
-             @govukButton(ButtonViewModel(messages("site.continue")))
+            .withHint(HintViewModel(HtmlContent(s"""<p class="govuk-body">${messages("businessActivityTwo.hint")}</p>""".stripMargin)))
+            .inline()
+         )
+         @govukButton(ButtonViewModel(messages("site.continue")))
     }
 }

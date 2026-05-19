@@ -22,7 +22,8 @@ import forms.BusinessActivityTwoFormProvider
 import javax.inject.Inject
 import models.{Mode, NormalMode}
 import navigation.Navigator
-import pages.BusinessActivityTwoPage
+import pages.{BusinessActivityCodeTwoPage, BusinessActivityTwoPage}
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -45,7 +46,7 @@ class BusinessActivityTwoController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  val form = formProvider()
+  val form: Form[Boolean] = formProvider()
 
   private def backLink: play.api.mvc.Call = routes.BusinessActivityCodeTwoController.onPageLoad(NormalMode)
 
@@ -67,8 +68,14 @@ class BusinessActivityTwoController @Inject() (
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink))),
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(BusinessActivityTwoPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
+            updateAnswers <- Future.fromTry(request.userAnswers.set(BusinessActivityTwoPage, value))
+            updatedAnswers <- if (value) {
+                                Future.successful(updateAnswers)
+                              } else {
+                                Future.successful(updateAnswers) // TODO - remove this line and uncomment next line when page 3 is ready
+                                // Future.fromTry(updateAnswers.remove(BusinessActivityCodeThreePage))
+                              }
+            _ <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(BusinessActivityTwoPage, mode, updatedAnswers))
       )
   }

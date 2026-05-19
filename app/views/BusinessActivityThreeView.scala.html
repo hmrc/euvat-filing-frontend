@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.govukfrontend.views.html.components.*
 @import views.html.components.*
 
 @this(
@@ -31,7 +31,9 @@
 
     @formHelper(action = routes.BusinessActivityThreeController.onSubmit()) {
 
-        <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is: </span>@messages("businessActivityThree.caption")</h2>
+        <h2 class="govuk-caption-l hmrc-caption-l">
+            <span class="govuk-visually-hidden">This section is: </span>@messages("businessActivityThree.caption")
+        </h2>
         <h1 class="govuk-heading-l">@messages("businessActivityThree.heading")</h1>
 
         <p class="govuk-body-l">@messages("businessActivityThree.p1")</p>
@@ -52,7 +54,6 @@
                 ))
             )
         )
-
 
         @govukButton(ButtonViewModel(messages("site.continue")))
     }

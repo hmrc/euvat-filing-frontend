@@ -18,8 +18,8 @@ package navigation
 
 import base.SpecBase
 import controllers.routes
-import pages.*
 import models.*
+import pages.*
 
 class NavigatorSpec extends SpecBase {
 
@@ -54,9 +54,16 @@ class NavigatorSpec extends SpecBase {
           routes.BusinessActivityController.onPageLoad(NormalMode)
       }
 
-      "must go from BusinessActivityPage to BusinessActivityCodeTwoController" in {
-        navigator.nextPage(BusinessActivityPage, NormalMode, userAnswers) mustBe
+      "must go from BusinessActivityPage to BusinessActivityCodeTwoController if yes selected" in {
+        val ua = userAnswers.set(BusinessActivityPage, true).success.value
+        navigator.nextPage(BusinessActivityPage, NormalMode, ua) mustBe
           routes.BusinessActivityCodeTwoController.onPageLoad(NormalMode)
+      }
+
+      "must go from BusinessActivityPage to JourneyRecoveryPage if no selected" in { // TODO - update to Check your claim details page
+        val ua = userAnswers.set(BusinessActivityPage, false).success.value
+        navigator.nextPage(BusinessActivityPage, NormalMode, ua) mustBe
+          routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from BusinessActivityCodeTwoPage to BusinessActivityTwoController" in {
@@ -64,9 +71,16 @@ class NavigatorSpec extends SpecBase {
           routes.BusinessActivityTwoController.onPageLoad(NormalMode)
       }
 
-      "must go from BusinessActivityTwoPage to BusinessActivityThreeController" in {
-        navigator.nextPage(BusinessActivityTwoPage, NormalMode, userAnswers) mustBe
+      "must go from BusinessActivityTwoPage to BusinessActivityThreeController if yes selected" in {
+        val ua = userAnswers.set(BusinessActivityTwoPage, true).success.value
+        navigator.nextPage(BusinessActivityTwoPage, NormalMode, ua) mustBe
           routes.BusinessActivityThreeController.onPageLoad()
+      }
+
+      "must go from BusinessActivityTwoPage to BusinessActivityThreeController if no selected" in {
+        val ua = userAnswers.set(BusinessActivityTwoPage, false).success.value
+        navigator.nextPage(BusinessActivityTwoPage, NormalMode, ua) mustBe
+          routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from PurchaseTypePage to JourneyRecoveryController" in {
