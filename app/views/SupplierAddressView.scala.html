@@ -1,0 +1,70 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import models.Mode
+@import viewmodels.InputWidth.*
+@import views.html.components.MainErrorSummary
+
+@this(
+    layout: templates.Layout,
+    formHelper: FormWithCSRF,
+    govukInput: GovukInput,
+    govukButton: GovukButton,
+    mainErrorSummary: MainErrorSummary
+)
+
+@(form: Form[?], mode: Mode, call: Call)(implicit request: Request[?], messages: Messages)
+
+@layout(pageTitle = views.ViewUtils.title(form, "supplierAddress.title"), backLinkUrl = Some(call.url)) {
+    @formHelper(action = routes.SupplierAddressController.onSubmit(mode), Symbol("novalidate") -> "novalidate") {
+        @mainErrorSummary(form, Map("addressLine1" -> "addressLine1", "addressLine2" -> "addressLine2", "addressLine3" -> "addressLine3"))
+
+        <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is: </span>@messages("purchase.caption.add")</h2>
+
+        <h1 class="govuk-heading-l">@messages("supplierAddress.heading")</h1>
+
+        <p class="govuk-body">@messages("supplierAddress.lead")</p>
+
+        @govukInput(
+            InputViewModel(
+                field = form("addressLine1"),
+                label = LabelViewModel(messages("supplierAddress.line1.label"))
+            )
+            .withAutocomplete("address-line1")
+            .withWidth(Full)
+        )
+
+        @govukInput(
+            InputViewModel(
+                field = form("addressLine2"),
+                label = LabelViewModel(messages("supplierAddress.line2.label"))
+            )
+            .withAutocomplete("address-line2")
+            .withWidth(Full)
+        )
+
+        @govukInput(
+            InputViewModel(
+                field = form("addressLine3"),
+                label = LabelViewModel(messages("supplierAddress.line3.label"))
+            )
+            .withAutocomplete("address-line3")
+            .withWidth(Full)
+        )
+
+        @govukButton(ButtonViewModel(messages("site.continue")))
+    }
+}
