@@ -20,7 +20,7 @@
 @import uk.gov.hmrc.hmrcfrontend.views.html.components.*
 @import uk.gov.hmrc.govukfrontend.views.html.components.*
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.*
-@import views.html.components.ThreeQuartersMainContent
+@import views.html.components.*
 @import views.html.helper.CSPNonce
 
 @this(
@@ -29,14 +29,15 @@
     hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
     alphaBanner: StandardAlphaBanner,
     hmrcStandardPage: HmrcStandardPage,
-    threeQuartersMainContent: ThreeQuartersMainContent,
     twoThirdsMainContent: TwoThirdsMainContent,
+    threeQuartersMainContent: ThreeQuartersMainContent,
+    fullGridMainContent: FullGridMainContent,
     hmrcTrackingConsentSnippet: HmrcTrackingConsentSnippet,
     autocompleteCss: uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcAccessibleAutocompleteCss,
     autocompleteJavascript: uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcAccessibleAutocompleteJavascript
 )
 
-@(pageTitle: String, showBackLink: Boolean = true, backLinkUrl: Option[String] = None, timeout: Boolean = true, showSignOut: Boolean = true, showHmrcBanner: Boolean = false, useThreeQuartersGrid: Boolean = false)(contentBlock: Html)(implicit rh: RequestHeader, messages: Messages)
+@(pageTitle: String, showBackLink: Boolean = true, backLinkUrl: Option[String] = None, timeout: Boolean = true, showSignOut: Boolean = true, showHmrcBanner: Boolean = false, useFullGrid: Boolean = false, useThreeQuartersGrid: Boolean = false)(contentBlock: Html)(implicit rh: RequestHeader, messages: Messages)
 
 @head = {
     @if(timeout) {
@@ -69,7 +70,9 @@
     templateOverrides = TemplateOverrides(
         additionalHeadBlock = Some(play.twirl.api.Html(head.toString + autocompleteCss().toString)),
         additionalScriptsBlock = Some(autocompleteJavascript()),
-        mainContentLayout = Some(if(useThreeQuartersGrid) threeQuartersMainContent(_) else twoThirdsMainContent(_))
+        mainContentLayout = Some(if(useThreeQuartersGrid) threeQuartersMainContent(_)
+            else if(useFullGrid) fullGridMainContent(_)
+            else twoThirdsMainContent(_))
     ),
     serviceURLs = ServiceURLs(
         serviceUrl = Some(routes.IndexController.onPageLoad().url),

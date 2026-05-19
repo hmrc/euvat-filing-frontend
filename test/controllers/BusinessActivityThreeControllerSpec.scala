@@ -47,7 +47,7 @@ class BusinessActivityThreeControllerSpec extends SpecBase {
         val request = FakeRequest(POST, routes.BusinessActivityThreeController.onSubmit().url)
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.CheckYourClaimDetailsController.onPageLoad().url
       }
     }
   }

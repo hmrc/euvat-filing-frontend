@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,18 +12,24 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@this(
-    layout: templates.Layout,
-    govukSummaryList: GovukSummaryList
-)
+package utils
 
-@(list: SummaryList)(implicit request: Request[_], messages: Messages)
+import play.api.Configuration
 
-@layout(pageTitle = titleNoForm(messages("checkYourAnswers.title"))) {
+import javax.inject.Inject
 
-    <h1 class="govuk-heading-xl">@messages("checkYourAnswers.heading")</h1>
+class ConfigLanguageMapping @Inject() (config: Configuration) {
 
-    @govukSummaryList(list)
+  private val mapping: Map[String, Seq[String]] = {
+    val cfg = config.get[Configuration]("language.mapping")
+    cfg.entrySet.map { case (key, sub) =>
+      // play Configuration represents lists as ConfigValue; read as Seq[String]
+      val seq = cfg.get[Seq[String]](key)
+      key -> seq
+    }.toMap
+  }
+
+  def languagesFor(code: String): Seq[String] = mapping.getOrElse(code, Seq("english")).map(_.capitalize)
 }

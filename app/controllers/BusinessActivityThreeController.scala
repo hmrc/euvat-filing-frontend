@@ -38,6 +38,6 @@ class BusinessActivityThreeController @Inject() (
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    Redirect(routes.JourneyRecoveryController.onPageLoad())
+    Redirect(routes.CheckYourClaimDetailsController.onPageLoad())
   }
 }

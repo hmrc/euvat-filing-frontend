@@ -18,9 +18,10 @@ package controllers
 
 import controllers.actions.*
 import forms.BusinessActivityFormProvider
-import models.Mode
+import models.{BusinessActivity, Mode}
 import navigation.Navigator
-import pages.BusinessActivityPage
+import pages.{BusinessActivityCodePage, BusinessActivityPage}
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -44,23 +45,25 @@ class BusinessActivityController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  val form = formProvider()
+  val form: Form[BusinessActivity] = formProvider()
 
   private def backLink(mode: Mode): play.api.mvc.Call = routes.ContactDetailsController.onPageLoad(mode)
+  private val businessActivityCode = "49200 (Freight rail transport)" // TODO - hardcoded until backend integration
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(BusinessActivityPage).fold(form)(form.fill)
-    Ok(view(preparedForm, mode, backLink(mode)))
+    Ok(view(preparedForm, mode, backLink(mode), businessActivityCode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode), businessActivityCode))),
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(BusinessActivityPage, value))
+            updatedAnswers <- Future.fromTry(updatedAnswers.set(BusinessActivityCodePage, businessActivityCode))
             _              <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(BusinessActivityPage, mode, updatedAnswers))
       )
