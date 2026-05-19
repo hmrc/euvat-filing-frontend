@@ -21,61 +21,71 @@ import forms.{RefundPeriodData, RefundPeriodFormProvider}
 import models.{Mode, RefundPeriod}
 import navigation.Navigator
 import pages.RefundPeriodPage
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.data.Form
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.RefundPeriodView
 
-import java.time.LocalDate
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class RefundPeriodController @Inject() (
-  override val messagesApi: MessagesApi,
-  sessionRepository: SessionRepository,
-  navigator: Navigator,
-  identify: IdentifierAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
-  formProvider: RefundPeriodFormProvider,
-  val controllerComponents: MessagesControllerComponents,
-  view: RefundPeriodView
-)(implicit ec: ExecutionContext)
-    extends FrontendBaseController
+                                         override val messagesApi: MessagesApi,
+                                         sessionRepository: SessionRepository,
+                                         navigator: Navigator,
+                                         identify: IdentifierAction,
+                                         getData: DataRetrievalAction,
+                                         requireData: DataRequiredAction,
+                                         formProvider: RefundPeriodFormProvider,
+                                         val controllerComponents: MessagesControllerComponents,
+                                         view: RefundPeriodView
+                                       )(implicit ec: ExecutionContext)
+  extends FrontendBaseController
     with I18nSupport {
+
+  private def errorMessage(form: Form[RefundPeriodData], keys: Seq[String])(implicit messages: Messages): Option[String] = {
+    val errors = form.errors.filter(e => keys.contains(e.key))
+    if (errors.isEmpty) None
+    else Some(errors.map(e => messages(e.message, e.args: _*)).mkString("<br>"))
+  }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(RefundPeriodPage) match {
       case None => formProvider()
       case Some(value) =>
         val start = java.time.YearMonth.of(value.startDate.getYear, value.startDate.getMonthValue)
-        val end = java.time.YearMonth.of(value.endDate.getYear, value.endDate.getMonthValue)
+        val end   = java.time.YearMonth.of(value.endDate.getYear, value.endDate.getMonthValue)
         formProvider().fill(RefundPeriodData(start, end))
     }
-
-    Ok(view(formProvider.withMappedErrors(preparedForm), mode, controllers.routes.RefundingLanguageController.onPageLoad(mode)))
+    val mappedForm = formProvider.withMappedErrors(preparedForm)
+    val startMsg = errorMessage(mappedForm, Seq("start", "start.month", "start.year"))
+    val endMsg   = errorMessage(mappedForm, Seq("end", "end.month", "end.year"))
+    Ok(view(mappedForm, mode, controllers.routes.RefundingLanguageController.onPageLoad(mode), startMsg, endMsg))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     formProvider()
       .bindFromRequest()
       .fold(
-        formWithErrors =>
-          Future.successful(
-            BadRequest(view(formProvider.withMappedErrors(formWithErrors), mode, controllers.routes.RefundingLanguageController.onPageLoad(mode)))
-          ),
+        formWithErrors => {
+          val mappedForm = formProvider.withMappedErrors(formWithErrors)
+          val startMsg = errorMessage(mappedForm, Seq("start", "start.month", "start.year"))
+          val endMsg   = errorMessage(mappedForm, Seq("end", "end.month", "end.year"))
+          Future.successful(BadRequest(view(mappedForm, mode, controllers.routes.RefundingLanguageController.onPageLoad(mode), startMsg, endMsg)))
+        },
         value =>
           for {
             updatedAnswers <- Future.fromTry(
-                                request.userAnswers.set(
-                                  RefundPeriodPage,
-                                  RefundPeriod(
-                                    LocalDate.of(value.start.getYear, value.start.getMonthValue, 1),
-                                    java.time.YearMonth.of(value.end.getYear, value.end.getMonthValue).atEndOfMonth()
-                                  )
-                                )
-                              )
+              request.userAnswers.set(
+                RefundPeriodPage,
+                RefundPeriod(
+                  java.time.YearMonth.of(value.start.getYear, value.start.getMonthValue).atDay(1).atStartOfDay(),
+                  java.time.YearMonth.of(value.end.getYear, value.end.getMonthValue).atEndOfMonth().atTime(23, 59, 59, 999000000)
+                )
+              )
+            )
             _ <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(RefundPeriodPage, mode, updatedAnswers))
       )
