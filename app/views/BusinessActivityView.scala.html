@@ -27,9 +27,7 @@
     mainErrorSummary: MainErrorSummary
 )
 
-@(form: Form[?], mode: Mode, call: Call)(implicit request: Request[?], messages: Messages)
-
-@insetHtml = {<strong>@messages("businessActivity.insetText.label"):</strong> 49200 (Freight rail transport)}
+@(form: Form[?], mode: Mode, call: Call, businessActivityCode: String)(implicit request: Request[?], messages: Messages)
 
 @errored = @{form.error("value").isDefined}
 
@@ -43,7 +41,7 @@
 
         <p class="govuk-body-l">@messages("businessActivity.lead")</p>
 
-        @govukInsetText(InsetText(content = HtmlContent(insetHtml)))
+        @govukInsetText(InsetText(content = HtmlContent(businessActivityCode)))
 
         <div class="govuk-form-group @if(errored){govuk-form-group--error}">
             <fieldset class="govuk-fieldset" @if(errored){aria-describedby="value-error"}>

@@ -18,7 +18,7 @@ package viewmodels.checkAnswers
 
 import controllers.routes
 import models.{CheckMode, UserAnswers}
-import pages.{BusinessActivityPage, ContactDetailsPage, RefundPeriodPage, RefundingCountryPage, RefundingLanguagePage}
+import pages.{BusinessActivityCodePage, BusinessActivityCodeThreePage, BusinessActivityCodeTwoPage, BusinessActivityPage, ContactDetailsPage, RefundPeriodPage, RefundingCountryPage, RefundingLanguagePage}
 import play.api.i18n.{Lang, Messages}
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
@@ -58,7 +58,7 @@ object CheckYourClaimsSummary {
 
       SummaryListRowViewModel(
         key   = "checkYourClaimDetails.refundingLanguage.label",
-        value = ValueViewModel(HtmlFormat.raw("").toString),
+        value = ValueViewModel(""),
         actions = Seq(
           ActionItemViewModel("site.change", routes.RefundingLanguageController.onPageLoad(CheckMode).url)
             .withVisuallyHiddenText(messages("checkYourClaimDetails.refundingLanguage.change.hidden"))
@@ -154,7 +154,13 @@ object CheckYourClaimsSummary {
       implicit val lang: Lang = messages.lang
 
       SummaryListRowViewModel(
-        key   = "checkYourClaimDetails.businessActivity.label",
+        key = KeyViewModel(
+//          HtmlFormat
+//            .raw(
+          s"""<span class="govuk-!-width-one-half">${messages("checkYourClaimDetails.businessActivity.label")}</span>"""
+//            )
+            .toString
+        ),
         value = ValueViewModel(HtmlFormat.raw("").toString),
         actions = Seq(
           ActionItemViewModel("site.change", routes.BusinessActivityController.onPageLoad(CheckMode).url)
@@ -164,34 +170,34 @@ object CheckYourClaimsSummary {
     }
 
   def rowBusinessActivity1(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(BusinessActivityPage).map { answer =>
+    answers.get(BusinessActivityCodePage).map { answer =>
       implicit val lang: Lang = messages.lang
 
       SummaryListRowViewModel(
         key     = "checkYourClaimDetails.businessActivity1.subLabel",
-        value   = ValueViewModel(HtmlFormat.raw(answer.toString).toString),
+        value   = ValueViewModel(HtmlFormat.raw(answer).toString),
         actions = Seq.empty
       )
     }
 
   def rowBusinessActivity2(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(BusinessActivityPage).map { answer =>
+    answers.get(BusinessActivityCodeTwoPage).map { answer =>
       implicit val lang: Lang = messages.lang
 
       SummaryListRowViewModel(
         key     = "checkYourClaimDetails.businessActivity2.subLabel",
-        value   = ValueViewModel(HtmlFormat.raw(answer.toString).toString),
+        value   = ValueViewModel(HtmlFormat.raw(answer).toString),
         actions = Seq.empty
       )
     }
 
   def rowBusinessActivity3(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(BusinessActivityPage).map { answer =>
+    answers.get(BusinessActivityCodeThreePage).map { answer =>
       implicit val lang: Lang = messages.lang
 
       SummaryListRowViewModel(
         key     = "checkYourClaimDetails.businessActivity3.subLabel",
-        value   = ValueViewModel(HtmlFormat.raw(answer.toString).toString),
+        value   = ValueViewModel(HtmlFormat.raw(answer).toString),
         actions = Seq.empty
       )
     }

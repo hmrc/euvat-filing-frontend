@@ -40,11 +40,11 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
   private lazy val pageLoadRoute = routes.BusinessActivityController.onPageLoad(NormalMode).url
   private lazy val submitRoute = routes.BusinessActivityController.onSubmit(NormalMode).url
   private lazy val backLink: Call = routes.ContactDetailsController.onPageLoad(NormalMode)
+  private lazy val businessActivityCode = "49200 (Freight rail transport)"
 
   "BusinessActivity Controller" - {
 
     "must return OK and the correct view for a GET" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -56,12 +56,11 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
         val form = formProvider()
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, backLink)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, backLink, businessActivityCode)(request, messages(application)).toString
       }
     }
 
     "must redirect to Journey Recovery when no existing data is found on GET" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
@@ -74,7 +73,6 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must populate the view with the saved value on GET" in {
-
       val userAnswers = emptyUserAnswers.set(BusinessActivityPage, BusinessActivity.Yes).success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -87,12 +85,11 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
         val form = formProvider().fill(BusinessActivity.Yes)
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, backLink)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, backLink, businessActivityCode)(request, messages(application)).toString
       }
     }
 
     "must redirect to the next page and persist the answer when valid data is submitted (Yes)" in {
-
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
@@ -116,7 +113,6 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to the next page and persist the answer when valid data is submitted (No)" in {
-
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
@@ -140,7 +136,6 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return Bad Request and errors when no value is submitted" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -154,7 +149,6 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return Bad Request and errors when an invalid value is submitted" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -168,7 +162,6 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to Journey Recovery when no existing data is found on POST" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
