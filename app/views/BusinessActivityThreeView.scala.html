@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.govukfrontend.views.html.components.*
 @import views.html.components.*
 
 @this(
@@ -31,13 +31,15 @@
 
     @formHelper(action = routes.BusinessActivityThreeController.onSubmit()) {
 
-        <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is: </span>@messages("businessActivityThree.caption")</h2>
+        <h2 class="govuk-caption-l hmrc-caption-l">
+            <span class="govuk-visually-hidden">This section is: </span>@messages("claim.caption.add")
+        </h2>
         <h1 class="govuk-heading-l">@messages("businessActivityThree.heading")</h1>
 
-        <p class="govuk-body-l">@messages("businessActivityThree.p1")</p>
+        <p class="govuk-body-l">@messages("businessActivity.lead")</p>
 
         @govukInsetText(InsetText(
-            content = HtmlContent(s"<strong>${messages("businessActivityThree.insetLabel")}</strong> ${messages("businessActivityThree.insetValue")}")
+            content = HtmlContent(s"<strong>${messages("businessActivity.insetText.label")}:</strong> 49200 (Freight rail transport)")
         ))
 
         @customSummaryList(
@@ -52,7 +54,6 @@
                 ))
             )
         )
-
 
         @govukButton(ButtonViewModel(messages("site.continue")))
     }

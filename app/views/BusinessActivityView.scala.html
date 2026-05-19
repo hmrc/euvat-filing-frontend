@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import models.{Mode, BusinessActivity}
+@import models.Mode
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.insettext.InsetText
 @import views.html.components.MainErrorSummary
@@ -24,53 +24,35 @@
     formHelper: FormWithCSRF,
     govukInsetText: GovukInsetText,
     govukButton: GovukButton,
+    govukRadios: GovukRadios,
     mainErrorSummary: MainErrorSummary
 )
 
 @(form: Form[?], mode: Mode, call: Call)(implicit request: Request[?], messages: Messages)
 
-@insetHtml = {<strong>@messages("businessActivity.insetText.label"):</strong> 49200 (Freight rail transport)}
-
-@errored = @{form.error("value").isDefined}
-
 @layout(pageTitle = views.ViewUtils.title(form, "businessActivity.title"), backLinkUrl = Some(call.url)) {
     @formHelper(action = routes.BusinessActivityController.onSubmit(mode)) {
-        @mainErrorSummary(form, Map("value" -> "value_0"))
+        @mainErrorSummary(form)
 
-        <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is: </span>@messages("businessActivity.caption")</h2>
-
+        <h2 class="govuk-caption-l hmrc-caption-l">
+            <span class="govuk-visually-hidden">This section is: </span>@messages("claim.caption.add")
+        </h2>
         <h1 class="govuk-heading-l">@messages("businessActivity.heading")</h1>
 
         <p class="govuk-body-l">@messages("businessActivity.lead")</p>
 
-        @govukInsetText(InsetText(content = HtmlContent(insetHtml)))
+        @govukInsetText(InsetText(
+            content = HtmlContent(s"<strong>${messages("businessActivity.insetText.label")}:</strong> 49200 (Freight rail transport)")
+        ))
 
-        <div class="govuk-form-group @if(errored){govuk-form-group--error}">
-            <fieldset class="govuk-fieldset" @if(errored){aria-describedby="value-error"}>
-                <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-                    @messages("businessActivity.h2")
-                </legend>
-
-                <p class="govuk-body">@Html(messages("businessActivity.hint"))</p>
-
-                @form.error("value").map { e =>
-                    <p id="value-error" class="govuk-error-message">
-                        <span class="govuk-visually-hidden">@messages("error.prefix"):</span> @messages(e.message, e.args*)
-                    </p>
-                }
-
-                <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
-                    @BusinessActivity.values.zipWithIndex.map { case (value, index) =>
-                        <div class="govuk-radios__item">
-                            <input class="govuk-radios__input" id="value_@index" name="value" type="radio" value="@value.toString"@if(form("value").value.contains(value.toString)){ checked}>
-                            <label class="govuk-label govuk-radios__label" for="value_@index">
-                                @messages(s"businessActivity.${value.toString}")
-                            </label>
-                        </div>
-                    }
-                </div>
-            </fieldset>
-        </div>
+        @govukRadios(
+            RadiosViewModel.yesNo(
+            field = form("value"),
+            legend = LegendViewModel(messages("businessActivity.h2")).withCssClass("govuk-fieldset__legend--m"),
+        )
+        .withHint(HintViewModel(HtmlContent(s"""<p class="govuk-body">${messages("businessActivity.p1")}</p>""".stripMargin)))
+        .inline()
+        )
 
         @govukButton(ButtonViewModel(messages("site.continue")))
     }

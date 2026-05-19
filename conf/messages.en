@@ -165,20 +165,14 @@ purchaseType.luxuries = Expenditure on luxuries, amusements and entertainment
 purchaseType.other = Other
 purchaseType.error.required = Select a purchase type
 
-# Business activity for this claim (RA2.4 State 1)
 businessActivity.title = Business activity for this claim
 businessActivity.heading = Business activity for this claim
-businessActivity.caption = Add claim details
 businessActivity.lead = This is the Standard Industrial Classification (SIC) listed for your business.
 businessActivity.insetText.label = Primary business activity
 businessActivity.h2 = Do you need to add another business activity?
-businessActivity.hint = You can find the SIC codes on the <a class="govuk-link" href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2026" target="_blank" rel="noreferrer noopener">Office for National Statistics website (opens in new tab)</a>.
-businessActivity.yes = Yes
-businessActivity.no = No
+businessActivity.p1 = You can find the SIC codes on the <a class="govuk-link" href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2026" target="_blank" rel="noreferrer noopener">Office for National Statistics website (opens in new tab)</a>.
 businessActivity.error.required = Select yes if you want to add another business activity
 
-# Business activity two (2nd SIC code)
-businessActivityCodeTwo.caption = Add claim details
 businessActivityCodeTwo.title = 2nd business activity for this claim
 businessActivityCodeTwo.heading = Add a 2nd business activity code
 businessActivityCodeTwo.hint = Enter your SIC code or search term, for example "motor"
@@ -187,13 +181,14 @@ businessActivityCodeTwo.error.required = Enter a business activity code
 businessActivityCodeTwo.error.invalid = Enter a valid business activity code
 businessActivityCodeTwo.error.invalid.summary = Enter a valid business activity code
 
-#Business activity three
+businessActivityTwo.title = Business activity for this claim
+businessActivityTwo.heading = Business activity for this claim
+businessActivityTwo.ba2.label = Business activity code 2
+businessActivityTwo.ba2.change.hidden = Change business activity code 2
+businessActivityTwo.ba2.remove.hidden = Remove business activity code 2
+
 businessActivityThree.title = Business activity for this claim
 businessActivityThree.heading = Business activity for this claim
-businessActivityThree.caption = Add claim details
-businessActivityThree.p1 = This is the Standard Industrial Classification (SIC) listed for your business.
-businessActivityThree.insetLabel = Primary business activity:
-businessActivityThree.insetValue = 49200 (Freight rail transport)
 businessActivityThree.ba2.label = Business activity code 2
 businessActivityThree.ba3.label = Business activity code 3
 businessActivityThree.ba2.remove.hidden = Remove business activity code 2

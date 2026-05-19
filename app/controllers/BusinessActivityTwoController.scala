@@ -17,60 +17,66 @@
 package controllers
 
 import controllers.actions.*
-import forms.BusinessActivityFormProvider
-import models.Mode
+import forms.BusinessActivityTwoFormProvider
+
+import javax.inject.Inject
+import models.{Mode, NormalMode}
 import navigation.Navigator
-import pages.{BusinessActivityCodeTwoPage, BusinessActivityPage, BusinessActivityTwoPage}
+import pages.{BusinessActivityCodeTwoPage, BusinessActivityTwoPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.BusinessActivityView
+import views.html.BusinessActivityTwoView
 
-import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class BusinessActivityController @Inject() (
+class BusinessActivityTwoController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
   navigator: Navigator,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  formProvider: BusinessActivityFormProvider,
+  formProvider: BusinessActivityTwoFormProvider,
   val controllerComponents: MessagesControllerComponents,
-  view: BusinessActivityView
+  view: BusinessActivityTwoView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
   val form: Form[Boolean] = formProvider()
 
-  private def backLink(mode: Mode): play.api.mvc.Call = routes.ContactDetailsController.onPageLoad(mode)
+  private def backLink: play.api.mvc.Call = routes.BusinessActivityCodeTwoController.onPageLoad(NormalMode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = request.userAnswers.get(BusinessActivityPage).fold(form)(form.fill)
-    Ok(view(preparedForm, mode, backLink(mode)))
+
+    val preparedForm = request.userAnswers.get(BusinessActivityTwoPage) match {
+      case None        => form
+      case Some(value) => form.fill(value)
+    }
+
+    Ok(view(preparedForm, mode, backLink))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink))),
         value =>
           for {
-            updateAnswers <- Future.fromTry(request.userAnswers.set(BusinessActivityPage, value))
+            updateAnswers <- Future.fromTry(request.userAnswers.set(BusinessActivityTwoPage, value))
             updatedAnswers <- if (value) {
                                 Future.successful(updateAnswers)
                               } else {
-                                val remove1 = updateAnswers.remove(BusinessActivityCodeTwoPage)
-                                val remove2 = remove1.flatMap(_.remove(BusinessActivityTwoPage))
-                                Future.fromTry(remove2)
+                                Future.successful(updateAnswers) // TODO - remove this line and uncomment next line when page 3 is ready
+                                // Future.fromTry(updateAnswers.remove(BusinessActivityCodeThreePage))
                               }
             _ <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(BusinessActivityPage, mode, updatedAnswers))
+          } yield Redirect(navigator.nextPage(BusinessActivityTwoPage, mode, updatedAnswers))
       )
   }
 }

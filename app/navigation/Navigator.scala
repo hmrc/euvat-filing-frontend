@@ -31,8 +31,9 @@ class Navigator @Inject() () {
     case RefundingLanguagePage       => _ => routes.RefundPeriodController.onPageLoad(NormalMode)
     case RefundPeriodPage            => _ => routes.ContactDetailsController.onPageLoad(NormalMode)
     case ContactDetailsPage          => _ => routes.BusinessActivityController.onPageLoad(NormalMode)
-    case BusinessActivityPage        => _ => routes.BusinessActivityCodeTwoController.onPageLoad(NormalMode)
-    case BusinessActivityCodeTwoPage => _ => routes.BusinessActivityThreeController.onPageLoad()
+    case BusinessActivityPage        => userAnswer => navigateFromBusinessActivityPage(NormalMode)(userAnswer)
+    case BusinessActivityCodeTwoPage => _ => routes.BusinessActivityTwoController.onPageLoad(NormalMode)
+    case BusinessActivityTwoPage     => userAnswer => navigateFromBusinessActivity2Page(NormalMode)(userAnswer)
     case PurchaseTypePage            => _ => routes.JourneyRecoveryController.onPageLoad()
     case _                           => _ => routes.IndexController.onPageLoad()
   }
@@ -40,6 +41,20 @@ class Navigator @Inject() () {
   private val checkRouteMap: Page => UserAnswers => Call = { _ => _ =>
     routes.CheckYourAnswersController.onPageLoad()
   }
+
+  private def navigateFromBusinessActivityPage(mode: Mode)(userAnswers: UserAnswers): Call =
+    userAnswers.get(BusinessActivityPage) match {
+      case Some(true)  => routes.BusinessActivityCodeTwoController.onPageLoad(mode)
+      case Some(false) => routes.JourneyRecoveryController.onPageLoad() // TODO - update to check you claim details page
+      case _           => routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateFromBusinessActivity2Page(mode: Mode)(userAnswers: UserAnswers): Call =
+    userAnswers.get(BusinessActivityTwoPage) match {
+      case Some(true)  => routes.BusinessActivityThreeController.onPageLoad() // TODO - update to Business activity code 3 page
+      case Some(false) => routes.JourneyRecoveryController.onPageLoad() // TODO - update to check you claim details page
+      case _           => routes.JourneyRecoveryController.onPageLoad()
+    }
 
   def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call = mode match {
     case NormalMode =>

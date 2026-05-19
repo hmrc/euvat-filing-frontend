@@ -16,36 +16,28 @@
 
 package forms
 
-import forms.behaviours.FieldBehaviours
-import models.BusinessActivity
+import forms.behaviours.BooleanFieldBehaviours
 import play.api.data.FormError
 
-class BusinessActivityFormProviderSpec extends FieldBehaviours {
+class BusinessActivityFormProviderSpec extends BooleanFieldBehaviours {
 
   private val form = new BusinessActivityFormProvider().apply()
 
-  private val fieldName = "value"
-  private val errorKey = "businessActivity.error.required"
+  val requiredKey = "businessActivity.error.required"
+  val invalidKey = "error.boolean"
+  val fieldName = "value"
 
   ".value" - {
+    behave like booleanField(
+      form,
+      fieldName,
+      invalidError = FormError(fieldName, invalidKey)
+    )
 
     behave like mandatoryField(
       form,
       fieldName,
-      requiredError = FormError(fieldName, errorKey)
+      requiredError = FormError(fieldName, requiredKey)
     )
-
-    "bind every defined BusinessActivity value" in {
-      BusinessActivity.values.foreach { value =>
-        val result = form.bind(Map(fieldName -> value.toString))
-        result.errors mustBe empty
-        result.value.value mustEqual value
-      }
-    }
-
-    "fail to bind a value not in the enum with the required-error key" in {
-      val result = form.bind(Map(fieldName -> "maybe")).apply(fieldName)
-      result.errors mustEqual Seq(FormError(fieldName, errorKey))
-    }
   }
 }
