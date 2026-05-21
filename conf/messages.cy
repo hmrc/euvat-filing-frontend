@@ -200,3 +200,15 @@ businessActivityThree.ba2.remove.hidden = Remove business activity code 2
 businessActivityThree.ba3.remove.hidden = Remove business activity code 3
 businessActivityThree.ba2.change.hidden = Change business activity code 2
 businessActivityThree.ba3.change.hidden = Change business activity code 3
+
+# Business activity code three (3rd SIC code)
+businessActivityCodeThree.caption = Add claim details
+businessActivityCodeThree.title = 3rd business activity for this claim
+businessActivityCodeThree.heading = Add a 3rd business activity code
+businessActivityCodeThree.hint = Enter your SIC code or search term, for example "motor"
+businessActivityCodeThree.error.summary = Enter a business activity code
+businessActivityCodeThree.error.required = Enter a business activity code
+businessActivityCodeThree.error.invalid = Enter a valid business activity code
+businessActivityCodeThree.error.invalid.summary = Enter a valid business activity code
+businessActivityCodeThree.checkYourAnswersLabel = 3rd business activity code
+businessActivityCodeThree.change.hidden = Change the 3rd business activity code
