@@ -140,7 +140,7 @@ contactDetails.contactTelephone.label = Telephone number (optional)
 contactDetails.error.email.required = Enter an email address
 contactDetails.error.email.maxLength = Email address must be 129 characters or fewer
 contactDetails.error.email.invalidFormat = Enter an email address in the correct format, like name@example.com
-contactDetails.error.telephone.maxLength = Telephone number must be 21 characters or fewer
+contactDetails.error.telephone.maxLength = Telephone number must be 20 characters or fewer
 contactDetails.error.telephone.format = Enter a telephone number in the correct format, like 01632960001 or +448081570192
 
 aboutThePurchase.title = About the purchase
