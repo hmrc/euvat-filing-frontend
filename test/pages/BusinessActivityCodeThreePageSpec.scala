@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package forms
+package pages
 
-import javax.inject.Inject
+import base.SpecBase
 
-import forms.mappings.Mappings
-import play.api.data.Form
+class BusinessActivityCodeThreePageSpec extends SpecBase {
 
-class BusinessActivityFormProvider @Inject() extends Mappings {
+  "BusinessActivityCodeThreePage" - {
 
-  def apply(): Form[Boolean] =
-    Form(
-      "value" -> boolean("businessActivity.error.required")
-    )
+    "must be able to be set and retrieved" in {
+      val answers = emptyUserAnswers.set(BusinessActivityCodeThreePage, "25344").success.value
+
+      answers.get(BusinessActivityCodeThreePage) mustBe Some("25344")
+    }
+  }
 }

@@ -25,29 +25,30 @@
         customSummaryList: CustomSummaryList
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(baCode2: String, baCode3: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("businessActivityThree.title")), backLinkUrl = Some(routes.BusinessActivityCodeTwoController.onPageLoad(NormalMode).url)) {
-
+@layout(pageTitle = titleNoForm(messages("businessActivityThree.title")), backLinkUrl = Some(routes.BusinessActivityCodeThreeController.onPageLoad(NormalMode).url)) {
     @formHelper(action = routes.BusinessActivityThreeController.onSubmit()) {
 
-        <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is: </span>@messages("businessActivityThree.caption")</h2>
+        <h2 class="govuk-caption-l hmrc-caption-l">
+            <span class="govuk-visually-hidden">This section is: </span>@messages("claim.caption.add")
+        </h2>
         <h1 class="govuk-heading-l">@messages("businessActivityThree.heading")</h1>
 
-        <p class="govuk-body-l">@messages("businessActivityThree.p1")</p>
+        <p class="govuk-body-l">@messages("businessActivity.lead")</p>
 
         @govukInsetText(InsetText(
-            content = HtmlContent(s"<strong>${messages("businessActivityThree.insetLabel")}</strong> ${messages("businessActivityThree.insetValue")}")
+            content = HtmlContent(s"<strong>${messages("businessActivity.insetText.label")}:</strong> 49200 (Freight rail transport)")
         ))
 
         @customSummaryList(
             rows = Seq(
-                (messages("businessActivityThree.ba2.label"), Some("10110 (Processing and preserving of meat)"), Seq(
-                    ("#", "site.change", "businessActivityThree.ba2.change.hidden"),
+                (messages("businessActivityThree.ba2.label"), Some(baCode2), Seq(
+                    (routes.BusinessActivityCodeTwoController.onPageLoad(CheckMode).url, "site.change", "businessActivityThree.ba2.change.hidden"),
                     ("#", "site.remove", "businessActivityThree.ba2.remove.hidden")
                 )),
-                (messages("businessActivityThree.ba3.label"), Some("10130 (Production of meat and poultry meat products)"), Seq(
-                    ("#", "site.change", "businessActivityThree.ba3.change.hidden"),
+                (messages("businessActivityThree.ba3.label"), Some(baCode3), Seq(
+                    (routes.BusinessActivityCodeThreeController.onPageLoad(CheckMode).url, "site.change", "businessActivityThree.ba3.change.hidden"),
                     ("#", "site.remove", "businessActivityThree.ba3.remove.hidden")
                 ))
             )

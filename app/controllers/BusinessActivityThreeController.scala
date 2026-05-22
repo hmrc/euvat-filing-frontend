@@ -17,6 +17,9 @@
 package controllers
 
 import controllers.actions.*
+import pages.{BusinessActivityCodeThreePage, BusinessActivityCodeTwoPage}
+import play.api.Logging
+
 import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -31,13 +34,24 @@ class BusinessActivityThreeController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   view: BusinessActivityThreeView
 ) extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    Ok(view())
+    val userAnswers = request.userAnswers
+
+    (userAnswers.get(BusinessActivityCodeTwoPage), userAnswers.get(BusinessActivityCodeThreePage)) match { // TODO - Update to business activity code 3
+      case (Some(baCode2), Some(baCode3)) =>
+        Ok(view(baCode2, baCode3))
+
+      case _ =>
+        logger.warn("Data guard error, missing required information")
+        Redirect(routes.UnauthorisedController.onPageLoad()) // TODO - update to system guard error page when ready
+    }
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     Redirect(routes.CheckYourClaimDetailsController.onPageLoad())
   }
+
 }

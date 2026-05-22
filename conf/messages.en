@@ -139,21 +139,18 @@ contactDetails.contactTelephone.label = Telephone number (optional)
 contactDetails.error.email.required = Enter an email address
 contactDetails.error.email.maxLength = Email address must be 129 characters or fewer
 contactDetails.error.email.invalidFormat = Enter an email address in the correct format, like name@example.com
-contactDetails.error.telephone.maxLength = Telephone number must be 21 characters or fewer
+contactDetails.error.telephone.maxLength = Phone number must be 20 characters or less
 contactDetails.error.telephone.format = Enter a telephone number in the correct format, like 01632960001 or +448081570192
 
 businessActivity.title = Business activity for this claim
 businessActivity.heading = Business activity for this claim
-businessActivity.caption = Add claim details
 businessActivity.lead = This is the Standard Industrial Classification (SIC) listed for your business.
 businessActivity.insetText.label = Primary business activity
 businessActivity.h2 = Do you need to add another business activity?
-businessActivity.hint = You can find the SIC codes on the <a class="govuk-link" href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2026" target="_blank" rel="noreferrer noopener">Office for National Statistics website (opens in new tab)</a>.
-businessActivity.yes = Yes
-businessActivity.no = No
+businessActivity.p1 = You can find the SIC codes on the
+businessActivity.link.text = Office for National Statistics website (opens in new tab)
 businessActivity.error.required = Select yes if you want to add another business activity
 
-businessActivityCodeTwo.caption = Add claim details
 businessActivityCodeTwo.title = 2nd business activity for this claim
 businessActivityCodeTwo.heading = Add a 2nd business activity code
 businessActivityCodeTwo.hint = Enter your SIC code or search term, for example "motor"
@@ -162,12 +159,25 @@ businessActivityCodeTwo.error.required = Enter a business activity code
 businessActivityCodeTwo.error.invalid = Enter a valid business activity code
 businessActivityCodeTwo.error.invalid.summary = Enter a valid business activity code
 
+businessActivityTwo.title = Business activity for this claim
+businessActivityTwo.heading = Business activity for this claim
+businessActivityTwo.ba2.label = Business activity code 2
+businessActivityTwo.ba2.change.hidden = Change business activity code 2
+businessActivityTwo.ba2.remove.hidden = Remove business activity code 2
+
+businessActivityCodeThree.caption = Add claim details
+businessActivityCodeThree.title = 3rd business activity for this claim
+businessActivityCodeThree.heading = Add a 3rd business activity code
+businessActivityCodeThree.hint = Enter your SIC code or search term, for example "motor"
+businessActivityCodeThree.error.summary = Enter a business activity code
+businessActivityCodeThree.error.required = Enter a business activity code
+businessActivityCodeThree.error.invalid = Enter a valid business activity code
+businessActivityCodeThree.error.invalid.summary = Enter a valid business activity code
+businessActivityCodeThree.checkYourAnswersLabel = 3rd business activity code
+businessActivityCodeThree.change.hidden = Change the 3rd business activity code
+
 businessActivityThree.title = Business activity for this claim
 businessActivityThree.heading = Business activity for this claim
-businessActivityThree.caption = Add claim details
-businessActivityThree.p1 = This is the Standard Industrial Classification (SIC) listed for your business.
-businessActivityThree.insetLabel = Primary business activity:
-businessActivityThree.insetValue = 49200 (Freight rail transport)
 businessActivityThree.ba2.label = Business activity code 2
 businessActivityThree.ba3.label = Business activity code 3
 businessActivityThree.ba2.remove.hidden = Remove business activity code 2

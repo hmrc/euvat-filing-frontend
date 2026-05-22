@@ -17,6 +17,7 @@
 package pages
 
 import play.api.libs.json.JsPath
+import pages.QuestionPage
 
 case object BusinessActivityCodeThreePage extends QuestionPage[String] {
 

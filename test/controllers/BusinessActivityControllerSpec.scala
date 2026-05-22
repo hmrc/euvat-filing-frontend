@@ -18,7 +18,7 @@ package controllers
 
 import base.SpecBase
 import forms.BusinessActivityFormProvider
-import models.{BusinessActivity, NormalMode}
+import models.NormalMode
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
@@ -34,13 +34,10 @@ import views.html.BusinessActivityView
 import scala.concurrent.Future
 
 class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
-
   private val onwardRoute = Call("GET", "/foo")
-
   private lazy val pageLoadRoute = routes.BusinessActivityController.onPageLoad(NormalMode).url
   private lazy val submitRoute = routes.BusinessActivityController.onSubmit(NormalMode).url
   private lazy val backLink: Call = routes.ContactDetailsController.onPageLoad(NormalMode)
-  private lazy val businessActivityCode = "49200 (Freight rail transport)"
 
   "BusinessActivity Controller" - {
 
@@ -56,7 +53,7 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
         val form = formProvider()
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, backLink, businessActivityCode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, backLink)(request, messages(application)).toString
       }
     }
 
@@ -73,7 +70,7 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must populate the view with the saved value on GET" in {
-      val userAnswers = emptyUserAnswers.set(BusinessActivityPage, BusinessActivity.Yes).success.value
+      val userAnswers = emptyUserAnswers.set(BusinessActivityPage, true).success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -82,10 +79,10 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
 
         val view = application.injector.instanceOf[BusinessActivityView]
         val formProvider = application.injector.instanceOf[BusinessActivityFormProvider]
-        val form = formProvider().fill(BusinessActivity.Yes)
+        val form = formProvider().fill(true)
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, backLink, businessActivityCode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, backLink)(request, messages(application)).toString
       }
     }
 
@@ -102,7 +99,7 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(POST, submitRoute)
-          .withFormUrlEncodedBody("value" -> BusinessActivity.Yes.toString)
+          .withFormUrlEncodedBody("value" -> true.toString)
 
         val result = route(application, request).value
 
@@ -125,8 +122,7 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(POST, submitRoute)
-          .withFormUrlEncodedBody("value" -> BusinessActivity.No.toString)
-
+          .withFormUrlEncodedBody("value" -> "false")
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -135,25 +131,11 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must return Bad Request and errors when no value is submitted" in {
+    "must return Bad Request when radio option not selected" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
         val request = FakeRequest(POST, submitRoute).withFormUrlEncodedBody("value" -> "")
-
-        val result = route(application, request).value
-
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) must include(messages(application)("businessActivity.error.required"))
-      }
-    }
-
-    "must return Bad Request and errors when an invalid value is submitted" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-
-      running(application) {
-        val request = FakeRequest(POST, submitRoute).withFormUrlEncodedBody("value" -> "maybe")
-
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
@@ -166,7 +148,7 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(POST, submitRoute)
-          .withFormUrlEncodedBody("value" -> BusinessActivity.Yes.toString)
+          .withFormUrlEncodedBody("value" -> true.toString)
 
         val result = route(application, request).value
 

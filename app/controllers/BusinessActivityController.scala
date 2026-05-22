@@ -18,12 +18,12 @@ package controllers
 
 import controllers.actions.*
 import forms.BusinessActivityFormProvider
-import models.{BusinessActivity, Mode}
+import models.Mode
 import navigation.Navigator
-import pages.{BusinessActivityCodePage, BusinessActivityPage}
+import pages.{BusinessActivityCodeTwoPage, BusinessActivityPage, BusinessActivityTwoPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.BusinessActivityView
@@ -45,26 +45,31 @@ class BusinessActivityController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  val form: Form[BusinessActivity] = formProvider()
+  val form: Form[Boolean] = formProvider()
 
-  private def backLink(mode: Mode): play.api.mvc.Call = routes.ContactDetailsController.onPageLoad(mode)
-  private val businessActivityCode = "49200 (Freight rail transport)" // TODO - hardcoded until backend integration
+  private def backLink(mode: Mode): Call = routes.ContactDetailsController.onPageLoad(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(BusinessActivityPage).fold(form)(form.fill)
-    Ok(view(preparedForm, mode, backLink(mode), businessActivityCode))
+    Ok(view(preparedForm, mode, backLink(mode)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode), businessActivityCode))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)))),
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(BusinessActivityPage, value))
-            updatedAnswers <- Future.fromTry(updatedAnswers.set(BusinessActivityCodePage, businessActivityCode))
-            _              <- sessionRepository.set(updatedAnswers)
+            updateAnswers <- Future.fromTry(request.userAnswers.set(BusinessActivityPage, value))
+            updatedAnswers <- if (value) {
+                                Future.successful(updateAnswers)
+                              } else {
+                                val remove1 = updateAnswers.remove(BusinessActivityCodeTwoPage)
+                                val remove2 = remove1.flatMap(_.remove(BusinessActivityTwoPage))
+                                Future.fromTry(remove2)
+                              }
+            _ <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(BusinessActivityPage, mode, updatedAnswers))
       )
   }
