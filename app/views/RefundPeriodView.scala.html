@@ -72,7 +72,9 @@
           InputItem(id = s"${form("start").id}.year", name = s"${form("start").name}.year", value = form("start.year").value, label = Some(messages("date.year")), classes = "govuk-input--width-4" + (if (highlighted.contains("start.year")) " govuk-input--error" else ""), inputmode = Some("numeric"), pattern = Some("[0-9]*"))
        ),
       id = form("start").id,
-      errorMessage = startErrorMessage.map(msg => ErrorMessage(content = HtmlContent(msg)))
+      errorMessage = startErrorMessage
+        .orElse(if (highlighted.contains("start.month") || highlighted.contains("start.year")) Some("") else None)
+        .map(msg => ErrorMessage(content = HtmlContent(msg)))
       )
     ) { startDate =>
       @govukDateInput(startDate.withHint(HintViewModel(messages("refundPeriod.start.hint"))))
@@ -86,7 +88,9 @@
           InputItem(id = s"${form("end").id}.year", name = s"${form("end").name}.year", value = form("end.year").value, label = Some(messages("date.year")), classes = "govuk-input--width-4" + (if (highlighted.contains("end.year")) " govuk-input--error" else ""), inputmode = Some("numeric"), pattern = Some("[0-9]*"))
       ),
       id = form("end").id,
-      errorMessage = endErrorMessage.map(msg => ErrorMessage(content = HtmlContent(msg)))
+      errorMessage = endErrorMessage
+        .orElse(if (highlighted.contains("end.month") || highlighted.contains("end.year")) Some("") else None)
+        .map(msg => ErrorMessage(content = HtmlContent(msg)))
       )
     ) { endDate =>
     @govukDateInput(endDate.withHint(HintViewModel(messages("refundPeriod.end.hint"))))
