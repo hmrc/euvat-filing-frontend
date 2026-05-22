@@ -54,9 +54,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
           val form = application.injector.instanceOf[forms.RefundPeriodFormProvider].apply()
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(form, models.NormalMode, routes.RefundingLanguageController.onPageLoad(models.NormalMode), None, None)(request,
-                                                                                                                                            msgs
-                                                                                                                                           ).toString
+          contentAsString(result) mustEqual view(form, models.NormalMode, routes.RefundingLanguageController.onPageLoad(models.NormalMode), None, None, Set.empty[String])(request, msgs).toString
         }
       }
 
@@ -79,9 +77,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
           val form = formProvider().fill(forms.RefundPeriodData(start, end))
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(form, models.NormalMode, routes.RefundingLanguageController.onPageLoad(models.NormalMode), None, None)(request,
-                                                                                                                                            msgs
-                                                                                                                                           ).toString
+          contentAsString(result) mustEqual view(form, models.NormalMode, routes.RefundingLanguageController.onPageLoad(models.NormalMode), None, None, Set.empty[String])(request, msgs).toString
         }
       }
     }
@@ -379,8 +375,8 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
               )
             val result = route(application, request).value
 
-            status(result) `mustEqual` BAD_REQUEST
-            contentAsString(result) must include(messages(application)("Refund period start date must be on or after 1 January 2023"))
+            status(result) mustEqual BAD_REQUEST
+            contentAsString(result) must include("Refund period start date must be on or after 1 January 2023")
           }
         }
 
