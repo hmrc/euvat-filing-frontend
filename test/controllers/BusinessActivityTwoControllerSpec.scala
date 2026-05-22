@@ -77,7 +77,7 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to the next page when valid data is submitted" in {
+    "must redirect to the next page when valid data is submitted if yes selected" in {
       val userAnswers = emptyUserAnswers
         .set(BusinessActivityCodeTwoPage, "48120")
         .success
@@ -101,6 +101,38 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
         val request =
           FakeRequest(POST, businessActivityTwoRoute)
             .withFormUrlEncodedBody(("value", "true"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+      }
+    }
+
+    "must redirect to the next page when valid data is submitted if no selected" in {
+      val userAnswers = emptyUserAnswers
+        .set(BusinessActivityCodeTwoPage, "48120")
+        .success
+        .value
+        .set(BusinessActivityTwoPage, false)
+        .success
+        .value
+
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, businessActivityTwoRoute)
+            .withFormUrlEncodedBody(("value", "false"))
 
         val result = route(application, request).value
 
@@ -218,7 +250,7 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) must include("Business activity code 2")
+        contentAsString(result) must include("Business activity 2")
         contentAsString(result) must include("48120")
       }
     }
@@ -238,7 +270,7 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) must include("business-activity-code-2")
+        contentAsString(result) must include("business-activity-2")
       }
     }
 
@@ -257,7 +289,7 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) must include("Primary business activity")
+        contentAsString(result) must include("Business activity 1")
         contentAsString(result) must include("49200 (Freight rail transport)")
       }
     }

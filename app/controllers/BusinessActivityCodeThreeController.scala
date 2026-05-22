@@ -60,18 +60,13 @@ class BusinessActivityCodeThreeController @Inject() (
   }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-
     val (activities, form) = buildListAndForm()
-
     val preparedForm = request.userAnswers.get(BusinessActivityCodeThreePage).fold(form)(form.fill)
-
-    Ok(view(preparedForm, activities, Some(routes.BusinessActivityCodeTwoController.onPageLoad(mode).url), mode))
+    Ok(view(preparedForm, activities, Some(routes.BusinessActivityTwoController.onPageLoad(mode).url), mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-
     val (activities, form) = buildListAndForm()
-
     val baseAnswers: UserAnswers = request.userAnswers
 
     val boundResult = form
@@ -85,7 +80,7 @@ class BusinessActivityCodeThreeController @Inject() (
           } else {
             formWithErrors
           }
-          Future.successful(BadRequest(view(adjustedForm, activities, Some(routes.BusinessActivityCodeTwoController.onPageLoad(mode).url), mode)))
+          Future.successful(BadRequest(view(adjustedForm, activities, Some(routes.BusinessActivityTwoController.onPageLoad(mode).url), mode)))
         },
         value => {
           for {
