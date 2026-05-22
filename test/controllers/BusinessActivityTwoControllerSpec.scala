@@ -238,7 +238,7 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) must include("business-activity-code-two")
+        contentAsString(result) must include("business-activity-code-2")
       }
     }
 

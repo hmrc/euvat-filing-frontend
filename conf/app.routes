@@ -28,13 +28,11 @@ POST        /which-eu-member-state                       controllers.RefundingCo
 GET         /change-which-eu-member-state                controllers.RefundingCountryController.onPageLoad(mode: models.Mode = CheckMode)
 POST        /change-which-eu-member-state                controllers.RefundingCountryController.onSubmit(mode: models.Mode = CheckMode)
 
-
 GET         /what-language                               controllers.RefundingLanguageController.onPageLoad(mode: models.Mode = NormalMode)
 POST        /what-language                               controllers.RefundingLanguageController.onSubmit(mode: models.Mode = NormalMode)
 GET         /change-what-language                        controllers.RefundingLanguageController.onPageLoad(mode: models.Mode = CheckMode)
 POST        /change-what-language                        controllers.RefundingLanguageController.onSubmit(mode: models.Mode = CheckMode)
 
-# Refund period (start/end month year)
 GET         /what-refund-period                          controllers.RefundPeriodController.onPageLoad(mode: Mode = NormalMode)
 POST        /what-refund-period                          controllers.RefundPeriodController.onSubmit(mode: Mode = NormalMode)
 GET         /change-refund-period                        controllers.RefundPeriodController.onPageLoad(mode: Mode = CheckMode)
@@ -45,23 +43,28 @@ POST        /who-contact-about-this-claim                controllers.ContactDeta
 GET         /change-who-contact-about-this-claim         controllers.ContactDetailsController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-who-contact-about-this-claim         controllers.ContactDetailsController.onSubmit(mode: Mode = CheckMode)
 
-GET         /business-activity-code-two                  controllers.BusinessActivityCodeTwoController.onPageLoad(mode: models.Mode = NormalMode)
-POST        /business-activity-code-two                  controllers.BusinessActivityCodeTwoController.onSubmit(mode: models.Mode = NormalMode)
-GET         /change-business-activity-code-two           controllers.BusinessActivityCodeTwoController.onPageLoad(mode: models.Mode = CheckMode)
-POST        /change-business-activity-code-two           controllers.BusinessActivityCodeTwoController.onSubmit(mode: models.Mode = CheckMode)
-
 GET         /what-business-activity                      controllers.BusinessActivityController.onPageLoad(mode: Mode = NormalMode)
 POST        /what-business-activity                      controllers.BusinessActivityController.onSubmit(mode: Mode = NormalMode)
 GET         /change-what-business-activity               controllers.BusinessActivityController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-what-business-activity               controllers.BusinessActivityController.onSubmit(mode: Mode = CheckMode)
 
-GET        /business-activity-two                        controllers.BusinessActivityTwoController.onPageLoad(mode: Mode = NormalMode)
-POST       /business-activity-two                        controllers.BusinessActivityTwoController.onSubmit(mode: Mode = NormalMode)
-GET        /change-business-activity-two                 controllers.BusinessActivityTwoController.onPageLoad(mode: Mode = CheckMode)
-POST       /change-business-activity-two                 controllers.BusinessActivityTwoController.onSubmit(mode: Mode = CheckMode)
+GET         /business-activity-code-2                    controllers.BusinessActivityCodeTwoController.onPageLoad(mode: Mode = NormalMode)
+POST        /business-activity-code-2                    controllers.BusinessActivityCodeTwoController.onSubmit(mode: Mode = NormalMode)
+GET         /change-business-activity-code-2             controllers.BusinessActivityCodeTwoController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-business-activity-code-2             controllers.BusinessActivityCodeTwoController.onSubmit(mode: Mode = CheckMode)
 
-GET        /business-activity-three                      controllers.BusinessActivityThreeController.onPageLoad()
-POST       /business-activity-three                      controllers.BusinessActivityThreeController.onSubmit()
+GET         /business-activity-2                       controllers.BusinessActivityTwoController.onPageLoad(mode: Mode = NormalMode)
+POST        /business-activity-2                       controllers.BusinessActivityTwoController.onSubmit(mode: Mode = NormalMode)
+GET         /change-business-activity-2                controllers.BusinessActivityTwoController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-business-activity-2                controllers.BusinessActivityTwoController.onSubmit(mode: Mode = CheckMode)
+
+GET         /business-activity-code-3                    controllers.BusinessActivityCodeThreeController.onPageLoad(mode: Mode = NormalMode)
+POST        /business-activity-code-3                    controllers.BusinessActivityCodeThreeController.onSubmit(mode: Mode = NormalMode)
+GET         /change-business-activity-code-3             controllers.BusinessActivityCodeThreeController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-business-activity-code-3             controllers.BusinessActivityCodeThreeController.onSubmit(mode: Mode = CheckMode)
+
+GET         /business-activity-3                     controllers.BusinessActivityThreeController.onPageLoad()
+POST        /business-activity-3                     controllers.BusinessActivityThreeController.onSubmit()
 
 GET         /about-the-purchase                          controllers.AboutThePurchaseController.onPageLoad()
 POST        /about-the-purchase                          controllers.AboutThePurchaseController.onSubmit()

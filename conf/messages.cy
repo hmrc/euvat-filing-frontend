@@ -140,30 +140,8 @@ contactDetails.contactTelephone.label = Telephone number (optional)
 contactDetails.error.email.required = Enter an email address
 contactDetails.error.email.maxLength = Email address must be 129 characters or fewer
 contactDetails.error.email.invalidFormat = Enter an email address in the correct format, like name@example.com
-contactDetails.error.telephone.maxLength = Telephone number must be 21 characters or fewer
+contactDetails.error.telephone.maxLength = Phone number must be 20 characters or less
 contactDetails.error.telephone.format = Enter a telephone number in the correct format, like 01632960001 or +448081570192
-
-aboutThePurchase.title = About the purchase
-aboutThePurchase.heading = About the purchase
-aboutThePurchase.p1 = You’ll need the following information about the purchase:
-aboutThePurchase.bullet1 = the purchase type
-aboutThePurchase.bullet2 = the invoice dates
-aboutThePurchase.bullet3 = the VAT registration number
-aboutThePurchase.bullet4 = the supplier name and address
-aboutThePurchase.bullet5 = the VAT amount
-
-purchaseType.title = Purchase type
-purchaseType.heading = Purchase type
-purchaseType.h2 = What is the purchase type that best describes the item on your invoice?
-purchaseType.p1 = If the invoice includes more than one type of purchase, do not split the invoice over more than one line using the same purchase reference number.
-purchaseType.p2 = This may be treated as a duplicate entry and could delay or reject your claim.
-purchaseType.p3 = Instead, select ‘Other’ and itemise the different items and amounts in the purchase description, or select the highest-value item on the invoice.
-purchaseType.fuel = Fuel
-purchaseType.transport = Expenditure relating to means of transport
-purchaseType.foodAndDrink = Food, drink and restaurant services
-purchaseType.luxuries = Expenditure on luxuries, amusements and entertainment
-purchaseType.other = Other
-purchaseType.error.required = Select a purchase type
 
 businessActivity.title = Business activity for this claim
 businessActivity.heading = Business activity for this claim
@@ -188,6 +166,17 @@ businessActivityTwo.ba2.label = Business activity code 2
 businessActivityTwo.ba2.change.hidden = business activity code 2
 businessActivityTwo.ba2.remove.hidden = business activity code 2
 
+businessActivityCodeThree.caption = Add claim details
+businessActivityCodeThree.title = 3rd business activity for this claim
+businessActivityCodeThree.heading = Add a 3rd business activity code
+businessActivityCodeThree.hint = Enter your SIC code or search term, for example "motor"
+businessActivityCodeThree.error.summary = Enter a business activity code
+businessActivityCodeThree.error.required = Enter a business activity code
+businessActivityCodeThree.error.invalid = Enter a valid business activity code
+businessActivityCodeThree.error.invalid.summary = Enter a valid business activity code
+businessActivityCodeThree.checkYourAnswersLabel = 3rd business activity code
+businessActivityCodeThree.change.hidden = Change the 3rd business activity code
+
 businessActivityThree.title = Business activity for this claim
 businessActivityThree.heading = Business activity for this claim
 businessActivityThree.ba2.label = Business activity code 2
@@ -196,3 +185,25 @@ businessActivityThree.ba2.remove.hidden = business activity code 2
 businessActivityThree.ba3.remove.hidden = business activity code 3
 businessActivityThree.ba2.change.hidden = business activity code 2
 businessActivityThree.ba3.change.hidden = business activity code 3
+
+aboutThePurchase.title = About the purchase
+aboutThePurchase.heading = About the purchase
+aboutThePurchase.p1 = You’ll need the following information about the purchase:
+aboutThePurchase.bullet1 = the purchase type
+aboutThePurchase.bullet2 = the invoice dates
+aboutThePurchase.bullet3 = the VAT registration number
+aboutThePurchase.bullet4 = the supplier name and address
+aboutThePurchase.bullet5 = the VAT amount
+
+purchaseType.title = Purchase type
+purchaseType.heading = Purchase type
+purchaseType.h2 = What is the purchase type that best describes the item on your invoice?
+purchaseType.p1 = If the invoice includes more than one type of purchase, do not split the invoice over more than one line using the same purchase reference number.
+purchaseType.p2 = This may be treated as a duplicate entry and could delay or reject your claim.
+purchaseType.p3 = Instead, select ‘Other’ and itemise the different items and amounts in the purchase description, or select the highest-value item on the invoice.
+purchaseType.fuel = Fuel
+purchaseType.transport = Expenditure relating to means of transport
+purchaseType.foodAndDrink = Food, drink and restaurant services
+purchaseType.luxuries = Expenditure on luxuries, amusements and entertainment
+purchaseType.other = Other
+purchaseType.error.required = Select a purchase type

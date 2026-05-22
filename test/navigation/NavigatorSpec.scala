@@ -71,16 +71,21 @@ class NavigatorSpec extends SpecBase {
           routes.BusinessActivityTwoController.onPageLoad(NormalMode)
       }
 
-      "must go from BusinessActivityTwoPage to BusinessActivityThreeController if yes selected" in {
+      "must go from BusinessActivityTwoPage to BusinessActivityCodeThreeController if yes selected" in {
         val ua = userAnswers.set(BusinessActivityTwoPage, true).success.value
         navigator.nextPage(BusinessActivityTwoPage, NormalMode, ua) mustBe
-          routes.BusinessActivityThreeController.onPageLoad()
+          routes.BusinessActivityCodeThreeController.onPageLoad(NormalMode)
       }
 
-      "must go from BusinessActivityTwoPage to BusinessActivityThreeController if no selected" in {
+      "must go from BusinessActivityTwoPage to JourneyRecoveryController if no selected" in {
         val ua = userAnswers.set(BusinessActivityTwoPage, false).success.value
         navigator.nextPage(BusinessActivityTwoPage, NormalMode, ua) mustBe
           routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from BusinessActivityCodeThreePage to BusinessActivityThreeController" in {
+        navigator.nextPage(BusinessActivityCodeThreePage, NormalMode, userAnswers) mustBe
+          routes.BusinessActivityThreeController.onPageLoad()
       }
 
       "must go from PurchaseTypePage to JourneyRecoveryController" in {

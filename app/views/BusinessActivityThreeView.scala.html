@@ -27,7 +27,7 @@
 
 @(baCode2: String, baCode3: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("businessActivityThree.title")), backLinkUrl = Some(routes.BusinessActivityTwoController.onPageLoad(NormalMode).url)) {
+@layout(pageTitle = titleNoForm(messages("businessActivityThree.title")), backLinkUrl = Some(routes.BusinessActivityCodeThreeController.onPageLoad(NormalMode).url)) {
     @formHelper(action = routes.BusinessActivityThreeController.onSubmit()) {
 
         <h2 class="govuk-caption-l hmrc-caption-l">
