@@ -59,10 +59,10 @@ class RefundPeriodController @Inject() (
         val end   = java.time.YearMonth.of(value.endDate.getYear, value.endDate.getMonthValue)
         formProvider().fill(RefundPeriodData(start, end))
     }
-    val mappedForm = formProvider.withMappedErrors(preparedForm)
+    val (mappedForm, highlighted) = formProvider.withMappedErrors(preparedForm)
     val startMsg = errorMessage(mappedForm, Seq("start", "start.month", "start.year"))
     val endMsg   = errorMessage(mappedForm, Seq("end", "end.month", "end.year"))
-    Ok(view(mappedForm, mode, controllers.routes.RefundingLanguageController.onPageLoad(mode), startMsg, endMsg))
+    Ok(view(mappedForm, mode, controllers.routes.RefundingLanguageController.onPageLoad(mode), startMsg, endMsg, highlighted))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -70,10 +70,10 @@ class RefundPeriodController @Inject() (
       .bindFromRequest()
       .fold(
         formWithErrors => {
-          val mappedForm = formProvider.withMappedErrors(formWithErrors)
+          val (mappedForm, highlighted) = formProvider.withMappedErrors(formWithErrors)
           val startMsg = errorMessage(mappedForm, Seq("start", "start.month", "start.year"))
           val endMsg   = errorMessage(mappedForm, Seq("end", "end.month", "end.year"))
-          Future.successful(BadRequest(view(mappedForm, mode, controllers.routes.RefundingLanguageController.onPageLoad(mode), startMsg, endMsg)))
+          Future.successful(BadRequest(view(mappedForm, mode, controllers.routes.RefundingLanguageController.onPageLoad(mode), startMsg, endMsg, highlighted)))
         },
         value =>
           for {

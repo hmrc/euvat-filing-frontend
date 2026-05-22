@@ -58,7 +58,36 @@ class RefundPeriodFormProvider @Inject() () {
       else Invalid(errorKey, cutoff.getYear.toString)
     }
 
-  def withMappedErrors(form: Form[RefundPeriodData]): Form[RefundPeriodData] = {
+  private def highlightedFields(form: Form[RefundPeriodData]): Set[String] = {
+    val errorMessages = form.errors.map(_.message).toSet
+    val fieldErrors = Set(
+      form.error("start.month").map(_ => "start.month"),
+      form.error("start.year").map(_ => "start.year"),
+      form.error("end.month").map(_ => "end.month"),
+      form.error("end.year").map(_ => "end.year")
+    ).flatten
+
+    val businessRuleFields = errorMessages.flatMap {
+      case "refundPeriod.error.periodStartDatenotAfterEndDate" =>
+        Set("start.month", "start.year")
+      case "refundPeriod.error.periodEndDaterefundPeriodInSingleYear" =>
+        Set("start.year", "end.year")
+      case "refundPeriod.error.periodStartDateperiodNotLessThan3Months" =>
+        Set("start.month", "end.month")
+      case "refundPeriod.error.periodBothDatesInvalid" =>
+        Set("start.month", "start.year", "end.month", "end.year")
+      case "refundPeriod.error.periodStartDateInvalid" =>
+        Set("start.month", "start.year")
+      case "refundPeriod.error.periodEndDateInvalid" =>
+        Set("end.month", "end.year")
+      case "refundPeriod.error.periodStartDateafter30thSept" | "refundPeriod.error.periodStartDate30thSeptOrEarlier" =>
+        Set("start.month", "start.year")
+      case _ => Set.empty
+    }
+
+    fieldErrors ++ businessRuleFields
+  }
+  def withMappedErrors(form: Form[RefundPeriodData]): (Form[RefundPeriodData], Set[String]) = {
     val errorMappings = Map(
       "refundPeriod.error.periodStartDatenotAfterEndDate"          -> "start",
       "refundPeriod.error.periodEndDaterefundPeriodInSingleYear"   -> "start",
@@ -70,6 +99,8 @@ class RefundPeriodFormProvider @Inject() () {
       "refundPeriod.error.periodStartDate30thSeptOrEarlier"        -> "start"
     )
 
+    val highlighted = highlightedFields(form)
+
     val remappedErrors = form.errors.map { error =>
       errorMappings.get(error.message) match {
         case Some(fieldKey) => error.copy(key = fieldKey)
@@ -77,7 +108,7 @@ class RefundPeriodFormProvider @Inject() () {
       }
     }
 
-    form.copy(errors = remappedErrors)
+    (form.copy(errors = remappedErrors), highlighted)
   }
 
   def apply()(implicit messages: Messages): Form[RefundPeriodData] =

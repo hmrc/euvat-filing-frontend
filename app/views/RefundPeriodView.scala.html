@@ -31,7 +31,7 @@
   govukButton: GovukButton
 )
 
-@(form: play.api.data.Form[_], mode: models.Mode, call: Call, startErrorMessage: Option[String], endErrorMessage: Option[String])(implicit request: play.api.mvc.Request[_], messages: play.api.i18n.Messages)
+@(form: play.api.data.Form[_], mode: models.Mode, call: Call, startErrorMessage: Option[String], endErrorMessage: Option[String], highlighted: Set[String])(implicit request: play.api.mvc.Request[_], messages: play.api.i18n.Messages)
 @layout(pageTitle = title(form, "refundPeriod.title"), backLinkUrl = Some(call.url)) {
 
   @formHelper(action = controllers.routes.RefundPeriodController.onSubmit(mode)) {
@@ -62,15 +62,14 @@
       <li>@messages("refundPeriod.rule.2")</li>
       <li>@messages("refundPeriod.rule.3")</li>
       <li>@messages("refundPeriod.rule.4")</li>
-      <li>@messages("refundPeriod.rule.5")</li>
     </ul>
 
     @defining(
       DateInput(
         fieldset = Some(Fieldset(legend = Some(Legend(content = HtmlContent(messages("refundPeriod.start.heading")), classes = "govuk-fieldset__legend--m")))),
         items = Seq(
-          InputItem(id = s"${form("start").id}.month", name = s"${form("start").name}.month", value = form("start.month").value, label = Some(messages("date.month")), classes = "govuk-input--width-2" + (if (form.error("start").isDefined || form.error("start.month").isDefined) " govuk-input--error" else "")),
-          InputItem(id = s"${form("start").id}.year", name = s"${form("start").name}.year", value = form("start.year").value, label = Some(messages("date.year")), classes = "govuk-input--width-4" + (if (form.error("start").isDefined || form.error("start.year").isDefined)  " govuk-input--error" else ""), inputmode = Some("numeric"), pattern = Some("[0-9]*"))
+          InputItem(id = s"${form("start").id}.month", name = s"${form("start").name}.month", value = form("start.month").value, label = Some(messages("date.month")), classes = "govuk-input--width-2" + (if (highlighted.contains("start.month")) " govuk-input--error" else "")),
+          InputItem(id = s"${form("start").id}.year", name = s"${form("start").name}.year", value = form("start.year").value, label = Some(messages("date.year")), classes = "govuk-input--width-4" + (if (highlighted.contains("start.year")) " govuk-input--error" else ""), inputmode = Some("numeric"), pattern = Some("[0-9]*"))
        ),
       id = form("start").id,
       errorMessage = startErrorMessage.map(msg => ErrorMessage(content = HtmlContent(msg)))
@@ -83,8 +82,8 @@
       DateInput(
         fieldset = Some(Fieldset(legend = Some(Legend(content = HtmlContent(messages("refundPeriod.end.heading")), classes = "govuk-fieldset__legend--m")))),
         items = Seq(
-          InputItem(id = s"${form("end").id}.month", name = s"${form("end").name}.month", value = form("end.month").value, label = Some(messages("date.month")), classes = "govuk-input--width-2" + (if (form.error("end").isDefined || form.error("end.month").isDefined) " govuk-input--error" else "")),
-          InputItem(id = s"${form("end").id}.year", name = s"${form("end").name}.year", value = form("end.year").value, label = Some(messages("date.year")), classes = "govuk-input--width-4" + (if (form.error("end").isDefined || form.error("end.year").isDefined)  " govuk-input--error" else ""), inputmode = Some("numeric"), pattern = Some("[0-9]*"))
+          InputItem(id = s"${form("end").id}.month", name = s"${form("end").name}.month", value = form("end.month").value, label = Some(messages("date.month")), classes = "govuk-input--width-2" + (if (highlighted.contains("end.month")) " govuk-input--error" else "")),
+          InputItem(id = s"${form("end").id}.year", name = s"${form("end").name}.year", value = form("end.year").value, label = Some(messages("date.year")), classes = "govuk-input--width-4" + (if (highlighted.contains("end.year")) " govuk-input--error" else ""), inputmode = Some("numeric"), pattern = Some("[0-9]*"))
       ),
       id = form("end").id,
       errorMessage = endErrorMessage.map(msg => ErrorMessage(content = HtmlContent(msg)))
