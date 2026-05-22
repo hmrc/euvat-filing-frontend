@@ -213,6 +213,6 @@ suppliersName.title = What is the supplier’s name?
 suppliersName.heading = What is the supplier’s name?
 suppliersName.hint = Find the supplier’s name on the invoice or receipt.
 suppliersName.error.required = Enter a supplier’s name
-suppliersName.error.length = You cannot enter more than 35 characters
+suppliersName.error.length = The supplier’s name must be 35 characters or less
 suppliersName.checkYourAnswersLabel = Supplier’s name
 suppliersName.change.hidden = Change supplier’s name
