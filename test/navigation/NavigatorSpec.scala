@@ -94,6 +94,13 @@ class NavigatorSpec extends SpecBase {
         case object UnknownPage extends Page
         navigator.nextPage(UnknownPage, CheckMode, userAnswers) mustBe routes.CheckYourAnswersController.onPageLoad()
       }
+
+      "must go from BusinessActivityTwo page to BusinessActivityThreeController" in {
+        val ua = userAnswers.set(BusinessActivityTwoPage, true).success.value
+        navigator.nextPage(BusinessActivityTwoPage, CheckMode, ua) mustBe
+          routes.BusinessActivityThreeController.onPageLoad()
+      }
+
     }
   }
 }

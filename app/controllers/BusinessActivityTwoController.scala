@@ -23,9 +23,10 @@ import javax.inject.Inject
 import models.{Mode, NormalMode}
 import navigation.Navigator
 import pages.{BusinessActivityCodeTwoPage, BusinessActivityTwoPage}
+import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.BusinessActivityTwoView
@@ -44,39 +45,55 @@ class BusinessActivityTwoController @Inject() (
   view: BusinessActivityTwoView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
   val form: Form[Boolean] = formProvider()
 
-  private def backLink: play.api.mvc.Call = routes.BusinessActivityCodeTwoController.onPageLoad(NormalMode)
+  private def backLink: Call = routes.BusinessActivityCodeTwoController.onPageLoad(NormalMode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+    val userAnswers = request.userAnswers
+    userAnswers.get(BusinessActivityCodeTwoPage) match {
+      case Some(baCode2) =>
+        val preparedForm = userAnswers.get(BusinessActivityTwoPage) match {
+          case None        => form
+          case Some(value) => form.fill(value)
+        }
 
-    val preparedForm = request.userAnswers.get(BusinessActivityTwoPage) match {
-      case None        => form
-      case Some(value) => form.fill(value)
+        Ok(view(preparedForm, mode, backLink, baCode2))
+
+      case None =>
+        logger.warn("Data guard error, missing required information")
+        Redirect(routes.UnauthorisedController.onPageLoad()) // TODO - update to system guard error page when ready
     }
 
-    Ok(view(preparedForm, mode, backLink))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
 
-    form
-      .bindFromRequest()
-      .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink))),
-        value =>
-          for {
-            updateAnswers <- Future.fromTry(request.userAnswers.set(BusinessActivityTwoPage, value))
-            updatedAnswers <- if (value) {
-                                Future.successful(updateAnswers)
-                              } else {
-                                Future.successful(updateAnswers) // TODO - remove this line and uncomment next line when page 3 is ready
-                                // Future.fromTry(updateAnswers.remove(BusinessActivityCodeThreePage))
-                              }
-            _ <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(BusinessActivityTwoPage, mode, updatedAnswers))
-      )
+    request.userAnswers.get(BusinessActivityCodeTwoPage) match {
+      case Some(baCode2) =>
+        form
+          .bindFromRequest()
+          .fold(
+            formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink, baCode2))),
+            value =>
+              for {
+                updateAnswers <- Future.fromTry(request.userAnswers.set(BusinessActivityTwoPage, value))
+                updatedAnswers <- if (value) {
+                                    Future.successful(updateAnswers)
+                                  } else {
+                                    Future.successful(updateAnswers) // TODO - remove this line and uncomment next line when page 3 is ready
+                                    // Future.fromTry(updateAnswers.remove(BusinessActivityCodeThreePage))
+                                  }
+                _ <- sessionRepository.set(updatedAnswers)
+              } yield Redirect(navigator.nextPage(BusinessActivityTwoPage, mode, updatedAnswers))
+          )
+
+      case None =>
+        logger.warn("Data guard error, missing required information")
+        Future.successful(Redirect(routes.UnauthorisedController.onPageLoad())) // TODO - update to system guard error page when ready
+    }
   }
 }

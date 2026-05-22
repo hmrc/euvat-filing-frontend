@@ -23,7 +23,7 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.BusinessActivityTwoPage
+import pages.{BusinessActivityCodeTwoPage, BusinessActivityTwoPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -46,7 +46,11 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
   "BusinessActivityTwo Controller" - {
 
     "must return OK and the correct view for a GET" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val userAnswers = emptyUserAnswers
+        .set(BusinessActivityCodeTwoPage, "48120")
+        .success
+        .value
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, businessActivityTwoRoute).withCSRFToken
@@ -58,7 +62,10 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
-      val userAnswers = UserAnswers(userAnswersId).set(BusinessActivityTwoPage, true).success.value
+      val userAnswers = emptyUserAnswers
+        .set(BusinessActivityCodeTwoPage, "48120")
+        .success
+        .value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -71,11 +78,19 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to the next page when valid data is submitted" in {
+      val userAnswers = emptyUserAnswers
+        .set(BusinessActivityCodeTwoPage, "48120")
+        .success
+        .value
+        .set(BusinessActivityTwoPage, true)
+        .success
+        .value
+
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        applicationBuilder(userAnswers = Some(userAnswers))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
             bind[SessionRepository].toInstance(mockSessionRepository)
@@ -95,7 +110,14 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val userAnswers = emptyUserAnswers
+        .set(BusinessActivityCodeTwoPage, "48120")
+        .success
+        .value
+        .set(BusinessActivityTwoPage, true)
+        .success
+        .value
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request =
@@ -139,7 +161,14 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must have the correct back link" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val userAnswers = emptyUserAnswers
+        .set(BusinessActivityCodeTwoPage, "48120")
+        .success
+        .value
+        .set(BusinessActivityTwoPage, true)
+        .success
+        .value
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, businessActivityTwoRoute).withCSRFToken
@@ -153,7 +182,14 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must display error message when no radio button is selected" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val userAnswers = emptyUserAnswers
+        .set(BusinessActivityCodeTwoPage, "48120")
+        .success
+        .value
+        .set(BusinessActivityTwoPage, true)
+        .success
+        .value
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(POST, businessActivityTwoRoute)
@@ -168,7 +204,14 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must display the business activity code in the summary list" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val userAnswers = emptyUserAnswers
+        .set(BusinessActivityCodeTwoPage, "48120")
+        .success
+        .value
+        .set(BusinessActivityTwoPage, true)
+        .success
+        .value
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, businessActivityTwoRoute).withCSRFToken
@@ -176,12 +219,19 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) must include("Business activity code 2")
-        contentAsString(result) must include("10110 (Processing and preserving of meat)")
+        contentAsString(result) must include("48120")
       }
     }
 
     "must display the correct change link for business activity code two" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val userAnswers = emptyUserAnswers
+        .set(BusinessActivityCodeTwoPage, "48120")
+        .success
+        .value
+        .set(BusinessActivityTwoPage, true)
+        .success
+        .value
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, businessActivityTwoRoute).withCSRFToken
@@ -193,7 +243,14 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must display the correct inset text" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val userAnswers = emptyUserAnswers
+        .set(BusinessActivityCodeTwoPage, "48120")
+        .success
+        .value
+        .set(BusinessActivityTwoPage, true)
+        .success
+        .value
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, businessActivityTwoRoute).withCSRFToken
@@ -206,7 +263,14 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must display There is a problem in the error summary when no radio button is selected" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val userAnswers = emptyUserAnswers
+        .set(BusinessActivityCodeTwoPage, "48120")
+        .success
+        .value
+        .set(BusinessActivityTwoPage, true)
+        .success
+        .value
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(POST, businessActivityTwoRoute)
@@ -220,7 +284,14 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must display inline error message above radio buttons when no radio button is selected" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val userAnswers = emptyUserAnswers
+        .set(BusinessActivityCodeTwoPage, "48120")
+        .success
+        .value
+        .set(BusinessActivityTwoPage, true)
+        .success
+        .value
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(POST, businessActivityTwoRoute)
@@ -233,7 +304,14 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return OK for a GET in Check mode" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val userAnswers = emptyUserAnswers
+        .set(BusinessActivityCodeTwoPage, "48120")
+        .success
+        .value
+        .set(BusinessActivityTwoPage, true)
+        .success
+        .value
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, routes.BusinessActivityTwoController.onPageLoad(CheckMode).url)
@@ -247,9 +325,16 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
       val mockSessionRepository = mock[SessionRepository]
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val userAnswers = emptyUserAnswers
+        .set(BusinessActivityCodeTwoPage, "48120")
+        .success
+        .value
+        .set(BusinessActivityTwoPage, true)
+        .success
+        .value
 
       val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        applicationBuilder(userAnswers = Some(userAnswers))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
             bind[SessionRepository].toInstance(mockSessionRepository)

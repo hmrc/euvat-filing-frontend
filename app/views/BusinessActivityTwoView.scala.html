@@ -29,10 +29,10 @@
     mainErrorSummary: MainErrorSummary
 )
 
-@(form: Form[_], mode: Mode, call: Call)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, call: Call, businessActivityCode2: String)(implicit request: Request[_], messages: Messages)
+@errored = @{form.error("value").isDefined}
 
 @layout(pageTitle = views.ViewUtils.title(form, messages("businessActivityTwo.title")), backLinkUrl = Some(call.url)) {
-
     @formHelper(action = routes.BusinessActivityTwoController.onSubmit(mode)) {
         @mainErrorSummary(form)
 
@@ -49,21 +49,38 @@
 
         @customSummaryList(
             rows = Seq(
-                (messages("businessActivityTwo.ba2.label"), "10110 (Processing and preserving of meat)", Seq(
+                (messages("businessActivityTwo.ba2.label"), businessActivityCode2, Seq(
                     (routes.BusinessActivityCodeTwoController.onPageLoad(CheckMode).url, "site.change", "businessActivityTwo.ba2.change.hidden"),
                     ("#", "site.remove", "businessActivityTwo.ba2.remove.hidden")
                 ))
             )
         )
 
-         @govukRadios(
-             RadiosViewModel.yesNo(
-                 field = form("value"),
-                 legend = LegendViewModel(messages("businessActivity.h2")).withCssClass("govuk-fieldset__legend--m"),
-             )
-            .withHint(HintViewModel(HtmlContent(s"""<p class="govuk-body">${messages("businessActivity.p1")}</p>""".stripMargin)))
-            .inline()
-         )
+        <div class="govuk-form-group @if(errored){govuk-form-group--error}">
+            <fieldset class="govuk-fieldset" aria-describedby="ba-heading">
+                <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                    <h2 class="govuk-fieldset__heading">
+                        @messages("businessActivity.h2")
+                    </h2>
+                </legend>
+                <div id="ba-heading" class="govuk-body">@messages("businessActivity.p1")
+                    <a class="govuk-link" href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2026" target="_blank" rel="noreferrer noopener">
+                        @messages("businessActivity.link.text")
+                    </a>.
+                </div>
+                <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
+                    <div class="govuk-radios__item">
+                        <input class="govuk-radios__input" id="value" name="value" type="radio" value="true" @if(form("value").value.contains("true")){checked}>
+                        <label class="govuk-label govuk-radios__label" for="value">@messages("site.yes")</label>
+                    </div>
+                    <div class="govuk-radios__item">
+                        <input class="govuk-radios__input" id="value-2" name="value" type="radio" value="false" @if(form("value").value.contains("false")){checked}>
+                        <label class="govuk-label govuk-radios__label" for="value-2">@messages("site.no")</label>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+
          @govukButton(ButtonViewModel(messages("site.continue")))
     }
 }

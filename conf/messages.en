@@ -170,7 +170,8 @@ businessActivity.heading = Business activity for this claim
 businessActivity.lead = This is the Standard Industrial Classification (SIC) listed for your business.
 businessActivity.insetText.label = Primary business activity
 businessActivity.h2 = Do you need to add another business activity?
-businessActivity.p1 = You can find the SIC codes on the <a class="govuk-link" href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2026" target="_blank" rel="noreferrer noopener">Office for National Statistics website (opens in new tab)</a>.
+businessActivity.p1 = You can find the SIC codes on the
+businessActivity.link.text = Office for National Statistics website (opens in new tab)
 businessActivity.error.required = Select yes if you want to add another business activity
 
 businessActivityCodeTwo.title = 2nd business activity for this claim
@@ -184,14 +185,14 @@ businessActivityCodeTwo.error.invalid.summary = Enter a valid business activity 
 businessActivityTwo.title = Business activity for this claim
 businessActivityTwo.heading = Business activity for this claim
 businessActivityTwo.ba2.label = Business activity code 2
-businessActivityTwo.ba2.change.hidden = Change business activity code 2
-businessActivityTwo.ba2.remove.hidden = Remove business activity code 2
+businessActivityTwo.ba2.change.hidden = business activity code 2
+businessActivityTwo.ba2.remove.hidden = business activity code 2
 
 businessActivityThree.title = Business activity for this claim
 businessActivityThree.heading = Business activity for this claim
 businessActivityThree.ba2.label = Business activity code 2
 businessActivityThree.ba3.label = Business activity code 3
-businessActivityThree.ba2.remove.hidden = Remove business activity code 2
-businessActivityThree.ba3.remove.hidden = Remove business activity code 3
-businessActivityThree.ba2.change.hidden = Change business activity code 2
-businessActivityThree.ba3.change.hidden = Change business activity code 3
+businessActivityThree.ba2.remove.hidden = business activity code 2
+businessActivityThree.ba3.remove.hidden = business activity code 3
+businessActivityThree.ba2.change.hidden = business activity code 2
+businessActivityThree.ba3.change.hidden = business activity code 3

@@ -38,8 +38,9 @@ class Navigator @Inject() () {
     case _                           => _ => routes.IndexController.onPageLoad()
   }
 
-  private val checkRouteMap: Page => UserAnswers => Call = { _ => _ =>
-    routes.CheckYourAnswersController.onPageLoad()
+  private val checkRouteMap: Page => UserAnswers => Call = {
+    case BusinessActivityTwoPage => _ => routes.BusinessActivityThreeController.onPageLoad()
+    case _                       => _ => routes.CheckYourAnswersController.onPageLoad()
   }
 
   private def navigateFromBusinessActivityPage(mode: Mode)(userAnswers: UserAnswers): Call =
