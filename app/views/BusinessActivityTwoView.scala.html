@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import models.Mode
+@import uk.gov.hmrc.govukfrontend.views.html.components.*
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.insettext.InsetText
 @import views.html.components.MainErrorSummary
@@ -22,29 +22,39 @@
 @this(
     layout: templates.Layout,
     formHelper: FormWithCSRF,
-    govukInsetText: GovukInsetText,
-    govukButton: GovukButton,
     govukRadios: GovukRadios,
+    govukButton: GovukButton,
+    govukInsetText: GovukInsetText,
+    customSummaryList: views.html.components.CustomSummaryList,
     mainErrorSummary: MainErrorSummary
 )
 
-@(form: Form[?], mode: Mode, call: Call)(implicit request: Request[?], messages: Messages)
+@(form: Form[_], mode: Mode, call: Call, businessActivityCode2: String)(implicit request: Request[_], messages: Messages)
 @errored = @{form.error("value").isDefined}
 
-@layout(pageTitle = views.ViewUtils.title(form, "businessActivity.title"), backLinkUrl = Some(call.url)) {
-    @formHelper(action = routes.BusinessActivityController.onSubmit(mode)) {
+@layout(pageTitle = views.ViewUtils.title(form, messages("businessActivityTwo.title")), backLinkUrl = Some(call.url)) {
+    @formHelper(action = routes.BusinessActivityTwoController.onSubmit(mode)) {
         @mainErrorSummary(form)
 
         <h2 class="govuk-caption-l hmrc-caption-l">
-            <span class="govuk-visually-hidden">This section is: </span>@messages("claim.caption.add")
+         <span class="govuk-visually-hidden">This section is: </span>@messages("claim.caption.add")
         </h2>
-        <h1 class="govuk-heading-l">@messages("businessActivity.heading")</h1>
+        <h1 class="govuk-heading-l">@messages("businessActivityTwo.heading")</h1>
 
         <p class="govuk-body-l">@messages("businessActivity.lead")</p>
 
         @govukInsetText(InsetText(
             content = HtmlContent(s"<strong>${messages("businessActivity.insetText.label")}:</strong> 49200 (Freight rail transport)")
         ))
+
+        @customSummaryList(
+            rows = Seq(
+                (messages("businessActivityTwo.ba2.label"), businessActivityCode2, Seq(
+                    (routes.BusinessActivityCodeTwoController.onPageLoad(CheckMode).url, "site.change", "businessActivityTwo.ba2.change.hidden"),
+                    ("#", "site.remove", "businessActivityTwo.ba2.remove.hidden")
+                ))
+            )
+        )
 
         <div class="govuk-form-group @if(errored){govuk-form-group--error}">
             <fieldset class="govuk-fieldset" aria-describedby="ba-heading">
@@ -71,6 +81,6 @@
             </fieldset>
         </div>
 
-        @govukButton(ButtonViewModel(messages("site.continue")))
+         @govukButton(ButtonViewModel(messages("site.continue")))
     }
 }

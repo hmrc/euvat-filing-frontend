@@ -29,12 +29,14 @@
 @(form: Form[_], mode: Mode, call:Call)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("contactDetails.title")), backLinkUrl = Some(call.url)) {
-    <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is: </span>@messages("claim.caption.add")</h2>
-    <h1 class="govuk-heading-l">@messages("contactDetails.heading")</h1>
 
     @formHelper(action = routes.ContactDetailsController.onSubmit(mode), Symbol("novalidate") -> "novalidate") {
         @mainErrorSummary(form)
 
+        <h2 class="govuk-caption-l hmrc-caption-l">
+            <span class="govuk-visually-hidden">This section is: </span>@messages("claim.caption.add")
+        </h2>
+        <h1 class="govuk-heading-l">@messages("contactDetails.heading")</h1>
         @govukInput(
             InputViewModel(
                 field = form("contactEmail"),

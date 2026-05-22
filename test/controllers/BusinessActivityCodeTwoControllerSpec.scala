@@ -30,7 +30,7 @@ import play.api.mvc.Call
 
 class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
 
-  val onwardRoute = Call("GET", "/foo")
+  val onwardRoute: Call = Call("GET", "/foo")
 
   "BusinessActivityCodeTwo Controller" - {
 
@@ -40,7 +40,6 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(GET, routes.BusinessActivityCodeTwoController.onPageLoad(models.NormalMode).url)
-
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[views.html.BusinessActivityCodeTwoView]

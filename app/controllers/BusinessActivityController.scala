@@ -20,7 +20,8 @@ import controllers.actions.*
 import forms.BusinessActivityFormProvider
 import models.Mode
 import navigation.Navigator
-import pages.BusinessActivityPage
+import pages.{BusinessActivityCodeTwoPage, BusinessActivityPage, BusinessActivityTwoPage}
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -44,7 +45,7 @@ class BusinessActivityController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  val form = formProvider()
+  val form: Form[Boolean] = formProvider()
 
   private def backLink(mode: Mode): play.api.mvc.Call = routes.ContactDetailsController.onPageLoad(mode)
 
@@ -60,8 +61,15 @@ class BusinessActivityController @Inject() (
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)))),
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(BusinessActivityPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
+            updateAnswers <- Future.fromTry(request.userAnswers.set(BusinessActivityPage, value))
+            updatedAnswers <- if (value) {
+                                Future.successful(updateAnswers)
+                              } else {
+                                val remove1 = updateAnswers.remove(BusinessActivityCodeTwoPage)
+                                val remove2 = remove1.flatMap(_.remove(BusinessActivityTwoPage))
+                                Future.fromTry(remove2)
+                              }
+            _ <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(BusinessActivityPage, mode, updatedAnswers))
       )
   }
