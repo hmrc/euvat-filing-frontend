@@ -16,28 +16,32 @@
 
 package forms
 
-import forms.behaviours.BooleanFieldBehaviours
+import forms.behaviours.{FieldBehaviours, StringFieldBehaviours}
 import play.api.data.FormError
 
-class BusinessActivityFormProviderSpec extends BooleanFieldBehaviours {
+class BusinessActivityCodeThreeFormProviderSpec extends StringFieldBehaviours with FieldBehaviours {
 
-  private val form = new BusinessActivityFormProvider().apply()
-
-  val requiredKey = "businessActivity.error.required"
-  val invalidKey = "error.boolean"
-  val fieldName = "value"
+  private val formProvider = new BusinessActivityCodeThreeFormProvider()
+  private val allowed = Set("25344", "45200", "47110", "11010")
+  private val form = formProvider(allowed)
 
   ".value" - {
-    behave like booleanField(
-      form,
-      fieldName,
-      invalidError = FormError(fieldName, invalidKey)
-    )
+
+    val fieldName = "value"
 
     behave like mandatoryField(
       form,
       fieldName,
-      requiredError = FormError(fieldName, requiredKey)
+      requiredError = FormError(fieldName, "businessActivityCodeThree.error.required")
     )
+
+    "bind valid data" in {
+      val validValues = Seq("25344", "45200", "47110", "11010")
+      validValues.foreach { v =>
+        val result = form.bind(Map(fieldName -> v)).apply(fieldName)
+        result.value.value mustBe v
+        result.errors mustBe empty
+      }
+    }
   }
 }

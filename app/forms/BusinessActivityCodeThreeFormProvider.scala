@@ -21,10 +21,22 @@ import javax.inject.Inject
 import forms.mappings.Mappings
 import play.api.data.Form
 
-class BusinessActivityFormProvider @Inject() extends Mappings {
+class BusinessActivityCodeThreeFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[Boolean] =
+  def apply(allowedValues: Set[String]): Form[String] =
+    import play.api.data.validation.{Constraint, Invalid, Valid}
+
     Form(
-      "value" -> boolean("businessActivity.error.required")
+      "value" -> text("businessActivityCodeThree.error.required")
+        .verifying(
+          firstError[
+            String
+          ](
+            Constraint {
+              case v if allowedValues.contains(v) => Valid
+              case _                              => Invalid("businessActivityCodeThree.error.invalid")
+            }
+          )
+        )
     )
 }

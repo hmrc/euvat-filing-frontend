@@ -17,6 +17,8 @@
 package controllers
 
 import base.SpecBase
+import models.UserAnswers
+import pages.BusinessActivityCodeTwoPage
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.BusinessActivityThreeView
@@ -26,18 +28,20 @@ class BusinessActivityThreeControllerSpec extends SpecBase {
   "BusinessActivityThree Controller" - {
 
     "must return OK and the correct view for a GET" in {
+      val userAnswers = emptyUserAnswers
+        .set(BusinessActivityCodeTwoPage, "48120")
+        .success
+        .value
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, routes.BusinessActivityThreeController.onPageLoad().url)
-
         val result = route(application, request).value
-
         val view = application.injector.instanceOf[BusinessActivityThreeView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+        contentAsString(result) mustEqual view("48120", "48120")(request, messages(application)).toString
       }
     }
 

@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-package forms
+package pages
 
-import javax.inject.Inject
+import play.api.libs.json.JsPath
+import pages.QuestionPage
 
-import forms.mappings.Mappings
-import play.api.data.Form
+case object BusinessActivityCodeThreePage extends QuestionPage[String] {
 
-class BusinessActivityFormProvider @Inject() extends Mappings {
+  override def path: JsPath = JsPath \ toString
 
-  def apply(): Form[Boolean] =
-    Form(
-      "value" -> boolean("businessActivity.error.required")
-    )
+  override def toString: String = "businessActivityCodeThree"
+
 }
