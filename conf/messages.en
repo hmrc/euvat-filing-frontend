@@ -211,7 +211,7 @@ purchaseType.error.required = Select a purchase type
 #Supplier's name
 suppliersName.title = What is the supplier’s name?
 suppliersName.heading = What is the supplier’s name?
-suppliersName.paragraph = The supplier is found on the invoice or receipt and is responsible for including the VAT.
+suppliersName.hint = Find the supplier’s name on the invoice or receipt
 suppliersName.error.required = Enter a supplier’s name
 suppliersName.error.length = You cannot enter more than 35 characters
 suppliersName.checkYourAnswersLabel = Supplier’s name
