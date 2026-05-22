@@ -95,15 +95,43 @@ class NavigatorSpec extends SpecBase {
     }
 
     "in Check mode" - {
+      "must go from BusinessActivityPage to BusinessActivityCodeTwoController if yes selected" in {
+        val ua = userAnswers.set(BusinessActivityPage, true).success.value
+        navigator.nextPage(BusinessActivityPage, CheckMode, ua) mustBe
+          routes.BusinessActivityCodeTwoController.onPageLoad(CheckMode)
+      }
+
+      "must go from BusinessActivityPage to JourneyRecoveryController if no selected" in {
+        val ua = userAnswers.set(BusinessActivityPage, false).success.value
+        navigator.nextPage(BusinessActivityPage, CheckMode, ua) mustBe
+          routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from BusinessActivityCodeTwoPage page to BusinessActivityThreeController" in {
+        navigator.nextPage(BusinessActivityCodeTwoPage, CheckMode, userAnswers) mustBe
+          routes.BusinessActivityTwoController.onPageLoad(CheckMode)
+      }
+
+      "must go from BusinessActivityTwoPage to BusinessActivityCodeThreeController if yes selected" in {
+        val ua = userAnswers.set(BusinessActivityTwoPage, true).success.value
+        navigator.nextPage(BusinessActivityTwoPage, CheckMode, ua) mustBe
+          routes.BusinessActivityCodeThreeController.onPageLoad(CheckMode)
+      }
+
+      "must go from BusinessActivityTwoPage to JourneyRecoveryController if no selected" in {
+        val ua = userAnswers.set(BusinessActivityTwoPage, false).success.value
+        navigator.nextPage(BusinessActivityTwoPage, CheckMode, ua) mustBe
+          routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from BusinessActivityCodeThreePage to BusinessActivityThreeController" in {
+        navigator.nextPage(BusinessActivityCodeThreePage, CheckMode, userAnswers) mustBe
+          routes.BusinessActivityThreeController.onPageLoad()
+      }
+
       "must go from a page that doesn't exist in the edit route map to CheckYourAnswers" in {
         case object UnknownPage extends Page
         navigator.nextPage(UnknownPage, CheckMode, userAnswers) mustBe routes.CheckYourAnswersController.onPageLoad()
-      }
-
-      "must go from BusinessActivityTwo page to BusinessActivityThreeController" in {
-        val ua = userAnswers.set(BusinessActivityTwoPage, true).success.value
-        navigator.nextPage(BusinessActivityTwoPage, CheckMode, ua) mustBe
-          routes.BusinessActivityThreeController.onPageLoad()
       }
 
     }
