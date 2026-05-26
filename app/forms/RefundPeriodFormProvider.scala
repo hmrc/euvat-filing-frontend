@@ -58,6 +58,25 @@ class RefundPeriodFormProvider @Inject() () {
       else Invalid(errorKey, cutoff.getYear.toString)
     }
 
+  private def fieldsForError(message: String): Set[String] = message match {
+    case "refundPeriod.error.periodStartDatecompleteFieldname"  |
+         "refundPeriod.error.periodStartDatenotAfterEndDate"    |
+         "refundPeriod.error.periodStartDateInvalid"            |
+         "refundPeriod.error.periodStartDateafter30thSept"      |
+         "refundPeriod.error.periodStartDate30thSeptOrEarlier"  =>
+      Set("start.month", "start.year")
+    case "refundPeriod.error.periodEndDatecompleteFieldname" |
+         "refundPeriod.error.periodEndDateInvalid" =>
+      Set("end.month", "end.year")
+    case "refundPeriod.error.periodEndDaterefundPeriodInSingleYear" =>
+      Set("start.year", "end.year")
+    case "refundPeriod.error.periodStartDateperiodNotLessThan3Months" =>
+      Set("start.month", "end.month")
+    case "refundPeriod.error.periodBothDatesInvalid" =>
+      Set("start.month", "start.year", "end.month", "end.year")
+    case _ => Set.empty
+  }
+
   private def highlightedFields(form: Form[RefundPeriodData]): Set[String] = {
     val errorMessages = form.errors.map(_.message).toSet
     val fieldErrors = Set(
@@ -67,26 +86,11 @@ class RefundPeriodFormProvider @Inject() () {
       form.error("end.year").map(_ => "end.year")
     ).flatten
 
-    val businessRuleFields = errorMessages.flatMap {
-      case "refundPeriod.error.periodStartDatenotAfterEndDate" =>
-        Set("start.month", "start.year")
-      case "refundPeriod.error.periodEndDaterefundPeriodInSingleYear" =>
-        Set("start.year", "end.year")
-      case "refundPeriod.error.periodStartDateperiodNotLessThan3Months" =>
-        Set("start.month", "end.month")
-      case "refundPeriod.error.periodBothDatesInvalid" =>
-        Set("start.month", "start.year", "end.month", "end.year")
-      case "refundPeriod.error.periodStartDateInvalid" =>
-        Set("start.month", "start.year")
-      case "refundPeriod.error.periodEndDateInvalid" =>
-        Set("end.month", "end.year")
-      case "refundPeriod.error.periodStartDateafter30thSept" | "refundPeriod.error.periodStartDate30thSeptOrEarlier" =>
-        Set("start.month", "start.year")
-      case _ => Set.empty
-    }
+    val businessRuleFields = errorMessages.flatMap(fieldsForError)
 
     fieldErrors ++ businessRuleFields
   }
+
   def withMappedErrors(form: Form[RefundPeriodData]): (Form[RefundPeriodData], Set[String]) = {
     val errorMappings = Map(
       "refundPeriod.error.periodStartDatenotAfterEndDate"          -> "start",

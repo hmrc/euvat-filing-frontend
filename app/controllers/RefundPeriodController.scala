@@ -51,6 +51,16 @@ class RefundPeriodController @Inject() (
     else Some(errors.map(e => messages(e.message, e.args: _*)).mkString("<br>"))
   }
 
+  private def errorLinkOverrides(form: Form[RefundPeriodData]): Map[String, String] = Map(
+    ""                           -> s"${form("start").id}.month",
+    "start"                      -> s"${form("start").id}.month",
+    "end"                        -> s"${form("end").id}.month",
+    s"${form("start").id}.year"  -> s"${form("start").id}.year",
+    s"${form("end").id}.year"    -> s"${form("end").id}.year",
+    s"${form("start").id}.month" -> s"${form("start").id}.month",
+    s"${form("end").id}.month"   -> s"${form("end").id}.month"
+  )
+
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(RefundPeriodPage) match {
       case None => formProvider()
@@ -62,7 +72,7 @@ class RefundPeriodController @Inject() (
     val (mappedForm, highlighted) = formProvider.withMappedErrors(preparedForm)
     val startMsg = errorMessage(mappedForm, Seq("start", "start.month", "start.year"))
     val endMsg   = errorMessage(mappedForm, Seq("end", "end.month", "end.year"))
-    Ok(view(mappedForm, mode, controllers.routes.RefundingLanguageController.onPageLoad(mode), startMsg, endMsg, highlighted))
+    Ok(view(mappedForm, mode, controllers.routes.RefundingLanguageController.onPageLoad(mode), startMsg, endMsg, highlighted, errorLinkOverrides(mappedForm)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -73,7 +83,7 @@ class RefundPeriodController @Inject() (
           val (mappedForm, highlighted) = formProvider.withMappedErrors(formWithErrors)
           val startMsg = errorMessage(mappedForm, Seq("start", "start.month", "start.year"))
           val endMsg   = errorMessage(mappedForm, Seq("end", "end.month", "end.year"))
-          Future.successful(BadRequest(view(mappedForm, mode, controllers.routes.RefundingLanguageController.onPageLoad(mode), startMsg, endMsg, highlighted)))
+          Future.successful(BadRequest(view(mappedForm, mode, controllers.routes.RefundingLanguageController.onPageLoad(mode), startMsg, endMsg, highlighted, errorLinkOverrides(mappedForm))))
         },
         value =>
           for {
