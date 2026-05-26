@@ -60,10 +60,10 @@ class NavigatorSpec extends SpecBase {
           routes.BusinessActivityCodeTwoController.onPageLoad(NormalMode)
       }
 
-      "must go from BusinessActivityPage to JourneyRecoveryPage if no selected" in { // TODO - update to Check your claim details page
+      "must go from BusinessActivityPage to CheckYourClaimDetailsPage if no selected" in {
         val ua = userAnswers.set(BusinessActivityPage, false).success.value
         navigator.nextPage(BusinessActivityPage, NormalMode, ua) mustBe
-          routes.JourneyRecoveryController.onPageLoad()
+          routes.CheckYourClaimDetailsController.onPageLoad()
       }
 
       "must go from BusinessActivityCodeTwoPage to BusinessActivityTwoController" in {
@@ -77,10 +77,10 @@ class NavigatorSpec extends SpecBase {
           routes.BusinessActivityCodeThreeController.onPageLoad(NormalMode)
       }
 
-      "must go from BusinessActivityTwoPage to JourneyRecoveryController if no selected" in {
+      "must go from BusinessActivityTwoPage to CheckYourClaimDetailsPage if no selected" in {
         val ua = userAnswers.set(BusinessActivityTwoPage, false).success.value
         navigator.nextPage(BusinessActivityTwoPage, NormalMode, ua) mustBe
-          routes.JourneyRecoveryController.onPageLoad()
+          routes.CheckYourClaimDetailsController.onPageLoad()
       }
 
       "must go from BusinessActivityCodeThreePage to BusinessActivityThreeController" in {
@@ -88,8 +88,13 @@ class NavigatorSpec extends SpecBase {
           routes.BusinessActivityThreeController.onPageLoad()
       }
 
-      "must go from PurchaseTypePage to JourneyRecoveryController" in {
+      "must go from PurchaseTypePage to SuppliersNameController" in {
         navigator.nextPage(PurchaseTypePage, NormalMode, userAnswers) mustBe
+          routes.SuppliersNameController.onPageLoad(NormalMode)
+      }
+
+      "must go from SuppliersNamePage to JourneyRecoveryController" in {
+        navigator.nextPage(SuppliersNamePage, NormalMode, userAnswers) mustBe
           routes.JourneyRecoveryController.onPageLoad()
       }
     }
@@ -101,10 +106,10 @@ class NavigatorSpec extends SpecBase {
           routes.BusinessActivityCodeTwoController.onPageLoad(CheckMode)
       }
 
-      "must go from BusinessActivityPage to JourneyRecoveryController if no selected" in {
+      "must go from BusinessActivityPage to CheckYourClaimDetailsPage if no selected" in {
         val ua = userAnswers.set(BusinessActivityPage, false).success.value
         navigator.nextPage(BusinessActivityPage, CheckMode, ua) mustBe
-          routes.JourneyRecoveryController.onPageLoad()
+          routes.CheckYourClaimDetailsController.onPageLoad()
       }
 
       "must go from BusinessActivityCodeTwoPage page to BusinessActivityThreeController" in {
@@ -112,16 +117,16 @@ class NavigatorSpec extends SpecBase {
           routes.BusinessActivityTwoController.onPageLoad(CheckMode)
       }
 
-      "must go from BusinessActivityTwoPage to BusinessActivityCodeThreeController if yes selected" in {
+      "must go from BusinessActivityTwoPage to BusinessActivityCodeThreePage if yes selected" in {
         val ua = userAnswers.set(BusinessActivityTwoPage, true).success.value
         navigator.nextPage(BusinessActivityTwoPage, CheckMode, ua) mustBe
           routes.BusinessActivityCodeThreeController.onPageLoad(CheckMode)
       }
 
-      "must go from BusinessActivityTwoPage to JourneyRecoveryController if no selected" in {
+      "must go from BusinessActivityTwoPage to CheckYourClaimDetailsPage if no selected" in {
         val ua = userAnswers.set(BusinessActivityTwoPage, false).success.value
         navigator.nextPage(BusinessActivityTwoPage, CheckMode, ua) mustBe
-          routes.JourneyRecoveryController.onPageLoad()
+          routes.CheckYourClaimDetailsController.onPageLoad()
       }
 
       "must go from BusinessActivityCodeThreePage to BusinessActivityThreeController" in {
@@ -136,4 +141,5 @@ class NavigatorSpec extends SpecBase {
 
     }
   }
+
 }

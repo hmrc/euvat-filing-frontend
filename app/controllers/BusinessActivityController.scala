@@ -48,7 +48,7 @@ class BusinessActivityController @Inject() (
   val form: Form[Boolean] = formProvider()
 
   private def backLink(mode: Mode): Call = routes.ContactDetailsController.onPageLoad(mode)
-  private val baCode = "49200"
+  private val baCode = "49200" // TODO - retrieve code from rds db
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(BusinessActivityPage).fold(form)(form.fill)
@@ -63,13 +63,12 @@ class BusinessActivityController @Inject() (
         value =>
           for {
             updateAnswers <- Future.fromTry(request.userAnswers.set(BusinessActivityPage, value))
-            updateAnswers <- Future.fromTry(request.userAnswers.set(BusinessActivityCodePage, baCode))
+            updateAnswers <- Future.fromTry(updateAnswers.set(BusinessActivityCodePage, baCode))
             updatedAnswers <- if (value) {
                                 Future.successful(updateAnswers)
                               } else {
                                 val remove1 = updateAnswers.remove(BusinessActivityCodeTwoPage)
-                                val remove2 = remove1.flatMap(_.remove(BusinessActivityTwoPage))
-                                Future.fromTry(remove2)
+                                Future.fromTry(remove1.flatMap(_.remove(BusinessActivityTwoPage)))
                               }
             _ <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(BusinessActivityPage, mode, updatedAnswers))

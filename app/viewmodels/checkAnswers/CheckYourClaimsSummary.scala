@@ -19,7 +19,7 @@ package viewmodels.checkAnswers
 import controllers.routes
 import models.{CheckMode, UserAnswers}
 import pages.*
-import play.api.i18n.{Lang, Messages}
+import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
@@ -29,7 +29,6 @@ object CheckYourClaimsSummary {
 
   def rowCountryLabel(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(RefundingCountryPage).map { answer =>
-      implicit val lang: Lang = messages.lang
 
       SummaryListRowViewModel(
         key   = "checkYourClaimDetails.refundingCountry.label",
@@ -43,7 +42,6 @@ object CheckYourClaimsSummary {
 
   def rowCountry(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(RefundingCountryPage).map { answer =>
-      implicit val lang: Lang = messages.lang
 
       SummaryListRowViewModel(
         key     = "checkYourClaimDetails.refundingCountry.subLabel",
@@ -54,7 +52,6 @@ object CheckYourClaimsSummary {
 
   def rowLanguageLabel(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(RefundingLanguagePage).map { answer =>
-      implicit val lang: Lang = messages.lang
 
       SummaryListRowViewModel(
         key   = "checkYourClaimDetails.refundingLanguage.label",
@@ -68,7 +65,6 @@ object CheckYourClaimsSummary {
 
   def rowLanguage(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(RefundingLanguagePage).map { answer =>
-      implicit val lang: Lang = messages.lang
 
       SummaryListRowViewModel(
         key     = "checkYourClaimDetails.refundingLanguage.subLabel",
@@ -79,7 +75,6 @@ object CheckYourClaimsSummary {
 
   def rowRefundPeriodLabel(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(RefundPeriodPage).map { answer =>
-      implicit val lang: Lang = messages.lang
 
       SummaryListRowViewModel(
         key   = "checkYourClaimDetails.refundingPeriod.label",
@@ -93,7 +88,6 @@ object CheckYourClaimsSummary {
 
   def rowRefundStart(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(RefundPeriodPage).map { answer =>
-      implicit val lang: Lang = messages.lang
 
       SummaryListRowViewModel(
         key     = "checkYourClaimDetails.refundingPeriodStart.subLabel",
@@ -104,7 +98,6 @@ object CheckYourClaimsSummary {
 
   def rowRefundEnd(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(RefundPeriodPage).map { answer =>
-      implicit val lang: Lang = messages.lang
 
       SummaryListRowViewModel(
         key     = "checkYourClaimDetails.refundingPeriodEnd.subLabel",
@@ -115,7 +108,6 @@ object CheckYourClaimsSummary {
 
   def rowContactLabel(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(ContactDetailsPage).map { answer =>
-      implicit val lang: Lang = messages.lang
 
       SummaryListRowViewModel(
         key   = "checkYourClaimDetails.contactDetails.label",
@@ -129,7 +121,6 @@ object CheckYourClaimsSummary {
 
   def rowContactEmail(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(ContactDetailsPage).map { answer =>
-      implicit val lang: Lang = messages.lang
 
       SummaryListRowViewModel(
         key     = "checkYourClaimDetails.contactEmail.subLabel",
@@ -140,7 +131,6 @@ object CheckYourClaimsSummary {
 
   def rowContactTelephone(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(ContactDetailsPage).map { answer =>
-      implicit val lang: Lang = messages.lang
 
       SummaryListRowViewModel(
         key     = "checkYourClaimDetails.contactTelephone.subLabel",
@@ -150,24 +140,28 @@ object CheckYourClaimsSummary {
     }
 
   def rowBusinessActivityLabel(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(BusinessActivityPage).map { answer =>
-      implicit val lang: Lang = messages.lang
+    val action = if (answers.get(BusinessActivityCodeThreePage).nonEmpty) {
+      routes.BusinessActivityThreeController.onPageLoad()
+    } else if (answers.get(BusinessActivityCodeTwoPage).nonEmpty) {
+      routes.BusinessActivityTwoController.onPageLoad(CheckMode)
+    } else {
+      routes.BusinessActivityController.onPageLoad(CheckMode)
+    }
 
+    Some(
       SummaryListRowViewModel(
         key = KeyViewModel(
           s"""<span class="govuk-!-width-one-half">${messages("checkYourClaimDetails.businessActivity.label")}</span>"""
         ),
         value = ValueViewModel(HtmlFormat.raw("").toString),
         actions = Seq(
-          ActionItemViewModel("site.change", routes.BusinessActivityController.onPageLoad(CheckMode).url)
-            .withVisuallyHiddenText(messages("checkYourClaimDetails.businessActivity.change.hidden"))
+          ActionItemViewModel("site.change", action.url).withVisuallyHiddenText(messages("checkYourClaimDetails.businessActivity.change.hidden"))
         )
       )
-    }
+    )
 
   def rowBusinessActivity(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(BusinessActivityCodePage).map { answer =>
-      implicit val lang: Lang = messages.lang
 
       SummaryListRowViewModel(
         key     = "checkYourClaimDetails.businessActivity.subLabel",
@@ -178,7 +172,6 @@ object CheckYourClaimsSummary {
 
   def rowBusinessActivity2(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(BusinessActivityCodeTwoPage).map { answer =>
-      implicit val lang: Lang = messages.lang
 
       SummaryListRowViewModel(
         key     = "checkYourClaimDetails.businessActivity2.subLabel",
@@ -189,7 +182,6 @@ object CheckYourClaimsSummary {
 
   def rowBusinessActivity3(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(BusinessActivityCodeThreePage).map { answer =>
-      implicit val lang: Lang = messages.lang
 
       SummaryListRowViewModel(
         key     = "checkYourClaimDetails.businessActivity3.subLabel",
