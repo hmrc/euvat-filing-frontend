@@ -88,8 +88,13 @@ class NavigatorSpec extends SpecBase {
           routes.BusinessActivityThreeController.onPageLoad()
       }
 
-      "must go from PurchaseTypePage to JourneyRecoveryController" in {
+      "must go from PurchaseTypePage to SuppliersNameController" in {
         navigator.nextPage(PurchaseTypePage, NormalMode, userAnswers) mustBe
+          routes.SuppliersNameController.onPageLoad(NormalMode)
+      }
+
+      "must go from SuppliersNamePage to JourneyRecoveryController" in {
+        navigator.nextPage(SuppliersNamePage, NormalMode, userAnswers) mustBe
           routes.JourneyRecoveryController.onPageLoad()
       }
 
@@ -113,4 +118,5 @@ class NavigatorSpec extends SpecBase {
 
     }
   }
+
 }
