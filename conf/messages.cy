@@ -144,7 +144,7 @@ contactDetails.error.telephone.format = Enter a telephone number in the correct 
 
 businessActivity.title = Business activity for this claim
 businessActivity.heading = Business activity for this claim
-businessActivity.lead = These are the Standard Industrial Classification (SIC) listed for your business.
+businessActivity.lead = This is the Standard Industrial Classification (SIC) code listed for your business.
 businessActivity.insetText.label = Business activity 1
 businessActivity.h2 = Do you need to add another business activity?
 businessActivity.p1 = You can find the SIC codes on the
