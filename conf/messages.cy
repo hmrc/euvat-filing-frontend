@@ -10,7 +10,7 @@ site.start = Start now
 site.startAgain = Start again
 site.signIn = Sign in
 site.govuk = GOV.UK
-site.accept.submit = Accept and submit
+site.save.continue = Save and continue
 
 date.day = Day
 date.month = Month
@@ -202,9 +202,9 @@ checkYourClaimDetails.contactEmail.subLabel = Email address
 checkYourClaimDetails.contactTelephone.subLabel = Telephone number
 checkYourClaimDetails.businessActivity.label = Business activity
 checkYourClaimDetails.businessActivity.change.hidden = business activity
-checkYourClaimDetails.businessActivity1.subLabel = Primary business activity
-checkYourClaimDetails.businessActivity2.subLabel = Business activity code 2
-checkYourClaimDetails.businessActivity3.subLabel = Business activity code 3
+checkYourClaimDetails.businessActivity.subLabel = Business activity 1
+checkYourClaimDetails.businessActivity2.subLabel = Business activity 2
+checkYourClaimDetails.businessActivity3.subLabel = Business activity 3
 checkYourClaimDetails.paragraph = You cannot change the refunding EU member state after your save and continue.
 
 aboutThePurchase.title = About the purchase

@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.BusinessActivityFormProvider
 import models.Mode
 import navigation.Navigator
-import pages.{BusinessActivityCodeTwoPage, BusinessActivityPage, BusinessActivityTwoPage}
+import pages.{BusinessActivityCodePage, BusinessActivityCodeTwoPage, BusinessActivityPage, BusinessActivityTwoPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
@@ -48,20 +48,22 @@ class BusinessActivityController @Inject() (
   val form: Form[Boolean] = formProvider()
 
   private def backLink(mode: Mode): Call = routes.ContactDetailsController.onPageLoad(mode)
+  private val baCode = "49200"
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(BusinessActivityPage).fold(form)(form.fill)
-    Ok(view(preparedForm, mode, backLink(mode)))
+    Ok(view(preparedForm, mode, backLink(mode), baCode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode), baCode))),
         value =>
           for {
             updateAnswers <- Future.fromTry(request.userAnswers.set(BusinessActivityPage, value))
+            updateAnswers <- Future.fromTry(request.userAnswers.set(BusinessActivityCodePage, baCode))
             updatedAnswers <- if (value) {
                                 Future.successful(updateAnswers)
                               } else {

@@ -83,7 +83,7 @@ class CheckYourClaimDetailsController @Inject() (
         getChangeUrl(CheckYourClaimsSummary.rowBusinessActivityLabel(answers)),
         SummaryListViewModel(
           Seq(
-            CheckYourClaimsSummary.rowBusinessActivity1(answers),
+            CheckYourClaimsSummary.rowBusinessActivity(answers),
             CheckYourClaimsSummary.rowBusinessActivity2(answers),
             CheckYourClaimsSummary.rowBusinessActivity3(answers)
           ).flatten

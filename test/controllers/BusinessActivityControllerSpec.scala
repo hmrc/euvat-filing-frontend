@@ -38,6 +38,7 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
   private lazy val pageLoadRoute = routes.BusinessActivityController.onPageLoad(NormalMode).url
   private lazy val submitRoute = routes.BusinessActivityController.onSubmit(NormalMode).url
   private lazy val backLink: Call = routes.ContactDetailsController.onPageLoad(NormalMode)
+  private val baCode1 = "49200"
 
   "BusinessActivity Controller" - {
 
@@ -53,7 +54,7 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
         val form = formProvider()
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, backLink)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, backLink, baCode1)(request, messages(application)).toString
       }
     }
 
@@ -82,7 +83,7 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
         val form = formProvider().fill(true)
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, backLink)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, backLink, baCode1)(request, messages(application)).toString
       }
     }
 

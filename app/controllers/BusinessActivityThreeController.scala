@@ -17,7 +17,7 @@
 package controllers
 
 import controllers.actions.*
-import pages.{BusinessActivityCodeThreePage, BusinessActivityCodeTwoPage}
+import pages.{BusinessActivityCodePage, BusinessActivityCodeThreePage, BusinessActivityCodeTwoPage}
 import play.api.Logging
 
 import javax.inject.Inject
@@ -40,9 +40,9 @@ class BusinessActivityThreeController @Inject() (
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val userAnswers = request.userAnswers
 
-    (userAnswers.get(BusinessActivityCodeTwoPage), userAnswers.get(BusinessActivityCodeThreePage)) match { // TODO - Update to business activity code 3
-      case (Some(baCode2), Some(baCode3)) =>
-        Ok(view(baCode2, baCode3))
+    (userAnswers.get(BusinessActivityCodePage), userAnswers.get(BusinessActivityCodeTwoPage), userAnswers.get(BusinessActivityCodeThreePage)) match {
+      case (Some(baCode1), Some(baCode2), Some(baCode3)) =>
+        Ok(view(baCode1, baCode2, baCode3))
 
       case _ =>
         logger.warn("Data guard error, missing required information")

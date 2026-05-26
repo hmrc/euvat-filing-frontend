@@ -18,7 +18,7 @@ package viewmodels.checkAnswers
 
 import controllers.routes
 import models.{CheckMode, UserAnswers}
-import pages.{BusinessActivityCodePage, BusinessActivityCodeThreePage, BusinessActivityCodeTwoPage, BusinessActivityPage, ContactDetailsPage, RefundPeriodPage, RefundingCountryPage, RefundingLanguagePage}
+import pages.*
 import play.api.i18n.{Lang, Messages}
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
@@ -155,11 +155,7 @@ object CheckYourClaimsSummary {
 
       SummaryListRowViewModel(
         key = KeyViewModel(
-//          HtmlFormat
-//            .raw(
           s"""<span class="govuk-!-width-one-half">${messages("checkYourClaimDetails.businessActivity.label")}</span>"""
-//            )
-            .toString
         ),
         value = ValueViewModel(HtmlFormat.raw("").toString),
         actions = Seq(
@@ -169,12 +165,12 @@ object CheckYourClaimsSummary {
       )
     }
 
-  def rowBusinessActivity1(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
+  def rowBusinessActivity(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(BusinessActivityCodePage).map { answer =>
       implicit val lang: Lang = messages.lang
 
       SummaryListRowViewModel(
-        key     = "checkYourClaimDetails.businessActivity1.subLabel",
+        key     = "checkYourClaimDetails.businessActivity.subLabel",
         value   = ValueViewModel(HtmlFormat.raw(answer).toString),
         actions = Seq.empty
       )

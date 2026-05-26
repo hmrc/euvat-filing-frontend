@@ -29,7 +29,7 @@
     mainErrorSummary: MainErrorSummary
 )
 
-@(form: Form[_], mode: Mode, call: Call, businessActivityCode2: String)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, call: Call, baCode1: String, baCode2: String)(implicit request: Request[_], messages: Messages)
 @errored = @{form.error("value").isDefined}
 
 @layout(pageTitle = views.ViewUtils.title(form, messages("businessActivityTwo.title")), backLinkUrl = Some(call.url)) {
@@ -44,12 +44,12 @@
         <p class="govuk-body-l">@messages("businessActivity.lead")</p>
 
         @govukInsetText(InsetText(
-            content = HtmlContent(s"<strong>${messages("businessActivity.insetText.label")}:</strong> 49200 (Freight rail transport)")
+            content = HtmlContent(s"<strong>${messages("businessActivity.insetText.label")}:</strong> ${baCode1}")
         ))
 
         @customSummaryList(
             rows = Seq(
-                (messages("businessActivityTwo.ba2.label"), Some(businessActivityCode2), Seq(
+                (messages("businessActivityTwo.ba2.label"), Some(baCode2), Seq(
                     (routes.BusinessActivityCodeTwoController.onPageLoad(CheckMode).url, "site.change", "businessActivityTwo.ba2.change.hidden"),
                     ("#", "site.remove", "businessActivityTwo.ba2.remove.hidden")
                 ))

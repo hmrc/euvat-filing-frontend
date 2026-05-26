@@ -25,7 +25,7 @@
         customSummaryList: CustomSummaryList
 )
 
-@(baCode2: String, baCode3: String)(implicit request: Request[_], messages: Messages)
+@(baCode1: String, baCode2: String, baCode3: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("businessActivityThree.title")), backLinkUrl = Some(routes.BusinessActivityCodeThreeController.onPageLoad(NormalMode).url)) {
     @formHelper(action = routes.BusinessActivityThreeController.onSubmit()) {
@@ -38,7 +38,7 @@
         <p class="govuk-body-l">@messages("businessActivity.lead")</p>
 
         @govukInsetText(InsetText(
-            content = HtmlContent(s"<strong>${messages("businessActivity.insetText.label")}:</strong> 49200 (Freight rail transport)")
+            content = HtmlContent(s"<strong>${messages("businessActivity.insetText.label")}:</strong> ${baCode1}")
         ))
 
         @customSummaryList(
