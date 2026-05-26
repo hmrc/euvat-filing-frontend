@@ -36,7 +36,7 @@ class Navigator @Inject() () {
     case BusinessActivityTwoPage       => userAnswer => navigateFromBusinessActivity2Page(NormalMode)(userAnswer)
     case BusinessActivityCodeThreePage => _ => routes.BusinessActivityThreeController.onPageLoad()
     case PurchaseTypePage              => _ => routes.SuppliersNameController.onPageLoad(NormalMode)
-    case SuppliersNamePage             => _ => routes.JourneyRecoveryController.onPageLoad()
+    case SuppliersNamePage             => _ => routes.SupplierAddressController.onPageLoad(NormalMode)
     case SupplierAddressPage           => _ => routes.JourneyRecoveryController.onPageLoad()
     case _                             => _ => routes.IndexController.onPageLoad()
   }

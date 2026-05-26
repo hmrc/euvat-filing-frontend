@@ -93,9 +93,9 @@ class NavigatorSpec extends SpecBase {
           routes.SuppliersNameController.onPageLoad(NormalMode)
       }
 
-      "must go from SuppliersNamePage to JourneyRecoveryController" in {
+      "must go from SuppliersNamePage to SupplierAddressController" in {
         navigator.nextPage(SuppliersNamePage, NormalMode, userAnswers) mustBe
-          routes.JourneyRecoveryController.onPageLoad()
+          routes.SupplierAddressController.onPageLoad(NormalMode)
       }
 
       "must go from SupplierAddressPage to JourneyRecoveryController" in {
