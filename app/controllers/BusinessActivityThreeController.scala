@@ -17,7 +17,7 @@
 package controllers
 
 import controllers.actions.*
-import pages.BusinessActivityCodeTwoPage
+import pages.{BusinessActivityCodeThreePage, BusinessActivityCodeTwoPage}
 import play.api.Logging
 
 import javax.inject.Inject
@@ -40,7 +40,7 @@ class BusinessActivityThreeController @Inject() (
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val userAnswers = request.userAnswers
 
-    (userAnswers.get(BusinessActivityCodeTwoPage), userAnswers.get(BusinessActivityCodeTwoPage)) match { // TODO - Update to business activity code 3
+    (userAnswers.get(BusinessActivityCodeTwoPage), userAnswers.get(BusinessActivityCodeThreePage)) match {
       case (Some(baCode2), Some(baCode3)) =>
         Ok(view(baCode2, baCode3))
 

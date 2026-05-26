@@ -145,7 +145,7 @@ contactDetails.error.telephone.format = Enter a telephone number in the correct 
 
 businessActivity.title = Business activity for this claim
 businessActivity.heading = Business activity for this claim
-businessActivity.lead = These are the Standard Industrial Classification (SIC) listed for your business.
+businessActivity.lead = This is the Standard Industrial Classification (SIC) code listed for your business.
 businessActivity.insetText.label = Business activity 1
 businessActivity.h2 = Do you need to add another business activity?
 businessActivity.p1 = You can find the SIC codes on the
@@ -207,10 +207,9 @@ purchaseType.luxuries = Expenditure on luxuries, amusements and entertainment
 purchaseType.other = Other
 purchaseType.error.required = Select a purchase type
 
-#Supplier's name
 suppliersName.title = What is the supplier’s name?
 suppliersName.heading = What is the supplier’s name?
-suppliersName.hint = Find the supplier’s name on the invoice or receipt
+suppliersName.hint = Find the supplier’s name on the invoice or receipt.
 suppliersName.error.required = Enter a supplier’s name
 suppliersName.error.length = The supplier’s name must be 35 characters or less
 suppliersName.checkYourAnswersLabel = Supplier’s name
