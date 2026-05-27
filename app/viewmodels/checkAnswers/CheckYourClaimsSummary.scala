@@ -68,7 +68,7 @@ object CheckYourClaimsSummary {
 
       SummaryListRowViewModel(
         key     = "checkYourClaimDetails.refundingLanguage.subLabel",
-        value   = ValueViewModel(answer.toString),
+        value   = ValueViewModel(messages(s"refundingLanguage.${answer.toString}")),
         actions = Seq.empty
       )
     }

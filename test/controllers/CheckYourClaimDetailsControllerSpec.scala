@@ -56,7 +56,7 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
       }
     }
 
-    "must include all expected labels in the rendered HTML" in {
+    "must include all expected labels in the rendered HTML as visually-hidden" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -71,7 +71,7 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
           "Contact details",
           "Business activity"
         ).foreach { label =>
-          html must include(label)
+          html must include(s"<span class=\"govuk-visually-hidden\">$label</span>")
         }
       }
     }
