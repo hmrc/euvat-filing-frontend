@@ -28,6 +28,8 @@ class InvoiceTypeController @Inject()(
 
   val form = formProvider()
 
+  private def backLink: Call = routes.AboutThePurchaseController.onPageLoad(NormalMode)
+
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) {
     implicit request =>
 
@@ -36,7 +38,7 @@ class InvoiceTypeController @Inject()(
         case Some(value) => form.fill(value)
       }
 
-      Ok(view(preparedForm, mode))
+      Ok(view(preparedForm, mode, backLink))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
