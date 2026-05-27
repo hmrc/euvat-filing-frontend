@@ -116,6 +116,11 @@ class NavigatorSpec extends SpecBase {
           routes.BusinessActivityThreeController.onPageLoad()
       }
 
+      "must go from SupplierAddressPage to CheckYourAnswersController" in {
+        navigator.nextPage(SupplierAddressPage, CheckMode, userAnswers) mustBe
+          routes.CheckYourAnswersController.onPageLoad()
+      }
+
     }
   }
 

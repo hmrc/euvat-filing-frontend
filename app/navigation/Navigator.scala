@@ -43,6 +43,7 @@ class Navigator @Inject() () {
 
   private val checkRouteMap: Page => UserAnswers => Call = {
     case BusinessActivityTwoPage => _ => routes.BusinessActivityThreeController.onPageLoad()
+    case SupplierAddressPage     => _ => routes.CheckYourAnswersController.onPageLoad()
     case _                       => _ => routes.CheckYourAnswersController.onPageLoad()
   }
 
