@@ -87,10 +87,11 @@ class YearMonthFormatter(
     )
 
     val rawMonthString = data.getOrElse(s"$key.month", "")
-    val rawMonthResult = if (rawMonthString.matches("""\d{3,}"""))
-      Left(Seq(FormError(s"$key.month", s"$invalidKey.month", args)))
-    else
-      int.bind(s"$key.month", data)
+    val rawMonthResult =
+      if (rawMonthString.matches("""\d{3,}"""))
+        Left(Seq(FormError(s"$key.month", s"$invalidKey.month", args)))
+      else
+        int.bind(s"$key.month", data)
     val monthResult = rawMonthResult.flatMap { m =>
       if (m < 1 || m > 12) Left(Seq(FormError(s"$key.month", s"$invalidKey.month", args)))
       else Right(m)

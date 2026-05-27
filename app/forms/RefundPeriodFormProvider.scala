@@ -48,25 +48,26 @@ class RefundPeriodFormProvider @Inject() () {
 
   private val septemberCutoffConstraint: Constraint[RefundPeriodData] =
     Constraint { data =>
-      val (cutoff, errorKey) =
-        if (today.isAfter(java.time.LocalDate.of(today.getYear, 9, 30)))
-          (YearMonth.of(today.getYear, 1), "refundPeriod.error.periodStartDateafter30thSept")
-        else
-          (YearMonth.of(today.getYear - 1, 1), "refundPeriod.error.periodStartDate30thSeptOrEarlier")
+      val now = YearMonth.now()
+      if (data.start.isAfter(now) || data.end.isAfter(now)) Valid
+      else {
+        val (cutoff, errorKey) =
+          if (today.isAfter(java.time.LocalDate.of(today.getYear, 9, 30)))
+            (YearMonth.of(today.getYear, 1), "refundPeriod.error.periodStartDateafter30thSept")
+          else
+            (YearMonth.of(today.getYear - 1, 1), "refundPeriod.error.periodStartDate30thSeptOrEarlier")
 
-      if (!data.start.isBefore(cutoff)) Valid
-      else Invalid(errorKey, cutoff.getYear.toString)
+        if (!data.start.isBefore(cutoff)) Valid
+        else Invalid(errorKey, cutoff.getYear.toString)
+      }
     }
 
   private def fieldsForError(message: String): Set[String] = message match {
-    case "refundPeriod.error.periodStartDatecompleteFieldname"  |
-         "refundPeriod.error.periodStartDatenotAfterEndDate"    |
-         "refundPeriod.error.periodStartDateInvalid"            |
-         "refundPeriod.error.periodStartDateafter30thSept"      |
-         "refundPeriod.error.periodStartDate30thSeptOrEarlier"  =>
+    case "refundPeriod.error.periodStartDatecompleteFieldname" | "refundPeriod.error.periodStartDatenotAfterEndDate" |
+        "refundPeriod.error.periodStartDateInvalid" | "refundPeriod.error.periodStartDateafter30thSept" |
+        "refundPeriod.error.periodStartDate30thSeptOrEarlier" =>
       Set("start.month", "start.year")
-    case "refundPeriod.error.periodEndDatecompleteFieldname" |
-         "refundPeriod.error.periodEndDateInvalid" =>
+    case "refundPeriod.error.periodEndDatecompleteFieldname" | "refundPeriod.error.periodEndDateInvalid" =>
       Set("end.month", "end.year")
     case "refundPeriod.error.periodEndDaterefundPeriodInSingleYear" =>
       Set("start.year", "end.year")
@@ -149,7 +150,15 @@ class RefundPeriodFormProvider @Inject() () {
             val now = YearMonth.now()
             if (data.start.isAfter(now) || data.end.isAfter(now)) true
             else if (!data.start.isBefore(data.end)) true
-            else data.start.getYear == data.end.getYear
+            else {
+              val cutoff =
+                if (today.isAfter(java.time.LocalDate.of(today.getYear, 9, 30)))
+                  YearMonth.of(today.getYear, 1)
+                else
+                  YearMonth.of(today.getYear - 1, 1)
+              if (data.start.isBefore(cutoff)) true
+              else data.start.getYear == data.end.getYear
+            }
           }
         )
         .verifying(
@@ -159,7 +168,15 @@ class RefundPeriodFormProvider @Inject() () {
             if (data.start.isAfter(now) || data.end.isAfter(now)) true
             else if (data.start.isAfter(data.end)) true
             else if (data.end.getMonthValue == 12) true
-            else java.time.temporal.ChronoUnit.MONTHS.between(data.start, data.end) >= 2
+            else {
+              val cutoff =
+                if (today.isAfter(java.time.LocalDate.of(today.getYear, 9, 30)))
+                  YearMonth.of(today.getYear, 1)
+                else
+                  YearMonth.of(today.getYear - 1, 1)
+              if (data.start.isBefore(cutoff)) true
+              else java.time.temporal.ChronoUnit.MONTHS.between(data.start, data.end) >= 2
+            }
           }
         )
         .verifying(futureDateConstraint)
