@@ -63,10 +63,11 @@ class RefundPeriodFormProvider @Inject() () {
     }
 
   private def fieldsForError(message: String): Set[String] = message match {
-    case "refundPeriod.error.periodStartDatecompleteFieldname" | "refundPeriod.error.periodStartDatenotAfterEndDate" |
-        "refundPeriod.error.periodStartDateInvalid" | "refundPeriod.error.periodStartDateafter30thSept" |
-        "refundPeriod.error.periodStartDate30thSeptOrEarlier" =>
+    case "refundPeriod.error.periodStartDatecompleteFieldname" | "refundPeriod.error.periodStartDateInvalid" |
+        "refundPeriod.error.periodStartDateafter30thSept" | "refundPeriod.error.periodStartDate30thSeptOrEarlier" =>
       Set("start.month", "start.year")
+    case "refundPeriod.error.periodStartDatenotAfterEndDate" =>
+      Set("start.month", "start.year", "end.month", "end.year")
     case "refundPeriod.error.periodEndDatecompleteFieldname" | "refundPeriod.error.periodEndDateInvalid" =>
       Set("end.month", "end.year")
     case "refundPeriod.error.periodEndDaterefundPeriodInSingleYear" =>
@@ -77,7 +78,6 @@ class RefundPeriodFormProvider @Inject() () {
       Set("start.month", "start.year", "end.month", "end.year")
     case _ => Set.empty
   }
-
   private def highlightedFields(form: Form[RefundPeriodData]): Set[String] = {
     val errorMessages = form.errors.map(_.message).toSet
     val fieldErrors = Set(
