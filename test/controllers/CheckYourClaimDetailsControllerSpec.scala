@@ -19,7 +19,6 @@ package controllers
 import base.SpecBase
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import uk.gov.hmrc.govukfrontend.views.Aliases.SummaryList
 import viewmodels.govuk.SummaryListFluency
 import views.html.CheckYourClaimDetailsView
 
@@ -36,14 +35,10 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
         "checkYourClaimDetails.contactDetails.label",
         "checkYourClaimDetails.businessActivity.label"
       )
-//      val changeLinks = Seq.fill(labels.size)(Some("change"))
       running(application) {
         val request = FakeRequest(GET, routes.CheckYourClaimDetailsController.onPageLoad().url)
         val result = route(application, request).value
         val view = application.injector.instanceOf[CheckYourClaimDetailsView]
-
-//        val summaryList: Seq[(String, Option[String], SummaryList)] =
-//          labels.map(label => (label, Some("change"), SummaryListViewModel(Seq.empty)))
 
         status(result) mustEqual OK
       }

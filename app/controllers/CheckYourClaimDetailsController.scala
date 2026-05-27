@@ -42,9 +42,7 @@ class CheckYourClaimDetailsController @Inject() (
     with Logging {
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val ua = request.userAnswers
-    val euCountry = ua.get(RefundingCountryPage)
-    val summaryList = buildSummaryList(ua)
+    val summaryList = buildSummaryList(request.userAnswers)
 
     Ok(view(summaryList))
   }
