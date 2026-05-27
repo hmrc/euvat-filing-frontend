@@ -46,12 +46,10 @@
             content = HtmlContent(s"<strong>${messages("businessActivity.insetText.label")}:</strong> 49200 (Freight rail transport)")
         ))
 
-        <div class="govuk-form-group govuk-form-group--error">
-            <fieldset class="govuk-fieldset" aria-describedby="value-error">
+        <div class="govuk-form-group @if(isError){govuk-form-group--error}">
+            <fieldset class="govuk-fieldset" @if(isError){aria-describedby="value-error"}>
                 <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-                    <h2 class="govuk-fieldset__heading">
-                        @messages("businessActivity.h2")
-                    </h2>
+                    @messages("businessActivity.h2")
                 </legend>
                 <div id="ba-para" class="govuk-body">@messages("businessActivity.p1")
                     <a class="govuk-link" href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2026" target="_blank" rel="noreferrer noopener">
