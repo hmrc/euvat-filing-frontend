@@ -25,8 +25,7 @@
 
 @(sections: Seq[(String, Option[String], SummaryList)])(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("checkYourClaimDetails.title")), showBackLink = false, useFullGrid = true) {
-    <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">@messages("caption.hidden.text")</span>@messages("claim.caption.add")</h2>
+@layout(pageTitle = titleNoForm(messages("checkYourClaimDetails.title"))) {
     <h1 class="govuk-heading-l">@messages("checkYourClaimDetails.heading")</h1>
 
     @formHelper(action = routes.CheckYourClaimDetailsController.onSubmit(), Symbol("autoComplete") -> "off") {
