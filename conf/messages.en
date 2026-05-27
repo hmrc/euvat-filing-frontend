@@ -162,6 +162,7 @@ businessActivityCodeTwo.error.invalid.summary = Enter a valid business activity 
 
 businessActivityTwo.title = Business activities for this claim
 businessActivityTwo.heading = Business activities for this claim
+businessActivityTwo.lead = These are the Standard Industrial Classification (SIC) codes listed for your business.
 businessActivityTwo.ba2.label = Business activity 2
 businessActivityTwo.ba2.change.hidden = Change business activity code 2
 businessActivityTwo.ba2.remove.hidden = Remove business activity code 2
@@ -178,6 +179,7 @@ businessActivityCodeThree.change.hidden = Change the 3rd business activity code
 
 businessActivityThree.title = Business activities for this claim
 businessActivityThree.heading = Business activities for this claim
+businessActivityThree.lead = These are the Standard Industrial Classification (SIC) codes listed for your business.
 businessActivityThree.ba2.label = Business activity 2
 businessActivityThree.ba3.label = Business activity 3
 businessActivityThree.ba2.remove.hidden = Remove business activity code 2
