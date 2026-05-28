@@ -35,7 +35,7 @@
                     @if(changeHrefOpt.isDefined) {
                         <a href="@changeHrefOpt.get" class="govuk-link govuk-body govuk-!-margin-bottom-0" style="float: right;">@messages("site.change")</a>
                     }
-                    <span class="govuk-visually-hidden">@messages(labelKey)</span>
+                    @messages(labelKey)<span class="govuk-visually-hidden">@messages(labelKey)</span>
                 </h2>
                 <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-top-0 govuk-!-margin-bottom-0">
 

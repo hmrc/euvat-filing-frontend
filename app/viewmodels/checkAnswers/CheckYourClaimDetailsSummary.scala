@@ -25,7 +25,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
-object CheckYourClaimsSummary {
+object CheckYourClaimDetailsSummary {
 
   def rowCountryLabel(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(RefundingCountryPage).map { answer =>

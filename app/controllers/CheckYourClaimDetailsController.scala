@@ -26,7 +26,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.govukfrontend.views.Aliases.SummaryList
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import viewmodels.checkAnswers.CheckYourClaimsSummary
+import viewmodels.checkAnswers.CheckYourClaimDetailsSummary
 import views.html.CheckYourClaimDetailsView
 import viewmodels.govuk.summarylist.*
 
@@ -58,32 +58,32 @@ class CheckYourClaimDetailsController @Inject() (
     Seq(
       (
         "checkYourClaimDetails.refundingCountry.label",
-        getChangeUrl(CheckYourClaimsSummary.rowCountryLabel(answers)),
-        SummaryListViewModel(Seq(CheckYourClaimsSummary.rowCountry(answers)).flatten)
+        getChangeUrl(CheckYourClaimDetailsSummary.rowCountryLabel(answers)),
+        SummaryListViewModel(Seq(CheckYourClaimDetailsSummary.rowCountry(answers)).flatten)
       ),
       (
         "checkYourClaimDetails.refundingLanguage.label",
-        getChangeUrl(CheckYourClaimsSummary.rowLanguageLabel(answers)),
-        SummaryListViewModel(Seq(CheckYourClaimsSummary.rowLanguage(answers)).flatten)
+        getChangeUrl(CheckYourClaimDetailsSummary.rowLanguageLabel(answers)),
+        SummaryListViewModel(Seq(CheckYourClaimDetailsSummary.rowLanguage(answers)).flatten)
       ),
       (
         "checkYourClaimDetails.refundingPeriod.label",
-        getChangeUrl(CheckYourClaimsSummary.rowRefundPeriodLabel(answers)),
-        SummaryListViewModel(Seq(CheckYourClaimsSummary.rowRefundStart(answers), CheckYourClaimsSummary.rowRefundEnd(answers)).flatten)
+        getChangeUrl(CheckYourClaimDetailsSummary.rowRefundPeriodLabel(answers)),
+        SummaryListViewModel(Seq(CheckYourClaimDetailsSummary.rowRefundStart(answers), CheckYourClaimDetailsSummary.rowRefundEnd(answers)).flatten)
       ),
       (
         "checkYourClaimDetails.contactDetails.label",
-        getChangeUrl(CheckYourClaimsSummary.rowContactLabel(answers)),
-        SummaryListViewModel(Seq(CheckYourClaimsSummary.rowContactEmail(answers), CheckYourClaimsSummary.rowContactTelephone(answers)).flatten)
+        getChangeUrl(CheckYourClaimDetailsSummary.rowContactLabel(answers)),
+        SummaryListViewModel(Seq(CheckYourClaimDetailsSummary.rowContactEmail(answers), CheckYourClaimDetailsSummary.rowContactTelephone(answers)).flatten)
       ),
       (
         "checkYourClaimDetails.businessActivity.label",
-        getChangeUrl(CheckYourClaimsSummary.rowBusinessActivityLabel(answers)),
+        getChangeUrl(CheckYourClaimDetailsSummary.rowBusinessActivityLabel(answers)),
         SummaryListViewModel(
           Seq(
-            CheckYourClaimsSummary.rowBusinessActivity(answers),
-            CheckYourClaimsSummary.rowBusinessActivity2(answers),
-            CheckYourClaimsSummary.rowBusinessActivity3(answers)
+            CheckYourClaimDetailsSummary.rowBusinessActivity(answers),
+            CheckYourClaimDetailsSummary.rowBusinessActivity2(answers),
+            CheckYourClaimDetailsSummary.rowBusinessActivity3(answers)
           ).flatten
         )
       )
