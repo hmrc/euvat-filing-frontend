@@ -27,20 +27,37 @@
 @layout(pageTitle = title(form, messages("simplifiedInvoiceSupplierVatRegCheck.title"))) {
 
     @formHelper(action = routes.SimplifiedInvoiceVatRegCheckController.onSubmit(mode), Symbol("autoComplete") -> "off") {
-    <h2 class="govuk-caption-l hmrc-caption-l">
-        <span class="govuk-visually-hidden">This section is: </span>@messages("purchase.caption.add")
-    </h2>
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
+    <span class="govuk-caption-l">
+        <span class="govuk-visually-hidden">This section is: </span>
+        @messages("purchase.caption.add")
+    </span>
 
-        @govukRadios(
-            RadiosViewModel.yesNo(
-                field = form("value"),
-                legend = LegendViewModel(messages("simplifiedInvoiceSupplierVatRegCheck.heading")).asPageHeading().withCssClass("govuk-fieldset__legend--l")
-            ).withHint(HintViewModel(messages("simplifiedInvoiceSupplierVatRegCheck.hint")))
-        )
+    @govukRadios(
+        RadiosViewModel(
+            field = form("value"),
+            legend = Legend(
+                content = Text(messages("simplifiedInvoiceSupplierVatRegCheck.heading")),
+                classes = "govuk-fieldset__legend--l",
+                isPageHeading = true
+            ),
+            items = Seq(
+                RadioItem(
+                    id      = Some("value"),
+                    value   = Some("true"),
+                    content = Text(messages("site.yes"))
+                ),
+                RadioItem(
+                    id      = Some("value-no"),
+                    value   = Some("false"),
+                    content = Text(messages("site.no"))
+                    )
+                )
+        ).withHint(HintViewModel(messages("simplifiedInvoiceSupplierVatRegCheck.hint")))
+    )
 
         @govukButton(
             ButtonViewModel(messages("site.continue"))

@@ -93,8 +93,20 @@ class NavigatorSpec extends SpecBase {
           routes.SupplierAddressController.onPageLoad(NormalMode)
       }
 
-      "must go from SupplierAddressPage to JourneyRecoveryController" in {
+      "must go from SupplierAddressPage to SimplifiedInvoiceVatRegCheckController" in {
         navigator.nextPage(SupplierAddressPage, NormalMode, userAnswers) mustBe
+          routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode)
+      }
+
+      "must go from SimplifiedInvoiceVatRegCheckPage to JourneyRecoveryController if yes selected" in { // TODO - update to yes page
+        val ua = userAnswers.set(SimplifiedInvoiceVatRegCheckPage, true).success.value
+        navigator.nextPage(SimplifiedInvoiceVatRegCheckPage, NormalMode, ua) mustBe
+          routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from SimplifiedInvoiceVatRegCheckPage to JourneyRecoveryController if no selected" in { // TODO - update to no page
+        val ua = userAnswers.set(SimplifiedInvoiceVatRegCheckPage, false).success.value
+        navigator.nextPage(SimplifiedInvoiceVatRegCheckPage, NormalMode, ua) mustBe
           routes.JourneyRecoveryController.onPageLoad()
       }
 
@@ -175,8 +187,20 @@ class NavigatorSpec extends SpecBase {
           routes.BusinessActivityCodeThreeController.onPageLoad(CheckMode)
       }
 
-      "must go from SupplierAddressPage to CheckYourAnswersController" in {
+      "must go from SupplierAddressPage to SimplifiedInvoiceVatRegCheckController" in {
         navigator.nextPage(SupplierAddressPage, CheckMode, userAnswers) mustBe
+          routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(CheckMode)
+      }
+
+      "must go from SimplifiedInvoiceVatRegCheckPage to CheckYourAnswersController if yes selected" in {
+        val ua = userAnswers.set(SimplifiedInvoiceVatRegCheckPage, true).success.value
+        navigator.nextPage(SimplifiedInvoiceVatRegCheckPage, CheckMode, ua) mustBe
+          routes.CheckYourAnswersController.onPageLoad()
+      }
+
+      "must go from SimplifiedInvoiceVatRegCheckPage to CheckYourAnswersController if no selected" in {
+        val ua = userAnswers.set(SimplifiedInvoiceVatRegCheckPage, false).success.value
+        navigator.nextPage(SimplifiedInvoiceVatRegCheckPage, CheckMode, ua) mustBe
           routes.JourneyRecoveryController.onPageLoad()
       }
 
@@ -212,5 +236,4 @@ class NavigatorSpec extends SpecBase {
 
     }
   }
-
 }
