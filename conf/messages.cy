@@ -218,6 +218,17 @@ aboutThePurchase.bullet3 = the VAT registration number
 aboutThePurchase.bullet4 = the supplier name and address
 aboutThePurchase.bullet5 = the VAT amount
 
+invoiceType.title = Invoice type
+invoiceType.caption = Purchase details
+invoiceType.heading = Invoice type
+invoiceType.lead = You will need a valid invoice or receipt. You cannot use statements, orders, letters, emails or other general correspondence to claim VAT.
+invoiceType.h2 = What type of invoice do you have?
+invoiceType.standard invoice = Standard Invoice
+invoiceType.standard invoice.hint = These always include detailed VAT breakdown and the supplier's VAT registration number
+invoiceType.simplified invoice = Simplified Invoice
+invoiceType.simplified invoice.hint = These are usually till receipts for lower-value purchases
+invoiceType.error.required = Select an invoice type
+
 suppliersName.title = What is the supplier’s name?
 suppliersName.heading = What is the supplier’s name?
 suppliersName.hint = Find the supplier’s name on the invoice or receipt.
