@@ -35,7 +35,6 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
   "BusinessActivityCodeThree Controller" - {
 
     "must return OK and the correct view for a GET" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -52,14 +51,13 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form,
                                                activities,
-                                               Some(routes.BusinessActivityCodeTwoController.onPageLoad(models.NormalMode).url),
+                                               Some(routes.BusinessActivityTwoController.onPageLoad(models.NormalMode).url),
                                                models.NormalMode
                                               )(request, messages(application)).toString
       }
     }
 
     "must redirect to Journey Recovery when no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
@@ -73,7 +71,6 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
     }
 
     "must redirect to next page when valid data is submitted" in {
-
       val mockSessionRepository = mock[repositories.SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn scala.concurrent.Future.successful(true)
 
@@ -87,7 +84,6 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
       running(application) {
         val request = FakeRequest(POST, routes.BusinessActivityCodeThreeController.onSubmit(models.NormalMode).url)
           .withFormUrlEncodedBody(("value", "25344"))
-
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -98,9 +94,7 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
     }
 
     "must pre-fill the form when a saved value exists" in {
-
       val userAnswers = emptyUserAnswers.set(BusinessActivityCodeThreePage, "25344").success.value
-
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -117,20 +111,18 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form,
                                                activities,
-                                               Some(routes.BusinessActivityCodeTwoController.onPageLoad(models.NormalMode).url),
+                                               Some(routes.BusinessActivityTwoController.onPageLoad(models.NormalMode).url),
                                                models.NormalMode
                                               )(request, messages(application)).toString
       }
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
         val request = FakeRequest(POST, routes.BusinessActivityCodeThreeController.onSubmit(models.NormalMode).url)
           .withFormUrlEncodedBody(("value", ""))
-
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST

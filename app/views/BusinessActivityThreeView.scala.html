@@ -35,7 +35,7 @@
         </h2>
         <h1 class="govuk-heading-l">@messages("businessActivityThree.heading")</h1>
 
-        <p class="govuk-body-l">@messages("businessActivity.lead")</p>
+        <p class="govuk-body-l">@messages("businessActivityThree.lead")</p>
 
         @govukInsetText(InsetText(
             content = HtmlContent(s"<strong>${messages("businessActivity.insetText.label")}:</strong> 49200 (Freight rail transport)")
@@ -48,7 +48,7 @@
                     ("#", "site.remove", "businessActivityThree.ba2.remove.hidden")
                 )),
                 (messages("businessActivityThree.ba3.label"), baCode3, Seq(
-                    (routes.BusinessActivityCodeTwoController.onPageLoad(CheckMode).url, "site.change", "businessActivityThree.ba3.change.hidden"),
+                    (routes.BusinessActivityCodeThreeController.onPageLoad(CheckMode).url, "site.change", "businessActivityThree.ba3.change.hidden"),
                     ("#", "site.remove", "businessActivityThree.ba3.remove.hidden")
                 ))
             )

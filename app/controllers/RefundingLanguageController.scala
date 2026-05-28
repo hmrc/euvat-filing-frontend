@@ -18,6 +18,7 @@ package controllers
 
 import controllers.actions.*
 import forms.RefundingLanguageFormProvider
+
 import javax.inject.Inject
 import services.ConfigLanguageMapping
 import models.{Mode, NormalMode}
@@ -32,6 +33,7 @@ import views.html.RefundingLanguageView
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.Logger
 import models.RefundingLanguage
+import play.api.data.Form
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 
 class RefundingLanguageController @Inject() (
@@ -49,7 +51,7 @@ class RefundingLanguageController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  val form = formProvider()
+  val form: Form[RefundingLanguage] = formProvider()
 
   private val logger = Logger(getClass)
 

@@ -60,18 +60,13 @@ class BusinessActivityCodeTwoController @Inject() (
   }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-
     val (activities, form) = buildListAndForm()
-
     val preparedForm = request.userAnswers.get(BusinessActivityCodeTwoPage).fold(form)(form.fill)
-
     Ok(view(preparedForm, activities, Some(routes.BusinessActivityController.onPageLoad(mode).url), mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-
     val (activities, form) = buildListAndForm()
-
     val baseAnswers: UserAnswers = request.userAnswers
 
     val boundResult = form

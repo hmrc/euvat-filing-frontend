@@ -145,30 +145,30 @@ contactDetails.error.telephone.format = Enter a telephone number in the correct 
 
 businessActivity.title = Business activity for this claim
 businessActivity.heading = Business activity for this claim
-businessActivity.lead = This is the Standard Industrial Classification (SIC) listed for your business.
-businessActivity.insetText.label = Primary business activity
+businessActivity.lead = This is the Standard Industrial Classification (SIC) code listed for your business.
+businessActivity.insetText.label = Business activity 1
 businessActivity.h2 = Do you need to add another business activity?
 businessActivity.p1 = You can find the SIC codes on the
 businessActivity.link.text = Office for National Statistics website (opens in new tab)
 businessActivity.error.required = Select yes if you want to add another business activity
 
-businessActivityCodeTwo.title = 2nd business activity for this claim
-businessActivityCodeTwo.heading = Add a 2nd business activity code
+businessActivityCodeTwo.title = What is the 2nd business activity?
+businessActivityCodeTwo.heading = What is the 2nd business activity?
 businessActivityCodeTwo.hint = Enter your SIC code or search term, for example "motor"
 businessActivityCodeTwo.error.summary = Enter a business activity code
 businessActivityCodeTwo.error.required = Enter a business activity code
 businessActivityCodeTwo.error.invalid = Enter a valid business activity code
 businessActivityCodeTwo.error.invalid.summary = Enter a valid business activity code
 
-businessActivityTwo.title = Business activity for this claim
-businessActivityTwo.heading = Business activity for this claim
-businessActivityTwo.ba2.label = Business activity code 2
+businessActivityTwo.title = Business activities for this claim
+businessActivityTwo.heading = Business activities for this claim
+businessActivityTwo.lead = These are the Standard Industrial Classification (SIC) codes listed for your business.
+businessActivityTwo.ba2.label = Business activity 2
 businessActivityTwo.ba2.change.hidden = Change business activity code 2
 businessActivityTwo.ba2.remove.hidden = Remove business activity code 2
 
-businessActivityCodeThree.caption = Add claim details
-businessActivityCodeThree.title = 3rd business activity for this claim
-businessActivityCodeThree.heading = Add a 3rd business activity code
+businessActivityCodeThree.title = What is the 3rd business activity?
+businessActivityCodeThree.heading = What is the 3rd business activity?
 businessActivityCodeThree.hint = Enter your SIC code or search term, for example "motor"
 businessActivityCodeThree.error.summary = Enter a business activity code
 businessActivityCodeThree.error.required = Enter a business activity code
@@ -177,10 +177,11 @@ businessActivityCodeThree.error.invalid.summary = Enter a valid business activit
 businessActivityCodeThree.checkYourAnswersLabel = 3rd business activity code
 businessActivityCodeThree.change.hidden = Change the 3rd business activity code
 
-businessActivityThree.title = Business activity for this claim
-businessActivityThree.heading = Business activity for this claim
-businessActivityThree.ba2.label = Business activity code 2
-businessActivityThree.ba3.label = Business activity code 3
+businessActivityThree.title = Business activities for this claim
+businessActivityThree.heading = Business activities for this claim
+businessActivityThree.lead = These are the Standard Industrial Classification (SIC) codes listed for your business.
+businessActivityThree.ba2.label = Business activity 2
+businessActivityThree.ba3.label = Business activity 3
 businessActivityThree.ba2.remove.hidden = Remove business activity code 2
 businessActivityThree.ba3.remove.hidden = Remove business activity code 3
 businessActivityThree.ba2.change.hidden = Change business activity code 2
@@ -208,7 +209,6 @@ purchaseType.luxuries = Expenditure on luxuries, amusements and entertainment
 purchaseType.other = Other
 purchaseType.error.required = Select a purchase type
 
-#Supplier's name
 suppliersName.title = What is the supplier’s name?
 suppliersName.heading = What is the supplier’s name?
 suppliersName.hint = Find the supplier’s name on the invoice or receipt.

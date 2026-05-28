@@ -41,8 +41,11 @@ class Navigator @Inject() () {
   }
 
   private val checkRouteMap: Page => UserAnswers => Call = {
-    case BusinessActivityTwoPage => _ => routes.BusinessActivityThreeController.onPageLoad()
-    case _                       => _ => routes.CheckYourAnswersController.onPageLoad()
+    case BusinessActivityPage          => userAnswer => navigateFromBusinessActivityPage(CheckMode)(userAnswer)
+    case BusinessActivityCodeTwoPage   => _ => routes.BusinessActivityTwoController.onPageLoad(CheckMode)
+    case BusinessActivityTwoPage       => userAnswer => navigateFromBusinessActivity2Page(CheckMode)(userAnswer)
+    case BusinessActivityCodeThreePage => _ => routes.BusinessActivityThreeController.onPageLoad()
+    case _                             => _ => routes.CheckYourAnswersController.onPageLoad()
   }
 
   private def navigateFromBusinessActivityPage(mode: Mode)(userAnswers: UserAnswers): Call =

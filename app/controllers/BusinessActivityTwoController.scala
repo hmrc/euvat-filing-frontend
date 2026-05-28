@@ -22,7 +22,7 @@ import forms.BusinessActivityTwoFormProvider
 import javax.inject.Inject
 import models.{Mode, NormalMode}
 import navigation.Navigator
-import pages.{BusinessActivityCodeTwoPage, BusinessActivityTwoPage}
+import pages.{BusinessActivityCodeThreePage, BusinessActivityCodeTwoPage, BusinessActivityTwoPage}
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -84,8 +84,7 @@ class BusinessActivityTwoController @Inject() (
                 updatedAnswers <- if (value) {
                                     Future.successful(updateAnswers)
                                   } else {
-                                    Future.successful(updateAnswers) // TODO - remove this line and uncomment next line when page 3 is ready
-                                    // Future.fromTry(updateAnswers.remove(BusinessActivityCodeThreePage))
+                                    Future.fromTry(updateAnswers.remove(BusinessActivityCodeThreePage))
                                   }
                 _ <- sessionRepository.set(updatedAnswers)
               } yield Redirect(navigator.nextPage(BusinessActivityTwoPage, mode, updatedAnswers))
