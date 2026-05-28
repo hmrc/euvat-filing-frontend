@@ -19,12 +19,12 @@ package forms
 import forms.behaviours.BooleanFieldBehaviours
 import play.api.data.FormError
 
-class SimplifiedInvoiceSupplierVatRegCheckFormProviderSpec extends BooleanFieldBehaviours {
+class SimplifiedInvoiceVatRegCheckFormProviderSpec extends BooleanFieldBehaviours {
 
   val requiredKey = "simplifiedInvoiceSupplierVatRegCheck.error.required"
   val invalidKey = "error.boolean"
 
-  val form = new SimplifiedInvoiceSupplierVatRegCheckFormProvider()()
+  val form = new SimplifiedInvoiceVatRegCheckFormProvider()()
 
   ".value" - {
 

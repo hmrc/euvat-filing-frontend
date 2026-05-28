@@ -18,16 +18,16 @@ package viewmodels.checkAnswers
 
 import controllers.routes
 import models.{CheckMode, UserAnswers}
-import pages.SimplifiedInvoiceSupplierVatRegCheckPage
+import pages.SimplifiedInvoiceVatRegCheckPage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist._
 import viewmodels.implicits._
 
-object SimplifiedInvoiceSupplierVatRegCheckSummary  {
+object SimplifiedInvoiceVatRegCheckSummary  {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(SimplifiedInvoiceSupplierVatRegCheckPage).map {
+    answers.get(SimplifiedInvoiceVatRegCheckPage).map {
       answer =>
 
         val value = if (answer) "site.yes" else "site.no"
@@ -36,7 +36,7 @@ object SimplifiedInvoiceSupplierVatRegCheckSummary  {
           key     = "simplifiedInvoiceSupplierVatRegCheck.checkYourAnswersLabel",
           value   = ValueViewModel(value),
           actions = Seq(
-            ActionItemViewModel("site.change", routes.SimplifiedInvoiceSupplierVatRegCheckController.onPageLoad(CheckMode).url)
+            ActionItemViewModel("site.change", routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(CheckMode).url)
               .withVisuallyHiddenText(messages("simplifiedInvoiceSupplierVatRegCheck.change.hidden"))
           )
         )

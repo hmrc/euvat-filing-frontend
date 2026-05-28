@@ -17,32 +17,32 @@
 package controllers
 
 import base.SpecBase
-import forms.SimplifiedInvoiceSupplierVatRegCheckFormProvider
+import forms.SimplifiedInvoiceVatRegCheckFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.SimplifiedInvoiceSupplierVatRegCheckPage
+import pages.SimplifiedInvoiceVatRegCheckPage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import repositories.SessionRepository
-import views.html.SimplifiedInvoiceSupplierVatRegCheckView
+import views.html.SimplifiedInvoiceVatRegCheckView
 
 import scala.concurrent.Future
 
-class SimplifiedInvoiceSupplierVatRegCheckControllerSpec extends SpecBase with MockitoSugar {
+class SimplifiedInvoiceVatRegCheckControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  val formProvider = new SimplifiedInvoiceSupplierVatRegCheckFormProvider()
+  val formProvider = new SimplifiedInvoiceVatRegCheckFormProvider()
   val form = formProvider()
 
-  lazy val simplifiedInvoiceSupplierVatRegCheckRoute = routes.SimplifiedInvoiceSupplierVatRegCheckController.onPageLoad(NormalMode).url
+  lazy val simplifiedInvoiceSupplierVatRegCheckRoute = routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode).url
 
-  "SimplifiedInvoiceSupplierVatRegCheck Controller" - {
+  "SimplifiedInvoiceVatRegCheck Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
@@ -53,7 +53,7 @@ class SimplifiedInvoiceSupplierVatRegCheckControllerSpec extends SpecBase with M
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[SimplifiedInvoiceSupplierVatRegCheckView]
+        val view = application.injector.instanceOf[SimplifiedInvoiceVatRegCheckView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
@@ -62,14 +62,14 @@ class SimplifiedInvoiceSupplierVatRegCheckControllerSpec extends SpecBase with M
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = UserAnswers(userAnswersId).set(SimplifiedInvoiceSupplierVatRegCheckPage, true).success.value
+      val userAnswers = UserAnswers(userAnswersId).set(SimplifiedInvoiceVatRegCheckPage, true).success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, simplifiedInvoiceSupplierVatRegCheckRoute)
 
-        val view = application.injector.instanceOf[SimplifiedInvoiceSupplierVatRegCheckView]
+        val view = application.injector.instanceOf[SimplifiedInvoiceVatRegCheckView]
 
         val result = route(application, request).value
 
@@ -139,7 +139,7 @@ class SimplifiedInvoiceSupplierVatRegCheckControllerSpec extends SpecBase with M
 
         val boundForm = form.bind(Map("value" -> ""))
 
-        val view = application.injector.instanceOf[SimplifiedInvoiceSupplierVatRegCheckView]
+        val view = application.injector.instanceOf[SimplifiedInvoiceVatRegCheckView]
 
         val result = route(application, request).value
 

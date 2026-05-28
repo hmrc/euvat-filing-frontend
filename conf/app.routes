@@ -99,7 +99,7 @@ GET         /change-what-supplier-address                controllers.SupplierAdd
 POST        /change-what-supplier-address                controllers.SupplierAddressController.onSubmit(mode: Mode = CheckMode)
 
 
-GET        /simplified-invoice-supplier-vat-registration-check                           controllers.SimplifiedInvoiceSupplierVatRegCheckController.onPageLoad(mode: Mode = NormalMode)
-POST       /simplified-invoice-supplier-vat-registration-check                           controllers.SimplifiedInvoiceSupplierVatRegCheckController.onSubmit(mode: Mode = NormalMode)
-GET        /change-simplified-invoice-supplier-vat-registration-check                    controllers.SimplifiedInvoiceSupplierVatRegCheckController.onPageLoad(mode: Mode = CheckMode)
-POST       /change-simplified-invoice-supplier-vat-registration-check                    controllers.SimplifiedInvoiceSupplierVatRegCheckController.onSubmit(mode: Mode = CheckMode)
+GET        /simplified-invoice-supplier-vat-registration-check                           controllers.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode: Mode = NormalMode)
+POST       /simplified-invoice-supplier-vat-registration-check                           controllers.SimplifiedInvoiceVatRegCheckController.onSubmit(mode: Mode = NormalMode)
+GET        /change-simplified-invoice-supplier-vat-registration-check                    controllers.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-simplified-invoice-supplier-vat-registration-check                    controllers.SimplifiedInvoiceVatRegCheckController.onSubmit(mode: Mode = CheckMode)

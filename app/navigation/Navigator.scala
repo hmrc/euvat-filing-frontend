@@ -17,9 +17,8 @@
 package navigation
 
 import javax.inject.{Inject, Singleton}
-
 import play.api.mvc.Call
-import controllers.routes
+import controllers.{JourneyRecoveryController, routes}
 import pages.*
 import models.*
 
@@ -43,7 +42,8 @@ class Navigator @Inject() () {
     case InvoiceNumberPage             => _ => routes.InvoiceDateController.onPageLoad(NormalMode)
     case InvoiceDatePage               => _ => routes.SuppliersNameController.onPageLoad(NormalMode)
     case SuppliersNamePage             => _ => routes.SupplierAddressController.onPageLoad(NormalMode)
-    case SupplierAddressPage           => _ => routes.JourneyRecoveryController.onPageLoad()
+    case SupplierAddressPage           => _ => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode)
+    case SimplifiedInvoiceVatRegCheckPage => userAnswer => navigateFromSimplifiedInvoiceVatRegCheckPage(NormalMode)(userAnswer)
     case _                             => _ => routes.IndexController.onPageLoad()
   }
 
@@ -59,7 +59,8 @@ class Navigator @Inject() () {
     case InvoiceNumberPage             => _ => routes.InvoiceDateController.onPageLoad(CheckMode)
     case InvoiceDatePage               => _ => routes.SuppliersNameController.onPageLoad(CheckMode)
     case SuppliersNamePage             => _ => routes.SupplierAddressController.onPageLoad(CheckMode)
-    case SupplierAddressPage           => _ => routes.JourneyRecoveryController.onPageLoad()
+    case SupplierAddressPage           => _ => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(CheckMode)
+    case SimplifiedInvoiceVatRegCheckPage          => _ => routes.JourneyRecoveryController.onPageLoad()
     case _                             => _ => routes.IndexController.onPageLoad()
   }
 
@@ -75,6 +76,13 @@ class Navigator @Inject() () {
       case Some(true)  => routes.BusinessActivityCodeThreeController.onPageLoad(mode)
       case Some(false) => routes.CheckYourClaimDetailsController.onPageLoad()
       case _           => routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateFromSimplifiedInvoiceVatRegCheckPage(mode: Mode)(userAnswers: UserAnswers): Call =
+    userAnswers.get(SimplifiedInvoiceVatRegCheckPage) match {
+      case Some(true) => routes.JourneyRecoveryController.onPageLoad() // TODO - update to yes page
+      case Some(false) => routes.JourneyRecoveryController.onPageLoad() // TODO - update to no page
+      case _ => routes.JourneyRecoveryController.onPageLoad()
     }
 
 }
