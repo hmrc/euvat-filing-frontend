@@ -57,8 +57,8 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode, routes.InvoiceDateController.onPageLoad(NormalMode))(request,
-                                                                                                                      messages(application)
-                                                                                                                     ).toString
+                                                                                                                       messages(application)
+                                                                                                                      ).toString
       }
     }
 
@@ -126,8 +126,8 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual BAD_REQUEST
         contentAsString(result) mustEqual view(boundForm, NormalMode, routes.InvoiceDateController.onPageLoad(NormalMode))(request,
-                                                                                                                           messages(application)
-                                                                                                                          ).toString
+                                                                                                                            messages(application)
+                                                                                                                           ).toString
       }
     }
 
@@ -148,8 +148,8 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual BAD_REQUEST
         contentAsString(result) mustEqual view(boundForm, NormalMode, routes.InvoiceDateController.onPageLoad(NormalMode))(request,
-                                                                                                                           messages(application)
-                                                                                                                          ).toString
+                                                                                                                            messages(application)
+                                                                                                                           ).toString
       }
     }
 

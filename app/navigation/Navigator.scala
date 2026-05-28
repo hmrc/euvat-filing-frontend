@@ -41,10 +41,10 @@ class Navigator @Inject() () {
     case PurchaseTypePage              => _ => routes.InvoiceNumberController.onPageLoad(NormalMode)
     case InvoiceNumberPage             => _ => routes.InvoiceDateController.onPageLoad(NormalMode)
     case InvoiceDatePage               => _ => routes.SuppliersNameController.onPageLoad(NormalMode)
-    case SuppliersNamePage             => _ => routes.SupplierAddressController.onPageLoad(NormalMode)
-    case SupplierAddressPage           => _ => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode)
+    case SuppliersNamePage                => _ => routes.SupplierAddressController.onPageLoad(NormalMode)
+    case SupplierAddressPage              => _ => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode)
     case SimplifiedInvoiceVatRegCheckPage => userAnswer => navigateFromSimplifiedInvoiceVatRegCheckPage(NormalMode)(userAnswer)
-    case _                             => _ => routes.IndexController.onPageLoad()
+    case _                                => _ => routes.IndexController.onPageLoad()
   }
 
   private val checkRoutes: Page => UserAnswers => Call = {
@@ -59,9 +59,9 @@ class Navigator @Inject() () {
     case InvoiceNumberPage             => _ => routes.InvoiceDateController.onPageLoad(CheckMode)
     case InvoiceDatePage               => _ => routes.SuppliersNameController.onPageLoad(CheckMode)
     case SuppliersNamePage             => _ => routes.SupplierAddressController.onPageLoad(CheckMode)
-    case SupplierAddressPage           => _ => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(CheckMode)
-    case SimplifiedInvoiceVatRegCheckPage          => _ => routes.JourneyRecoveryController.onPageLoad()
-    case _                             => _ => routes.IndexController.onPageLoad()
+    case SupplierAddressPage              => _ => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(CheckMode)
+    case SimplifiedInvoiceVatRegCheckPage => _ => routes.JourneyRecoveryController.onPageLoad()
+    case _                                => _ => routes.IndexController.onPageLoad()
   }
 
   private def navigateFromBusinessActivityPage(mode: Mode)(userAnswers: UserAnswers): Call =
@@ -80,9 +80,9 @@ class Navigator @Inject() () {
 
   private def navigateFromSimplifiedInvoiceVatRegCheckPage(mode: Mode)(userAnswers: UserAnswers): Call =
     userAnswers.get(SimplifiedInvoiceVatRegCheckPage) match {
-      case Some(true) => routes.JourneyRecoveryController.onPageLoad() // TODO - update to yes page
+      case Some(true)  => routes.JourneyRecoveryController.onPageLoad() // TODO - update to yes page
       case Some(false) => routes.JourneyRecoveryController.onPageLoad() // TODO - update to no page
-      case _ => routes.JourneyRecoveryController.onPageLoad()
+      case _           => routes.JourneyRecoveryController.onPageLoad()
     }
 
 }

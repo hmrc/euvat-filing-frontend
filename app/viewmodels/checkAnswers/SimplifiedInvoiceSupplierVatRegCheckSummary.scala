@@ -21,24 +21,23 @@ import models.{CheckMode, UserAnswers}
 import pages.SimplifiedInvoiceVatRegCheckPage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import viewmodels.govuk.summarylist._
-import viewmodels.implicits._
+import viewmodels.govuk.summarylist.*
+import viewmodels.implicits.*
 
-object SimplifiedInvoiceVatRegCheckSummary  {
+object SimplifiedInvoiceVatRegCheckSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(SimplifiedInvoiceVatRegCheckPage).map {
-      answer =>
+    answers.get(SimplifiedInvoiceVatRegCheckPage).map { answer =>
 
-        val value = if (answer) "site.yes" else "site.no"
+      val value = if (answer) "site.yes" else "site.no"
 
-        SummaryListRowViewModel(
-          key     = "simplifiedInvoiceSupplierVatRegCheck.checkYourAnswersLabel",
-          value   = ValueViewModel(value),
-          actions = Seq(
-            ActionItemViewModel("site.change", routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("simplifiedInvoiceSupplierVatRegCheck.change.hidden"))
-          )
+      SummaryListRowViewModel(
+        key   = "simplifiedInvoiceSupplierVatRegCheck.checkYourAnswersLabel",
+        value = ValueViewModel(value),
+        actions = Seq(
+          ActionItemViewModel("site.change", routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(CheckMode).url)
+            .withVisuallyHiddenText(messages("simplifiedInvoiceSupplierVatRegCheck.change.hidden"))
         )
+      )
     }
 }

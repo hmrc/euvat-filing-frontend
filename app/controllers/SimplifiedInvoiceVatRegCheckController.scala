@@ -16,7 +16,7 @@
 
 package controllers
 
-import controllers.actions._
+import controllers.actions.*
 import forms.SimplifiedInvoiceVatRegCheckFormProvider
 import javax.inject.Inject
 import models.Mode
@@ -30,45 +30,45 @@ import views.html.SimplifiedInvoiceVatRegCheckView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SimplifiedInvoiceVatRegCheckController @Inject()(
-                                         override val messagesApi: MessagesApi,
-                                         sessionRepository: SessionRepository,
-                                         navigator: Navigator,
-                                         identify: IdentifierAction,
-                                         getData: DataRetrievalAction,
-                                         requireData: DataRequiredAction,
-                                         formProvider: SimplifiedInvoiceVatRegCheckFormProvider,
-                                         val controllerComponents: MessagesControllerComponents,
-                                         view: SimplifiedInvoiceVatRegCheckView
-                                 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+class SimplifiedInvoiceVatRegCheckController @Inject() (
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  navigator: Navigator,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: SimplifiedInvoiceVatRegCheckFormProvider,
+  val controllerComponents: MessagesControllerComponents,
+  view: SimplifiedInvoiceVatRegCheckView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
 
   val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
-      val preparedForm = request.userAnswers.get(SimplifiedInvoiceVatRegCheckPage) match {
-        case None => form
-        case Some(value) => form.fill(value)
-      }
+    val preparedForm = request.userAnswers.get(SimplifiedInvoiceVatRegCheckPage) match {
+      case None        => form
+      case Some(value) => form.fill(value)
+    }
 
-      Ok(view(preparedForm, mode))
+    Ok(view(preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
-    implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
 
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode))),
-
+    form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(SimplifiedInvoiceVatRegCheckPage, value))
-            _ <- sessionRepository.set(updatedAnswers)
+            _              <- sessionRepository.set(updatedAnswers)
           } yield {
             if (value) {
-              Redirect(routes.JourneyRecoveryController.onPageLoad()) //should route to what is the suppliers VRN
+              Redirect(routes.JourneyRecoveryController.onPageLoad()) // should route to what is the suppliers VRN
             } else {
               Redirect(routes.JourneyRecoveryController.onPageLoad())
             }
