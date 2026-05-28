@@ -37,7 +37,6 @@ class Navigator @Inject() () {
     case RefundPeriodPage              => _ => routes.ContactDetailsController.onPageLoad(NormalMode)
     case ContactDetailsPage            => _ => routes.BusinessActivityController.onPageLoad(NormalMode)
     case BusinessActivityPage          => userAnswer => navigateFromBusinessActivityPage(NormalMode)(userAnswer)
-    case BusinessActivityCodeTwoPage   => _ => routes.BusinessActivityTwoController.onPageLoad(NormalMode)
     case BusinessActivityTwoPage       => userAnswer => navigateFromBusinessActivity2Page(NormalMode)(userAnswer)
     case BusinessActivityCodeThreePage => _ => routes.BusinessActivityThreeController.onPageLoad()
     case PurchaseTypePage              => _ => routes.SuppliersNameController.onPageLoad(NormalMode)
@@ -48,7 +47,6 @@ class Navigator @Inject() () {
 
   private val checkRoutes: Page => UserAnswers => Call = {
     case BusinessActivityPage          => userAnswer => navigateFromBusinessActivityPage(CheckMode)(userAnswer)
-    case BusinessActivityCodeTwoPage   => _ => routes.BusinessActivityTwoController.onPageLoad(CheckMode)
     case BusinessActivityTwoPage       => userAnswer => navigateFromBusinessActivity2Page(CheckMode)(userAnswer)
     case BusinessActivityCodeThreePage => _ => routes.BusinessActivityThreeController.onPageLoad()
     case SupplierAddressPage           => _ => routes.CheckYourClaimDetailsController.onPageLoad()

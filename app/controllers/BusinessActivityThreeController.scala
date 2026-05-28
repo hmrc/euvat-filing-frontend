@@ -39,7 +39,6 @@ class BusinessActivityThreeController @Inject() (
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val userAnswers = request.userAnswers
-
     (userAnswers.get(BusinessActivityCodePage), userAnswers.get(BusinessActivityCodeTwoPage), userAnswers.get(BusinessActivityCodeThreePage)) match {
       case (Some(baCode1), Some(baCode2), Some(baCode3)) =>
         Ok(view(baCode1, baCode2, baCode3))

@@ -66,11 +66,6 @@ class NavigatorSpec extends SpecBase {
           routes.CheckYourClaimDetailsController.onPageLoad()
       }
 
-      "must go from BusinessActivityCodeTwoPage to BusinessActivityTwoController" in {
-        navigator.nextPage(BusinessActivityCodeTwoPage, NormalMode, userAnswers) mustBe
-          routes.BusinessActivityTwoController.onPageLoad(NormalMode)
-      }
-
       "must go from BusinessActivityTwoPage to BusinessActivityCodeThreeController if yes selected" in {
         val ua = userAnswers.set(BusinessActivityTwoPage, true).success.value
         navigator.nextPage(BusinessActivityTwoPage, NormalMode, ua) mustBe
@@ -115,11 +110,6 @@ class NavigatorSpec extends SpecBase {
         val ua = userAnswers.set(BusinessActivityPage, false).success.value
         navigator.nextPage(BusinessActivityPage, CheckMode, ua) mustBe
           routes.CheckYourClaimDetailsController.onPageLoad()
-      }
-
-      "must go from BusinessActivityCodeTwoPage page to BusinessActivityThreeController" in {
-        navigator.nextPage(BusinessActivityCodeTwoPage, CheckMode, userAnswers) mustBe
-          routes.BusinessActivityTwoController.onPageLoad(CheckMode)
       }
 
       "must go from BusinessActivityTwoPage to BusinessActivityCodeThreePage if yes selected" in {
