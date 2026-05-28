@@ -39,6 +39,7 @@ class Navigator @Inject() () {
     case BusinessActivityPage             => userAnswer => navigateFromBusinessActivityPage(NormalMode)(userAnswer)
     case BusinessActivityTwoPage          => userAnswer => navigateFromBusinessActivity2Page(NormalMode)(userAnswer)
     case BusinessActivityCodeThreePage    => _ => routes.BusinessActivityThreeController.onPageLoad()
+    case InvoiceTypePage               => userAnswer => navigateFromInvoiceTypePage(NormalMode)
     case InvoiceNumberPage                => _ => routes.InvoiceDateController.onPageLoad(NormalMode)
     case InvoiceDatePage                  => _ => routes.SuppliersNameController.onPageLoad(NormalMode)
     case SuppliersNamePage                => _ => routes.SupplierAddressController.onPageLoad(NormalMode)
@@ -78,6 +79,13 @@ class Navigator @Inject() () {
       case Some(false) => routes.CheckYourClaimDetailsController.onPageLoad()
       case _           => routes.JourneyRecoveryController.onPageLoad()
     }
+
+      private def navigateFromInvoiceTypePage(mode: Mode)(userAnswers: UserAnswers): Call =
+        userAnswers.get(InvoiceTypePage) match {
+          case Some(InvoiceType.StandardInvoice)   => routes.InvoiceNumberController.onPageLoad(mode)
+          case Some(InvoiceType.SimplifiedInvoice) => routes.JourneyRecoveryController.onPageLoad()
+          case _           => routes.JourneyRecoveryController.onPageLoad()
+        }
 
   private def navigateFromSimplifiedInvoiceVatRegCheckPage(mode: Mode)(userAnswers: UserAnswers): Call =
     userAnswers.get(SimplifiedInvoiceVatRegCheckPage) match {
