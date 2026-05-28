@@ -44,8 +44,8 @@ unauthorised.heading = You can’t access this service with this account
 unauthorised.guidance = You do not have access to this service.
 
 claim.caption.add = Add claim details
-purchase.caption.add = Add purchase details
 caption.hidden.text = This section is:
+purchase.caption.add = Purchase details
 
 taskListDashboard.title = Make an EU VAT claim
 taskListDashboard.heading = Make an EU VAT claim
@@ -99,6 +99,18 @@ refundingLanguage.slovenian = Slovenian
 refundingLanguage.irish = Irish
 refundingLanguage.hungarian = Hungarian
 refundingLanguage.greek = Greek
+
+# Invoice number
+invoiceNumber.title = Invoice number
+invoiceNumber.heading = Invoice number
+invoiceNumber.h2 = What is the invoice number?
+invoiceNumber.hint = Invoice numbers are a set of letters or numbers usually found at the top or bottom of the invoice
+invoiceNumber.p1 = You can only use an invoice number once. Your claim may be rejected if you enter the same number twice.
+invoiceNumber.error.required = Enter an invoice number
+invoiceNumber.error.length = The invoice number must be {0} characters or less
+invoiceNumber.error.invalid = Enter a valid invoice number
+invoiceNumber.checkYourAnswersLabel = Invoice number
+invoiceNumber.change.hidden = Change the invoice number
 
 refundPeriod.title = What is the refund period?
 refundPeriod.heading = What is the refund period?

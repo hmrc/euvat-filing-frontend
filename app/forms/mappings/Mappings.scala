@@ -64,4 +64,7 @@ trait Mappings extends Formatters with Constraints {
   val nameMaxLength: Int = 100
   val validateTelephoneNumber: String = """^(\+)?[0-9]+$"""
   val telephoneMaxLength: Int = 20
+  val invoiceNumberMaxLength: Int = 30
+  // Expression for invoice/reference-like fields: letters, digits, spaces and a limited set of symbols
+  val validateInvoiceNumberExpression: String = """^[a-zA-Z0-9\s\.,\-\()/=!\"%&*;<>'\+:?#$@\[\]\\\^_`{}|~]{1,30}$"""
 }

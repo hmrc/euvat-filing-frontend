@@ -93,8 +93,13 @@ class NavigatorSpec extends SpecBase {
           routes.SupplierAddressController.onPageLoad(NormalMode)
       }
 
-      "must go from SupplierAddressPage to JourneyRecoveryController" in {
+      "must go from SupplierAddressPage to InvoiceNumberController" in {
         navigator.nextPage(SupplierAddressPage, NormalMode, userAnswers) mustBe
+          routes.InvoiceNumberController.onPageLoad(NormalMode)
+      }
+
+      "must go from InvoiceNumberPage to JourneyRecoveryController" in {
+        navigator.nextPage(InvoiceNumberPage, NormalMode, userAnswers) mustBe
           routes.JourneyRecoveryController.onPageLoad()
       }
     }
@@ -140,8 +145,38 @@ class NavigatorSpec extends SpecBase {
           routes.BusinessActivityCodeThreeController.onPageLoad(CheckMode)
       }
 
-      "must go from SupplierAddressPage to CheckYourAnswersController" in {
+      "must go from SupplierAddressPage to InvoiceNumberController" in {
         navigator.nextPage(SupplierAddressPage, CheckMode, userAnswers) mustBe
+          routes.InvoiceNumberController.onPageLoad(CheckMode)
+      }
+
+      "must go from RefundingCountryPage to RefundingLanguageController in CheckMode" in {
+        navigator.nextPage(RefundingCountryPage, CheckMode, userAnswers) mustBe
+          routes.RefundingLanguageController.onPageLoad(CheckMode)
+      }
+
+      "must go from RefundingLanguagePage to RefundPeriodController in CheckMode" in {
+        navigator.nextPage(RefundingLanguagePage, CheckMode, userAnswers) mustBe
+          routes.RefundPeriodController.onPageLoad(CheckMode)
+      }
+
+      "must go from RefundPeriodPage to ContactDetailsController in CheckMode" in {
+        navigator.nextPage(RefundPeriodPage, CheckMode, userAnswers) mustBe
+          routes.ContactDetailsController.onPageLoad(CheckMode)
+      }
+
+      "must go from PurchaseTypePage to SuppliersNameController in CheckMode" in {
+        navigator.nextPage(PurchaseTypePage, CheckMode, userAnswers) mustBe
+          routes.SuppliersNameController.onPageLoad(CheckMode)
+      }
+
+      "must go from SuppliersNamePage to SupplierAddressController in CheckMode" in {
+        navigator.nextPage(SuppliersNamePage, CheckMode, userAnswers) mustBe
+          routes.SupplierAddressController.onPageLoad(CheckMode)
+      }
+
+      "must go from InvoiceNumberPage to CheckYourAnswersController in CheckMode" in {
+        navigator.nextPage(InvoiceNumberPage, CheckMode, userAnswers) mustBe
           routes.CheckYourClaimDetailsController.onPageLoad()
       }
 

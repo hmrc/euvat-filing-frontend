@@ -87,3 +87,8 @@ GET         /what-supplier-address                       controllers.SupplierAdd
 POST        /what-supplier-address                       controllers.SupplierAddressController.onSubmit(mode: Mode = NormalMode)
 GET         /change-what-supplier-address                controllers.SupplierAddressController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-what-supplier-address                controllers.SupplierAddressController.onSubmit(mode: Mode = CheckMode)
+
+GET         /invoice-number                              controllers.InvoiceNumberController.onPageLoad(mode: models.Mode = NormalMode)
+POST        /invoice-number                              controllers.InvoiceNumberController.onSubmit(mode: models.Mode = NormalMode)
+GET         /change-invoice-number                       controllers.InvoiceNumberController.onPageLoad(mode: models.Mode = CheckMode)
+POST        /change-invoice-number                       controllers.InvoiceNumberController.onSubmit(mode: models.Mode = CheckMode)
