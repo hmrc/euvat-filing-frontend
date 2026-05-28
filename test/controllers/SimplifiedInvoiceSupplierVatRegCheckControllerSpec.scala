@@ -78,7 +78,7 @@ class SimplifiedInvoiceSupplierVatRegCheckControllerSpec extends SpecBase with M
       }
     }
 
-    "must redirect to the next page when valid data is submitted" in {
+    "must redirect to the correct page when the user selects Yes" in {
 
       val mockSessionRepository = mock[SessionRepository]
 
@@ -87,7 +87,6 @@ class SimplifiedInvoiceSupplierVatRegCheckControllerSpec extends SpecBase with M
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
             bind[SessionRepository].toInstance(mockSessionRepository)
           )
           .build()
@@ -100,7 +99,32 @@ class SimplifiedInvoiceSupplierVatRegCheckControllerSpec extends SpecBase with M
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to the correct page when the user selects No" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, simplifiedInvoiceSupplierVatRegCheckRoute)
+            .withFormUrlEncodedBody(("value", "false"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 

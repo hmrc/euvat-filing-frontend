@@ -27,6 +27,9 @@
 @layout(pageTitle = title(form, messages("simplifiedInvoiceSupplierVatRegCheck.title"))) {
 
     @formHelper(action = routes.SimplifiedInvoiceSupplierVatRegCheckController.onSubmit(mode), Symbol("autoComplete") -> "off") {
+    <h2 class="govuk-caption-l hmrc-caption-l">
+        <span class="govuk-visually-hidden">This section is: </span>@messages("purchase.caption.add")
+    </h2>
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
