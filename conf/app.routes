@@ -78,7 +78,12 @@ POST        /purchase-type                               controllers.PurchaseTyp
 GET         /change-purchase-type                        controllers.PurchaseTypeController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-purchase-type                        controllers.PurchaseTypeController.onSubmit(mode: Mode = CheckMode)
 
-GET        /what-supplier-name                           controllers.SuppliersNameController.onPageLoad(mode: Mode = NormalMode)
-POST       /what-supplier-name                           controllers.SuppliersNameController.onSubmit(mode: Mode = NormalMode)
-GET        /change-what-supplier-name                    controllers.SuppliersNameController.onPageLoad(mode: Mode = CheckMode)
-POST       /change-what-supplier-name                    controllers.SuppliersNameController.onSubmit(mode: Mode = CheckMode)
+GET         /what-supplier-name                          controllers.SuppliersNameController.onPageLoad(mode: Mode = NormalMode)
+POST        /what-supplier-name                          controllers.SuppliersNameController.onSubmit(mode: Mode = NormalMode)
+GET         /change-what-supplier-name                   controllers.SuppliersNameController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-what-supplier-name                   controllers.SuppliersNameController.onSubmit(mode: Mode = CheckMode)
+
+GET         /what-supplier-address                       controllers.SupplierAddressController.onPageLoad(mode: Mode = NormalMode)
+POST        /what-supplier-address                       controllers.SupplierAddressController.onSubmit(mode: Mode = NormalMode)
+GET         /change-what-supplier-address                controllers.SupplierAddressController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-what-supplier-address                controllers.SupplierAddressController.onSubmit(mode: Mode = CheckMode)
