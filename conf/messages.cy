@@ -278,4 +278,4 @@ invoiceNumber.change.hidden = Change the invoice number
 simplifiedInvoiceSupplierVatRegCheck.title = Does the simplified invoice contain the supplier’s VAT registration number?
 simplifiedInvoiceSupplierVatRegCheck.heading = Does the simplified invoice contain the supplier’s VAT registration number?
 simplifiedInvoiceSupplierVatRegCheck.hint = You can find this on the receipt. It is a 9 to 12 character number often starting with a country code. For example, FR123456789
-simplifiedInvoiceSupplierVatRegCheck.error.required = Select yes if the simplifies invoice contains the supplier’s VAT registration number
+simplifiedInvoiceSupplierVatRegCheck.error.required = Select yes if the simplified invoice contains the supplier’s VAT registration number

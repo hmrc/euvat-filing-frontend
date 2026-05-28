@@ -22,7 +22,7 @@ import forms.SimplifiedInvoiceVatRegCheckFormProvider
 import javax.inject.Inject
 import models.{Mode, NormalMode}
 import navigation.Navigator
-import pages.SimplifiedInvoiceVatRegCheckPage
+import pages.{SimplifiedInvoiceVatRegCheckPage, SupplierAddressPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -48,15 +48,20 @@ class SimplifiedInvoiceVatRegCheckController @Inject() (
   val form = formProvider()
   private def backLink: play.api.mvc.Call = routes.SupplierAddressController.onPageLoad(NormalMode)
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) {
+    implicit request =>
 
-    val preparedForm = request.userAnswers.get(SimplifiedInvoiceVatRegCheckPage) match {
-      case None        => form
-      case Some(value) => form.fill(value)
-    }
-
-    Ok(view(preparedForm, mode, backLink))
+      request.userAnswers.get(SupplierAddressPage) match {
+        case None => Redirect(routes.JourneyRecoveryController.onPageLoad())
+        case Some(_) =>
+          val preparedForm = request.userAnswers.get(SimplifiedInvoiceVatRegCheckPage) match {
+            case None        => form
+            case Some(value) => form.fill(value)
+          }
+          Ok(view(preparedForm, mode, backLink))
+      }
   }
+
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
 
