@@ -40,7 +40,7 @@
 
         <h1 class="govuk-heading-l">@messages("invoiceType.heading")</h1>
 
-        <p class="govuk-body-l">@messages("invoiceType.lead")</p>
+        <p class="govuk-body-m">@messages("invoiceType.lead")</p>
 
         <div class="govuk-form-group @if(errored){govuk-form-group--error}">
             <fieldset class="govuk-fieldset" aria-describedby="invoice-type-heading">
@@ -55,20 +55,20 @@
                     <div class="govuk-radios__item">
                         <input class="govuk-radios__input" id="value_0" name="value" type="radio" value="standard invoice" @if(form("value").value.contains("Standard invoice")){checked}>
                         <label class="govuk-label govuk-radios__label for="value_0">
-                            @messages("invoiceType.standard invoice")
+                            @messages("invoiceType.standardInvoice")
                         </label>
                         <div id="value_0-hint" class="govuk-hint govuk-radios__hint" >
-                            @messages("invoiceType.standard invoice.hint")
+                            @messages("invoiceType.standardInvoice.hint")
                         </div>
                     </div>
 
                    <div class="govuk-radios__item">
                        <input class="govuk-radios__input" id="value_1" name="value" type="radio" value="simplified invoice" @if(form("value").value.contains("Simplified invoice")){checked}>
                        <label class="govuk-label govuk-radios__label for="value_1">
-                           @messages("invoiceType.simplified invoice")
+                           @messages("invoiceType.simplifiedInvoice")
                        </label>
                        <div id="value_1-hint" class="govuk-hint govuk-radios__hint" >
-                           @messages("invoiceType.simplified invoice.hint")
+                           @messages("invoiceType.simplifiedInvoice.hint")
                        </div>
                    </div>
 
