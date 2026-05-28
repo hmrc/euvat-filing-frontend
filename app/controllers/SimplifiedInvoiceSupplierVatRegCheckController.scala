@@ -65,14 +65,14 @@ class SimplifiedInvoiceSupplierVatRegCheckController @Inject()(
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(SimplifiedInvoiceSupplierVatRegCheckPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(SimplifiedInvoiceSupplierVatRegCheckPage, mode, updatedAnswers))
-          if (value) {
-            Redirect(routes.JourneyRecoveryController.onPageLoad(mode))
-          } else {
-            Redirect(routes.JourneyRecoveryController.onPageLoad(mode))
+            _ <- sessionRepository.set(updatedAnswers)
+          } yield {
+            if (value) {
+              Redirect(routes.JourneyRecoveryController.onPageLoad()) //should route to what is the suppliers VRN
+            } else {
+              Redirect(routes.JourneyRecoveryController.onPageLoad())
+            }
           }
-  }
       )
   }
 }
