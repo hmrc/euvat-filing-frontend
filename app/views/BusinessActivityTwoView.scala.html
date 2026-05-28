@@ -18,6 +18,7 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.insettext.InsetText
 @import views.html.components.MainErrorSummary
+@import viewmodels.LegendSize
 
 @this(
     layout: templates.Layout,
@@ -41,7 +42,7 @@
         </h2>
         <h1 class="govuk-heading-l">@messages("businessActivityTwo.heading")</h1>
 
-        <p class="govuk-body-l">@messages("businessActivity.lead")</p>
+        <p class="govuk-body-l">@messages("businessActivityTwo.lead")</p>
 
         @govukInsetText(InsetText(
             content = HtmlContent(s"<strong>${messages("businessActivity.insetText.label")}:</strong> ${baCode1}")
