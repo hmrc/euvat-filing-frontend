@@ -93,8 +93,13 @@ class NavigatorSpec extends SpecBase {
           routes.SuppliersNameController.onPageLoad(NormalMode)
       }
 
-      "must go from SuppliersNamePage to JourneyRecoveryController" in {
+      "must go from SuppliersNamePage to SupplierAddressController" in {
         navigator.nextPage(SuppliersNamePage, NormalMode, userAnswers) mustBe
+          routes.SupplierAddressController.onPageLoad(NormalMode)
+      }
+
+      "must go from SupplierAddressPage to JourneyRecoveryController" in {
+        navigator.nextPage(SupplierAddressPage, NormalMode, userAnswers) mustBe
           routes.JourneyRecoveryController.onPageLoad()
       }
     }
@@ -137,6 +142,17 @@ class NavigatorSpec extends SpecBase {
       "must go from a page that doesn't exist in the edit route map to CheckYourAnswers" in {
         case object UnknownPage extends Page
         navigator.nextPage(UnknownPage, CheckMode, userAnswers) mustBe routes.CheckYourAnswersController.onPageLoad()
+      }
+
+      "must go from BusinessActivityTwopage to BusinessActivityCodeThreeController" in {
+        val ua = userAnswers.set(BusinessActivityTwoPage, true).success.value
+        navigator.nextPage(BusinessActivityTwoPage, CheckMode, ua) mustBe
+          routes.BusinessActivityCodeThreeController.onPageLoad(CheckMode)
+      }
+
+      "must go from SupplierAddressPage to CheckYourAnswersController" in {
+        navigator.nextPage(SupplierAddressPage, CheckMode, userAnswers) mustBe
+          routes.CheckYourAnswersController.onPageLoad()
       }
 
     }
