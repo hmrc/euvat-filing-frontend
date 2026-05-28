@@ -29,7 +29,7 @@
 )
 
 @(form: Form[?], mode: Mode, call: Call)(implicit request: Request[?], messages: Messages)
-@errored = @{form.error("value").isDefined}
+@isError = @{form.error("value").isDefined}
 
 @layout(pageTitle = views.ViewUtils.title(form, "businessActivity.title"), backLinkUrl = Some(call.url)) {
     @formHelper(action = routes.BusinessActivityController.onSubmit(mode)) {
@@ -46,18 +46,21 @@
             content = HtmlContent(s"<strong>${messages("businessActivity.insetText.label")}:</strong> 49200 (Freight rail transport)")
         ))
 
-        <div class="govuk-form-group @if(errored){govuk-form-group--error}">
-            <fieldset class="govuk-fieldset" aria-describedby="ba-heading">
+        <div class="govuk-form-group @if(isError){govuk-form-group--error}">
+            <fieldset class="govuk-fieldset" @if(isError){aria-describedby="value-error"}>
                 <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-                    <h2 class="govuk-fieldset__heading">
-                        @messages("businessActivity.h2")
-                    </h2>
+                    @messages("businessActivity.h2")
                 </legend>
-                <div id="ba-heading" class="govuk-body">@messages("businessActivity.p1")
+                <div id="ba-para" class="govuk-body">@messages("businessActivity.p1")
                     <a class="govuk-link" href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2026" target="_blank" rel="noreferrer noopener">
-                        @messages("businessActivity.link.text")
-                    </a>.
+                        @messages("businessActivity.link.text").
+                    </a>
                 </div>
+                @form.error("value").map { e =>
+                    <p id="value-error" class="govuk-error-message">
+                        <span class="govuk-visually-hidden">@messages("error.prefix"):</span> @messages(e.message, e.args*)
+                    </p>
+                }
                 <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
                     <div class="govuk-radios__item">
                         <input class="govuk-radios__input" id="value" name="value" type="radio" value="true" @if(form("value").value.contains("true")){checked}>

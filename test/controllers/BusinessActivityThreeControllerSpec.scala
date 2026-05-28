@@ -17,8 +17,7 @@
 package controllers
 
 import base.SpecBase
-import models.UserAnswers
-import pages.BusinessActivityCodeTwoPage
+import pages.{BusinessActivityCodeThreePage, BusinessActivityCodeTwoPage}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.BusinessActivityThreeView
@@ -32,6 +31,9 @@ class BusinessActivityThreeControllerSpec extends SpecBase {
         .set(BusinessActivityCodeTwoPage, "48120")
         .success
         .value
+        .set(BusinessActivityCodeThreePage, "50270")
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -41,7 +43,7 @@ class BusinessActivityThreeControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[BusinessActivityThreeView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view("48120", "48120")(request, messages(application)).toString
+        contentAsString(result) mustEqual view("48120", "50270")(request, messages(application)).toString
       }
     }
 
