@@ -67,6 +67,12 @@ class SimplifiedInvoiceSupplierVatRegCheckController @Inject()(
             updatedAnswers <- Future.fromTry(request.userAnswers.set(SimplifiedInvoiceSupplierVatRegCheckPage, value))
             _              <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(SimplifiedInvoiceSupplierVatRegCheckPage, mode, updatedAnswers))
+          if (value) {
+            Redirect(routes.JourneyRecoveryController.onPageLoad(mode))
+          } else {
+            Redirect(routes.JourneyRecoveryController.onPageLoad(mode))
+          }
+  }
       )
   }
 }
