@@ -18,8 +18,9 @@ package controllers
 
 import controllers.actions.*
 import forms.SimplifiedInvoiceVatRegCheckFormProvider
+
 import javax.inject.Inject
-import models.Mode
+import models.{Mode, NormalMode}
 import navigation.Navigator
 import pages.SimplifiedInvoiceVatRegCheckPage
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -45,6 +46,7 @@ class SimplifiedInvoiceVatRegCheckController @Inject() (
     with I18nSupport {
 
   val form = formProvider()
+  private def backLink: play.api.mvc.Call = routes.SupplierAddressController.onPageLoad(NormalMode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
@@ -53,7 +55,7 @@ class SimplifiedInvoiceVatRegCheckController @Inject() (
       case Some(value) => form.fill(value)
     }
 
-    Ok(view(preparedForm, mode))
+    Ok(view(preparedForm, mode, backLink))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -61,16 +63,16 @@ class SimplifiedInvoiceVatRegCheckController @Inject() (
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink))),
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(SimplifiedInvoiceVatRegCheckPage, value))
             _              <- sessionRepository.set(updatedAnswers)
           } yield {
             if (value) {
-              Redirect(routes.JourneyRecoveryController.onPageLoad()) // should route to what is the suppliers VRN
+              Redirect(routes.JourneyRecoveryController.onPageLoad()) // TODO: yes should route to "what is the suppliers VRN"
             } else {
-              Redirect(routes.JourneyRecoveryController.onPageLoad())
+              Redirect(routes.JourneyRecoveryController.onPageLoad()) // TODO: no should bypass "what is the suppliers VRN"
             }
           }
       )

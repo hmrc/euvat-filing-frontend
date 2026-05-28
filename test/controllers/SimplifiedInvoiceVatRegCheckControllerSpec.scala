@@ -41,6 +41,7 @@ class SimplifiedInvoiceVatRegCheckControllerSpec extends SpecBase with MockitoSu
   val form = formProvider()
 
   lazy val simplifiedInvoiceSupplierVatRegCheckRoute = routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode).url
+  private lazy val backLink: Call = routes.SupplierAddressController.onPageLoad(NormalMode)
 
   "SimplifiedInvoiceVatRegCheck Controller" - {
 
@@ -56,7 +57,7 @@ class SimplifiedInvoiceVatRegCheckControllerSpec extends SpecBase with MockitoSu
         val view = application.injector.instanceOf[SimplifiedInvoiceVatRegCheckView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, backLink)(request, messages(application)).toString
       }
     }
 
@@ -74,7 +75,7 @@ class SimplifiedInvoiceVatRegCheckControllerSpec extends SpecBase with MockitoSu
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(true), NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(true), NormalMode, backLink)(request, messages(application)).toString
       }
     }
 
@@ -144,7 +145,7 @@ class SimplifiedInvoiceVatRegCheckControllerSpec extends SpecBase with MockitoSu
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode, backLink)(request, messages(application)).toString
       }
     }
 
