@@ -82,9 +82,9 @@ class Navigator @Inject() () {
 
       private def navigateFromInvoiceTypePage(mode: Mode)(userAnswers: UserAnswers): Call =
         userAnswers.get(InvoiceTypePage) match {
-          case Some(InvoiceType.StandardInvoice)   => routes.InvoiceNumberController.onPageLoad(mode)
+          case Some(InvoiceType.StandardInvoice) => routes.InvoiceNumberController.onPageLoad(mode)
           case Some(InvoiceType.SimplifiedInvoice) => routes.JourneyRecoveryController.onPageLoad()
-          case _           => routes.JourneyRecoveryController.onPageLoad()
+          case _ => routes.JourneyRecoveryController.onPageLoad()
         }
 
   private def navigateFromSimplifiedInvoiceVatRegCheckPage(mode: Mode)(userAnswers: UserAnswers): Call =

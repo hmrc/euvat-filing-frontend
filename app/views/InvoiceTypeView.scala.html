@@ -34,9 +34,9 @@
     @formHelper(action = routes.InvoiceTypeController.onSubmit()) {
         @mainErrorSummary(form)
 
-        <p class="govuk-caption-l hmrc-caption-l">
+        <span class="govuk-caption-l hmrc-caption-l">
             <span class="govuk-visually-hidden">This section is: </span>@messages("invoiceType.caption")
-        </p>
+        </span>
 
         <h1 class="govuk-heading-l">@messages("invoiceType.heading")</h1>
 
@@ -79,6 +79,5 @@
         @govukButton(
             ButtonViewModel(messages("site.continue"))
         )
-
     }
 }

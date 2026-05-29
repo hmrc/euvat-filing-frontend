@@ -176,7 +176,19 @@ class NavigatorSpec extends SpecBase {
           routes.BusinessActivityThreeController.onPageLoad()
       }
 
-      "must go from PurchaseTypePage to IndexController" in {
+      "must go from InvoiceTypePage to InvoiceNumberController if standard invoice is selected" in {
+        val ua = userAnswers.set(InvoiceTypePage, InvoiceType.StandardInvoice).success.value
+        navigator.nextPage(InvoiceTypePage, CheckMode, ua) mustBe
+          routes.InvoiceNumberController.onPageLoad(CheckMode)
+      }
+
+      "must go from InvoiceTypePage to JourneyRecoveryController if simplified invoice is selected" in {
+        val ua = userAnswers.set(InvoiceTypePage, InvoiceType.SimplifiedInvoice).success.value
+        navigator.nextPage(InvoiceTypePage, CheckMode, ua) mustBe
+          routes.JourneyRecoveryController.onPageLoad()
+      }
+
+        "must go from PurchaseTypePage to IndexController" in {
         navigator.nextPage(PurchaseTypePage, CheckMode, userAnswers) mustBe
           routes.IndexController.onPageLoad()
       }
