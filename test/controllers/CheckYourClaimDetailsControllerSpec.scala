@@ -88,6 +88,21 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
       }
     }
 
+      "must not display telephone when it's missing" in {
+        val contact = models.ContactDetails("a@b.com", None)
+        val ua = emptyUserAnswers.set(pages.ContactDetailsPage, contact).success.value
+        val application = applicationBuilder(userAnswers = Some(ua)).build()
+
+        running(application) {
+          val request = FakeRequest(GET, routes.CheckYourClaimDetailsController.onPageLoad().url)
+          val result = route(application, request).value
+          val html = contentAsString(result)
+
+          html must include(contact.email)
+          html must not include (messages(application)("checkYourClaimDetails.contactTelephone.subLabel"))
+        }
+      }
+
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
       val application = applicationBuilder(userAnswers = None).build()
 

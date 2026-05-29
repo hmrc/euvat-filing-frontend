@@ -130,13 +130,14 @@ object CheckYourClaimDetailsSummary {
     }
 
   def rowContactTelephone(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(ContactDetailsPage).map { answer =>
-
-      SummaryListRowViewModel(
-        key     = "checkYourClaimDetails.contactTelephone.subLabel",
-        value   = ValueViewModel(HtmlFormat.raw(answer.telephone.getOrElse("")).toString),
-        actions = Seq.empty
-      )
+    answers.get(ContactDetailsPage).flatMap { answer =>
+      answer.telephone.filter(_.trim.nonEmpty).map { tel =>
+        SummaryListRowViewModel(
+          key     = "checkYourClaimDetails.contactTelephone.subLabel",
+          value   = ValueViewModel(HtmlFormat.raw(tel).toString),
+          actions = Seq.empty
+        )
+      }
     }
 
   def rowBusinessActivityLabel(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
