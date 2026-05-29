@@ -37,7 +37,7 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  lazy val invoiceTypeRoute = routes.InvoiceTypeController.onPageLoad().url
+  lazy val invoiceTypeRoute = routes.InvoiceTypeController.onPageLoad(NormalMode).url
 
   val formProvider = new InvoiceTypeFormProvider()
   val form = formProvider()
