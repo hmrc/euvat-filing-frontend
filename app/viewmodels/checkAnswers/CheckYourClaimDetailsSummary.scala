@@ -19,9 +19,10 @@ package viewmodels.checkAnswers
 import controllers.routes
 import models.{CheckMode, UserAnswers}
 import pages.*
-import play.api.i18n.Messages
+import play.api.i18n.{Lang, Messages}
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
+import utils.DateTimeFormats.{dateTimeFormat, shortMonthYearFormat}
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
@@ -88,20 +89,20 @@ object CheckYourClaimDetailsSummary {
 
   def rowRefundStart(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(RefundPeriodPage).map { answer =>
-
+      implicit val lang: Lang = messages.lang
       SummaryListRowViewModel(
         key     = "checkYourClaimDetails.refundingPeriodStart.subLabel",
-        value   = ValueViewModel(HtmlFormat.raw(answer.startDate.toString).toString),
+        value   = ValueViewModel(answer.startDate.format(shortMonthYearFormat())),
         actions = Seq.empty
       )
     }
 
   def rowRefundEnd(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(RefundPeriodPage).map { answer =>
-
+      implicit val lang: Lang = messages.lang
       SummaryListRowViewModel(
         key     = "checkYourClaimDetails.refundingPeriodEnd.subLabel",
-        value   = ValueViewModel(HtmlFormat.raw(answer.endDate.toString).toString),
+        value   = ValueViewModel(answer.endDate.format(shortMonthYearFormat())),
         actions = Seq.empty
       )
     }
@@ -134,7 +135,7 @@ object CheckYourClaimDetailsSummary {
 
       SummaryListRowViewModel(
         key     = "checkYourClaimDetails.contactTelephone.subLabel",
-        value   = ValueViewModel(HtmlFormat.raw(answer.telephone.getOrElse("")).toString),
+        value   = ValueViewModel(HtmlFormat.escape(answer.telephone.getOrElse("Not provided")).toString),
         actions = Seq.empty
       )
     }

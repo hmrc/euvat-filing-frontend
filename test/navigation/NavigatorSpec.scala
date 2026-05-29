@@ -134,9 +134,9 @@ class NavigatorSpec extends SpecBase {
           routes.BusinessActivityThreeController.onPageLoad()
       }
 
-      "must go from a page that doesn't exist in the edit route map to CheckYourAnswers" in {
+      "must go from a page that doesn't exist in the edit route map to IndexController" in {
         case object UnknownPage extends Page
-        navigator.nextPage(UnknownPage, CheckMode, userAnswers) mustBe routes.CheckYourClaimDetailsController.onPageLoad()
+        navigator.nextPage(UnknownPage, CheckMode, userAnswers) mustBe routes.IndexController.onPageLoad()
       }
 
       "must go from BusinessActivityTwopage to BusinessActivityCodeThreeController" in {
@@ -155,14 +155,14 @@ class NavigatorSpec extends SpecBase {
           routes.RefundingLanguageController.onPageLoad(CheckMode)
       }
 
-      "must go from RefundingLanguagePage to RefundPeriodController in CheckMode" in {
+      "must go from RefundingLanguagePage to CheckYourClaimDetailsController in CheckMode" in {
         navigator.nextPage(RefundingLanguagePage, CheckMode, userAnswers) mustBe
-          routes.RefundPeriodController.onPageLoad(CheckMode)
+          routes.CheckYourClaimDetailsController.onPageLoad()
       }
 
-      "must go from RefundPeriodPage to ContactDetailsController in CheckMode" in {
+      "must go from RefundPeriodPage to CheckYourClaimDetailsController in CheckMode" in {
         navigator.nextPage(RefundPeriodPage, CheckMode, userAnswers) mustBe
-          routes.ContactDetailsController.onPageLoad(CheckMode)
+          routes.CheckYourClaimDetailsController.onPageLoad()
       }
 
       "must go from PurchaseTypePage to SuppliersNameController in CheckMode" in {
@@ -175,9 +175,9 @@ class NavigatorSpec extends SpecBase {
           routes.SupplierAddressController.onPageLoad(CheckMode)
       }
 
-      "must go from InvoiceNumberPage to CheckYourAnswersController in CheckMode" in {
+      "must go from InvoiceNumberPage to JourneyRecoveryController in CheckMode" in {
         navigator.nextPage(InvoiceNumberPage, CheckMode, userAnswers) mustBe
-          routes.CheckYourClaimDetailsController.onPageLoad()
+          routes.JourneyRecoveryController.onPageLoad()
       }
 
     }
