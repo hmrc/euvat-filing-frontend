@@ -39,9 +39,9 @@ private[mappings] class LocalDateFormatter(
   private def toDate(key: String, day: Int, month: Int, year: Int): Either[Seq[FormError], LocalDate] = {
     import java.time.YearMonth
 
-    val dayInvalidKey = if (usePerFieldKeys) s"${invalidKey}.day" else invalidKey
-    val monthInvalidKey = if (usePerFieldKeys) s"${invalidKey}.month" else invalidKey
-    val yearInvalidKey = if (usePerFieldKeys) s"${invalidKey}.year" else invalidKey
+    val dayInvalidKey = if (usePerFieldKeys) s"$invalidKey.day" else invalidKey
+    val monthInvalidKey = if (usePerFieldKeys) s"$invalidKey.month" else invalidKey
+    val yearInvalidKey = if (usePerFieldKeys) s"$invalidKey.year" else invalidKey
 
     Try(YearMonth.of(year, month)) match {
       case Success(ym) =>
@@ -55,7 +55,7 @@ private[mappings] class LocalDateFormatter(
         } else
           Try(LocalDate.of(year, month, day)) match {
             case Success(date) => Right(date)
-            case Failure(_)     => Left(Seq(FormError(key, invalidKey, args)))
+            case Failure(_)    => Left(Seq(FormError(key, invalidKey, args)))
           }
       case Failure(_) => Left(Seq(FormError(key, invalidKey, args)))
     }
@@ -63,9 +63,9 @@ private[mappings] class LocalDateFormatter(
 
   private def formatDate(key: String, data: Map[String, String]): Either[Seq[FormError], LocalDate] = {
 
-    val dayInvalidKey = if (usePerFieldKeys) s"${invalidKey}.day" else invalidKey
-    val monthInvalidKey = if (usePerFieldKeys) s"${invalidKey}.month" else invalidKey
-    val yearInvalidKey = if (usePerFieldKeys) s"${invalidKey}.year" else invalidKey
+    val dayInvalidKey = if (usePerFieldKeys) s"$invalidKey.day" else invalidKey
+    val monthInvalidKey = if (usePerFieldKeys) s"$invalidKey.month" else invalidKey
+    val yearInvalidKey = if (usePerFieldKeys) s"$invalidKey.year" else invalidKey
 
     val dayFormatter = intFormatter(
       requiredKey    = dayInvalidKey,
@@ -95,7 +95,7 @@ private[mappings] class LocalDateFormatter(
                 .map(_ => Seq(FormError(key, yearInvalidKey, args)))
                 .flatMap {
                   case parsed if parsed < 0 || parsed > 9999 => Left(Seq(FormError(key, yearInvalidKey, args)))
-                  case parsed                                 => Right(parsed)
+                  case parsed                                => Right(parsed)
                 }
             }
           }
@@ -134,7 +134,7 @@ private[mappings] class LocalDateFormatter(
               case None => 29
             }
           case 4 | 6 | 9 | 11 => 30
-          case _ => 31
+          case _              => 31
         }
         d < 1 || d > maxForMonth
       case _ => false
@@ -163,21 +163,21 @@ private[mappings] class LocalDateFormatter(
       invalidFieldKeys.size match {
         case 1 =>
           invalidFieldKeys match {
-              case List("day")   =>
-                if (usePerFieldKeys) Left(List(FormError(key, dayInvalidKey, List(messages("date.error.day")) ++ args)))
-                else Left(List(FormError(key, dayInvalidKey, args)))
+            case List("day") =>
+              if (usePerFieldKeys) Left(List(FormError(key, dayInvalidKey, List(messages("date.error.day")) ++ args)))
+              else Left(List(FormError(key, dayInvalidKey, args)))
             case List("month") =>
-                if (usePerFieldKeys) Left(List(FormError(key, monthInvalidKey, List(messages("date.error.month")) ++ args)))
-                else Left(List(FormError(key, monthInvalidKey, args)))
-            case List("year")  =>
-                if (usePerFieldKeys) Left(List(FormError(key, yearInvalidKey, List(messages("date.error.year")) ++ args)))
-                else Left(List(FormError(key, yearInvalidKey, args)))
-            case _               => Left(List(FormError(key, invalidKey, args)))
+              if (usePerFieldKeys) Left(List(FormError(key, monthInvalidKey, List(messages("date.error.month")) ++ args)))
+              else Left(List(FormError(key, monthInvalidKey, args)))
+            case List("year") =>
+              if (usePerFieldKeys) Left(List(FormError(key, yearInvalidKey, List(messages("date.error.year")) ++ args)))
+              else Left(List(FormError(key, yearInvalidKey, args)))
+            case _ => Left(List(FormError(key, invalidKey, args)))
           }
         case 2 =>
           if (usePerFieldKeys) {
-            val multiKey = s"${invalidKey}.two"
-            val rendered = messages(multiKey, invalidFields: _*)
+            val multiKey = s"$invalidKey.two"
+            val rendered = messages(multiKey, invalidFields*)
             Left(List(FormError(key, rendered, invalidFields ++ args)))
           } else {
             // Preserve legacy behavior for generic invalid keys: no args, generic message
@@ -213,7 +213,7 @@ private[mappings] class LocalDateFormatter(
           _.map { fe =>
             // Preserve any args produced by formatDate (these contain which fields are invalid)
             if (fe.args.nonEmpty) fe.copy(key = key)
-            else fe.copy(key = key, args = args)
+            else fe.copy(key                  = key, args = args)
           }
         }
       case 2 =>

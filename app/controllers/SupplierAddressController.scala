@@ -57,8 +57,7 @@ class SupplierAddressController @Inject() (
     form
       .bindFromRequest()
       .fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode, backLink))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink))),
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(SupplierAddressPage, value))

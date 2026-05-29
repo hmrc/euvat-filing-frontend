@@ -34,7 +34,7 @@ class InvoiceDateSummarySpec extends SpecBase {
 
       val row = InvoiceDateSummary.row(userAnswers).value
 
-      row.key.content.asHtml.toString must include("invoiceDate.checkYourAnswersLabel")
+      row.key.content.asHtml.toString   must include("invoiceDate.checkYourAnswersLabel")
       row.value.content.asHtml.toString must include("15 April 2025")
       row.actions.get.items.head.href mustEqual controllers.routes.InvoiceDateController.onPageLoad(models.CheckMode).url
     }

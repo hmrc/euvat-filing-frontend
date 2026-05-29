@@ -44,20 +44,20 @@ class Navigator @Inject() () {
   }
 
   private val checkRouteMap: Page => UserAnswers => Call = {
-    case RefundingCountryPage        => _ => routes.RefundingLanguageController.onPageLoad(CheckMode)
-    case RefundingLanguagePage       => _ => routes.RefundPeriodController.onPageLoad(CheckMode)
-    case RefundPeriodPage            => _ => routes.ContactDetailsController.onPageLoad(CheckMode)
-    case ContactDetailsPage          => _ => routes.BusinessActivityController.onPageLoad(CheckMode)
-    case BusinessActivityPage        => userAnswer => navigateFromBusinessActivityPage(CheckMode)(userAnswer)
-    case BusinessActivityCodeTwoPage => _ => routes.BusinessActivityTwoController.onPageLoad(CheckMode)
-    case BusinessActivityTwoPage     => userAnswer => navigateFromBusinessActivity2Page(CheckMode)(userAnswer)
+    case RefundingCountryPage          => _ => routes.RefundingLanguageController.onPageLoad(CheckMode)
+    case RefundingLanguagePage         => _ => routes.RefundPeriodController.onPageLoad(CheckMode)
+    case RefundPeriodPage              => _ => routes.ContactDetailsController.onPageLoad(CheckMode)
+    case ContactDetailsPage            => _ => routes.BusinessActivityController.onPageLoad(CheckMode)
+    case BusinessActivityPage          => userAnswer => navigateFromBusinessActivityPage(CheckMode)(userAnswer)
+    case BusinessActivityCodeTwoPage   => _ => routes.BusinessActivityTwoController.onPageLoad(CheckMode)
+    case BusinessActivityTwoPage       => userAnswer => navigateFromBusinessActivity2Page(CheckMode)(userAnswer)
     case BusinessActivityCodeThreePage => _ => routes.BusinessActivityThreeController.onPageLoad()
-    case PurchaseTypePage            => _ => routes.InvoiceNumberController.onPageLoad(CheckMode)
-    case InvoiceNumberPage           => _ => routes.InvoiceDateController.onPageLoad(CheckMode)
-    case InvoiceDatePage             => _ => routes.SuppliersNameController.onPageLoad(CheckMode)
-    case SuppliersNamePage           => _ => routes.SupplierAddressController.onPageLoad(CheckMode)
-    case SupplierAddressPage         => _ => routes.CheckYourAnswersController.onPageLoad()
-    case _                           => _ => routes.CheckYourAnswersController.onPageLoad()
+    case PurchaseTypePage              => _ => routes.InvoiceNumberController.onPageLoad(CheckMode)
+    case InvoiceNumberPage             => _ => routes.InvoiceDateController.onPageLoad(CheckMode)
+    case InvoiceDatePage               => _ => routes.SuppliersNameController.onPageLoad(CheckMode)
+    case SuppliersNamePage             => _ => routes.SupplierAddressController.onPageLoad(CheckMode)
+    case SupplierAddressPage           => _ => routes.CheckYourAnswersController.onPageLoad()
+    case _                             => _ => routes.CheckYourAnswersController.onPageLoad()
   }
 
   private def navigateFromBusinessActivityPage(mode: Mode)(userAnswers: UserAnswers): Call =

@@ -28,10 +28,10 @@ class InvoiceDateFormProvider @Inject() extends Mappings {
   def apply()(implicit messages: Messages): Form[LocalDate] =
     Form(
       "value" -> localDate(
-        invalidKey     = "invoiceDate.error.invalid",
-        allRequiredKey = "invoiceDate.error.required.all",
-        twoRequiredKey = "invoiceDate.error.required.two",
-        requiredKey    = "invoiceDate.error.required",
+        invalidKey      = "invoiceDate.error.invalid",
+        allRequiredKey  = "invoiceDate.error.required.all",
+        twoRequiredKey  = "invoiceDate.error.required.two",
+        requiredKey     = "invoiceDate.error.required",
         usePerFieldKeys = true
       )
     )

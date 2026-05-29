@@ -37,8 +37,8 @@ class SupplierAddressControllerSpec extends SpecBase with MockitoSugar {
 
   private val onwardRoute = Call("GET", "/foo")
 
-  private lazy val pageLoadRoute  = routes.SupplierAddressController.onPageLoad(NormalMode).url
-  private lazy val submitRoute    = routes.SupplierAddressController.onSubmit(NormalMode).url
+  private lazy val pageLoadRoute = routes.SupplierAddressController.onPageLoad(NormalMode).url
+  private lazy val submitRoute = routes.SupplierAddressController.onSubmit(NormalMode).url
   private lazy val backLink: Call = routes.SuppliersNameController.onPageLoad(NormalMode)
 
   private val validFormData = Map(
@@ -60,11 +60,11 @@ class SupplierAddressControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(GET, pageLoadRoute)
-        val result  = route(application, request).value
+        val result = route(application, request).value
 
-        val view         = application.injector.instanceOf[SupplierAddressView]
+        val view = application.injector.instanceOf[SupplierAddressView]
         val formProvider = application.injector.instanceOf[SupplierAddressFormProvider]
-        val form         = formProvider()
+        val form = formProvider()
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode, backLink)(request, messages(application)).toString
@@ -76,7 +76,7 @@ class SupplierAddressControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(GET, pageLoadRoute)
-        val result  = route(application, request).value
+        val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
@@ -89,11 +89,11 @@ class SupplierAddressControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(GET, pageLoadRoute)
-        val result  = route(application, request).value
+        val result = route(application, request).value
 
-        val view         = application.injector.instanceOf[SupplierAddressView]
+        val view = application.injector.instanceOf[SupplierAddressView]
         val formProvider = application.injector.instanceOf[SupplierAddressFormProvider]
-        val form         = formProvider().fill(supplierAddress)
+        val form = formProvider().fill(supplierAddress)
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode, backLink)(request, messages(application)).toString
@@ -113,7 +113,7 @@ class SupplierAddressControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(POST, submitRoute).withFormUrlEncodedBody(validFormData.toSeq*)
-        val result  = route(application, request).value
+        val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
@@ -134,7 +134,7 @@ class SupplierAddressControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(POST, submitRoute).withFormUrlEncodedBody("addressLine1" -> "1 High Street")
-        val result  = route(application, request).value
+        val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
@@ -147,7 +147,7 @@ class SupplierAddressControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(POST, submitRoute).withFormUrlEncodedBody("addressLine1" -> "")
-        val result  = route(application, request).value
+        val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
         contentAsString(result) must include(messages(application)("supplierAddress.error.line1.required"))
@@ -160,7 +160,7 @@ class SupplierAddressControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val tooLong = "a" * 36
         val request = FakeRequest(POST, submitRoute).withFormUrlEncodedBody("addressLine1" -> tooLong)
-        val result  = route(application, request).value
+        val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
         contentAsString(result) must include(messages(application)("supplierAddress.error.maxLength"))
@@ -172,7 +172,7 @@ class SupplierAddressControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(POST, submitRoute).withFormUrlEncodedBody(validFormData.toSeq*)
-        val result  = route(application, request).value
+        val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url

@@ -21,7 +21,7 @@ import forms.InvoiceDateFormProvider
 import models.Mode
 import navigation.Navigator
 import pages.InvoiceDatePage
-import play.api.i18n.{I18nSupport, MessagesApi, Messages}
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -73,11 +73,11 @@ class InvoiceDateController @Inject() (
                 val errorForm = form.bindFromRequest().withError("value", "invoiceDate.error.past")
                 Future.successful(BadRequest(view(errorForm, mode)))
               }
-              /* 
-              TODO: business rule to prevent users entering a date outside the refund period 
-              this is currently commented out as 
+              /*
+              TODO: business rule to prevent users entering a date outside the refund period
+              this is currently commented out as
               it is not yet clear whether this validation will be possible at this point in the journey.
-              Once the refund period can be calculated, this validation should be added back in 
+              Once the refund period can be calculated, this validation should be added back in
               and the relevant error message added to the messages file.
 
               else if (value.isBefore(refundPeriod.startDate) || value.isAfter(refundPeriod.endDate)) {

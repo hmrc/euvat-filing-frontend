@@ -22,22 +22,21 @@ import pages.SuppliersNamePage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import viewmodels.govuk.summarylist._
-import viewmodels.implicits._
+import viewmodels.govuk.summarylist.*
+import viewmodels.implicits.*
 
-object SuppliersNameSummary  {
+object SuppliersNameSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(SuppliersNamePage).map {
-      answer =>
+    answers.get(SuppliersNamePage).map { answer =>
 
-        SummaryListRowViewModel(
-          key     = "suppliersName.checkYourAnswersLabel",
-          value   = ValueViewModel(HtmlFormat.escape(answer).toString),
-          actions = Seq(
-            ActionItemViewModel("site.change", routes.SuppliersNameController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("suppliersName.change.hidden"))
-          )
+      SummaryListRowViewModel(
+        key   = "suppliersName.checkYourAnswersLabel",
+        value = ValueViewModel(HtmlFormat.escape(answer).toString),
+        actions = Seq(
+          ActionItemViewModel("site.change", routes.SuppliersNameController.onPageLoad(CheckMode).url)
+            .withVisuallyHiddenText(messages("suppliersName.change.hidden"))
         )
+      )
     }
 }

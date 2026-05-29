@@ -128,10 +128,14 @@ class InvoiceDateFormProviderSpec extends AnyFreeSpec with Matchers with ScalaCh
     }
 
     "must bind random textual months (3-letter and full, mixed case)" in {
-      val monthVariants = java.time.Month.values().toList.flatMap { m =>
-        val s = m.toString
-        Seq(s, s.toLowerCase, s.capitalize, s.take(3), s.take(3).toLowerCase, s.take(3).toUpperCase, s.head.toLower.toString + s.tail.toUpperCase)
-      }.distinct
+      val monthVariants = java.time.Month
+        .values()
+        .toList
+        .flatMap { m =>
+          val s = m.toString
+          Seq(s, s.toLowerCase, s.capitalize, s.take(3), s.take(3).toLowerCase, s.take(3).toUpperCase, s.head.toLower.toString + s.tail.toUpperCase)
+        }
+        .distinct
 
       forAll(Gen.oneOf(monthVariants)) { monthStr =>
         val data = Map(
@@ -141,7 +145,8 @@ class InvoiceDateFormProviderSpec extends AnyFreeSpec with Matchers with ScalaCh
         )
 
         val result = form.bind(data)
-        val expectedMonth = java.time.Month.values().toList.find(m => m.toString == monthStr.toUpperCase || m.toString.take(3) == monthStr.toUpperCase)
+        val expectedMonth =
+          java.time.Month.values().toList.find(m => m.toString == monthStr.toUpperCase || m.toString.take(3) == monthStr.toUpperCase)
         result.value.value.getMonthValue mustEqual expectedMonth.get.getValue
       }
     }
@@ -159,7 +164,7 @@ class InvoiceDateFormProviderSpec extends AnyFreeSpec with Matchers with ScalaCh
     "must flag day and month for large numeric garbage input" in {
       val rendered = messages("invoiceDate.error.invalid.two", messages("date.error.day"), messages("date.error.month"))
       val result = form.bind(Map("value.day" -> "123", "value.month" -> "123", "value.year" -> "1234"))
-      result.errors.map(_.message) must contain (rendered)
+      result.errors.map(_.message) must contain(rendered)
     }
 
     "must return invalid year when only year is invalid" in {
@@ -170,7 +175,7 @@ class InvoiceDateFormProviderSpec extends AnyFreeSpec with Matchers with ScalaCh
     "must return invalid month and year when both month and year are invalid" in {
       val rendered = messages("invoiceDate.error.invalid.two", messages("date.error.month"), messages("date.error.year"))
       val result = form.bind(Map("value.day" -> "5", "value.month" -> "Foo", "value.year" -> "20ab"))
-      result.errors.map(_.message) must contain (rendered)
+      result.errors.map(_.message) must contain(rendered)
     }
 
     "missing beats invalid: when day is missing and month has invalid text, only the missing day is reported" in {
@@ -240,7 +245,10 @@ class InvoiceDateFormProviderSpec extends AnyFreeSpec with Matchers with ScalaCh
 
         val result = form.bind(data)
 
-        result.errors must contain only FormError("value", "invoiceDate.error.required.two", List(messages("date.error.day"), messages("date.error.month")))
+        result.errors must contain only FormError("value",
+                                                  "invoiceDate.error.required.two",
+                                                  List(messages("date.error.day"), messages("date.error.month"))
+                                                 )
       }
     }
 
@@ -262,7 +270,10 @@ class InvoiceDateFormProviderSpec extends AnyFreeSpec with Matchers with ScalaCh
 
         val result = form.bind(data)
 
-        result.errors must contain only FormError("value", "invoiceDate.error.required.two", List(messages("date.error.day"), messages("date.error.year")))
+        result.errors must contain only FormError("value",
+                                                  "invoiceDate.error.required.two",
+                                                  List(messages("date.error.day"), messages("date.error.year"))
+                                                 )
       }
     }
 
@@ -284,7 +295,10 @@ class InvoiceDateFormProviderSpec extends AnyFreeSpec with Matchers with ScalaCh
 
         val result = form.bind(data)
 
-        result.errors must contain only FormError("value", "invoiceDate.error.required.two", List(messages("date.error.month"), messages("date.error.year")))
+        result.errors must contain only FormError("value",
+                                                  "invoiceDate.error.required.two",
+                                                  List(messages("date.error.month"), messages("date.error.year"))
+                                                 )
       }
     }
 
