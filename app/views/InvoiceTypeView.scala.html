@@ -31,7 +31,7 @@
 
 @layout(pageTitle = views.ViewUtils.title(form, messages("invoiceType.title")), backLinkUrl = Some(call.url)) {
 
-    @formHelper(action = routes.InvoiceTypeController.onSubmit()) {
+    @formHelper(action = routes.InvoiceTypeController.onSubmit(mode)) {
         @mainErrorSummary(form)
 
         <span class="govuk-caption-l hmrc-caption-l">
