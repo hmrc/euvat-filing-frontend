@@ -42,11 +42,16 @@ object CheckYourClaimDetailsSummary {
     }
 
   def rowCountry(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(RefundingCountryPage).map { answer =>
+    // Stored format: "code,name" — prefer the name when present, fall back to raw value
+    answers.get(RefundingCountryPage).map { stored =>
+      val display = stored.split(",", 2).toList match {
+        case _ :: name :: Nil if name.trim.nonEmpty => name
+        case _                                      => stored
+      }
 
       SummaryListRowViewModel(
         key     = "checkYourClaimDetails.refundingCountry.subLabel",
-        value   = ValueViewModel(HtmlFormat.raw(answer).toString),
+        value   = ValueViewModel(HtmlFormat.raw(display).toString),
         actions = Seq.empty
       )
     }

@@ -62,7 +62,10 @@ class RefundingCountryController @Inject() (
     val (countries, form) = buildFormAndCountries()
 
     // If we have a previously selected country, pre-fill the form.
-    val preparedForm = request.userAnswers.get(RefundingCountryPage).fold(form)(form.fill)
+    val preparedForm = request.userAnswers.get(RefundingCountryPage).fold(form) { stored =>
+      val code = stored.split(",", 2).headOption.getOrElse(stored)
+      form.fill(code)
+    }
 
     Ok(view(preparedForm, countries, routes.TaskListDashboardController.onPageLoad(), mode))
   }
@@ -86,8 +89,11 @@ class RefundingCountryController @Inject() (
           Future.successful(BadRequest(view(adjustedForm, countries, routes.TaskListDashboardController.onPageLoad(), mode)))
         },
         value => {
+          val name = countries.find(_._2.equalsIgnoreCase(value)).map(_._1).getOrElse(value)
+          val combined = s"${value},${name}"
+
           for {
-            updatedAnswers <- Future.fromTry(baseAnswers.set(RefundingCountryPage, value))
+            updatedAnswers <- Future.fromTry(baseAnswers.set(RefundingCountryPage, combined))
             _              <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(RefundingCountryPage, mode, updatedAnswers))
         }
