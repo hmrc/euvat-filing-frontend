@@ -75,6 +75,8 @@ POST        /about-the-purchase                          controllers.AboutThePur
 
 GET         /invoice-type                                controllers.InvoiceTypeController.onPageLoad(mode: Mode = NormalMode)
 POST        /invoice-type                                controllers.InvoiceTypeController.onSubmit(mode: Mode = NormalMode)
+GET         /change-invoice-type                         controllers.InvoiceTypeController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-invoice-type                         controllers.InvoiceTypeController.onSubmit(mode: Mode = CheckMode)
 
 GET         /invoice-number                              controllers.InvoiceNumberController.onPageLoad(mode: models.Mode = NormalMode)
 POST        /invoice-number                              controllers.InvoiceNumberController.onSubmit(mode: models.Mode = NormalMode)
