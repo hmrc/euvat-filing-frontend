@@ -134,7 +134,7 @@ object CheckYourClaimDetailsSummary {
     answers.get(ContactDetailsPage).map { answer =>
 
       SummaryListRowViewModel(
-        key     = "checkYourClaimDetails.contactTelephone.subLabel",
+        key     = "checkYourClaimDetails.contactPhone.subLabel",
         value   = ValueViewModel(HtmlFormat.escape(answer.telephone.getOrElse("Not provided")).toString),
         actions = Seq.empty
       )
