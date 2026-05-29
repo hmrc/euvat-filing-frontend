@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.RefundingCountryFormProvider
 import models.{Mode, NormalMode, UserAnswers}
 import navigation.Navigator
-import pages.RefundingCountryPage
+import pages.{RefundingCountryCodePage, RefundingCountryPage}
 import play.api.Configuration
 import play.api.data.FormError
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -33,6 +33,7 @@ import views.html.RefundingCountryView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.Logger
+
 import scala.util.control.NonFatal
 
 class RefundingCountryController @Inject() (
@@ -90,12 +91,13 @@ class RefundingCountryController @Inject() (
         },
         value => {
           val name = countries.find(_._2.equalsIgnoreCase(value)).map(_._1).getOrElse(value)
-          val combined = s"${value},${name}"
+          val combined = s"$value,$name"
 
           for {
-            updatedAnswers <- Future.fromTry(baseAnswers.set(RefundingCountryPage, combined))
+            updatedAnswers <- Future.fromTry(baseAnswers.set(RefundingCountryCodePage, value))
+            updatedAnswers <- Future.fromTry(updatedAnswers.set(RefundingCountryPage, name))
             _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(RefundingCountryPage, mode, updatedAnswers))
+          } yield Redirect(navigator.nextPage(RefundingCountryCodePage, mode, updatedAnswers))
         }
       )
 

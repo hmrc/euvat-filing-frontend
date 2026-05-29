@@ -32,7 +32,7 @@ class Navigator @Inject() () {
   }
 
   private val normalRoutes: Page => UserAnswers => Call = {
-    case RefundingCountryPage          => _ => routes.RefundingLanguageController.onPageLoad(NormalMode)
+    case RefundingCountryCodePage      => _ => routes.RefundingLanguageController.onPageLoad(NormalMode)
     case RefundingLanguagePage         => _ => routes.RefundPeriodController.onPageLoad(NormalMode)
     case RefundPeriodPage              => _ => routes.ContactDetailsController.onPageLoad(NormalMode)
     case ContactDetailsPage            => _ => routes.BusinessActivityController.onPageLoad(NormalMode)
@@ -47,7 +47,7 @@ class Navigator @Inject() () {
   }
 
   private val checkRoutes: Page => UserAnswers => Call = {
-    case RefundingCountryPage          => _ => routes.RefundingLanguageController.onPageLoad(CheckMode)
+    case RefundingCountryCodePage      => _ => routes.RefundingLanguageController.onPageLoad(CheckMode)
     case RefundingLanguagePage         => _ => routes.CheckYourClaimDetailsController.onPageLoad()
     case RefundPeriodPage              => _ => routes.CheckYourClaimDetailsController.onPageLoad()
     case ContactDetailsPage            => _ => routes.CheckYourClaimDetailsController.onPageLoad()

@@ -88,7 +88,7 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
       }
     }
 
-    "must not display telephone when it's missing" in {
+    "must not display phone number when it's missing" in {
       val contact = models.ContactDetails("a@b.com", None)
       val ua = emptyUserAnswers.set(pages.ContactDetailsPage, contact).success.value
       val application = applicationBuilder(userAnswers = Some(ua)).build()
@@ -99,7 +99,7 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
         val html = contentAsString(result)
 
         html must include(contact.email)
-        html must include(messages(application)("checkYourClaimDetails.contactTelephone.subLabel"))
+        html must include(messages(application)("checkYourClaimDetails.contactPhone.subLabel"))
         html must include(messages(application)("Not provided"))
       }
     }

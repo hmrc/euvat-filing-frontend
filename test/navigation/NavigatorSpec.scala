@@ -35,7 +35,7 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from RefundingCountryPage to RefundingLanguageController" in {
-        navigator.nextPage(pages.RefundingCountryPage, NormalMode, userAnswers) mustBe
+        navigator.nextPage(pages.RefundingCountryCodePage, NormalMode, userAnswers) mustBe
           routes.RefundingLanguageController.onPageLoad(NormalMode)
       }
 
@@ -151,7 +151,7 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from RefundingCountryPage to RefundingLanguageController in CheckMode" in {
-        navigator.nextPage(RefundingCountryPage, CheckMode, userAnswers) mustBe
+        navigator.nextPage(RefundingCountryCodePage, CheckMode, userAnswers) mustBe
           routes.RefundingLanguageController.onPageLoad(CheckMode)
       }
 

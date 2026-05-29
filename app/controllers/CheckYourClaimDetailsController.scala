@@ -52,30 +52,33 @@ class CheckYourClaimDetailsController @Inject() (
     Redirect(controllers.routes.TaskListDashboardController.onPageLoad())
   }
 
-  private def getChangeUrl(rowOpt: Option[SummaryListRow]): Option[String] =
-    rowOpt.flatMap(_.actions.flatMap(_.items.headOption.map(_.href)))
+  private def getChangeUrl(rowOpt: SummaryListRow): Option[String] =
+//    rowOpt.flatMap(_.actions.flatMap(_.items.headOption.map(_.href)))
+    rowOpt.actions.flatMap(_.items.headOption.map(_.href))
 
   private def buildSummaryList(answers: UserAnswers)(implicit messages: Messages): Seq[(String, Option[String], SummaryList)] =
     Seq(
       (
         "checkYourClaimDetails.refundingCountry.label",
-        getChangeUrl(CheckYourClaimDetailsSummary.rowCountryLabel(answers)),
+        getChangeUrl(CheckYourClaimDetailsSummary.rowCountryLabel()),
         SummaryListViewModel(Seq(CheckYourClaimDetailsSummary.rowCountry(answers)).flatten)
       ),
       (
         "checkYourClaimDetails.refundingLanguage.label",
-        getChangeUrl(CheckYourClaimDetailsSummary.rowLanguageLabel(answers)),
+        getChangeUrl(CheckYourClaimDetailsSummary.rowLanguageLabel()),
         SummaryListViewModel(Seq(CheckYourClaimDetailsSummary.rowLanguage(answers)).flatten)
       ),
       (
         "checkYourClaimDetails.refundingPeriod.label",
-        getChangeUrl(CheckYourClaimDetailsSummary.rowRefundPeriodLabel(answers)),
+        getChangeUrl(CheckYourClaimDetailsSummary.rowRefundPeriodLabel()),
         SummaryListViewModel(Seq(CheckYourClaimDetailsSummary.rowRefundStart(answers), CheckYourClaimDetailsSummary.rowRefundEnd(answers)).flatten)
       ),
       (
         "checkYourClaimDetails.contactDetails.label",
-        getChangeUrl(CheckYourClaimDetailsSummary.rowContactLabel(answers)),
-        SummaryListViewModel(Seq(CheckYourClaimDetailsSummary.rowContactEmail(answers), CheckYourClaimDetailsSummary.rowContactTelephone(answers)).flatten)
+        getChangeUrl(CheckYourClaimDetailsSummary.rowContactLabel()),
+        SummaryListViewModel(
+          Seq(CheckYourClaimDetailsSummary.rowContactEmail(answers), CheckYourClaimDetailsSummary.rowContactPhone(answers)).flatten
+        )
       ),
       (
         "checkYourClaimDetails.businessActivity.label",
