@@ -18,24 +18,33 @@ package viewmodels.checkAnswers
 
 import controllers.routes
 import models.{CheckMode, UserAnswers}
-import pages.SuppliersNamePage
+import pages.InvoiceDatePage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
-object SuppliersNameSummary {
+object InvoiceDateSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(SuppliersNamePage).map { answer =>
+    answers.get(InvoiceDatePage).map { date =>
+
+      val formatter = java.time.format.DateTimeFormatter.ofPattern("d MMMM yyyy")
+
+      val value = ValueViewModel(
+        HtmlContent(
+          HtmlFormat.escape(formatter.format(date))
+        )
+      )
 
       SummaryListRowViewModel(
-        key   = "suppliersName.checkYourAnswersLabel",
-        value = ValueViewModel(HtmlFormat.escape(answer).toString),
+        key   = "invoiceDate.checkYourAnswersLabel",
+        value = value,
         actions = Seq(
-          ActionItemViewModel("site.change", routes.SuppliersNameController.onPageLoad(CheckMode).url)
-            .withVisuallyHiddenText(messages("suppliersName.change.hidden"))
+          ActionItemViewModel("site.change", routes.InvoiceDateController.onPageLoad(CheckMode).url)
+            .withVisuallyHiddenText(messages("invoiceDate.change.hidden"))
         )
       )
     }
