@@ -28,48 +28,181 @@ private[mappings] class LocalDateFormatter(
   allRequiredKey: String,
   twoRequiredKey: String,
   requiredKey: String,
-  args: Seq[String] = Seq.empty
+  args: Seq[String] = Seq.empty,
+  usePerFieldKeys: Boolean = false
 )(implicit messages: Messages)
     extends Formatter[LocalDate]
     with Formatters {
 
   private val fieldKeys: List[String] = List("day", "month", "year")
 
-  private def toDate(key: String, day: Int, month: Int, year: Int): Either[Seq[FormError], LocalDate] =
-    Try(LocalDate.of(year, month, day)) match {
-      case Success(date) =>
-        Right(date)
-      case Failure(_) =>
-        Left(Seq(FormError(key, invalidKey, args)))
+  private def toDate(key: String, day: Int, month: Int, year: Int): Either[Seq[FormError], LocalDate] = {
+    import java.time.YearMonth
+
+    val dayInvalidKey = if (usePerFieldKeys) s"$invalidKey.day" else invalidKey
+    val monthInvalidKey = if (usePerFieldKeys) s"$invalidKey.month" else invalidKey
+    val yearInvalidKey = if (usePerFieldKeys) s"$invalidKey.year" else invalidKey
+
+    Try(YearMonth.of(year, month)) match {
+      case Success(ym) =>
+        // If the day is outside absolute 1-31 range, it's a day-specific error
+        if (day < 1 || day > 31) Left(Seq(FormError(key, dayInvalidKey, args)))
+        else if (day > ym.lengthOfMonth) {
+          // Numbers individually look plausible (e.g., 30 Feb) but the date doesn't exist
+          // Treat this as a day-specific error so the view can anchor to the day input.
+          val dayArgs = if (invalidKey.startsWith("invoiceDate")) List(messages("date.error.day")) ++ args else args
+          Left(Seq(FormError(key, dayInvalidKey, dayArgs)))
+        } else
+          Try(LocalDate.of(year, month, day)) match {
+            case Success(date) => Right(date)
+            case Failure(_)    => Left(Seq(FormError(key, invalidKey, args)))
+          }
+      case Failure(_) => Left(Seq(FormError(key, invalidKey, args)))
     }
+  }
 
   private def formatDate(key: String, data: Map[String, String]): Either[Seq[FormError], LocalDate] = {
 
-    val int = intFormatter(
-      requiredKey    = invalidKey,
-      wholeNumberKey = invalidKey,
-      nonNumericKey  = invalidKey,
+    val dayInvalidKey = if (usePerFieldKeys) s"$invalidKey.day" else invalidKey
+    val monthInvalidKey = if (usePerFieldKeys) s"$invalidKey.month" else invalidKey
+    val yearInvalidKey = if (usePerFieldKeys) s"$invalidKey.year" else invalidKey
+
+    val dayFormatter = intFormatter(
+      requiredKey    = dayInvalidKey,
+      wholeNumberKey = dayInvalidKey,
+      nonNumericKey  = dayInvalidKey,
       args
     )
 
-    val month = new MonthFormatter(invalidKey, args)
+    val monthFormatter = new MonthFormatter(monthInvalidKey, args)
 
-    for {
-      day   <- int.bind(s"$key.day", data)
-      month <- month.bind(s"$key.month", data)
-      year  <- int.bind(s"$key.year", data)
-      date  <- toDate(key, day, month, year)
-    } yield date
+    val yearFormatter = new Formatter[Int] with Formatters {
+      private val baseFormatter = stringFormatter(yearInvalidKey, args)
+
+      override def bind(key: String, data: Map[String, String]) =
+        baseFormatter
+          .bind(key, data)
+          .map(_.replace(",", ""))
+          .flatMap { s =>
+            val decimalRegexp = """^-?(\d*\.\d*)$"""
+            if (s.matches(decimalRegexp)) {
+              Left(Seq(FormError(key, yearInvalidKey, args)))
+            } else {
+              // only accept whole non-negative numbers for year
+              scala.util.control.Exception.nonFatalCatch
+                .either(s.toInt)
+                .left
+                .map(_ => Seq(FormError(key, yearInvalidKey, args)))
+                .flatMap {
+                  case parsed if parsed < 0 || parsed > 9999 => Left(Seq(FormError(key, yearInvalidKey, args)))
+                  case parsed                                => Right(parsed)
+                }
+            }
+          }
+
+      override def unbind(key: String, value: Int) = Map(key -> value.toString)
+    }
+
+    val dayResult = dayFormatter.bind(s"$key.day", data)
+    val monthResult = monthFormatter.bind(s"$key.month", data)
+    val yearResult = yearFormatter.bind(s"$key.year", data)
+
+    // Build an ordered list of invalid fields (day, month, year)
+    val bindingInvalids = List(
+      dayResult.left.toOption.map(_ => "day"),
+      monthResult.left.toOption.map(_ => "month"),
+      yearResult.left.toOption.map(_ => "year")
+    ).flatten
+
+    // Detect semantic day invalid (e.g., 32 March) even when year parsing failed
+    // Only consider a semantic day-invalid when year parsing has failed (so we can't check full date validity).
+    val semanticDayInvalid: Boolean = (dayResult, monthResult, yearResult) match {
+      case (Right(d), Right(m), Left(_)) =>
+        // Attempt to infer a numeric year from the raw input when year binding failed (e.g. "2026asc").
+        // If we can parse a year, use it to compute the true month length for February; otherwise fall back to conservative 29.
+        val maxForMonth: Int = m match {
+          case 2 =>
+            val rawYearOpt = data.get(s"$key.year")
+            val parsedYearOpt = rawYearOpt.flatMap { s =>
+              """\d+""".r.findFirstIn(s).flatMap(str => Try(str.toInt).toOption)
+            }
+
+            parsedYearOpt match {
+              case Some(parsedYear) =>
+                import java.time.YearMonth
+                Try(YearMonth.of(parsedYear, m).lengthOfMonth()).getOrElse(29)
+              case None => 29
+            }
+          case 4 | 6 | 9 | 11 => 30
+          case _              => 31
+        }
+        d < 1 || d > maxForMonth
+      case _ => false
+    }
+
+    // Also mark day invalid when it is numerically outside 1..31 even if month failed to bind
+    val absoluteDayInvalid: Boolean = dayResult match {
+      case Right(d) => d < 1 || d > 31
+      case _        => false
+    }
+
+    val invalidFieldKeys: List[String] = {
+      val base = bindingInvalids
+      val withSemantic = if ((semanticDayInvalid || absoluteDayInvalid) && !base.contains("day")) base :+ "day" else base
+      // Preserve order day, month, year
+      List("day", "month", "year").filter(withSemantic.contains)
+    }
+
+    if (invalidFieldKeys.nonEmpty) {
+      val invalidFields = invalidFieldKeys.map {
+        case "day"   => messages("date.error.day")
+        case "month" => messages("date.error.month")
+        case "year"  => messages("date.error.year")
+      }
+
+      invalidFieldKeys.size match {
+        case 1 =>
+          invalidFieldKeys match {
+            case List("day") =>
+              if (usePerFieldKeys) Left(List(FormError(key, dayInvalidKey, List(messages("date.error.day")) ++ args)))
+              else Left(List(FormError(key, dayInvalidKey, args)))
+            case List("month") =>
+              if (usePerFieldKeys) Left(List(FormError(key, monthInvalidKey, List(messages("date.error.month")) ++ args)))
+              else Left(List(FormError(key, monthInvalidKey, args)))
+            case List("year") =>
+              if (usePerFieldKeys) Left(List(FormError(key, yearInvalidKey, List(messages("date.error.year")) ++ args)))
+              else Left(List(FormError(key, yearInvalidKey, args)))
+            case _ => Left(List(FormError(key, invalidKey, args)))
+          }
+        case 2 =>
+          if (usePerFieldKeys) {
+            val multiKey = s"$invalidKey.two"
+            val rendered = messages(multiKey, invalidFields*)
+            Left(List(FormError(key, rendered, invalidFields ++ args)))
+          } else {
+            // Preserve legacy behavior for generic invalid keys: no args, generic message
+            Left(List(FormError(key, invalidKey, List.empty)))
+          }
+        case _ => Left(List(FormError(key, invalidKey, args)))
+      }
+    } else {
+      for {
+        day   <- dayResult
+        month <- monthResult
+        year  <- yearResult
+        date  <- toDate(key, day, month, year)
+      } yield date
+    }
   }
 
   override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], LocalDate] = {
 
     val fields = fieldKeys.map { field =>
       field -> data.get(s"$key.$field").filter(_.nonEmpty)
-    }.toMap
+    }
 
     lazy val missingFields = fields
-      .withFilter(_._2.isEmpty)
+      .filter(_._2.isEmpty)
       .map(_._1)
       .toList
       .map(field => messages(s"date.error.$field"))
@@ -77,7 +210,11 @@ private[mappings] class LocalDateFormatter(
     fields.count(_._2.isDefined) match {
       case 3 =>
         formatDate(key, data).left.map {
-          _.map(_.copy(key = key, args = args))
+          _.map { fe =>
+            // Preserve any args produced by formatDate (these contain which fields are invalid)
+            if (fe.args.nonEmpty) fe.copy(key = key)
+            else fe.copy(key                  = key, args = args)
+          }
         }
       case 2 =>
         Left(List(FormError(key, requiredKey, missingFields ++ args)))

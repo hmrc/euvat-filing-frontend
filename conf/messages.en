@@ -144,6 +144,22 @@ refundPeriod.error.periodStartDateperiodNotLessThan3Months = Refund period must 
 refundPeriod.error.periodStartDateafter30thSept = Refund period start date must be on or after 1 January {0}
 refundPeriod.error.periodStartDate30thSeptOrEarlier = Refund period start date must be on or after 1 January {0}
 
+invoiceDate.title = What is the invoice date?
+invoiceDate.heading = What is the invoice date?
+invoiceDate.hint = For example, 27 3 2025
+invoiceDate.error.invalid = Enter a valid date
+invoiceDate.error.invalid.day = Enter a valid day
+invoiceDate.error.invalid.month = Enter a valid month
+invoiceDate.error.invalid.year = Enter a valid year
+invoiceDate.error.invalid.two = Enter a valid {0} and {1}
+invoiceDate.error.required = Enter a {0}
+invoiceDate.error.required.all = Enter a date
+invoiceDate.error.required.two = Enter a {0} and {1}
+invoiceDate.error.past = The invoice date must be in the past
+invoiceDate.error.outsideRefundPeriod = The invoice date must be within the refund period
+invoiceDate.checkYourAnswersLabel = Invoice date
+invoiceDate.change.hidden = Change invoice date
+
 contactDetails.title = Who should we contact about this claim?
 contactDetails.heading = Who should we contact about this claim?
 contactDetails.contactEmail.label = Email address

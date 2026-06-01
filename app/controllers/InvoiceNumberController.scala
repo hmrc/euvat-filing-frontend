@@ -53,7 +53,7 @@ class InvoiceNumberController @Inject() (
       case Some(value) => form.fill(value)
     }
 
-    Ok(view(preparedForm, mode, routes.SuppliersNameController.onPageLoad(mode)))
+    Ok(view(preparedForm, mode, routes.PurchaseTypeController.onPageLoad(mode)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -61,7 +61,7 @@ class InvoiceNumberController @Inject() (
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, routes.SuppliersNameController.onPageLoad(mode)))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, routes.PurchaseTypeController.onPageLoad(mode)))),
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(InvoiceNumberPage, value))

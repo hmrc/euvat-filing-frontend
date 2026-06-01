@@ -32,34 +32,37 @@ import views.html.SuppliersNameView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SuppliersNameController @Inject()(
-                                         override val messagesApi: MessagesApi,
-                                         sessionRepository: SessionRepository,
-                                         navigator: Navigator,
-                                         identify: IdentifierAction,
-                                         getData: DataRetrievalAction,
-                                         requireData: DataRequiredAction,
-                                         formProvider: SuppliersNameFormProvider,
-                                         val controllerComponents: MessagesControllerComponents,
-                                         view: SuppliersNameView
-                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+class SuppliersNameController @Inject() (
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  navigator: Navigator,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: SuppliersNameFormProvider,
+  val controllerComponents: MessagesControllerComponents,
+  view: SuppliersNameView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
 
   val form: Form[String] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(SuppliersNamePage).fold(form)(form.fill)
-    Ok(view(preparedForm, mode, routes.PurchaseTypeController.onPageLoad(mode)))
+    Ok(view(preparedForm, mode, routes.InvoiceDateController.onPageLoad(mode)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    form.bindFromRequest().fold(
-      formWithErrors =>
-        Future.successful(BadRequest(view(formWithErrors, mode, routes.PurchaseTypeController.onPageLoad(mode)))),
-      value =>
-        for {
-          updatedAnswers <- Future.fromTry(request.userAnswers.set(SuppliersNamePage, value))
-          _              <- sessionRepository.set(updatedAnswers)
-        } yield Redirect(navigator.nextPage(SuppliersNamePage, mode, updatedAnswers))
-    )
+    form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, routes.InvoiceDateController.onPageLoad(mode)))),
+        value =>
+          for {
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(SuppliersNamePage, value))
+            _              <- sessionRepository.set(updatedAnswers)
+          } yield Redirect(navigator.nextPage(SuppliersNamePage, mode, updatedAnswers))
+      )
   }
 }
