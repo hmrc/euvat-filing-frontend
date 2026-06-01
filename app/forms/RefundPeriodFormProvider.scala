@@ -35,8 +35,8 @@ class RefundPeriodFormProvider @Inject() () {
   private val futureDateConstraint: Constraint[RefundPeriodData] =
     Constraint { data =>
       val now = YearMonth.now()
-      val startInFuture = data.start.isAfter(now)
-      val endInFuture = data.end.isAfter(now)
+      val startInFuture = !data.start.isBefore(now)
+      val endInFuture = !data.end.isBefore(now)
 
       (startInFuture, endInFuture) match {
         case (true, true)  => Invalid("refundPeriod.error.periodBothDatesInvalid")
@@ -49,7 +49,7 @@ class RefundPeriodFormProvider @Inject() () {
   private val septemberCutoffConstraint: Constraint[RefundPeriodData] =
     Constraint { data =>
       val now = YearMonth.now()
-      if (data.start.isAfter(now) || data.end.isAfter(now)) Valid
+      if (!data.start.isBefore(now) || !data.end.isBefore(now)) Valid
       else {
         val (cutoff, errorKey) =
           if (today.isAfter(java.time.LocalDate.of(today.getYear, 9, 30)))
@@ -140,7 +140,7 @@ class RefundPeriodFormProvider @Inject() () {
           "refundPeriod.error.periodStartDatenotAfterEndDate",
           data => {
             val now = YearMonth.now()
-            if (data.start.isAfter(now) || data.end.isAfter(now)) true
+            if (!data.start.isBefore(now) || !data.end.isBefore(now)) true
             else !data.start.isAfter(data.end)
           }
         )
@@ -148,7 +148,7 @@ class RefundPeriodFormProvider @Inject() () {
           "refundPeriod.error.periodEndDaterefundPeriodInSingleYear",
           data => {
             val now = YearMonth.now()
-            if (data.start.isAfter(now) || data.end.isAfter(now)) true
+            if (!data.start.isBefore(now) || !data.end.isBefore(now)) true
             else if (!data.start.isBefore(data.end)) true
             else {
               val cutoff =
@@ -165,7 +165,7 @@ class RefundPeriodFormProvider @Inject() () {
           "refundPeriod.error.periodStartDateperiodNotLessThan3Months",
           data => {
             val now = YearMonth.now()
-            if (data.start.isAfter(now) || data.end.isAfter(now)) true
+            if (!data.start.isBefore(now) || !data.end.isBefore(now)) true
             else if (data.start.isAfter(data.end)) true
             else if (data.end.getMonthValue == 12) true
             else {
