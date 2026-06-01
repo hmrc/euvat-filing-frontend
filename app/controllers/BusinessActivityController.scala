@@ -62,8 +62,8 @@ class BusinessActivityController @Inject() (
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode), baCode))),
         value =>
           for {
-            updateAnswers <- Future.fromTry(request.userAnswers.set(BusinessActivityPage, value))
-            updateAnswers <- Future.fromTry(updateAnswers.set(BusinessActivityCodePage, baCode))
+            updateAnswers <- Future.fromTry(request.userAnswers.set(BusinessActivityCodePage, baCode))
+            updateAnswers <- Future.fromTry(updateAnswers.set(BusinessActivityPage, value))
             updatedAnswers <- if (value) {
                                 Future.successful(updateAnswers)
                               } else {
