@@ -48,20 +48,18 @@ class SimplifiedInvoiceVatRegCheckController @Inject() (
   val form = formProvider()
   private def backLink: play.api.mvc.Call = routes.SupplierAddressController.onPageLoad(NormalMode)
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
-      request.userAnswers.get(SupplierAddressPage) match {
-        case None => Redirect(routes.JourneyRecoveryController.onPageLoad())
-        case Some(_) =>
-          val preparedForm = request.userAnswers.get(SimplifiedInvoiceVatRegCheckPage) match {
-            case None        => form
-            case Some(value) => form.fill(value)
-          }
-          Ok(view(preparedForm, mode, backLink))
-      }
+    request.userAnswers.get(SupplierAddressPage) match {
+      case None => Redirect(routes.JourneyRecoveryController.onPageLoad())
+      case Some(_) =>
+        val preparedForm = request.userAnswers.get(SimplifiedInvoiceVatRegCheckPage) match {
+          case None        => form
+          case Some(value) => form.fill(value)
+        }
+        Ok(view(preparedForm, mode, backLink))
+    }
   }
-
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
 
@@ -77,7 +75,7 @@ class SimplifiedInvoiceVatRegCheckController @Inject() (
             if (value) {
               Redirect(routes.JourneyRecoveryController.onPageLoad()) // TODO: yes should route to "what is the suppliers VRN"
             } else {
-              Redirect(routes.JourneyRecoveryController.onPageLoad()) // TODO: no should bypass "what is the suppliers VRN"
+              Redirect(routes.PurchaseTypeController.onPageLoad(mode: Mode))
             }
           }
       )

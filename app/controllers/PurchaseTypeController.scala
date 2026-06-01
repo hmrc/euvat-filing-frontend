@@ -50,7 +50,7 @@ class PurchaseTypeController @Inject() (
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(PurchaseTypePage).fold(form)(form.fill)
 
-    Ok(view(preparedForm, mode, routes.AboutThePurchaseController.onPageLoad()))
+    Ok(view(preparedForm, mode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode: Mode)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>

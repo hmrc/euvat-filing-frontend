@@ -39,7 +39,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
   lazy val purchaseTypeRoute: String = routes.PurchaseTypeController.onPageLoad(NormalMode).url
   lazy val purchaseTypeSubmitRoute: String = routes.PurchaseTypeController.onSubmit(NormalMode).url
-  lazy val backLinkCall: Call = routes.AboutThePurchaseController.onPageLoad()
+  lazy val backLinkCall: Call = routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode)
 
   "PurchaseType Controller" - {
 

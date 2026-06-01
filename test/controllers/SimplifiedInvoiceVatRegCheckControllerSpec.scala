@@ -44,7 +44,9 @@ class SimplifiedInvoiceVatRegCheckControllerSpec extends SpecBase with MockitoSu
   private lazy val backLink: Call = routes.SupplierAddressController.onPageLoad(NormalMode)
 
   val userAnswersWithAddress: UserAnswers = emptyUserAnswers
-    .set(SupplierAddressPage, SupplierAddress("1 High Street", None, None)).success.value
+    .set(SupplierAddressPage, SupplierAddress("1 High Street", None, None))
+    .success
+    .value
 
   "SimplifiedInvoiceVatRegCheck Controller" - {
 
@@ -155,7 +157,7 @@ class SimplifiedInvoiceVatRegCheckControllerSpec extends SpecBase with MockitoSu
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.PurchaseTypeController.onPageLoad(NormalMode).url
       }
     }
 

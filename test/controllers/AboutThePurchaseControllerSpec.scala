@@ -42,7 +42,7 @@ class AboutThePurchaseControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to the Journey Recovery when submit button is clicked (POST)" in {
+    "must redirect to the Invoice Number Page when submit button is clicked (POST)" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -52,7 +52,7 @@ class AboutThePurchaseControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
 
-        redirectLocation(result).value mustEqual routes.PurchaseTypeController.onPageLoad(NormalMode).url
+        redirectLocation(result).value mustEqual routes.InvoiceNumberController.onPageLoad(NormalMode).url
       }
     }
 

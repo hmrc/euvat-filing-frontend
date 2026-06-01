@@ -44,6 +44,7 @@ class Navigator @Inject() () {
     case SuppliersNamePage                => _ => routes.SupplierAddressController.onPageLoad(NormalMode)
     case SupplierAddressPage              => _ => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode)
     case SimplifiedInvoiceVatRegCheckPage => userAnswer => navigateFromSimplifiedInvoiceVatRegCheckPage(NormalMode)(userAnswer)
+    case PurchaseTypePage                 => _ => routes.JourneyRecoveryController.onPageLoad()
     case _                                => _ => routes.IndexController.onPageLoad()
   }
 
@@ -60,7 +61,8 @@ class Navigator @Inject() () {
     case InvoiceDatePage               => _ => routes.SuppliersNameController.onPageLoad(CheckMode)
     case SuppliersNamePage             => _ => routes.SupplierAddressController.onPageLoad(CheckMode)
     case SupplierAddressPage              => _ => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(CheckMode)
-    case SimplifiedInvoiceVatRegCheckPage => _ => routes.JourneyRecoveryController.onPageLoad()
+    case SimplifiedInvoiceVatRegCheckPage => userAnswer => navigateFromSimplifiedInvoiceVatRegCheckPage(CheckMode)(userAnswer)
+    case PurchaseTypePage                 => _ => routes.JourneyRecoveryController.onPageLoad()
     case _                                => _ => routes.IndexController.onPageLoad()
   }
 
@@ -80,8 +82,8 @@ class Navigator @Inject() () {
 
   private def navigateFromSimplifiedInvoiceVatRegCheckPage(mode: Mode)(userAnswers: UserAnswers): Call =
     userAnswers.get(SimplifiedInvoiceVatRegCheckPage) match {
-      case Some(true)  => routes.JourneyRecoveryController.onPageLoad() // TODO - update to yes page
-      case Some(false) => routes.JourneyRecoveryController.onPageLoad() // TODO - update to no page
+      case Some(true)  => routes.JourneyRecoveryController.onPageLoad() // TODO - update to link to suppliers VRN page
+      case Some(false) => routes.PurchaseTypeController.onPageLoad(mode)
       case _           => routes.JourneyRecoveryController.onPageLoad()
     }
 

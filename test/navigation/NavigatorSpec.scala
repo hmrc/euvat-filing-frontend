@@ -83,9 +83,19 @@ class NavigatorSpec extends SpecBase {
           routes.BusinessActivityThreeController.onPageLoad()
       }
 
-      "must go from PurchaseTypePage to InvoiceNumberController" in {
+      "must go from PurchaseTypePage to JourneyRecoveryController" in { // TODO - update to sub-codes page when built
         navigator.nextPage(PurchaseTypePage, NormalMode, userAnswers) mustBe
-          routes.InvoiceNumberController.onPageLoad(NormalMode)
+          routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from InvoiceNumberPage to InvoiceDateController" in {
+        navigator.nextPage(InvoiceNumberPage, NormalMode, userAnswers) mustBe
+          routes.InvoiceDateController.onPageLoad(NormalMode)
+      }
+
+      "must go from InvoiceDatePage to SuppliersNameController" in {
+        navigator.nextPage(InvoiceDatePage, NormalMode, userAnswers) mustBe
+          routes.SuppliersNameController.onPageLoad(NormalMode)
       }
 
       "must go from SuppliersNamePage to SupplierAddressController" in {
@@ -98,26 +108,16 @@ class NavigatorSpec extends SpecBase {
           routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode)
       }
 
-      "must go from SimplifiedInvoiceVatRegCheckPage to JourneyRecoveryController if yes selected" in { // TODO - update to yes page
+      "must go from SimplifiedInvoiceVatRegCheckPage to JourneyRecoveryController if yes selected" in { // TODO - update to supplier VRN page
         val ua = userAnswers.set(SimplifiedInvoiceVatRegCheckPage, true).success.value
         navigator.nextPage(SimplifiedInvoiceVatRegCheckPage, NormalMode, ua) mustBe
           routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from SimplifiedInvoiceVatRegCheckPage to JourneyRecoveryController if no selected" in { // TODO - update to no page
+      "must go from SimplifiedInvoiceVatRegCheckPage to PurchaseTypeController if no selected" in {
         val ua = userAnswers.set(SimplifiedInvoiceVatRegCheckPage, false).success.value
         navigator.nextPage(SimplifiedInvoiceVatRegCheckPage, NormalMode, ua) mustBe
-          routes.JourneyRecoveryController.onPageLoad()
-      }
-
-      "must go from InvoiceNumberPage to InvoiceDateController" in {
-        navigator.nextPage(InvoiceNumberPage, NormalMode, userAnswers) mustBe
-          routes.InvoiceDateController.onPageLoad(NormalMode)
-      }
-
-      "must go from InvoiceDatePage to SuppliersNameController" in {
-        navigator.nextPage(InvoiceDatePage, NormalMode, userAnswers) mustBe
-          routes.SuppliersNameController.onPageLoad(NormalMode)
+          routes.PurchaseTypeController.onPageLoad(NormalMode)
       }
     }
 
@@ -187,18 +187,38 @@ class NavigatorSpec extends SpecBase {
           routes.BusinessActivityCodeThreeController.onPageLoad(CheckMode)
       }
 
+      "must go from PurchaseTypePage to CheckYourAnswersController" in {
+        navigator.nextPage(PurchaseTypePage, CheckMode, userAnswers) mustBe
+          routes.CheckYourAnswersController.onPageLoad()
+      }
+
+      "must go from InvoiceNumberPage to InvoiceDateController in CheckMode" in {
+        navigator.nextPage(InvoiceNumberPage, CheckMode, userAnswers) mustBe
+          routes.InvoiceDateController.onPageLoad(CheckMode)
+      }
+
+      "must go from InvoiceDatePage to SuppliersNameController in CheckMode" in {
+        navigator.nextPage(InvoiceDatePage, CheckMode, userAnswers) mustBe
+          routes.SuppliersNameController.onPageLoad(CheckMode)
+      }
+
+      "must go from SuppliersNamePage to SupplierAddressController in CheckMode" in {
+        navigator.nextPage(SuppliersNamePage, CheckMode, userAnswers) mustBe
+          routes.SupplierAddressController.onPageLoad(CheckMode)
+      }
+
       "must go from SupplierAddressPage to SimplifiedInvoiceVatRegCheckController" in {
         navigator.nextPage(SupplierAddressPage, CheckMode, userAnswers) mustBe
           routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(CheckMode)
       }
 
-      "must go from SimplifiedInvoiceVatRegCheckPage to CheckYourAnswersController if yes selected" in {
+      "must go from SimplifiedInvoiceVatRegCheckPage to JourneyRecoveryController if yes selected" in { // TODO - update to supplier VRN page
         val ua = userAnswers.set(SimplifiedInvoiceVatRegCheckPage, true).success.value
         navigator.nextPage(SimplifiedInvoiceVatRegCheckPage, CheckMode, ua) mustBe
-          routes.CheckYourAnswersController.onPageLoad()
+          routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from SimplifiedInvoiceVatRegCheckPage to CheckYourAnswersController if no selected" in {
+      "must go from SimplifiedInvoiceVatRegCheckPage to PurchaseTypeController if no selected" in {
         val ua = userAnswers.set(SimplifiedInvoiceVatRegCheckPage, false).success.value
         navigator.nextPage(SimplifiedInvoiceVatRegCheckPage, CheckMode, ua) mustBe
           routes.JourneyRecoveryController.onPageLoad()
@@ -222,18 +242,8 @@ class NavigatorSpec extends SpecBase {
       "must go from PurchaseTypePage to InvoiceNumberController" in {
         navigator.nextPage(PurchaseTypePage, CheckMode, userAnswers) mustBe
           routes.InvoiceNumberController.onPageLoad(CheckMode)
+          routes.PurchaseTypeController.onPageLoad(CheckMode)
       }
-
-      "must go from SuppliersNamePage to SupplierAddressController in CheckMode" in {
-        navigator.nextPage(SuppliersNamePage, CheckMode, userAnswers) mustBe
-          routes.SupplierAddressController.onPageLoad(CheckMode)
-      }
-
-      "must go from InvoiceDatePage to SuppliersNameController in CheckMode" in {
-        navigator.nextPage(InvoiceDatePage, CheckMode, userAnswers) mustBe
-          routes.SuppliersNameController.onPageLoad(CheckMode)
-      }
-
     }
   }
 }
