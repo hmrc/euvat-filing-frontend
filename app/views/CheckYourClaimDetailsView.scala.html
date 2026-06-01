@@ -27,6 +27,7 @@
 
 @layout(pageTitle = titleNoForm(messages("checkYourClaimDetails.title"))) {
     <h1 class="govuk-heading-l">@messages("checkYourClaimDetails.heading")</h1>
+    <p class="govuk-body">@messages("checkYourClaimDetails.paragraph")</p><br/>
 
     @formHelper(action = routes.CheckYourClaimDetailsController.onSubmit(), Symbol("autoComplete") -> "off") {
         @for((labelKey, changeHrefOpt, summary) <- sections) {
@@ -43,7 +44,6 @@
             </div>
         }
 
-        <p class="govuk-body">@messages("checkYourClaimDetails.paragraph")</p>
         @govukButton(ButtonViewModel(messages("site.save.continue")))
     }
 }
