@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package models
+package pages
 
-import play.api.libs.json.{Format, Json}
-import java.time.LocalDateTime
+import java.time.LocalDate
+import play.api.libs.json.JsPath
 
-case class RefundPeriod(startDate: LocalDateTime, endDate: LocalDateTime)
+case object InvoiceDatePage extends QuestionPage[LocalDate] {
 
-object RefundPeriod {
-  implicit val format: Format[RefundPeriod] = Json.format[RefundPeriod]
+  override def path: JsPath = JsPath \ toString
+
+  override def toString: String = "invoiceDate"
 }

@@ -23,7 +23,7 @@ import play.api.data.FormError
 class SupplierAddressFormProviderSpec extends FieldBehaviours {
 
   private val formProvider = new SupplierAddressFormProvider()
-  private val form         = formProvider()
+  private val form = formProvider()
 
   private val validData = Map(
     "addressLine1" -> "1 High Street",
@@ -55,7 +55,7 @@ class SupplierAddressFormProviderSpec extends FieldBehaviours {
 
     "reject a value longer than 35 characters" in {
       val tooLong = "a" * 36
-      val result  = form.bind(validData.updated(fieldName, tooLong)).apply(fieldName)
+      val result = form.bind(validData.updated(fieldName, tooLong)).apply(fieldName)
       result.errors must contain only FormError(
         fieldName,
         "supplierAddress.error.maxLength",
@@ -65,7 +65,7 @@ class SupplierAddressFormProviderSpec extends FieldBehaviours {
 
     "bind a value of exactly 35 characters" in {
       val maxLength = "a" * 35
-      val result    = form.bind(validData.updated(fieldName, maxLength)).apply(fieldName)
+      val result = form.bind(validData.updated(fieldName, maxLength)).apply(fieldName)
       result.value.value mustBe maxLength
       result.errors mustBe empty
     }
@@ -87,7 +87,7 @@ class SupplierAddressFormProviderSpec extends FieldBehaviours {
 
     "reject a value longer than 35 characters" in {
       val tooLong = "b" * 36
-      val result  = form.bind(validData.updated(fieldName, tooLong)).apply(fieldName)
+      val result = form.bind(validData.updated(fieldName, tooLong)).apply(fieldName)
       result.errors must contain only FormError(
         fieldName,
         "supplierAddress.error.maxLength",
@@ -112,7 +112,7 @@ class SupplierAddressFormProviderSpec extends FieldBehaviours {
 
     "reject a value longer than 35 characters" in {
       val tooLong = "c" * 36
-      val result  = form.bind(validData.updated(fieldName, tooLong)).apply(fieldName)
+      val result = form.bind(validData.updated(fieldName, tooLong)).apply(fieldName)
       result.errors must contain only FormError(
         fieldName,
         "supplierAddress.error.maxLength",
@@ -136,7 +136,7 @@ class SupplierAddressFormProviderSpec extends FieldBehaviours {
     }
 
     "unapply SupplierAddress with missing optionals" in {
-      val model  = SupplierAddress(line1 = "1 High Street", line2 = None, line3 = None)
+      val model = SupplierAddress(line1 = "1 High Street", line2 = None, line3 = None)
       val filled = form.fill(model)
       filled("addressLine1").value.value mustBe "1 High Street"
       filled("addressLine2").value mustBe None

@@ -88,9 +88,9 @@ class NavigatorSpec extends SpecBase {
           routes.BusinessActivityThreeController.onPageLoad()
       }
 
-      "must go from PurchaseTypePage to SuppliersNameController" in {
+      "must go from PurchaseTypePage to InvoiceNumberController" in {
         navigator.nextPage(PurchaseTypePage, NormalMode, userAnswers) mustBe
-          routes.SuppliersNameController.onPageLoad(NormalMode)
+          routes.InvoiceNumberController.onPageLoad(NormalMode)
       }
 
       "must go from SuppliersNamePage to SupplierAddressController" in {
@@ -98,31 +98,61 @@ class NavigatorSpec extends SpecBase {
           routes.SupplierAddressController.onPageLoad(NormalMode)
       }
 
-      "must go from SupplierAddressPage to InvoiceNumberController" in {
+      "must go from SupplierAddressPage to JourneyRecoveryController" in {
         navigator.nextPage(SupplierAddressPage, NormalMode, userAnswers) mustBe
-          routes.InvoiceNumberController.onPageLoad(NormalMode)
+          routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from InvoiceNumberPage to JourneyRecoveryController" in {
+      "must go from InvoiceNumberPage to InvoiceDateController" in {
         navigator.nextPage(InvoiceNumberPage, NormalMode, userAnswers) mustBe
-          routes.JourneyRecoveryController.onPageLoad()
+          routes.InvoiceDateController.onPageLoad(NormalMode)
+      }
+
+      "must go from InvoiceDatePage to SuppliersNameController" in {
+        navigator.nextPage(InvoiceDatePage, NormalMode, userAnswers) mustBe
+          routes.SuppliersNameController.onPageLoad(NormalMode)
       }
     }
 
     "in Check mode" - {
+      "must go from a page that doesn't exist in the edit route map to CheckYourAnswers" in {
+        case object UnknownPage extends Page
+        navigator.nextPage(UnknownPage, CheckMode, userAnswers) mustBe routes.CheckYourAnswersController.onPageLoad()
+      }
+
+      "must go from RefundingCountryPage to RefundingLanguageController" in {
+        navigator.nextPage(pages.RefundingCountryPage, CheckMode, userAnswers) mustBe
+          routes.RefundingLanguageController.onPageLoad(CheckMode)
+      }
+
+      "must go from RefundingLanguagePage to RefundPeriodController" in {
+        navigator.nextPage(pages.RefundingLanguagePage, CheckMode, userAnswers) mustBe
+          routes.RefundPeriodController.onPageLoad(CheckMode)
+      }
+
+      "must go from RefundPeriodPage to ContactDetailsController" in {
+        navigator.nextPage(pages.RefundPeriodPage, CheckMode, userAnswers) mustBe
+          routes.ContactDetailsController.onPageLoad(CheckMode)
+      }
+
+      "must go from ContactDetailsPage to BusinessActivityController" in {
+        navigator.nextPage(ContactDetailsPage, CheckMode, userAnswers) mustBe
+          routes.BusinessActivityController.onPageLoad(CheckMode)
+      }
+
       "must go from BusinessActivityPage to BusinessActivityCodeTwoController if yes selected" in {
         val ua = userAnswers.set(BusinessActivityPage, true).success.value
         navigator.nextPage(BusinessActivityPage, CheckMode, ua) mustBe
           routes.BusinessActivityCodeTwoController.onPageLoad(CheckMode)
       }
 
-      "must go from BusinessActivityPage to JourneyRecoveryController if no selected" in {
+      "must go from BusinessActivityPage to JourneyRecoveryController if no selected" in { // TODO - update to Check your claim details page
         val ua = userAnswers.set(BusinessActivityPage, false).success.value
         navigator.nextPage(BusinessActivityPage, CheckMode, ua) mustBe
           routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from BusinessActivityCodeTwoPage page to BusinessActivityThreeController" in {
+      "must go from BusinessActivityCodeTwoPage to BusinessActivityTwoController" in {
         navigator.nextPage(BusinessActivityCodeTwoPage, CheckMode, userAnswers) mustBe
           routes.BusinessActivityTwoController.onPageLoad(CheckMode)
       }
@@ -144,40 +174,14 @@ class NavigatorSpec extends SpecBase {
           routes.BusinessActivityThreeController.onPageLoad()
       }
 
-      "must go from a page that doesn't exist in the edit route map to CheckYourAnswers" in {
-        case object UnknownPage extends Page
-        navigator.nextPage(UnknownPage, CheckMode, userAnswers) mustBe routes.CheckYourAnswersController.onPageLoad()
-      }
-
-      "must go from BusinessActivityTwopage to BusinessActivityCodeThreeController" in {
-        val ua = userAnswers.set(BusinessActivityTwoPage, true).success.value
-        navigator.nextPage(BusinessActivityTwoPage, CheckMode, ua) mustBe
-          routes.BusinessActivityCodeThreeController.onPageLoad(CheckMode)
-      }
-
-      "must go from SupplierAddressPage to InvoiceNumberController" in {
+      "must go from SupplierAddressPage to CheckYourAnswersController" in {
         navigator.nextPage(SupplierAddressPage, CheckMode, userAnswers) mustBe
-          routes.InvoiceNumberController.onPageLoad(CheckMode)
+          routes.CheckYourAnswersController.onPageLoad()
       }
 
-      "must go from RefundingCountryPage to RefundingLanguageController in CheckMode" in {
-        navigator.nextPage(RefundingCountryPage, CheckMode, userAnswers) mustBe
-          routes.RefundingLanguageController.onPageLoad(CheckMode)
-      }
-
-      "must go from RefundingLanguagePage to RefundPeriodController in CheckMode" in {
-        navigator.nextPage(RefundingLanguagePage, CheckMode, userAnswers) mustBe
-          routes.RefundPeriodController.onPageLoad(CheckMode)
-      }
-
-      "must go from RefundPeriodPage to ContactDetailsController in CheckMode" in {
-        navigator.nextPage(RefundPeriodPage, CheckMode, userAnswers) mustBe
-          routes.ContactDetailsController.onPageLoad(CheckMode)
-      }
-
-      "must go from PurchaseTypePage to SuppliersNameController in CheckMode" in {
+      "must go from PurchaseTypePage to InvoiceNumberController" in {
         navigator.nextPage(PurchaseTypePage, CheckMode, userAnswers) mustBe
-          routes.SuppliersNameController.onPageLoad(CheckMode)
+          routes.InvoiceNumberController.onPageLoad(CheckMode)
       }
 
       "must go from SuppliersNamePage to SupplierAddressController in CheckMode" in {
@@ -185,9 +189,9 @@ class NavigatorSpec extends SpecBase {
           routes.SupplierAddressController.onPageLoad(CheckMode)
       }
 
-      "must go from InvoiceNumberPage to CheckYourAnswersController in CheckMode" in {
-        navigator.nextPage(InvoiceNumberPage, CheckMode, userAnswers) mustBe
-          routes.CheckYourAnswersController.onPageLoad()
+      "must go from InvoiceDatePage to SuppliersNameController in CheckMode" in {
+        navigator.nextPage(InvoiceDatePage, CheckMode, userAnswers) mustBe
+          routes.SuppliersNameController.onPageLoad(CheckMode)
       }
 
     }

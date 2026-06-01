@@ -14,13 +14,25 @@
  * limitations under the License.
  */
 
-package models
+package forms
 
-import play.api.libs.json.{Format, Json}
-import java.time.LocalDateTime
+import forms.mappings.Mappings
+import play.api.data.Form
+import play.api.i18n.Messages
 
-case class RefundPeriod(startDate: LocalDateTime, endDate: LocalDateTime)
+import java.time.LocalDate
+import javax.inject.Inject
 
-object RefundPeriod {
-  implicit val format: Format[RefundPeriod] = Json.format[RefundPeriod]
+class InvoiceDateFormProvider @Inject() extends Mappings {
+
+  def apply()(implicit messages: Messages): Form[LocalDate] =
+    Form(
+      "value" -> localDate(
+        invalidKey      = "invoiceDate.error.invalid",
+        allRequiredKey  = "invoiceDate.error.required.all",
+        twoRequiredKey  = "invoiceDate.error.required.two",
+        requiredKey     = "invoiceDate.error.required",
+        usePerFieldKeys = true
+      )
+    )
 }
