@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.RefundingCountryFormProvider
 import models.{Mode, NormalMode, UserAnswers}
 import navigation.Navigator
-import pages.{RefundingCountryPage, RefundingCountryNamePage}
+import pages.{RefundingCountryNamePage, RefundingCountryPage}
 import play.api.Configuration
 import play.api.data.FormError
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -59,7 +59,6 @@ class RefundingCountryController @Inject() (
   }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-
     val (countries, form) = buildFormAndCountries()
 
     // If we have a previously selected country, pre-fill the form.
@@ -91,7 +90,6 @@ class RefundingCountryController @Inject() (
         },
         value => {
           val name = countries.find(_._2.equalsIgnoreCase(value)).map(_._1).getOrElse(value)
-          val combined = s"$value,$name"
 
           for {
             updatedAnswers <- Future.fromTry(baseAnswers.set(RefundingCountryPage, value))

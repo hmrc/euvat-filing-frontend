@@ -55,23 +55,19 @@ class RefundingLanguageController @Inject() (
   private val logger = Logger(getClass)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-
     // Data guard: require a previously selected refunding country
-    val maybeCountry = request.userAnswers.get(pages.RefundingCountryNamePage)
+    val maybeCountryCode = request.userAnswers.get(pages.RefundingCountryPage)
 
-    maybeCountry match {
+    maybeCountryCode match {
       case None =>
         logger.warn("RefundingLanguageController.onPageLoad - no refunding country in session, redirecting to JourneyRecovery")
         Redirect(routes.JourneyRecoveryController.onPageLoad())
       case Some(countryStored) =>
-        // Stored format may be "code,name" — extract the code for lookups
-        val countryCode = countryStored.split(",", 2).headOption.getOrElse(countryStored)
-
         val preparedForm = request.userAnswers.get(RefundingLanguagePage) match {
           case None        => form
           case Some(value) => form.fill(value)
         }
-        val langs = configLanguageMapping.languagesFor(countryCode)
+        val langs = configLanguageMapping.languagesFor(countryStored)
         val msgs = messagesApi.preferred(request)
         val items = langs.zipWithIndex.flatMap { case (lang, idx) =>
           RefundingLanguage.values.find(_.toString.equalsIgnoreCase(lang)).map { v =>

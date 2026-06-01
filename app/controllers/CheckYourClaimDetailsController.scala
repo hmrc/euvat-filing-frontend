@@ -19,10 +19,8 @@ package controllers
 import com.google.inject.Inject
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import models.UserAnswers
-import pages.RefundingCountryNamePage
 import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.Configuration
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.govukfrontend.views.Aliases.SummaryList
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
@@ -53,7 +51,6 @@ class CheckYourClaimDetailsController @Inject() (
   }
 
   private def getChangeUrl(rowOpt: SummaryListRow): Option[String] =
-//    rowOpt.flatMap(_.actions.flatMap(_.items.headOption.map(_.href)))
     rowOpt.actions.flatMap(_.items.headOption.map(_.href))
 
   private def buildSummaryList(answers: UserAnswers)(implicit messages: Messages): Seq[(String, Option[String], SummaryList)] =

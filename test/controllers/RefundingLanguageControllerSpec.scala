@@ -26,20 +26,19 @@ import play.api.inject.bind
 import play.api.Configuration
 import com.typesafe.config.ConfigFactory
 import repositories.SessionRepository
-import pages.RefundingCountryNamePage
-import pages.RefundingLanguagePage
+import pages.{RefundingCountryNamePage, RefundingCountryPage, RefundingLanguagePage}
 import play.api.mvc.Call
 import utils.ConfigLanguageMapping
 
 class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
 
-  val onwardRoute = Call("GET", "/foo")
+  val onwardRoute: Call = Call("GET", "/foo")
 
   "RefundingLanguage Controller" - {
 
     "must return OK and the correct view for a GET when country present" in {
 
-      val userAnswers = emptyUserAnswers.set(RefundingCountryNamePage, "AT").success.value
+      val userAnswers = emptyUserAnswers.set(RefundingCountryPage, "AT").success.value
 
       val cfg = Configuration(ConfigFactory.parseString("language.mapping.AT=[\"german\", \"english\"]"))
       val mappingSvc = new ConfigLanguageMapping(cfg)
