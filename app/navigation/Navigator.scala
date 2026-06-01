@@ -57,6 +57,7 @@ class Navigator @Inject() () {
     case BusinessActivityPage             => userAnswer => navigateFromBusinessActivityPage(CheckMode)(userAnswer)
     case BusinessActivityTwoPage          => userAnswer => navigateFromBusinessActivity2Page(CheckMode)(userAnswer)
     case BusinessActivityCodeThreePage    => _ => routes.BusinessActivityThreeController.onPageLoad()
+    case InvoiceTypePage               => userAnswer => navigateFromInvoiceTypePage(CheckMode)(userAnswer)
     case InvoiceNumberPage                => _ => routes.InvoiceDateController.onPageLoad(CheckMode)
     case InvoiceDatePage                  => _ => routes.SuppliersNameController.onPageLoad(CheckMode)
     case SuppliersNamePage                => _ => routes.SupplierAddressController.onPageLoad(CheckMode)
@@ -93,5 +94,7 @@ class Navigator @Inject() () {
       case Some(false) => routes.PurchaseTypeController.onPageLoad(mode)
       case _           => routes.JourneyRecoveryController.onPageLoad()
     }
+
+}
 
 }

@@ -53,7 +53,7 @@
                <div class="govuk-radios" data-module="govuk-radios">
 
                     <div class="govuk-radios__item">
-                        <input class="govuk-radios__input" id="value_0" name="value" type="radio" value="standard invoice" @if(form("value").value.contains("Standard invoice")){checked}>
+                        <input class="govuk-radios__input" id="value_0" name="value" type="radio" value="standard invoice" @if(form("value").value.contains("standard invoice")){checked}>
                         <label class="govuk-label govuk-radios__label" for="value_0">
                             @messages("invoiceType.standardInvoice")
                         </label>
@@ -63,7 +63,7 @@
                     </div>
 
                    <div class="govuk-radios__item">
-                       <input class="govuk-radios__input" id="value_1" name="value" type="radio" value="simplified invoice" @if(form("value").value.contains("Simplified invoice")){checked}>
+                       <input class="govuk-radios__input" id="value_1" name="value" type="radio" value="simplified invoice" @if(form("value").value.contains("simplified invoice")){checked}>
                        <label class="govuk-label govuk-radios__label" for="value_1">
                            @messages("invoiceType.simplifiedInvoice")
                        </label>
