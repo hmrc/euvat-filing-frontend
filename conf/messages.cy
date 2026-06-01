@@ -100,18 +100,6 @@ refundingLanguage.irish = Irish
 refundingLanguage.hungarian = Hungarian
 refundingLanguage.greek = Greek
 
-# Invoice number
-invoiceNumber.title = Invoice number
-invoiceNumber.heading = Invoice number
-invoiceNumber.h2 = What is the invoice number?
-invoiceNumber.hint = Invoice numbers are a set of letters or numbers usually found at the top or bottom of the invoice
-invoiceNumber.p1 = You can only use an invoice number once. Your claim may be rejected if you enter the same number twice.
-invoiceNumber.error.required = Enter an invoice number
-invoiceNumber.error.length = The invoice number must be {0} characters or less
-invoiceNumber.error.invalid = Enter a valid invoice number
-invoiceNumber.checkYourAnswersLabel = Invoice number
-invoiceNumber.change.hidden = Change the invoice number
-
 refundPeriod.title = What is the refund period?
 refundPeriod.heading = What is the refund period?
 refundPeriod.rules.heading = Your refund period must:
@@ -143,22 +131,6 @@ refundPeriod.error.periodEndDaterefundPeriodInSingleYear = Refund period start d
 refundPeriod.error.periodStartDateperiodNotLessThan3Months = Refund period must be at least 3 months long unless it ends in December
 refundPeriod.error.periodStartDateafter30thSept = Refund period start date must be on or after 1 January {0}
 refundPeriod.error.periodStartDate30thSeptOrEarlier = Refund period start date must be on or after 1 January {0}
-
-invoiceDate.title = What is the invoice date?
-invoiceDate.heading = What is the invoice date?
-invoiceDate.hint = For example, 27 3 2025
-invoiceDate.error.invalid = Enter a valid date
-invoiceDate.error.invalid.day = Enter a valid day
-invoiceDate.error.invalid.month = Enter a valid month
-invoiceDate.error.invalid.year = Enter a valid year
-invoiceDate.error.invalid.two = Enter a valid {0} and {1}
-invoiceDate.error.required = Enter a {0}
-invoiceDate.error.required.all = Enter a date
-invoiceDate.error.required.two = Enter a {0} and {1}
-invoiceDate.error.past = The invoice date must be in the past
-invoiceDate.error.outsideRefundPeriod = The invoice date must be within the refund period
-invoiceDate.checkYourAnswersLabel = Invoice date
-invoiceDate.change.hidden = Change invoice date
 
 contactDetails.title = Who should we contact about this claim?
 contactDetails.heading = Who should we contact about this claim?
@@ -275,3 +247,30 @@ supplierAddress.line2.label = Address line 2 (optional)
 supplierAddress.line3.label = Address line 3 (optional)
 supplierAddress.error.line1.required = Enter address line 1, typically the building and street
 supplierAddress.error.maxLength = You cannot enter more than 35 characters
+
+invoiceDate.title = What is the invoice date?
+invoiceDate.heading = What is the invoice date?
+invoiceDate.hint = For example, 27 3 2025
+invoiceDate.error.invalid = Enter a valid date
+invoiceDate.error.invalid.day = Enter a valid day
+invoiceDate.error.invalid.month = Enter a valid month
+invoiceDate.error.invalid.year = Enter a valid year
+invoiceDate.error.invalid.two = Enter a valid {0} and {1}
+invoiceDate.error.required = Enter a {0}
+invoiceDate.error.required.all = Enter a date
+invoiceDate.error.required.two = Enter a {0} and {1}
+invoiceDate.error.past = The invoice date must be in the past
+invoiceDate.error.outsideRefundPeriod = The invoice date must be within the refund period
+invoiceDate.checkYourAnswersLabel = Invoice date
+invoiceDate.change.hidden = Change invoice date
+
+invoiceNumber.title = Invoice number
+invoiceNumber.heading = Invoice number
+invoiceNumber.h2 = What is the invoice number?
+invoiceNumber.hint = Invoice numbers are a set of letters or numbers usually found at the top or bottom of the invoice
+invoiceNumber.p1 = You can only use an invoice number once. Your claim may be rejected if you enter the same number twice.
+invoiceNumber.error.required = Enter an invoice number
+invoiceNumber.error.length = The invoice number must be {0} characters or less
+invoiceNumber.error.invalid = Enter a valid invoice number
+invoiceNumber.checkYourAnswersLabel = Invoice number
+invoiceNumber.change.hidden = Change the invoice number
