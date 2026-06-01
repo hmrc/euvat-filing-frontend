@@ -29,6 +29,7 @@ import repositories.SessionRepository
 import pages.RefundingCountryPage
 import pages.RefundingLanguagePage
 import play.api.mvc.Call
+import utils.ConfigLanguageMapping
 
 class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
 
@@ -41,11 +42,11 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
       val userAnswers = emptyUserAnswers.set(RefundingCountryPage, "AT").success.value
 
       val cfg = Configuration(ConfigFactory.parseString("language.mapping.AT=[\"german\", \"english\"]"))
-      val mappingSvc = new _root_.services.ConfigLanguageMapping(cfg)
+      val mappingSvc = new ConfigLanguageMapping(cfg)
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
-          bind[_root_.services.ConfigLanguageMapping].toInstance(mappingSvc)
+          bind[ConfigLanguageMapping].toInstance(mappingSvc)
         )
         .build()
 
@@ -109,13 +110,13 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
       val userAnswers = emptyUserAnswers.set(RefundingCountryPage, "AT").success.value
 
       val cfg = Configuration(ConfigFactory.parseString("language.mapping.AT=[\"german\", \"english\"]"))
-      val mappingSvc = new _root_.services.ConfigLanguageMapping(cfg)
+      val mappingSvc = new ConfigLanguageMapping(cfg)
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
           bind[navigation.Navigator].toInstance(new navigation.FakeNavigator(onwardRoute)),
           bind[repositories.SessionRepository].toInstance(mockSessionRepository),
-          bind[_root_.services.ConfigLanguageMapping].toInstance(mappingSvc)
+          bind[ConfigLanguageMapping].toInstance(mappingSvc)
         )
         .build()
 
@@ -145,10 +146,10 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
       val userAnswers = emptyUserAnswers.set(RefundingCountryPage, "AT").success.value
 
       val cfg = Configuration(ConfigFactory.parseString("language.mapping.AT=[\"german\", \"english\"]"))
-      val mappingSvc = new _root_.services.ConfigLanguageMapping(cfg)
+      val mappingSvc = new ConfigLanguageMapping(cfg)
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(bind[_root_.services.ConfigLanguageMapping].toInstance(mappingSvc))
+        .overrides(bind[ConfigLanguageMapping].toInstance(mappingSvc))
         .build()
 
       running(application) {

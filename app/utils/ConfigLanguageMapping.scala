@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package services
+package utils
+
+import play.api.Configuration
 
 import javax.inject.Inject
-import play.api.Configuration
 
 class ConfigLanguageMapping @Inject() (config: Configuration) {
 

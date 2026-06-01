@@ -20,7 +20,6 @@ import controllers.actions.*
 import forms.RefundingLanguageFormProvider
 
 import javax.inject.Inject
-import services.ConfigLanguageMapping
 import models.{Mode, NormalMode}
 import navigation.Navigator
 import pages.RefundingLanguagePage
@@ -35,6 +34,7 @@ import play.api.Logger
 import models.RefundingLanguage
 import play.api.data.Form
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
+import utils.ConfigLanguageMapping
 
 class RefundingLanguageController @Inject() (
   override val messagesApi: MessagesApi,

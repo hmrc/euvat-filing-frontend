@@ -20,6 +20,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.Configuration
 import com.typesafe.config.ConfigFactory
+import utils.ConfigLanguageMapping
 
 class ConfigLanguageMappingSpec extends AnyWordSpec with Matchers {
 

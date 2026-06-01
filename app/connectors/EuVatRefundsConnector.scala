@@ -16,6 +16,7 @@
 
 package connectors
 
+import models.responses.TraderKnownFactsResponse
 import play.api.Logging
 import play.api.http.Status.OK
 import play.api.libs.json.Json
@@ -35,10 +36,10 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
 
   private val euVatRefundsBaseUrl: String = config.baseUrl("euvat-refunds") + "/euvat-refunds"
 
-  def retrieveDirectDebits()(implicit hc: HeaderCarrier): Future[EuVatResponse] = {
+  def retrieveBusinessActivityCode()(implicit hc: HeaderCarrier): Future[TraderKnownFactsResponse] = {
     http
       .get(url"$euVatRefundsBaseUrl/traders/getKnownFacts")(hc)
-      .execute[EuVatResponse]
+      .execute[TraderKnownFactsResponse]
   }
 
 }
