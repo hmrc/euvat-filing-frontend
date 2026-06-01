@@ -187,6 +187,18 @@ class YearMonthFormatterSpec extends SpecBase {
           res.swap.toOption.get.head.key mustEqual "k"
         }
       }
+      "must return invalid.month when month has more than 2 digits" in {
+        val application = applicationBuilder().build()
+        running(application) {
+          implicit val msgs: Messages = messages(application)
+          val formatter = new YearMonthFormatter("invalid", "all", "two", "req")
+          val data = Map("k.month" -> "00000001", "k.year" -> "2025")
+          val res = formatter.bind("k", data)
+          res.isLeft `mustBe` true
+          res.swap.toOption.get.head.message `mustEqual` "invalid.month"
+          res.swap.toOption.get.head.key mustEqual "k.month"
+        }
+      }
     }
   }
 }
