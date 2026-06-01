@@ -26,7 +26,7 @@ import play.api.inject.bind
 import play.api.Configuration
 import com.typesafe.config.ConfigFactory
 import repositories.SessionRepository
-import pages.RefundingCountryPage
+import pages.RefundingCountryNamePage
 import pages.RefundingLanguagePage
 import play.api.mvc.Call
 import utils.ConfigLanguageMapping
@@ -39,7 +39,7 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET when country present" in {
 
-      val userAnswers = emptyUserAnswers.set(RefundingCountryPage, "AT").success.value
+      val userAnswers = emptyUserAnswers.set(RefundingCountryNamePage, "AT").success.value
 
       val cfg = Configuration(ConfigFactory.parseString("language.mapping.AT=[\"german\", \"english\"]"))
       val mappingSvc = new ConfigLanguageMapping(cfg)
@@ -107,7 +107,7 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn scala.concurrent.Future.successful(true)
 
-      val userAnswers = emptyUserAnswers.set(RefundingCountryPage, "AT").success.value
+      val userAnswers = emptyUserAnswers.set(RefundingCountryNamePage, "AT").success.value
 
       val cfg = Configuration(ConfigFactory.parseString("language.mapping.AT=[\"german\", \"english\"]"))
       val mappingSvc = new ConfigLanguageMapping(cfg)
@@ -143,7 +143,7 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
 
     "must return Bad Request when invalid data submitted" in {
 
-      val userAnswers = emptyUserAnswers.set(RefundingCountryPage, "AT").success.value
+      val userAnswers = emptyUserAnswers.set(RefundingCountryNamePage, "AT").success.value
 
       val cfg = Configuration(ConfigFactory.parseString("language.mapping.AT=[\"german\", \"english\"]"))
       val mappingSvc = new ConfigLanguageMapping(cfg)

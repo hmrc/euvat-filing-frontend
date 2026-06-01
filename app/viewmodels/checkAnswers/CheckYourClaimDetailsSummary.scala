@@ -39,7 +39,7 @@ object CheckYourClaimDetailsSummary {
     )
 
   def rowCountry(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(RefundingCountryPage).map { countryName =>
+    answers.get(RefundingCountryNamePage).map { countryName =>
       SummaryListRowViewModel(
         key     = "checkYourClaimDetails.refundingCountry.subLabel",
         value   = ValueViewModel(HtmlFormat.raw(countryName).toString),

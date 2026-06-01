@@ -25,12 +25,12 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import play.api.inject.bind
 import utils.CountryList
-import pages.RefundingCountryPage
+import pages.RefundingCountryNamePage
 import play.api.mvc.Call
 
 class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
 
-  val onwardRoute = Call("GET", "/foo")
+  val onwardRoute: Call = Call("GET", "/foo")
 
   "RefundingCountry Controller" - {
 
@@ -126,7 +126,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
 
     "must pre-fill the form when arriving from the task list and a saved value exists" in {
 
-      val userAnswers = emptyUserAnswers.set(RefundingCountryPage, "DE").success.value
+      val userAnswers = emptyUserAnswers.set(RefundingCountryNamePage, "DE").success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 

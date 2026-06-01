@@ -22,5 +22,5 @@ case object RefundingCountryPage extends QuestionPage[String] {
 
   override def path: JsPath = JsPath \ toString
 
-  override def toString: String = "refundingCountryName"
+  override def toString: String = "refundingCountryCode"
 }

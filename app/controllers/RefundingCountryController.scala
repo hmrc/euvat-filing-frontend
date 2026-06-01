@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.RefundingCountryFormProvider
 import models.{Mode, NormalMode, UserAnswers}
 import navigation.Navigator
-import pages.{RefundingCountryCodePage, RefundingCountryPage}
+import pages.{RefundingCountryPage, RefundingCountryNamePage}
 import play.api.Configuration
 import play.api.data.FormError
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -63,7 +63,7 @@ class RefundingCountryController @Inject() (
     val (countries, form) = buildFormAndCountries()
 
     // If we have a previously selected country, pre-fill the form.
-    val preparedForm = request.userAnswers.get(RefundingCountryPage).fold(form) { stored =>
+    val preparedForm = request.userAnswers.get(RefundingCountryNamePage).fold(form) { stored =>
       val code = stored.split(",", 2).headOption.getOrElse(stored)
       form.fill(code)
     }
@@ -94,10 +94,10 @@ class RefundingCountryController @Inject() (
           val combined = s"$value,$name"
 
           for {
-            updatedAnswers <- Future.fromTry(baseAnswers.set(RefundingCountryCodePage, value))
-            updatedAnswers <- Future.fromTry(updatedAnswers.set(RefundingCountryPage, name))
+            updatedAnswers <- Future.fromTry(baseAnswers.set(RefundingCountryPage, value))
+            updatedAnswers <- Future.fromTry(updatedAnswers.set(RefundingCountryNamePage, name))
             _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(RefundingCountryCodePage, mode, updatedAnswers))
+          } yield Redirect(navigator.nextPage(RefundingCountryPage, mode, updatedAnswers))
         }
       )
 

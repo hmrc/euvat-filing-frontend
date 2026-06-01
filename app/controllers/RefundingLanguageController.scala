@@ -57,7 +57,7 @@ class RefundingLanguageController @Inject() (
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
     // Data guard: require a previously selected refunding country
-    val maybeCountry = request.userAnswers.get(pages.RefundingCountryPage)
+    val maybeCountry = request.userAnswers.get(pages.RefundingCountryNamePage)
 
     maybeCountry match {
       case None =>
@@ -93,7 +93,7 @@ class RefundingLanguageController @Inject() (
       .fold(
         formWithErrors =>
           // need country to rebuild options
-          request.userAnswers.get(pages.RefundingCountryPage) match {
+          request.userAnswers.get(pages.RefundingCountryNamePage) match {
             case None =>
               logger.warn(
                 "RefundingLanguageController.onSubmit - no refunding country in session while binding form errors; redirecting to JourneyRecovery"
