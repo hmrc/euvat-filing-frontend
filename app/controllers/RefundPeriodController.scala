@@ -21,13 +21,13 @@ import forms.{RefundPeriodData, RefundPeriodFormProvider}
 import models.{Mode, RefundPeriod}
 import navigation.Navigator
 import pages.RefundPeriodPage
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.data.Form
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.RefundPeriodView
 
-import java.time.LocalDate
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -45,6 +45,22 @@ class RefundPeriodController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
+  private def errorMessage(form: Form[RefundPeriodData], keys: Seq[String])(implicit messages: Messages): Option[String] = {
+    val errors = form.errors.filter(e => keys.contains(e.key))
+    if (errors.isEmpty) None
+    else Some(errors.map(e => messages(e.message, e.args*)).mkString("<br>"))
+  }
+
+  private def errorLinkOverrides(form: Form[RefundPeriodData]): Map[String, String] = Map(
+    ""                           -> s"${form("start").id}.month",
+    "start"                      -> s"${form("start").id}.month",
+    "end"                        -> s"${form("end").id}.month",
+    s"${form("start").id}.year"  -> s"${form("start").id}.year",
+    s"${form("end").id}.year"    -> s"${form("end").id}.year",
+    s"${form("start").id}.month" -> s"${form("start").id}.month",
+    s"${form("end").id}.month"   -> s"${form("end").id}.month"
+  )
+
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(RefundPeriodPage) match {
       case None => formProvider()
@@ -53,26 +69,50 @@ class RefundPeriodController @Inject() (
         val end = java.time.YearMonth.of(value.endDate.getYear, value.endDate.getMonthValue)
         formProvider().fill(RefundPeriodData(start, end))
     }
-
-    Ok(view(formProvider.withMappedErrors(preparedForm), mode, controllers.routes.RefundingLanguageController.onPageLoad(mode)))
+    val (mappedForm, highlighted) = formProvider.withMappedErrors(preparedForm)
+    val startMsg = errorMessage(mappedForm, Seq("start", "start.month", "start.year"))
+    val endMsg = errorMessage(mappedForm, Seq("end", "end.month", "end.year"))
+    Ok(
+      view(mappedForm,
+           mode,
+           controllers.routes.RefundingLanguageController.onPageLoad(mode),
+           startMsg,
+           endMsg,
+           highlighted,
+           errorLinkOverrides(mappedForm)
+          )
+    )
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     formProvider()
       .bindFromRequest()
       .fold(
-        formWithErrors =>
+        formWithErrors => {
+          val (mappedForm, highlighted) = formProvider.withMappedErrors(formWithErrors)
+          val startMsg = errorMessage(mappedForm, Seq("start", "start.month", "start.year"))
+          val endMsg = errorMessage(mappedForm, Seq("end", "end.month", "end.year"))
           Future.successful(
-            BadRequest(view(formProvider.withMappedErrors(formWithErrors), mode, controllers.routes.RefundingLanguageController.onPageLoad(mode)))
-          ),
+            BadRequest(
+              view(mappedForm,
+                   mode,
+                   controllers.routes.RefundingLanguageController.onPageLoad(mode),
+                   startMsg,
+                   endMsg,
+                   highlighted,
+                   errorLinkOverrides(mappedForm)
+                  )
+            )
+          )
+        },
         value =>
           for {
             updatedAnswers <- Future.fromTry(
                                 request.userAnswers.set(
                                   RefundPeriodPage,
                                   RefundPeriod(
-                                    LocalDate.of(value.start.getYear, value.start.getMonthValue, 1),
-                                    java.time.YearMonth.of(value.end.getYear, value.end.getMonthValue).atEndOfMonth()
+                                    java.time.YearMonth.of(value.start.getYear, value.start.getMonthValue).atDay(1).atStartOfDay(),
+                                    java.time.YearMonth.of(value.end.getYear, value.end.getMonthValue).atEndOfMonth().atTime(23, 59, 59, 999000000)
                                   )
                                 )
                               )
