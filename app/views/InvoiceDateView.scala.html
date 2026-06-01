@@ -31,9 +31,9 @@
     govukButton: GovukButton
 )
 
-@(form: play.api.data.Form[_], mode: Mode)(implicit request: play.api.mvc.Request[_], messages: play.api.i18n.Messages)
+@(form: play.api.data.Form[_], mode: Mode, backLink: play.api.mvc.Call)(implicit request: play.api.mvc.Request[_], messages: play.api.i18n.Messages)
 
-@layout(pageTitle = title(form, messages("invoiceDate.title"))) {
+@layout(pageTitle = title(form, messages("invoiceDate.title")), backLinkUrl = Some(backLink.url)) {
 
     @formHelper(action = controllers.routes.InvoiceDateController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
@@ -78,4 +78,5 @@
             ButtonViewModel(messages("site.continue"))
         )
     }
+    @* backLink passed to layout above *@
 }
