@@ -12,17 +12,17 @@ GET         /refresh-session                             controllers.KeepAliveCo
 
 GET         /there-is-a-problem                          controllers.JourneyRecoveryController.onPageLoad(continueUrl: Option[RedirectUrl] ?= None)
 
-GET         /check-your-answers                          controllers.CheckYourAnswersController.onPageLoad()
-
 GET         /account/sign-out-survey                     controllers.auth.AuthController.signOut()
 GET         /account/sign-out                            controllers.auth.AuthController.signOutNoSurvey()
 GET         /account/signed-out                          controllers.auth.SignedOutController.onPageLoad()
 
 GET         /unauthorised                                controllers.UnauthorisedController.onPageLoad()
 
+# Task list Dashboard
 GET         /make-eu-vat-claim                           controllers.TaskListDashboardController.onPageLoad()
 GET         /redirect-to-manage-claim                    controllers.TaskListDashboardController.redirectToManageClaim()
 
+# Claim details journey
 GET         /which-eu-member-state                       controllers.RefundingCountryController.onPageLoad(mode: models.Mode = NormalMode)
 POST        /which-eu-member-state                       controllers.RefundingCountryController.onSubmit(mode: models.Mode = NormalMode)
 GET         /change-which-eu-member-state                controllers.RefundingCountryController.onPageLoad(mode: models.Mode = CheckMode)
@@ -66,6 +66,10 @@ POST        /change-what-is-the-3rd-business-activity    controllers.BusinessAct
 GET         /business-activity-3                         controllers.BusinessActivityThreeController.onPageLoad()
 POST        /business-activity-3                         controllers.BusinessActivityThreeController.onSubmit()
 
+GET         /check-your-claim-details                    controllers.CheckYourClaimDetailsController.onPageLoad()
+POST        /check-your-claim-details                    controllers.CheckYourClaimDetailsController.onSubmit()
+
+# Purchase details journey
 GET         /about-the-purchase                          controllers.AboutThePurchaseController.onPageLoad()
 POST        /about-the-purchase                          controllers.AboutThePurchaseController.onSubmit()
 

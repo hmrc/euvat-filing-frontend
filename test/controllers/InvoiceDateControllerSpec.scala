@@ -18,10 +18,9 @@ package controllers
 
 import base.SpecBase
 import models.*
-import controllers.routes
 import navigation.FakeNavigator
-import org.mockito.Mockito.{verify, when}
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.RefundPeriodPage
 import play.api.inject.bind
@@ -40,7 +39,7 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
     ".onPageLoad" - {
 
       "must return OK and the correct view for a GET when refund period exists" in {
-        val savedPeriod = models.RefundPeriod(LocalDateTime.of(2025, 3, 1, 0, 0), LocalDateTime.of(2025, 8, 1, 0, 0))
+        val savedPeriod = models.RefundPeriod(LocalDateTime.of(2025, 3, 1, 0, 0), LocalDateTime.of(2025, 8, 1, 23, 59))
         val userAnswers = emptyUserAnswers.set(RefundPeriodPage, savedPeriod).success.value
         val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -51,14 +50,15 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
           implicit val msgs = messages(application)
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(application.injector.instanceOf[forms.InvoiceDateFormProvider].apply(), models.NormalMode, routes.InvoiceNumberController.onPageLoad(models.NormalMode))(request,
-                                                                                                                                            msgs
-                                                                                                                                           ).toString
+          contentAsString(result) mustEqual view(application.injector.instanceOf[forms.InvoiceDateFormProvider].apply(),
+                                                 models.NormalMode,
+                                                 routes.InvoiceNumberController.onPageLoad(models.NormalMode)
+                                                )(request, msgs).toString
         }
       }
 
       "must populate the view correctly on a GET when the question has previously been answered" in {
-        val savedPeriod = models.RefundPeriod(LocalDateTime.of(2025, 3, 1, 0, 0), LocalDateTime.of(2025, 8, 1, 0, 0))
+        val savedPeriod = models.RefundPeriod(LocalDateTime.of(2025, 3, 1, 0, 0), LocalDateTime.of(2025, 8, 1, 23, 59))
         val userAnswers = emptyUserAnswers
           .set(RefundPeriodPage, savedPeriod)
           .success
@@ -100,7 +100,7 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
     ".onSubmit" - {
 
       "must redirect to the next page when valid date within refund period submitted" in {
-        val savedPeriod = models.RefundPeriod(LocalDateTime.of(2025, 3, 1, 0, 0), LocalDateTime.of(2025, 8, 1, 0, 0))
+        val savedPeriod = models.RefundPeriod(LocalDateTime.of(2025, 3, 1, 0, 0), LocalDateTime.of(2025, 8, 1, 23, 59))
         val userAnswers = emptyUserAnswers.set(RefundPeriodPage, savedPeriod).success.value
         val mockSessionRepository = mock[repositories.SessionRepository]
         when(mockSessionRepository.set(any())) thenReturn scala.concurrent.Future.successful(true)
@@ -128,7 +128,7 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
       }
 
       "must return Bad Request when date is in the future" in {
-        val savedPeriod = models.RefundPeriod(LocalDateTime.of(2024, 1, 1, 0, 0), LocalDateTime.of(2025, 12, 31, 0, 0))
+        val savedPeriod = models.RefundPeriod(LocalDateTime.of(2024, 1, 1, 0, 0), LocalDateTime.of(2025, 12, 31, 23, 59))
         val userAnswers = emptyUserAnswers.set(RefundPeriodPage, savedPeriod).success.value
         val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -152,7 +152,7 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
       /* TODO: commented out, please see InvoiceDateController for details on when this should be added back in
 
       "must return Bad Request when date is outside refund period" in {
-        val savedPeriod = models.RefundPeriod(LocalDateTime.of(2025,3,1, 0, 0), LocalDateTime.of(2025,8,1, 0, 0))
+        val savedPeriod = models.RefundPeriod(LocalDateTime.of(2025, 3, 1, 0, 0), LocalDateTime.of(2025, 8, 1, 23, 59))
         val userAnswers = emptyUserAnswers.set(RefundPeriodPage, savedPeriod).success.value
         val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -191,7 +191,7 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
       }
 
       "must return Bad Request and link to month when month is missing" in {
-        val savedPeriod = models.RefundPeriod(LocalDateTime.of(2025, 3, 1, 0, 0), LocalDateTime.of(2025, 8, 1, 0, 0))
+        val savedPeriod = models.RefundPeriod(LocalDateTime.of(2025, 3, 1, 0, 0), LocalDateTime.of(2025, 8, 1, 23, 59))
         val userAnswers = emptyUserAnswers.set(RefundPeriodPage, savedPeriod).success.value
         val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -216,7 +216,7 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
       }
 
       "must return Bad Request and link to year when year is missing" in {
-        val savedPeriod = models.RefundPeriod(LocalDateTime.of(2025, 3, 1, 0, 0), LocalDateTime.of(2025, 8, 1, 0, 0))
+        val savedPeriod = models.RefundPeriod(LocalDateTime.of(2025, 3, 1, 0, 0), LocalDateTime.of(2025, 8, 1, 23, 59))
         val userAnswers = emptyUserAnswers.set(RefundPeriodPage, savedPeriod).success.value
         val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -241,7 +241,7 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
       }
 
       "must return Bad Request and link to day when day and month are missing" in {
-        val savedPeriod = models.RefundPeriod(LocalDateTime.of(2025, 3, 1, 0, 0), LocalDateTime.of(2025, 8, 1, 0, 0))
+        val savedPeriod = models.RefundPeriod(LocalDateTime.of(2025, 3, 1, 0, 0), LocalDateTime.of(2025, 8, 1, 23, 59))
         val userAnswers = emptyUserAnswers.set(RefundPeriodPage, savedPeriod).success.value
         val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -268,7 +268,7 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
       }
 
       "must return Bad Request and link to day when all fields are missing" in {
-        val savedPeriod = models.RefundPeriod(LocalDateTime.of(2025, 3, 1, 0, 0), LocalDateTime.of(2025, 8, 1, 0, 0))
+        val savedPeriod = models.RefundPeriod(LocalDateTime.of(2025, 3, 1, 0, 0), LocalDateTime.of(2025, 8, 1, 23, 59))
         val userAnswers = emptyUserAnswers.set(RefundPeriodPage, savedPeriod).success.value
         val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -290,7 +290,7 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
       }
 
       "must return Bad Request and link to day when numeric garbage input posted" in {
-        val savedPeriod = models.RefundPeriod(LocalDateTime.of(2025, 3, 1, 0, 0), LocalDateTime.of(2025, 8, 1, 0, 0))
+        val savedPeriod = models.RefundPeriod(LocalDateTime.of(2025, 3, 1, 0, 0), LocalDateTime.of(2025, 8, 1, 23, 59))
         val userAnswers = emptyUserAnswers.set(RefundPeriodPage, savedPeriod).success.value
         val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -313,7 +313,7 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
       }
 
       "must return Bad Request and link to day when day and month are invalid text" in {
-        val savedPeriod = models.RefundPeriod(LocalDateTime.of(2025, 3, 1, 0, 0), LocalDateTime.of(2025, 8, 1, 0, 0))
+        val savedPeriod = models.RefundPeriod(LocalDateTime.of(2025, 3, 1, 0, 0), LocalDateTime.of(2025, 8, 1, 23, 59))
         val userAnswers = emptyUserAnswers.set(RefundPeriodPage, savedPeriod).success.value
         val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -336,7 +336,7 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
       }
 
       "must return Bad Request and link to month when day is valid but month is invalid text" in {
-        val savedPeriod = models.RefundPeriod(LocalDateTime.of(2025, 3, 1, 0, 0), LocalDateTime.of(2025, 8, 1, 0, 0))
+        val savedPeriod = models.RefundPeriod(LocalDateTime.of(2025, 3, 1, 0, 0), LocalDateTime.of(2025, 8, 1, 23, 59))
         val userAnswers = emptyUserAnswers.set(RefundPeriodPage, savedPeriod).success.value
         val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -358,12 +358,12 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
       }
 
       "must redirect to Check Your Answers when in CheckMode" in {
-        val savedPeriod = models.RefundPeriod(LocalDateTime.of(2025, 3, 1, 0, 0), LocalDateTime.of(2025, 8, 1, 0, 0))
+        val savedPeriod = models.RefundPeriod(LocalDateTime.of(2025, 3, 1, 0, 0), LocalDateTime.of(2025, 8, 1, 23, 59))
         val userAnswers = emptyUserAnswers.set(RefundPeriodPage, savedPeriod).success.value
         val mockSessionRepository = mock[repositories.SessionRepository]
         when(mockSessionRepository.set(any())) thenReturn scala.concurrent.Future.successful(true)
 
-        val checkYourAnswersRoute = controllers.routes.CheckYourAnswersController.onPageLoad()
+        val checkYourAnswersRoute = controllers.routes.CheckYourClaimDetailsController.onPageLoad()
 
         val application = applicationBuilder(userAnswers = Some(userAnswers))
           .overrides(

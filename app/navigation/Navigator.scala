@@ -26,13 +26,17 @@ import models.*
 @Singleton
 class Navigator @Inject() () {
 
+  def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call = mode match {
+    case NormalMode => normalRoutes(page)(userAnswers)
+    case CheckMode  => checkRoutes(page)(userAnswers)
+  }
+
   private val normalRoutes: Page => UserAnswers => Call = {
     case RefundingCountryPage          => _ => routes.RefundingLanguageController.onPageLoad(NormalMode)
     case RefundingLanguagePage         => _ => routes.RefundPeriodController.onPageLoad(NormalMode)
     case RefundPeriodPage              => _ => routes.ContactDetailsController.onPageLoad(NormalMode)
     case ContactDetailsPage            => _ => routes.BusinessActivityController.onPageLoad(NormalMode)
     case BusinessActivityPage          => userAnswer => navigateFromBusinessActivityPage(NormalMode)(userAnswer)
-    case BusinessActivityCodeTwoPage   => _ => routes.BusinessActivityTwoController.onPageLoad(NormalMode)
     case BusinessActivityTwoPage       => userAnswer => navigateFromBusinessActivity2Page(NormalMode)(userAnswer)
     case BusinessActivityCodeThreePage => _ => routes.BusinessActivityThreeController.onPageLoad()
     case PurchaseTypePage              => _ => routes.InvoiceNumberController.onPageLoad(NormalMode)
@@ -43,41 +47,34 @@ class Navigator @Inject() () {
     case _                             => _ => routes.IndexController.onPageLoad()
   }
 
-  private val checkRouteMap: Page => UserAnswers => Call = {
+  private val checkRoutes: Page => UserAnswers => Call = {
     case RefundingCountryPage          => _ => routes.RefundingLanguageController.onPageLoad(CheckMode)
-    case RefundingLanguagePage         => _ => routes.RefundPeriodController.onPageLoad(CheckMode)
-    case RefundPeriodPage              => _ => routes.ContactDetailsController.onPageLoad(CheckMode)
-    case ContactDetailsPage            => _ => routes.BusinessActivityController.onPageLoad(CheckMode)
+    case RefundingLanguagePage         => _ => routes.CheckYourClaimDetailsController.onPageLoad()
+    case RefundPeriodPage              => _ => routes.CheckYourClaimDetailsController.onPageLoad()
+    case ContactDetailsPage            => _ => routes.CheckYourClaimDetailsController.onPageLoad()
     case BusinessActivityPage          => userAnswer => navigateFromBusinessActivityPage(CheckMode)(userAnswer)
-    case BusinessActivityCodeTwoPage   => _ => routes.BusinessActivityTwoController.onPageLoad(CheckMode)
     case BusinessActivityTwoPage       => userAnswer => navigateFromBusinessActivity2Page(CheckMode)(userAnswer)
     case BusinessActivityCodeThreePage => _ => routes.BusinessActivityThreeController.onPageLoad()
     case PurchaseTypePage              => _ => routes.InvoiceNumberController.onPageLoad(CheckMode)
     case InvoiceNumberPage             => _ => routes.InvoiceDateController.onPageLoad(CheckMode)
     case InvoiceDatePage               => _ => routes.SuppliersNameController.onPageLoad(CheckMode)
     case SuppliersNamePage             => _ => routes.SupplierAddressController.onPageLoad(CheckMode)
-    case SupplierAddressPage           => _ => routes.CheckYourAnswersController.onPageLoad()
-    case _                             => _ => routes.CheckYourAnswersController.onPageLoad()
+    case SupplierAddressPage           => _ => routes.JourneyRecoveryController.onPageLoad()
+    case _                             => _ => routes.IndexController.onPageLoad()
   }
 
   private def navigateFromBusinessActivityPage(mode: Mode)(userAnswers: UserAnswers): Call =
     userAnswers.get(BusinessActivityPage) match {
       case Some(true)  => routes.BusinessActivityCodeTwoController.onPageLoad(mode)
-      case Some(false) => routes.JourneyRecoveryController.onPageLoad() // TODO - update to check you claim details page
+      case Some(false) => routes.CheckYourClaimDetailsController.onPageLoad()
       case _           => routes.JourneyRecoveryController.onPageLoad()
     }
 
   private def navigateFromBusinessActivity2Page(mode: Mode)(userAnswers: UserAnswers): Call =
     userAnswers.get(BusinessActivityTwoPage) match {
       case Some(true)  => routes.BusinessActivityCodeThreeController.onPageLoad(mode)
-      case Some(false) => routes.JourneyRecoveryController.onPageLoad() // TODO - update to check you claim details page
+      case Some(false) => routes.CheckYourClaimDetailsController.onPageLoad()
       case _           => routes.JourneyRecoveryController.onPageLoad()
     }
 
-  def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call = mode match {
-    case NormalMode =>
-      normalRoutes(page)(userAnswers)
-    case CheckMode =>
-      checkRouteMap(page)(userAnswers)
-  }
 }

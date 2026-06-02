@@ -14,14 +14,22 @@
  * limitations under the License.
  */
 
-package pages
+package utils
 
-import play.api.libs.json.JsPath
-import pages.QuestionPage
+import play.api.Configuration
 
-case object BusinessActivityCodeThreePage extends QuestionPage[String] {
+import javax.inject.Inject
 
-  override def path: JsPath = JsPath \ toString
+class ConfigLanguageMapping @Inject() (config: Configuration) {
 
-  override def toString: String = "businessActivityCodeThree"
+  private val mapping: Map[String, Seq[String]] = {
+    val cfg = config.get[Configuration]("language.mapping")
+    cfg.entrySet.map { case (key, sub) =>
+      // play Configuration represents lists as ConfigValue; read as Seq[String]
+      val seq = cfg.get[Seq[String]](key)
+      key -> seq
+    }.toMap
+  }
+
+  def languagesFor(code: String): Seq[String] = mapping.getOrElse(code, Seq("english")).map(_.capitalize)
 }

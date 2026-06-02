@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.RefundingCountryFormProvider
 import models.{Mode, NormalMode, UserAnswers}
 import navigation.Navigator
-import pages.RefundingCountryPage
+import pages.{RefundingCountryNamePage, RefundingCountryPage}
 import play.api.Configuration
 import play.api.data.FormError
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -33,6 +33,7 @@ import views.html.RefundingCountryView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.Logger
+
 import scala.util.control.NonFatal
 
 class RefundingCountryController @Inject() (
@@ -58,11 +59,13 @@ class RefundingCountryController @Inject() (
   }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-
     val (countries, form) = buildFormAndCountries()
 
     // If we have a previously selected country, pre-fill the form.
-    val preparedForm = request.userAnswers.get(RefundingCountryPage).fold(form)(form.fill)
+    val preparedForm = request.userAnswers.get(RefundingCountryNamePage).fold(form) { stored =>
+      val code = stored.split(",", 2).headOption.getOrElse(stored)
+      form.fill(code)
+    }
 
     Ok(view(preparedForm, countries, routes.TaskListDashboardController.onPageLoad(), mode))
   }
@@ -86,8 +89,11 @@ class RefundingCountryController @Inject() (
           Future.successful(BadRequest(view(adjustedForm, countries, routes.TaskListDashboardController.onPageLoad(), mode)))
         },
         value => {
+          val name = countries.find(_._2.equalsIgnoreCase(value)).map(_._1).getOrElse(value)
+
           for {
             updatedAnswers <- Future.fromTry(baseAnswers.set(RefundingCountryPage, value))
+            updatedAnswers <- Future.fromTry(updatedAnswers.set(RefundingCountryNamePage, name))
             _              <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(RefundingCountryPage, mode, updatedAnswers))
         }

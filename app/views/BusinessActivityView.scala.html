@@ -28,7 +28,7 @@
     mainErrorSummary: MainErrorSummary
 )
 
-@(form: Form[?], mode: Mode, call: Call)(implicit request: Request[?], messages: Messages)
+@(form: Form[?], mode: Mode, call: Call, baCode1: String)(implicit request: Request[?], messages: Messages)
 @isError = @{form.error("value").isDefined}
 
 @layout(pageTitle = views.ViewUtils.title(form, "businessActivity.title"), backLinkUrl = Some(call.url)) {
@@ -43,7 +43,7 @@
         <p class="govuk-body-l">@messages("businessActivity.lead")</p>
 
         @govukInsetText(InsetText(
-            content = HtmlContent(s"<strong>${messages("businessActivity.insetText.label")}:</strong> 49200 (Freight rail transport)")
+            content = HtmlContent(s"<strong>${messages("businessActivity.insetText.label")}:</strong> ${baCode1}")
         ))
 
         <div class="govuk-form-group @if(isError){govuk-form-group--error}">

@@ -24,14 +24,24 @@ import java.util.Locale
 object DateTimeFormats {
 
   private val dateTimeFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy")
+  private val monthYearFormatter = DateTimeFormatter.ofPattern("MMMM yyyy")
 
   private val localisedDateTimeFormatters = Map(
     "en" -> dateTimeFormatter,
     "cy" -> dateTimeFormatter.withLocale(new Locale("cy"))
   )
 
+  private val localisedMonthYearFormatters = Map(
+    "en" -> monthYearFormatter,
+    "cy" -> monthYearFormatter.withLocale(new Locale("cy"))
+  )
+
   def dateTimeFormat()(implicit lang: Lang): DateTimeFormatter = {
     localisedDateTimeFormatters.getOrElse(lang.code, dateTimeFormatter)
+  }
+
+  def shortMonthYearFormat()(implicit lang: Lang): DateTimeFormatter = {
+    localisedMonthYearFormatters.getOrElse(lang.code, monthYearFormatter)
   }
 
   val dateTimeHintFormat: DateTimeFormatter =
