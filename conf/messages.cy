@@ -234,6 +234,9 @@ supplierAddress.line2.label = Address line 2 (optional)
 supplierAddress.line3.label = Address line 3 (optional)
 supplierAddress.error.line1.required = Enter address line 1, typically the building and street
 supplierAddress.error.maxLength = You cannot enter more than 35 characters
+supplierAddress.error.line1.maxLength = {0}. {1}
+supplierAddress.error.line2.maxLength = {0}. {1}
+supplierAddress.error.line3.maxLength = {0}. {1}
 
 invoiceDate.title = What is the invoice date?
 invoiceDate.heading = What is the invoice date?
