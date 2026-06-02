@@ -22,5 +22,5 @@ case object SimplifiedInvoiceVatRegCheckPage extends QuestionPage[Boolean] {
 
   override def path: JsPath = JsPath \ toString
 
-  override def toString: String = "simplifiedInvoiceSupplierVatRegCheck"
+  override def toString: String = "simplifiedInvoiceVatRegCheck"
 }

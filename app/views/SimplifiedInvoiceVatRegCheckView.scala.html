@@ -24,7 +24,7 @@
 
 @(form: Form[_], mode: Mode, call: Call)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("simplifiedInvoiceSupplierVatRegCheck.title"))) {
+@layout(pageTitle = title(form, messages("simplifiedInvoiceVatRegCheck.title"))) {
 
     @formHelper(action = routes.SimplifiedInvoiceVatRegCheckController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
@@ -40,7 +40,7 @@
         RadiosViewModel(
             field = form("value"),
             legend = Legend(
-                content = Text(messages("simplifiedInvoiceSupplierVatRegCheck.heading")),
+                content = Text(messages("simplifiedInvoiceVatRegCheck.heading")),
                 classes = "govuk-fieldset__legend--l",
                 isPageHeading = true
             ),
@@ -51,12 +51,12 @@
                     content = Text(messages("site.yes"))
                 ),
                 RadioItem(
-                    id      = Some("value-no"),
+                    id      = Some("value-2"),
                     value   = Some("false"),
                     content = Text(messages("site.no"))
                     )
                 )
-        ).withHint(HintViewModel(messages("simplifiedInvoiceSupplierVatRegCheck.hint")))
+        ).withHint(HintViewModel(messages("simplifiedInvoiceVatRegCheck.hint")))
     )
 
         @govukButton(
