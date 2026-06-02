@@ -83,11 +83,6 @@ POST        /what-is-the-invoice-date                    controllers.InvoiceDate
 GET         /change-what-is-the-invoice-date             controllers.InvoiceDateController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-what-is-the-invoice-date             controllers.InvoiceDateController.onSubmit(mode: Mode = CheckMode)
 
-GET         /purchase-type                               controllers.PurchaseTypeController.onPageLoad(mode: Mode = NormalMode)
-POST        /purchase-type                               controllers.PurchaseTypeController.onSubmit(mode: Mode = NormalMode)
-GET         /change-purchase-type                        controllers.PurchaseTypeController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-purchase-type                        controllers.PurchaseTypeController.onSubmit(mode: Mode = CheckMode)
-
 GET         /what-supplier-name                          controllers.SuppliersNameController.onPageLoad(mode: Mode = NormalMode)
 POST        /what-supplier-name                          controllers.SuppliersNameController.onSubmit(mode: Mode = NormalMode)
 GET         /change-what-supplier-name                   controllers.SuppliersNameController.onPageLoad(mode: Mode = CheckMode)
@@ -97,3 +92,13 @@ GET         /what-supplier-address                       controllers.SupplierAdd
 POST        /what-supplier-address                       controllers.SupplierAddressController.onSubmit(mode: Mode = NormalMode)
 GET         /change-what-supplier-address                controllers.SupplierAddressController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-what-supplier-address                controllers.SupplierAddressController.onSubmit(mode: Mode = CheckMode)
+
+GET        /simplified-invoice-supplier-vat-registration-check                           controllers.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode: Mode = NormalMode)
+POST       /simplified-invoice-supplier-vat-registration-check                           controllers.SimplifiedInvoiceVatRegCheckController.onSubmit(mode: Mode = NormalMode)
+GET        /change-simplified-invoice-supplier-vat-registration-check                    controllers.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-simplified-invoice-supplier-vat-registration-check                    controllers.SimplifiedInvoiceVatRegCheckController.onSubmit(mode: Mode = CheckMode)
+
+GET         /purchase-type                               controllers.PurchaseTypeController.onPageLoad(mode: Mode = NormalMode)
+POST        /purchase-type                               controllers.PurchaseTypeController.onSubmit(mode: Mode = NormalMode)
+GET         /change-purchase-type                        controllers.PurchaseTypeController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-purchase-type                        controllers.PurchaseTypeController.onSubmit(mode: Mode = CheckMode)

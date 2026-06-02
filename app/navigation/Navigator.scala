@@ -32,35 +32,37 @@ class Navigator @Inject() () {
   }
 
   private val normalRoutes: Page => UserAnswers => Call = {
-    case RefundingCountryPage          => _ => routes.RefundingLanguageController.onPageLoad(NormalMode)
-    case RefundingLanguagePage         => _ => routes.RefundPeriodController.onPageLoad(NormalMode)
-    case RefundPeriodPage              => _ => routes.ContactDetailsController.onPageLoad(NormalMode)
-    case ContactDetailsPage            => _ => routes.BusinessActivityController.onPageLoad(NormalMode)
-    case BusinessActivityPage          => userAnswer => navigateFromBusinessActivityPage(NormalMode)(userAnswer)
-    case BusinessActivityTwoPage       => userAnswer => navigateFromBusinessActivity2Page(NormalMode)(userAnswer)
-    case BusinessActivityCodeThreePage => _ => routes.BusinessActivityThreeController.onPageLoad()
-    case PurchaseTypePage              => _ => routes.InvoiceNumberController.onPageLoad(NormalMode)
-    case InvoiceNumberPage             => _ => routes.InvoiceDateController.onPageLoad(NormalMode)
-    case InvoiceDatePage               => _ => routes.SuppliersNameController.onPageLoad(NormalMode)
-    case SuppliersNamePage             => _ => routes.SupplierAddressController.onPageLoad(NormalMode)
-    case SupplierAddressPage           => _ => routes.JourneyRecoveryController.onPageLoad()
-    case _                             => _ => routes.IndexController.onPageLoad()
+    case RefundingCountryPage             => _ => routes.RefundingLanguageController.onPageLoad(NormalMode)
+    case RefundingLanguagePage            => _ => routes.RefundPeriodController.onPageLoad(NormalMode)
+    case RefundPeriodPage                 => _ => routes.ContactDetailsController.onPageLoad(NormalMode)
+    case ContactDetailsPage               => _ => routes.BusinessActivityController.onPageLoad(NormalMode)
+    case BusinessActivityPage             => userAnswer => navigateFromBusinessActivityPage(NormalMode)(userAnswer)
+    case BusinessActivityTwoPage          => userAnswer => navigateFromBusinessActivity2Page(NormalMode)(userAnswer)
+    case BusinessActivityCodeThreePage    => _ => routes.BusinessActivityThreeController.onPageLoad()
+    case InvoiceNumberPage                => _ => routes.InvoiceDateController.onPageLoad(NormalMode)
+    case InvoiceDatePage                  => _ => routes.SuppliersNameController.onPageLoad(NormalMode)
+    case SuppliersNamePage                => _ => routes.SupplierAddressController.onPageLoad(NormalMode)
+    case SupplierAddressPage              => _ => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode)
+    case SimplifiedInvoiceVatRegCheckPage => userAnswer => navigateFromSimplifiedInvoiceVatRegCheckPage(NormalMode)(userAnswer)
+    case PurchaseTypePage                 => _ => routes.JourneyRecoveryController.onPageLoad()
+    case _                                => _ => routes.IndexController.onPageLoad()
   }
 
   private val checkRoutes: Page => UserAnswers => Call = {
-    case RefundingCountryPage          => _ => routes.RefundingLanguageController.onPageLoad(CheckMode)
-    case RefundingLanguagePage         => _ => routes.CheckYourClaimDetailsController.onPageLoad()
-    case RefundPeriodPage              => _ => routes.CheckYourClaimDetailsController.onPageLoad()
-    case ContactDetailsPage            => _ => routes.CheckYourClaimDetailsController.onPageLoad()
-    case BusinessActivityPage          => userAnswer => navigateFromBusinessActivityPage(CheckMode)(userAnswer)
-    case BusinessActivityTwoPage       => userAnswer => navigateFromBusinessActivity2Page(CheckMode)(userAnswer)
-    case BusinessActivityCodeThreePage => _ => routes.BusinessActivityThreeController.onPageLoad()
-    case PurchaseTypePage              => _ => routes.InvoiceNumberController.onPageLoad(CheckMode)
-    case InvoiceNumberPage             => _ => routes.InvoiceDateController.onPageLoad(CheckMode)
-    case InvoiceDatePage               => _ => routes.SuppliersNameController.onPageLoad(CheckMode)
-    case SuppliersNamePage             => _ => routes.SupplierAddressController.onPageLoad(CheckMode)
-    case SupplierAddressPage           => _ => routes.JourneyRecoveryController.onPageLoad()
-    case _                             => _ => routes.IndexController.onPageLoad()
+    case RefundingCountryPage             => _ => routes.RefundingLanguageController.onPageLoad(CheckMode)
+    case RefundingLanguagePage            => _ => routes.CheckYourClaimDetailsController.onPageLoad()
+    case RefundPeriodPage                 => _ => routes.CheckYourClaimDetailsController.onPageLoad()
+    case ContactDetailsPage               => _ => routes.CheckYourClaimDetailsController.onPageLoad()
+    case BusinessActivityPage             => userAnswer => navigateFromBusinessActivityPage(CheckMode)(userAnswer)
+    case BusinessActivityTwoPage          => userAnswer => navigateFromBusinessActivity2Page(CheckMode)(userAnswer)
+    case BusinessActivityCodeThreePage    => _ => routes.BusinessActivityThreeController.onPageLoad()
+    case InvoiceNumberPage                => _ => routes.InvoiceDateController.onPageLoad(CheckMode)
+    case InvoiceDatePage                  => _ => routes.SuppliersNameController.onPageLoad(CheckMode)
+    case SuppliersNamePage                => _ => routes.SupplierAddressController.onPageLoad(CheckMode)
+    case SupplierAddressPage              => _ => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(CheckMode)
+    case SimplifiedInvoiceVatRegCheckPage => userAnswer => navigateFromSimplifiedInvoiceVatRegCheckPage(CheckMode)(userAnswer)
+    case PurchaseTypePage                 => _ => routes.IndexController.onPageLoad()
+    case _                                => _ => routes.IndexController.onPageLoad()
   }
 
   private def navigateFromBusinessActivityPage(mode: Mode)(userAnswers: UserAnswers): Call =
@@ -75,6 +77,13 @@ class Navigator @Inject() () {
       case Some(true)  => routes.BusinessActivityCodeThreeController.onPageLoad(mode)
       case Some(false) => routes.CheckYourClaimDetailsController.onPageLoad()
       case _           => routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateFromSimplifiedInvoiceVatRegCheckPage(mode: Mode)(userAnswers: UserAnswers): Call =
+    userAnswers.get(SimplifiedInvoiceVatRegCheckPage) match {
+      case Some(true) => routes.JourneyRecoveryController.onPageLoad() // TODO - update to link to suppliers VRN page
+      case Some(false) => routes.PurchaseTypeController.onPageLoad(mode)
+      case _ => routes.JourneyRecoveryController.onPageLoad()
     }
 
 }
