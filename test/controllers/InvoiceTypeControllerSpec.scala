@@ -83,7 +83,7 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to the next page when valid data is submitted" in {
+    "must redirect to the next page when standard invoice is submitted" in {
 
       val mockSessionRepository = mock[SessionRepository]
 
@@ -92,7 +92,6 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
             bind[SessionRepository].toInstance(mockSessionRepository)
           )
           .build()
@@ -100,12 +99,37 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, invoiceTypeRoute)
-            .withFormUrlEncodedBody(("value", InvoiceType.values.head.toString))
+            .withFormUrlEncodedBody(("value", InvoiceType.StandardInvoice.toString))
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
+        redirectLocation(result).value mustEqual routes.InvoiceNumberController.onPageLoad(NormalMode).url
+      }
+    }
+
+    "must redirect to the next page when simplified invoice is submitted" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, invoiceTypeRoute)
+            .withFormUrlEncodedBody(("value", InvoiceType.SimplifiedInvoice.toString))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 
