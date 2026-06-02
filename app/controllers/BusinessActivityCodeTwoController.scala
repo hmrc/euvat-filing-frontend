@@ -22,7 +22,7 @@ import models.{NormalMode, UserAnswers}
 import models.Mode
 import models.CheckMode
 import navigation.Navigator
-import pages.BusinessActivityCodeTwoPage
+import pages.{BusinessActivityCodeTwoPage, BusinessActivityThreePage}
 import play.api.Configuration
 import play.api.data.FormError
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -35,6 +35,7 @@ import views.html.BusinessActivityCodeTwoView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.Logger
+
 import scala.util.control.NonFatal
 
 class BusinessActivityCodeTwoController @Inject() (
@@ -61,13 +62,22 @@ class BusinessActivityCodeTwoController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val (activities, form) = buildListAndForm()
-    val preparedForm = request.userAnswers.get(BusinessActivityCodeTwoPage).fold(form)(form.fill)
+    val userAnswers = request.userAnswers
+    val keyValue = request.getQueryString("key").getOrElse("baPage2") // check if page 3 Change link clicked otherwise default to page 2
+
+    for {
+      updatedAnswer <- Future.fromTry(userAnswers.set(BusinessActivityThreePage, keyValue)) // Save the click to session page
+      _             <- sessionRepository.set(updatedAnswer)
+    } yield None
+
+    val preparedForm = userAnswers.get(BusinessActivityCodeTwoPage).fold(form)(form.fill)
     Ok(view(preparedForm, activities, Some(routes.BusinessActivityController.onPageLoad(mode).url), mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     val (activities, form) = buildListAndForm()
     val baseAnswers: UserAnswers = request.userAnswers
+    val page3 = baseAnswers.get(BusinessActivityThreePage)
 
     val boundResult = form
       .bindFromRequest()
@@ -85,8 +95,14 @@ class BusinessActivityCodeTwoController @Inject() (
         value => {
           for {
             updatedAnswers <- Future.fromTry(baseAnswers.set(BusinessActivityCodeTwoPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(BusinessActivityCodeTwoPage, mode, updatedAnswers))
+            updatedAnswers <- Future.fromTry(updatedAnswers.remove(BusinessActivityThreePage)) // clear the session for page click
+            -              <- sessionRepository.set(updatedAnswers)
+          } yield
+            if (page3.contains("ba3Page")) { // Check if page 3 is clicked then navigate accordingly
+              Redirect(routes.BusinessActivityThreeController.onPageLoad().url)
+            } else {
+              Redirect(routes.BusinessActivityTwoController.onPageLoad(NormalMode).url)
+            }
         }
       )
 

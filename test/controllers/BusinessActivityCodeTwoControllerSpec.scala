@@ -17,6 +17,7 @@
 package controllers
 
 import base.SpecBase
+import models.NormalMode
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
@@ -29,13 +30,11 @@ import pages.BusinessActivityCodeTwoPage
 import play.api.mvc.Call
 
 class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
-
   val onwardRoute: Call = Call("GET", "/foo")
 
   "BusinessActivityCodeTwo Controller" - {
 
     "must return OK and the correct view for a GET" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -58,12 +57,10 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to Journey Recovery when no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
         val request = FakeRequest(GET, routes.BusinessActivityCodeTwoController.onPageLoad(models.NormalMode).url)
-
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -72,7 +69,6 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to next page when valid data is submitted" in {
-
       val mockSessionRepository = mock[repositories.SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn scala.concurrent.Future.successful(true)
 
@@ -86,25 +82,21 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request = FakeRequest(POST, routes.BusinessActivityCodeTwoController.onSubmit(models.NormalMode).url)
           .withFormUrlEncodedBody(("value", "25344"))
-
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
+        redirectLocation(result).value mustEqual routes.BusinessActivityTwoController.onPageLoad(NormalMode).url // defaults to BA page 2
 
         verify(mockSessionRepository, times(1)).set(any())
       }
     }
 
     "must pre-fill the form when a saved value exists" in {
-
       val userAnswers = emptyUserAnswers.set(BusinessActivityCodeTwoPage, "25344").success.value
-
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, routes.BusinessActivityCodeTwoController.onPageLoad(models.NormalMode).url)
-
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[views.html.BusinessActivityCodeTwoView]
@@ -123,13 +115,11 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
         val request = FakeRequest(POST, routes.BusinessActivityCodeTwoController.onSubmit(models.NormalMode).url)
           .withFormUrlEncodedBody(("value", ""))
-
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
@@ -140,7 +130,6 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
 
         val typedRequest = FakeRequest(POST, routes.BusinessActivityCodeTwoController.onSubmit(models.NormalMode).url)
           .withFormUrlEncodedBody(("value", ""), ("valueTyped", "NotACode"))
-
         val typedResult = route(application, typedRequest).value
         status(typedResult) mustEqual BAD_REQUEST
         val typedBody = contentAsString(typedResult)

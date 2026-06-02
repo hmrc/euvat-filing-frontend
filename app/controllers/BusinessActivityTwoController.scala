@@ -22,7 +22,7 @@ import forms.BusinessActivityTwoFormProvider
 import javax.inject.Inject
 import models.{Mode, NormalMode}
 import navigation.Navigator
-import pages.{BusinessActivityCodeThreePage, BusinessActivityCodeTwoPage, BusinessActivityTwoPage}
+import pages.{BusinessActivityCodePage, BusinessActivityCodeThreePage, BusinessActivityCodeTwoPage, BusinessActivityTwoPage}
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -54,16 +54,16 @@ class BusinessActivityTwoController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val userAnswers = request.userAnswers
-    userAnswers.get(BusinessActivityCodeTwoPage) match {
-      case Some(baCode2) =>
+    (userAnswers.get(BusinessActivityCodePage), userAnswers.get(BusinessActivityCodeTwoPage)) match {
+      case (Some(baCode1), Some(baCode2)) =>
         val preparedForm = userAnswers.get(BusinessActivityTwoPage) match {
           case None        => form
           case Some(value) => form.fill(value)
         }
 
-        Ok(view(preparedForm, mode, backLink, baCode2))
+        Ok(view(preparedForm, mode, backLink, baCode1, baCode2))
 
-      case None =>
+      case _ =>
         logger.warn("Data guard error, missing required information")
         Redirect(routes.UnauthorisedController.onPageLoad()) // TODO - update to system guard error page when ready
     }
@@ -71,16 +71,16 @@ class BusinessActivityTwoController @Inject() (
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-
-    request.userAnswers.get(BusinessActivityCodeTwoPage) match {
-      case Some(baCode2) =>
+    val userAnswers = request.userAnswers
+    (userAnswers.get(BusinessActivityCodePage), userAnswers.get(BusinessActivityCodeTwoPage)) match {
+      case (Some(baCode1), Some(baCode2)) =>
         form
           .bindFromRequest()
           .fold(
-            formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink, baCode2))),
+            formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink, baCode1, baCode2))),
             value =>
               for {
-                updateAnswers <- Future.fromTry(request.userAnswers.set(BusinessActivityTwoPage, value))
+                updateAnswers <- Future.fromTry(userAnswers.set(BusinessActivityTwoPage, value))
                 updatedAnswers <- if (value) {
                                     Future.successful(updateAnswers)
                                   } else {
@@ -90,7 +90,7 @@ class BusinessActivityTwoController @Inject() (
               } yield Redirect(navigator.nextPage(BusinessActivityTwoPage, mode, updatedAnswers))
           )
 
-      case None =>
+      case _ =>
         logger.warn("Data guard error, missing required information")
         Future.successful(Redirect(routes.UnauthorisedController.onPageLoad())) // TODO - update to system guard error page when ready
     }

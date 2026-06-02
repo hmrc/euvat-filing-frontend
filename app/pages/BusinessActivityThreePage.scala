@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-package controllers.actions
+package pages
 
-import models.UserAnswers
-import models.requests.{IdentifierRequest, OptionalDataRequest}
+import play.api.libs.json.JsPath
 
-import scala.concurrent.{ExecutionContext, Future}
+case object BusinessActivityThreePage extends QuestionPage[String] {
 
-class FakeDataRetrievalAction(dataToReturn: Option[UserAnswers]) extends DataRetrievalAction {
+  override def path: JsPath = JsPath \ toString
 
-  override protected def transform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] =
-    Future(OptionalDataRequest(request.request, request.providerId, dataToReturn))
-
-  override protected implicit val executionContext: ExecutionContext =
-    scala.concurrent.ExecutionContext.Implicits.global
+  override def toString: String = "businessActivityThree"
 }

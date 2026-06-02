@@ -14,16 +14,13 @@
  * limitations under the License.
  *@
 
-@this(
-    layout: templates.Layout,
-    govukSummaryList: GovukSummaryList
-)
+@this()
 
-@(list: SummaryList)(implicit request: Request[_], messages: Messages)
+@(content: Html)
 
-@layout(pageTitle = titleNoForm(messages("checkYourAnswers.title"))) {
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        @content
+    </div>
+</div>
 
-    <h1 class="govuk-heading-xl">@messages("checkYourAnswers.heading")</h1>
-
-    @govukSummaryList(list)
-}

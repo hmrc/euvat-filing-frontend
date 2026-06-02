@@ -52,24 +52,22 @@ class RefundingLanguageController @Inject() (
     with I18nSupport {
 
   val form: Form[RefundingLanguage] = formProvider()
-
   private val logger = Logger(getClass)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-
     // Data guard: require a previously selected refunding country
-    val maybeCountry = request.userAnswers.get(pages.RefundingCountryPage)
+    val maybeCountryCode = request.userAnswers.get(pages.RefundingCountryPage)
 
-    maybeCountry match {
+    maybeCountryCode match {
       case None =>
         logger.warn("RefundingLanguageController.onPageLoad - no refunding country in session, redirecting to JourneyRecovery")
         Redirect(routes.JourneyRecoveryController.onPageLoad())
-      case Some(countryCode) =>
+      case Some(countryStored) =>
         val preparedForm = request.userAnswers.get(RefundingLanguagePage) match {
           case None        => form
           case Some(value) => form.fill(value)
         }
-        val langs = configLanguageMapping.languagesFor(countryCode)
+        val langs = configLanguageMapping.languagesFor(countryStored)
         val msgs = messagesApi.preferred(request)
         val items = langs.zipWithIndex.flatMap { case (lang, idx) =>
           RefundingLanguage.values.find(_.toString.equalsIgnoreCase(lang)).map { v =>
@@ -91,13 +89,14 @@ class RefundingLanguageController @Inject() (
       .fold(
         formWithErrors =>
           // need country to rebuild options
-          request.userAnswers.get(pages.RefundingCountryPage) match {
+          request.userAnswers.get(pages.RefundingCountryNamePage) match {
             case None =>
               logger.warn(
                 "RefundingLanguageController.onSubmit - no refunding country in session while binding form errors; redirecting to JourneyRecovery"
               )
               Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
-            case Some(countryCode) =>
+            case Some(countryStored) =>
+              val countryCode = countryStored.split(",", 2).headOption.getOrElse(countryStored)
               val langs = configLanguageMapping.languagesFor(countryCode)
               val msgs = messagesApi.preferred(request)
               val items = langs.zipWithIndex.flatMap { case (lang, idx) =>

@@ -67,13 +67,33 @@ class AuthenticatedIdentifierAction @Inject() (
     }
   }
 
+  private def extractRegNo(enrolments: Enrolments): Option[String] = {
+    val keys = List(
+      "HMRC-EU-REF-ORG" -> "VATRegNo",
+      "HMCE-VAT-AGNT"   -> "AgentRefNo",
+      "HMRC-NOVRN-AGNT" -> "VATAgentRefNo"
+    )
+
+    keys.collectFirst { case (enrolKey, idName) =>
+      enrolments.enrolments
+        .find(_.key == enrolKey)
+        .flatMap(_.identifiers.find(_.key == idName).map(_.value))
+    }.flatten
+  }
+
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     authorised().retrieve(Retrievals.affinityGroup and Retrievals.credentials and Retrievals.allEnrolments) {
       case Some(affinityGroup) ~ Some(credentials) ~ enrolments =>
         if (usingSupportedAffinityAndEnrolments(affinityGroup, enrolments)) {
-          block(IdentifierRequest(request, credentials.providerId))
+          val regNoOpt = extractRegNo(enrolments)
+          println(s"************* File regNoOpt: $regNoOpt")
+          val updatedSession: Session = regNoOpt match {
+            case Some(regNo) => request.session + ("regNo" -> regNo)
+            case None        => request.session
+          }
+          block(IdentifierRequest(request, credentials.providerId, regNoOpt))
         } else {
           Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
         }
@@ -97,7 +117,7 @@ class SessionIdentifierAction @Inject() (
 
     hc.sessionId match {
       case Some(session) =>
-        block(IdentifierRequest(request, session.value))
+        block(IdentifierRequest(request, session.value, None))
       case None =>
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
     }

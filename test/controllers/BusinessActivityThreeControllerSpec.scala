@@ -17,17 +17,21 @@
 package controllers
 
 import base.SpecBase
-import pages.{BusinessActivityCodeThreePage, BusinessActivityCodeTwoPage}
+import pages.{BusinessActivityCodePage, BusinessActivityCodeThreePage, BusinessActivityCodeTwoPage}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.BusinessActivityThreeView
 
 class BusinessActivityThreeControllerSpec extends SpecBase {
 
+  private val baCode1 = "49200"
   "BusinessActivityThree Controller" - {
 
     "must return OK and the correct view for a GET" in {
       val userAnswers = emptyUserAnswers
+        .set(BusinessActivityCodePage, "49200")
+        .success
+        .value
         .set(BusinessActivityCodeTwoPage, "48120")
         .success
         .value
@@ -43,7 +47,7 @@ class BusinessActivityThreeControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[BusinessActivityThreeView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view("48120", "50270")(request, messages(application)).toString
+        contentAsString(result) mustEqual view(baCode1, "48120", "50270")(request, messages(application)).toString
       }
     }
 
@@ -53,7 +57,7 @@ class BusinessActivityThreeControllerSpec extends SpecBase {
         val request = FakeRequest(POST, routes.BusinessActivityThreeController.onSubmit().url)
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.CheckYourClaimDetailsController.onPageLoad().url
       }
     }
   }
