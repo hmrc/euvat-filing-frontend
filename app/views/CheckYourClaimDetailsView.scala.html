@@ -32,12 +32,15 @@
     @formHelper(action = routes.CheckYourClaimDetailsController.onSubmit(), Symbol("autoComplete") -> "off") {
         @for((labelKey, changeHrefOpt, summary) <- sections) {
             <div class="govuk-!-margin-bottom-9">
-                <h2 class="govuk-heading-m govuk-!-margin-bottom-2 govuk-clearfix">@messages(labelKey)
-                @if(changeHrefOpt.isDefined) {
-                    <a href="@changeHrefOpt.get" class="govuk-link govuk-body govuk-!-margin-bottom-0" style="float: right;">@messages("site.change")
-                    <span class="govuk-visually-hidden">@messages(labelKey)</span></a>
-                }
-                </h2>
+                <div class="govuk-clearfix govuk-!-margin-bottom-2">
+                    <h2 class="govuk-heading-m govuk-!-margin-bottom-0" style="float: left;">@messages(labelKey)</h2>
+                    @if(changeHrefOpt.isDefined) {
+                    <a href="@changeHrefOpt.get"
+                       class="govuk-link govuk-body govuk-!-margin-bottom-0"
+                       style="float: right;"
+                       aria-label="@messages("site.change") @messages(labelKey)">@messages("site.change")</a>
+                    }
+                </div>
                 <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-top-0 govuk-!-margin-bottom-0">
                 @govukSummaryList(summary.copy(classes = "govuk-summary-list govuk-!-margin-bottom-0"))
             </div>
