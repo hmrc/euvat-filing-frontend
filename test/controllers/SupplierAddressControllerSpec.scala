@@ -165,7 +165,7 @@ class SupplierAddressControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual BAD_REQUEST
         contentAsString(result) must include(
           messages(application)(
-            "supplierAddress.error.line1.maxLength",
+            "supplierAddress.error.maxLength.withLabel",
             messages(application)("supplierAddress.line1.label"),
             messages(application)("supplierAddress.error.maxLength")
           )
