@@ -19,6 +19,7 @@ package controllers.actions
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import controllers.routes
+import models.UserAnswers
 import models.requests.IdentifierRequest
 import play.api.mvc.Results.*
 import play.api.mvc.*
@@ -89,10 +90,7 @@ class AuthenticatedIdentifierAction @Inject() (
         if (usingSupportedAffinityAndEnrolments(affinityGroup, enrolments)) {
           val regNoOpt = extractRegNo(enrolments)
           println(s"************* File regNoOpt: $regNoOpt")
-          val updatedSession: Session = regNoOpt match {
-            case Some(regNo) => request.session + ("regNo" -> regNo)
-            case None        => request.session
-          }
+
           block(IdentifierRequest(request, credentials.providerId, regNoOpt))
         } else {
           Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))

@@ -18,8 +18,10 @@ package models.responses
 
 import play.api.libs.json.{Json, OFormat}
 
+import java.time.LocalDateTime
+
 case class TraderKnownFactsResponse(
-  vrn: String,
+  vatRegNumber: Int,
   traderName: Option[String] = None,
   addressLine1: Option[String] = None,
   addressLine2: Option[String] = None,
@@ -28,10 +30,10 @@ case class TraderKnownFactsResponse(
   addressLine5: Option[String] = None,
   postcode: Option[String] = None,
   tradeClass: Option[String] = None,
-  dateOfRegistration: Option[String] = None,
-  dateOfDeregistration: Option[String] = None,
-  missingTraderIndicator: Option[Boolean] = None,
-  singleMarketIndicator: Option[String] = None
+  dateOfRegistration: Option[LocalDateTime] = None,
+  dateOfDeregistration: Option[LocalDateTime] = None,
+  missingTraderIndicator: Option[String] = None,
+  singleMarketIndicator: Option[Int] = None
 )
 
 object TraderKnownFactsResponse:
