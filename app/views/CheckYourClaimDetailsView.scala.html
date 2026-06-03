@@ -37,8 +37,7 @@
                     @if(changeHrefOpt.isDefined) {
                     <a href="@changeHrefOpt.get"
                        class="govuk-link govuk-body govuk-!-margin-bottom-0"
-                       style="float: right;"
-                       aria-label="@messages("site.change") @messages(labelKey)">@messages("site.change")</a>
+                       style="float: right;"><span aria-hidden="true">@messages("site.change")</span><span class="govuk-visually-hidden hmrc-a11y-hiddencopy">@messages("site.change") @messages(labelKey)</span></a>
                     }
                 </div>
                 <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-top-0 govuk-!-margin-bottom-0">

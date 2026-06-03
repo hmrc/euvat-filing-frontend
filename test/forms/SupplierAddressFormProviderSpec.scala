@@ -24,12 +24,12 @@ import play.api.test.Helpers.*
 
 class SupplierAddressFormProviderSpec extends FieldBehaviours {
 
-  private val application  = GuiceApplicationBuilder().build()
+  private val application = GuiceApplicationBuilder().build()
   private val messagesApi = application.injector.instanceOf[play.api.i18n.MessagesApi]
   private implicit val msgs: play.api.i18n.Messages = play.api.i18n.MessagesImpl(play.api.i18n.Lang("en"), messagesApi)
 
   private val formProvider = application.injector.instanceOf[SupplierAddressFormProvider]
-  private val form         = formProvider()
+  private val form = formProvider()
 
   private val validData = Map(
     "addressLine1" -> "1 High Street",

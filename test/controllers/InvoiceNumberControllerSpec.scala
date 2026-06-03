@@ -58,9 +58,7 @@ class InvoiceNumberControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[InvoiceNumberView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, backLinkUrl)(request,
-                                                                                                                       messages(application)
-                                                                                                                      ).toString
+        contentAsString(result) mustEqual view(form, NormalMode, backLinkUrl)(request, messages(application)).toString
       }
     }
 

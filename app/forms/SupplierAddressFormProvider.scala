@@ -25,7 +25,7 @@ import play.api.i18n.{Lang, MessagesApi}
 
 import javax.inject.Inject
 
-class SupplierAddressFormProvider @Inject()(messagesApi: MessagesApi) extends Mappings {
+class SupplierAddressFormProvider @Inject() (messagesApi: MessagesApi) extends Mappings {
 
   val addressLineMaxLength: Int = 35
 
