@@ -64,7 +64,7 @@ class SupplierAddressFormProviderSpec extends FieldBehaviours {
       val result = form.bind(validData.updated(fieldName, tooLong)).apply(fieldName)
       result.errors must contain only FormError(
         fieldName,
-        "supplierAddress.error.line1.maxLength",
+        "supplierAddress.error.maxLength.withLabel",
         Seq(msgs("supplierAddress.line1.label"), msgs("supplierAddress.error.maxLength"))
       )
     }
@@ -96,8 +96,8 @@ class SupplierAddressFormProviderSpec extends FieldBehaviours {
       val result = form.bind(validData.updated(fieldName, tooLong)).apply(fieldName)
       result.errors must contain only FormError(
         fieldName,
-        "supplierAddress.error.line2.maxLength",
-        Seq(msgs("supplierAddress.line2.label"), msgs("supplierAddress.error.maxLength"))
+        "supplierAddress.error.maxLength.withLabel",
+        Seq(msgs("supplierAddress.line2.label.short"), msgs("supplierAddress.error.maxLength"))
       )
     }
   }
@@ -121,8 +121,8 @@ class SupplierAddressFormProviderSpec extends FieldBehaviours {
       val result = form.bind(validData.updated(fieldName, tooLong)).apply(fieldName)
       result.errors must contain only FormError(
         fieldName,
-        "supplierAddress.error.line3.maxLength",
-        Seq(msgs("supplierAddress.line3.label"), msgs("supplierAddress.error.maxLength"))
+        "supplierAddress.error.maxLength.withLabel",
+        Seq(msgs("supplierAddress.line3.label.short"), msgs("supplierAddress.error.maxLength"))
       )
     }
   }
