@@ -50,6 +50,12 @@
                     </h2>
                 </legend>
 
+                @form.error("value").map { e =>
+                    <p id="value-error" class="govuk-error-message">
+                        <span class="govuk-visually-hidden">@messages("error.prefix"):</span> @messages(e.message, e.args*)
+                    </p>
+                }
+
                <div class="govuk-radios" data-module="govuk-radios">
 
                     <div class="govuk-radios__item">
