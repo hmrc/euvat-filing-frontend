@@ -18,8 +18,9 @@ package controllers
 
 import controllers.actions.*
 import forms.InvoiceNumberFormProvider
+
 import javax.inject.Inject
-import models.Mode
+import models.{Mode, NormalMode}
 import navigation.Navigator
 import pages.InvoiceNumberPage
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -56,7 +57,7 @@ class InvoiceNumberController @Inject() (
       case Some(value) => form.fill(value)
     }
 
-    Ok(view(preparedForm, mode, routes.AboutThePurchaseController.onPageLoad()))
+    Ok(view(preparedForm, mode, routes.InvoiceTypeController.onPageLoad(NormalMode)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>

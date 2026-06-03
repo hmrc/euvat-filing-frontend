@@ -18,7 +18,7 @@ package controllers
 
 import base.SpecBase
 import forms.InvoiceNumberFormProvider
-import models.{NormalMode, UserAnswers}
+import models.{Mode, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -30,6 +30,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
 import views.html.InvoiceNumberView
+import play.api.mvc.Call
 
 import scala.concurrent.Future
 
@@ -40,9 +41,9 @@ class InvoiceNumberControllerSpec extends SpecBase with MockitoSugar {
   val formProvider = new InvoiceNumberFormProvider()
   val form = formProvider()
 
-  lazy val invoiceNumberRoute = routes.InvoiceNumberController.onPageLoad(NormalMode).url
+  def invoiceNumberRoute = routes.InvoiceNumberController.onPageLoad(NormalMode).url
 
-  lazy val backLinkUrl = routes.AboutThePurchaseController.onPageLoad()
+  def backLink(mode: Mode): Call = routes.InvoiceTypeController.onPageLoad(mode)
 
   "InvoiceNumber Controller" - {
 
@@ -58,9 +59,7 @@ class InvoiceNumberControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[InvoiceNumberView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, backLinkUrl)(request,
-                                                                                                                       messages(application)
-                                                                                                                      ).toString
+        contentAsString(result) mustEqual view(form, NormalMode, backLink(NormalMode))(request, messages(application)).toString
       }
     }
 
@@ -78,7 +77,7 @@ class InvoiceNumberControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode, backLinkUrl)(
+        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode, backLink(NormalMode))(
           request,
           messages(application)
         ).toString
