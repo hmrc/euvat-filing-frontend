@@ -32,7 +32,7 @@
 @layout(pageTitle = views.ViewUtils.title(form, messages("invoiceType.title")), backLinkUrl = Some(call.url)) {
 
     @formHelper(action = routes.InvoiceTypeController.onSubmit(mode)) {
-        @mainErrorSummary(form)
+        @mainErrorSummary(form, Map("standard invoice" -> "value_0"))
 
         <span class="govuk-caption-l hmrc-caption-l">
             <span class="govuk-visually-hidden">This section is: </span>@messages("invoiceType.caption")
@@ -43,7 +43,7 @@
         <p class="govuk-body-m">@messages("invoiceType.lead")</p>
 
         <div class="govuk-form-group @if(errored){govuk-form-group--error}">
-            <fieldset class="govuk-fieldset" aria-describedby="invoice-type-heading">
+            <fieldset class="govuk-fieldset" @if(errored){aria-describedby="value-error"}>
                 <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
                     <h2 class="govuk-fieldset__heading">
                         @messages("invoiceType.h2")
@@ -59,8 +59,8 @@
                <div class="govuk-radios" data-module="govuk-radios">
 
                     <div class="govuk-radios__item">
-                        <input class="govuk-radios__input" id="value_0" name="value" type="radio" value="standard invoice" @if(form("value").value.contains("standard invoice")){checked}>
-                        <label class="govuk-label govuk-radios__label" for="value_0">
+                        <input class="govuk-radios__input" id="value" name="value" type="radio" value="standard invoice" @if(form("value").value.contains("standard invoice")){checked}>
+                        <label class="govuk-label govuk-radios__label" for="value">
                             @messages("invoiceType.standardInvoice")
                         </label>
                         <div id="value_0-hint" class="govuk-hint govuk-radios__hint" >
