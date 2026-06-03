@@ -27,6 +27,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.InvoiceNumberView
+import play.api.mvc.Call
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -45,6 +46,8 @@ class InvoiceNumberController @Inject() (
     with I18nSupport {
 
   val form = formProvider()
+
+  private def backLink(mode: Mode): Call = routes.InvoiceTypeController.onPageLoad(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
