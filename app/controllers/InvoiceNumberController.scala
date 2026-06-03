@@ -53,7 +53,7 @@ class InvoiceNumberController @Inject() (
       case Some(value) => form.fill(value)
     }
 
-    Ok(view(preparedForm, mode, routes.PurchaseTypeController.onPageLoad(mode)))
+    Ok(view(preparedForm, mode, routes.AboutThePurchaseController.onPageLoad()))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
