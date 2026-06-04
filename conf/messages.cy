@@ -132,8 +132,8 @@ refundPeriod.error.periodStartDateperiodNotLessThan3Months = Refund period must 
 refundPeriod.error.periodStartDateafter30thSept = Refund period start date must be on or after 1 January {0}
 refundPeriod.error.periodStartDate30thSeptOrEarlier = Refund period start date must be on or after 1 January {0}
 
-contactDetails.title = Who should we contact about this claim?
-contactDetails.heading = Who should we contact about this claim?
+contactDetails.title = How should we contact you about this claim?
+contactDetails.heading = How should we contact you about this claim?
 contactDetails.contactEmail.label = Email address
 contactDetails.contactTelephone.label = Phone number (optional)
 contactDetails.error.email.required = Enter an email address

@@ -38,8 +38,8 @@ POST        /what-refund-period                          controllers.RefundPerio
 GET         /change-refund-period                        controllers.RefundPeriodController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-refund-period                        controllers.RefundPeriodController.onSubmit(mode: Mode = CheckMode)
 
-GET         /who-contact-about-this-claim                controllers.ContactDetailsController.onPageLoad(mode: Mode = NormalMode)
-POST        /who-contact-about-this-claim                controllers.ContactDetailsController.onSubmit(mode: Mode = NormalMode)
+GET         /how-contact-about-this-claim                controllers.ContactDetailsController.onPageLoad(mode: Mode = NormalMode)
+POST        /how-contact-about-this-claim                controllers.ContactDetailsController.onSubmit(mode: Mode = NormalMode)
 GET         /change-who-contact-about-this-claim         controllers.ContactDetailsController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-who-contact-about-this-claim         controllers.ContactDetailsController.onSubmit(mode: Mode = CheckMode)
 
