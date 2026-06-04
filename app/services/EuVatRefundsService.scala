@@ -28,7 +28,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class EuVatRefundsService @Inject() (euVatRefundsConnector: EuVatRefundsConnector, config: FrontendAppConfig)(implicit ec: ExecutionContext)
     extends Logging {
-  def retrieveTraderKnownFacts()(implicit hc: HeaderCarrier, request: Request[?]): Future[TraderKnownFactsResponse] = {
+  def retrieveTraderKnownFacts()(implicit hc: HeaderCarrier): Future[TraderKnownFactsResponse] = {
     euVatRefundsConnector.retrieveBusinessActivityCode()
   }
 }

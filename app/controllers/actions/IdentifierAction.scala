@@ -19,10 +19,9 @@ package controllers.actions
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import controllers.routes
-import models.UserAnswers
 import models.requests.IdentifierRequest
-import play.api.mvc.Results.*
 import play.api.mvc.*
+import play.api.mvc.Results.*
 import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.~
@@ -68,30 +67,13 @@ class AuthenticatedIdentifierAction @Inject() (
     }
   }
 
-  private def extractRegNo(enrolments: Enrolments): Option[String] = {
-    val keys = List(
-      "HMRC-EU-REF-ORG" -> "VATRegNo",
-      "HMCE-VAT-AGNT"   -> "AgentRefNo",
-      "HMRC-NOVRN-AGNT" -> "VATAgentRefNo"
-    )
-
-    keys.collectFirst { case (enrolKey, idName) =>
-      enrolments.enrolments
-        .find(_.key == enrolKey)
-        .flatMap(_.identifiers.find(_.key == idName).map(_.value))
-    }.flatten
-  }
-
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     authorised().retrieve(Retrievals.affinityGroup and Retrievals.credentials and Retrievals.allEnrolments) {
       case Some(affinityGroup) ~ Some(credentials) ~ enrolments =>
         if (usingSupportedAffinityAndEnrolments(affinityGroup, enrolments)) {
-          val regNoOpt = extractRegNo(enrolments)
-          println(s"************* File regNoOpt: $regNoOpt")
-
-          block(IdentifierRequest(request, credentials.providerId, regNoOpt))
+          block(IdentifierRequest(request, credentials.providerId))
         } else {
           Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
         }
@@ -115,7 +97,7 @@ class SessionIdentifierAction @Inject() (
 
     hc.sessionId match {
       case Some(session) =>
-        block(IdentifierRequest(request, session.value, None))
+        block(IdentifierRequest(request, session.value))
       case None =>
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
     }

@@ -53,12 +53,9 @@ class BusinessActivityController @Inject() (
   private val baCode = "49200" // TODO - retrieve code from rds db
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-//    val regNo = request.userId
     euVatRefundsService.retrieveTraderKnownFacts().map { traderResponse =>
-      println(s"**********traderResponse: $traderResponse")
-      println(s"**********trader class: ${traderResponse.tradeClass}")
       val preparedForm = request.userAnswers.get(BusinessActivityPage).fold(form)(form.fill)
-      Ok(view(preparedForm, mode, backLink(mode), traderResponse.tradeClass.getOrElse(baCode)))
+      Ok(view(preparedForm, mode, backLink(mode), traderResponse.tradeClass.orNull))
     }
   }
 
