@@ -126,9 +126,9 @@ class InvoiceNumberControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, routes.PurchaseTypeController.onPageLoad(NormalMode))(request,
-                                                                                                                            messages(application)
-                                                                                                                           ).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode, backLink(NormalMode))(request,
+                             messages(application)
+                            ).toString
       }
     }
 

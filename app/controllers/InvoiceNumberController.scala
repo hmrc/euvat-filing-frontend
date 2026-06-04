@@ -65,7 +65,7 @@ class InvoiceNumberController @Inject() (
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, routes.PurchaseTypeController.onPageLoad(mode)))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, routes.InvoiceTypeController.onPageLoad(mode)))),
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(InvoiceNumberPage, value))
