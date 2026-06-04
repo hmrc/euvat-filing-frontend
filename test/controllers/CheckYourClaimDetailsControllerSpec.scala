@@ -71,7 +71,7 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
           "Contact details",
           "Business activity"
         ).foreach { label =>
-          html must include(s"""<span class="govuk-visually-hidden hmrc-a11y-hiddencopy"> $label</span>""")
+          html must include(s"""aria-label="Change $label"""")
         }
       }
     }
