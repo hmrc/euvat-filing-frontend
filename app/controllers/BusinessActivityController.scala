@@ -50,32 +50,34 @@ class BusinessActivityController @Inject() (
   val form: Form[Boolean] = formProvider()
 
   private def backLink(mode: Mode): Call = routes.ContactDetailsController.onPageLoad(mode)
-  private val baCode = "49200" // TODO - retrieve code from rds db
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     euVatRefundsService.retrieveTraderKnownFacts().map { traderResponse =>
       val preparedForm = request.userAnswers.get(BusinessActivityPage).fold(form)(form.fill)
-      Ok(view(preparedForm, mode, backLink(mode), traderResponse.tradeClass.orNull))
+      Ok(view(preparedForm, mode, backLink(mode), traderResponse.tradeClass.getOrElse("")))
     }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    form
-      .bindFromRequest()
-      .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode), baCode))),
-        value =>
-          for {
-            updateAnswers <- Future.fromTry(request.userAnswers.set(BusinessActivityCodePage, baCode))
-            updateAnswers <- Future.fromTry(updateAnswers.set(BusinessActivityPage, value))
-            updatedAnswers <- if (value) {
-                                Future.successful(updateAnswers)
-                              } else {
-                                val remove1 = updateAnswers.remove(BusinessActivityCodeTwoPage)
-                                Future.fromTry(remove1.flatMap(_.remove(BusinessActivityCodeThreePage)))
-                              }
-            _ <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(BusinessActivityPage, mode, updatedAnswers))
-      )
+    euVatRefundsService.retrieveTraderKnownFacts().flatMap { traderResponse =>
+      val baCode = traderResponse.tradeClass.getOrElse("")
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode), baCode))),
+          value =>
+            for {
+              updateAnswer1 <- Future.fromTry(request.userAnswers.set(BusinessActivityCodePage, baCode))
+              updateAnswer2 <- Future.fromTry(updateAnswer1.set(BusinessActivityPage, value))
+              finalAnswers <- if (value) {
+                                  Future.successful(updateAnswer1)
+                                } else {
+                                  val remove1 = updateAnswer1.remove(BusinessActivityCodeTwoPage)
+                                  Future.fromTry(remove1.flatMap(_.remove(BusinessActivityCodeThreePage)))
+                                }
+              _ <- sessionRepository.set(finalAnswers)
+            } yield Redirect(navigator.nextPage(BusinessActivityPage, mode, finalAnswers))
+        )
+    }
   }
 }

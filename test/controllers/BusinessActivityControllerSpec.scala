@@ -104,11 +104,14 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar with Sca
     "must redirect to the next page and persist the answer when valid data is submitted (Yes)" in {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+      when(mockService.retrieveTraderKnownFacts()(any()))
+        .thenReturn(Future.successful(TraderKnownFactsResponse(123, tradeClass = Some(baCode1))))
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
         .overrides(
           bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-          bind[SessionRepository].toInstance(mockSessionRepository)
+          bind[SessionRepository].toInstance(mockSessionRepository),
+          bind[EuVatRefundsService].toInstance(mockService)
         )
         .build()
 
@@ -128,10 +131,14 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar with Sca
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
+      when(mockService.retrieveTraderKnownFacts()(any()))
+        .thenReturn(Future.successful(TraderKnownFactsResponse(123, tradeClass = Some(baCode1))))
+
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
         .overrides(
           bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-          bind[SessionRepository].toInstance(mockSessionRepository)
+          bind[SessionRepository].toInstance(mockSessionRepository),
+          bind[EuVatRefundsService].toInstance(mockService)
         )
         .build()
 
@@ -147,7 +154,14 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar with Sca
     }
 
     "must return Bad Request when radio option not selected" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      when(mockService.retrieveTraderKnownFacts()(any()))
+        .thenReturn(Future.successful(TraderKnownFactsResponse(123, tradeClass = Some(baCode1))))
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(
+          bind[EuVatRefundsService].toInstance(mockService)
+        )
+        .build()
 
       running(application) {
         val request = FakeRequest(POST, submitRoute).withFormUrlEncodedBody("value" -> "")
