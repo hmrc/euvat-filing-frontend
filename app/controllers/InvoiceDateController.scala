@@ -60,18 +60,20 @@ class InvoiceDateController @Inject() (
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    form.bindFromRequest().fold(
-      formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, routes.InvoiceNumberController.onPageLoad(mode)))),
-      value =>
-        request.userAnswers.get(pages.RefundPeriodPage) match {
-          case None => Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
-          case Some(refundPeriod) =>
-            val today = java.time.LocalDate.now()
-            if (value.isAfter(today)) {
-              val errorForm = form.bindFromRequest().withError("value", "invoiceDate.error.past")
-              Future.successful(BadRequest(view(errorForm, mode, routes.InvoiceNumberController.onPageLoad(mode))))
-            }
-            /*
+    form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, routes.InvoiceNumberController.onPageLoad(mode)))),
+        value =>
+          request.userAnswers.get(pages.RefundPeriodPage) match {
+            case None => Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+            case Some(refundPeriod) =>
+              val today = java.time.LocalDate.now()
+              if (value.isAfter(today)) {
+                val errorForm = form.bindFromRequest().withError("value", "invoiceDate.error.past")
+                Future.successful(BadRequest(view(errorForm, mode, routes.InvoiceNumberController.onPageLoad(mode))))
+              }
+              /*
             TODO: business rule to prevent users entering a date outside the refund period
             this is currently commented out as
             it is not yet clear whether this validation will be possible at this point in the journey.
@@ -82,13 +84,13 @@ class InvoiceDateController @Inject() (
               val errorForm = form.withError("value", "invoiceDate.error.outsideRefundPeriod")
               Future.successful(BadRequest(view(errorForm, mode, routes.InvoiceNumberController.onPageLoad(mode))))
             } */
-            else {
-              for {
-                updatedAnswers <- Future.fromTry(request.userAnswers.set(InvoiceDatePage, value))
-                _              <- sessionRepository.set(updatedAnswers)
-              } yield Redirect(navigator.nextPage(InvoiceDatePage, mode, updatedAnswers))
-            }
-        }
-    )
+              else {
+                for {
+                  updatedAnswers <- Future.fromTry(request.userAnswers.set(InvoiceDatePage, value))
+                  _              <- sessionRepository.set(updatedAnswers)
+                } yield Redirect(navigator.nextPage(InvoiceDatePage, mode, updatedAnswers))
+              }
+          }
+      )
   }
 }

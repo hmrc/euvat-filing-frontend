@@ -218,19 +218,6 @@ aboutThePurchase.bullet3 = the VAT registration number
 aboutThePurchase.bullet4 = the supplier name and address
 aboutThePurchase.bullet5 = the VAT amount
 
-purchaseType.title = Purchase type
-purchaseType.heading = Purchase type
-purchaseType.h2 = What is the purchase type that best describes the item on your invoice?
-purchaseType.p1 = If the invoice includes more than one type of purchase, do not split the invoice over more than one line using the same purchase reference number.
-purchaseType.p2 = This may be treated as a duplicate entry and could delay or reject your claim.
-purchaseType.p3 = Instead, select ‘Other’ and itemise the different items and amounts in the purchase description, or select the highest-value item on the invoice.
-purchaseType.fuel = Fuel
-purchaseType.transport = Expenditure relating to means of transport
-purchaseType.foodAndDrink = Food, drink and restaurant services
-purchaseType.luxuries = Expenditure on luxuries, amusements and entertainment
-purchaseType.other = Other
-purchaseType.error.required = Select a purchase type
-
 suppliersName.title = What is the supplier’s name?
 suppliersName.heading = What is the supplier’s name?
 suppliersName.hint = Find the supplier’s name on the invoice or receipt.
@@ -245,8 +232,12 @@ supplierAddress.lead = Enter the supplier’s address as it appears on the invoi
 supplierAddress.line1.label = Address line 1
 supplierAddress.line2.label = Address line 2 (optional)
 supplierAddress.line3.label = Address line 3 (optional)
+supplierAddress.line1.label.short = Address line 1
+supplierAddress.line2.label.short = Address line 2
+supplierAddress.line3.label.short = Address line 3
 supplierAddress.error.line1.required = Enter address line 1, typically the building and street
-supplierAddress.error.maxLength = You cannot enter more than 35 characters
+supplierAddress.error.maxLength = must be 35 characters or less
+supplierAddress.error.maxLength.withLabel = {0} {1}
 
 invoiceDate.title = What is the invoice date?
 invoiceDate.heading = What is the invoice date?
@@ -274,3 +265,21 @@ invoiceNumber.error.length = The invoice number must be {0} characters or less
 invoiceNumber.error.invalid = Enter a valid invoice number
 invoiceNumber.checkYourAnswersLabel = Invoice number
 invoiceNumber.change.hidden = Change the invoice number
+
+simplifiedInvoiceVatRegCheck.title = Does the simplified invoice contain the supplier’s VAT registration number?
+simplifiedInvoiceVatRegCheck.heading = Does the simplified invoice contain the supplier’s VAT registration number?
+simplifiedInvoiceVatRegCheck.hint = This can be up to 12 characters and may start with a 2-letter EU country code. For example, FR123456789
+simplifiedInvoiceVatRegCheck.error.required = Select yes if the simplified invoice contains the supplier’s VAT registration number
+
+purchaseType.title = Purchase type
+purchaseType.heading = Purchase type
+purchaseType.h2 = What is the purchase type that best describes the item on your invoice?
+purchaseType.p1 = If the invoice includes more than one type of purchase, do not split the invoice over more than one line using the same purchase reference number.
+purchaseType.p2 = This may be treated as a duplicate entry and could delay or reject your claim.
+purchaseType.p3 = Instead, select ‘Other’ and itemise the different items and amounts in the purchase description, or select the highest-value item on the invoice.
+purchaseType.fuel = Fuel
+purchaseType.transport = Expenditure relating to means of transport
+purchaseType.foodAndDrink = Food, drink and restaurant services
+purchaseType.luxuries = Expenditure on luxuries, amusements and entertainment
+purchaseType.other = Other
+purchaseType.error.required = Select a purchase type

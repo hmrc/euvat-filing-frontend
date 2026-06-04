@@ -150,44 +150,74 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
                                                                                                                              messages(application)
                                                                                                                             ).toString
       }
+
     }
 
-    "must return a Bad Request and errors when invalid data is submitted" in {
+    "must pre-fill the form when arriving from the RefundingLanguage page and a saved value exists" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val userAnswers = emptyUserAnswers.set(RefundingCountryNamePage, "DE").success.value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
-          .withFormUrlEncodedBody(("value", ""))
+        val request = FakeRequest(GET, routes.RefundingCountryController.onPageLoad(models.NormalMode).url)
+          .withHeaders("Referer" -> controllers.routes.RefundingLanguageController.onPageLoad(models.NormalMode).url)
 
         val result = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
+        val view = application.injector.instanceOf[views.html.RefundingCountryView]
+        val formProvider = application.injector.instanceOf[forms.RefundingCountryFormProvider]
+        val countries: Seq[(String, String)] = CountryList.fromConfig(application.configuration)
+        val allowed: Set[String] = countries.flatMap { case (n, c) => Seq(n, c) }.toSet
+        val form = formProvider(allowed).fill("DE")
 
+        status(result) mustEqual OK
         val body = contentAsString(result)
-        body must include(messages(application)("refundingCountry.error.required"))
-        body must include(messages(application)("refundingCountry.error.summary"))
-
-        // typed-but-unmatched input should show invalid message
-        val typedRequest = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
-          .withFormUrlEncodedBody(("value", ""), ("valueTyped", "NotACountry"))
-
-        val typedResult = route(application, typedRequest).value
-        status(typedResult) mustEqual BAD_REQUEST
-        val typedBody = contentAsString(typedResult)
-        typedBody must include(messages(application)("refundingCountry.error.invalid"))
-        typedBody must include(messages(application)("refundingCountry.error.invalid.summary"))
-
-        // non-existent code should also show invalid message
-        val rawInvalidRequest = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
-          .withFormUrlEncodedBody(("value", "ZZ"))
-
-        val rawInvalidResult = route(application, rawInvalidRequest).value
-        status(rawInvalidResult) mustEqual BAD_REQUEST
-        val rawInvalidBody = contentAsString(rawInvalidResult)
-        rawInvalidBody must include(messages(application)("refundingCountry.error.invalid"))
-        rawInvalidBody must include(messages(application)("refundingCountry.error.invalid.summary"))
+        val backUrl = application.configuration.get[String]("urls.loginContinue") + controllers.routes.TaskListDashboardController.onPageLoad().url
+        body must not include s"href=\"$backUrl\""
+        body mustEqual view(form, countries, controllers.routes.TaskListDashboardController.onPageLoad(), models.NormalMode)(request,
+                                                                                                                             messages(application)
+                                                                                                                            ).toString
       }
     }
   }
+
+  "must return a Bad Request and errors when invalid data is submitted" in {
+
+    val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+    running(application) {
+      val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
+        .withFormUrlEncodedBody(("value", ""))
+
+      val result = route(application, request).value
+
+      status(result) mustEqual BAD_REQUEST
+
+      val body = contentAsString(result)
+      body must include(messages(application)("refundingCountry.error.required"))
+      body must include(messages(application)("refundingCountry.error.summary"))
+
+      // typed-but-unmatched input should show invalid message
+      val typedRequest = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
+        .withFormUrlEncodedBody(("value", ""), ("valueTyped", "NotACountry"))
+
+      val typedResult = route(application, typedRequest).value
+      status(typedResult) mustEqual BAD_REQUEST
+      val typedBody = contentAsString(typedResult)
+      typedBody must include(messages(application)("refundingCountry.error.invalid"))
+      typedBody must include(messages(application)("refundingCountry.error.invalid.summary"))
+
+      // non-existent code should also show invalid message
+      val rawInvalidRequest = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
+        .withFormUrlEncodedBody(("value", "ZZ"))
+
+      val rawInvalidResult = route(application, rawInvalidRequest).value
+      status(rawInvalidResult) mustEqual BAD_REQUEST
+      val rawInvalidBody = contentAsString(rawInvalidResult)
+      rawInvalidBody must include(messages(application)("refundingCountry.error.invalid"))
+      rawInvalidBody must include(messages(application)("refundingCountry.error.invalid.summary"))
+    }
+  }
+
 }

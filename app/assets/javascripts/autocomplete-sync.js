@@ -154,7 +154,65 @@
     var acInput = form.querySelector(AC_INPUT_SEL);
     var select = form.querySelector(SELECT_SEL);
     var headingId = findHeadingId(form, select);
+    // If the underlying <select> has specified input classes (e.g. from the
+    // Select view model), apply them to the generated autocomplete input so
+    // it can pick up GOV.UK width utilities like `govuk-!-width-two-thirds`.
+    try {
+      if (acInput && select) {
+        var acClasses = select.getAttribute('data-ac-input-classes') || select.getAttribute('data-ac-input-class');
+        if (acClasses) {
+          acClasses.split(/\s+/).forEach(function (c) { if (c) acInput.classList.add(c); });
+        }
+      }
+    } catch (e) { /* ignore DOM exceptions */ }
     if (acInput && headingId) patchAria(acInput, headingId);
+    // Ensure any requested input classes persist across component re-renders
+    // (accessible-autocomplete may replace the input's `class` on focus).
+    try {
+      if (acInput && select) {
+        var acClassesAttr = select.getAttribute('data-ac-input-classes') || select.getAttribute('data-ac-input-class');
+        if (acClassesAttr) {
+            var acClassesArr = acClassesAttr.split(/\s+/).filter(Boolean);
+            var ensureClasses = function () {
+              acClassesArr.forEach(function (c) { if (c && !acInput.classList.contains(c)) acInput.classList.add(c); });
+            };
+
+            // Utility to size the listbox to match the input width
+            var adjustMenuWidth = function () {
+              try {
+                var listbox = document.querySelector('[role="listbox"][id$="__listbox"]');
+                if (!listbox) return;
+                var rect = acInput.getBoundingClientRect();
+                listbox.style.width = rect.width + 'px';
+              } catch (e) { /* ignore */ }
+            };
+
+            // initial ensure and sizing
+            ensureClasses();
+            adjustMenuWidth();
+
+            // reapply on focus/blur events
+            acInput.addEventListener && acInput.addEventListener('focus', ensureClasses);
+            acInput.addEventListener && acInput.addEventListener('blur', ensureClasses);
+            acInput.addEventListener && acInput.addEventListener('focus', adjustMenuWidth);
+            acInput.addEventListener && acInput.addEventListener('blur', adjustMenuWidth);
+
+            // update on window resize
+            window.addEventListener && window.addEventListener('resize', adjustMenuWidth);
+
+            // watch for class attribute changes (component re-renders)
+            if (window.MutationObserver) {
+              var mo = new MutationObserver(function (mutations) {
+                mutations.forEach(function (m) {
+                  if (m.attributeName === 'class') ensureClasses();
+                  adjustMenuWidth();
+                });
+              });
+              mo.observe(acInput, { attributes: true, attributeFilter: ['class'] });
+            }
+        }
+      }
+    } catch (e) { /* ignore DOM exceptions */ }
   }
 
   function scan() {

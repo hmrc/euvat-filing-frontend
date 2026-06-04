@@ -42,6 +42,8 @@ class InvoiceNumberControllerSpec extends SpecBase with MockitoSugar {
 
   lazy val invoiceNumberRoute = routes.InvoiceNumberController.onPageLoad(NormalMode).url
 
+  lazy val backLinkUrl = routes.AboutThePurchaseController.onPageLoad()
+
   "InvoiceNumber Controller" - {
 
     "must return OK and the correct view for a GET" in {
@@ -56,7 +58,7 @@ class InvoiceNumberControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[InvoiceNumberView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, routes.PurchaseTypeController.onPageLoad(NormalMode))(request,
+        contentAsString(result) mustEqual view(form, NormalMode, backLinkUrl)(request,
                                                                                                                        messages(application)
                                                                                                                       ).toString
       }
@@ -76,7 +78,7 @@ class InvoiceNumberControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode, routes.PurchaseTypeController.onPageLoad(NormalMode))(
+        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode, backLinkUrl)(
           request,
           messages(application)
         ).toString

@@ -19,10 +19,16 @@ package forms
 import forms.behaviours.FieldBehaviours
 import models.SupplierAddress
 import play.api.data.FormError
+import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.test.Helpers.*
 
 class SupplierAddressFormProviderSpec extends FieldBehaviours {
 
-  private val formProvider = new SupplierAddressFormProvider()
+  private val application = GuiceApplicationBuilder().build()
+  private val messagesApi = application.injector.instanceOf[play.api.i18n.MessagesApi]
+  private implicit val msgs: play.api.i18n.Messages = play.api.i18n.MessagesImpl(play.api.i18n.Lang("en"), messagesApi)
+
+  private val formProvider = application.injector.instanceOf[SupplierAddressFormProvider]
   private val form = formProvider()
 
   private val validData = Map(
@@ -58,8 +64,8 @@ class SupplierAddressFormProviderSpec extends FieldBehaviours {
       val result = form.bind(validData.updated(fieldName, tooLong)).apply(fieldName)
       result.errors must contain only FormError(
         fieldName,
-        "supplierAddress.error.maxLength",
-        Seq(formProvider.addressLineMaxLength)
+        "supplierAddress.error.maxLength.withLabel",
+        Seq(msgs("supplierAddress.line1.label"), msgs("supplierAddress.error.maxLength"))
       )
     }
 
@@ -90,8 +96,8 @@ class SupplierAddressFormProviderSpec extends FieldBehaviours {
       val result = form.bind(validData.updated(fieldName, tooLong)).apply(fieldName)
       result.errors must contain only FormError(
         fieldName,
-        "supplierAddress.error.maxLength",
-        Seq(formProvider.addressLineMaxLength)
+        "supplierAddress.error.maxLength.withLabel",
+        Seq(msgs("supplierAddress.line2.label.short"), msgs("supplierAddress.error.maxLength"))
       )
     }
   }
@@ -115,8 +121,8 @@ class SupplierAddressFormProviderSpec extends FieldBehaviours {
       val result = form.bind(validData.updated(fieldName, tooLong)).apply(fieldName)
       result.errors must contain only FormError(
         fieldName,
-        "supplierAddress.error.maxLength",
-        Seq(formProvider.addressLineMaxLength)
+        "supplierAddress.error.maxLength.withLabel",
+        Seq(msgs("supplierAddress.line3.label.short"), msgs("supplierAddress.error.maxLength"))
       )
     }
   }

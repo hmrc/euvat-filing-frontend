@@ -20,23 +20,33 @@ import forms.mappings.Mappings
 import models.SupplierAddress
 import play.api.data.Form
 import play.api.data.Forms.{mapping, optional}
+import play.api.data.validation.{Constraint, Invalid, Valid}
+import play.api.i18n.{Lang, MessagesApi}
 
 import javax.inject.Inject
 
-class SupplierAddressFormProvider @Inject() extends Mappings {
+class SupplierAddressFormProvider @Inject() (messagesApi: MessagesApi) extends Mappings {
 
   val addressLineMaxLength: Int = 35
+
+  private val defaultMessages = messagesApi.preferred(Seq(Lang("en")))
+
+  private def fieldMaxLengthConstraint(labelKey: String, errorKey: String): Constraint[String] =
+    Constraint { str =>
+      if (str.length <= addressLineMaxLength) Valid
+      else Invalid("supplierAddress.error.maxLength.withLabel", defaultMessages(labelKey), defaultMessages("supplierAddress.error.maxLength"))
+    }
 
   def apply(): Form[SupplierAddress] =
     Form(
       mapping(
         "addressLine1" -> text("supplierAddress.error.line1.required")
-          .verifying(maxLength(addressLineMaxLength, "supplierAddress.error.maxLength")),
+          .verifying(fieldMaxLengthConstraint("supplierAddress.line1.label", "supplierAddress.error.line1.maxLength")),
         "addressLine2" -> optional(
-          text().verifying(maxLength(addressLineMaxLength, "supplierAddress.error.maxLength"))
+          text().verifying(fieldMaxLengthConstraint("supplierAddress.line2.label.short", "supplierAddress.error.line2.maxLength"))
         ),
         "addressLine3" -> optional(
-          text().verifying(maxLength(addressLineMaxLength, "supplierAddress.error.maxLength"))
+          text().verifying(fieldMaxLengthConstraint("supplierAddress.line3.label.short", "supplierAddress.error.line3.maxLength"))
         )
       )(SupplierAddress.apply)(o => Some(Tuple.fromProductTyped(o)))
     )

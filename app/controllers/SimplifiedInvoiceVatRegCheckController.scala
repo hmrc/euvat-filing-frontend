@@ -17,43 +17,48 @@
 package controllers
 
 import controllers.actions.*
-import forms.InvoiceNumberFormProvider
+import forms.SimplifiedInvoiceVatRegCheckFormProvider
+
 import javax.inject.Inject
-import models.Mode
+import models.{Mode, NormalMode}
 import navigation.Navigator
-import pages.InvoiceNumberPage
+import pages.{SimplifiedInvoiceVatRegCheckPage, SupplierAddressPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.InvoiceNumberView
+import views.html.SimplifiedInvoiceVatRegCheckView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class InvoiceNumberController @Inject() (
+class SimplifiedInvoiceVatRegCheckController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
   navigator: Navigator,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  formProvider: InvoiceNumberFormProvider,
+  formProvider: SimplifiedInvoiceVatRegCheckFormProvider,
   val controllerComponents: MessagesControllerComponents,
-  view: InvoiceNumberView
+  view: SimplifiedInvoiceVatRegCheckView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
   val form = formProvider()
+  private def backLink: play.api.mvc.Call = routes.SupplierAddressController.onPageLoad(NormalMode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
-    val preparedForm = request.userAnswers.get(InvoiceNumberPage) match {
-      case None        => form
-      case Some(value) => form.fill(value)
+    request.userAnswers.get(SupplierAddressPage) match {
+      case None => Redirect(routes.JourneyRecoveryController.onPageLoad())
+      case Some(_) =>
+        val preparedForm = request.userAnswers.get(SimplifiedInvoiceVatRegCheckPage) match {
+          case None        => form
+          case Some(value) => form.fill(value)
+        }
+        Ok(view(preparedForm, mode, backLink))
     }
-
-    Ok(view(preparedForm, mode, routes.AboutThePurchaseController.onPageLoad()))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -61,12 +66,18 @@ class InvoiceNumberController @Inject() (
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, routes.PurchaseTypeController.onPageLoad(mode)))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink))),
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(InvoiceNumberPage, value))
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(SimplifiedInvoiceVatRegCheckPage, value))
             _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(InvoiceNumberPage, mode, updatedAnswers))
+          } yield {
+            if (value) {
+              Redirect(routes.JourneyRecoveryController.onPageLoad()) // TODO: yes should route to "what is the suppliers VRN"
+            } else {
+              Redirect(routes.PurchaseTypeController.onPageLoad(mode: Mode))
+            }
+          }
       )
   }
 }

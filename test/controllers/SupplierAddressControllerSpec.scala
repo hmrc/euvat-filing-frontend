@@ -163,7 +163,13 @@ class SupplierAddressControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) must include(messages(application)("supplierAddress.error.maxLength"))
+        contentAsString(result) must include(
+          messages(application)(
+            "supplierAddress.error.maxLength.withLabel",
+            messages(application)("supplierAddress.line1.label"),
+            messages(application)("supplierAddress.error.maxLength")
+          )
+        )
       }
     }
 
