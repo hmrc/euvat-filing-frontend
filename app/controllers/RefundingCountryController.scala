@@ -61,11 +61,19 @@ class RefundingCountryController @Inject() (
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val (countries, form) = buildFormAndCountries()
 
-    // If we have a previously selected country, pre-fill the form.
-    val preparedForm = request.userAnswers.get(RefundingCountryNamePage).fold(form) { stored =>
-      val code = stored.split(",", 2).headOption.getOrElse(stored)
-      form.fill(code)
+    // Determine a canonical country code to pre-fill the form.
+    // Prefer the explicit `RefundingCountryPage` (code). If missing, try `RefundingCountryNamePage`:
+    // - If it's stored as `code,name` use the code
+    // - If it's stored as just the name, look up the code from the countries list
+    val maybeCodeFromName = request.userAnswers.get(RefundingCountryNamePage).map { stored =>
+      val parts = stored.split(",", 2)
+      if (parts.length > 1) parts(0)
+      else countries.find(_._1.equalsIgnoreCase(stored)).map(_._2).getOrElse(stored)
     }
+
+    val maybeCode = request.userAnswers.get(RefundingCountryPage).orElse(maybeCodeFromName)
+
+    val preparedForm = maybeCode.fold(form)(code => form.fill(code))
 
     Ok(view(preparedForm, countries, routes.TaskListDashboardController.onPageLoad(), mode))
   }

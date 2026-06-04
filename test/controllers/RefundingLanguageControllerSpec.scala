@@ -162,19 +162,60 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to JourneyRecovery on submit when no country present" in {
+    "must return OK and the correct view for a GET when country stored as delimited name+code" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val userAnswers = emptyUserAnswers.set(RefundingCountryNamePage, "AT,Austria").success.value
+
+      val cfg = Configuration(ConfigFactory.parseString("language.mapping.AT=[\"german\", \"english\"]"))
+      val mappingSvc = new ConfigLanguageMapping(cfg)
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(
+          bind[ConfigLanguageMapping].toInstance(mappingSvc)
+        )
+        .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.RefundingLanguageController.onSubmit(models.NormalMode).url)
-          .withFormUrlEncodedBody(("value", ""))
+        val request = FakeRequest(GET, routes.RefundingLanguageController.onPageLoad(models.NormalMode).url)
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        val view = application.injector.instanceOf[views.html.RefundingLanguageView]
+        val formProvider = application.injector.instanceOf[forms.RefundingLanguageFormProvider]
+        val form = formProvider()
+        val langs = mappingSvc.languagesFor("AT")
+        val msgs = messages(application)
+        val items = langs.zipWithIndex.flatMap { case (lang, idx) =>
+          _root_.models.RefundingLanguage.values.find(_.toString.equalsIgnoreCase(lang)).map { v =>
+            uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+              content = uk.gov.hmrc.govukfrontend.views.Aliases.Text(msgs(s"refundingLanguage.${v.toString}")),
+              value   = Some(v.toString),
+              id      = Some(s"value_$idx")
+            )
+          }
+        }
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, items, routes.RefundingCountryController.onPageLoad(models.NormalMode), models.NormalMode)(
+          request,
+          messages(application)
+        ).toString
       }
+    }
+  }
+
+  "must redirect to JourneyRecovery on submit when no country present" in {
+
+    val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+    running(application) {
+      val request = FakeRequest(POST, routes.RefundingLanguageController.onSubmit(models.NormalMode).url)
+        .withFormUrlEncodedBody(("value", ""))
+
+      val result = route(application, request).value
+
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
     }
   }
 }
