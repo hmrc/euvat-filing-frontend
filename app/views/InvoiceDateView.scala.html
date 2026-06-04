@@ -33,6 +33,8 @@
 
 @(form: play.api.data.Form[_], mode: Mode, backLink: play.api.mvc.Call)(implicit request: play.api.mvc.Request[_], messages: play.api.i18n.Messages)
 
+@isError = @{form.error("value").isDefined}
+
 @layout(pageTitle = title(form, messages("invoiceDate.title")), backLinkUrl = Some(backLink.url)) {
 
     @formHelper(action = controllers.routes.InvoiceDateController.onSubmit(mode), Symbol("autoComplete") -> "off") {
@@ -62,17 +64,21 @@
             }
         }
 
-        <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is: </span>@messages("purchase.caption.add")</h2>
+        <div class="govuk-form-group @if(isError){govuk-form-group--error}">
 
-        <!-- Visible page heading rendered outside the date fieldset so the red error bar doesn't appear next to it -->
-        <h1 id="invoice-date-heading" class="govuk-heading-l">@messages("invoiceDate.heading")</h1>
+            <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is: </span>@messages("purchase.caption.add")</h2>
 
-        @govukDateInput(
-            DateViewModel(
-                field  = form("value"),
-                legend = viewmodels.govuk.fieldset.LegendViewModel(uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text(messages("invoiceDate.heading"))).asPageHeading().withCssClass("govuk-visually-hidden")
-            ).withHint(HintViewModel(messages("invoiceDate.hint")))
-        )
+            <!-- Visible page heading rendered outside the date fieldset so the red error bar doesn't appear next to it -->
+            <h1 id="invoice-date-heading" class="govuk-heading-l">@messages("invoiceDate.heading")</h1>
+
+            @govukDateInput(
+                DateViewModel(
+                    field  = form("value"),
+                    legend = viewmodels.govuk.fieldset.LegendViewModel(uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text(messages("invoiceDate.heading"))).asPageHeading().withCssClass("govuk-visually-hidden")
+                ).withHint(HintViewModel(messages("invoiceDate.hint")))
+            )
+
+        </div>
 
         @govukButton(
             ButtonViewModel(messages("site.continue"))

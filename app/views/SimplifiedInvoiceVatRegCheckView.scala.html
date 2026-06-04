@@ -24,6 +24,8 @@
 
 @(form: Form[_], mode: Mode, call: Call)(implicit request: Request[_], messages: Messages)
 
+@isError = @{form.error("value").isDefined}
+
 @layout(pageTitle = title(form, messages("simplifiedInvoiceVatRegCheck.title")), backLinkUrl = Some(call.url)) {
 
     @formHelper(action = routes.SimplifiedInvoiceVatRegCheckController.onSubmit(mode), Symbol("autoComplete") -> "off") {
@@ -31,33 +33,35 @@
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
-    <span class="govuk-caption-l">
-        <span class="govuk-visually-hidden">This section is: </span>
-        @messages("purchase.caption.add")
-    </span>
+            <div class="govuk-form-group @if(isError){govuk-form-group--error}">
+                <span class="govuk-caption-l">
+                    <span class="govuk-visually-hidden">This section is: </span>
+                    @messages("purchase.caption.add")
+                </span>
 
-    @govukRadios(
-        RadiosViewModel(
-            field = form("value"),
-            legend = Legend(
-                content = Text(messages("simplifiedInvoiceVatRegCheck.heading")),
-                classes = "govuk-fieldset__legend--l",
-                isPageHeading = true
-            ),
-            items = Seq(
-                RadioItem(
-                    id      = Some("value"),
-                    value   = Some("true"),
-                    content = Text(messages("site.yes"))
-                ),
-                RadioItem(
-                    id      = Some("value-2"),
-                    value   = Some("false"),
-                    content = Text(messages("site.no"))
-                    )
+                @govukRadios(
+                    RadiosViewModel(
+                        field = form("value"),
+                        legend = Legend(
+                            content = Text(messages("simplifiedInvoiceVatRegCheck.heading")),
+                            classes = "govuk-fieldset__legend--l",
+                            isPageHeading = true
+                        ),
+                        items = Seq(
+                            RadioItem(
+                                id      = Some("value"),
+                                value   = Some("true"),
+                                content = Text(messages("site.yes"))
+                            ),
+                            RadioItem(
+                                id      = Some("value-2"),
+                                value   = Some("false"),
+                                content = Text(messages("site.no"))
+                                )
+                            )
+                    ).withHint(HintViewModel(messages("simplifiedInvoiceVatRegCheck.hint")))
                 )
-        ).withHint(HintViewModel(messages("simplifiedInvoiceVatRegCheck.hint")))
-    )
+            </div>
 
         @govukButton(
             ButtonViewModel(messages("site.continue"))
