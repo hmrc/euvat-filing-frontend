@@ -17,47 +17,47 @@
 package controllers
 
 import controllers.actions.*
-import forms.InvoiceNumberFormProvider
-
+import forms.InvoiceTypeFormProvider
 import javax.inject.Inject
-import models.{Mode, NormalMode}
+import models.Mode
 import navigation.Navigator
-import pages.InvoiceNumberPage
+import pages.InvoiceTypePage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.InvoiceNumberView
+import views.html.InvoiceTypeView
 import play.api.mvc.Call
+import models.NormalMode
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class InvoiceNumberController @Inject() (
+class InvoiceTypeController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
   navigator: Navigator,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  formProvider: InvoiceNumberFormProvider,
+  formProvider: InvoiceTypeFormProvider,
   val controllerComponents: MessagesControllerComponents,
-  view: InvoiceNumberView
+  view: InvoiceTypeView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
   val form = formProvider()
 
-  private def backLink(mode: Mode): Call = routes.InvoiceTypeController.onPageLoad(mode)
+  private def backLink: Call = routes.AboutThePurchaseController.onPageLoad()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
-    val preparedForm = request.userAnswers.get(InvoiceNumberPage) match {
+    val preparedForm = request.userAnswers.get(InvoiceTypePage) match {
       case None        => form
       case Some(value) => form.fill(value)
     }
 
-    Ok(view(preparedForm, mode, routes.InvoiceTypeController.onPageLoad(NormalMode)))
+    Ok(view(preparedForm, mode, backLink))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -65,12 +65,12 @@ class InvoiceNumberController @Inject() (
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, routes.InvoiceTypeController.onPageLoad(mode)))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink))),
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(InvoiceNumberPage, value))
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(InvoiceTypePage, value))
             _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(InvoiceNumberPage, mode, updatedAnswers))
+          } yield Redirect(navigator.nextPage(InvoiceTypePage, mode, updatedAnswers))
       )
   }
 }

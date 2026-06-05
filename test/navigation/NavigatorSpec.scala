@@ -72,6 +72,18 @@ class NavigatorSpec extends SpecBase {
           routes.BusinessActivityCodeThreeController.onPageLoad(NormalMode)
       }
 
+      "must go from InvoiceTypePage to InvoiceNumberController if standard invoice is selected" in {
+        val ua = userAnswers.set(InvoiceTypePage, InvoiceType.StandardInvoice).success.value
+        navigator.nextPage(InvoiceTypePage, NormalMode, ua) mustBe
+          routes.InvoiceNumberController.onPageLoad(NormalMode)
+      }
+
+      "must go from InvoiceTypePage to JourneyRecoveryController if simplified invoice is selected" in {
+        val ua = userAnswers.set(InvoiceTypePage, InvoiceType.SimplifiedInvoice).success.value
+        navigator.nextPage(InvoiceTypePage, NormalMode, ua) mustBe
+          routes.JourneyRecoveryController.onPageLoad()
+      }
+
       "must go from BusinessActivityTwoPage to CheckYourClaimDetailsPage if no selected" in {
         val ua = userAnswers.set(BusinessActivityTwoPage, false).success.value
         navigator.nextPage(BusinessActivityTwoPage, NormalMode, ua) mustBe
@@ -174,6 +186,18 @@ class NavigatorSpec extends SpecBase {
       "must go from BusinessActivityCodeThreePage to BusinessActivityThreeController" in {
         navigator.nextPage(BusinessActivityCodeThreePage, CheckMode, userAnswers) mustBe
           routes.BusinessActivityThreeController.onPageLoad()
+      }
+
+      "must go from InvoiceTypePage to InvoiceNumberController if standard invoice is selected" in {
+        val ua = userAnswers.set(InvoiceTypePage, InvoiceType.StandardInvoice).success.value
+        navigator.nextPage(InvoiceTypePage, CheckMode, ua) mustBe
+          routes.InvoiceNumberController.onPageLoad(CheckMode)
+      }
+
+      "must go from InvoiceTypePage to JourneyRecoveryController if simplified invoice is selected" in {
+        val ua = userAnswers.set(InvoiceTypePage, InvoiceType.SimplifiedInvoice).success.value
+        navigator.nextPage(InvoiceTypePage, CheckMode, ua) mustBe
+          routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from PurchaseTypePage to IndexController" in {
