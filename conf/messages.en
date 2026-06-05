@@ -136,11 +136,12 @@ contactDetails.title = How should we contact you about this claim?
 contactDetails.heading = How should we contact you about this claim?
 contactDetails.contactEmail.label = Email address
 contactDetails.contactTelephone.label = Phone number (optional)
+contactDetails.contactTelephone.hint = Include the area code, for example 01632960001 or +448081570192
 contactDetails.error.email.required = Enter an email address
 contactDetails.error.email.maxLength = Email address must be 100 characters or less
 contactDetails.error.email.invalidFormat = Enter an email address in the correct format, like name@example.com
 contactDetails.error.telephone.maxLength = Phone number must be 20 characters or less
-contactDetails.error.telephone.format = Enter a phone number in the correct format, like 01632960001 or +448081570192
+contactDetails.error.telephone.format = Enter a phone number in the correct format
 
 businessActivity.title = Business activity for this claim
 businessActivity.heading = Business activity for this claim
