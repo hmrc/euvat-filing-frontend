@@ -34,33 +34,36 @@
 
 @(form: Form[_], activities: Seq[(String,String)], backLinkCall: Option[String], mode: models.Mode = models.NormalMode)(implicit request: Request[_], messages: Messages)
 
+@isError = @{form.error("value").isDefined}
+
 @layout(pageTitle = views.ViewUtils.title(form, "businessActivityCodeThree.title"), backLinkUrl = backLinkCall) {
 
         @formHelper(action = routes.BusinessActivityCodeThreeController.onSubmit(mode)) {
             @mainErrorSummary(form, Map("value" -> (form("value").id + "-input")))
+            <div class="govuk-form-group @if(isError){govuk-form-group--error}">
+                <h2 class="govuk-caption-l hmrc-caption-l">
+                    <span class="govuk-visually-hidden">This section is: </span>@messages("claim.caption.add")
+                </h2>
+                <h1 id="business-activity-code-three-heading" class="govuk-heading-l">@messages("businessActivityCodeThree.heading")</h1>
 
-            <h2 class="govuk-caption-l hmrc-caption-l">
-                <span class="govuk-visually-hidden">This section is: </span>@messages("claim.caption.add")
-            </h2>
-            <h1 id="business-activity-code-three-heading" class="govuk-heading-l">@messages("businessActivityCodeThree.heading")</h1>
-
-            @govukSelect(
-                Select(
-                    id = form("value").id + "-input",
-                    name = "value",
-                    label = Label(content = Text(messages("businessActivityCodeThree.heading")), classes = "govuk-visually-hidden"),
-                    items = Seq(SelectItem(value = Some(""), text = "Select a business activity", selected = form("value").value.isEmpty)) ++ activities.map { case (name, code) =>
-                        SelectItem(value = Some(code), text = s"${code} (${name})", selected = form("value").value.contains(code))
-                    },
-                    hint = Some(Hint(content = messages("businessActivityCodeThree.hint"))),
-                    attributes = Map(
-                        "aria-describedby" -> (form("value").id + "-input-hint"),
-                        "data-ac-typed" -> "#valueTyped",
-                        "data-ac-heading" -> "#business-activity-code-three-heading"
-                    ),
-                    errorMessage = form.error("value").map { e => ErrorMessage(content = Text(messages(e.message, e.args: _*))) }
-                ).asAccessibleAutocomplete(Some(AccessibleAutocomplete(showAllValues = false, autoSelect = false, minLength = None)))
-            )
+                @govukSelect(
+                    Select(
+                        id = form("value").id + "-input",
+                        name = "value",
+                        label = Label(content = Text(messages("businessActivityCodeThree.heading")), classes = "govuk-visually-hidden"),
+                        items = Seq(SelectItem(value = Some(""), text = "Select a business activity", selected = form("value").value.isEmpty)) ++ activities.map { case (name, code) =>
+                            SelectItem(value = Some(code), text = s"${code} (${name})", selected = form("value").value.contains(code))
+                        },
+                        hint = Some(Hint(content = messages("businessActivityCodeThree.hint"))),
+                        attributes = Map(
+                            "aria-describedby" -> (form("value").id + "-input-hint"),
+                            "data-ac-typed" -> "#valueTyped",
+                            "data-ac-heading" -> "#business-activity-code-three-heading"
+                        ),
+                        errorMessage = form.error("value").map { e => ErrorMessage(content = Text(messages(e.message, e.args: _*))) }
+                    ).asAccessibleAutocomplete(Some(AccessibleAutocomplete(showAllValues = false, autoSelect = false, minLength = None)))
+                )
+            </div>
 
             <input type="hidden" id="valueTyped" name="valueTyped" value="">
 

@@ -34,22 +34,27 @@
 
 @(form: play.api.data.Form[_], items: Seq[uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem], call: Call, mode: models.Mode = models.NormalMode)(implicit request: play.api.mvc.Request[_], messages: play.api.i18n.Messages)
 
+@isError = @{form.error("value").isDefined}
+
 @layout(pageTitle = title(form, messages("refundingLanguage.title")), backLinkUrl = Some(call.url)) {
 
     @formHelper(action = routes.RefundingLanguageController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @mainErrorSummary(form, Map("value" -> "value_0"))
+        <div class="govuk-form-group @if(isError){govuk-form-group--error}">
 
-        <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is: </span>@messages("claim.caption.add")</h2>
-        @{
-            govukRadios(
-              RadiosViewModel(
-                field  = form("value"),
-                legend = LegendViewModel(messages("refundingLanguage.heading")).asPageHeading(LegendSize.Large),
-                items  = items
-              ).withHint(HintViewModel(Text(messages("refundingLanguage.hint"))))
-            )
-        }
+            <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is: </span>@messages("claim.caption.add")</h2>
+            @{
+                govukRadios(
+                  RadiosViewModel(
+                    field  = form("value"),
+                    legend = LegendViewModel(messages("refundingLanguage.heading")).asPageHeading(LegendSize.Large),
+                    items  = items
+                  ).withHint(HintViewModel(Text(messages("refundingLanguage.hint"))))
+                )
+            }
+
+        </div>
 
         @govukButton(
             ButtonViewModel(messages("site.continue"))
