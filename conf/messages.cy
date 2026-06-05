@@ -140,7 +140,7 @@ contactDetails.error.email.required = Enter an email address
 contactDetails.error.email.maxLength = Email address must be 100 characters or less
 contactDetails.error.email.invalidFormat = Enter an email address in the correct format, like name@example.com
 contactDetails.error.telephone.maxLength = Phone number must be 20 characters or less
-contactDetails.error.telephone.format = Enter a telephone number in the correct format, like 01632960001 or +448081570192
+contactDetails.error.telephone.format = Enter a phone number in the correct format, like 01632960001 or +448081570192
 
 businessActivity.title = Business activity for this claim
 businessActivity.heading = Business activity for this claim
