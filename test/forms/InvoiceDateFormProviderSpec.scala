@@ -48,8 +48,8 @@ class InvoiceDateFormProviderSpec extends AnyFreeSpec with Matchers with ScalaCh
       forAll(validData -> "valid date") { date =>
 
         val data = Map(
-          "value.day"   -> date.getDayOfMonth.toString,
-          "value.month" -> date.getMonthValue.toString,
+          "value.day"   -> f"${date.getDayOfMonth}%02d",
+          "value.month" -> f"${date.getMonthValue}%02d",
           "value.year"  -> date.getYear.toString
         )
 
@@ -63,8 +63,8 @@ class InvoiceDateFormProviderSpec extends AnyFreeSpec with Matchers with ScalaCh
       forAll(validData -> "valid date") { date =>
 
         val data = Map(
-          "value.day"   -> date.getDayOfMonth.toString,
-          "value.month" -> s"0${date.getMonthValue.toString}",
+          "value.day"   -> f"${date.getDayOfMonth}%02d",
+          "value.month" -> f"${date.getMonthValue}%02d",
           "value.year"  -> date.getYear.toString
         )
 
@@ -78,21 +78,23 @@ class InvoiceDateFormProviderSpec extends AnyFreeSpec with Matchers with ScalaCh
       forAll(validData -> "valid date") { date =>
 
         val data = Map(
-          "value.day"   -> date.getDayOfMonth.toString,
+          "value.day"   -> f"${date.getDayOfMonth}%02d",
           "value.month" -> date.getMonth.toString,
           "value.year"  -> date.getYear.toString
         )
 
         val result = form.bind(data)
 
-        result.value.value mustEqual date
+        // full month names are no longer accepted except when the name is 3 letters (e.g. May)
+        if (date.getMonth.toString.length == 3) result.value.value mustEqual date
+        else result.errors must contain(FormError("value", "invoiceDate.error.invalid.month", List(messages("date.error.month"))))
       }
     }
 
     "must bind when day has leading zero" in {
       val data = Map(
         "value.day"   -> "04",
-        "value.month" -> "4",
+        "value.month" -> "04",
         "value.year"  -> "2025"
       )
 
@@ -102,29 +104,29 @@ class InvoiceDateFormProviderSpec extends AnyFreeSpec with Matchers with ScalaCh
     }
 
     "must bind when month is three-letter or full name (case-insensitive)" in {
-      val d1 = form.bind(Map("value.day" -> "5", "value.month" -> "Feb", "value.year" -> "2025"))
+      val d1 = form.bind(Map("value.day" -> "05", "value.month" -> "Feb", "value.year" -> "2025"))
       d1.value.value mustEqual LocalDate.of(2025, 2, 5)
 
-      val d2 = form.bind(Map("value.day" -> "6", "value.month" -> "February", "value.year" -> "2025"))
-      d2.value.value mustEqual LocalDate.of(2025, 2, 6)
+      val d2 = form.bind(Map("value.day" -> "06", "value.month" -> "February", "value.year" -> "2025"))
+      // full month names are not accepted (except 3-letter months); expect invalid month
+      d2.errors must contain(FormError("value", "invoiceDate.error.invalid.month", List(messages("date.error.month"))))
     }
 
     "must fail when month is outside 1-12" in {
-      val low = form.bind(Map("value.day" -> "1", "value.month" -> "0", "value.year" -> "2025"))
+      val low = form.bind(Map("value.day" -> "01", "value.month" -> "0", "value.year" -> "2025"))
       low.errors must contain(FormError("value", "invoiceDate.error.invalid.month", List(messages("date.error.month"))))
-
-      val high = form.bind(Map("value.day" -> "1", "value.month" -> "13", "value.year" -> "2025"))
+      val high = form.bind(Map("value.day" -> "01", "value.month" -> "13", "value.year" -> "2025"))
       high.errors must contain(FormError("value", "invoiceDate.error.invalid.month", List(messages("date.error.month"))))
     }
 
     "must fail when month text is invalid" in {
-      val result = form.bind(Map("value.day" -> "1", "value.month" -> "Foo", "value.year" -> "2025"))
+      val result = form.bind(Map("value.day" -> "01", "value.month" -> "Foo", "value.year" -> "2025"))
       result.errors must contain(FormError("value", "invoiceDate.error.invalid.month", List(messages("date.error.month"))))
     }
 
-    "must bind when year has leading zeros" in {
-      val result = form.bind(Map("value.day" -> "7", "value.month" -> "4", "value.year" -> "02025"))
-      result.value.value mustEqual LocalDate.of(2025, 4, 7)
+    "must fail when year has leading zeros (more than 4 digits)" in {
+      val result = form.bind(Map("value.day" -> "07", "value.month" -> "04", "value.year" -> "02025"))
+      result.errors must contain(FormError("value", "invoiceDate.error.invalid.year", List(messages("date.error.year"))))
     }
 
     "must bind random textual months (3-letter and full, mixed case)" in {
@@ -139,7 +141,7 @@ class InvoiceDateFormProviderSpec extends AnyFreeSpec with Matchers with ScalaCh
 
       forAll(Gen.oneOf(monthVariants)) { monthStr =>
         val data = Map(
-          "value.day"   -> "5",
+          "value.day"   -> "05",
           "value.month" -> monthStr,
           "value.year"  -> "2025"
         )
@@ -147,7 +149,12 @@ class InvoiceDateFormProviderSpec extends AnyFreeSpec with Matchers with ScalaCh
         val result = form.bind(data)
         val expectedMonth =
           java.time.Month.values().toList.find(m => m.toString == monthStr.toUpperCase || m.toString.take(3) == monthStr.toUpperCase)
-        result.value.value.getMonthValue mustEqual expectedMonth.get.getValue
+        if (monthStr.length == 3 || monthStr.forall(_.isUpper) && monthStr.length <= 3) {
+          result.value.value.getMonthValue mustEqual expectedMonth.get.getValue
+        } else {
+          // full month names longer than 3 are not accepted
+          result.errors must contain(FormError("value", "invoiceDate.error.invalid.month", List(messages("date.error.month"))))
+        }
       }
     }
 
@@ -168,13 +175,13 @@ class InvoiceDateFormProviderSpec extends AnyFreeSpec with Matchers with ScalaCh
     }
 
     "must return invalid year when only year is invalid" in {
-      val result = form.bind(Map("value.day" -> "5", "value.month" -> "3", "value.year" -> "20ab"))
+      val result = form.bind(Map("value.day" -> "05", "value.month" -> "03", "value.year" -> "20ab"))
       result.errors must contain(FormError("value", "invoiceDate.error.invalid.year", List(messages("date.error.year"))))
     }
 
     "must return invalid month and year when both month and year are invalid" in {
       val rendered = messages("invoiceDate.error.invalid.two", messages("date.error.month"), messages("date.error.year"))
-      val result = form.bind(Map("value.day" -> "5", "value.month" -> "Foo", "value.year" -> "20ab"))
+      val result = form.bind(Map("value.day" -> "05", "value.month" -> "Foo", "value.year" -> "20ab"))
       result.errors.map(_.message) must contain(rendered)
     }
 
@@ -186,10 +193,9 @@ class InvoiceDateFormProviderSpec extends AnyFreeSpec with Matchers with ScalaCh
     // Year range is not enforced by the LocalDate formatter; no test here
 
     "must fail when day is outside 1-31" in {
-      val zeroDay = form.bind(Map("value.day" -> "0", "value.month" -> "1", "value.year" -> "2025"))
+      val zeroDay = form.bind(Map("value.day" -> "0", "value.month" -> "01", "value.year" -> "2025"))
       zeroDay.errors must contain(FormError("value", "invoiceDate.error.invalid.day", List(messages("date.error.day"))))
-
-      val bigDay = form.bind(Map("value.day" -> "32", "value.month" -> "1", "value.year" -> "2025"))
+      val bigDay = form.bind(Map("value.day" -> "32", "value.month" -> "01", "value.year" -> "2025"))
       bigDay.errors must contain(FormError("value", "invoiceDate.error.invalid.day", List(messages("date.error.day"))))
     }
 
@@ -217,7 +223,7 @@ class InvoiceDateFormProviderSpec extends AnyFreeSpec with Matchers with ScalaCh
 
         val data = Map(
           "value.day"   -> field,
-          "value.month" -> date.getMonthValue.toString,
+          "value.month" -> f"${date.getMonthValue}%02d",
           "value.year"  -> date.getYear.toString
         )
 
@@ -265,7 +271,7 @@ class InvoiceDateFormProviderSpec extends AnyFreeSpec with Matchers with ScalaCh
         }
 
         val data: Map[String, String] = Map(
-          "value.month" -> date.getMonthValue.toString
+          "value.month" -> f"${date.getMonthValue}%02d"
         ) ++ day ++ year
 
         val result = form.bind(data)
@@ -290,7 +296,7 @@ class InvoiceDateFormProviderSpec extends AnyFreeSpec with Matchers with ScalaCh
         }
 
         val data: Map[String, String] = Map(
-          "value.day" -> date.getDayOfMonth.toString
+          "value.day" -> f"${date.getDayOfMonth}%02d"
         ) ++ month ++ year
 
         val result = form.bind(data)
@@ -306,7 +312,7 @@ class InvoiceDateFormProviderSpec extends AnyFreeSpec with Matchers with ScalaCh
       forAll(validData -> "valid date") { date =>
 
         val data = Map(
-          "value.day"  -> date.getDayOfMonth.toString,
+          "value.day"  -> f"${date.getDayOfMonth}%02d",
           "value.year" -> date.getYear.toString
         )
 
@@ -320,8 +326,8 @@ class InvoiceDateFormProviderSpec extends AnyFreeSpec with Matchers with ScalaCh
       forAll(validData -> "valid date") { date =>
 
         val data = Map(
-          "value.day"   -> date.getDayOfMonth.toString,
-          "value.month" -> date.getMonthValue.toString
+          "value.day"   -> f"${date.getDayOfMonth}%02d",
+          "value.month" -> f"${date.getMonthValue}%02d"
         )
 
         val result = form.bind(data)
