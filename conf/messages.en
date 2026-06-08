@@ -43,7 +43,7 @@ unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
 unauthorised.guidance = You do not have access to this service.
 
-claim.caption.add = Add claim details
+claim.caption.add = Claim details
 caption.hidden.text = This section is:
 purchase.caption.add = Purchase details
 
