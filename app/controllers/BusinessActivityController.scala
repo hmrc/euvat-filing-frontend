@@ -67,14 +67,14 @@ class BusinessActivityController @Inject() (
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode), baCode))),
           value =>
             for {
-              updateAnswer1 <- Future.fromTry(request.userAnswers.set(BusinessActivityCodePage, baCode))
-              updateAnswer2 <- Future.fromTry(updateAnswer1.set(BusinessActivityPage, value))
+              updateAnswer1 <- Future.fromTry(request.userAnswers.set(BusinessActivityPage, value))
+              updateAnswer2 <- Future.fromTry(updateAnswer1.set(BusinessActivityCodePage, baCode))
               finalAnswers <- if (value) {
-                                  Future.successful(updateAnswer1)
-                                } else {
-                                  val remove1 = updateAnswer1.remove(BusinessActivityCodeTwoPage)
-                                  Future.fromTry(remove1.flatMap(_.remove(BusinessActivityCodeThreePage)))
-                                }
+                                Future.successful(updateAnswer2)
+                              } else {
+                                val remove1 = updateAnswer2.remove(BusinessActivityCodeTwoPage)
+                                Future.fromTry(remove1.flatMap(_.remove(BusinessActivityCodeThreePage)))
+                              }
               _ <- sessionRepository.set(finalAnswers)
             } yield Redirect(navigator.nextPage(BusinessActivityPage, mode, finalAnswers))
         )

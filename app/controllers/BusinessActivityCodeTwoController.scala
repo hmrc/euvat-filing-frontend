@@ -63,7 +63,7 @@ class BusinessActivityCodeTwoController @Inject() (
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val (activities, form) = buildListAndForm()
     val userAnswers = request.userAnswers
-    val keyValue = request.getQueryString("key").getOrElse("baPage2") // check if page 3 Change link clicked otherwise default to page 2
+    val keyValue = request.getQueryString("key").getOrElse("") // check if page 3 Change link clicked otherwise empty
 
     for {
       updatedAnswer <- Future.fromTry(userAnswers.set(BusinessActivityThreePage, keyValue)) // Save the click to session page
@@ -94,8 +94,8 @@ class BusinessActivityCodeTwoController @Inject() (
         },
         value => {
           for {
-            updatedAnswers <- Future.fromTry(baseAnswers.set(BusinessActivityCodeTwoPage, value))
-            updatedAnswers <- Future.fromTry(updatedAnswers.remove(BusinessActivityThreePage)) // clear the session for page click
+            updatedAnswer1 <- Future.fromTry(baseAnswers.set(BusinessActivityCodeTwoPage, value))
+            updatedAnswers <- Future.fromTry(updatedAnswer1.remove(BusinessActivityThreePage)) // clear the page 3 session
             -              <- sessionRepository.set(updatedAnswers)
           } yield
             if (page3.contains("ba3Page")) { // Check if page 3 is clicked then navigate accordingly

@@ -46,6 +46,10 @@
             @govukInsetText(InsetText(
                 content = HtmlContent(s"<strong>${messages("businessActivity.insetText.label")}:</strong> ${baCode1}")
             ))
+        } else {
+            @govukInsetText(InsetText(
+                content = HtmlContent(s"<strong>${messages("businessActivity.insetText.no.label")}</strong>")
+            ))
         }
 
         <div class="govuk-form-group @if(isError){govuk-form-group--error}">

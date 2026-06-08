@@ -21,7 +21,6 @@ import config.FrontendAppConfig
 import connectors.EuVatRefundsConnector
 import models.responses.TraderKnownFactsResponse
 import play.api.Logging
-import play.api.mvc.Request
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}

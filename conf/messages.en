@@ -146,6 +146,7 @@ businessActivity.title = Business activity for this claim
 businessActivity.heading = Business activity for this claim
 businessActivity.lead = This is the Standard Industrial Classification (SIC) code listed for your business.
 businessActivity.insetText.label = Business activity 1
+businessActivity.insetText.no.label = There is no first SIC code listed for your business
 businessActivity.h2 = Do you need to add another business activity?
 businessActivity.p1 = You can find the SIC codes on the
 businessActivity.link.text = Office for National Statistics website (opens in new tab)

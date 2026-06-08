@@ -146,6 +146,7 @@ businessActivity.title = Business activity for this claim
 businessActivity.heading = Business activity for this claim
 businessActivity.lead = This is the Standard Industrial Classification (SIC) code listed for your business.
 businessActivity.insetText.label = Business activity 1
+businessActivity.insetText.no.label = There is no first SIC code listed for your business
 businessActivity.h2 = Do you need to add another business activity?
 businessActivity.p1 = You can find the SIC codes on the
 businessActivity.link.text = Office for National Statistics website (opens in new tab)
@@ -236,7 +237,7 @@ supplierAddress.line1.label.short = Address line 1
 supplierAddress.line2.label.short = Address line 2
 supplierAddress.line3.label.short = Address line 3
 supplierAddress.error.line1.required = Enter address line 1, typically the building and street
-supplierAddress.error.maxLength = You cannot enter more than 35 characters
+supplierAddress.error.maxLength = must be 35 characters or less
 supplierAddress.error.maxLength.withLabel = {0} {1}
 
 invoiceDate.title = What is the invoice date?
