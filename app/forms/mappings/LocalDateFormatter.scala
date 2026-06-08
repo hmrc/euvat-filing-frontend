@@ -67,12 +67,25 @@ private[mappings] class LocalDateFormatter(
     val monthInvalidKey = if (usePerFieldKeys) s"$invalidKey.month" else invalidKey
     val yearInvalidKey = if (usePerFieldKeys) s"$invalidKey.year" else invalidKey
 
-    val dayFormatter = intFormatter(
-      requiredKey    = dayInvalidKey,
-      wholeNumberKey = dayInvalidKey,
-      nonNumericKey  = dayInvalidKey,
-      args
-    )
+    val dayFormatter = new Formatter[Int] with Formatters {
+      private val baseFormatter = stringFormatter(dayInvalidKey, args)
+      private val oneOrTwo = "^\\d{1,2}$"
+
+      override def bind(key: String, data: Map[String, String]) =
+        baseFormatter
+          .bind(key, data)
+          .map(_.replace(",", ""))
+          .flatMap { s =>
+            if (!s.matches(oneOrTwo)) Left(Seq(FormError(key, dayInvalidKey, args)))
+            else
+              scala.util.control.Exception.nonFatalCatch
+                .either(s.toInt)
+                .left
+                .map(_ => Seq(FormError(key, dayInvalidKey, args)))
+          }
+
+      override def unbind(key: String, value: Int) = Map(key -> value.toString)
+    }
 
     val monthFormatter = new MonthFormatter(monthInvalidKey, args)
 
