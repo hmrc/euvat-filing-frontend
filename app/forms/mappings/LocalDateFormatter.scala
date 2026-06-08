@@ -67,28 +67,13 @@ private[mappings] class LocalDateFormatter(
     val monthInvalidKey = if (usePerFieldKeys) s"$invalidKey.month" else invalidKey
     val yearInvalidKey = if (usePerFieldKeys) s"$invalidKey.year" else invalidKey
 
-    // Day: require exactly two digits (e.g. "01") and parse as int
-    val dayFormatter = new Formatter[Int] with Formatters {
-      private val baseFormatter = stringFormatter(dayInvalidKey, args)
-      private val twoDigit = "^\\d{1,2}$"
+    val dayFormatter = intFormatter(
+      requiredKey    = dayInvalidKey,
+      wholeNumberKey = dayInvalidKey,
+      nonNumericKey  = dayInvalidKey,
+      args
+    )
 
-      override def bind(key: String, data: Map[String, String]) =
-        baseFormatter
-          .bind(key, data)
-          .map(_.replace(",", ""))
-          .flatMap { s =>
-            if (!s.matches(twoDigit)) Left(Seq(FormError(key, dayInvalidKey, args)))
-            else
-              scala.util.control.Exception.nonFatalCatch
-                .either(s.toInt)
-                .left
-                .map(_ => Seq(FormError(key, dayInvalidKey, args)))
-          }
-
-      override def unbind(key: String, value: Int) = Map(key -> value.toString)
-    }
-
-    // Month: accept either exactly two-digit numeric (01-12) or three-letter abbrev (Jan/Feb)
     val monthFormatter = new MonthFormatter(monthInvalidKey, args)
 
     val yearFormatter = new Formatter[Int] with Formatters {
@@ -97,19 +82,17 @@ private[mappings] class LocalDateFormatter(
       override def bind(key: String, data: Map[String, String]) =
         baseFormatter
           .bind(key, data)
-          .map(_.replace(",", ""))
+          .map(_.replace(",", "").trim)
           .flatMap { s =>
-            // Enforce exactly 4 digits for year input (e.g. 2025). This prevents
-            // ambiguous inputs like '231 123 123' being parsed as a valid year.
-            val cleaned = s.replace("", "")
-            val digitsOnly = s.replace(",", "").trim
             val yearRegexp = "^\\d{4}$"
+            val digitsOnly = s
             if (!digitsOnly.matches(yearRegexp)) Left(Seq(FormError(key, yearInvalidKey, args)))
-            else scala.util.control.Exception.nonFatalCatch
-              .either(digitsOnly.toInt)
-              .left
-              .map(_ => Seq(FormError(key, yearInvalidKey, args)))
-              .flatMap(parsed => Right(parsed))
+            else
+              scala.util.control.Exception.nonFatalCatch
+                .either(digitsOnly.toInt)
+                .left
+                .map(_ => Seq(FormError(key, yearInvalidKey, args)))
+                .flatMap(parsed => Right(parsed))
           }
 
       override def unbind(key: String, value: Int) = Map(key -> value.toString)
@@ -262,13 +245,12 @@ private class MonthFormatter(invalidKey: String, args: Seq[String] = Seq.empty) 
           val v = str.toInt
           if (v >= 1 && v <= 12) Right(v)
           else Left(List(FormError(key, invalidKey, args)))
-        } else if (str.length == 3) {
+        } else {
+          // accept full month names (e.g. February) or 3-letter abbreviations (e.g. Feb), case-insensitive
           months
-            .find(m => m.toString.take(3).equalsIgnoreCase(str))
+            .find(m => m.toString.equalsIgnoreCase(str) || m.toString.take(3).equalsIgnoreCase(str))
             .map(x => Right(x.getValue))
             .getOrElse(Left(List(FormError(key, invalidKey, args))))
-        } else {
-          Left(List(FormError(key, invalidKey, args)))
         }
       }
   }

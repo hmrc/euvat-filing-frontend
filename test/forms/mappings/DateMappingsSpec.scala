@@ -94,9 +94,8 @@ class DateMappingsSpec extends AnyFreeSpec with Matchers with ScalaCheckProperty
 
       val result = form.bind(data)
 
-      // full month names are no longer accepted (only 3-letter abbreviations or two-digit numbers)
-      if (date.getMonth.toString.length == 3) result.value.value mustEqual date
-      else result.errors must contain(FormError("value", "error.invalid", List.empty))
+      // full month names should be accepted (case-insensitive)
+      result.value.value mustEqual date
     }
   }
 
@@ -112,9 +111,8 @@ class DateMappingsSpec extends AnyFreeSpec with Matchers with ScalaCheckProperty
 
       val result = form.bind(data)
 
-      // full month names (lower case) are no longer accepted
-      if (date.getMonth.toString.length == 3) result.value.value mustEqual date
-      else result.errors must contain(FormError("value", "error.invalid", List.empty))
+      // full month names (lower case) should be accepted
+      result.value.value mustEqual date
     }
   }
 

@@ -49,9 +49,10 @@ class LocalDateFormatterSpec extends AnyFreeSpec with Matchers {
       result.toOption.get.getMonthValue mustEqual 2
     }
 
-    "fails for full month mixed-case (only 3-letter allowed)" in {
+    "binds full month mixed-case (case-insensitive)" in {
       val result = formatter.bind("value", Map("value.day" -> "04", "value.month" -> "fEbRuArY", "value.year" -> "2025"))
-      result mustBe Left(List(FormError("value", "invoiceDate.error.invalid.month", List(messages("date.error.month")))))
+      result.isRight mustBe true
+      result.toOption.get.getMonthValue mustEqual 2
     }
 
     "fails for invalid month text" in {

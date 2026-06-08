@@ -85,9 +85,8 @@ class InvoiceDateFormProviderSpec extends AnyFreeSpec with Matchers with ScalaCh
 
         val result = form.bind(data)
 
-        // full month names are no longer accepted except when the name is 3 letters (e.g. May)
-        if (date.getMonth.toString.length == 3) result.value.value mustEqual date
-        else result.errors must contain(FormError("value", "invoiceDate.error.invalid.month", List(messages("date.error.month"))))
+        // full month names should now be accepted (case-insensitive)
+        result.value.value mustEqual date
       }
     }
 
@@ -108,8 +107,7 @@ class InvoiceDateFormProviderSpec extends AnyFreeSpec with Matchers with ScalaCh
       d1.value.value mustEqual LocalDate.of(2025, 2, 5)
 
       val d2 = form.bind(Map("value.day" -> "06", "value.month" -> "February", "value.year" -> "2025"))
-      // full month names are not accepted (except 3-letter months); expect invalid month
-      d2.errors must contain(FormError("value", "invoiceDate.error.invalid.month", List(messages("date.error.month"))))
+      d2.value.value mustEqual LocalDate.of(2025, 2, 6)
     }
 
     "must fail when month is outside 1-12" in {
@@ -149,10 +147,9 @@ class InvoiceDateFormProviderSpec extends AnyFreeSpec with Matchers with ScalaCh
         val result = form.bind(data)
         val expectedMonth =
           java.time.Month.values().toList.find(m => m.toString == monthStr.toUpperCase || m.toString.take(3) == monthStr.toUpperCase)
-        if (monthStr.length == 3 || monthStr.forall(_.isUpper) && monthStr.length <= 3) {
+        if (expectedMonth.isDefined) {
           result.value.value.getMonthValue mustEqual expectedMonth.get.getValue
         } else {
-          // full month names longer than 3 are not accepted
           result.errors must contain(FormError("value", "invoiceDate.error.invalid.month", List(messages("date.error.month"))))
         }
       }
