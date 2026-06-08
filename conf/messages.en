@@ -43,7 +43,7 @@ unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
 unauthorised.guidance = You do not have access to this service.
 
-claim.caption.add = Add claim details
+claim.caption.add = Claim details
 caption.hidden.text = This section is:
 purchase.caption.add = Purchase details
 
@@ -99,6 +99,14 @@ refundingLanguage.slovenian = Slovenian
 refundingLanguage.irish = Irish
 refundingLanguage.hungarian = Hungarian
 refundingLanguage.greek = Greek
+
+refundingCurrency.title = Which currency do you want to use for this claim?
+refundingCurrency.heading = Which currency do you want to use for this claim?
+refundingCurrency.hint = You will use this currency for all the items you add to this claim
+refundingCurrency.euro = Euro (€)
+refundingCurrency.estonianKroon = Estonian Kroon (kr)
+refundingCurrency.bulgarianLev = Bulgarian Lev (лв)
+refundingCurrency.error.required = Select a currency for this claim
 
 refundPeriod.title = What is the refund period?
 refundPeriod.heading = What is the refund period?

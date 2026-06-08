@@ -22,9 +22,10 @@ import play.api.mvc.Call
 import controllers.routes
 import pages.*
 import models.*
+import utils.ConfigCurrencyMapping
 
 @Singleton
-class Navigator @Inject() () {
+class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping) {
 
   def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call = mode match {
     case NormalMode => normalRoutes(page)(userAnswers)
@@ -33,7 +34,8 @@ class Navigator @Inject() () {
 
   private val normalRoutes: Page => UserAnswers => Call = {
     case RefundingCountryPage             => _ => routes.RefundingLanguageController.onPageLoad(NormalMode)
-    case RefundingLanguagePage            => _ => routes.RefundPeriodController.onPageLoad(NormalMode)
+    case RefundingLanguagePage            => userAnswers => navigateFromRefundingLanguagePage(NormalMode)(userAnswers)
+    case RefundingCurrencyPage            => _ => routes.RefundPeriodController.onPageLoad(NormalMode)
     case RefundPeriodPage                 => _ => routes.ContactDetailsController.onPageLoad(NormalMode)
     case ContactDetailsPage               => _ => routes.BusinessActivityController.onPageLoad(NormalMode)
     case BusinessActivityPage             => userAnswer => navigateFromBusinessActivityPage(NormalMode)(userAnswer)
@@ -51,8 +53,8 @@ class Navigator @Inject() () {
 
   private val checkRoutes: Page => UserAnswers => Call = {
     case RefundingCountryPage             => _ => routes.RefundingLanguageController.onPageLoad(CheckMode)
-    case RefundingLanguagePage            => _ => routes.CheckYourClaimDetailsController.onPageLoad()
-    case RefundPeriodPage                 => _ => routes.CheckYourClaimDetailsController.onPageLoad()
+    case RefundingLanguagePage            => userAnswers => navigateFromRefundingLanguagePage(CheckMode)(userAnswers)
+    case RefundingCurrencyPage            => _ => routes.CheckYourClaimDetailsController.onPageLoad()
     case ContactDetailsPage               => _ => routes.CheckYourClaimDetailsController.onPageLoad()
     case BusinessActivityPage             => userAnswer => navigateFromBusinessActivityPage(CheckMode)(userAnswer)
     case BusinessActivityTwoPage          => userAnswer => navigateFromBusinessActivity2Page(CheckMode)(userAnswer)
@@ -65,6 +67,20 @@ class Navigator @Inject() () {
     case SimplifiedInvoiceVatRegCheckPage => userAnswer => navigateFromSimplifiedInvoiceVatRegCheckPage(CheckMode)(userAnswer)
     case PurchaseTypePage                 => _ => routes.IndexController.onPageLoad()
     case _                                => _ => routes.IndexController.onPageLoad()
+  }
+
+  private def navigateFromRefundingLanguagePage(mode: Mode)(userAnswers: UserAnswers): Call = {
+    val maybeCountryCode = userAnswers.get(pages.RefundingCountryPage).orElse {
+      userAnswers.get(pages.RefundingCountryNamePage).map { stored =>
+        stored.split(",", 2).headOption.getOrElse(stored)
+      }
+    }
+    maybeCountryCode match {
+      case Some(countryCode) if configCurrencyMapping.requiresCurrencySelection(countryCode) =>
+        routes.RefundingCurrencyController.onPageLoad(mode)
+      case _ =>
+        routes.RefundPeriodController.onPageLoad(mode)
+    }
   }
 
   private def navigateFromBusinessActivityPage(mode: Mode)(userAnswers: UserAnswers): Call =
