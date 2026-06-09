@@ -23,9 +23,9 @@ import play.api.data.Form
 
 class RemoveBusinessActivityFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[Boolean] =
+  def apply(errorKey: String = "removeBusinessActivity.error.required"): Form[Boolean] =
     Form(
-      "value" -> boolean("removeBusinessActivity.error.required")
+      "value" -> boolean(errorKey)
     )
 
 }
