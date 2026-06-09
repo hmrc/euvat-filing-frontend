@@ -16,33 +16,20 @@
 
 package models
 
-import play.api.i18n.Messages
-import uk.gov.hmrc.govukfrontend.views.Aliases.Text
-import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
-
 sealed trait RefundingCurrency
 
 object RefundingCurrency extends Enumerable.Implicits {
 
-  case object Euro extends WithName("euro") with RefundingCurrency
-
+  case object Euro          extends WithName("euro") with RefundingCurrency
   case object EstonianKroon extends WithName("estonianKroon") with RefundingCurrency
-
-  case object BulgarianLev extends WithName("bulgarianLev") with RefundingCurrency
+  case object BulgarianLev  extends WithName("bulgarianLev") with RefundingCurrency
 
   val values: Seq[RefundingCurrency] = Seq(
-    Euro, EstonianKroon, BulgarianLev
+    Euro,
+    EstonianKroon,
+    BulgarianLev
   )
 
-  def options(implicit messages: Messages): Seq[RadioItem] = values.zipWithIndex.map {
-    case (value, index) =>
-      RadioItem(
-        content = Text(messages(s"refundingCurrency.${value.toString}")),
-        value   = Some(value.toString),
-        id      = Some(s"value_$index")
-      )
-  }
-
   implicit val enumerable: Enumerable[RefundingCurrency] =
-    Enumerable(values.map(v => v.toString -> v): _*)
+    Enumerable(values.map(v => v.toString -> v)*)
 }

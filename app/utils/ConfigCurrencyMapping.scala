@@ -22,15 +22,20 @@ import javax.inject.Inject
 
 class ConfigCurrencyMapping @Inject() (config: Configuration) {
 
-  private val mapping: Map[String, Seq[String]] = {
+  private val mapping: Map[String, Seq[(String, String)]] = {
     val cfg = config.get[Configuration]("currency.mapping")
-    cfg.entrySet.map { case (key, sub) =>
-      val seq = cfg.get[Seq[String]](key)
+    cfg.entrySet.map { case (key, _) =>
+      val seq = cfg.get[Seq[String]](key).map { entry =>
+        val parts = entry.split("\\|", 2)
+        (parts(0), parts(1))
+      }
       key -> seq
     }.toMap
   }
 
-  def currenciesFor(code: String): Seq[String] = mapping.getOrElse(code, Seq("euro"))
+  def currenciesFor(code: String): Seq[(String, String)] =
+    mapping.getOrElse(code, Seq(("euro", "EUR")))
 
-  def requiresCurrencySelection(code: String): Boolean = currenciesFor(code).size > 1
+  def requiresCurrencySelection(code: String): Boolean =
+    currenciesFor(code).size > 1
 }
