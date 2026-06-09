@@ -18,10 +18,9 @@ package controllers
 
 import base.SpecBase
 import navigation.FakeNavigator
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar
-import pages.RefundPeriodPage
+import pages.*
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -94,6 +93,32 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
             Set.empty[String],
             Map.empty[String, String]
           )(request, msgs).toString
+        }
+      }
+
+      "must use RefundingCurrencyController as back link when country has two currencies" in {
+        val userAnswers = emptyUserAnswers.set(pages.RefundingCountryPage, "BG").success.value
+        val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+        running(application) {
+          val request = FakeRequest(GET, routes.RefundPeriodController.onPageLoad(models.NormalMode).url)
+          val result = route(application, request).value
+
+          status(result) mustEqual OK
+          contentAsString(result) must include(routes.RefundingCurrencyController.onPageLoad(models.NormalMode).url)
+        }
+      }
+
+      "must use RefundingLanguageController as back link when country has one currency" in {
+        val userAnswers = emptyUserAnswers.set(pages.RefundingCountryPage, "AT").success.value
+        val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+        running(application) {
+          val request = FakeRequest(GET, routes.RefundPeriodController.onPageLoad(models.NormalMode).url)
+          val result = route(application, request).value
+
+          status(result) mustEqual OK
+          contentAsString(result) must include(routes.RefundingLanguageController.onPageLoad(models.NormalMode).url)
         }
       }
     }

@@ -55,6 +55,7 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping) {
     case RefundingCountryPage             => _ => routes.RefundingLanguageController.onPageLoad(CheckMode)
     case RefundingLanguagePage            => userAnswers => navigateFromRefundingLanguagePage(CheckMode)(userAnswers)
     case RefundingCurrencyPage            => _ => routes.CheckYourClaimDetailsController.onPageLoad()
+    case RefundPeriodPage                 => _ => routes.CheckYourClaimDetailsController.onPageLoad()
     case ContactDetailsPage               => _ => routes.CheckYourClaimDetailsController.onPageLoad()
     case BusinessActivityPage             => userAnswer => navigateFromBusinessActivityPage(CheckMode)(userAnswer)
     case BusinessActivityTwoPage          => userAnswer => navigateFromBusinessActivity2Page(CheckMode)(userAnswer)
@@ -78,8 +79,13 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping) {
     maybeCountryCode match {
       case Some(countryCode) if configCurrencyMapping.requiresCurrencySelection(countryCode) =>
         routes.RefundingCurrencyController.onPageLoad(mode)
-      case _ =>
-        routes.RefundPeriodController.onPageLoad(mode)
+      case Some(_) =>
+        mode match {
+          case NormalMode => routes.RefundPeriodController.onPageLoad(mode)
+          case CheckMode  => routes.CheckYourClaimDetailsController.onPageLoad()
+        }
+      case None =>
+        routes.JourneyRecoveryController.onPageLoad()
     }
   }
 

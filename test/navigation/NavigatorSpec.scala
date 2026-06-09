@@ -20,10 +20,25 @@ import base.SpecBase
 import controllers.routes
 import models.*
 import pages.*
+import utils.ConfigCurrencyMapping
+import play.api.Configuration
+import com.typesafe.config.ConfigFactory
 
 class NavigatorSpec extends SpecBase {
 
-  val navigator = new Navigator
+  val navigator = new Navigator(
+    new ConfigCurrencyMapping(
+      Configuration(
+        ConfigFactory.parseString("""
+          currency.mapping {
+            BG = ["euro|EUR", "bulgarianLev|BGN"]
+            EE = ["euro|EUR", "estonianKroon|EEK"]
+            AT = ["euro|EUR"]
+          }
+        """)
+      )
+    )
+  )
   val userAnswers: UserAnswers = UserAnswers("id")
 
   "Navigator" - {
@@ -39,8 +54,20 @@ class NavigatorSpec extends SpecBase {
           routes.RefundingLanguageController.onPageLoad(NormalMode)
       }
 
-      "must go from RefundingLanguagePage to RefundPeriodController" in {
-        navigator.nextPage(pages.RefundingLanguagePage, NormalMode, userAnswers) mustBe
+      "must go from RefundingLanguagePage to RefundingCurrencyController if country has two currencies" in {
+        val ua = userAnswers.set(pages.RefundingCountryPage, "BG").success.value
+        navigator.nextPage(pages.RefundingLanguagePage, NormalMode, ua) mustBe
+          routes.RefundingCurrencyController.onPageLoad(NormalMode)
+      }
+
+      "must go from RefundingLanguagePage to RefundPeriodController if country has one currency" in {
+        val ua = userAnswers.set(pages.RefundingCountryPage, "AT").success.value
+        navigator.nextPage(pages.RefundingLanguagePage, NormalMode, ua) mustBe
+          routes.RefundPeriodController.onPageLoad(NormalMode)
+      }
+
+      "must go from RefundingCurrencyPage to RefundPeriodController" in {
+        navigator.nextPage(pages.RefundingCurrencyPage, NormalMode, userAnswers) mustBe
           routes.RefundPeriodController.onPageLoad(NormalMode)
       }
 
@@ -144,8 +171,20 @@ class NavigatorSpec extends SpecBase {
           routes.RefundingLanguageController.onPageLoad(CheckMode)
       }
 
-      "must go from RefundingLanguagePage to CheckYourClaimDetailsController" in {
-        navigator.nextPage(pages.RefundingLanguagePage, CheckMode, userAnswers) mustBe
+      "must go from RefundingLanguagePage to RefundingCurrencyController if country has two currencies" in {
+        val ua = userAnswers.set(pages.RefundingCountryPage, "BG").success.value
+        navigator.nextPage(pages.RefundingLanguagePage, CheckMode, ua) mustBe
+          routes.RefundingCurrencyController.onPageLoad(CheckMode)
+      }
+
+      "must go from RefundingLanguagePage to CheckYourClaimDetailsController if country has one currency" in {
+        val ua = userAnswers.set(pages.RefundingCountryPage, "AT").success.value
+        navigator.nextPage(pages.RefundingLanguagePage, CheckMode, ua) mustBe
+          routes.CheckYourClaimDetailsController.onPageLoad()
+      }
+
+      "must go from RefundingCurrencyPage to CheckYourClaimDetailsController" in {
+        navigator.nextPage(pages.RefundingCurrencyPage, CheckMode, userAnswers) mustBe
           routes.CheckYourClaimDetailsController.onPageLoad()
       }
 

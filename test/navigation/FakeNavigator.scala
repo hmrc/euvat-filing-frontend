@@ -19,8 +19,24 @@ package navigation
 import play.api.mvc.Call
 import pages.*
 import models.{Mode, UserAnswers}
+import utils.ConfigCurrencyMapping
+import play.api.Configuration
+import com.typesafe.config.ConfigFactory
 
-class FakeNavigator(desiredRoute: Call) extends Navigator {
+class FakeNavigator(desiredRoute: Call)
+    extends Navigator(
+      new ConfigCurrencyMapping(
+        Configuration(
+          ConfigFactory.parseString("""
+      currency.mapping {
+        BG = ["euro|EUR", "bulgarianLev|BGN"]
+        EE = ["euro|EUR", "estonianKroon|EEK"]
+        AT = ["euro|EUR"]
+      }
+    """)
+        )
+      )
+    ) {
 
   override def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call =
     desiredRoute
