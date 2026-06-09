@@ -136,8 +136,8 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
           val future = LocalDate.now().plusDays(1)
           val request = FakeRequest(POST, routes.InvoiceDateController.onSubmit(models.NormalMode).url)
             .withFormUrlEncodedBody(
-              "value.day"   -> future.getDayOfMonth.toString,
-              "value.month" -> future.getMonthValue.toString,
+              "value.day"   -> f"${future.getDayOfMonth}%02d",
+              "value.month" -> f"${future.getMonthValue}%02d",
               "value.year"  -> future.getYear.toString
             )
           val result = route(application, request).value

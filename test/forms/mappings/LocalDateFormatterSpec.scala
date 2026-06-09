@@ -37,26 +37,26 @@ class LocalDateFormatterSpec extends AnyFreeSpec with Matchers {
   )
 
   "Month parsing" - {
-    "binds numeric months with leading zeros" in {
-      val result = formatter.bind("value", Map("value.day" -> "1", "value.month" -> "02", "value.year" -> "2025"))
+    "binds numeric months with leading zeros and two-digit day" in {
+      val result = formatter.bind("value", Map("value.day" -> "01", "value.month" -> "02", "value.year" -> "2025"))
       result.isRight mustBe true
       result.toOption.get.getMonthValue mustEqual 2
     }
 
-    "binds three-letter mixed-case month" in {
-      val result = formatter.bind("value", Map("value.day" -> "3", "value.month" -> "fEb", "value.year" -> "2025"))
+    "binds three-letter mixed-case month with two-digit day" in {
+      val result = formatter.bind("value", Map("value.day" -> "03", "value.month" -> "fEb", "value.year" -> "2025"))
       result.isRight mustBe true
       result.toOption.get.getMonthValue mustEqual 2
     }
 
-    "binds full month mixed-case" in {
-      val result = formatter.bind("value", Map("value.day" -> "4", "value.month" -> "fEbRuArY", "value.year" -> "2025"))
+    "binds full month mixed-case (case-insensitive)" in {
+      val result = formatter.bind("value", Map("value.day" -> "04", "value.month" -> "fEbRuArY", "value.year" -> "2025"))
       result.isRight mustBe true
       result.toOption.get.getMonthValue mustEqual 2
     }
 
     "fails for invalid month text" in {
-      val result = formatter.bind("value", Map("value.day" -> "1", "value.month" -> "Foo", "value.year" -> "2025"))
+      val result = formatter.bind("value", Map("value.day" -> "01", "value.month" -> "Foo", "value.year" -> "2025"))
       result mustBe Left(List(FormError("value", "invoiceDate.error.invalid.month", List(messages("date.error.month")))))
     }
 
@@ -73,14 +73,27 @@ class LocalDateFormatterSpec extends AnyFreeSpec with Matchers {
     }
 
     "marks year invalid when it contains non-numeric characters even if digits would allow 29 Feb" in {
-      val result = formatter.bind("value", Map("value.day" -> "29", "value.month" -> "2", "value.year" -> "2024abc"))
+      val result = formatter.bind("value", Map("value.day" -> "29", "value.month" -> "02", "value.year" -> "2024abc"))
       result mustBe Left(List(FormError("value", "invoiceDate.error.invalid.year", List(messages("date.error.year")))))
     }
 
     "marks day and year invalid when inferred year is non-leap" in {
       val rendered = messages("invoiceDate.error.invalid.two", messages("date.error.day"), messages("date.error.year"))
-      val result = formatter.bind("value", Map("value.day" -> "29", "value.month" -> "2", "value.year" -> "2025abc"))
+      val result = formatter.bind("value", Map("value.day" -> "29", "value.month" -> "02", "value.year" -> "2025abc"))
       result mustBe Left(List(FormError("value", rendered, List(messages("date.error.day"), messages("date.error.year")))))
+    }
+
+    "rejects messy non-4-digit year input like '231 123 123' as invalid year" in {
+      val result = formatter.bind("value", Map("value.day" -> "01", "value.month" -> "01", "value.year" -> "231 123 123"))
+      result mustBe Left(List(FormError("value", "invoiceDate.error.invalid.year", List(messages("date.error.year")))))
+    }
+
+    "rejects 3-digit and 5-digit years as invalid" in {
+      val result3 = formatter.bind("value", Map("value.day" -> "01", "value.month" -> "01", "value.year" -> "123"))
+      result3 mustBe Left(List(FormError("value", "invoiceDate.error.invalid.year", List(messages("date.error.year")))))
+
+      val result5 = formatter.bind("value", Map("value.day" -> "01", "value.month" -> "01", "value.year" -> "12345"))
+      result5 mustBe Left(List(FormError("value", "invoiceDate.error.invalid.year", List(messages("date.error.year")))))
     }
   }
 }

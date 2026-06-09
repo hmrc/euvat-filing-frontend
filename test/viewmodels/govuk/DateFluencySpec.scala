@@ -60,7 +60,7 @@ class DateFluencySpec extends AnyFreeSpec with Matchers with Mappings with Optio
 
       val boundForm = form.bind(
         Map(
-          "value.month" -> "1",
+          "value.month" -> "01",
           "value.year"  -> "2000"
         )
       )
@@ -91,7 +91,7 @@ class DateFluencySpec extends AnyFreeSpec with Matchers with Mappings with Optio
 
       val boundForm = form.bind(
         Map(
-          "value.month" -> "1"
+          "value.month" -> "01"
         )
       )
 
@@ -106,7 +106,7 @@ class DateFluencySpec extends AnyFreeSpec with Matchers with Mappings with Optio
 
       val boundForm = form.bind(
         Map(
-          "value.day"  -> "1",
+          "value.day"  -> "01",
           "value.year" -> "2000"
         )
       )
@@ -122,7 +122,7 @@ class DateFluencySpec extends AnyFreeSpec with Matchers with Mappings with Optio
 
       val boundForm = form.bind(
         Map(
-          "value.day" -> "1"
+          "value.day" -> "01"
         )
       )
 
@@ -153,8 +153,8 @@ class DateFluencySpec extends AnyFreeSpec with Matchers with Mappings with Optio
 
       val boundForm = form.bind(
         Map(
-          "value.day"   -> "1",
-          "value.month" -> "1",
+          "value.day"   -> "01",
+          "value.month" -> "01",
           "value.year"  -> "2000"
         )
       )

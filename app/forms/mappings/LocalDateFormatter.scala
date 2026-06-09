@@ -67,12 +67,25 @@ private[mappings] class LocalDateFormatter(
     val monthInvalidKey = if (usePerFieldKeys) s"$invalidKey.month" else invalidKey
     val yearInvalidKey = if (usePerFieldKeys) s"$invalidKey.year" else invalidKey
 
-    val dayFormatter = intFormatter(
-      requiredKey    = dayInvalidKey,
-      wholeNumberKey = dayInvalidKey,
-      nonNumericKey  = dayInvalidKey,
-      args
-    )
+    val dayFormatter = new Formatter[Int] with Formatters {
+      private val baseFormatter = stringFormatter(dayInvalidKey, args)
+      private val oneOrTwo = "^\\d{1,2}$"
+
+      override def bind(key: String, data: Map[String, String]) =
+        baseFormatter
+          .bind(key, data)
+          .map(_.replace(",", ""))
+          .flatMap { s =>
+            if (!s.matches(oneOrTwo)) Left(Seq(FormError(key, dayInvalidKey, args)))
+            else
+              scala.util.control.Exception.nonFatalCatch
+                .either(s.toInt)
+                .left
+                .map(_ => Seq(FormError(key, dayInvalidKey, args)))
+          }
+
+      override def unbind(key: String, value: Int) = Map(key -> value.toString)
+    }
 
     val monthFormatter = new MonthFormatter(monthInvalidKey, args)
 
@@ -82,22 +95,17 @@ private[mappings] class LocalDateFormatter(
       override def bind(key: String, data: Map[String, String]) =
         baseFormatter
           .bind(key, data)
-          .map(_.replace(",", ""))
+          .map(_.replace(",", "").trim)
           .flatMap { s =>
-            val decimalRegexp = """^-?(\d*\.\d*)$"""
-            if (s.matches(decimalRegexp)) {
-              Left(Seq(FormError(key, yearInvalidKey, args)))
-            } else {
-              // only accept whole non-negative numbers for year
+            val yearRegexp = "^\\d{4}$"
+            val digitsOnly = s
+            if (!digitsOnly.matches(yearRegexp)) Left(Seq(FormError(key, yearInvalidKey, args)))
+            else
               scala.util.control.Exception.nonFatalCatch
-                .either(s.toInt)
+                .either(digitsOnly.toInt)
                 .left
                 .map(_ => Seq(FormError(key, yearInvalidKey, args)))
-                .flatMap {
-                  case parsed if parsed < 0 || parsed > 9999 => Left(Seq(FormError(key, yearInvalidKey, args)))
-                  case parsed                                => Right(parsed)
-                }
-            }
+                .flatMap(parsed => Right(parsed))
           }
 
       override def unbind(key: String, value: Int) = Map(key -> value.toString)
@@ -244,10 +252,19 @@ private class MonthFormatter(invalidKey: String, args: Seq[String] = Seq.empty) 
     baseFormatter
       .bind(key, data)
       .flatMap { str =>
-        months
-          .find(m => m.getValue.toString == str.replaceAll("^0+", "") || m.toString == str.toUpperCase || m.toString.take(3) == str.toUpperCase)
-          .map(x => Right(x.getValue))
-          .getOrElse(Left(List(FormError(key, invalidKey, args))))
+        val numericOneOrTwo = "^\\d{1,2}$".r
+        if (numericOneOrTwo.matches(str)) {
+          // accept 1..12 or 01..12
+          val v = str.toInt
+          if (v >= 1 && v <= 12) Right(v)
+          else Left(List(FormError(key, invalidKey, args)))
+        } else {
+          // accept full month names (e.g. February) or 3-letter abbreviations (e.g. Feb), case-insensitive
+          months
+            .find(m => m.toString.equalsIgnoreCase(str) || m.toString.take(3).equalsIgnoreCase(str))
+            .map(x => Right(x.getValue))
+            .getOrElse(Left(List(FormError(key, invalidKey, args))))
+        }
       }
   }
 
