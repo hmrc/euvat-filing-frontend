@@ -42,9 +42,15 @@
 
         <p class="govuk-body-l">@messages("businessActivity.lead")</p>
 
-        @govukInsetText(InsetText(
-            content = HtmlContent(s"<strong>${messages("businessActivity.insetText.label")}:</strong> ${baCode1}")
-        ))
+        @if(baCode1 != "") {
+            @govukInsetText(InsetText(
+                content = HtmlContent(s"<strong>${messages("businessActivity.insetText.label")}:</strong> ${baCode1}")
+            ))
+        } else {
+            @govukInsetText(InsetText(
+                content = HtmlContent(s"<strong>${messages("businessActivity.insetText.no.label")}</strong>")
+            ))
+        }
 
         <div class="govuk-form-group @if(isError){govuk-form-group--error}">
             <fieldset class="govuk-fieldset" @if(isError){aria-describedby="value-error"}>

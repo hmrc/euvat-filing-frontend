@@ -19,9 +19,12 @@ package controllers
 import base.SpecBase
 import forms.BusinessActivityFormProvider
 import models.NormalMode
+import models.responses.TraderKnownFactsResponse
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
+import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 import pages.BusinessActivityPage
 import play.api.inject.bind
@@ -29,21 +32,28 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
+import services.EuVatRefundsService
+import uk.gov.hmrc.http.HeaderCarrier
 import views.html.BusinessActivityView
 
 import scala.concurrent.Future
 
-class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
+class BusinessActivityControllerSpec extends SpecBase with MockitoSugar with ScalaFutures {
   private val onwardRoute = Call("GET", "/foo")
   private lazy val pageLoadRoute = routes.BusinessActivityController.onPageLoad(NormalMode).url
   private lazy val submitRoute = routes.BusinessActivityController.onSubmit(NormalMode).url
   private lazy val backLink: Call = routes.ContactDetailsController.onPageLoad(NormalMode)
   private val baCode1 = "49200"
+  val mockService: EuVatRefundsService = mock[EuVatRefundsService]
 
   "BusinessActivity Controller" - {
 
     "must return OK and the correct view for a GET" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      when(mockService.retrieveTraderKnownFacts()(any()))
+        .thenReturn(Future.successful(TraderKnownFactsResponse(123, tradeClass = Some(baCode1))))
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[EuVatRefundsService].toInstance(mockService))
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, pageLoadRoute)
@@ -72,7 +82,11 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view with the saved value on GET" in {
       val userAnswers = emptyUserAnswers.set(BusinessActivityPage, true).success.value
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+      when(mockService.retrieveTraderKnownFacts()(any()))
+        .thenReturn(Future.successful(TraderKnownFactsResponse(123, tradeClass = Some(baCode1))))
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(bind[EuVatRefundsService].toInstance(mockService))
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, pageLoadRoute)
@@ -90,11 +104,14 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
     "must redirect to the next page and persist the answer when valid data is submitted (Yes)" in {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+      when(mockService.retrieveTraderKnownFacts()(any()))
+        .thenReturn(Future.successful(TraderKnownFactsResponse(123, tradeClass = Some(baCode1))))
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
         .overrides(
           bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-          bind[SessionRepository].toInstance(mockSessionRepository)
+          bind[SessionRepository].toInstance(mockSessionRepository),
+          bind[EuVatRefundsService].toInstance(mockService)
         )
         .build()
 
@@ -114,10 +131,14 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
+      when(mockService.retrieveTraderKnownFacts()(any()))
+        .thenReturn(Future.successful(TraderKnownFactsResponse(123, tradeClass = Some(baCode1))))
+
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
         .overrides(
           bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-          bind[SessionRepository].toInstance(mockSessionRepository)
+          bind[SessionRepository].toInstance(mockSessionRepository),
+          bind[EuVatRefundsService].toInstance(mockService)
         )
         .build()
 
@@ -133,7 +154,14 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return Bad Request when radio option not selected" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      when(mockService.retrieveTraderKnownFacts()(any()))
+        .thenReturn(Future.successful(TraderKnownFactsResponse(123, tradeClass = Some(baCode1))))
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(
+          bind[EuVatRefundsService].toInstance(mockService)
+        )
+        .build()
 
       running(application) {
         val request = FakeRequest(POST, submitRoute).withFormUrlEncodedBody("value" -> "")

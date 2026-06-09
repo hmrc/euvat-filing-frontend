@@ -28,13 +28,6 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
 
     "must return OK and the correct view for a GET" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-      val labels = Seq(
-        "checkYourClaimDetails.refundingCountry.label",
-        "checkYourClaimDetails.refundingLanguage.label",
-        "checkYourClaimDetails.refundingPeriod.label",
-        "checkYourClaimDetails.contactDetails.label",
-        "checkYourClaimDetails.businessActivity.label"
-      )
       running(application) {
         val request = FakeRequest(GET, routes.CheckYourClaimDetailsController.onPageLoad().url)
         val result = route(application, request).value

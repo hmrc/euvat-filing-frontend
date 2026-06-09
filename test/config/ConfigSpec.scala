@@ -18,6 +18,7 @@ package config
 
 import base.SpecBase
 import play.api.Configuration
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 
 class ConfigSpec extends SpecBase {
@@ -52,6 +53,7 @@ class ConfigSpec extends SpecBase {
         "host"                                             -> "http://localhost:18501",
         "appName"                                          -> "euvat",
         "contact-frontend.host"                            -> "http://localhost:9250",
+        "contact-frontend.serviceId"                       -> "euvat-filing-frontend",
         "microservice.services.feedback-frontend.host"     -> "fb.local",
         "microservice.services.feedback-frontend.port"     -> "9514",
         "microservice.services.feedback-frontend.protocol" -> "http",
@@ -78,6 +80,7 @@ class ConfigSpec extends SpecBase {
         "host"                                             -> "http://localhost:18501",
         "appName"                                          -> "euvat",
         "contact-frontend.host"                            -> "http://localhost:9250",
+        "contact-frontend.serviceId"                       -> "euvat-filing-frontend",
         "microservice.services.feedback-frontend.host"     -> "fb.local",
         "microservice.services.feedback-frontend.port"     -> "9514",
         "microservice.services.feedback-frontend.protocol" -> "http",
@@ -94,7 +97,7 @@ class ConfigSpec extends SpecBase {
       val config = Configuration(base.toSeq*)
       val appConfig = new FrontendAppConfig(config)
 
-      implicit val request = FakeRequest("GET", "/some/path?x=1")
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/some/path?x=1")
       val url = appConfig.feedbackUrl
       url must include("/contact/beta-feedback?service=euvat-filing-frontend")
       url must include("backUrl=http://localhost:18501/some/path?x=1")

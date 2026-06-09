@@ -25,6 +25,7 @@ import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
+import services.EuVatRefundsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.BusinessActivityView
 
@@ -39,6 +40,7 @@ class BusinessActivityController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: BusinessActivityFormProvider,
+  euVatRefundsService: EuVatRefundsService,
   val controllerComponents: MessagesControllerComponents,
   view: BusinessActivityView
 )(implicit ec: ExecutionContext)
@@ -48,30 +50,34 @@ class BusinessActivityController @Inject() (
   val form: Form[Boolean] = formProvider()
 
   private def backLink(mode: Mode): Call = routes.ContactDetailsController.onPageLoad(mode)
-  private val baCode = "49200" // TODO - retrieve code from rds db
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = request.userAnswers.get(BusinessActivityPage).fold(form)(form.fill)
-    Ok(view(preparedForm, mode, backLink(mode), baCode))
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+    euVatRefundsService.retrieveTraderKnownFacts().map { traderResponse =>
+      val preparedForm = request.userAnswers.get(BusinessActivityPage).fold(form)(form.fill)
+      Ok(view(preparedForm, mode, backLink(mode), traderResponse.tradeClass.getOrElse("")))
+    }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    form
-      .bindFromRequest()
-      .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode), baCode))),
-        value =>
-          for {
-            updateAnswers <- Future.fromTry(request.userAnswers.set(BusinessActivityCodePage, baCode))
-            updateAnswers <- Future.fromTry(updateAnswers.set(BusinessActivityPage, value))
-            updatedAnswers <- if (value) {
-                                Future.successful(updateAnswers)
+    euVatRefundsService.retrieveTraderKnownFacts().flatMap { traderResponse =>
+      val baCode = traderResponse.tradeClass.getOrElse("")
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode), baCode))),
+          value =>
+            for {
+              updateAnswer1 <- Future.fromTry(request.userAnswers.set(BusinessActivityPage, value))
+              updateAnswer2 <- Future.fromTry(updateAnswer1.set(BusinessActivityCodePage, baCode))
+              finalAnswers <- if (value) {
+                                Future.successful(updateAnswer2)
                               } else {
-                                val remove1 = updateAnswers.remove(BusinessActivityCodeTwoPage)
+                                val remove1 = updateAnswer2.remove(BusinessActivityCodeTwoPage)
                                 Future.fromTry(remove1.flatMap(_.remove(BusinessActivityCodeThreePage)))
                               }
-            _ <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(BusinessActivityPage, mode, updatedAnswers))
-      )
+              _ <- sessionRepository.set(finalAnswers)
+            } yield Redirect(navigator.nextPage(BusinessActivityPage, mode, finalAnswers))
+        )
+    }
   }
 }
