@@ -60,7 +60,7 @@ class RemoveThirdBusinessActivityController @Inject() (
   }
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-      val form = formProvider()
+      val form = formProvider("removeThird.error.required")
       val origin = parseOrigin
       val mode = parseMode
 
@@ -71,7 +71,7 @@ class RemoveThirdBusinessActivityController @Inject() (
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-      val form = formProvider()
+      val form = formProvider("removeThird.error.required")
       val origin = parseOrigin
       val mode = parseMode
 

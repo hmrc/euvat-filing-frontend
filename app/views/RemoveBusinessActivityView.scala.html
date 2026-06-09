@@ -39,14 +39,9 @@
 
   @formHelper(action = actionCall) {
 
-        @mainErrorSummary(form, Map("value" -> "value_0"))
+        @mainErrorSummary(form, Map("value" -> "value"))
 
         <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is: </span>@messages("claim.caption.add")</h2>
-        @image.map { img =>
-          <div class="remove-image">
-            <img src="@img" alt="" />
-          </div>
-        }
 
         @{
             govukRadios(
