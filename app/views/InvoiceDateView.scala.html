@@ -74,7 +74,7 @@
             @govukDateInput(
                 DateViewModel(
                     field  = form("value"),
-                    legend = viewmodels.govuk.fieldset.LegendViewModel(uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text(messages("invoiceDate.heading"))).asPageHeading().withCssClass("govuk-visually-hidden")
+                    legend = viewmodels.govuk.fieldset.LegendViewModel(uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text(messages("invoiceDate.heading"))).withCssClass("govuk-visually-hidden")
                 ).withHint(HintViewModel(messages("invoiceDate.hint")))
             )
 
