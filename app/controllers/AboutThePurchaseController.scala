@@ -40,6 +40,6 @@ class AboutThePurchaseController @Inject() (
   }
 
   def onSubmit(): Action[AnyContent] = Action { implicit request =>
-    Redirect(controllers.routes.InvoiceNumberController.onPageLoad(NormalMode))
+    Redirect(controllers.routes.InvoiceTypeController.onPageLoad(NormalMode))
   }
 }

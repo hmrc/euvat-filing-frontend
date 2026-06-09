@@ -39,6 +39,7 @@ class Navigator @Inject() () {
     case BusinessActivityPage             => userAnswer => navigateFromBusinessActivityPage(NormalMode)(userAnswer)
     case BusinessActivityTwoPage          => userAnswer => navigateFromBusinessActivity2Page(NormalMode)(userAnswer)
     case BusinessActivityCodeThreePage    => _ => routes.BusinessActivityThreeController.onPageLoad()
+    case InvoiceTypePage                  => userAnswer => navigateFromInvoiceTypePage(NormalMode)(userAnswer)
     case InvoiceNumberPage                => _ => routes.InvoiceDateController.onPageLoad(NormalMode)
     case InvoiceDatePage                  => _ => routes.SuppliersNameController.onPageLoad(NormalMode)
     case SuppliersNamePage                => _ => routes.SupplierAddressController.onPageLoad(NormalMode)
@@ -56,6 +57,7 @@ class Navigator @Inject() () {
     case BusinessActivityPage             => userAnswer => navigateFromBusinessActivityPage(CheckMode)(userAnswer)
     case BusinessActivityTwoPage          => userAnswer => navigateFromBusinessActivity2Page(CheckMode)(userAnswer)
     case BusinessActivityCodeThreePage    => _ => routes.BusinessActivityThreeController.onPageLoad()
+    case InvoiceTypePage                  => userAnswer => navigateFromInvoiceTypePage(CheckMode)(userAnswer)
     case InvoiceNumberPage                => _ => routes.InvoiceDateController.onPageLoad(CheckMode)
     case InvoiceDatePage                  => _ => routes.SuppliersNameController.onPageLoad(CheckMode)
     case SuppliersNamePage                => _ => routes.SupplierAddressController.onPageLoad(CheckMode)
@@ -77,6 +79,14 @@ class Navigator @Inject() () {
       case Some(true)  => routes.BusinessActivityCodeThreeController.onPageLoad(mode)
       case Some(false) => routes.CheckYourClaimDetailsController.onPageLoad()
       case _           => routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateFromInvoiceTypePage(mode: Mode)(userAnswers: UserAnswers): Call =
+    userAnswers.get(InvoiceTypePage) match {
+      case Some(InvoiceType.StandardInvoice) => routes.InvoiceNumberController.onPageLoad(mode)
+      case Some(InvoiceType.SimplifiedInvoice) =>
+        routes.JourneyRecoveryController.onPageLoad() // TODO - link to navigate to simp.invoicevatregcheck page
+      case _ => routes.JourneyRecoveryController.onPageLoad()
     }
 
   private def navigateFromSimplifiedInvoiceVatRegCheckPage(mode: Mode)(userAnswers: UserAnswers): Call =
