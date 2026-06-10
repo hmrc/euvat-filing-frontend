@@ -25,9 +25,10 @@ import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import services.EuVatRefundsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.RefundPeriodView
-
+import java.time.LocalDate
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -39,6 +40,7 @@ class RefundPeriodController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: RefundPeriodFormProvider,
+  euVatRefundsService: EuVatRefundsService,
   val controllerComponents: MessagesControllerComponents,
   view: RefundPeriodView
 )(implicit ec: ExecutionContext)
@@ -106,18 +108,35 @@ class RefundPeriodController @Inject() (
           )
         },
         value =>
-          for {
-            updatedAnswers <- Future.fromTry(
-                                request.userAnswers.set(
-                                  RefundPeriodPage,
-                                  RefundPeriod(
-                                    java.time.YearMonth.of(value.start.getYear, value.start.getMonthValue).atDay(1).atStartOfDay(),
-                                    java.time.YearMonth.of(value.end.getYear, value.end.getMonthValue).atEndOfMonth().atTime(23, 59, 59, 999000000)
+          euVatRefundsService.retrieveTraderKnownFacts().flatMap { traderResponse =>
+
+            val startDate = value.start.atDay(1).atStartOfDay()
+            val endDate = value.end.atEndOfMonth().atTime(23, 59, 59)
+
+            val maybeRegDate = traderResponse.dateOfRegistration
+            val maybeDeregDate = traderResponse.dateOfRegistration
+
+            val registrationError = maybeRegDate match {
+              case Some(regDate) =>
+                if (startDate.isBefore(regDate))
+                  Some("start" -> "refundPeriod.error.periodStartDateAfterVatRegistration")
+                else None
+              case None => None
+            }
+
+            for {
+              updatedAnswers <- Future.fromTry(
+                                  request.userAnswers.set(
+                                    RefundPeriodPage,
+                                    RefundPeriod(
+                                      java.time.YearMonth.of(value.start.getYear, value.start.getMonthValue).atDay(1).atStartOfDay(),
+                                      java.time.YearMonth.of(value.end.getYear, value.end.getMonthValue).atEndOfMonth().atTime(23, 59, 59, 999000000)
+                                    )
                                   )
                                 )
-                              )
-            _ <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(RefundPeriodPage, mode, updatedAnswers))
+              _ <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(navigator.nextPage(RefundPeriodPage, mode, updatedAnswers))
+          }
       )
   }
 }
