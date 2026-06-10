@@ -33,9 +33,9 @@
     @formHelper(action = routes.ContactDetailsController.onSubmit(mode), Symbol("novalidate") -> "novalidate") {
         @mainErrorSummary(form)
 
-        <h2 class="govuk-caption-l hmrc-caption-l">
+        <span class="govuk-caption-l hmrc-caption-l">
             <span class="govuk-visually-hidden">This section is: </span>@messages("claim.caption.add")
-        </h2>
+        </span>
         <h1 class="govuk-heading-l">@messages("contactDetails.heading")</h1>
         @govukInput(
             InputViewModel(
@@ -51,6 +51,7 @@
                 field = form("contactTelephone"),
                 label = LabelViewModel(messages("contactDetails.contactTelephone.label"))
             )
+            .withHint(HintViewModel(messages("contactDetails.contactTelephone.hint")))
             .withInputType("tel")
             .withAutocomplete("tel")
             .withWidth(Fixed20)
