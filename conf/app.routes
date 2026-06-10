@@ -69,11 +69,11 @@ POST        /business-activity-3                         controllers.BusinessAct
 GET         /check-your-claim-details                    controllers.CheckYourClaimDetailsController.onPageLoad()
 POST        /check-your-claim-details                    controllers.CheckYourClaimDetailsController.onSubmit()
 
-GET         /remove-2nd-business-activity               controllers.RemoveSecondBusinessActivityController.onPageLoad()
-POST        /remove-2nd-business-activity               controllers.RemoveSecondBusinessActivityController.onSubmit()
+GET         /remove-second-SIC-code                      controllers.RemoveSecondBusinessActivityController.onPageLoad()
+POST        /remove-second-SIC-code                      controllers.RemoveSecondBusinessActivityController.onSubmit()
 
-GET         /remove-3rd-business-activity               controllers.RemoveThirdBusinessActivityController.onPageLoad()
-POST        /remove-3rd-business-activity               controllers.RemoveThirdBusinessActivityController.onSubmit()
+GET         /remove-third-SIC-code                       controllers.RemoveThirdBusinessActivityController.onPageLoad()
+POST        /remove-third-SIC-code                       controllers.RemoveThirdBusinessActivityController.onSubmit()
 
 # Purchase details journey
 
