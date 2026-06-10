@@ -29,9 +29,9 @@ class FakeNavigator(desiredRoute: Call)
         Configuration(
           ConfigFactory.parseString("""
       currency.mapping {
-        BG = ["euro|EUR", "bulgarianLev|BGN"]
-        EE = ["euro|EUR", "estonianKroon|EEK"]
-        AT = ["euro|EUR"]
+        BG = ["euro|EUR|€", "bulgarianLev|BGN|лв"]
+        EE = ["euro|EUR|€", "estonianKroon|EEK|kr"]
+        AT = ["euro|EUR|€"]
       }
     """)
         )

@@ -29,26 +29,26 @@ class ConfigCurrencyMappingSpec extends AnyWordSpec with Matchers {
       val confString =
         """
           |currency.mapping = {
-          |  BG = ["euro|EUR", "bulgarianLev|BGN"]
-          |  AT = ["euro|EUR"]
+          |  BG = ["euro|EUR|€", "bulgarianLev|BGN|лв"]
+          |  AT = ["euro|EUR|€"]
           |}
         """.stripMargin
 
       val cfg = Configuration(ConfigFactory.parseString(confString))
       val svc = new ConfigCurrencyMapping(cfg)
 
-      svc.currenciesFor("BG")      shouldBe Seq(("euro", "EUR"), ("bulgarianLev", "BGN"))
-      svc.currenciesFor("AT")      shouldBe Seq(("euro", "EUR"))
-      svc.currenciesFor("UNKNOWN") shouldBe Seq(("euro", "EUR"))
+      svc.currenciesFor("BG") shouldBe Seq(("euro", "EUR", "€"), ("bulgarianLev", "BGN", "лв"))
+      svc.currenciesFor("AT") shouldBe Seq(("euro", "EUR", "€"))
+      svc.currenciesFor("UNKNOWN") shouldBe Seq(("euro", "EUR", "€"))
     }
 
     "return true for requiresCurrencySelection when country has two currencies" in {
       val confString =
         """
           |currency.mapping = {
-          |  BG = ["euro|EUR", "bulgarianLev|BGN"]
-          |  EE = ["euro|EUR", "estonianKroon|EEK"]
-          |  AT = ["euro|EUR"]
+          |  BG = ["euro|EUR|€", "bulgarianLev|BGN|лв"]
+          |  EE = ["euro|EUR|€", "estonianKroon|EEK|kr"]
+          |  AT = ["euro|EUR|€"]
           |}
         """.stripMargin
 
