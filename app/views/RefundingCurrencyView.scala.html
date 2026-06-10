@@ -33,7 +33,7 @@
     @formHelper(action = routes.RefundingCurrencyController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
-            @govukErrorSummary(ErrorSummaryViewModel(form,  errorLinkOverrides = Map("value" -> "value_0")))
+            @govukErrorSummary(ErrorSummaryViewModel(form,  errorLinkOverrides = Map("value" -> "value")))
         }
 
         <div class="govuk-form-group @if(isError){govuk-form-group--error}">

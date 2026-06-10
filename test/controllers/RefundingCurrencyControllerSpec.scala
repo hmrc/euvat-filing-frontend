@@ -57,8 +57,8 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) must include(messages(application)("refundingCurrency.heading"))
-        contentAsString(result) must include(messages(application)("refundingCurrency.euro"))
-        contentAsString(result) must include(messages(application)("refundingCurrency.bulgarianLev"))
+        contentAsString(result) must include("Euro (€)")
+        contentAsString(result) must include("Bulgarian Lev (лв)")
       }
     }
 
@@ -165,7 +165,7 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) must include(messages(application)("refundingCurrency.bulgarianLev"))
+        contentAsString(result) must include("Bulgarian Lev (лв)")
       }
     }
 
@@ -196,7 +196,7 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) must include(messages(application)("refundingCurrency.bulgarianLev"))
+        contentAsString(result) must include("Bulgarian Lev (лв)")
       }
     }
   }

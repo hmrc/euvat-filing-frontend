@@ -62,7 +62,15 @@ class RefundingCurrencyController @Inject() (
         val currencies = configCurrencyMapping.currenciesFor(countryCode)
         val msgs = messagesApi.preferred(request)
         val items = buildRadioItems(currencies, msgs)
-        Ok(view(form, items, routes.RefundingLanguageController.onPageLoad(mode), mode))
+        val preparedForm = request.userAnswers
+          .get(RefundingCurrencyPage)
+          .flatMap { storedCode =>
+            currencies.find(_._2 == storedCode).map { case (name, _, _) =>
+              form.fill(RefundingCurrency.values.find(_.toString == name).getOrElse(RefundingCurrency.Euro))
+            }
+          }
+          .getOrElse(form)
+        Ok(view(preparedForm, items, routes.RefundingLanguageController.onPageLoad(mode), mode))
     }
   }
 
@@ -112,13 +120,13 @@ class RefundingCurrencyController @Inject() (
     }
 
   private def buildRadioItems(
-    currencies: Seq[(String, String)],
+    currencies: Seq[(String, String, String)],
     msgs: play.api.i18n.Messages
   ): Seq[uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem] =
-    currencies.zipWithIndex.flatMap { case ((name, _), idx) =>
+    currencies.zipWithIndex.flatMap { case ((name, _, symbol), idx) =>
       RefundingCurrency.values.find(_.toString.equalsIgnoreCase(name)).map { v =>
         uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
-          content = Text(msgs(s"refundingCurrency.${v.toString}")),
+          content = Text(msgs(s"refundingCurrency.${v.toString}", symbol)),
           value   = Some(v.toString),
           id      = Some(if (idx == 0) "value" else s"value_$idx")
         )
