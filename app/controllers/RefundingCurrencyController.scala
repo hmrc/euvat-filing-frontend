@@ -120,7 +120,7 @@ class RefundingCurrencyController @Inject() (
         uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
           content = Text(msgs(s"refundingCurrency.${v.toString}")),
           value   = Some(v.toString),
-          id      = Some(s"value_$idx")
+          id      = Some(if (idx == 0) "value" else s"value_$idx")
         )
       }
     }
