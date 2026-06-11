@@ -22,7 +22,7 @@ import forms.RefundingLanguageFormProvider
 import javax.inject.Inject
 import models.{Mode, NormalMode}
 import navigation.Navigator
-import pages.RefundingLanguagePage
+import pages.*
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -34,7 +34,7 @@ import play.api.Logger
 import models.RefundingLanguage
 import play.api.data.Form
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
-import utils.ConfigLanguageMapping
+import utils.*
 
 class RefundingLanguageController @Inject() (
   override val messagesApi: MessagesApi,
@@ -45,6 +45,7 @@ class RefundingLanguageController @Inject() (
   requireData: DataRequiredAction,
   formProvider: RefundingLanguageFormProvider,
   configLanguageMapping: ConfigLanguageMapping,
+  configCurrencyMapping: ConfigCurrencyMapping,
   val controllerComponents: MessagesControllerComponents,
   view: RefundingLanguageView
 )(implicit ec: ExecutionContext)
@@ -89,18 +90,16 @@ class RefundingLanguageController @Inject() (
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-
     form
       .bindFromRequest()
       .fold(
         formWithErrors =>
-          // need country code to rebuild options; support either RefundingCountryPage or delimited RefundingCountryNamePage
           val maybeCountryCode = request.userAnswers.get(pages.RefundingCountryPage).orElse {
             request.userAnswers.get(pages.RefundingCountryNamePage).map { stored =>
               stored.split(",", 2).headOption.getOrElse(stored)
             }
           }
-
+          // need country code to rebuild options; support either RefundingCountryPage or delimited RefundingCountryNamePage
           maybeCountryCode match {
             case None =>
               logger.warn(
@@ -120,13 +119,27 @@ class RefundingLanguageController @Inject() (
                 }
               }
               Future.successful(BadRequest(view(formWithErrors, items, routes.RefundingCountryController.onPageLoad(mode), mode)))
-          }
-        ,
+          },
         value =>
+          val maybeCountryCode = request.userAnswers.get(pages.RefundingCountryPage).orElse {
+            request.userAnswers.get(pages.RefundingCountryNamePage).map { stored =>
+              stored.split(",", 2).headOption.getOrElse(stored)
+            }
+          }
+          val autoStoredCurrencyCode = maybeCountryCode.flatMap { code =>
+            if (!configCurrencyMapping.requiresCurrencySelection(code))
+              configCurrencyMapping.currenciesFor(code).headOption.map(_._2)
+            else
+              None
+          }
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(RefundingLanguagePage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(RefundingLanguagePage, mode, updatedAnswers))
+            updatedAnswers  <- Future.fromTry(request.userAnswers.set(RefundingLanguagePage, value))
+            updatedAnswers2 <- autoStoredCurrencyCode match {
+              case Some(currencyCode) => Future.fromTry(updatedAnswers.set(RefundingCurrencyPage, currencyCode))
+              case None               => Future.successful(updatedAnswers)
+            }
+            _               <- sessionRepository.set(updatedAnswers2)
+          } yield Redirect(navigator.nextPage(RefundingLanguagePage, mode, updatedAnswers2))
       )
   }
 }
