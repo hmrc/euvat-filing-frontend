@@ -41,7 +41,7 @@ class BusinessActivityThreeController @Inject() (
     val userAnswers = request.userAnswers
     (userAnswers.get(BusinessActivityCodePage), userAnswers.get(BusinessActivityCodeTwoPage), userAnswers.get(BusinessActivityCodeThreePage)) match {
       case (Some(baCode1), Some(baCode2), Some(baCode3)) =>
-        Ok(view(baCode1, baCode2, baCode3))
+        Ok(view(baCode1, baCode2, baCode3)).addingToSession("removeOrigin" -> "business-activity-3")(request)
 
       case _ =>
         logger.warn("Data guard error, missing required information")

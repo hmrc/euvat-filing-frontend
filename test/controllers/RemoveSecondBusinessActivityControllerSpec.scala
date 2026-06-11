@@ -35,7 +35,7 @@ class RemoveSecondBusinessActivityControllerSpec extends SpecBase with MockitoSu
   val formProvider = new RemoveBusinessActivityFormProvider()
   val form = formProvider()
 
-  lazy val removeRoute = routes.RemoveSecondBusinessActivityController.onPageLoad().url + "?origin=business-activity-2"
+  lazy val removeRoute = routes.RemoveSecondBusinessActivityController.onPageLoad().url
 
   "RemoveSecondBusinessActivity Controller" - {
 
@@ -44,7 +44,7 @@ class RemoveSecondBusinessActivityControllerSpec extends SpecBase with MockitoSu
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, removeRoute)
+        val request = FakeRequest(GET, removeRoute).withSession("removeOrigin" -> "business-activity-2")
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -60,7 +60,7 @@ class RemoveSecondBusinessActivityControllerSpec extends SpecBase with MockitoSu
       val application = applicationBuilder(userAnswers = Some(userAnswers)).overrides(bind[SessionRepository].toInstance(mockSessionRepository)).build()
 
       running(application) {
-        val request = FakeRequest(POST, removeRoute).withFormUrlEncodedBody(("value", "true"))
+        val request = FakeRequest(POST, removeRoute).withSession("removeOrigin" -> "business-activity-2").withFormUrlEncodedBody(("value", "true"))
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -79,7 +79,7 @@ class RemoveSecondBusinessActivityControllerSpec extends SpecBase with MockitoSu
       val application = applicationBuilder(userAnswers = Some(userAnswers)).overrides(bind[SessionRepository].toInstance(mockSessionRepository)).build()
 
       running(application) {
-        val request = FakeRequest(POST, removeRoute).withFormUrlEncodedBody(("value", "true"))
+        val request = FakeRequest(POST, removeRoute).withSession("removeOrigin" -> "business-activity-2").withFormUrlEncodedBody(("value", "true"))
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -95,8 +95,7 @@ class RemoveSecondBusinessActivityControllerSpec extends SpecBase with MockitoSu
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val removeRoute3 = routes.RemoveSecondBusinessActivityController.onPageLoad().url + "?origin=business-activity-3"
-        val request = FakeRequest(POST, removeRoute3).withFormUrlEncodedBody(("value", "true"))
+        val request = FakeRequest(POST, removeRoute).withSession("removeOrigin" -> "business-activity-3").withFormUrlEncodedBody(("value", "true"))
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -110,7 +109,7 @@ class RemoveSecondBusinessActivityControllerSpec extends SpecBase with MockitoSu
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(POST, removeRoute).withFormUrlEncodedBody(("value", "false"))
+        val request = FakeRequest(POST, removeRoute).withSession("removeOrigin" -> "business-activity-2").withFormUrlEncodedBody(("value", "false"))
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -126,8 +125,7 @@ class RemoveSecondBusinessActivityControllerSpec extends SpecBase with MockitoSu
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val removeRoute3 = routes.RemoveSecondBusinessActivityController.onPageLoad().url + "?origin=business-activity-3"
-        val request = FakeRequest(POST, removeRoute3).withFormUrlEncodedBody(("value", "false"))
+        val request = FakeRequest(POST, removeRoute).withSession("removeOrigin" -> "business-activity-3").withFormUrlEncodedBody(("value", "false"))
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER

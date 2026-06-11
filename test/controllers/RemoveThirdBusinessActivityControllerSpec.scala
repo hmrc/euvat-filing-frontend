@@ -35,7 +35,7 @@ class RemoveThirdBusinessActivityControllerSpec extends SpecBase with MockitoSug
   val formProvider = new RemoveBusinessActivityFormProvider()
   val form = formProvider()
 
-  lazy val removeRoute = routes.RemoveThirdBusinessActivityController.onPageLoad().url + "?origin=business-activity-3"
+  lazy val removeRoute = routes.RemoveThirdBusinessActivityController.onPageLoad().url
 
   "RemoveThirdBusinessActivity Controller" - {
 
@@ -44,7 +44,7 @@ class RemoveThirdBusinessActivityControllerSpec extends SpecBase with MockitoSug
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, removeRoute)
+        val request = FakeRequest(GET, removeRoute).withSession("removeOrigin" -> "business-activity-3")
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -60,7 +60,7 @@ class RemoveThirdBusinessActivityControllerSpec extends SpecBase with MockitoSug
       val application = applicationBuilder(userAnswers = Some(userAnswers)).overrides(bind[SessionRepository].toInstance(mockSessionRepository)).build()
 
       running(application) {
-        val request = FakeRequest(POST, removeRoute).withFormUrlEncodedBody(("value", "true"))
+        val request = FakeRequest(POST, removeRoute).withSession("removeOrigin" -> "business-activity-3").withFormUrlEncodedBody(("value", "true"))
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -74,7 +74,7 @@ class RemoveThirdBusinessActivityControllerSpec extends SpecBase with MockitoSug
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(POST, removeRoute).withFormUrlEncodedBody(("value", "false"))
+        val request = FakeRequest(POST, removeRoute).withSession("removeOrigin" -> "business-activity-3").withFormUrlEncodedBody(("value", "false"))
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER

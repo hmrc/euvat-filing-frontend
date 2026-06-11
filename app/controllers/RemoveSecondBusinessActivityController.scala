@@ -53,24 +53,43 @@ class RemoveSecondBusinessActivityController @Inject() (
     case _                              => routes.BusinessActivityTwoController.onPageLoad(mode)
   }
 
-  private def parseOrigin(implicit request: play.api.mvc.Request[_]): Option[String] = request.getQueryString("origin")
+  private val SessionOriginKey = "removeOrigin"
+  private val SessionModeKey   = "removeMode"
 
-  private def parseMode(implicit request: play.api.mvc.Request[_]): Mode = request.getQueryString("mode") match {
-    case Some("check") => CheckMode
-    case _              => NormalMode
-  }
+  private def parseOrigin(implicit request: play.api.mvc.Request[_]): Option[String] =
+    request.getQueryString("origin").orElse(request.session.get(SessionOriginKey))
 
-    def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-      val form = formProvider("removeSecond.error.required")
-        val origin = parseOrigin
-        val mode = parseMode
-
-        val qs = origin.map(o => s"?origin=$o" + (if (mode == CheckMode) "&mode=check" else "")).getOrElse(if (mode == CheckMode) "?mode=check" else "")
-        val actionCall = Call("POST", routes.RemoveSecondBusinessActivityController.onSubmit().url + qs)
-
-        // show the 2nd BA image on this remove page
-        Ok(view(form, headingKey, actionCall, backLinkFrom(origin, mode), mode, Some("/assets/images/2nd-ba-image.png")))
+  private def parseMode(implicit request: play.api.mvc.Request[_]): Mode =
+    request.getQueryString("mode") match {
+      case Some("check") => CheckMode
+      case _ => request.session.get(SessionModeKey) match {
+        case Some("check") => CheckMode
+        case _ => NormalMode
+      }
     }
+
+  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+    val form = formProvider("removeSecond.error.required")
+    val origin = parseOrigin
+    val mode = parseMode
+
+    val actionCall = Call("POST", routes.RemoveSecondBusinessActivityController.onSubmit().url)
+
+    val result = Ok(view(form, headingKey, actionCall, backLinkFrom(origin, mode), mode))
+
+    // if origin or mode present as query params, persist them in the session for subsequent POST
+    val reqWithOrigin = request.getQueryString("origin") match {
+      case Some(o) => result.addingToSession(SessionOriginKey -> o)(request)
+      case None    => result
+    }
+
+    val reqWithMode = request.getQueryString("mode") match {
+      case Some("check") => reqWithOrigin.addingToSession(SessionModeKey -> "check")(request)
+      case _               => reqWithOrigin
+    }
+
+    reqWithMode
+  }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
       val form = formProvider("removeSecond.error.required")
@@ -82,8 +101,7 @@ class RemoveSecondBusinessActivityController @Inject() (
         .fold(
           formWithErrors =>
             {
-              val qs = origin.map(o => s"?origin=$o" + (if (mode == CheckMode) "&mode=check" else "")).getOrElse(if (mode == CheckMode) "?mode=check" else "")
-              val actionCall = Call("POST", routes.RemoveSecondBusinessActivityController.onSubmit().url + qs)
+              val actionCall = Call("POST", routes.RemoveSecondBusinessActivityController.onSubmit().url)
               Future.successful(BadRequest(view(formWithErrors, headingKey, actionCall, backLinkFrom(origin, mode), mode)))
             },
           {
@@ -110,10 +128,13 @@ class RemoveSecondBusinessActivityController @Inject() (
               for {
                 _ <- sessionRepository.set(updatedAnswers)
               } yield {
-                origin match {
+                val redirect = origin match {
                   case Some("business-activity-3") => Redirect(routes.BusinessActivityTwoController.onPageLoad(NormalMode))
                   case _                             => Redirect(routes.BusinessActivityController.onPageLoad(NormalMode))
                 }
+
+                // clear the stored origin/mode from the session
+                redirect.removingFromSession(SessionOriginKey, SessionModeKey)(request)
               }
 
             case false =>
