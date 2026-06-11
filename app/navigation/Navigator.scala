@@ -78,12 +78,18 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping) {
     }
     maybeCountryCode match {
       case Some(countryCode) if configCurrencyMapping.requiresCurrencySelection(countryCode) =>
-        routes.RefundingCurrencyController.onPageLoad(mode)
-      case Some(_) =>
         mode match {
-          case NormalMode => routes.RefundPeriodController.onPageLoad(mode)
-          case CheckMode  => routes.CheckYourClaimDetailsController.onPageLoad()
+          case NormalMode => routes.RefundingCurrencyController.onPageLoad(mode)
+          case CheckMode  =>
+            if (userAnswers.get(pages.RefundingCurrencyPage).isDefined)
+              routes.CheckYourClaimDetailsController.onPageLoad()
+            else
+              routes.RefundingCurrencyController.onPageLoad(mode)
         }
+      case Some(_) => mode match {
+        case NormalMode => routes.RefundPeriodController.onPageLoad(mode)
+        case CheckMode  => routes.CheckYourClaimDetailsController.onPageLoad()
+      }
       case None =>
         routes.JourneyRecoveryController.onPageLoad()
     }
