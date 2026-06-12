@@ -45,11 +45,11 @@
             rows = Seq(
                 (messages("businessActivityThree.ba2.label"), Some(baCode2), Seq(
                     (routes.BusinessActivityCodeTwoController.onPageLoad(CheckMode).url+"?key=ba3Page", "site.change", "businessActivityThree.ba2.change.hidden"),
-                    ("#", "site.remove", "businessActivityThree.ba2.remove.hidden")
+                    (routes.RemoveSecondBusinessActivityController.onPageLoad().url, "site.remove", "businessActivityThree.ba2.remove.hidden")
                 )),
                 (messages("businessActivityThree.ba3.label"), Some(baCode3), Seq(
                     (routes.BusinessActivityCodeThreeController.onPageLoad(CheckMode).url, "site.change", "businessActivityThree.ba3.change.hidden"),
-                    ("#", "site.remove", "businessActivityThree.ba3.remove.hidden")
+                    (routes.RemoveThirdBusinessActivityController.onPageLoad().url, "site.remove", "businessActivityThree.ba3.remove.hidden")
                 ))
             )
         )
