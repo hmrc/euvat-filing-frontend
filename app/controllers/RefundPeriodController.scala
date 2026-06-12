@@ -104,28 +104,64 @@ class RefundPeriodController @Inject() (
             val endDate = value.end.atEndOfMonth().atTime(23, 59, 59)
 
             val maybeRegDate = traderResponse.dateOfRegistration
-            val maybeDeregDate = traderResponse.dateOfRegistration
+            val maybeDeregDate = traderResponse.dateOfDeregistration
 
-            val registrationError = maybeRegDate match {
-              case Some(regDate) =>
-                if (startDate.isBefore(regDate))
-                  Some("start" -> "refundPeriod.error.periodStartDateAfterVatRegistration")
-                else None
-              case None => None
-            }
+            maybeRegDate match {
 
-            for {
-              updatedAnswers <- Future.fromTry(
-                                  request.userAnswers.set(
-                                    RefundPeriodPage,
-                                    RefundPeriod(
-                                      java.time.YearMonth.of(value.start.getYear, value.start.getMonthValue).atDay(1).atStartOfDay(),
-                                      java.time.YearMonth.of(value.end.getYear, value.end.getMonthValue).atEndOfMonth().atTime(23, 59, 59, 999000000)
+              case Some(regDate) if !startDate.isBefore(regDate) =>
+                for {
+                  updatedAnswers <- Future.fromTry(
+                                      request.userAnswers.set(
+                                        RefundPeriodPage,
+                                        RefundPeriod(
+                                          java.time.YearMonth.of(value.start.getYear, value.start.getMonthValue).atDay(1).atStartOfDay(),
+                                          java.time.YearMonth
+                                            .of(value.end.getYear, value.end.getMonthValue)
+                                            .atEndOfMonth()
+                                            .atTime(23, 59, 59, 999000000)
+                                        )
+                                      )
                                     )
-                                  )
-                                )
-              _ <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(RefundPeriodPage, mode, updatedAnswers))
+                  _ <- sessionRepository.set(updatedAnswers)
+                } yield Redirect(navigator.nextPage(RefundPeriodPage, mode, updatedAnswers))
+
+              case Some(regDate) =>
+                val errorForm = formProvider().fill(value).withError("start.month", "refundPeriod.error.periodStartDateAfterVatRegistration")
+                val (mappedForm, highlighted) = formProvider.withMappedErrors(errorForm)
+                val startMsg = errorMessage(mappedForm, Seq("start", "start.month", "start.year"))
+                val endMsg = errorMessage(mappedForm, Seq("end", "end.month", "end.year"))
+
+                Future successful (
+                  BadRequest(
+                    view(
+                      mappedForm,
+                      mode,
+                      controllers.routes.RefundingLanguageController.onPageLoad(mode),
+                      startMsg,
+                      endMsg,
+                      highlighted,
+                      errorLinkOverrides(mappedForm)
+                    )
+                  )
+                )
+
+              case None =>
+                for {
+                  updatedAnswers <- Future.fromTry(
+                                      request.userAnswers.set(
+                                        RefundPeriodPage,
+                                        RefundPeriod(
+                                          java.time.YearMonth.of(value.start.getYear, value.start.getMonthValue).atDay(1).atStartOfDay(),
+                                          java.time.YearMonth
+                                            .of(value.end.getYear, value.end.getMonthValue)
+                                            .atEndOfMonth()
+                                            .atTime(23, 59, 59, 999000000)
+                                        )
+                                      )
+                                    )
+                  _ <- sessionRepository.set(updatedAnswers)
+                } yield Redirect(navigator.nextPage(RefundPeriodPage, mode, updatedAnswers))
+            }
           }
       )
   }

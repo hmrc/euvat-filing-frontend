@@ -145,7 +145,6 @@ refundPeriod.error.periodEndDateAfterVatDeregistration = Refund period end date 
 refundPeriod.error.periodStartDateBeforeVatRegistrationYear = Refund period start date cannot be before the year of your VAT registration
 refundPeriod.error.countryNotValidForPeriod = {0} is not valid for the refund period being claimed
 
-
 contactDetails.title = How should we contact you about this claim?
 contactDetails.heading = How should we contact you about this claim?
 contactDetails.contactEmail.label = Email address
