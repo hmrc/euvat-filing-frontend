@@ -22,7 +22,7 @@ import models.{NormalMode, UserAnswers}
 import models.Mode
 import models.CheckMode
 import navigation.Navigator
-import pages.BusinessActivityCodeThreePage
+import pages.{BusinessActivityCodePage, BusinessActivityCodeTwoPage, BusinessActivityCodeThreePage}
 import play.api.Configuration
 import play.api.data.FormError
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -66,27 +66,58 @@ class BusinessActivityCodeThreeController @Inject() (
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    val (activities, form) = buildListAndForm()
     val baseAnswers: UserAnswers = request.userAnswers
+    val excludeCodes = baseAnswers.get(BusinessActivityCodePage).toSeq.toSet ++ baseAnswers.get(BusinessActivityCodeTwoPage).toSeq.toSet
+    val (activities, form) = buildListAndForm()
 
     val boundResult = form
       .bindFromRequest()
       .fold(
         formWithErrors => {
           val typed = request.body.asFormUrlEncoded.flatMap(_.get("valueTyped").flatMap(_.headOption)).getOrElse("")
-          val adjustedForm = if (typed.trim.nonEmpty) {
-            val filtered = formWithErrors.errors.filterNot(e => e.key == "value" && e.message == "businessActivityCodeThree.error.required")
-            formWithErrors.copy(errors = filtered :+ FormError("value", "businessActivityCodeThree.error.invalid"))
+          val submitted = request.body.asFormUrlEncoded.flatMap(_.get("value").flatMap(_.headOption)).getOrElse("")
+          // if the submitted value is one of the excluded codes, replace the error with a duplicate-specific message
+          val duplicateFrom = if (baseAnswers.get(BusinessActivityCodeTwoPage).contains(submitted)) Some("Business activity 2")
+                              else if (baseAnswers.get(BusinessActivityCodePage).contains(submitted)) Some("Business activity 1")
+                              else None
+
+          if (duplicateFrom.isDefined) {
+            
+            val duplicateError = FormError("value", "businessActivityCodeThree.error.duplicate", Seq(duplicateFrom.get, submitted))
+            val filtered = formWithErrors.errors.filterNot(e => e.key == "value")
+            val adjustedForm = formWithErrors.copy(errors = filtered :+ duplicateError)
+            
+            Future.successful(BadRequest(view(adjustedForm, activities, Some(routes.BusinessActivityTwoController.onPageLoad(mode).url), mode)))
           } else {
-            formWithErrors
+            val adjustedForm = if (typed.trim.nonEmpty) {
+              val filtered = formWithErrors.errors.filterNot(e => e.key == "value" && e.message == "businessActivityCodeThree.error.required")
+              formWithErrors.copy(errors = filtered :+ FormError("value", "businessActivityCodeThree.error.invalid"))
+            } else {
+              formWithErrors
+            }
+            Future.successful(BadRequest(view(adjustedForm, activities, Some(routes.BusinessActivityTwoController.onPageLoad(mode).url), mode)))
           }
-          Future.successful(BadRequest(view(adjustedForm, activities, Some(routes.BusinessActivityTwoController.onPageLoad(mode).url), mode)))
         },
         value => {
-          for {
-            updatedAnswers <- Future.fromTry(baseAnswers.set(BusinessActivityCodeThreePage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(BusinessActivityCodeThreePage, mode, updatedAnswers))
+          // log stored answers and submitted value for debugging duplicate detection
+          Logger(getClass).info(s"BusinessActivityCodeThreeController.onSubmit - stored BA1=${baseAnswers.get(BusinessActivityCodePage)} BA2=${baseAnswers.get(BusinessActivityCodeTwoPage)} submitted=$value")
+
+          // if the submitted value duplicates BA1 or BA2, show duplicate error
+          val duplicateFrom = if (baseAnswers.get(BusinessActivityCodeTwoPage).contains(value)) Some("Business activity 2")
+                              else if (baseAnswers.get(BusinessActivityCodePage).contains(value)) Some("Business activity 1")
+                              else None
+
+          duplicateFrom match {
+            case Some(from) =>
+                val duplicateError = FormError("value", "businessActivityCodeThree.error.duplicate", Seq(from, value))
+                val duplicateForm = form.copy(errors = form.errors :+ duplicateError)
+                Future.successful(BadRequest(view(duplicateForm, activities, Some(routes.BusinessActivityTwoController.onPageLoad(mode).url), mode)))
+            case None =>
+              for {
+                updatedAnswers <- Future.fromTry(baseAnswers.set(BusinessActivityCodeThreePage, value))
+                _              <- sessionRepository.set(updatedAnswers)
+              } yield Redirect(navigator.nextPage(BusinessActivityCodeThreePage, mode, updatedAnswers))
+          }
         }
       )
 

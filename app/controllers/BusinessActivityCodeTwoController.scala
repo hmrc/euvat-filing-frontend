@@ -22,7 +22,7 @@ import models.{NormalMode, UserAnswers}
 import models.Mode
 import models.CheckMode
 import navigation.Navigator
-import pages.{BusinessActivityCodeTwoPage, BusinessActivityThreePage}
+import pages.{BusinessActivityCodePage, BusinessActivityCodeTwoPage, BusinessActivityThreePage}
 import play.api.Configuration
 import play.api.data.FormError
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -61,8 +61,8 @@ class BusinessActivityCodeTwoController @Inject() (
   }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val (activities, form) = buildListAndForm()
     val userAnswers = request.userAnswers
+    val (activities, form) = buildListAndForm()
     val keyValue = request.getQueryString("key").getOrElse("") // check if page 3 Change link clicked otherwise empty
 
     for {
@@ -75,8 +75,9 @@ class BusinessActivityCodeTwoController @Inject() (
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    val (activities, form) = buildListAndForm()
     val baseAnswers: UserAnswers = request.userAnswers
+    val excludeCodes = baseAnswers.get(BusinessActivityCodePage).toSeq.toSet
+    val (activities, form) = buildListAndForm()
     val page3 = baseAnswers.get(BusinessActivityThreePage)
 
     val boundResult = form
@@ -84,25 +85,40 @@ class BusinessActivityCodeTwoController @Inject() (
       .fold(
         formWithErrors => {
           val typed = request.body.asFormUrlEncoded.flatMap(_.get("valueTyped").flatMap(_.headOption)).getOrElse("")
-          val adjustedForm = if (typed.trim.nonEmpty) {
-            val filtered = formWithErrors.errors.filterNot(e => e.key == "value" && e.message == "businessActivityCodeTwo.error.required")
-            formWithErrors.copy(errors = filtered :+ FormError("value", "businessActivityCodeTwo.error.invalid"))
+          val submitted = request.body.asFormUrlEncoded.flatMap(_.get("value").flatMap(_.headOption)).getOrElse("")
+          // if the submitted value is one of the excluded codes, replace the error with a duplicate-specific message
+          if (excludeCodes.contains(submitted)) {
+            val duplicateError = FormError("value", "businessActivityCodeTwo.error.duplicate", Seq("Business activity 1", submitted))
+            val filtered = formWithErrors.errors.filterNot(e => e.key == "value")
+            val adjustedForm = formWithErrors.copy(errors = filtered :+ duplicateError)
+            Future.successful(BadRequest(view(adjustedForm, activities, Some(routes.BusinessActivityController.onPageLoad(mode).url), mode)))
           } else {
-            formWithErrors
+            val adjustedForm = if (typed.trim.nonEmpty) {
+              val filtered = formWithErrors.errors.filterNot(e => e.key == "value" && e.message == "businessActivityCodeTwo.error.required")
+              formWithErrors.copy(errors = filtered :+ FormError("value", "businessActivityCodeTwo.error.invalid"))
+            } else {
+              formWithErrors
+            }
+            Future.successful(BadRequest(view(adjustedForm, activities, Some(routes.BusinessActivityController.onPageLoad(mode).url), mode)))
           }
-          Future.successful(BadRequest(view(adjustedForm, activities, Some(routes.BusinessActivityController.onPageLoad(mode).url), mode)))
         },
         value => {
-          for {
-            updatedAnswer1 <- Future.fromTry(baseAnswers.set(BusinessActivityCodeTwoPage, value))
-            updatedAnswers <- Future.fromTry(updatedAnswer1.remove(BusinessActivityThreePage)) // clear the page 3 session
-            -              <- sessionRepository.set(updatedAnswers)
-          } yield
-            if (page3.contains("ba3Page")) { // Check if page 3 is clicked then navigate accordingly
-              Redirect(routes.BusinessActivityThreeController.onPageLoad().url)
-            } else {
-              Redirect(routes.BusinessActivityTwoController.onPageLoad(NormalMode).url)
-            }
+          // if the submitted value duplicates business activity 1, show duplicate error
+          if (excludeCodes.contains(value)) {
+            val duplicateForm = form.withError("value", "businessActivityCodeTwo.error.duplicate", Seq("Business activity 1", value))
+            Future.successful(BadRequest(view(duplicateForm, activities, Some(routes.BusinessActivityController.onPageLoad(mode).url), mode)))
+          } else {
+            for {
+              updatedAnswer1 <- Future.fromTry(baseAnswers.set(BusinessActivityCodeTwoPage, value))
+              updatedAnswers <- Future.fromTry(updatedAnswer1.remove(BusinessActivityThreePage)) // clear the page 3 session
+              -              <- sessionRepository.set(updatedAnswers)
+            } yield
+              if (page3.contains("ba3Page")) { // Check if page 3 is clicked then navigate accordingly
+                Redirect(routes.BusinessActivityThreeController.onPageLoad().url)
+              } else {
+                Redirect(routes.BusinessActivityTwoController.onPageLoad(NormalMode).url)
+              }
+          }
         }
       )
 
