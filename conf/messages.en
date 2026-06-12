@@ -160,6 +160,7 @@ businessActivityCodeTwo.error.summary = Enter a business activity code
 businessActivityCodeTwo.error.required = Enter a business activity code
 businessActivityCodeTwo.error.invalid = Enter a valid business activity code
 businessActivityCodeTwo.error.invalid.summary = Enter a valid business activity code
+businessActivityCodeTwo.error.duplicate = Use a different code. Your {0} uses {1} code
 
 businessActivityTwo.title = Business activities for this claim
 businessActivityTwo.heading = Business activities for this claim
@@ -175,6 +176,7 @@ businessActivityCodeThree.error.summary = Enter a business activity code
 businessActivityCodeThree.error.required = Enter a business activity code
 businessActivityCodeThree.error.invalid = Enter a valid business activity code
 businessActivityCodeThree.error.invalid.summary = Enter a valid business activity code
+businessActivityCodeThree.error.duplicate = Use a different code. Your {0} uses {1} code
 businessActivityCodeThree.checkYourAnswersLabel = 3rd business activity code
 businessActivityCodeThree.change.hidden = Change the 3rd business activity code
 
