@@ -18,16 +18,21 @@ package controllers
 
 import controllers.actions.*
 import forms.{RefundPeriodData, RefundPeriodFormProvider}
+import models.requests.DataRequest
+import models.responses.TraderKnownFactsResponse
 import models.{Mode, RefundPeriod}
 import navigation.Navigator
 import pages.RefundPeriodPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Request, Result}
+import queries.TraderKnownFactsQuery
 import repositories.SessionRepository
+import services.EuVatRefundsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.RefundPeriodView
 
+import java.time.{LocalDate, LocalDateTime, YearMonth}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -39,6 +44,7 @@ class RefundPeriodController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: RefundPeriodFormProvider,
+  euVatRefundsService: EuVatRefundsService,
   val controllerComponents: MessagesControllerComponents,
   view: RefundPeriodView
 )(implicit ec: ExecutionContext)
@@ -47,8 +53,8 @@ class RefundPeriodController @Inject() (
 
   private def errorMessage(form: Form[RefundPeriodData], keys: Seq[String])(implicit messages: Messages): Option[String] = {
     val errors = form.errors.filter(e => keys.contains(e.key))
-    if (errors.isEmpty) None
-    else Some(errors.map(e => messages(e.message, e.args*)).mkString("<br>"))
+    if (errors.isEmpty) { None }
+    else { Some(errors.map(e => messages(e.message, e.args*)).mkString("<br>")) }
   }
 
   private def errorLinkOverrides(form: Form[RefundPeriodData]): Map[String, String] = Map(
@@ -84,40 +90,88 @@ class RefundPeriodController @Inject() (
     )
   }
 
+  private def renderError(form: Form[RefundPeriodData], mode: Mode)(implicit request: Request[AnyContent], messages: Messages) = {
+    val (mappedForm, highlighted) = formProvider.withMappedErrors(form)
+    val startMsg = errorMessage(mappedForm, Seq("start", "start.month", "start.year"))
+    val endMsg = errorMessage(mappedForm, Seq("end", "end.month", "end.year"))
+
+    Future.successful(
+      BadRequest(
+        view(
+          mappedForm,
+          mode,
+          controllers.routes.RefundingLanguageController.onPageLoad(mode),
+          startMsg,
+          endMsg,
+          highlighted,
+          errorLinkOverrides(mappedForm)
+        )
+      )
+    )
+  }
+
+  private def isStartDateValid(startDate: LocalDate, regDate: LocalDate): Boolean = {
+    val start = YearMonth.from(startDate)
+    val reg = YearMonth.from(regDate)
+    val regMonth = reg.getMonthValue
+    // Case 1: Jan–Mar rule
+    if (regMonth >= 1 && regMonth <= 3) {
+      // Same month/year OR after regDate (same year)
+      start.equals(reg) || (start.isAfter(reg) && (start.getYear == reg.getYear))
+    } else {
+      // Case 2: Apr–Dec rule
+      val min = reg.minusMonths(3)
+      !start.isBefore(min) || !start.isAfter(reg) && (start.getYear == reg.getYear)
+    }
+  }
+
+  private def saveAndRedirect(
+    traderResponse: TraderKnownFactsResponse,
+    startDate: LocalDateTime,
+    endDate: LocalDateTime,
+    mode: Mode
+  )(using request: DataRequest[?], ec: ExecutionContext): Future[Result] = {
+    val refundPeriod = RefundPeriod(startDate, endDate)
+
+    for
+      updatedAnswer1 <- Future.fromTry(request.userAnswers.set(TraderKnownFactsQuery, traderResponse))
+      updatedAnswers <- Future.fromTry(updatedAnswer1.set(RefundPeriodPage, refundPeriod))
+      _              <- sessionRepository.set(updatedAnswers)
+    yield Redirect(navigator.nextPage(RefundPeriodPage, mode, updatedAnswers))
+  }
+
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    formProvider()
+    val baseForm = formProvider()
+
+    baseForm
       .bindFromRequest()
       .fold(
-        formWithErrors => {
-          val (mappedForm, highlighted) = formProvider.withMappedErrors(formWithErrors)
-          val startMsg = errorMessage(mappedForm, Seq("start", "start.month", "start.year"))
-          val endMsg = errorMessage(mappedForm, Seq("end", "end.month", "end.year"))
-          Future.successful(
-            BadRequest(
-              view(mappedForm,
-                   mode,
-                   controllers.routes.RefundingLanguageController.onPageLoad(mode),
-                   startMsg,
-                   endMsg,
-                   highlighted,
-                   errorLinkOverrides(mappedForm)
-                  )
-            )
-          )
-        },
+        formWithErrors => renderError(formWithErrors, mode),
         value =>
-          for {
-            updatedAnswers <- Future.fromTry(
-                                request.userAnswers.set(
-                                  RefundPeriodPage,
-                                  RefundPeriod(
-                                    java.time.YearMonth.of(value.start.getYear, value.start.getMonthValue).atDay(1).atStartOfDay(),
-                                    java.time.YearMonth.of(value.end.getYear, value.end.getMonthValue).atEndOfMonth().atTime(23, 59, 59, 999000000)
-                                  )
-                                )
-                              )
-            _ <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(RefundPeriodPage, mode, updatedAnswers))
+          euVatRefundsService.retrieveTraderKnownFacts().flatMap { traderResponse =>
+            val startDate = java.time.YearMonth.of(value.start.getYear, value.start.getMonthValue).atDay(1).atStartOfDay()
+            val endDate = java.time.YearMonth.of(value.end.getYear, value.end.getMonthValue).atEndOfMonth().atTime(23, 59, 59, 999000000)
+
+            (traderResponse.dateOfRegistration, traderResponse.dateOfDeregistration) match {
+              case (Some(regDate), Some(deRegDate)) =>
+                val maybeErrorForm =
+                  if (!isStartDateValid(startDate.toLocalDate, regDate.toLocalDate)) {
+                    Some(baseForm.fill(value).withError("start", "refundPeriod.error.periodStartDateBeforeRegDate"))
+                  } else if (YearMonth.from(endDate).isAfter(YearMonth.from(deRegDate))) {
+                    Some(baseForm.fill(value).withError("end", "refundPeriod.error.periodEndDateBeforeDeRegDate"))
+                  } else {
+                    None
+                  }
+
+                maybeErrorForm match
+                  case Some(formWithError) => renderError(formWithError, mode)
+                  case None                => saveAndRedirect(traderResponse, startDate, endDate, mode)
+
+              // Missing reg or deReg dates → proceed normally
+              case _ => saveAndRedirect(traderResponse, startDate, endDate, mode)
+            }
+          }
       )
   }
+
 }
