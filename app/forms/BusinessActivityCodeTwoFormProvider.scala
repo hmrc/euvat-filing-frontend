@@ -23,20 +23,9 @@ import play.api.data.Form
 
 class BusinessActivityCodeTwoFormProvider @Inject() extends Mappings {
 
-  def apply(allowedValues: Set[String]): Form[String] =
-    import play.api.data.validation.{Constraint, Invalid, Valid}
-
+  def apply(): Form[String] =
     Form(
       "value" -> text("businessActivityCodeTwo.error.required")
-        .verifying(
-          firstError[
-            String
-          ](
-            Constraint {
-              case v if allowedValues.contains(v) => Valid
-              case _                              => Invalid("businessActivityCodeTwo.error.invalid")
-            }
-          )
-        )
+        .verifying(maxLength(businessActivityCodeMaxLength, "businessActivityCodeTwo.error.invalid"))
     )
 }

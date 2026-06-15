@@ -22,8 +22,7 @@ import play.api.data.FormError
 class BusinessActivityCodeTwoFormProviderSpec extends StringFieldBehaviours with FieldBehaviours {
 
   private val formProvider = new BusinessActivityCodeTwoFormProvider()
-  private val allowed = Set("25344", "45200", "47110", "11010")
-  private val form = formProvider(allowed)
+  private val form = formProvider()
 
   ".value" - {
 

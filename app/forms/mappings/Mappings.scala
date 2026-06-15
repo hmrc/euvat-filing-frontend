@@ -73,4 +73,5 @@ trait Mappings extends Formatters with Constraints {
   val validateInvoiceNumberExpression: String = """^[a-zA-Z0-9\s\.,\-\()/=!\"%&*;<>'\+:?#$@\[\]\\\^_`{}|~]{1,30}$"""
   val supplierVatRegistrationNumberMaxLength: Int = 12
   val supplierVatRegistrationNumberRegex : String = """^[A-Za-z0-9\+\\*]{1,12}$"""
+  val businessActivityCodeMaxLength: Int = 5
 }
