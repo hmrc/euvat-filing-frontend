@@ -169,6 +169,10 @@ businessActivityTwo.ba2.label = Business activity 2
 businessActivityTwo.ba2.change.hidden = Change business activity code 2
 businessActivityTwo.ba2.remove.hidden = Remove business activity code 2
 
+removeSecond.heading = Are you sure you want to remove the second SIC code?
+removeSecond.title = Are you sure you want to remove the second SIC code?
+removeSecond.error.required = Select yes if you want to remove the second SIC code
+
 businessActivityCodeThree.title = What is the 3rd business activity?
 businessActivityCodeThree.heading = What is the 3rd business activity?
 businessActivityCodeThree.hint = Enter your SIC code or search term, for example "motor"
@@ -188,6 +192,10 @@ businessActivityThree.ba2.remove.hidden = Remove business activity code 2
 businessActivityThree.ba3.remove.hidden = Remove business activity code 3
 businessActivityThree.ba2.change.hidden = Change business activity code 2
 businessActivityThree.ba3.change.hidden = Change business activity code 3
+
+removeThird.heading = Are you sure you want to remove the third SIC code?
+removeThird.title = Are you sure you want to remove the third SIC code?
+removeThird.error.required = Select yes if you want to remove the third SIC code
 
 checkYourClaimDetails.title = Check your claim details
 checkYourClaimDetails.heading = Check your claim details

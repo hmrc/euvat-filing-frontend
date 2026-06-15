@@ -52,7 +52,7 @@
             rows = Seq(
                 (messages("businessActivityTwo.ba2.label"), Some(baCode2), Seq(
                     (routes.BusinessActivityCodeTwoController.onPageLoad(CheckMode).url, "site.change", "businessActivityTwo.ba2.change.hidden"),
-                    ("#", "site.remove", "businessActivityTwo.ba2.remove.hidden")
+                    (routes.RemoveSecondBusinessActivityController.onPageLoad().url, "site.remove", "businessActivityTwo.ba2.remove.hidden")
                 ))
             )
         )
