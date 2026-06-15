@@ -255,6 +255,13 @@ suppliersName.error.length = The supplier’s name must be 35 characters or less
 suppliersName.checkYourAnswersLabel = Supplier’s name
 suppliersName.change.hidden = Change supplier’s name
 
+supplierVatRegistrationNumber.title = What is the supplier’s VAT registration number?
+supplierVatRegistrationNumber.heading = What is the supplier’s VAT registration number?
+supplierVatRegistrationNumber.hint = This can be up to 12 characters and may start with a 2-letter EU country code. For example, FR123456789
+supplierVatRegistrationNumber.error.required = Enter the supplier’s VAT registration number
+supplierVatRegistrationNumber.error.invalid = Enter a valid supplier’s VAT registration number
+supplierVatRegistrationNumber.error.length = The supplier’s VAT registration must be 12 characters or less
+
 supplierAddress.title = What is the supplier’s address?
 supplierAddress.heading = What is the supplier’s address?
 supplierAddress.lead = Enter the supplier’s address as it appears on the invoice or receipt.
