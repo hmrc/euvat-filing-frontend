@@ -23,15 +23,13 @@ import play.api.data.Form
 
 class SupplierVatRegistrationNumberFormProvider @Inject() extends Mappings {
 
-  private val regex = "^[A-Za-z0-9\\+\\*]{1,12}$"
-
   def apply(): Form[String] =
     Form(
       "value" -> text("supplierVatRegistrationNumber.error.required")
         .verifying(
           firstError(
-            maxLength(12, "supplierVatRegistrationNumber.error.length"),
-            regexp(regex, "supplierVatRegistrationNumber.error.invalid")
+            maxLength(supplierVatRegistrationNumberMaxLength, "supplierVatRegistrationNumber.error.length"),
+            regexp(supplierVatRegistrationNumberRegex, "supplierVatRegistrationNumber.error.invalid")
           )
         )
     )

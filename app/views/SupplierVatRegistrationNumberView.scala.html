@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import viewmodels.InputWidth._
+@import viewmodels.InputWidth.*
 @import views.html.components.MainErrorSummary
 
 @this(
@@ -45,7 +45,7 @@
                     field = form("value"),
                     label = LabelViewModel(messages("supplierVatRegistrationNumber.heading")).withCssClass("govuk-visually-hidden")
                 )
-                .withWidth(TwoThirds)
+                .withCssClass("govuk-input--width-10")
                 .withAutocomplete("off")
                 .withHint(HintViewModel(Text(messages("supplierVatRegistrationNumber.hint"))))
             )
