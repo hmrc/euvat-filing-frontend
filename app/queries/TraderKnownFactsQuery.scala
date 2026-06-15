@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package pages
+package queries
 
+import models.responses.TraderKnownFactsResponse
 import play.api.libs.json.JsPath
-import models.RefundPeriod
 
-case object RefundPeriodPage extends QuestionPage[RefundPeriod] {
+case object TraderKnownFactsQuery extends Gettable[TraderKnownFactsResponse] with Settable[TraderKnownFactsResponse] {
 
-  override def path: JsPath = JsPath \ toString
-
-  override def toString: String = "refundPeriod"
+  override def path: JsPath = JsPath \ "traderKnownFacts"
 }

@@ -18,12 +18,13 @@ package controllers
 
 import controllers.actions.*
 import forms.BusinessActivityFormProvider
-import models.Mode
+import models.{Mode, UserAnswers}
 import navigation.Navigator
 import pages.{BusinessActivityCodePage, BusinessActivityCodeThreePage, BusinessActivityCodeTwoPage, BusinessActivityPage, BusinessActivityTwoPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
+import queries.TraderKnownFactsQuery
 import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -51,33 +52,32 @@ class BusinessActivityController @Inject() (
 
   private def backLink(mode: Mode): Call = routes.ContactDetailsController.onPageLoad(mode)
 
+  private def baCode(ua: UserAnswers) = ua.get(TraderKnownFactsQuery) match {
+    case Some(traderResponse) => traderResponse.tradeClass.getOrElse("")
+    case None                 => ""
+  }
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    euVatRefundsService.retrieveTraderKnownFacts().map { traderResponse =>
-      val preparedForm = request.userAnswers.get(BusinessActivityPage).fold(form)(form.fill)
-      Ok(view(preparedForm, mode, backLink(mode), traderResponse.tradeClass.getOrElse("")))
-    }
+    val preparedForm = request.userAnswers.get(BusinessActivityPage).fold(form)(form.fill)
+    Future.successful(Ok(view(preparedForm, mode, backLink(mode), baCode(request.userAnswers))))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    euVatRefundsService.retrieveTraderKnownFacts().flatMap { traderResponse =>
-      val baCode = traderResponse.tradeClass.getOrElse("")
-      form
-        .bindFromRequest()
-        .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode), baCode))),
-          value =>
-            for {
-              updateAnswer1 <- Future.fromTry(request.userAnswers.set(BusinessActivityPage, value))
-              updateAnswer2 <- Future.fromTry(updateAnswer1.set(BusinessActivityCodePage, baCode))
-              finalAnswers <- if (value) {
-                                Future.successful(updateAnswer2)
-                              } else {
-                                val remove1 = updateAnswer2.remove(BusinessActivityCodeTwoPage)
-                                Future.fromTry(remove1.flatMap(_.remove(BusinessActivityCodeThreePage)))
-                              }
-              _ <- sessionRepository.set(finalAnswers)
-            } yield Redirect(navigator.nextPage(BusinessActivityPage, mode, finalAnswers))
-        )
-    }
+    form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode), baCode(request.userAnswers)))),
+        value =>
+          for {
+            updateAnswer1 <- Future.fromTry(request.userAnswers.set(BusinessActivityPage, value))
+            updateAnswer2 <- Future.fromTry(updateAnswer1.set(BusinessActivityCodePage, baCode(updateAnswer1)))
+            finalAnswers <- if (value) {
+                              Future.successful(updateAnswer2)
+                            } else {
+                              val remove1 = updateAnswer2.remove(BusinessActivityCodeTwoPage)
+                              Future.fromTry(remove1.flatMap(_.remove(BusinessActivityCodeThreePage)))
+                            }
+            _ <- sessionRepository.set(finalAnswers)
+          } yield Redirect(navigator.nextPage(BusinessActivityPage, mode, finalAnswers))
+      )
   }
 }
