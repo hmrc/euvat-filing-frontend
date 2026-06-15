@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.{RefundPeriodData, RefundPeriodFormProvider}
 import models.{Mode, RefundPeriod}
 import navigation.Navigator
-import pages.RefundPeriodPage
+import pages.{RefundPeriodPage, RefundingCountryNamePage, RefundingCountryPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
@@ -31,6 +31,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.RefundPeriodView
 import utils.ConfigCurrencyMapping
 
+import java.time.YearMonth
 import java.time.LocalDate
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -66,6 +67,17 @@ class RefundPeriodController @Inject() (
     s"${form("start").id}.month" -> s"${form("start").id}.month",
     s"${form("end").id}.month"   -> s"${form("end").id}.month"
   )
+
+  private val countryCutoffs: Map[String, YearMonth] = Map(
+    "IC" -> YearMonth.of(2011, 1),
+    "XI" -> YearMonth.of(2011, 1),
+    "XJ" -> YearMonth.of(2011, 1),
+    "HR" -> YearMonth.of(2013, 7),
+    "MC" -> YearMonth.of(2013, 1)
+  )
+
+  private def countryCutoffFails(value: RefundPeriodData, code: Option[String]): Boolean =
+    code.flatMap(countryCutoffs.get).exists(value.start.isBefore)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(RefundPeriodPage) match {
@@ -105,6 +117,16 @@ class RefundPeriodController @Inject() (
 
             val maybeRegDate = traderResponse.dateOfRegistration
             val maybeDeregDate = traderResponse.dateOfDeregistration
+
+            val countryCode = request.userAnswers.get(RefundingCountryPage)
+            val countryName = request.userAnswers
+              .get(RefundingCountryNamePage)
+              .orElse(countryCode)
+              .getOrElse("")
+            if (countryCutoffFails(value, countryCode)) {
+              val errorForm = formProvider().fill(value).withError("start", "refundPeriod.error.countryNotValidForPeriod", countryName)
+              // need to contunue the logic for countryCutoffs
+            }
 
             maybeRegDate match {
 
