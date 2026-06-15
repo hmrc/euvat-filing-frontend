@@ -16,7 +16,8 @@
 
 package connectors
 
-import models.responses.TraderKnownFactsResponse
+import models.requests.LatestApplicationRequest
+import models.responses.{LatestApplicationResponse, TraderKnownFactsResponse}
 import play.api.Logging
 import play.api.http.Status.OK
 import play.api.libs.json.Json
@@ -41,5 +42,11 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
       .get(url"$euVatRefundsBaseUrl/traders/getKnownFacts")(hc)
       .execute[TraderKnownFactsResponse]
   }
+
+  def getLatestApplications(request: LatestApplicationRequest)(implicit hc: HeaderCarrier): Future[LatestApplicationResponse] =
+    http
+      .post(url"$euVatRefundsBaseUrl/get-latest-application")
+      .withBody(Json.toJson(request))
+      .execute[LatestApplicationResponse]
 
 }

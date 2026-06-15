@@ -19,7 +19,8 @@ package services
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import connectors.EuVatRefundsConnector
-import models.responses.TraderKnownFactsResponse
+import models.requests.LatestApplicationRequest
+import models.responses.{LatestApplicationResponse, TraderKnownFactsResponse}
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -29,5 +30,9 @@ class EuVatRefundsService @Inject() (euVatRefundsConnector: EuVatRefundsConnecto
     extends Logging {
   def retrieveTraderKnownFacts()(implicit hc: HeaderCarrier): Future[TraderKnownFactsResponse] = {
     euVatRefundsConnector.retrieveBusinessActivityCode()
+  }
+
+  def getLatestApplications(latestApplicationRequest: LatestApplicationRequest)(implicit hc: HeaderCarrier): Future[LatestApplicationResponse] = {
+    euVatRefundsConnector.getLatestApplications(latestApplicationRequest)
   }
 }
