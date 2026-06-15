@@ -33,7 +33,7 @@
 )
 
 
-@(form: play.api.data.Form[_], headingKey: String, actionCall: Call, backLinkCall: Call, mode: models.Mode = models.NormalMode, image: Option[String] = None)(implicit request: play.api.mvc.Request[_], messages: play.api.i18n.Messages)
+@(form: play.api.data.Form[_], headingKey: String, actionCall: Call, backLinkCall: Call, mode: models.Mode = models.NormalMode)(implicit request: play.api.mvc.Request[_], messages: play.api.i18n.Messages)
 
 @layout(pageTitle = title(form, messages(headingKey)), backLinkUrl = Some(backLinkCall.url)) {
 
