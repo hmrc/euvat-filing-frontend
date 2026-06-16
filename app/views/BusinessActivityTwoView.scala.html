@@ -42,7 +42,9 @@
         </h2>
         <h1 class="govuk-heading-l">@messages("businessActivityTwo.heading")</h1>
 
-        <p class="govuk-inset-text">@messages("businessActivityTwo.insetText", baCode1)</p>
+        @govukInsetText(InsetText(
+            content = Text(messages("businessActivityTwo.insetText", baCode1))
+        ))
 
         @customSummaryList(
             rows = Seq(

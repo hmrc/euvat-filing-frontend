@@ -151,16 +151,15 @@ contactDetails.error.email.invalidFormat = Enter an email address in the correct
 contactDetails.error.telephone.maxLength = Phone number must be 20 characters or less
 contactDetails.error.telephone.format = Enter a phone number in the correct format
 
-
 businessActivity.title = Business activity for this claim
 businessActivity.heading = Business activity for this claim
 businessActivity.lead = This is the Standard Industrial Classification (SIC) code listed for your business.
 businessActivity.insetText.label = Business activity 1
 businessActivity.insetText.no.label = There is no first SIC code listed for your business
-businessActivity.h2 = Do you need to add another business activity?
-businessActivity.p1 = You can find the SIC codes on the
+businessActivity.h2 = Do you want to add another SIC code?
+businessActivity.p1 = If your claim relates to other business activities, you'll need to enter a SIC code for each one
 businessActivity.link.text = Office for National Statistics website (opens in new tab)
-businessActivity.error.required = Select yes if you want to add another business activity
+businessActivity.error.required = Select yes if you want to add another SIC code
 
 businessActivityCodeTwo.title = What is the 2nd business activity?
 businessActivityCodeTwo.heading = What is the 2nd business activity?
