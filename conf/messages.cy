@@ -157,7 +157,7 @@ businessActivity.lead = This is the Standard Industrial Classification (SIC) cod
 businessActivity.insetText.label = Business activity 1
 businessActivity.insetText.no.label = There is no first SIC code listed for your business
 businessActivity.h2 = Do you want to add another SIC code?
-businessActivity.p1 = If your claim relates to other business activities, you'll need to enter a SIC code for each one
+businessActivity.p1 = If your claim relates to other business activities, you’ll need to enter a SIC code for each one
 businessActivity.link.text = Office for National Statistics website (opens in new tab)
 businessActivity.error.required = Select yes if you want to add another SIC code
 
