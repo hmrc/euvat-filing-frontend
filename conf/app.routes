@@ -115,6 +115,11 @@ POST        /simplified-invoice-supplier-vat-registration-check          control
 GET         /change-simplified-invoice-supplier-vat-registration-check   controllers.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-simplified-invoice-supplier-vat-registration-check   controllers.SimplifiedInvoiceVatRegCheckController.onSubmit(mode: Mode = CheckMode)
 
+GET         /what-supplier-vat-registration-number                      controllers.SupplierVatRegistrationNumberController.onPageLoad(mode: models.Mode = NormalMode)
+POST        /what-supplier-vat-registration-number                      controllers.SupplierVatRegistrationNumberController.onSubmit(mode: models.Mode = NormalMode)
+GET         /change-what-supplier-vat-registration-number               controllers.SupplierVatRegistrationNumberController.onPageLoad(mode: models.Mode = CheckMode)
+POST        /change-what-supplier-vat-registration-number               controllers.SupplierVatRegistrationNumberController.onSubmit(mode: models.Mode = CheckMode)
+
 GET         /purchase-type                               controllers.PurchaseTypeController.onPageLoad(mode: Mode = NormalMode)
 POST        /purchase-type                               controllers.PurchaseTypeController.onSubmit(mode: Mode = NormalMode)
 GET         /change-purchase-type                        controllers.PurchaseTypeController.onPageLoad(mode: Mode = CheckMode)
