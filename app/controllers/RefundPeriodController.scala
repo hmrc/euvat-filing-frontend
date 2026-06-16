@@ -23,10 +23,12 @@ import navigation.Navigator
 import pages.RefundPeriodPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
+import models.requests.DataRequest
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.RefundPeriodView
+import utils.ConfigCurrencyMapping
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -39,6 +41,7 @@ class RefundPeriodController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: RefundPeriodFormProvider,
+  configCurrencyMapping: ConfigCurrencyMapping,
   val controllerComponents: MessagesControllerComponents,
   view: RefundPeriodView
 )(implicit ec: ExecutionContext)
@@ -73,14 +76,7 @@ class RefundPeriodController @Inject() (
     val startMsg = errorMessage(mappedForm, Seq("start", "start.month", "start.year"))
     val endMsg = errorMessage(mappedForm, Seq("end", "end.month", "end.year"))
     Ok(
-      view(mappedForm,
-           mode,
-           controllers.routes.RefundingLanguageController.onPageLoad(mode),
-           startMsg,
-           endMsg,
-           highlighted,
-           errorLinkOverrides(mappedForm)
-          )
+      view(mappedForm, mode, backLink(mode), startMsg, endMsg, highlighted, errorLinkOverrides(mappedForm))
     )
   }
 
@@ -94,14 +90,7 @@ class RefundPeriodController @Inject() (
           val endMsg = errorMessage(mappedForm, Seq("end", "end.month", "end.year"))
           Future.successful(
             BadRequest(
-              view(mappedForm,
-                   mode,
-                   controllers.routes.RefundingLanguageController.onPageLoad(mode),
-                   startMsg,
-                   endMsg,
-                   highlighted,
-                   errorLinkOverrides(mappedForm)
-                  )
+              view(mappedForm, mode, backLink(mode), startMsg, endMsg, highlighted, errorLinkOverrides(mappedForm))
             )
           )
         },
@@ -119,5 +108,19 @@ class RefundPeriodController @Inject() (
             _ <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(RefundPeriodPage, mode, updatedAnswers))
       )
+  }
+
+  private def backLink(mode: Mode)(implicit request: DataRequest[AnyContent]): Call = {
+    val maybeCountryCode = request.userAnswers.get(pages.RefundingCountryPage).orElse {
+      request.userAnswers.get(pages.RefundingCountryNamePage).map { stored =>
+        stored.split(",", 2).headOption.getOrElse(stored)
+      }
+    }
+    maybeCountryCode match {
+      case Some(code) if configCurrencyMapping.requiresCurrencySelection(code) =>
+        controllers.routes.RefundingCurrencyController.onPageLoad(mode)
+      case _ =>
+        controllers.routes.RefundingLanguageController.onPageLoad(mode)
+    }
   }
 }
