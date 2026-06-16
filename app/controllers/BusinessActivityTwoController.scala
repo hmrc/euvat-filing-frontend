@@ -61,7 +61,7 @@ class BusinessActivityTwoController @Inject() (
           case Some(value) => form.fill(value)
         }
 
-        Ok(view(preparedForm, mode, backLink, baCode1, baCode2))
+        Ok(view(preparedForm, mode, backLink, baCode1, baCode2)).addingToSession("removeOrigin" -> "business-activity-2")(request)
 
       case _ =>
         logger.warn("Data guard error, missing required information")
@@ -77,7 +77,7 @@ class BusinessActivityTwoController @Inject() (
         form
           .bindFromRequest()
           .fold(
-            formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink, baCode1, baCode2))),
+            formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink, baCode1, baCode2)).addingToSession("removeOrigin" -> "business-activity-2")),
             value =>
               for {
                 updateAnswers <- Future.fromTry(userAnswers.set(BusinessActivityTwoPage, value))

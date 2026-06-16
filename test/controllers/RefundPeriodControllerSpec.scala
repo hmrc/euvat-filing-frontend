@@ -104,6 +104,32 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
           )(request, msgs).toString
         }
       }
+
+      "must use RefundingCurrencyController as back link when country has two currencies" in {
+        val userAnswers = emptyUserAnswers.set(pages.RefundingCountryPage, "BG").success.value
+        val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+        running(application) {
+          val request = FakeRequest(GET, routes.RefundPeriodController.onPageLoad(models.NormalMode).url)
+          val result = route(application, request).value
+
+          status(result) mustEqual OK
+          contentAsString(result) must include(routes.RefundingCurrencyController.onPageLoad(models.NormalMode).url)
+        }
+      }
+
+      "must use RefundingLanguageController as back link when country has one currency" in {
+        val userAnswers = emptyUserAnswers.set(pages.RefundingCountryPage, "AT").success.value
+        val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+        running(application) {
+          val request = FakeRequest(GET, routes.RefundPeriodController.onPageLoad(models.NormalMode).url)
+          val result = route(application, request).value
+
+          status(result) mustEqual OK
+          contentAsString(result) must include(routes.RefundingLanguageController.onPageLoad(models.NormalMode).url)
+        }
+      }
     }
 
     ".onSubmit" - {

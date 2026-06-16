@@ -100,6 +100,14 @@ refundingLanguage.irish = Irish
 refundingLanguage.hungarian = Hungarian
 refundingLanguage.greek = Greek
 
+refundingCurrency.title = Which currency do you want to use for this claim?
+refundingCurrency.heading = Which currency do you want to use for this claim?
+refundingCurrency.hint = You will use this currency for all the items you add to this claim
+refundingCurrency.euro = Euro ({0})
+refundingCurrency.estonianKroon = Estonian Kroon ({0})
+refundingCurrency.bulgarianLev = Bulgarian Lev ({0})
+refundingCurrency.error.required = Select a currency for this claim
+
 refundPeriod.title = What is the refund period?
 refundPeriod.heading = What is the refund period?
 refundPeriod.rules.heading = Your refund period must:
@@ -171,6 +179,10 @@ businessActivityTwo.ba2.label = Business activity 2
 businessActivityTwo.ba2.change.hidden = Change business activity code 2
 businessActivityTwo.ba2.remove.hidden = Remove business activity code 2
 
+removeSecond.heading = Are you sure you want to remove the second SIC code?
+removeSecond.title = Are you sure you want to remove the second SIC code?
+removeSecond.error.required = Select yes if you want to remove the second SIC code
+
 businessActivityCodeThree.title = What is the 3rd business activity?
 businessActivityCodeThree.heading = What is the 3rd business activity?
 businessActivityCodeThree.hint = Enter your SIC code or search term, for example "motor"
@@ -190,6 +202,10 @@ businessActivityThree.ba2.remove.hidden = Remove business activity code 2
 businessActivityThree.ba3.remove.hidden = Remove business activity code 3
 businessActivityThree.ba2.change.hidden = Change business activity code 2
 businessActivityThree.ba3.change.hidden = Change business activity code 3
+
+removeThird.heading = Are you sure you want to remove the third SIC code?
+removeThird.title = Are you sure you want to remove the third SIC code?
+removeThird.error.required = Select yes if you want to remove the third SIC code
 
 checkYourClaimDetails.title = Check your claim details
 checkYourClaimDetails.heading = Check your claim details

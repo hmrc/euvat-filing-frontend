@@ -25,11 +25,12 @@ import navigation.Navigator
 import pages.RefundPeriodPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Request, Result}
+import play.api.mvc.*
 import queries.TraderKnownFactsQuery
 import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.ConfigCurrencyMapping
 import views.html.RefundPeriodView
 
 import java.time.{LocalDate, LocalDateTime, YearMonth}
@@ -45,6 +46,7 @@ class RefundPeriodController @Inject() (
   requireData: DataRequiredAction,
   formProvider: RefundPeriodFormProvider,
   euVatRefundsService: EuVatRefundsService,
+  configCurrencyMapping: ConfigCurrencyMapping,
   val controllerComponents: MessagesControllerComponents,
   view: RefundPeriodView
 )(implicit ec: ExecutionContext)
@@ -79,33 +81,18 @@ class RefundPeriodController @Inject() (
     val startMsg = errorMessage(mappedForm, Seq("start", "start.month", "start.year"))
     val endMsg = errorMessage(mappedForm, Seq("end", "end.month", "end.year"))
     Ok(
-      view(mappedForm,
-           mode,
-           controllers.routes.RefundingLanguageController.onPageLoad(mode),
-           startMsg,
-           endMsg,
-           highlighted,
-           errorLinkOverrides(mappedForm)
-          )
+      view(mappedForm, mode, backLink(mode), startMsg, endMsg, highlighted, errorLinkOverrides(mappedForm))
     )
   }
 
-  private def renderError(form: Form[RefundPeriodData], mode: Mode)(implicit request: Request[AnyContent], messages: Messages) = {
+  private def renderError(form: Form[RefundPeriodData], mode: Mode)(using request: DataRequest[?], messages: Messages) = {
     val (mappedForm, highlighted) = formProvider.withMappedErrors(form)
     val startMsg = errorMessage(mappedForm, Seq("start", "start.month", "start.year"))
     val endMsg = errorMessage(mappedForm, Seq("end", "end.month", "end.year"))
 
     Future.successful(
       BadRequest(
-        view(
-          mappedForm,
-          mode,
-          controllers.routes.RefundingLanguageController.onPageLoad(mode),
-          startMsg,
-          endMsg,
-          highlighted,
-          errorLinkOverrides(mappedForm)
-        )
+        view(mappedForm, mode, backLink(mode), startMsg, endMsg, highlighted, errorLinkOverrides(mappedForm))
       )
     )
   }
@@ -146,9 +133,12 @@ class RefundPeriodController @Inject() (
     baseForm
       .bindFromRequest()
       .fold(
-        formWithErrors => renderError(formWithErrors, mode),
+        formWithErrors => renderError(formWithErrors, mode)(using request),
         value =>
           euVatRefundsService.retrieveTraderKnownFacts().flatMap { traderResponse =>
+            // Re‑inject contextual parameters inside async block
+            given DataRequest[?] = request
+
             val startDate = java.time.YearMonth.of(value.start.getYear, value.start.getMonthValue).atDay(1).atStartOfDay()
             val endDate = java.time.YearMonth.of(value.end.getYear, value.end.getMonthValue).atEndOfMonth().atTime(23, 59, 59, 999000000)
 
@@ -164,7 +154,7 @@ class RefundPeriodController @Inject() (
                   }
 
                 maybeErrorForm match
-                  case Some(formWithError) => renderError(formWithError, mode)
+                  case Some(formWithError) => renderError(formWithError, mode)(using request)
                   case None                => saveAndRedirect(traderResponse, startDate, endDate, mode)
 
               // Missing reg or deReg dates → proceed normally
@@ -174,4 +164,17 @@ class RefundPeriodController @Inject() (
       )
   }
 
+  private def backLink(mode: Mode)(implicit request: DataRequest[?]): Call = {
+    val maybeCountryCode = request.userAnswers.get(pages.RefundingCountryPage).orElse {
+      request.userAnswers.get(pages.RefundingCountryNamePage).map { stored =>
+        stored.split(",", 2).headOption.getOrElse(stored)
+      }
+    }
+    maybeCountryCode match {
+      case Some(code) if configCurrencyMapping.requiresCurrencySelection(code) =>
+        controllers.routes.RefundingCurrencyController.onPageLoad(mode)
+      case _ =>
+        controllers.routes.RefundingLanguageController.onPageLoad(mode)
+    }
+  }
 }
