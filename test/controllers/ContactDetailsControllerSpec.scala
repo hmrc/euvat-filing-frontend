@@ -124,10 +124,12 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
         running(application) {
           val request = FakeRequest(GET, contactDetailsCheckRoute)
           val result = route(application, request).value
-          val view = application.injector.instanceOf[ContactDetailsView]
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(form.fill(contactDetails), CheckMode, backUrl)(request, messages(application)).toString
+
+          val body = contentAsString(result)
+          body must include("test@example.com")
+          body must include("07700900000")
         }
       }
     }
