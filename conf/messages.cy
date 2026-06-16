@@ -151,7 +151,6 @@ contactDetails.error.email.invalidFormat = Enter an email address in the correct
 contactDetails.error.telephone.maxLength = Phone number must be 20 characters or less
 contactDetails.error.telephone.format = Enter a phone number in the correct format
 
-
 businessActivity.title = Business activity for this claim
 businessActivity.heading = Business activity for this claim
 businessActivity.lead = This is the Standard Industrial Classification (SIC) code listed for your business.
@@ -191,15 +190,15 @@ businessActivityCodeThree.error.invalid.summary = Enter a valid business activit
 businessActivityCodeThree.checkYourAnswersLabel = 3rd business activity code
 businessActivityCodeThree.change.hidden = Change the 3rd business activity code
 
-businessActivityThree.title = Business activities for this claim
-businessActivityThree.heading = Business activities for this claim
-businessActivityThree.lead = These are the Standard Industrial Classification (SIC) codes listed for your business.
-businessActivityThree.ba2.label = Business activity 2
-businessActivityThree.ba3.label = Business activity 3
-businessActivityThree.ba2.remove.hidden = Remove business activity code 2
-businessActivityThree.ba3.remove.hidden = Remove business activity code 3
-businessActivityThree.ba2.change.hidden = Change business activity code 2
-businessActivityThree.ba3.change.hidden = Change business activity code 3
+businessActivityThree.title = Business activity for this claim
+businessActivityThree.heading = Business activity for this claim
+businessActivityThree.lead = This is the first Standard Industrial Classification (SIC) code listed for your business:
+businessActivityThree.ba2.label = Second SIC code
+businessActivityThree.ba3.label = Third SIC code
+businessActivityThree.ba2.remove.hidden = Remove second SIC Code
+businessActivityThree.ba3.remove.hidden = Remove third SIC Code
+businessActivityThree.ba2.change.hidden = Change second SIC Code
+businessActivityThree.ba3.change.hidden = Change third SIC Code
 
 removeThird.heading = Are you sure you want to remove the third SIC code?
 removeThird.title = Are you sure you want to remove the third SIC code?
