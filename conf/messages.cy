@@ -260,7 +260,7 @@ supplierVatRegistrationNumber.title = What is the supplier’s VAT registration 
 supplierVatRegistrationNumber.heading = What is the supplier’s VAT registration number?
 supplierVatRegistrationNumber.hint = This can be up to 12 characters and may start with a 2-letter EU country code. For example, FR123456789
 supplierVatRegistrationNumber.error.required = Enter the supplier’s VAT registration number
-supplierVatRegistrationNumber.error.invalid = Enter a supplier’s VAT registration number in the correct format. For example, FR123456789
+supplierVatRegistrationNumber.error.invalid = Enter the supplier’s VAT registration number in the correct format
 supplierVatRegistrationNumber.error.length = Supplier’s VAT registration number must be 12 characters or less
 
 supplierAddress.title = What is the supplier’s address?
