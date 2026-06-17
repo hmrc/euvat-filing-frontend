@@ -77,7 +77,7 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(POST, routes.BusinessActivityCodeTwoController.onSubmit(models.NormalMode).url)
-          .withFormUrlEncodedBody(("value", "25344"))
+          .withFormUrlEncodedBody(("value", "2534"))
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -88,7 +88,7 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must pre-fill the form when a saved value exists" in {
-      val userAnswers = emptyUserAnswers.set(BusinessActivityCodeTwoPage, "25344").success.value
+      val userAnswers = emptyUserAnswers.set(BusinessActivityCodeTwoPage, "2534").success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -97,7 +97,7 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
 
         val view = application.injector.instanceOf[views.html.BusinessActivityCodeTwoView]
         val formProvider = application.injector.instanceOf[forms.BusinessActivityCodeTwoFormProvider]
-        val form = formProvider().fill("25344")
+        val form = formProvider().fill("2534")
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form,
@@ -130,7 +130,7 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
         typedBody must include(messages(application)("businessActivityCodeTwo.error.invalid.summary"))
 
         val rawValidRequest = FakeRequest(POST, routes.BusinessActivityCodeTwoController.onSubmit(models.NormalMode).url)
-          .withFormUrlEncodedBody(("value", "99999"))
+          .withFormUrlEncodedBody(("value", "9999"))
 
         val rawValidResult = route(application, rawValidRequest).value
         status(rawValidResult) mustEqual SEE_OTHER

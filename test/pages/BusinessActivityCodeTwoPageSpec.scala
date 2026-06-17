@@ -23,8 +23,8 @@ class BusinessActivityCodeTwoPageSpec extends SpecBase {
   "BusinessActivityCodeTwoPage" - {
 
     "must be able to be set and retrieved from UserAnswers" in {
-      val answers = emptyUserAnswers.set(BusinessActivityCodeTwoPage, "25344").success.value
-      answers.get(BusinessActivityCodeTwoPage) mustBe Some("25344")
+      val answers = emptyUserAnswers.set(BusinessActivityCodeTwoPage, "2534").success.value
+      answers.get(BusinessActivityCodeTwoPage) mustBe Some("2534")
     }
   }
 }
