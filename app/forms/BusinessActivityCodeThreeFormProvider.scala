@@ -22,21 +22,12 @@ import forms.mappings.Mappings
 import play.api.data.Form
 
 class BusinessActivityCodeThreeFormProvider @Inject() extends Mappings {
-
-  def apply(allowedValues: Set[String]): Form[String] =
-    import play.api.data.validation.{Constraint, Invalid, Valid}
-
+  def apply(): Form[String] =
     Form(
       "value" -> text("businessActivityCodeThree.error.required")
-        .verifying(
-          firstError[
-            String
-          ](
-            Constraint {
-              case v if allowedValues.contains(v) => Valid
-              case _                              => Invalid("businessActivityCodeThree.error.invalid")
-            }
-          )
-        )
+        .verifying(firstError(
+          maxLength(businessActivityCodeMaxLength, "businessActivityCodeThree.error.invalid"),
+          regexp(businessActivityCodeRegex, "businessActivityCodeThree.error.invalid")
+        ))
     )
 }
