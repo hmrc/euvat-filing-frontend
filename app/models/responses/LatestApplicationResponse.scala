@@ -20,13 +20,12 @@ import play.api.libs.functional.syntax.*
 import play.api.libs.json.{Format, __}
 
 case class LatestApplicationResponse(
-                                      applications: List[LatestApplication],
-                                      totalApplication: Int
-                                    )
+  applications: List[LatestApplication],
+  totalApplication: Int
+)
 object LatestApplicationResponse:
   implicit val format: Format[LatestApplicationResponse] =
     (
       (__ \ "applications").format[List[LatestApplication]] and
         (__ \ "totalApplication").format[Int]
-      )(LatestApplicationResponse.apply, o => Tuple.fromProductTyped(o))
-
+    )(LatestApplicationResponse.apply, o => Tuple.fromProductTyped(o))

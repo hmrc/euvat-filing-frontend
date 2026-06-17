@@ -26,10 +26,10 @@ class LatestApplicationRequestSpec extends AnyFreeSpec with Matchers {
 
   private val sampleRequest = LatestApplicationRequest(
     applicantVatRegNumber = "123456789",
-    refundingCountry      = "LV",
-    startDate             = LocalDateTime.of(2025, 2, 1, 0, 0),
-    endDate               = LocalDateTime.of(2025, 5, 31, 0, 0),
-    representativeId      = "rep123",
+    refundingCountry      = Some("LV"),
+    startDate             = Some(LocalDateTime.of(2025, 2, 1, 0, 0)),
+    endDate               = Some(LocalDateTime.of(2025, 5, 31, 0, 0)),
+    representativeId      = Some("rep123"),
     maxNumber             = 10,
     orderBy               = None,
     sortOrder             = None,
@@ -41,8 +41,8 @@ class LatestApplicationRequestSpec extends AnyFreeSpec with Matchers {
     "must serialise with only mandatory fields" in {
       val json = Json.toJson(sampleRequest)
       (json \ "applicantVatRegNumber").as[String] mustEqual "123456789"
-      (json \ "refundingCountry").as[String]      mustEqual "LV"
-      (json \ "maxNumber").as[Int]                mustEqual 10
+      (json \ "refundingCountry").as[String] mustEqual "LV"
+      (json \ "maxNumber").as[Int] mustEqual 10
     }
 
     "must serialise with optional fields populated" in {
@@ -52,24 +52,24 @@ class LatestApplicationRequestSpec extends AnyFreeSpec with Matchers {
         startAt   = Some(0)
       )
       val json = Json.toJson(requestWithOptionals)
-      (json \ "orderBy").as[Int]      mustEqual 1
+      (json \ "orderBy").as[Int] mustEqual 1
       (json \ "sortOrder").as[String] mustEqual "ASC"
-      (json \ "startAt").as[Int]      mustEqual 0
+      (json \ "startAt").as[Int] mustEqual 0
     }
 
     "must deserialise with missing optional fields" in {
       val json = Json.obj(
         "applicantVatRegNumber" -> "123456789",
-        "refundingCountry"      -> "LV",
-        "startDate"             -> "2025-02-01T00:00:00",
-        "endDate"               -> "2025-05-31T00:00:00",
-        "representativeId"      -> "rep123",
         "maxNumber"             -> 10
       )
       val model = json.as[LatestApplicationRequest]
-      model.orderBy   mustEqual None
+      model.refundingCountry mustEqual None
+      model.startDate mustEqual None
+      model.endDate mustEqual None
+      model.representativeId mustEqual None
+      model.orderBy mustEqual None
       model.sortOrder mustEqual None
-      model.startAt   mustEqual None
+      model.startAt mustEqual None
     }
 
     "must round-trip through JSON" in {

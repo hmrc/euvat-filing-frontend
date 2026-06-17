@@ -80,16 +80,17 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping) {
       case Some(countryCode) if configCurrencyMapping.requiresCurrencySelection(countryCode) =>
         mode match {
           case NormalMode => routes.RefundingCurrencyController.onPageLoad(mode)
-          case CheckMode  =>
+          case CheckMode =>
             if (userAnswers.get(pages.RefundingCurrencyPage).isDefined)
               routes.CheckYourClaimDetailsController.onPageLoad()
             else
               routes.RefundingCurrencyController.onPageLoad(mode)
         }
-      case Some(_) => mode match {
-        case NormalMode => routes.RefundPeriodController.onPageLoad(mode)
-        case CheckMode  => routes.CheckYourClaimDetailsController.onPageLoad()
-      }
+      case Some(_) =>
+        mode match {
+          case NormalMode => routes.RefundPeriodController.onPageLoad(mode)
+          case CheckMode  => routes.CheckYourClaimDetailsController.onPageLoad()
+        }
       case None =>
         routes.JourneyRecoveryController.onPageLoad()
     }
@@ -119,7 +120,7 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping) {
 
   private def navigateFromSimplifiedInvoiceVatRegCheckPage(mode: Mode)(userAnswers: UserAnswers): Call =
     userAnswers.get(SimplifiedInvoiceVatRegCheckPage) match {
-      case Some(true)  =>
+      case Some(true) =>
         userAnswers.get(InvoiceTypePage) match {
           case Some(InvoiceType.StandardInvoice) => routes.SupplierVatRegistrationNumberController.onPageLoad(mode)
           case _                                 => routes.PurchaseTypeController.onPageLoad(mode)

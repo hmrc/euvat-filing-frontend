@@ -22,15 +22,15 @@ import play.api.libs.functional.syntax.*
 import java.time.LocalDateTime
 
 case class LatestApplication(
-                              applicationId: Long,
-                              refundingCountryCode: String,
-                              periodStartDate: LocalDateTime,
-                              periodEndDate: LocalDateTime,
-                              applicationNumber: String,
-                              applicationStatus: String,
-                              submissionStatus: String,
-                              applicationVersion: LocalDateTime
-                            )
+  applicationId: Long,
+  refundingCountryCode: String,
+  periodStartDate: LocalDateTime,
+  periodEndDate: LocalDateTime,
+  applicationNumber: String,
+  applicationStatus: String,
+  submissionStatus: String,
+  applicationVersion: LocalDateTime
+)
 
 object LatestApplication:
   implicit val format: Format[LatestApplication] =
@@ -43,5 +43,4 @@ object LatestApplication:
         (__ \ "applicationStatus").format[String] and
         (__ \ "submissionStatus").format[String] and
         (__ \ "applicationVersion").format[LocalDateTime]
-      )(LatestApplication.apply, o => Tuple.fromProductTyped(o))
-
+    )(LatestApplication.apply, o => Tuple.fromProductTyped(o))

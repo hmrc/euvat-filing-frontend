@@ -22,27 +22,27 @@ import play.api.libs.json.{Format, __}
 import java.time.LocalDateTime
 
 case class LatestApplicationRequest(
-                                     applicantVatRegNumber: String,
-                                     refundingCountry: String,
-                                     startDate: LocalDateTime,
-                                     endDate: LocalDateTime,
-                                     representativeId: String,
-                                     maxNumber: Int,
-                                     orderBy: Option[Int],
-                                     sortOrder: Option[String],
-                                     startAt: Option[Int]
-                                   )
+  applicantVatRegNumber: String,
+  refundingCountry: Option[String],
+  startDate: Option[LocalDateTime],
+  endDate: Option[LocalDateTime],
+  representativeId: Option[String],
+  maxNumber: Int,
+  orderBy: Option[Int],
+  sortOrder: Option[String],
+  startAt: Option[Int]
+)
 
 object LatestApplicationRequest:
   implicit val format: Format[LatestApplicationRequest] =
     (
       (__ \ "applicantVatRegNumber").format[String] and
-        (__ \ "refundingCountry").format[String] and
-        (__ \ "startDate").format[LocalDateTime] and
-        (__ \ "endDate").format[LocalDateTime] and
-        (__ \ "representativeId").format[String] and
+        (__ \ "refundingCountry").formatNullable[String] and
+        (__ \ "startDate").formatNullable[LocalDateTime] and
+        (__ \ "endDate").formatNullable[LocalDateTime] and
+        (__ \ "representativeId").formatNullable[String] and
         (__ \ "maxNumber").format[Int] and
         (__ \ "orderBy").formatNullable[Int] and
         (__ \ "sortOrder").formatNullable[String] and
         (__ \ "startAt").formatNullable[Int]
-      )(LatestApplicationRequest.apply, o => Tuple.fromProductTyped(o))
+    )(LatestApplicationRequest.apply, o => Tuple.fromProductTyped(o))

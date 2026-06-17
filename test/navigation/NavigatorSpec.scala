@@ -179,8 +179,12 @@ class NavigatorSpec extends SpecBase {
 
       "must go from RefundingLanguagePage to CheckYourClaimDetailsController in CheckMode if country has two currencies and currency already stored" in {
         val ua = userAnswers
-          .set(pages.RefundingCountryPage, "BG").success.value
-          .set(pages.RefundingCurrencyPage, "BGN").success.value
+          .set(pages.RefundingCountryPage, "BG")
+          .success
+          .value
+          .set(pages.RefundingCurrencyPage, "BGN")
+          .success
+          .value
         navigator.nextPage(pages.RefundingLanguagePage, CheckMode, ua) mustBe
           routes.CheckYourClaimDetailsController.onPageLoad()
       }

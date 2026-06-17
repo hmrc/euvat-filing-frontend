@@ -58,18 +58,18 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
 
     val request = LatestApplicationRequest(
       applicantVatRegNumber = "123456789",
-      refundingCountry = "LV",
-      startDate = LocalDateTime.of(2025, 2, 1, 0, 0),
-      endDate = LocalDateTime.of(2025, 5, 31, 0, 0),
-      representativeId = "rep123",
-      maxNumber = 10,
-      orderBy = None,
-      sortOrder = None,
-      startAt = None
+      refundingCountry      = Some("LV"),
+      startDate             = Some(LocalDateTime.of(2025, 2, 1, 0, 0)),
+      endDate               = Some(LocalDateTime.of(2025, 5, 31, 0, 0)),
+      representativeId      = Some("rep123"),
+      maxNumber             = 10,
+      orderBy               = None,
+      sortOrder             = None,
+      startAt               = None
     )
 
     val expectedResponse = LatestApplicationResponse(
-      applications = List.empty,
+      applications     = List.empty,
       totalApplication = 0
     )
 

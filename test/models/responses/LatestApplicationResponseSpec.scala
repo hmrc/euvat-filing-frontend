@@ -51,16 +51,18 @@ class LatestApplicationResponseSpec extends AnyFreeSpec with Matchers {
 
     "must deserialise from JSON correctly" in {
       val json = Json.obj(
-        "applications" -> Json.arr(Json.obj(
-          "applicationId"        -> 133,
-          "refundingCountryCode" -> "LV",
-          "periodStartDate"      -> "2025-02-01T00:00:00",
-          "periodEndDate"        -> "2025-05-31T23:59:00",
-          "applicationNumber"    -> "GB0000000000000133",
-          "applicationStatus"    -> "D",
-          "submissionStatus"     -> "S",
-          "applicationVersion"   -> "2025-02-11T10:38:00"
-        )),
+        "applications" -> Json.arr(
+          Json.obj(
+            "applicationId"        -> 133,
+            "refundingCountryCode" -> "LV",
+            "periodStartDate"      -> "2025-02-01T00:00:00",
+            "periodEndDate"        -> "2025-05-31T23:59:00",
+            "applicationNumber"    -> "GB0000000000000133",
+            "applicationStatus"    -> "D",
+            "submissionStatus"     -> "S",
+            "applicationVersion"   -> "2025-02-11T10:38:00"
+          )
+        ),
         "totalApplication" -> 1
       )
       json.as[LatestApplicationResponse] mustEqual sampleResponse
