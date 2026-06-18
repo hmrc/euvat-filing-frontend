@@ -28,10 +28,10 @@ POST        /which-eu-member-state                       controllers.RefundingCo
 GET         /change-which-eu-member-state                controllers.RefundingCountryController.onPageLoad(mode: models.Mode = CheckMode)
 POST        /change-which-eu-member-state                controllers.RefundingCountryController.onSubmit(mode: models.Mode = CheckMode)
 
-GET         /what-language                               controllers.RefundingLanguageController.onPageLoad(mode: models.Mode = NormalMode)
-POST        /what-language                               controllers.RefundingLanguageController.onSubmit(mode: models.Mode = NormalMode)
-GET         /change-what-language                        controllers.RefundingLanguageController.onPageLoad(mode: models.Mode = CheckMode)
-POST        /change-what-language                        controllers.RefundingLanguageController.onSubmit(mode: models.Mode = CheckMode)
+GET         /which-language                               controllers.RefundingLanguageController.onPageLoad(mode: models.Mode = NormalMode)
+POST        /which-language                               controllers.RefundingLanguageController.onSubmit(mode: models.Mode = NormalMode)
+GET         /change-which-language                        controllers.RefundingLanguageController.onPageLoad(mode: models.Mode = CheckMode)
+POST        /change-which-language                        controllers.RefundingLanguageController.onSubmit(mode: models.Mode = CheckMode)
 
 GET         /which-currency                              controllers.RefundingCurrencyController.onPageLoad(mode: models.Mode = NormalMode)
 POST        /which-currency                              controllers.RefundingCurrencyController.onSubmit(mode: models.Mode = NormalMode)
