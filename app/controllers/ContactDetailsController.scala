@@ -51,7 +51,7 @@ class ContactDetailsController @Inject() (
       case None        => form
       case Some(value) => form.fill(value)
     }
-    Ok(view(preparedForm, mode, routes.RefundPeriodController.onPageLoad(NormalMode)))
+    Ok(view(preparedForm, mode, routes.RefundPeriodController.onPageLoad(mode)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>

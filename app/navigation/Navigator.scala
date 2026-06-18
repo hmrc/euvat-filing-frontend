@@ -119,7 +119,11 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping) {
 
   private def navigateFromSimplifiedInvoiceVatRegCheckPage(mode: Mode)(userAnswers: UserAnswers): Call =
     userAnswers.get(SimplifiedInvoiceVatRegCheckPage) match {
-      case Some(true)  => routes.JourneyRecoveryController.onPageLoad() // TODO - update to link to suppliers VRN page
+      case Some(true)  =>
+        userAnswers.get(InvoiceTypePage) match {
+          case Some(InvoiceType.StandardInvoice) => routes.SupplierVatRegistrationNumberController.onPageLoad(mode)
+          case _                                 => routes.PurchaseTypeController.onPageLoad(mode)
+        }
       case Some(false) => routes.PurchaseTypeController.onPageLoad(mode)
       case _           => routes.JourneyRecoveryController.onPageLoad()
     }

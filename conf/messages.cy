@@ -108,17 +108,17 @@ refundingCurrency.estonianKroon = Estonian Kroon ({0})
 refundingCurrency.bulgarianLev = Bulgarian Lev ({0})
 refundingCurrency.error.required = Select a currency for this claim
 
-refundPeriod.title = What is the refund period?
-refundPeriod.heading = What is the refund period?
+refundPeriod.title = Refund period
+refundPeriod.heading = Refund period
 refundPeriod.rules.heading = Your refund period must:
-refundPeriod.rule.1 = be in the past when you send your claim
-refundPeriod.rule.2 = not overlap with a period you have already claimed for
-refundPeriod.rule.3 = be within the same calendar year
-refundPeriod.rule.4 = be at least 3 months long, unless it ends in December. Exact start and end dates do not matter. For example, 3 2025 to 5 2025 counts as 3 months
+refundPeriod.rule.1 = be in the past
+refundPeriod.rule.2 = be within the same calendar year
+refundPeriod.rule.3 = be at least 3 months long, unless it ends in December (for example, 10 2025 to 12 2025 counts as 3 months)
+refundPeriod.rule.4 = not overlap with a period you''ve already made a claim for
 refundPeriod.start.heading = When is the refund period start date?
-refundPeriod.start.hint = For example, 3 2025
+refundPeriod.start.hint = For example, 10 2025
 refundPeriod.end.heading = When is the refund period end date?
-refundPeriod.end.hint = For example, 5 2025
+refundPeriod.end.hint = For example, 12 2025
 refundPeriod.error.periodStartDatecompleteFieldname = Enter the start date
 refundPeriod.error.periodStartDatecompleteFieldname.month = Enter the start month
 refundPeriod.error.periodStartDatecompleteFieldname.year = Enter the start year
@@ -154,16 +154,15 @@ contactDetails.error.email.invalidFormat = Enter an email address in the correct
 contactDetails.error.telephone.maxLength = Phone number must be 20 characters or less
 contactDetails.error.telephone.format = Enter a phone number in the correct format
 
-
 businessActivity.title = Business activity for this claim
 businessActivity.heading = Business activity for this claim
 businessActivity.lead = This is the Standard Industrial Classification (SIC) code listed for your business.
 businessActivity.insetText.label = Business activity 1
 businessActivity.insetText.no.label = There is no first SIC code listed for your business
-businessActivity.h2 = Do you need to add another business activity?
-businessActivity.p1 = You can find the SIC codes on the
+businessActivity.h2 = Do you want to add another SIC code?
+businessActivity.p1 = If your claim relates to other business activities, you’ll need to enter a SIC code for each one
 businessActivity.link.text = Office for National Statistics website (opens in new tab)
-businessActivity.error.required = Select yes if you want to add another business activity
+businessActivity.error.required = Select yes if you want to add another SIC code
 
 businessActivityCodeTwo.title = What is the 2nd business activity?
 businessActivityCodeTwo.heading = What is the 2nd business activity?
@@ -173,12 +172,12 @@ businessActivityCodeTwo.error.required = Enter a business activity code
 businessActivityCodeTwo.error.invalid = Enter a valid business activity code
 businessActivityCodeTwo.error.invalid.summary = Enter a valid business activity code
 
-businessActivityTwo.title = Business activities for this claim
-businessActivityTwo.heading = Business activities for this claim
-businessActivityTwo.lead = These are the Standard Industrial Classification (SIC) codes listed for your business.
-businessActivityTwo.ba2.label = Business activity 2
-businessActivityTwo.ba2.change.hidden = Change business activity code 2
-businessActivityTwo.ba2.remove.hidden = Remove business activity code 2
+businessActivityTwo.title = Business activity for this claim
+businessActivityTwo.heading = Business activity for this claim
+businessActivityTwo.insetText = This is the first Standard Industrial Classification (SIC) code listed for your business: {0}
+businessActivityTwo.ba2.label = Second SIC code
+businessActivityTwo.ba2.change.hidden = Change second SIC code
+businessActivityTwo.ba2.remove.hidden = Remove second SIC code
 
 removeSecond.heading = Are you sure you want to remove the second SIC code?
 removeSecond.title = Are you sure you want to remove the second SIC code?
@@ -258,6 +257,13 @@ suppliersName.error.required = Enter a supplier’s name
 suppliersName.error.length = The supplier’s name must be 35 characters or less
 suppliersName.checkYourAnswersLabel = Supplier’s name
 suppliersName.change.hidden = Change supplier’s name
+
+supplierVatRegistrationNumber.title = What is the supplier’s VAT registration number?
+supplierVatRegistrationNumber.heading = What is the supplier’s VAT registration number?
+supplierVatRegistrationNumber.hint = This can be up to 12 characters and may start with a 2-letter EU country code. For example, FR123456789
+supplierVatRegistrationNumber.error.required = Enter the supplier’s VAT registration number
+supplierVatRegistrationNumber.error.invalid = Enter the supplier’s VAT registration number in the correct format
+supplierVatRegistrationNumber.error.length = Supplier’s VAT registration number must be 12 characters or less
 
 supplierAddress.title = What is the supplier’s address?
 supplierAddress.heading = What is the supplier’s address?
