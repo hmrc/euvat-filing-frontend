@@ -88,23 +88,16 @@ class RefundPeriodController @Inject() (
     )
   }
 
-  private def renderError(form: Form[RefundPeriodData], mode: Mode)(implicit request: Request[AnyContent], messages: Messages) = {
+  private def renderError(form: Form[RefundPeriodData], mode: Mode)(implicit request: DataRequest[AnyContent], messages: Messages) = {
     val (mappedForm, highlighted) = formProvider.withMappedErrors(form)
     val startMsg = errorMessage(mappedForm, Seq("start", "start.month", "start.year"))
     val endMsg = errorMessage(mappedForm, Seq("end", "end.month", "end.year"))
 
     Future.successful(
       BadRequest(
-        view(
-          mappedForm,
-          mode,
-          backLink(mode),
-          startMsg,
-          endMsg,
-          highlighted,
-          errorLinkOverrides(mappedForm))
-        )
+        view(mappedForm, mode, backLink(mode), startMsg, endMsg, highlighted, errorLinkOverrides(mappedForm))
       )
+    )
 
   }
 

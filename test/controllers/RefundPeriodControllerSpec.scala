@@ -33,8 +33,8 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.EuVatRefundsService
-import models.responses.TraderKnownFactsResponse
-import java.time.LocalDateTime
+import play.api.i18n.Messages
+
 import scala.concurrent.Future
 
 class RefundPeriodControllerSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
