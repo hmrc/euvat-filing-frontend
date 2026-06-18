@@ -134,3 +134,6 @@ GET         /purchase-type                               controllers.PurchaseTyp
 POST        /purchase-type                               controllers.PurchaseTypeController.onSubmit(mode: Mode = NormalMode)
 GET         /change-purchase-type                        controllers.PurchaseTypeController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-purchase-type                        controllers.PurchaseTypeController.onSubmit(mode: Mode = CheckMode)
+
+GET         /total-vat-claim                             controllers.TotalVatClaimController.onPageLoad()
+POST        /total-vat-claim                             controllers.TotalVatClaimController.onSubmit()
