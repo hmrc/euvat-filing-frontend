@@ -346,3 +346,4 @@ purchaseType.foodAndDrink = Food, drink and restaurant services
 purchaseType.luxuries = Expenditure on luxuries, amusements and entertainment
 purchaseType.other = Other
 purchaseType.error.required = Select a purchase type
+
