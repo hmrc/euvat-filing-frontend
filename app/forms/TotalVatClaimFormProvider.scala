@@ -13,6 +13,7 @@ class TotalVatClaimFormProvider @Inject() extends Mappings {
         "totalVatClaim.error.invalidNumeric",
         "totalVatClaim.error.nonNumeric"
       )
-      .verifying(maximumCurrency(999999999.99, "totalVatClaim.error.aboveMaximum"))
+        .verifying(minimumCurrency(-999999999.99, "totalVatClaim.error.belowMinimum"))
+        .verifying(maximumCurrency(999999999.99, "totalVatClaim.error.aboveMaximum"))
     )
 }

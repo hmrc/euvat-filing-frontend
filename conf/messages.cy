@@ -347,3 +347,13 @@ purchaseType.luxuries = Expenditure on luxuries, amusements and entertainment
 purchaseType.other = Other
 purchaseType.error.required = Select a purchase type
 
+totalVatClaim.title = Total VAT claim
+totalVatClaim.heading = Total VAT claim
+totalVatClaim.p1 = This is the amount of VAT you are entitled to claim back. It may be less than the amount you paid.
+totalVatClaim.h2 = How much VAT are you claiming?
+totalVatClaim.hint = For example, €150 or €120.45
+totalVatClaim.error.required = Please enter the VAT being reclaimed.
+totalVatClaim.error.invalidNumeric = The VAT being reclaimed you have entered is in the wrong format or exceeds the maximum value allowed.  Please check.
+totalVatClaim.error.nonNumeric =  The VAT being reclaimed you have entered is in the wrong format or exceeds the maximum value allowed.  Please check.
+totalVatClaim.error.belowMinimum = The VAT being reclaimed you have entered is in the wrong format or exceeds the maximum value allowed.  Please check.
+totalVatClaim.error.aboveMaximum = The VAT being reclaimed you have entered is in the wrong format or exceeds the maximum value allowed.  Please check.
