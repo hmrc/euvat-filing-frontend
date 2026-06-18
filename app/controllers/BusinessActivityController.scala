@@ -56,6 +56,7 @@ class BusinessActivityController @Inject() (
     case Some(traderResponse) => traderResponse.tradeClass.getOrElse("")
     case None                 => ""
   }
+
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     val preparedForm = request.userAnswers.get(BusinessActivityPage).fold(form)(form.fill)
     Future.successful(Ok(view(preparedForm, mode, backLink(mode), baCode(request.userAnswers))))
