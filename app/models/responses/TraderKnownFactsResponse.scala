@@ -28,7 +28,7 @@ case class TraderKnownFactsResponse(
   addressLine3: Option[String] = None,
   addressLine4: Option[String] = None,
   addressLine5: Option[String] = None,
-  postcode: Option[String] = None,
+  postCode: Option[String] = None,
   tradeClass: Option[String] = None,
   dateOfRegistration: Option[LocalDateTime] = None,
   dateOfDeregistration: Option[LocalDateTime] = None,

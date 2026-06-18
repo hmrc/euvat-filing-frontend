@@ -139,8 +139,8 @@ refundPeriod.error.periodEndDaterefundPeriodInSingleYear = Refund period start d
 refundPeriod.error.periodStartDateperiodNotLessThan3Months = Refund period must be at least 3 months long unless it ends in December
 refundPeriod.error.periodStartDateafter30thSept = Refund period start date must be on or after 1 January {0}
 refundPeriod.error.periodStartDate30thSeptOrEarlier = Refund period start date must be on or after 1 January {0}
-refundPeriod.error.periodStartDateBeforeRegDate.firstQuarter = Refund period start date cannot be before the year of your VAT registration
-refundPeriod.error.periodStartDateBeforeRegDate.remainingQuarter = VAT registration number must be active during the refund period
+refundPeriod.error.periodStartDateBeforeRegDate.firstQuarter = Refund period start date must be after the VAT registration date if you registered for VAT during the first quarter of the year
+refundPeriod.error.periodStartDateBeforeRegDate.remainingQuarter = Refund period start date must fall within the three-month 'grace period' if you did not register for VAT during the first quarter of the year
 refundPeriod.error.periodEndDateBeforeDeRegDate = Refund period end date must not be after your VAT de-registration date
 
 contactDetails.title = How should we contact you about this claim?
