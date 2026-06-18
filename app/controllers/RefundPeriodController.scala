@@ -23,6 +23,7 @@ import models.responses.TraderKnownFactsResponse
 import models.{Mode, RefundPeriod}
 import navigation.Navigator
 import pages.RefundPeriodPage
+import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.*
@@ -51,7 +52,8 @@ class RefundPeriodController @Inject() (
   view: RefundPeriodView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
   private def errorMessage(form: Form[RefundPeriodData], keys: Seq[String])(implicit messages: Messages): Option[String] = {
     val errors = form.errors.filter(e => keys.contains(e.key))
@@ -101,15 +103,18 @@ class RefundPeriodController @Inject() (
     val start = YearMonth.from(startDate)
     val reg = YearMonth.from(regDate)
     val regMonth = reg.getMonthValue
+    logger.info(s"******** start: $start")
+    logger.info(s"******** reg: $reg")
+    logger.info(s"******** regMonth: $regMonth")
     // Case 1: Jan–Mar rule
     if (regMonth >= 1 && regMonth <= 3) {
+      logger.info(s"******** start.equals(reg) || start.isAfter(reg): ${start.equals(reg) || start.isAfter(reg)}")
       // Same month/year OR after regDate (same year)
-      (start.equals(reg) || (start.isAfter(reg) && (start.getYear == reg.getYear)), "refundPeriod.error.periodStartDateBeforeRegDate.firstQuarter")
+      (start.equals(reg) || start.isAfter(reg), "refundPeriod.error.periodStartDateBeforeRegDate.firstQuarter")
     } else { // Case 2: Apr–Dec rule
       val min = reg.minusMonths(3)
-      (!start.isBefore(min) || (!start.isAfter(reg) && (start.getYear == reg.getYear)),
-       "refundPeriod.error.periodStartDateBeforeRegDate.remainingQuarter"
-      )
+      logger.info(s"******** !start.isBefore(min) || start.isAfter(reg): ${!start.isBefore(min) || start.isAfter(reg)}")
+      (!start.isBefore(min) || start.isAfter(reg), "refundPeriod.error.periodStartDateBeforeRegDate.remainingQuarter")
     }
   }
 
@@ -148,9 +153,9 @@ class RefundPeriodController @Inject() (
                 val maybeErrorForm =
                   val (validStartDate, msg) = isStartDateValid(startDate.toLocalDate, regDate.toLocalDate)
                   if (!validStartDate) {
-                    Some(baseForm.fill(value).withError("startDate", msg))
+                    Some(baseForm.fill(value).withError("start", msg))
                   } else if (YearMonth.from(endDate).isAfter(YearMonth.from(deRegDate))) {
-                    Some(baseForm.fill(value).withError("endDate", "refundPeriod.error.periodEndDateBeforeDeRegDate"))
+                    Some(baseForm.fill(value).withError("end", "refundPeriod.error.periodEndDateBeforeDeRegDate"))
                   } else {
                     None
                   }

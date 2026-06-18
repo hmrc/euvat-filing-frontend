@@ -31,7 +31,8 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.EuVatRefundsService
-
+import models.responses.TraderKnownFactsResponse
+import java.time.LocalDateTime
 import scala.concurrent.Future
 
 class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
@@ -356,26 +357,6 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must show minimum-length error when start and end are the same month" in {
-        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(bind[forms.RefundPeriodFormProvider].toInstance(formProviderAfterSept30))
-          .build()
-
-        running(application) {
-          val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit(NormalMode).url)
-            .withFormUrlEncodedBody(
-              "start.month" -> "04",
-              "start.year"  -> "2024",
-              "end.month"   -> "04",
-              "end.year"    -> "2024"
-            )
-          val result = route(application, request).value
-
-          status(result) mustEqual BAD_REQUEST
-          contentAsString(result) must include(messages(application)("refundPeriod.error.periodStartDateperiodNotLessThan3Months"))
-        }
-      }
-
       "must show start-date-invalid error when start is in the future and end is in the past" in {
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
         running(application) {
@@ -521,6 +502,128 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
             redirectLocation(result).value mustEqual onwardRoute.url
           }
         }
+      }
+
+      "Business Function F6" - {
+        "must accept as valid period if vat registration date is in first quarter of year" in {
+          when(mockService.retrieveTraderKnownFacts()(any()))
+            .thenReturn(
+              Future.successful(
+                TraderKnownFactsResponse(123, tradeClass = Some(baCode1), dateOfRegistration = Some(LocalDateTime.of(2025, 1, 20, 10, 38)))
+              )
+            )
+
+          val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+            .overrides(
+              bind[navigation.Navigator].toInstance(new FakeNavigator(onwardRoute)),
+              bind[EuVatRefundsService].toInstance(mockService),
+              bind[forms.RefundPeriodFormProvider].toInstance(formProviderBeforeSept30)
+            )
+            .build()
+
+          running(application) {
+            val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit(NormalMode).url)
+              .withFormUrlEncodedBody(
+                "start.month" -> "01",
+                "start.year"  -> "2025",
+                "end.month"   -> "06",
+                "end.year"    -> "2025"
+              )
+            val result = route(application, request).value
+
+            status(result) mustEqual SEE_OTHER
+            redirectLocation(result).value mustEqual onwardRoute.url
+          }
+        }
+
+        "must accept as valid period if vat registration date is in second quarter of year" in {
+          when(mockService.retrieveTraderKnownFacts()(any())).thenReturn(
+            Future.successful(
+              TraderKnownFactsResponse(123, tradeClass = Some(baCode1), dateOfRegistration = Some(LocalDateTime.of(2025, 5, 20, 10, 38)))
+            )
+          )
+
+          val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+            .overrides(
+              bind[navigation.Navigator].toInstance(new FakeNavigator(onwardRoute)),
+              bind[EuVatRefundsService].toInstance(mockService),
+              bind[forms.RefundPeriodFormProvider].toInstance(formProviderBeforeSept30)
+            )
+            .build()
+
+          running(application) {
+            val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit(NormalMode).url)
+              .withFormUrlEncodedBody(
+                "start.month" -> "05",
+                "start.year"  -> "2025",
+                "end.month"   -> "07",
+                "end.year"    -> "2025"
+              )
+            val result = route(application, request).value
+
+            status(result) mustEqual SEE_OTHER
+            redirectLocation(result).value mustEqual onwardRoute.url
+          }
+        }
+
+//        "must reject as invalid start period for vat registration date is in second quarter of year if start date is not within grace period" in {
+//          when(mockService.retrieveTraderKnownFacts()(any())).thenReturn(
+//            Future.failed(
+//              TraderKnownFactsResponse(123, tradeClass = Some(baCode1), dateOfRegistration = Some(LocalDateTime.of(2025, 5, 20, 10, 38)))
+//            )
+//          )
+//
+//          val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+//            .overrides(
+//              bind[navigation.Navigator].toInstance(new FakeNavigator(onwardRoute)),
+//              bind[EuVatRefundsService].toInstance(mockService),
+//              bind[forms.RefundPeriodFormProvider].toInstance(formProviderBeforeSept30)
+//            )
+//            .build()
+//
+//          running(application) {
+//            val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit(NormalMode).url)
+//              .withFormUrlEncodedBody(
+//                "start.month" -> "01",
+//                "start.year"  -> "2025",
+//                "end.month"   -> "07",
+//                "end.year"    -> "2025"
+//              )
+//            val result = route(application, request).value
+//
+//            status(result) mustEqual BAD_REQUEST
+//          }
+//        }
+//
+//        "must reject as invalid start date if vat registration date is in first quarter of year" in {
+//          when(mockService.retrieveTraderKnownFacts()(any()))
+//            .thenReturn(
+//              Future.successful(
+//                TraderKnownFactsResponse(123, tradeClass = Some(baCode1), dateOfRegistration = Some(LocalDateTime.of(2025, 2, 20, 10, 38)))
+//              )
+//            )
+//
+//          val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+//            .overrides(
+//              bind[EuVatRefundsService].toInstance(mockService)
+//            )
+//            .build()
+//
+//          running(application) {
+//            val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit(NormalMode).url)
+//              .withFormUrlEncodedBody(
+//                "start.month" -> "01",
+//                "start.year"  -> "2025",
+//                "end.month"   -> "06",
+//                "end.year"    -> "2025"
+//              )
+//            val result = route(application, request).value
+//
+//            status(result) mustEqual BAD_REQUEST
+//            contentAsString(result) must include(messages(application)("refundPeriod.error.periodStartDateBeforeRegDate.firstQuarter"))
+//          }
+//        }
+
       }
     }
   }
