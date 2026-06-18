@@ -154,7 +154,6 @@ contactDetails.error.email.invalidFormat = Enter an email address in the correct
 contactDetails.error.telephone.maxLength = Phone number must be 20 characters or less
 contactDetails.error.telephone.format = Enter a phone number in the correct format
 
-
 businessActivity.title = Business activity for this claim
 businessActivity.heading = Business activity for this claim
 businessActivity.lead = This is the Standard Industrial Classification (SIC) code listed for your business.
