@@ -18,7 +18,7 @@ package controllers
 
 import controllers.actions.*
 import forms.{RefundPeriodData, RefundPeriodFormProvider}
-import models.requests.DataRequest
+import models.requests.{DataRequest, LatestApplicationRequest}
 import models.responses.TraderKnownFactsResponse
 import models.{Mode, RefundPeriod}
 import navigation.Navigator
@@ -137,6 +137,50 @@ class RefundPeriodController @Inject() (
     yield Redirect(navigator.nextPage(RefundPeriodPage, mode, updatedAnswers))
   }
 
+  private def checkOverlappingPeriod(
+                                      traderResponse: TraderKnownFactsResponse,
+                                      startDate: LocalDateTime,
+                                      endDate: LocalDateTime,
+                                      mode: Mode
+                                    )(using request: DataRequest[?], ec: ExecutionContext): Future[Result] = {
+    if (endDate.getMonthValue == 12) {
+      saveAndRedirect(traderResponse, startDate, endDate, mode)
+    } else {
+      val refundingCountry = request.userAnswers.get(pages.RefundingCountryPage).orElse {
+        request.userAnswers.get(pages.RefundingCountryNamePage).map { stored =>
+          stored.split(",", 2).headOption.getOrElse(stored)
+        }
+      }
+      val latestApplicationRequest = LatestApplicationRequest(
+        applicantVatRegNumber = traderResponse.vatRegNumber.toString,
+        refundingCountry = refundingCountry,
+        startDate = None,
+        endDate = None,
+        representativeId = None,
+        maxNumber = 100,
+        orderBy = None,
+        sortOrder = None,
+        startAt = None
+      )
+      euVatRefundsService.getLatestApplications(latestApplicationRequest).flatMap { response =>
+        val hasDraftOverlap = response.applications
+          .filter(_.applicationStatus == "D")
+          .exists(app =>
+            YearMonth.from(app.periodStartDate) == YearMonth.from(startDate) &&
+              YearMonth.from(app.periodEndDate)   == YearMonth.from(endDate)
+          )
+
+        logger.info(s"F5 overlap check: hasDraftOverlap=$hasDraftOverlap, startDate=$startDate, endDate=$endDate")
+
+        if (hasDraftOverlap)
+          // TODO: redirect to warning page once designed
+          saveAndRedirect(traderResponse, startDate, endDate, mode)
+        else
+          saveAndRedirect(traderResponse, startDate, endDate, mode)
+      }
+    }
+  }
+
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     val baseForm = formProvider()
 
@@ -146,8 +190,10 @@ class RefundPeriodController @Inject() (
         formWithErrors => renderError(formWithErrors, mode),
         value =>
           euVatRefundsService.retrieveTraderKnownFacts().flatMap { traderResponse =>
-            val startDate = java.time.YearMonth.of(value.start.getYear, value.start.getMonthValue).atDay(1).atStartOfDay()
-            val endDate = java.time.YearMonth.of(value.end.getYear, value.end.getMonthValue).atEndOfMonth().atTime(23, 59, 59, 999000000)
+            given DataRequest[?] = request
+
+            val startDate = YearMonth.of(value.start.getYear, value.start.getMonthValue).atDay(1).atStartOfDay()
+            val endDate = YearMonth.of(value.end.getYear, value.end.getMonthValue).atEndOfMonth().atTime(23, 59, 59, 999000000)
 
             (traderResponse.dateOfRegistration, traderResponse.dateOfDeregistration) match {
               case (Some(regDate), Some(deRegDate)) =>
@@ -162,11 +208,10 @@ class RefundPeriodController @Inject() (
                   }
 
                 maybeErrorForm match
-                  case Some(formWithError) => renderError(formWithError, mode)
-                  case None                => saveAndRedirect(traderResponse, startDate, endDate, mode)
+                  case Some(formWithError) => renderError(formWithError, mode)(using request)
+                  case None                => checkOverlappingPeriod(traderResponse, startDate, endDate, mode)
 
-              // Missing reg or deReg dates → proceed normally
-              case _ => saveAndRedirect(traderResponse, startDate, endDate, mode)
+              case _ => checkOverlappingPeriod(traderResponse, startDate, endDate, mode)
             }
           }
       )
