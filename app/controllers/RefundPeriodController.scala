@@ -52,8 +52,7 @@ class RefundPeriodController @Inject() (
   view: RefundPeriodView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport
-    with Logging {
+    with I18nSupport {
 
   private def errorMessage(form: Form[RefundPeriodData], keys: Seq[String])(implicit messages: Messages): Option[String] = {
     val errors = form.errors.filter(e => keys.contains(e.key))
@@ -103,17 +102,12 @@ class RefundPeriodController @Inject() (
     val start = YearMonth.from(startDate)
     val reg = YearMonth.from(regDate)
     val regMonth = reg.getMonthValue
-    logger.info(s"******** start: $start")
-    logger.info(s"******** reg: $reg")
-    logger.info(s"******** regMonth: $regMonth")
     // Case 1: Jan–Mar rule
     if (regMonth >= 1 && regMonth <= 3) {
-      logger.info(s"******** start.equals(reg) || start.isAfter(reg): ${start.equals(reg) || start.isAfter(reg)}")
       // Same month/year OR after regDate (same year)
       (start.equals(reg) || start.isAfter(reg), "refundPeriod.error.periodStartDateBeforeRegDate.firstQuarter")
     } else { // Case 2: Apr–Dec rule
       val min = reg.minusMonths(3)
-      logger.info(s"******** !start.isBefore(min) || start.isAfter(reg): ${!start.isBefore(min) || start.isAfter(reg)}")
       (!start.isBefore(min) || start.isAfter(reg), "refundPeriod.error.periodStartDateBeforeRegDate.remainingQuarter")
     }
   }
