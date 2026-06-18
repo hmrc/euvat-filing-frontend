@@ -35,11 +35,11 @@
 
         @mainErrorSummary(form)
 
-        <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">@messages("totalVatClaim.caption.hidden")</span>@messages("totalVatClaim.caption")</h2>
+        <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">@messages("totalVatClaim.caption.hidden")</span>@messages("purchase.caption.add")</h2>
 
         <h1 class="govuk-heading-l">@messages("totalVatClaim.heading")</h1>
 
-        <p class="govuk-body-l">@messages("totalVatClaim.p1")</p>
+        <p class="govuk-body-m">@messages("totalVatClaim.p1")</p>
 
         @govukInput(
             InputViewModel(
@@ -48,7 +48,7 @@
             )
             .withHint(HintViewModel(messages("totalVatClaim.hint")))
             .withPrefix(PrefixOrSuffix(content = "€"))
-            .withWidth(Fixed10)
+            .withWidth(Fixed5)
         )
 
         @govukButton(
