@@ -106,18 +106,19 @@ class RefundPeriodController @Inject() (
 
   }
 
-  private def isStartDateValid(startDate: LocalDate, regDate: LocalDate): Boolean = {
+  private def isStartDateValid(startDate: LocalDate, regDate: LocalDate): (Boolean, String) = {
     val start = YearMonth.from(startDate)
     val reg = YearMonth.from(regDate)
     val regMonth = reg.getMonthValue
     // Case 1: Jan–Mar rule
     if (regMonth >= 1 && regMonth <= 3) {
       // Same month/year OR after regDate (same year)
-      start.equals(reg) || (start.isAfter(reg) && (start.getYear == reg.getYear))
-    } else {
-      // Case 2: Apr–Dec rule
+      (start.equals(reg) || (start.isAfter(reg) && (start.getYear == reg.getYear)), "refundPeriod.error.periodStartDateBeforeRegDate.firstQuarter")
+    } else { // Case 2: Apr–Dec rule
       val min = reg.minusMonths(3)
-      !start.isBefore(min) || !start.isAfter(reg) && (start.getYear == reg.getYear)
+      (!start.isBefore(min) || (!start.isAfter(reg) && (start.getYear == reg.getYear)),
+       "refundPeriod.error.periodStartDateBeforeRegDate.remainingQuarter"
+      )
     }
   }
 
@@ -151,10 +152,11 @@ class RefundPeriodController @Inject() (
             (traderResponse.dateOfRegistration, traderResponse.dateOfDeregistration) match {
               case (Some(regDate), Some(deRegDate)) =>
                 val maybeErrorForm =
-                  if (!isStartDateValid(startDate.toLocalDate, regDate.toLocalDate)) {
-                    Some(baseForm.fill(value).withError("start", "refundPeriod.error.periodStartDateBeforeRegDate"))
+                  val (validStartDate, msg) = isStartDateValid(startDate.toLocalDate, regDate.toLocalDate)
+                  if (!validStartDate) {
+                    Some(baseForm.fill(value).withError("startDate", msg))
                   } else if (YearMonth.from(endDate).isAfter(YearMonth.from(deRegDate))) {
-                    Some(baseForm.fill(value).withError("end", "refundPeriod.error.periodEndDateBeforeDeRegDate"))
+                    Some(baseForm.fill(value).withError("endDate", "refundPeriod.error.periodEndDateBeforeDeRegDate"))
                   } else {
                     None
                   }
