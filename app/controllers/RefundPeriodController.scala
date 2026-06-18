@@ -143,11 +143,11 @@ class RefundPeriodController @Inject() (
   }
 
   private def checkOverlappingPeriod(
-                                      traderResponse: TraderKnownFactsResponse,
-                                      startDate: LocalDateTime,
-                                      endDate: LocalDateTime,
-                                      mode: Mode
-                                    )(using request: DataRequest[?], ec: ExecutionContext): Future[Result] = {
+    traderResponse: TraderKnownFactsResponse,
+    startDate: LocalDateTime,
+    endDate: LocalDateTime,
+    mode: Mode
+  )(using request: DataRequest[?], ec: ExecutionContext): Future[Result] = {
     if (endDate.getMonthValue == 12) {
       saveAndRedirect(traderResponse, startDate, endDate, mode)
     } else {
@@ -158,21 +158,21 @@ class RefundPeriodController @Inject() (
       }
       val latestApplicationRequest = LatestApplicationRequest(
         applicantVatRegNumber = traderResponse.vatRegNumber.toString,
-        refundingCountry = refundingCountry,
-        startDate = None,
-        endDate = None,
-        representativeId = None,
-        maxNumber = 100,
-        orderBy = None,
-        sortOrder = None,
-        startAt = None
+        refundingCountry      = refundingCountry,
+        startDate             = None,
+        endDate               = None,
+        representativeId      = None,
+        maxNumber             = 100,
+        orderBy               = None,
+        sortOrder             = None,
+        startAt               = None
       )
       euVatRefundsService.getLatestApplications(latestApplicationRequest).flatMap { response =>
         val hasDraftOverlap = response.applications
           .filter(_.applicationStatus == "D")
           .exists(app =>
             YearMonth.from(app.periodStartDate) == YearMonth.from(startDate) &&
-              YearMonth.from(app.periodEndDate)   == YearMonth.from(endDate)
+              YearMonth.from(app.periodEndDate) == YearMonth.from(endDate)
           )
 
         logger.info(s"F5 overlap check: hasDraftOverlap=$hasDraftOverlap, startDate=$startDate, endDate=$endDate")
