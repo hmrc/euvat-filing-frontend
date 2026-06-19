@@ -77,7 +77,10 @@ class BusinessActivityTwoController @Inject() (
         form
           .bindFromRequest()
           .fold(
-            formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink, baCode1, baCode2)).addingToSession("removeOrigin" -> "business-activity-2")),
+            formWithErrors =>
+              Future.successful(
+                BadRequest(view(formWithErrors, mode, backLink, baCode1, baCode2)).addingToSession("removeOrigin" -> "business-activity-2")
+              ),
             value =>
               for {
                 updateAnswers <- Future.fromTry(userAnswers.set(BusinessActivityTwoPage, value))

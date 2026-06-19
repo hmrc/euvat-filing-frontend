@@ -42,10 +42,8 @@
         </h2>
         <h1 class="govuk-heading-l">@messages("businessActivityTwo.heading")</h1>
 
-        <p class="govuk-body-l">@messages("businessActivityTwo.lead")</p>
-
         @govukInsetText(InsetText(
-            content = HtmlContent(s"<strong>${messages("businessActivity.insetText.label")}:</strong> ${baCode1}")
+            content = Text(messages("businessActivityTwo.insetText", baCode1))
         ))
 
         @customSummaryList(
@@ -58,21 +56,17 @@
         )
 
         <div class="govuk-form-group @if(isError){govuk-form-group--error}">
-            <fieldset class="govuk-fieldset" @if(isError){aria-describedby="value-error"}>
+            <fieldset class="govuk-fieldset" aria-describedby="ba-para@if(isError){ value-error}">
                 <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
                     @messages("businessActivity.h2")
                 </legend>
-                <div id="ba-para" class="govuk-body">@messages("businessActivity.p1")
-                    <a class="govuk-link" href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2026" target="_blank" rel="noreferrer noopener">
-                        @messages("businessActivity.link.text").
-                    </a>
-                </div>
+                <div id="ba-para" class="govuk-hint">@messages("businessActivity.p1")</div>
                 @form.error("value").map { e =>
                     <p id="value-error" class="govuk-error-message">
                         <span class="govuk-visually-hidden">@messages("error.prefix"):</span> @messages(e.message, e.args*)
                     </p>
                 }
-                <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
+                <div class="govuk-radios" data-module="govuk-radios">
                     <div class="govuk-radios__item">
                         <input class="govuk-radios__input" id="value" name="value" type="radio" value="true" @if(form("value").value.contains("true")){checked}>
                         <label class="govuk-label govuk-radios__label" for="value">@messages("site.yes")</label>
