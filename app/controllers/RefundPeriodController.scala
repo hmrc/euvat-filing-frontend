@@ -46,7 +46,6 @@ class RefundPeriodController @Inject() (
   formProvider: RefundPeriodFormProvider,
   euVatRefundsService: EuVatRefundsService,
   configCurrencyMapping: ConfigCurrencyMapping,
-  euVatRefundsService: EuVatRefundsService,
   val controllerComponents: MessagesControllerComponents,
   view: RefundPeriodView
 )(implicit ec: ExecutionContext)
@@ -68,17 +67,6 @@ class RefundPeriodController @Inject() (
     s"${form("start").id}.month" -> s"${form("start").id}.month",
     s"${form("end").id}.month"   -> s"${form("end").id}.month"
   )
-
-  private val countryCutoffs: Map[String, YearMonth] = Map(
-    "IC" -> YearMonth.of(2011, 1),
-    "XI" -> YearMonth.of(2011, 1),
-    "XJ" -> YearMonth.of(2011, 1),
-    "HR" -> YearMonth.of(2013, 7),
-    "MC" -> YearMonth.of(2013, 1)
-  )
-
-  private def countryCutoffFails(value: RefundPeriodData, code: Option[String]): Boolean =
-    code.flatMap(countryCutoffs.get).exists(value.start.isBefore)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(RefundPeriodPage) match {
@@ -115,10 +103,10 @@ class RefundPeriodController @Inject() (
     // Case 1: Jan–Mar rule
     if (regMonth >= 1 && regMonth <= 3) {
       // Same month/year OR after regDate (same year)
-      (start.equals(reg) || start.isAfter(reg), "refundPeriod.error.periodStartDateBeforeRegDate.firstQuarter")
+      (start.equals(reg) || start.isAfter(reg), "refundPeriod.start.error.beforeVatRegDate.firstQuarter")
     } else { // Case 2: Apr–Dec rule
       val min = reg.minusMonths(3)
-      (!start.isBefore(min) || start.isAfter(reg), "refundPeriod.error.periodStartDateBeforeRegDate.remainingQuarter")
+      (!start.isBefore(min) || start.isAfter(reg), "refundPeriod.start.error.beforeVatRegDate.remainingQuarter")
     }
   }
 
@@ -159,7 +147,7 @@ class RefundPeriodController @Inject() (
                   if (!validStartDate) {
                     Some(baseForm.fill(value).withError("start", msg))
                   } else if (YearMonth.from(endDate).isAfter(YearMonth.from(deRegDate))) {
-                    Some(baseForm.fill(value).withError("end", "refundPeriod.error.periodEndDateBeforeDeRegDate"))
+                    Some(baseForm.fill(value).withError("end", "refundPeriod.end.error.beforeVatDeRegDate"))
                   } else {
                     None
                   }

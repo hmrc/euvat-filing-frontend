@@ -39,23 +39,24 @@ class RefundPeriodFormProvider @Inject() () {
       val endInFuture = !data.end.isBefore(now)
 
       (startInFuture, endInFuture) match {
-        case (true, true)  => Invalid("refundPeriod.error.periodBothDatesInvalid")
-        case (true, false) => Invalid("refundPeriod.error.periodStartDateInvalid")
-        case (false, true) => Invalid("refundPeriod.error.periodEndDateInvalid")
+        case (true, true)  => Invalid("refundPeriod.error.startAndEndInPast")
+        case (true, false) => Invalid("refundPeriod.start.error.inPast")
+        case (false, true) => Invalid("refundPeriod.end.error.inPast")
         case _             => Valid
       }
     }
 
-  private val septemberCutoffConstraint: Constraint[RefundPeriodData] =
+  private val septemberCutoffConstraint: Constraint[RefundPeriodData] = // TODO - warning messages
     Constraint { data =>
       val now = YearMonth.now()
-      if (!data.start.isBefore(now) || !data.end.isBefore(now)) Valid
+      if (!data.start.isBefore(now) || !data.end.isBefore(now)) { Valid }
       else {
         val (cutoff, errorKey) =
-          if (today.isAfter(java.time.LocalDate.of(today.getYear, 9, 30)))
-            (YearMonth.of(today.getYear, 1), "refundPeriod.error.periodStartDateafter30thSept")
-          else
-            (YearMonth.of(today.getYear - 1, 1), "refundPeriod.error.periodStartDate30thSeptOrEarlier")
+          if (today.isAfter(java.time.LocalDate.of(today.getYear, 9, 30))) {
+            (YearMonth.of(today.getYear, 1), "refundPeriod.start.error.after30Sept")
+          } else {
+            (YearMonth.of(today.getYear - 1, 1), "refundPeriod.start.error.30SeptOrEarlier")
+          }
 
         if (!data.start.isBefore(cutoff)) Valid
         else Invalid(errorKey, cutoff.getYear.toString)
@@ -63,21 +64,17 @@ class RefundPeriodFormProvider @Inject() () {
     }
 
   private def fieldsForError(message: String): Set[String] = message match {
-    case "refundPeriod.error.periodStartDatecompleteFieldname" | "refundPeriod.error.periodStartDateInvalid" |
-        "refundPeriod.error.periodStartDateafter30thSept" | "refundPeriod.error.periodStartDate30thSeptOrEarlier" =>
+    case "refundPeriod.start.error.required" | "refundPeriod.start.error.inPast" | "refundPeriod.start.error.after30Sept" |
+        "refundPeriod.start.error.30SeptOrEarlier" =>
       Set("start.month", "start.year")
-    case "refundPeriod.error.periodStartDatenotAfterEndDate" =>
-      Set("start.month", "start.year", "end.month", "end.year")
-    case "refundPeriod.error.periodEndDatecompleteFieldname" | "refundPeriod.error.periodEndDateInvalid" =>
-      Set("end.month", "end.year")
-    case "refundPeriod.error.periodEndDaterefundPeriodInSingleYear" =>
-      Set("start.year", "end.year")
-    case "refundPeriod.error.periodStartDateperiodNotLessThan3Months" =>
-      Set("start.month", "end.month")
-    case "refundPeriod.error.periodBothDatesInvalid" =>
-      Set("start.month", "start.year", "end.month", "end.year")
-    case _ => Set.empty
+    case "refundPeriod.error.startDateNotAfterEndDate"                       => Set("start.month", "start.year", "end.month", "end.year")
+    case "refundPeriod.end.error.required" | "refundPeriod.end.error.inPast" => Set("end.month", "end.year")
+    case "refundPeriod.error.startAndEndInSameYear"                          => Set("start.year", "end.year")
+    case "refundPeriod.error.periodNotLessThan3Months"                       => Set("start.month", "end.month")
+    case "refundPeriod.error.startAndEndInPast"                              => Set("start.month", "start.year", "end.month", "end.year")
+    case _                                                                   => Set.empty
   }
+
   private def highlightedFields(form: Form[RefundPeriodData]): Set[String] = {
     val errorMessages = form.errors.map(_.message).toSet
     val fieldErrors = Set(
@@ -94,14 +91,14 @@ class RefundPeriodFormProvider @Inject() () {
 
   def withMappedErrors(form: Form[RefundPeriodData]): (Form[RefundPeriodData], Set[String]) = {
     val errorMappings = Map(
-      "refundPeriod.error.periodStartDatenotAfterEndDate"          -> "start",
-      "refundPeriod.error.periodEndDaterefundPeriodInSingleYear"   -> "start",
-      "refundPeriod.error.periodStartDateperiodNotLessThan3Months" -> "start",
-      "refundPeriod.error.periodStartDateInvalid"                  -> "start",
-      "refundPeriod.error.periodEndDateInvalid"                    -> "end",
-      "refundPeriod.error.periodBothDatesInvalid"                  -> "start",
-      "refundPeriod.error.periodStartDateafter30thSept"            -> "start",
-      "refundPeriod.error.periodStartDate30thSeptOrEarlier"        -> "start"
+      "refundPeriod.error.startDateNotAfterEndDate" -> "start",
+      "refundPeriod.error.startAndEndInSameYear"    -> "start",
+      "refundPeriod.error.periodNotLessThan3Months" -> "start",
+      "refundPeriod.start.error.inPast"             -> "start",
+      "refundPeriod.end.error.inPast"               -> "end",
+      "refundPeriod.error.startAndEndInPast"        -> "start",
+      "refundPeriod.start.error.after30Sept"        -> "start",
+      "refundPeriod.start.error.30SeptOrEarlier"    -> "start"
     )
 
     val highlighted = highlightedFields(form)
@@ -119,25 +116,11 @@ class RefundPeriodFormProvider @Inject() () {
   def apply()(implicit messages: Messages): Form[RefundPeriodData] =
     Form(
       mapping(
-        "start" -> of(
-          new YearMonthFormatter(
-            invalidKey     = "refundPeriod.error.periodStartDateinvalidStartEndDateFormat",
-            allRequiredKey = "refundPeriod.error.periodStartDatecompleteFieldname",
-            twoRequiredKey = "refundPeriod.error.periodStartDatecompleteFieldname",
-            requiredKey    = "refundPeriod.error.periodStartDatecompleteFieldname"
-          )
-        ),
-        "end" -> of(
-          new YearMonthFormatter(
-            invalidKey     = "refundPeriod.error.periodEndDateinvalidStartEndDateFormat",
-            allRequiredKey = "refundPeriod.error.periodEndDatecompleteFieldname",
-            twoRequiredKey = "refundPeriod.error.periodEndDatecompleteFieldname",
-            requiredKey    = "refundPeriod.error.periodEndDatecompleteFieldname"
-          )
-        )
+        "start" -> of(yearMonthFormatter("start")),
+        "end"   -> of(yearMonthFormatter("end"))
       )((s, e) => RefundPeriodData(s, e))(rd => Some(rd.start, rd.end))
         .verifying(
-          "refundPeriod.error.periodStartDatenotAfterEndDate",
+          "refundPeriod.error.startDateNotAfterEndDate",
           data => {
             val now = YearMonth.now()
             if (!data.start.isBefore(now) || !data.end.isBefore(now)) true
@@ -145,7 +128,7 @@ class RefundPeriodFormProvider @Inject() () {
           }
         )
         .verifying(
-          "refundPeriod.error.periodEndDaterefundPeriodInSingleYear",
+          "refundPeriod.error.startAndEndInSameYear",
           data => {
             val now = YearMonth.now()
             if (!data.start.isBefore(now) || !data.end.isBefore(now)) true
@@ -161,8 +144,8 @@ class RefundPeriodFormProvider @Inject() () {
             }
           }
         )
-        .verifying(
-          "refundPeriod.error.periodStartDateperiodNotLessThan3Months",
+        .verifying( // TODO - warning message
+          "refundPeriod.error.periodNotLessThan3Months",
           data => {
             val now = YearMonth.now()
             if (!data.start.isBefore(now) || !data.end.isBefore(now)) true
@@ -182,4 +165,13 @@ class RefundPeriodFormProvider @Inject() () {
         .verifying(futureDateConstraint)
         .verifying(septemberCutoffConstraint)
     )
+
+  private def yearMonthFormatter(prefix: String)(implicit messages: Messages): YearMonthFormatter = {
+    new YearMonthFormatter(
+      invalidKey     = s"refundPeriod.$prefix.error.invalidDateFormat",
+      allRequiredKey = s"refundPeriod.$prefix.error.required",
+      twoRequiredKey = s"refundPeriod.$prefix.error.required",
+      requiredKey    = s"refundPeriod.$prefix.error.required"
+    )
+  }
 }
