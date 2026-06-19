@@ -27,7 +27,8 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.CountryList
+import utils.{CountryList, ConfigLanguageMapping}
+import models.RefundingLanguage
 import views.html.RefundingCountryView
 
 import javax.inject.Inject
@@ -45,6 +46,7 @@ class RefundingCountryController @Inject() (
   requireData: DataRequiredAction,
   formProvider: RefundingCountryFormProvider,
   config: Configuration,
+  configLanguageMapping: ConfigLanguageMapping,
   val controllerComponents: MessagesControllerComponents,
   view: RefundingCountryView
 )(implicit ec: ExecutionContext)
@@ -99,11 +101,20 @@ class RefundingCountryController @Inject() (
         value => {
           val name = countries.find(_._2.equalsIgnoreCase(value)).map(_._1).getOrElse(value)
 
-          for {
-            updatedAnswers <- Future.fromTry(baseAnswers.set(RefundingCountryPage, value))
-            updatedAnswers <- Future.fromTry(updatedAnswers.set(RefundingCountryNamePage, name))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(RefundingCountryPage, mode, updatedAnswers))
+            val langs = configLanguageMapping.languagesFor(value).map(_.toLowerCase)
+
+            val result = for {
+              updatedAnswers <- Future.fromTry(baseAnswers.set(RefundingCountryPage, value))
+              updatedAnswers <- Future.fromTry(updatedAnswers.set(RefundingCountryNamePage, name))
+              updatedAnswers <- if (langs.size == 1) {
+                val langStr = langs.head
+                val langModel = RefundingLanguage.values.find(_.toString == langStr).getOrElse(RefundingLanguage.English)
+                Future.fromTry(updatedAnswers.set(pages.RefundingLanguagePage, langModel))
+              } else Future.successful(updatedAnswers)
+              _ <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(navigator.nextPage(RefundingCountryPage, mode, updatedAnswers))
+
+            result
         }
       )
 
