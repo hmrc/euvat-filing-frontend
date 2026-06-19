@@ -18,15 +18,17 @@ package controllers
 
 import controllers.actions.*
 import forms.TotalVatClaimFormProvider
+
 import javax.inject.Inject
-import models.{Mode, NormalMode}
+import models.{Mode, NormalMode, RefundingCurrency}
 import navigation.Navigator
-import pages.TotalVatClaimPage
+import pages.{RefundingCurrencyPage, TotalVatClaimPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.TotalVatClaimView
+
 import scala.concurrent.{ExecutionContext, Future}
 
 class TotalVatClaimController @Inject() (
@@ -54,15 +56,27 @@ class TotalVatClaimController @Inject() (
       case Some(value) => form.fill(value)
     }
 
-    Ok(view(preparedForm, mode, backLink))
+    val currencySymbol = request.userAnswers
+      .get(RefundingCurrencyPage)
+      .flatMap(s => RefundingCurrency.enumerable.withName(s))
+      .map(_.symbol)
+      .getOrElse("€")
+
+    Ok(view(preparedForm, mode, backLink, currencySymbol))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
 
+    val currencySymbol = request.userAnswers
+      .get(RefundingCurrencyPage)
+      .flatMap(s => RefundingCurrency.enumerable.withName(s))
+      .map(_.symbol)
+      .getOrElse("€")
+
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink, currencySymbol))),
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(TotalVatClaimPage, value))

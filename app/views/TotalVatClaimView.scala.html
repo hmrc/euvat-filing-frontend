@@ -27,7 +27,7 @@
     mainErrorSummary: MainErrorSummary
 )
 
-@(form: Form[_], mode: Mode, call: Call)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, call: Call, currencySymbol: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("totalVatClaim.title")), backLinkUrl = Some(call.url)) {
 
@@ -46,8 +46,8 @@
                 field = form("value"),
                 label = LabelViewModel(messages("totalVatClaim.h2")).withCssClass(LabelSize.Medium.toString)
             )
-            .withHint(HintViewModel(messages("totalVatClaim.hint")))
-            .withPrefix(PrefixOrSuffix(content = "€"))
+            .withHint(HintViewModel(messages("totalVatClaim.hint", currencySymbol)))
+            .withPrefix(PrefixOrSuffix(content = Text(currencySymbol)))
             .withWidth(Fixed5)
         )
 
