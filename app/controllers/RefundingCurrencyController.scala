@@ -30,7 +30,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Request}
 import repositories.SessionRepository
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.ConfigCurrencyMapping
+import utils.{ConfigCurrencyMapping, ConfigLanguageMapping}
 import views.html.RefundingCurrencyView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -44,6 +44,7 @@ class RefundingCurrencyController @Inject() (
   requireData: DataRequiredAction,
   formProvider: RefundingCurrencyFormProvider,
   configCurrencyMapping: ConfigCurrencyMapping,
+  configLanguageMapping: ConfigLanguageMapping,
   val controllerComponents: MessagesControllerComponents,
   view: RefundingCurrencyView
 )(implicit ec: ExecutionContext)
@@ -70,7 +71,11 @@ class RefundingCurrencyController @Inject() (
             }
           }
           .getOrElse(form)
-        Ok(view(preparedForm, items, routes.RefundingLanguageController.onPageLoad(mode), mode))
+        // Determine back link: if the country has only one language then the language page may be skipped; link back to country
+        val back = if (configLanguageMapping.languagesFor(countryCode).size <= 1) routes.RefundingCountryController.onPageLoad(mode)
+        else routes.RefundingLanguageController.onPageLoad(mode)
+
+        Ok(view(preparedForm, items, back, mode))
     }
   }
 
@@ -89,7 +94,9 @@ class RefundingCurrencyController @Inject() (
               val currencies = configCurrencyMapping.currenciesFor(countryCode)
               val msgs = messagesApi.preferred(request)
               val items = buildRadioItems(currencies, msgs)
-              Future.successful(BadRequest(view(formWithErrors, items, routes.RefundingLanguageController.onPageLoad(mode), mode)))
+              val back = if (configLanguageMapping.languagesFor(countryCode).size <= 1) routes.RefundingCountryController.onPageLoad(mode)
+              else routes.RefundingLanguageController.onPageLoad(mode)
+              Future.successful(BadRequest(view(formWithErrors, items, back, mode)))
           },
         value =>
           resolveCountryCode(request.userAnswers) match {

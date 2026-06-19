@@ -103,18 +103,27 @@ class RefundingCountryController @Inject() (
 
             val langs = configLanguageMapping.languagesFor(value).map(_.toLowerCase)
 
-            val result = for {
-              updatedAnswers <- Future.fromTry(baseAnswers.set(RefundingCountryPage, value))
-              updatedAnswers <- Future.fromTry(updatedAnswers.set(RefundingCountryNamePage, name))
-              updatedAnswers <- if (langs.size == 1) {
-                val langStr = langs.head
-                val langModel = RefundingLanguage.values.find(_.toString == langStr).getOrElse(RefundingLanguage.English)
-                Future.fromTry(updatedAnswers.set(pages.RefundingLanguagePage, langModel))
-              } else Future.successful(updatedAnswers)
-              _ <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(RefundingCountryPage, mode, updatedAnswers))
+                val maybePrevCode = baseAnswers.get(RefundingCountryPage).orElse {
+                  baseAnswers.get(RefundingCountryNamePage).map { stored => stored.split(",", 2).headOption.getOrElse(stored) }
+                }
 
-            result
+                val result = for {
+                  updatedAnswers0 <- Future.fromTry(baseAnswers.set(RefundingCountryPage, value))
+                  updatedAnswers1 <- Future.fromTry(updatedAnswers0.set(RefundingCountryNamePage, name))
+                  // If the country has changed, remove any previously stored language so the user must re-select
+                  updatedAnswers2 <- maybePrevCode match {
+                    case Some(prev) if !prev.equalsIgnoreCase(value) => Future.fromTry(updatedAnswers1.remove(pages.RefundingLanguagePage))
+                    case _                                            => Future.successful(updatedAnswers1)
+                  }
+                  updatedAnswers3 <- if (langs.size == 1) {
+                    val langStr = langs.head
+                    val langModel = RefundingLanguage.values.find(_.toString == langStr).getOrElse(RefundingLanguage.English)
+                    Future.fromTry(updatedAnswers2.set(pages.RefundingLanguagePage, langModel))
+                  } else Future.successful(updatedAnswers2)
+                  _ <- sessionRepository.set(updatedAnswers3)
+                } yield Redirect(navigator.nextPage(RefundingCountryPage, mode, updatedAnswers3))
+
+                result
         }
       )
 

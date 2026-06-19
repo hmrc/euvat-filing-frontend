@@ -153,6 +153,39 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must clear previously stored language when country is changed" in {
+
+      val mockSessionRepository = mock[repositories.SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn scala.concurrent.Future.successful(true)
+
+      // Start with a saved country and language
+      val starting = emptyUserAnswers
+        .set(pages.RefundingCountryPage, "BG").success.value
+        .set(pages.RefundingLanguagePage, models.RefundingLanguage.Bulgarian).success.value
+
+      val application = applicationBuilder(userAnswers = Some(starting))
+        .overrides(
+          bind[repositories.SessionRepository].toInstance(mockSessionRepository)
+        )
+        .build()
+
+      running(application) {
+        // Submit a different country
+        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
+          .withFormUrlEncodedBody(("value", "DE"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+
+        import org.mockito.ArgumentCaptor
+        val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
+        verify(mockSessionRepository, times(1)).set(captor.capture())
+        val saved = captor.getValue
+        saved.get(pages.RefundingLanguagePage).isDefined mustBe false
+      }
+    }
+
     "must pre-fill the form when arriving from the task list and a saved value exists" in {
 
       val userAnswers = emptyUserAnswers.set(RefundingCountryNamePage, "DE").success.value
