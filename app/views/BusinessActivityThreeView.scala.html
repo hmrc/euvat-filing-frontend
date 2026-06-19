@@ -35,10 +35,8 @@
         </h2>
         <h1 class="govuk-heading-l">@messages("businessActivityThree.heading")</h1>
 
-        <p class="govuk-body-l">@messages("businessActivityThree.lead")</p>
-
         @govukInsetText(InsetText(
-            content = HtmlContent(s"<strong>${messages("businessActivity.insetText.label")}:</strong> ${baCode1}")
+            content = HtmlContent(s"${messages("businessActivityThree.lead")} ${baCode1}")
         ))
 
         @customSummaryList(
