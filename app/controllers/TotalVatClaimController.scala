@@ -27,7 +27,6 @@ import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.TotalVatClaimView
-
 import scala.concurrent.{ExecutionContext, Future}
 
 class TotalVatClaimController @Inject() (
