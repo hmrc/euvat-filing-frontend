@@ -69,12 +69,12 @@ refundingCountry.error.required = Select an EU member state
 refundingCountry.error.invalid = Select a valid EU member state
 refundingCountry.error.invalid.summary = Select a valid EU member state
 
-refundingLanguage.title = What language do you want to use for this claim?
-refundingLanguage.heading = What language do you want to use for this claim?
+refundingLanguage.title = Which language do you want to use for this claim?
+refundingLanguage.heading = Which language do you want to use for this claim?
 refundingLanguage.error.required = Select a language for this claim
 refundingLanguage.checkYourAnswersLabel = Language for claim
 refundingLanguage.change.hidden = Change language
-refundingLanguage.hint = All supporting documents must be uploaded in the language you select.
+refundingLanguage.hint = All supporting documents must be uploaded in the language you select
 refundingLanguage.english = English
 refundingLanguage.german = German
 refundingLanguage.french = French

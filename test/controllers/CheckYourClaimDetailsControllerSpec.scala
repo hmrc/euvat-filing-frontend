@@ -49,23 +49,33 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
       }
     }
 
-    "must include all expected labels in the rendered HTML as visually-hidden" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+    "must include language label when country has multiple languages" in {
+      val ua = emptyUserAnswers
+        .set(pages.RefundingCountryPage, "BE").success.value
+
+      val application = applicationBuilder(userAnswers = Some(ua)).build()
 
       running(application) {
         val request = FakeRequest(GET, routes.CheckYourClaimDetailsController.onPageLoad().url)
         val result = route(application, request).value
         val html = contentAsString(result)
 
-        Seq(
-          "Refunding EU member state",
-          "Claim language",
-          "Refund period",
-          "Contact details",
-          "Business activity"
-        ).foreach { label =>
-          html must include(s"<span class=\"govuk-visually-hidden\">$label</span>")
-        }
+        html must include(s"<span class=\"govuk-visually-hidden\">${messages(application)("checkYourClaimDetails.refundingLanguage.label")}</span>")
+      }
+    }
+
+    "must NOT include language label when country has only one language" in {
+      val ua = emptyUserAnswers
+        .set(pages.RefundingCountryPage, "CZ").success.value
+
+      val application = applicationBuilder(userAnswers = Some(ua)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.CheckYourClaimDetailsController.onPageLoad().url)
+        val result = route(application, request).value
+        val html = contentAsString(result)
+
+        html must not include (messages(application)("checkYourClaimDetails.refundingLanguage.label"))
       }
     }
 

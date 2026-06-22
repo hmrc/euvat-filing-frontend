@@ -43,9 +43,23 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
   val form = formProvider()
 
   val userAnswersWithBulgaria = emptyUserAnswers.set(RefundingCountryPage, "BG").success.value
-  val userAnswersWithAustria = emptyUserAnswers.set(RefundingCountryPage, "AT").success.value
+  val userAnswersWithCzech = emptyUserAnswers.set(RefundingCountryPage, "CZ").success.value
 
   "RefundingCurrency Controller" - {
+
+    "must show back link to country when language page is skipped for single-language country" in {
+
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithCzech)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, refundingCurrencyRoute)
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        // back link should point to RefundingCountry when language is skipped
+        contentAsString(result) must include(routes.RefundingCountryController.onPageLoad(NormalMode).url)
+      }
+    }
 
     "must return OK and the correct view for a GET when country is Bulgaria" in {
 
