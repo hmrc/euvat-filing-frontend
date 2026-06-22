@@ -23,26 +23,28 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.TotalVatClaimPage
+import pages.{RefundingCountryPage, RefundingCurrencyPage, TotalVatClaimPage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
 import views.html.TotalVatClaimView
+import org.scalatest.TryValues.*
+import play.api.data.Form
 
 import scala.concurrent.Future
 
 class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
 
   val formProvider = new TotalVatClaimFormProvider()
-  val form = formProvider()
+  val form: Form[BigDecimal] = formProvider()
 
   def onwardRoute = Call("GET", "/foo")
 
   val validAnswer = 0
 
-  lazy val totalVatClaimRoute = routes.TotalVatClaimController.onPageLoad().url
+  lazy val totalVatClaimRoute: String = routes.TotalVatClaimController.onPageLoad().url
 
   def backLink: Call = routes.JourneyRecoveryController.onPageLoad()
 
@@ -60,7 +62,7 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[TotalVatClaimView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, backLink)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, backLink, "€")(request, messages(application)).toString
       }
     }
 
@@ -78,7 +80,7 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(validAnswer), NormalMode, backLink)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(validAnswer), NormalMode, backLink, "€")(request, messages(application)).toString
       }
     }
 
@@ -124,7 +126,7 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, backLink)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode, backLink, "€")(request, messages(application)).toString
       }
     }
 
@@ -170,6 +172,80 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual SEE_OTHER
 
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must display the kr symbol when the chosen currency is Estonian Kroon" in {
+
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(RefundingCountryPage, "EE")
+        .success
+        .value
+        .set(RefundingCurrencyPage, "EEK")
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, totalVatClaimRoute)
+
+        val view = application.injector.instanceOf[TotalVatClaimView]
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, NormalMode, backLink, "kr")(request, messages(application)).toString
+      }
+    }
+
+    "must display the € symbol when the chosen currency is Euro for a multi-currency country" in {
+
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(RefundingCountryPage, "EE")
+        .success
+        .value
+        .set(RefundingCurrencyPage, "EUR")
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, totalVatClaimRoute)
+
+        val view = application.injector.instanceOf[TotalVatClaimView]
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, NormalMode, backLink, "€")(request, messages(application)).toString
+      }
+    }
+
+    "must display the kr symbol on the error page when invalid data is submitted" in {
+
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(RefundingCountryPage, "EE")
+        .success
+        .value
+        .set(RefundingCurrencyPage, "EEK")
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(POST, totalVatClaimRoute).withFormUrlEncodedBody(("value", "invalid value"))
+
+        val boundForm = form.bind(Map("value" -> "invalid value"))
+
+        val view = application.injector.instanceOf[TotalVatClaimView]
+
+        val result = route(application, request).value
+
+        status(result) mustEqual BAD_REQUEST
+        contentAsString(result) mustEqual view(boundForm, NormalMode, backLink, "kr")(request, messages(application)).toString
       }
     }
   }
