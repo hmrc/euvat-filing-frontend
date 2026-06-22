@@ -22,7 +22,7 @@ import models.requests.DataRequest
 import models.responses.TraderKnownFactsResponse
 import models.{Mode, RefundPeriod}
 import navigation.Navigator
-import pages.{RefundPeriodPage, RefundingCountryNamePage, RefundingCountryPage}
+import pages.RefundPeriodPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.*
@@ -32,6 +32,7 @@ import services.EuVatRefundsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ConfigCurrencyMapping
 import views.html.RefundPeriodView
+
 import java.time.{LocalDate, LocalDateTime, YearMonth}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -96,6 +97,7 @@ class RefundPeriodController @Inject() (
     )
   }
 
+  // Business Function F6 check
   private def isStartDateValid(startDate: LocalDate, regDate: LocalDate): (Boolean, String) = {
     val start = YearMonth.from(startDate)
     val reg = YearMonth.from(regDate)
@@ -146,7 +148,7 @@ class RefundPeriodController @Inject() (
                   val (validStartDate, msg) = isStartDateValid(startDate.toLocalDate, regDate.toLocalDate)
                   if (!validStartDate) {
                     Some(baseForm.fill(value).withError("start", msg))
-                  } else if (YearMonth.from(endDate).isAfter(YearMonth.from(deRegDate))) {
+                  } else if (YearMonth.from(endDate).isAfter(YearMonth.from(deRegDate))) { // F6 check
                     Some(baseForm.fill(value).withError("end", "refundPeriod.end.error.beforeVatDeRegDate"))
                   } else {
                     None

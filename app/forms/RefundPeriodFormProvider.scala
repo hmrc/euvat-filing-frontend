@@ -17,14 +17,14 @@
 package forms
 
 import forms.mappings.YearMonthFormatter
-
-import javax.inject.Inject
 import play.api.data.Form
 import play.api.data.Forms.{mapping, of}
 import play.api.data.validation.{Constraint, Invalid, Valid}
 import play.api.i18n.Messages
 
+import java.time.temporal.ChronoUnit
 import java.time.{LocalDate, YearMonth}
+import javax.inject.Inject
 
 case class RefundPeriodData(start: YearMonth, end: YearMonth)
 
@@ -32,46 +32,29 @@ class RefundPeriodFormProvider @Inject() () {
 
   protected def today: LocalDate = LocalDate.now()
 
-  private val futureDateConstraint: Constraint[RefundPeriodData] =
+  private val septemberCutoffConstraint: Constraint[RefundPeriodData] =
     Constraint { data =>
-      val now = YearMonth.now()
-      val startInFuture = !data.start.isBefore(now)
-      val endInFuture = !data.end.isBefore(now)
-
-      (startInFuture, endInFuture) match {
-        case (true, true)  => Invalid("refundPeriod.error.startAndEndInPast")
-        case (true, false) => Invalid("refundPeriod.start.error.inPast")
-        case (false, true) => Invalid("refundPeriod.end.error.inPast")
-        case _             => Valid
-      }
-    }
-
-  private val septemberCutoffConstraint: Constraint[RefundPeriodData] = // TODO - warning messages
-    Constraint { data =>
-      val now = YearMonth.now()
-      if (!data.start.isBefore(now) || !data.end.isBefore(now)) { Valid }
+      if (!data.start.isBefore(YearMonth.now()) || !data.end.isBefore(YearMonth.now())) { Valid }
       else {
         val (cutoff, errorKey) =
-          if (today.isAfter(java.time.LocalDate.of(today.getYear, 9, 30))) {
+          if (today.isAfter(LocalDate.of(today.getYear, 9, 30))) {
             (YearMonth.of(today.getYear, 1), "refundPeriod.start.error.after30Sept")
           } else {
             (YearMonth.of(today.getYear - 1, 1), "refundPeriod.start.error.30SeptOrEarlier")
           }
 
-        if (!data.start.isBefore(cutoff)) Valid
-        else Invalid(errorKey, cutoff.getYear.toString)
+        if (!data.start.isBefore(cutoff)) { Valid }
+        else { Invalid(errorKey, cutoff.getYear.toString) }
       }
     }
 
   private def fieldsForError(message: String): Set[String] = message match {
-    case "refundPeriod.start.error.required" | "refundPeriod.start.error.inPast" | "refundPeriod.start.error.after30Sept" |
-        "refundPeriod.start.error.30SeptOrEarlier" =>
+    case "refundPeriod.start.error.required" | "refundPeriod.start.error.after30Sept" | "refundPeriod.start.error.30SeptOrEarlier" =>
       Set("start.month", "start.year")
     case "refundPeriod.error.startDateNotAfterEndDate"                       => Set("start.month", "start.year", "end.month", "end.year")
     case "refundPeriod.end.error.required" | "refundPeriod.end.error.inPast" => Set("end.month", "end.year")
     case "refundPeriod.error.startAndEndInSameYear"                          => Set("start.year", "end.year")
     case "refundPeriod.error.periodNotLessThan3Months"                       => Set("start.month", "end.month")
-    case "refundPeriod.error.startAndEndInPast"                              => Set("start.month", "start.year", "end.month", "end.year")
     case _                                                                   => Set.empty
   }
 
@@ -122,49 +105,52 @@ class RefundPeriodFormProvider @Inject() () {
         .verifying(
           "refundPeriod.error.startDateNotAfterEndDate",
           data => {
-            val now = YearMonth.now()
-            if (!data.start.isBefore(now) || !data.end.isBefore(now)) true
-            else !data.start.isAfter(data.end)
+            if (!data.start.isBefore(YearMonth.now()) || !data.end.isBefore(YearMonth.now())) { true }
+            else { !data.start.isAfter(data.end) }
           }
         )
-        .verifying(
-          "refundPeriod.error.startAndEndInSameYear",
-          data => {
-            val now = YearMonth.now()
-            if (!data.start.isBefore(now) || !data.end.isBefore(now)) true
-            else if (!data.start.isBefore(data.end)) true
-            else {
-              val cutoff =
-                if (today.isAfter(java.time.LocalDate.of(today.getYear, 9, 30)))
-                  YearMonth.of(today.getYear, 1)
-                else
-                  YearMonth.of(today.getYear - 1, 1)
-              if (data.start.isBefore(cutoff)) true
-              else data.start.getYear == data.end.getYear
-            }
-          }
-        )
-        .verifying( // TODO - warning message
-          "refundPeriod.error.periodNotLessThan3Months",
-          data => {
-            val now = YearMonth.now()
-            if (!data.start.isBefore(now) || !data.end.isBefore(now)) true
-            else if (data.start.isAfter(data.end)) true
-            else if (data.end.getMonthValue == 12) true
-            else {
-              val cutoff =
-                if (today.isAfter(java.time.LocalDate.of(today.getYear, 9, 30)))
-                  YearMonth.of(today.getYear, 1)
-                else
-                  YearMonth.of(today.getYear - 1, 1)
-              if (data.start.isBefore(cutoff)) true
-              else java.time.temporal.ChronoUnit.MONTHS.between(data.start, data.end) >= 2
-            }
-          }
-        )
-        .verifying(futureDateConstraint)
-        .verifying(septemberCutoffConstraint)
+        .verifying("refundPeriod.error.startAndEndInSameYear", datesInSameYear)
+        .verifying("refundPeriod.error.periodNotLessThan3Months", periodLessThan3Months) // TODO - warning messages
+        .verifying("refundPeriod.end.error.inPast", data => data.end.isBefore(YearMonth.now())) // TODO - warning messages
+        .verifying(septemberCutoffConstraint) // TODO - warning messages
     )
+
+  private val datesInSameYear: RefundPeriodData => Boolean = { data =>
+    {
+      if (!data.start.isBefore(YearMonth.now()) || !data.end.isBefore(YearMonth.now())) {
+        true
+      } else if (!data.start.isBefore(data.end)) {
+        true
+      } else {
+        val cutoff =
+          if (today.isAfter(LocalDate.of(today.getYear, 9, 30))) {
+            YearMonth.of(today.getYear, 1)
+          } else {
+            YearMonth.of(today.getYear - 1, 1)
+          }
+        if (data.start.isBefore(cutoff)) {
+          true
+        } else {
+          data.start.getYear == data.end.getYear
+        }
+      }
+    }
+  }
+
+  private val periodLessThan3Months: RefundPeriodData => Boolean = { data =>
+    {
+      if (!data.start.isBefore(YearMonth.now()) || !data.end.isBefore(YearMonth.now())) { true }
+      else if (data.start.isAfter(data.end)) { true }
+      else if (data.end.getMonthValue == 12) { true }
+      else {
+        val cutoff =
+          if (today.isAfter(LocalDate.of(today.getYear, 9, 30))) { YearMonth.of(today.getYear, 1) }
+          else { YearMonth.of(today.getYear - 1, 1) }
+        if (data.start.isBefore(cutoff)) { true }
+        else { ChronoUnit.MONTHS.between(data.start, data.end) >= 2 }
+      }
+    }
+  }
 
   private def yearMonthFormatter(prefix: String)(implicit messages: Messages): YearMonthFormatter = {
     new YearMonthFormatter(
