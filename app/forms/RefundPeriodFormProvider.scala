@@ -77,9 +77,7 @@ class RefundPeriodFormProvider @Inject() () {
       "refundPeriod.error.startDateNotAfterEndDate" -> "start",
       "refundPeriod.error.startAndEndInSameYear"    -> "start",
       "refundPeriod.error.periodNotLessThan3Months" -> "start",
-      "refundPeriod.start.error.inPast"             -> "start",
       "refundPeriod.end.error.inPast"               -> "end",
-      "refundPeriod.error.startAndEndInPast"        -> "start",
       "refundPeriod.start.error.after30Sept"        -> "start",
       "refundPeriod.start.error.30SeptOrEarlier"    -> "start"
     )
