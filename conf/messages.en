@@ -181,13 +181,14 @@ removeSecond.heading = Are you sure you want to remove the second SIC code?
 removeSecond.title = Are you sure you want to remove the second SIC code?
 removeSecond.error.required = Select yes if you want to remove the second SIC code
 
-businessActivityCodeThree.title = What is the 3rd business activity?
-businessActivityCodeThree.heading = What is the 3rd business activity?
-businessActivityCodeThree.hint = Enter your SIC code or search term, for example "motor"
-businessActivityCodeThree.error.summary = Enter a business activity code
-businessActivityCodeThree.error.required = Enter a business activity code
-businessActivityCodeThree.error.invalid = Enter a valid business activity code
-businessActivityCodeThree.error.invalid.summary = Enter a valid business activity code
+businessActivityCodeThree.title = What is the third SIC code?
+businessActivityCodeThree.heading = What is the third SIC code?
+businessActivityCodeThree.hint = Enter the SIC code
+businessActivityCodeThree.hintHtml = <p class="govuk-body">You can find the SIC codes on the <a href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2007" class="govuk-link" target="_blank" rel="noreferrer noopener">Office for National Statistics website (opens in a new tab)</a>.</p>
+businessActivityCodeThree.error.summary = Enter a SIC code
+businessActivityCodeThree.error.required = Enter a SIC code
+businessActivityCodeThree.error.invalid = Enter a valid SIC code
+businessActivityCodeThree.error.invalid.summary = Enter a valid SIC code
 businessActivityCodeThree.checkYourAnswersLabel = 3rd business activity code
 businessActivityCodeThree.change.hidden = Change the 3rd business activity code
 

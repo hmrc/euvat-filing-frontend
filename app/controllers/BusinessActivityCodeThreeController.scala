@@ -23,13 +23,13 @@ import models.Mode
 import models.CheckMode
 import navigation.Navigator
 import pages.BusinessActivityCodeThreePage
-import play.api.Configuration
+ 
 import play.api.data.FormError
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.BusinessActivityList
+ 
 import views.html.BusinessActivityCodeThreeView
 
 import javax.inject.Inject
@@ -45,28 +45,22 @@ class BusinessActivityCodeThreeController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: BusinessActivityCodeThreeFormProvider,
-  config: Configuration,
   val controllerComponents: MessagesControllerComponents,
   view: BusinessActivityCodeThreeView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
-  private def buildListAndForm() = {
-    val activities = BusinessActivityList.fromConfig(config)
-    val allowed: Set[String] = activities.flatMap { case (name, code) => Seq(code, s"$code ($name)") }.toSet
-    val form = formProvider(allowed)
-    (activities, form)
-  }
+  
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val (activities, form) = buildListAndForm()
+    val form = formProvider()
     val preparedForm = request.userAnswers.get(BusinessActivityCodeThreePage).fold(form)(form.fill)
-    Ok(view(preparedForm, activities, Some(routes.BusinessActivityTwoController.onPageLoad(mode).url), mode))
+    Ok(view(preparedForm, Some(routes.BusinessActivityTwoController.onPageLoad(mode).url), mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    val (activities, form) = buildListAndForm()
+    val form = formProvider()
     val baseAnswers: UserAnswers = request.userAnswers
 
     val boundResult = form
@@ -80,7 +74,7 @@ class BusinessActivityCodeThreeController @Inject() (
           } else {
             formWithErrors
           }
-          Future.successful(BadRequest(view(adjustedForm, activities, Some(routes.BusinessActivityTwoController.onPageLoad(mode).url), mode)))
+          Future.successful(BadRequest(view(adjustedForm, Some(routes.BusinessActivityTwoController.onPageLoad(mode).url), mode)))
         },
         value => {
           for {
@@ -92,7 +86,7 @@ class BusinessActivityCodeThreeController @Inject() (
 
     boundResult.recover { case NonFatal(e) =>
       Logger(getClass).error("Error in BusinessActivityCodeThreeController.onSubmit", e)
-      BadRequest(view(form.bindFromRequest(), activities, Some(routes.BusinessActivityCodeTwoController.onPageLoad(mode).url), mode))
+      BadRequest(view(form.bindFromRequest(), Some(routes.BusinessActivityTwoController.onPageLoad(mode).url), mode))
     }
   }
 }
