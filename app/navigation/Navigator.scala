@@ -59,6 +59,8 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
     case SuppliersNamePage                => _ => routes.SupplierAddressController.onPageLoad(NormalMode)
     case SupplierAddressPage              => _ => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode)
     case SimplifiedInvoiceVatRegCheckPage => userAnswer => navigateFromSimplifiedInvoiceVatRegCheckPage(NormalMode)(userAnswer)
+    case SupplierVatRegistrationNumberPage => _ => routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
+    case TotalPurchaseAmountBeforeVatPage => _ => routes.PurchaseTypeController.onPageLoad(NormalMode)
     case PurchaseTypePage                 => _ => routes.JourneyRecoveryController.onPageLoad()
     case _                                => _ => routes.IndexController.onPageLoad()
   }
@@ -90,6 +92,8 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
     case SuppliersNamePage                => _ => routes.SupplierAddressController.onPageLoad(CheckMode)
     case SupplierAddressPage              => _ => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(CheckMode)
     case SimplifiedInvoiceVatRegCheckPage => userAnswer => navigateFromSimplifiedInvoiceVatRegCheckPage(CheckMode)(userAnswer)
+    case SupplierVatRegistrationNumberPage => _ => routes.TotalPurchaseAmountBeforeVatController.onPageLoad(CheckMode)
+    case TotalPurchaseAmountBeforeVatPage => _ => routes.CheckYourClaimDetailsController.onPageLoad()
     case PurchaseTypePage                 => _ => routes.IndexController.onPageLoad()
     case _                                => _ => routes.IndexController.onPageLoad()
   }
@@ -145,10 +149,13 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
     userAnswers.get(SimplifiedInvoiceVatRegCheckPage) match {
       case Some(true)  =>
         userAnswers.get(InvoiceTypePage) match {
-          case Some(InvoiceType.StandardInvoice) => routes.SupplierVatRegistrationNumberController.onPageLoad(mode)
-          case _                                 => routes.PurchaseTypeController.onPageLoad(mode)
+          // Only show the supplier VAT registration number page when the invoice type is Simplified
+          case Some(InvoiceType.SimplifiedInvoice) => routes.SupplierVatRegistrationNumberController.onPageLoad(mode)
+          // For other invoice types, continue to the total purchase amount page
+          case _ => routes.TotalPurchaseAmountBeforeVatController.onPageLoad(mode)
         }
-      case Some(false) => routes.PurchaseTypeController.onPageLoad(mode)
+      // If the check was answered 'no' skip the supplier VAT registration number page and go to total purchase amount
+      case Some(false) => routes.TotalPurchaseAmountBeforeVatController.onPageLoad(mode)
       case _           => routes.JourneyRecoveryController.onPageLoad()
     }
 

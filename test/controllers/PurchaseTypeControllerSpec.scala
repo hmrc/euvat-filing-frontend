@@ -39,13 +39,49 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
   lazy val purchaseTypeRoute: String = routes.PurchaseTypeController.onPageLoad(NormalMode).url
   lazy val purchaseTypeSubmitRoute: String = routes.PurchaseTypeController.onSubmit(NormalMode).url
-  lazy val backLinkCall: Call = routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode)
+  lazy val backLinkCall: Call = routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
 
   "PurchaseType Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, purchaseTypeRoute)
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[PurchaseTypeView]
+        val formProvider = application.injector.instanceOf[PurchaseTypeFormProvider]
+        val form = formProvider()
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, NormalMode, backLinkCall)(request, messages(application)).toString
+      }
+    }
+
+    "must return OK and the correct view for a GET when simplified invoice check exists with back link to simplified check" in {
+
+      val userAnswers = emptyUserAnswers.set(pages.SimplifiedInvoiceVatRegCheckPage, false).success.value
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, purchaseTypeRoute)
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[PurchaseTypeView]
+        val formProvider = application.injector.instanceOf[PurchaseTypeFormProvider]
+        val form = formProvider()
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, NormalMode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode))(request, messages(application)).toString
+      }
+    }
+
+    "must return OK and the correct view for a GET when simplified invoice check exists with value Yes and back link to TotalPurchaseAmountBeforeVat" in {
+
+      val userAnswers = emptyUserAnswers.set(pages.SimplifiedInvoiceVatRegCheckPage, true).success.value
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, purchaseTypeRoute)

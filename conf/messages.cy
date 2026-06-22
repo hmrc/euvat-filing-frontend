@@ -264,6 +264,20 @@ supplierVatRegistrationNumber.error.required = Enter the supplier’s VAT regist
 supplierVatRegistrationNumber.error.invalid = Enter the supplier’s VAT registration number in the correct format
 supplierVatRegistrationNumber.error.length = Supplier’s VAT registration number must be 12 characters or less
 
+totalPurchaseAmountBeforeVat.title = Total purchase amount before VAT
+totalPurchaseAmountBeforeVat.heading = Total purchase amount before VAT
+totalPurchaseAmountBeforeVat.h2 = How much did the purchase cost before VAT?
+totalPurchaseAmountBeforeVat.inset = The currency for this claim is in {0} ({1}). For invoices in any other currency, you must convert the amounts before adding them to your claim. Use the <a href="https://data.ecb.europa.eu/currency-converter" class="govuk-link" rel="noreferrer noopener" target="_blank">European Central Bank currency converter (opens in a new tab).</a>
+totalPurchaseAmountBeforeVat.p1 = This is the purchase amount before VAT is added. If your invoice does not show this amount, you’ll need to <a href="https://www.gov.uk/charge-reclaim-record-vat" class="govuk-link" target="_blank" rel="noreferrer noopener">calculate it (opens in a new tab)</a>.
+totalPurchaseAmountBeforeVat.hint = For example, {0}150 or {0}120.45
+totalPurchaseAmountBeforeVat.change.hidden = Total purchase amount before VAT
+
+totalPurchaseAmountBeforeVat.error.nonNumeric = Enter the total purchase amount before VAT in the correct format
+totalPurchaseAmountBeforeVat.error.required = Enter the total purchase amount before VAT
+totalPurchaseAmountBeforeVat.error.aboveMaximum = Total purchase amount before VAT must be between {0} and {1}
+totalPurchaseAmountBeforeVat.error.maxLength = Total purchase amount before VAT must be 15 numbers or less
+totalPurchaseAmountBeforeVat.error.invalidNumeric = Enter the total purchase amount before VAT in the correct format
+
 supplierAddress.title = What is the supplier’s address?
 supplierAddress.heading = What is the supplier’s address?
 supplierAddress.lead = Enter the supplier’s address as it appears on the invoice or receipt.

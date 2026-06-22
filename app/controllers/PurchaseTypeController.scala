@@ -17,6 +17,7 @@
 package controllers
 
 import controllers.actions.*
+import models.requests.DataRequest
 import forms.PurchaseTypeFormProvider
 import models.{Mode, PurchaseType}
 import navigation.Navigator
@@ -47,17 +48,25 @@ class PurchaseTypeController @Inject() (
 
   val form: Form[PurchaseType] = formProvider()
 
+  private def backLink(mode: Mode)(implicit request: DataRequest[_]) =
+    request.userAnswers.get(pages.SimplifiedInvoiceVatRegCheckPage) match {
+      // explicit `false` -> return to the simplified-invoice check page
+      case Some(false) => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode)
+      // otherwise return to the total purchase amount page
+      case _           => routes.TotalPurchaseAmountBeforeVatController.onPageLoad(mode)
+    }
+
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(PurchaseTypePage).fold(form)(form.fill)
 
-    Ok(view(preparedForm, mode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode: Mode)))
+    Ok(view(preparedForm, mode, backLink(mode)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, routes.AboutThePurchaseController.onPageLoad()))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)))),
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(PurchaseTypePage, value))
