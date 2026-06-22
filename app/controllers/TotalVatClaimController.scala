@@ -20,9 +20,10 @@ import controllers.actions.*
 import forms.TotalVatClaimFormProvider
 
 import javax.inject.Inject
-import models.{Mode, NormalMode, RefundingCurrency}
+import models.{Mode, NormalMode, UserAnswers}
 import navigation.Navigator
-import pages.{RefundingCurrencyPage, TotalVatClaimPage}
+import pages.{RefundingCountryNamePage, RefundingCountryPage, RefundingCurrencyPage, TotalVatClaimPage}
+import utils.ConfigCurrencyMapping
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -39,6 +40,7 @@ class TotalVatClaimController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: TotalVatClaimFormProvider,
+  configCurrencyMapping: ConfigCurrencyMapping,
   val controllerComponents: MessagesControllerComponents,
   view: TotalVatClaimView
 )(implicit ec: ExecutionContext)
@@ -49,6 +51,14 @@ class TotalVatClaimController @Inject() (
 
   private def backLink: Call = routes.JourneyRecoveryController.onPageLoad()
 
+  // duplicated from RefundingCurrencyController; consider extracting to a shared helper (see DTR-4294)
+  private def resolveCountryCode(userAnswers: UserAnswers): Option[String] =
+    userAnswers.get(RefundingCountryPage).orElse {
+      userAnswers.get(RefundingCountryNamePage).map { stored =>
+        stored.split(",", 2).headOption.getOrElse(stored)
+      }
+    }
+
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
     val preparedForm = request.userAnswers.get(TotalVatClaimPage) match {
@@ -56,10 +66,13 @@ class TotalVatClaimController @Inject() (
       case Some(value) => form.fill(value)
     }
 
-    val currencySymbol = request.userAnswers
-      .get(RefundingCurrencyPage)
-      .flatMap(s => RefundingCurrency.enumerable.withName(s))
-      .map(_.symbol)
+    val currencySymbol = resolveCountryCode(request.userAnswers)
+      .map(configCurrencyMapping.currenciesFor)
+      .flatMap { currencies =>
+        request.userAnswers
+          .get(RefundingCurrencyPage)
+          .flatMap(code => currencies.find(_._2 == code).map(_._3))
+      }
       .getOrElse("€")
 
     Ok(view(preparedForm, mode, backLink, currencySymbol))
@@ -67,10 +80,13 @@ class TotalVatClaimController @Inject() (
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
 
-    val currencySymbol = request.userAnswers
-      .get(RefundingCurrencyPage)
-      .flatMap(s => RefundingCurrency.enumerable.withName(s))
-      .map(_.symbol)
+    val currencySymbol = resolveCountryCode(request.userAnswers)
+      .map(configCurrencyMapping.currenciesFor)
+      .flatMap { currencies =>
+        request.userAnswers
+          .get(RefundingCurrencyPage)
+          .flatMap(code => currencies.find(_._2 == code).map(_._3))
+      }
       .getOrElse("€")
 
     form

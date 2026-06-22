@@ -16,15 +16,13 @@
 
 package models
 
-sealed trait RefundingCurrency {
-  val symbol: String
-}
+sealed trait RefundingCurrency
 
 object RefundingCurrency extends Enumerable.Implicits {
 
-  case object Euro          extends WithName("euro") with RefundingCurrency { val symbol = "€" }
-  case object EstonianKroon extends WithName("estonianKroon") with RefundingCurrency { val symbol = "kr" }
-  case object BulgarianLev  extends WithName("bulgarianLev") with RefundingCurrency { val symbol = "лв" }
+  case object Euro          extends WithName("euro") with RefundingCurrency
+  case object EstonianKroon extends WithName("estonianKroon") with RefundingCurrency
+  case object BulgarianLev  extends WithName("bulgarianLev") with RefundingCurrency
 
   val values: Seq[RefundingCurrency] = Seq(
     Euro,
