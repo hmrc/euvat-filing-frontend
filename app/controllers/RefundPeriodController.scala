@@ -31,8 +31,8 @@ import queries.TraderKnownFactsQuery
 import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.ConfigCurrencyMapping
 import views.html.RefundPeriodView
+import utils.{ConfigCurrencyMapping, ConfigLanguageMapping}
 
 import java.time.{LocalDate, LocalDateTime, YearMonth}
 import javax.inject.Inject
@@ -48,6 +48,7 @@ class RefundPeriodController @Inject() (
   formProvider: RefundPeriodFormProvider,
   euVatRefundsService: EuVatRefundsService,
   configCurrencyMapping: ConfigCurrencyMapping,
+  configLanguageMapping: ConfigLanguageMapping,
   val controllerComponents: MessagesControllerComponents,
   view: RefundPeriodView
 )(implicit ec: ExecutionContext)
@@ -174,8 +175,11 @@ class RefundPeriodController @Inject() (
     maybeCountryCode match {
       case Some(code) if configCurrencyMapping.requiresCurrencySelection(code) =>
         controllers.routes.RefundingCurrencyController.onPageLoad(mode)
-      case _ =>
-        controllers.routes.RefundingLanguageController.onPageLoad(mode)
+      case Some(code) =>
+        val langs = configLanguageMapping.languagesFor(code)
+        if (langs.size <= 1) controllers.routes.RefundingCountryController.onPageLoad(mode)
+        else controllers.routes.RefundingLanguageController.onPageLoad(mode)
+      case None => controllers.routes.RefundingLanguageController.onPageLoad(mode)
     }
   }
 }

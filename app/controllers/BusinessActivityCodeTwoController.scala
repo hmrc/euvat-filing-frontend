@@ -23,13 +23,11 @@ import models.Mode
 import models.CheckMode
 import navigation.Navigator
 import pages.{BusinessActivityCodeTwoPage, BusinessActivityThreePage}
-import play.api.Configuration
 import play.api.data.FormError
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.BusinessActivityList
 import views.html.BusinessActivityCodeTwoView
 
 import javax.inject.Inject
@@ -46,22 +44,16 @@ class BusinessActivityCodeTwoController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: BusinessActivityCodeTwoFormProvider,
-  config: Configuration,
   val controllerComponents: MessagesControllerComponents,
   view: BusinessActivityCodeTwoView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
-  private def buildListAndForm() = {
-    val activities = BusinessActivityList.fromConfig(config)
-    val allowed: Set[String] = activities.flatMap { case (name, code) => Seq(code, s"$code ($name)") }.toSet
-    val form = formProvider(allowed)
-    (activities, form)
-  }
+  
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val (activities, form) = buildListAndForm()
+    val form = formProvider()
     val userAnswers = request.userAnswers
     val keyValue = request.getQueryString("key").getOrElse("") // check if page 3 Change link clicked otherwise empty
 
@@ -71,11 +63,11 @@ class BusinessActivityCodeTwoController @Inject() (
     } yield None
 
     val preparedForm = userAnswers.get(BusinessActivityCodeTwoPage).fold(form)(form.fill)
-    Ok(view(preparedForm, activities, Some(routes.BusinessActivityController.onPageLoad(mode).url), mode))
+    Ok(view(preparedForm, Some(routes.BusinessActivityController.onPageLoad(mode).url), mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    val (activities, form) = buildListAndForm()
+    val form = formProvider()
     val baseAnswers: UserAnswers = request.userAnswers
     val page3 = baseAnswers.get(BusinessActivityThreePage)
 
@@ -90,7 +82,7 @@ class BusinessActivityCodeTwoController @Inject() (
           } else {
             formWithErrors
           }
-          Future.successful(BadRequest(view(adjustedForm, activities, Some(routes.BusinessActivityController.onPageLoad(mode).url), mode)))
+          Future.successful(BadRequest(view(adjustedForm, Some(routes.BusinessActivityController.onPageLoad(mode).url), mode)))
         },
         value => {
           for {
@@ -108,7 +100,7 @@ class BusinessActivityCodeTwoController @Inject() (
 
     boundResult.recover { case NonFatal(e) =>
       Logger(getClass).error("Error in BusinessActivityCodeTwoController.onSubmit", e)
-      BadRequest(view(form.bindFromRequest(), activities, Some(routes.BusinessActivityController.onPageLoad(mode).url), mode))
+      BadRequest(view(form.bindFromRequest(), Some(routes.BusinessActivityController.onPageLoad(mode).url), mode))
     }
   }
 }

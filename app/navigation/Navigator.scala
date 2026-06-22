@@ -22,10 +22,10 @@ import play.api.mvc.Call
 import controllers.routes
 import pages.*
 import models.*
-import utils.ConfigCurrencyMapping
+import utils.{ConfigCurrencyMapping, ConfigLanguageMapping}
 
 @Singleton
-class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping) {
+class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configLanguageMapping: ConfigLanguageMapping) {
 
   def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call = mode match {
     case NormalMode => normalRoutes(page)(userAnswers)
@@ -33,7 +33,19 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping) {
   }
 
   private val normalRoutes: Page => UserAnswers => Call = {
-    case RefundingCountryPage             => _ => routes.RefundingLanguageController.onPageLoad(NormalMode)
+    case RefundingCountryPage             => userAnswers =>
+      val maybeCountryCode = userAnswers.get(pages.RefundingCountryPage).orElse {
+        userAnswers.get(pages.RefundingCountryNamePage).map { stored =>
+          stored.split(",", 2).headOption.getOrElse(stored)
+        }
+      }
+
+      maybeCountryCode match {
+        case Some(code) if configLanguageMapping.languagesFor(code).size <= 1 =>
+          if (configCurrencyMapping.requiresCurrencySelection(code)) routes.RefundingCurrencyController.onPageLoad(NormalMode)
+          else routes.RefundPeriodController.onPageLoad(NormalMode)
+        case _ => routes.RefundingLanguageController.onPageLoad(NormalMode)
+      }
     case RefundingLanguagePage            => userAnswers => navigateFromRefundingLanguagePage(NormalMode)(userAnswers)
     case RefundingCurrencyPage            => _ => routes.RefundPeriodController.onPageLoad(NormalMode)
     case RefundPeriodPage                 => _ => routes.ContactDetailsController.onPageLoad(NormalMode)
@@ -52,7 +64,19 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping) {
   }
 
   private val checkRoutes: Page => UserAnswers => Call = {
-    case RefundingCountryPage             => _ => routes.RefundingLanguageController.onPageLoad(CheckMode)
+    case RefundingCountryPage             => userAnswers =>
+      val maybeCountryCode = userAnswers.get(pages.RefundingCountryPage).orElse {
+        userAnswers.get(pages.RefundingCountryNamePage).map { stored =>
+          stored.split(",", 2).headOption.getOrElse(stored)
+        }
+      }
+
+      maybeCountryCode match {
+        case Some(code) if configLanguageMapping.languagesFor(code).size <= 1 =>
+          if (configCurrencyMapping.requiresCurrencySelection(code)) routes.RefundingCurrencyController.onPageLoad(CheckMode)
+          else routes.CheckYourClaimDetailsController.onPageLoad()
+        case _ => routes.RefundingLanguageController.onPageLoad(CheckMode)
+      }
     case RefundingLanguagePage            => userAnswers => navigateFromRefundingLanguagePage(CheckMode)(userAnswers)
     case RefundingCurrencyPage            => _ => routes.CheckYourClaimDetailsController.onPageLoad()
     case RefundPeriodPage                 => _ => routes.CheckYourClaimDetailsController.onPageLoad()

@@ -69,12 +69,12 @@ refundingCountry.error.required = Select an EU member state
 refundingCountry.error.invalid = Select a valid EU member state
 refundingCountry.error.invalid.summary = Select a valid EU member state
 
-refundingLanguage.title = What language do you want to use for this claim?
-refundingLanguage.heading = What language do you want to use for this claim?
+refundingLanguage.title = Which language do you want to use for this claim?
+refundingLanguage.heading = Which language do you want to use for this claim?
 refundingLanguage.error.required = Select a language for this claim
 refundingLanguage.checkYourAnswersLabel = Language for claim
 refundingLanguage.change.hidden = Change language
-refundingLanguage.hint = All supporting documents must be uploaded in the language you select.
+refundingLanguage.hint = All supporting documents must be uploaded in the language you select
 refundingLanguage.english = English
 refundingLanguage.german = German
 refundingLanguage.french = French
@@ -164,13 +164,14 @@ businessActivity.p1 = If your claim relates to other business activities, you’
 businessActivity.link.text = Office for National Statistics website (opens in new tab)
 businessActivity.error.required = Select yes if you want to add another business activity
 
-businessActivityCodeTwo.title = What is the 2nd business activity?
-businessActivityCodeTwo.heading = What is the 2nd business activity?
-businessActivityCodeTwo.hint = Enter your SIC code or search term, for example "motor"
-businessActivityCodeTwo.error.summary = Enter a business activity code
-businessActivityCodeTwo.error.required = Enter a business activity code
-businessActivityCodeTwo.error.invalid = Enter a valid business activity code
-businessActivityCodeTwo.error.invalid.summary = Enter a valid business activity code
+businessActivityCodeTwo.title = What is the second SIC code?
+businessActivityCodeTwo.heading = What is the second SIC code?
+businessActivityCodeTwo.hint = Enter the SIC code
+businessActivityCodeTwo.hintHtml = <p class="govuk-body">You can find the SIC codes on the <a href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2007" class="govuk-link" target="_blank" rel="noreferrer noopener">Office for National Statistics website (opens in a new tab)</a>.</p>
+businessActivityCodeTwo.error.summary = Enter a SIC code
+businessActivityCodeTwo.error.required = Enter a SIC code
+businessActivityCodeTwo.error.invalid = Enter a valid SIC code
+businessActivityCodeTwo.error.invalid.summary = Enter a valid SIC code
 
 businessActivityTwo.title = Business activity for this claim
 businessActivityTwo.heading = Business activity for this claim
@@ -193,15 +194,15 @@ businessActivityCodeThree.error.invalid.summary = Enter a valid business activit
 businessActivityCodeThree.checkYourAnswersLabel = 3rd business activity code
 businessActivityCodeThree.change.hidden = Change the 3rd business activity code
 
-businessActivityThree.title = Business activities for this claim
-businessActivityThree.heading = Business activities for this claim
-businessActivityThree.lead = These are the Standard Industrial Classification (SIC) codes listed for your business.
+businessActivityThree.title = Business activity for this claim
+businessActivityThree.heading = Business activity for this claim
+businessActivityThree.lead = This is the first Standard Industrial Classification (SIC) code listed for your business:
 businessActivityThree.ba2.label = Second SIC code
-businessActivityThree.ba3.label = Business activity 3
-businessActivityThree.ba2.remove.hidden = Remove business activity code 2
-businessActivityThree.ba3.remove.hidden = Remove business activity code 3
-businessActivityThree.ba2.change.hidden = Change business activity code 2
-businessActivityThree.ba3.change.hidden = Change business activity code 3
+businessActivityThree.ba3.label = Third SIC code
+businessActivityThree.ba2.remove.hidden = Remove second SIC Code
+businessActivityThree.ba3.remove.hidden = Remove third SIC Code
+businessActivityThree.ba2.change.hidden = Change second SIC Code
+businessActivityThree.ba3.change.hidden = Change third SIC Code
 
 removeThird.heading = Are you sure you want to remove the third SIC code?
 removeThird.title = Are you sure you want to remove the third SIC code?
