@@ -21,6 +21,7 @@ import controllers.routes
 import models.*
 import pages.*
 import utils.ConfigCurrencyMapping
+import utils.ConfigLanguageMapping
 import play.api.Configuration
 import com.typesafe.config.ConfigFactory
 
@@ -37,7 +38,19 @@ class NavigatorSpec extends SpecBase {
           }
         """)
       )
+    ),
+    new ConfigLanguageMapping(
+      Configuration(
+        ConfigFactory.parseString("""
+          language.mapping = {
+            AT = ["german", "english"]
+            BE = ["english", "german", "french", "dutch"]
+            CZ = ["czech"]
+          }
+        """)
+      )
     )
+  
   )
   val userAnswers: UserAnswers = UserAnswers("id")
 

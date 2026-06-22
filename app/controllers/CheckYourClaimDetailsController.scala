@@ -26,6 +26,7 @@ import uk.gov.hmrc.govukfrontend.views.Aliases.SummaryList
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.checkAnswers.CheckYourClaimDetailsSummary
+import utils.ConfigLanguageMapping
 import views.html.CheckYourClaimDetailsView
 import viewmodels.govuk.summarylist.*
 
@@ -35,7 +36,8 @@ class CheckYourClaimDetailsController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   val controllerComponents: MessagesControllerComponents,
-  view: CheckYourClaimDetailsView
+  view: CheckYourClaimDetailsView,
+  configLanguageMapping: ConfigLanguageMapping
 ) extends FrontendBaseController
     with I18nSupport
     with Logging {
@@ -60,11 +62,25 @@ class CheckYourClaimDetailsController @Inject() (
         getChangeUrl(CheckYourClaimDetailsSummary.rowCountryLabel()),
         SummaryListViewModel(Seq(CheckYourClaimDetailsSummary.rowCountry(answers)).flatten)
       ),
-      (
-        "checkYourClaimDetails.refundingLanguage.label",
-        getChangeUrl(CheckYourClaimDetailsSummary.rowLanguageLabel()),
-        SummaryListViewModel(Seq(CheckYourClaimDetailsSummary.rowLanguage(answers)).flatten)
-      ),
+    ) ++ {
+      val maybeCountryCode = answers.get(pages.RefundingCountryPage).orElse {
+        answers.get(pages.RefundingCountryNamePage).map { stored =>
+          stored.split(",", 2).headOption.getOrElse(stored)
+        }
+      }
+
+      maybeCountryCode match {
+        case Some(code) if configLanguageMapping.languagesFor(code).size > 1 =>
+          Seq(
+            (
+              "checkYourClaimDetails.refundingLanguage.label",
+              getChangeUrl(CheckYourClaimDetailsSummary.rowLanguageLabel()),
+              SummaryListViewModel(Seq(CheckYourClaimDetailsSummary.rowLanguage(answers)).flatten)
+            )
+          )
+        case _ => Seq.empty
+      }
+    } ++ Seq(
       (
         "checkYourClaimDetails.refundingPeriod.label",
         getChangeUrl(CheckYourClaimDetailsSummary.rowRefundPeriodLabel()),

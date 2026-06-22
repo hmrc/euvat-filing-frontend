@@ -26,14 +26,13 @@ import pages.RefundPeriodPage
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents, Request, Result}
-import models.requests.DataRequest
+import play.api.mvc.*
 import queries.TraderKnownFactsQuery
 import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.{ConfigCurrencyMapping, ConfigLanguageMapping}
 import views.html.RefundPeriodView
-import utils.ConfigCurrencyMapping
 
 import java.time.{LocalDate, LocalDateTime, YearMonth}
 import javax.inject.Inject
@@ -47,8 +46,9 @@ class RefundPeriodController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: RefundPeriodFormProvider,
-  configCurrencyMapping: ConfigCurrencyMapping,
   euVatRefundsService: EuVatRefundsService,
+  configCurrencyMapping: ConfigCurrencyMapping,
+  configLanguageMapping: ConfigLanguageMapping,
   val controllerComponents: MessagesControllerComponents,
   view: RefundPeriodView
 )(implicit ec: ExecutionContext)
@@ -83,9 +83,7 @@ class RefundPeriodController @Inject() (
     val (mappedForm, highlighted) = formProvider.withMappedErrors(preparedForm)
     val startMsg = errorMessage(mappedForm, Seq("start", "start.month", "start.year"))
     val endMsg = errorMessage(mappedForm, Seq("end", "end.month", "end.year"))
-    Ok(
-      view(mappedForm, mode, backLink(mode), startMsg, endMsg, highlighted, errorLinkOverrides(mappedForm))
-    )
+    Ok(view(mappedForm, mode, backLink(mode), startMsg, endMsg, highlighted, errorLinkOverrides(mappedForm)))
   }
 
   private def renderError(form: Form[RefundPeriodData], mode: Mode)(implicit request: DataRequest[AnyContent], messages: Messages) = {
@@ -98,25 +96,22 @@ class RefundPeriodController @Inject() (
         view(mappedForm, mode, backLink(mode), startMsg, endMsg, highlighted, errorLinkOverrides(mappedForm))
       )
     )
-
   }
 
+  // Business Function F6 check
   private def isStartDateValid(startDate: LocalDate, regDate: LocalDate): (Boolean, String) = {
     val start = YearMonth.from(startDate)
     val reg = YearMonth.from(regDate)
     val regMonth = reg.getMonthValue
-    logger.info(s"******** start: $start")
-    logger.info(s"******** reg: $reg")
-    logger.info(s"******** regMonth: $regMonth")
     // Case 1: Jan–Mar rule
     if (regMonth >= 1 && regMonth <= 3) {
-      logger.info(s"******** start.equals(reg) || start.isAfter(reg): ${start.equals(reg) || start.isAfter(reg)}")
       // Same month/year OR after regDate (same year)
-      (start.equals(reg) || start.isAfter(reg), "refundPeriod.error.periodStartDateBeforeRegDate.firstQuarter")
+      logger.info(s"******* (start.equals(reg) || start.isAfter(reg): ${start.equals(reg) || start.isAfter(reg)}")
+      (start.equals(reg) || start.isAfter(reg), "refundPeriod.start.error.beforeVatRegDate.firstQuarter")
     } else { // Case 2: Apr–Dec rule
       val min = reg.minusMonths(3)
-      logger.info(s"******** !start.isBefore(min) || start.isAfter(reg): ${!start.isBefore(min) || start.isAfter(reg)}")
-      (!start.isBefore(min) || start.isAfter(reg), "refundPeriod.error.periodStartDateBeforeRegDate.remainingQuarter")
+      logger.info(s"******* !start.isBefore(min) || start.isAfter(reg): ${!start.isBefore(min) || start.isAfter(reg)}")
+      (!start.isBefore(min) || start.isAfter(reg), "refundPeriod.start.error.beforeVatRegDate.remainingQuarter")
     }
   }
 
@@ -185,13 +180,14 @@ class RefundPeriodController @Inject() (
     baseForm
       .bindFromRequest()
       .fold(
-        formWithErrors => renderError(formWithErrors, mode),
+        formWithErrors => renderError(formWithErrors, mode)(using request),
         value =>
           euVatRefundsService.retrieveTraderKnownFacts().flatMap { traderResponse =>
+            // Re‑inject contextual parameters inside async block
             given DataRequest[?] = request
 
-            val startDate = YearMonth.of(value.start.getYear, value.start.getMonthValue).atDay(1).atStartOfDay()
-            val endDate = YearMonth.of(value.end.getYear, value.end.getMonthValue).atEndOfMonth().atTime(23, 59, 59, 999000000)
+            val startDate = java.time.YearMonth.of(value.start.getYear, value.start.getMonthValue).atDay(1).atStartOfDay()
+            val endDate = java.time.YearMonth.of(value.end.getYear, value.end.getMonthValue).atEndOfMonth().atTime(23, 59, 59, 999000000)
 
             (traderResponse.dateOfRegistration, traderResponse.dateOfDeregistration) match {
               case (Some(regDate), Some(deRegDate)) =>
@@ -199,8 +195,8 @@ class RefundPeriodController @Inject() (
                   val (validStartDate, msg) = isStartDateValid(startDate.toLocalDate, regDate.toLocalDate)
                   if (!validStartDate) {
                     Some(baseForm.fill(value).withError("start", msg))
-                  } else if (YearMonth.from(endDate).isAfter(YearMonth.from(deRegDate))) {
-                    Some(baseForm.fill(value).withError("end", "refundPeriod.error.periodEndDateBeforeDeRegDate"))
+                  } else if (YearMonth.from(endDate).isAfter(YearMonth.from(deRegDate))) { // F6 check
+                    Some(baseForm.fill(value).withError("end", "refundPeriod.end.error.beforeVatDeRegDate"))
                   } else {
                     None
                   }
@@ -215,7 +211,7 @@ class RefundPeriodController @Inject() (
       )
   }
 
-  private def backLink(mode: Mode)(implicit request: DataRequest[AnyContent]): Call = {
+  private def backLink(mode: Mode)(implicit request: DataRequest[?]): Call = {
     val maybeCountryCode = request.userAnswers.get(pages.RefundingCountryPage).orElse {
       request.userAnswers.get(pages.RefundingCountryNamePage).map { stored =>
         stored.split(",", 2).headOption.getOrElse(stored)
@@ -224,8 +220,11 @@ class RefundPeriodController @Inject() (
     maybeCountryCode match {
       case Some(code) if configCurrencyMapping.requiresCurrencySelection(code) =>
         controllers.routes.RefundingCurrencyController.onPageLoad(mode)
-      case _ =>
-        controllers.routes.RefundingLanguageController.onPageLoad(mode)
+      case Some(code) =>
+        val langs = configLanguageMapping.languagesFor(code)
+        if (langs.size <= 1) controllers.routes.RefundingCountryController.onPageLoad(mode)
+        else controllers.routes.RefundingLanguageController.onPageLoad(mode)
+      case None => controllers.routes.RefundingLanguageController.onPageLoad(mode)
     }
   }
 }

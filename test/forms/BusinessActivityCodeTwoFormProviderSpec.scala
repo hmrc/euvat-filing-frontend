@@ -22,8 +22,7 @@ import play.api.data.FormError
 class BusinessActivityCodeTwoFormProviderSpec extends StringFieldBehaviours with FieldBehaviours {
 
   private val formProvider = new BusinessActivityCodeTwoFormProvider()
-  private val allowed = Set("25344", "45200", "47110", "11010")
-  private val form = formProvider(allowed)
+  private val form = formProvider()
 
   ".value" - {
 
@@ -36,11 +35,26 @@ class BusinessActivityCodeTwoFormProviderSpec extends StringFieldBehaviours with
     )
 
     "bind valid data" in {
-      val validValues = Seq("25344", "45200", "47110", "11010")
+      val validValues = Seq("2534", "4520", "4711", "1101")
       validValues.foreach { v =>
         val result = form.bind(Map(fieldName -> v)).apply(fieldName)
         result.value.value mustBe v
         result.errors mustBe empty
+      }
+    }
+
+    behave like fieldWithMaxLength(
+      form,
+      fieldName,
+      maxLength = 4,
+      lengthError = FormError(fieldName, "businessActivityCodeTwo.error.invalid", Seq(4))
+    )
+
+    "not bind invalid formats" in {
+      val invalidValues = Seq("abcd", "12a4", "123", "1 234", "12-3")
+      invalidValues.foreach { v =>
+        val result = form.bind(Map(fieldName -> v)).apply(fieldName)
+        result.errors.map(_.message) must contain only "businessActivityCodeTwo.error.invalid"
       }
     }
   }
