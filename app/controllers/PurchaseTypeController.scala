@@ -17,12 +17,12 @@
 package controllers
 
 import controllers.actions.*
+import models.requests.DataRequest
 import forms.PurchaseTypeFormProvider
 import models.{Mode, PurchaseType}
 import navigation.Navigator
 import pages.PurchaseTypePage
 import pages.SimplifiedInvoiceVatRegCheckPage
-import models.requests.DataRequest
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -51,8 +51,6 @@ class PurchaseTypeController @Inject() (
 
   private def backLink(mode: Mode)(implicit request: DataRequest[_]) =
     request.userAnswers.get(SimplifiedInvoiceVatRegCheckPage) match {
-      // if the simplified-invoice VAT check was explicitly answered `false` we
-      // should return to that check page; otherwise go back to Total VAT Paid.
       case Some(false) => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode)
       case _           => routes.TotalVatPaidController.onPageLoad(mode)
     }

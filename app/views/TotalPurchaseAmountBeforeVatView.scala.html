@@ -1,0 +1,70 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import viewmodels.InputWidth._
+@import viewmodels.LabelSize
+@import views.html.components.MainErrorSummary
+
+@import forms.mappings.Mappings
+
+@this(
+    layout: templates.Layout,
+    formHelper: FormWithCSRF,
+    mainErrorSummary: views.html.components.MainErrorSummary,
+    govukInput: GovukInput,
+    govukButton: GovukButton
+)
+
+@(form: Form[_], mode: Mode, call: Call, prefix: String, currencyName: String)(implicit request: Request[_], messages: Messages)
+
+@layout(pageTitle = title(form, messages("totalPurchaseAmountBeforeVat.title")), backLinkUrl = Some(call.url)) {
+
+    @formHelper(action = routes.TotalPurchaseAmountBeforeVatController.onSubmit(mode), Symbol("autoComplete") -> "off") {
+
+        @mainErrorSummary(form, Map.empty)
+
+        <span class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is: </span>@messages("purchase.caption.add")</span>
+
+                <h1 class="govuk-heading-l">
+                    @messages("totalPurchaseAmountBeforeVat.heading")
+                </h1>
+
+            <div class="govuk-inset-text">
+                @Html(messages("totalPurchaseAmountBeforeVat.inset", currencyName.toLowerCase, prefix))
+            </div>
+
+        <div id="total-purchase-before-vat" class="govuk-body">@Html(messages("totalPurchaseAmountBeforeVat.p1"))</div>
+
+        <h2 class="govuk-heading-m">
+            @messages("totalPurchaseAmountBeforeVat.h2")
+        </h2>
+
+        @govukInput(
+            InputViewModel(
+                field = form("value"),
+                label = LabelViewModel(messages("totalPurchaseAmountBeforeVat.h2")).withCssClass("govuk-visually-hidden")
+            )
+            .withPrefix(PrefixOrSuffix(content = prefix))
+            .withWidth(Fixed5)
+            .withHint(HintViewModel(messages("totalPurchaseAmountBeforeVat.hint", prefix)))
+        )
+        
+
+        @govukButton(
+            ButtonViewModel(messages("site.continue"))
+        )
+    }
+}
