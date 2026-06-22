@@ -156,7 +156,7 @@ businessActivity.heading = Business activity for this claim
 businessActivity.lead = This is the first Standard Industrial Classification (SIC) code listed for your business:
 businessActivity.lead.no = There is no first SIC code listed for your business
 businessActivity.legend = Do you want to add another SIC code?
-businessActivity.paragraph = If your claim relates to other business activities, you''ll need to enter a SIC code for each one
+businessActivity.paragraph = If your claim relates to other business activities, you’ll need to enter a SIC code for each one
 businessActivity.error.required = Select yes if you want to add another SIC code
 
 businessActivityCodeTwo.title = What is the second SIC code?
