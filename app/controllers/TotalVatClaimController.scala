@@ -51,7 +51,7 @@ class TotalVatClaimController @Inject() (
 
   private def backLink: Call = routes.JourneyRecoveryController.onPageLoad()
 
-  // duplicated from RefundingCurrencyController; consider extracting to a shared helper (see DTR-4294)
+  // TODO - duplicated from RefundingCurrencyController; consider extracting to a shared helper (see DTR-4294)
   private def resolveCountryCode(userAnswers: UserAnswers): Option[String] =
     userAnswers.get(RefundingCountryPage).orElse {
       userAnswers.get(RefundingCountryNamePage).map { stored =>
