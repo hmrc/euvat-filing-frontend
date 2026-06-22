@@ -25,7 +25,6 @@ import navigation.FakeNavigator
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import play.api.inject.bind
-import utils.BusinessActivityList
 import pages.BusinessActivityCodeTwoPage
 import play.api.mvc.Call
 
@@ -43,16 +42,13 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
 
         val view = application.injector.instanceOf[views.html.BusinessActivityCodeTwoView]
         val formProvider = application.injector.instanceOf[forms.BusinessActivityCodeTwoFormProvider]
-        val activities: Seq[(String, String)] = BusinessActivityList.fromConfig(application.configuration)
-        val allowed: Set[String] = activities.flatMap { case (n, c) => Seq(c, s"$c ($n)") }.toSet
-        val form = formProvider(allowed)
+        val form = formProvider()
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form,
-                                               activities,
-                                               Some(routes.BusinessActivityController.onPageLoad(models.NormalMode).url),
-                                               models.NormalMode
-                                              )(request, messages(application)).toString
+                       Some(routes.BusinessActivityController.onPageLoad(models.NormalMode).url),
+                       models.NormalMode
+                      )(request, messages(application)).toString
       }
     }
 
@@ -81,7 +77,7 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(POST, routes.BusinessActivityCodeTwoController.onSubmit(models.NormalMode).url)
-          .withFormUrlEncodedBody(("value", "25344"))
+          .withFormUrlEncodedBody(("value", "2534"))
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -92,7 +88,7 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must pre-fill the form when a saved value exists" in {
-      val userAnswers = emptyUserAnswers.set(BusinessActivityCodeTwoPage, "25344").success.value
+      val userAnswers = emptyUserAnswers.set(BusinessActivityCodeTwoPage, "2534").success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -101,16 +97,13 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
 
         val view = application.injector.instanceOf[views.html.BusinessActivityCodeTwoView]
         val formProvider = application.injector.instanceOf[forms.BusinessActivityCodeTwoFormProvider]
-        val activities: Seq[(String, String)] = BusinessActivityList.fromConfig(application.configuration)
-        val allowed: Set[String] = activities.flatMap { case (n, c) => Seq(c, s"$c ($n)") }.toSet
-        val form = formProvider(allowed).fill("25344")
+        val form = formProvider().fill("2534")
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form,
-                                               activities,
-                                               Some(routes.BusinessActivityController.onPageLoad(models.NormalMode).url),
-                                               models.NormalMode
-                                              )(request, messages(application)).toString
+                       Some(routes.BusinessActivityController.onPageLoad(models.NormalMode).url),
+                       models.NormalMode
+                      )(request, messages(application)).toString
       }
     }
 
@@ -136,14 +129,11 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
         typedBody must include(messages(application)("businessActivityCodeTwo.error.invalid"))
         typedBody must include(messages(application)("businessActivityCodeTwo.error.invalid.summary"))
 
-        val rawInvalidRequest = FakeRequest(POST, routes.BusinessActivityCodeTwoController.onSubmit(models.NormalMode).url)
-          .withFormUrlEncodedBody(("value", "99999"))
+        val rawValidRequest = FakeRequest(POST, routes.BusinessActivityCodeTwoController.onSubmit(models.NormalMode).url)
+          .withFormUrlEncodedBody(("value", "9999"))
 
-        val rawInvalidResult = route(application, rawInvalidRequest).value
-        status(rawInvalidResult) mustEqual BAD_REQUEST
-        val rawInvalidBody = contentAsString(rawInvalidResult)
-        rawInvalidBody must include(messages(application)("businessActivityCodeTwo.error.invalid"))
-        rawInvalidBody must include(messages(application)("businessActivityCodeTwo.error.invalid.summary"))
+        val rawValidResult = route(application, rawValidRequest).value
+        status(rawValidResult) mustEqual SEE_OTHER
       }
     }
   }

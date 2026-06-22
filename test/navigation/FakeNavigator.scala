@@ -19,7 +19,7 @@ package navigation
 import play.api.mvc.Call
 import pages.*
 import models.{Mode, UserAnswers}
-import utils.ConfigCurrencyMapping
+import utils.{ConfigCurrencyMapping, ConfigLanguageMapping}
 import play.api.Configuration
 import com.typesafe.config.ConfigFactory
 
@@ -35,7 +35,18 @@ class FakeNavigator(desiredRoute: Call)
       }
     """)
         )
-      )
+        ),
+        new ConfigLanguageMapping(
+          Configuration(
+            ConfigFactory.parseString("""
+        language.mapping {
+          AT = ["german", "english"]
+          BE = ["english", "german", "french", "dutch"]
+          CZ = ["czech"]
+        }
+      """)
+          )
+        )
     ) {
 
   override def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call =
