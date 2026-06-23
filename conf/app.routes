@@ -140,3 +140,7 @@ POST        /purchase-type                               controllers.PurchaseTyp
 GET         /change-purchase-type                        controllers.PurchaseTypeController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-purchase-type                        controllers.PurchaseTypeController.onSubmit(mode: Mode = CheckMode)
 
+GET         /eu-member-state-details                        controllers.CheckYourStateDetailsController.onPageLoad(mode: Mode = NormalMode)
+POST        /eu-member-state-details                        controllers.CheckYourStateDetailsController.onSubmit(mode: Mode = NormalMode)
+GET         /change-eu-member-state-details                 controllers.CheckYourStateDetailsController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-eu-member-state-details                 controllers.CheckYourStateDetailsController.onSubmit(mode: Mode = CheckMode)
