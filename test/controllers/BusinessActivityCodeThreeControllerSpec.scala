@@ -24,7 +24,6 @@ import navigation.FakeNavigator
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import play.api.inject.bind
-import utils.BusinessActivityList
 import pages.BusinessActivityCodeThreePage
 import play.api.mvc.Call
 
@@ -33,6 +32,8 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
   val onwardRoute = Call("GET", "/foo")
 
   "BusinessActivityCodeThree Controller" - {
+
+    // exclusion of prior codes is not required; list should always include all activities
 
     "must return OK and the correct view for a GET" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
@@ -44,16 +45,13 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
 
         val view = application.injector.instanceOf[views.html.BusinessActivityCodeThreeView]
         val formProvider = application.injector.instanceOf[forms.BusinessActivityCodeThreeFormProvider]
-        val activities: Seq[(String, String)] = BusinessActivityList.fromConfig(application.configuration)
-        val allowed: Set[String] = activities.flatMap { case (n, c) => Seq(c, s"$c ($n)") }.toSet
-        val form = formProvider(allowed)
+        val form = formProvider()
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form,
-                                               activities,
-                                               Some(routes.BusinessActivityTwoController.onPageLoad(models.NormalMode).url),
-                                               models.NormalMode
-                                              )(request, messages(application)).toString
+                       Some(routes.BusinessActivityTwoController.onPageLoad(models.NormalMode).url),
+                       models.NormalMode
+                      )(request, messages(application)).toString
       }
     }
 
@@ -83,7 +81,7 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
 
       running(application) {
         val request = FakeRequest(POST, routes.BusinessActivityCodeThreeController.onSubmit(models.NormalMode).url)
-          .withFormUrlEncodedBody(("value", "25344"))
+          .withFormUrlEncodedBody(("value", "2534"))
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -94,7 +92,7 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
     }
 
     "must pre-fill the form when a saved value exists" in {
-      val userAnswers = emptyUserAnswers.set(BusinessActivityCodeThreePage, "25344").success.value
+      val userAnswers = emptyUserAnswers.set(BusinessActivityCodeThreePage, "2534").success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -104,16 +102,13 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
 
         val view = application.injector.instanceOf[views.html.BusinessActivityCodeThreeView]
         val formProvider = application.injector.instanceOf[forms.BusinessActivityCodeThreeFormProvider]
-        val activities: Seq[(String, String)] = BusinessActivityList.fromConfig(application.configuration)
-        val allowed: Set[String] = activities.flatMap { case (n, c) => Seq(c, s"$c ($n)") }.toSet
-        val form = formProvider(allowed).fill("25344")
+        val form = formProvider().fill("2534")
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form,
-                                               activities,
-                                               Some(routes.BusinessActivityTwoController.onPageLoad(models.NormalMode).url),
-                                               models.NormalMode
-                                              )(request, messages(application)).toString
+                       Some(routes.BusinessActivityTwoController.onPageLoad(models.NormalMode).url),
+                       models.NormalMode
+                      )(request, messages(application)).toString
       }
     }
 
@@ -141,13 +136,51 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
         typedBody must include(messages(application)("businessActivityCodeThree.error.invalid.summary"))
 
         val rawInvalidRequest = FakeRequest(POST, routes.BusinessActivityCodeThreeController.onSubmit(models.NormalMode).url)
-          .withFormUrlEncodedBody(("value", "99999"))
+          .withFormUrlEncodedBody(("value", "123456"))
 
         val rawInvalidResult = route(application, rawInvalidRequest).value
         status(rawInvalidResult) mustEqual BAD_REQUEST
         val rawInvalidBody = contentAsString(rawInvalidResult)
         rawInvalidBody must include(messages(application)("businessActivityCodeThree.error.invalid"))
         rawInvalidBody must include(messages(application)("businessActivityCodeThree.error.invalid.summary"))
+      }
+
+    }
+
+    "must return a Bad Request and duplicate error when submitted code matches second business activity" in {
+      val userAnswers = emptyUserAnswers
+        .set(pages.BusinessActivityCodePage, "49200")
+        .flatMap(_.set(pages.BusinessActivityCodeTwoPage, "25344")).success.value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.BusinessActivityCodeThreeController.onSubmit(models.NormalMode).url)
+          .withFormUrlEncodedBody(("value", "25344"))
+        val result = route(application, request).value
+
+        status(result) mustEqual BAD_REQUEST
+        val body = contentAsString(result)
+        
+        body must include(messages(application)("businessActivityCodeThree.error.duplicate", "Business activity 2", "25344"))
+      }
+    }
+
+    "must return a Bad Request and duplicate error when submitted code matches first business activity" in {
+      val userAnswers = emptyUserAnswers
+        .set(pages.BusinessActivityCodePage, "49200")
+        .flatMap(_.set(pages.BusinessActivityCodeTwoPage, "25344")).success.value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.BusinessActivityCodeThreeController.onSubmit(models.NormalMode).url)
+          .withFormUrlEncodedBody(("value", "49200"))
+        val result = route(application, request).value
+
+        status(result) mustEqual BAD_REQUEST
+        val body = contentAsString(result)
+        body must include(messages(application)("businessActivityCodeThree.error.duplicate", "Business activity 1", "49200"))
       }
     }
   }

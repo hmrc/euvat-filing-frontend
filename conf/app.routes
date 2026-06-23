@@ -63,10 +63,10 @@ POST        /business-activity-2                         controllers.BusinessAct
 GET         /change-business-activity-2                  controllers.BusinessActivityTwoController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-business-activity-2                  controllers.BusinessActivityTwoController.onSubmit(mode: Mode = CheckMode)
 
-GET         /what-is-the-3rd-business-activity           controllers.BusinessActivityCodeThreeController.onPageLoad(mode: Mode = NormalMode)
-POST        /what-is-the-3rd-business-activity           controllers.BusinessActivityCodeThreeController.onSubmit(mode: Mode = NormalMode)
-GET         /change-what-is-the-3rd-business-activity    controllers.BusinessActivityCodeThreeController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-what-is-the-3rd-business-activity    controllers.BusinessActivityCodeThreeController.onSubmit(mode: Mode = CheckMode)
+GET         /what-is-the-third-SIC-code                  controllers.BusinessActivityCodeThreeController.onPageLoad(mode: Mode = NormalMode)
+POST        /what-is-the-third-SIC-code                  controllers.BusinessActivityCodeThreeController.onSubmit(mode: Mode = NormalMode)
+GET         /change-what-is-the-third-SIC-code           controllers.BusinessActivityCodeThreeController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-what-is-the-third-SIC-code           controllers.BusinessActivityCodeThreeController.onSubmit(mode: Mode = CheckMode)
 
 GET         /business-activity-3                         controllers.BusinessActivityThreeController.onPageLoad()
 POST        /business-activity-3                         controllers.BusinessActivityThreeController.onSubmit()

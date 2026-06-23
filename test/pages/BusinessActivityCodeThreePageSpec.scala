@@ -23,9 +23,9 @@ class BusinessActivityCodeThreePageSpec extends SpecBase {
   "BusinessActivityCodeThreePage" - {
 
     "must be able to be set and retrieved" in {
-      val answers = emptyUserAnswers.set(BusinessActivityCodeThreePage, "25344").success.value
+      val answers = emptyUserAnswers.set(BusinessActivityCodeThreePage, "2534").success.value
 
-      answers.get(BusinessActivityCodeThreePage) mustBe Some("25344")
+      answers.get(BusinessActivityCodeThreePage) mustBe Some("2534")
     }
   }
 }
