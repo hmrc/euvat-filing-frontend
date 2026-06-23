@@ -397,7 +397,6 @@ checkYourStateDetails.h2 = Do you want to delete this claim and start a new one 
 checkYourStateDetails.yes = Yes, delete this claim
 checkYourStateDetails.no = No, return to claim
 checkYourStateDetails.error.required = Select yes if you want to delete this claim
-purchaseType.error.required = Select the type of purchase
 
 describeItemsOnInvoice.title = Describe the items on your invoice
 describeItemsOnInvoice.heading = Describe the items on your invoice
