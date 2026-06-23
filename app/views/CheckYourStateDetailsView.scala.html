@@ -14,13 +14,17 @@
  * limitations under the License.
  *@
 
+@import uk.gov.hmrc.govukfrontend.views.html.components.*
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+@import views.html.components.MainErrorSummary
+
 @this(
-layout: templates.Layout,
-formHelper: FormWithCSRF,
-govukInsetText: GovukInsetText,
-govukButton: GovukButton,
-govukRadios: GovukRadios,
-mainErrorSummary: MainErrorSummary
+    layout: templates.Layout,
+    formHelper: FormWithCSRF,
+    govukInsetText: GovukInsetText,
+    govukButton: GovukButton,
+    govukRadios: GovukRadios,
+    mainErrorSummary: MainErrorSummary
 )
 
 @(form: Form[?], mode: Mode, call: Call)(implicit request: Request[?], messages: Messages)
@@ -28,7 +32,7 @@ mainErrorSummary: MainErrorSummary
 
 @layout(pageTitle = views.ViewUtils.title(form, "checkYourStateDetails.title"), backLinkUrl = Some(call.url)) {
 
-    @formHelper(action = routes.CheckYourStateDetailsController.onSubmit(mode) {
+    @formHelper(action = routes.CheckYourStateDetailsController.onSubmit(mode)) {
         @mainErrorSummary(form)
 
         <span class="govuk-caption-l hmrc-caption-l">
@@ -36,11 +40,11 @@ mainErrorSummary: MainErrorSummary
         </span>
         <h1 class="govuk-heading-l">@messages("checkYourStateDetails.heading")</h1>
 
-        <p class="govuk-body">@messages("checkYourStateDetails.p1)</p>
-        <p class="govuk-body">@messages("checkYourStateDetails.p2)</p>
+        <p class="govuk-body">@messages("checkYourStateDetails.p1")</p>
+        <p class="govuk-body">@messages("checkYourStateDetails.p2")</p>
 
         <div class="govuk-form-group @if(isError){govuk-form-group--error}">
-            <fieldset class="govuk-fieldset" @if(isError){aria-describedby="value-error"}>
+            <fieldset class="govuk-fieldset" aria-describedby="@if(isError){ value-error}">
                 <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
                     <h2 class="govuk-fieldset__heading">@messages("checkYourStateDetails.h2")
                 </legend>
