@@ -160,16 +160,26 @@ class NavigatorSpec extends SpecBase {
           routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode)
       }
 
-      "must go from SimplifiedInvoiceVatRegCheckPage to SupplierVatRegistrationNumberController if yes selected and invoice type is standard" in {
-        val ua = userAnswers.set(SimplifiedInvoiceVatRegCheckPage, true).success.value.set(InvoiceTypePage, InvoiceType.StandardInvoice).success.value
+      "must go from SimplifiedInvoiceVatRegCheckPage to SupplierVatRegistrationNumberController if yes selected and invoice type is simplified" in {
+        val ua = userAnswers.set(SimplifiedInvoiceVatRegCheckPage, true).success.value.set(InvoiceTypePage, InvoiceType.SimplifiedInvoice).success.value
         navigator.nextPage(SimplifiedInvoiceVatRegCheckPage, NormalMode, ua) mustBe
           routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode)
       }
 
-      "must go from SimplifiedInvoiceVatRegCheckPage to PurchaseTypeController if no selected" in {
+      "must go from SupplierVatRegistrationNumberPage to TotalVatPaidController" in {
+        navigator.nextPage(SupplierVatRegistrationNumberPage, NormalMode, userAnswers) mustBe
+          routes.TotalVatPaidController.onPageLoad(NormalMode)
+      }
+
+      "must go from TotalVatPaidPage to PurchaseTypeController" in {
+        navigator.nextPage(TotalVatPaidPage, NormalMode, userAnswers) mustBe
+          routes.PurchaseTypeController.onPageLoad(NormalMode)
+      }
+
+      "must go from SimplifiedInvoiceVatRegCheckPage to TotalVatPaidController if no selected" in {
         val ua = userAnswers.set(SimplifiedInvoiceVatRegCheckPage, false).success.value
         navigator.nextPage(SimplifiedInvoiceVatRegCheckPage, NormalMode, ua) mustBe
-          routes.PurchaseTypeController.onPageLoad(NormalMode)
+          routes.TotalVatPaidController.onPageLoad(NormalMode)
       }
     }
 
@@ -285,16 +295,26 @@ class NavigatorSpec extends SpecBase {
           routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(CheckMode)
       }
 
-      "must go from SimplifiedInvoiceVatRegCheckPage to SupplierVatRegistrationNumberController if yes selected and invoice type is standard" in {
-        val ua = userAnswers.set(SimplifiedInvoiceVatRegCheckPage, true).success.value.set(InvoiceTypePage, InvoiceType.StandardInvoice).success.value
+      "must go from SimplifiedInvoiceVatRegCheckPage to SupplierVatRegistrationNumberController if yes selected and invoice type is simplified" in {
+        val ua = userAnswers.set(SimplifiedInvoiceVatRegCheckPage, true).success.value.set(InvoiceTypePage, InvoiceType.SimplifiedInvoice).success.value
         navigator.nextPage(SimplifiedInvoiceVatRegCheckPage, CheckMode, ua) mustBe
           routes.SupplierVatRegistrationNumberController.onPageLoad(CheckMode)
       }
 
-      "must go from SimplifiedInvoiceVatRegCheckPage to PurchaseTypeController if no selected" in {
+      "must go from SupplierVatRegistrationNumberPage to TotalVatPaidController in CheckMode" in {
+        navigator.nextPage(SupplierVatRegistrationNumberPage, CheckMode, userAnswers) mustBe
+          routes.TotalVatPaidController.onPageLoad(CheckMode)
+      }
+
+      "must go from TotalVatPaidPage to PurchaseTypeController in CheckMode" in {
+        navigator.nextPage(TotalVatPaidPage, CheckMode, userAnswers) mustBe
+          routes.PurchaseTypeController.onPageLoad(CheckMode)
+      }
+
+      "must go from SimplifiedInvoiceVatRegCheckPage to TotalVatPaidController if no selected" in {
         val ua = userAnswers.set(SimplifiedInvoiceVatRegCheckPage, false).success.value
         navigator.nextPage(SimplifiedInvoiceVatRegCheckPage, CheckMode, ua) mustBe
-          routes.PurchaseTypeController.onPageLoad(CheckMode)
+          routes.TotalVatPaidController.onPageLoad(CheckMode)
       }
     }
   }

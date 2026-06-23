@@ -18,7 +18,7 @@ package controllers
 
 import base.SpecBase
 import forms.PurchaseTypeFormProvider
-import models.{NormalMode, PurchaseType}
+import models.{NormalMode, CheckMode, PurchaseType}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
@@ -39,7 +39,11 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
   lazy val purchaseTypeRoute: String = routes.PurchaseTypeController.onPageLoad(NormalMode).url
   lazy val purchaseTypeSubmitRoute: String = routes.PurchaseTypeController.onSubmit(NormalMode).url
-  lazy val backLinkCall: Call = routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode)
+  lazy val backLinkCall: Call = routes.TotalVatPaidController.onPageLoad(NormalMode)
+
+  lazy val purchaseTypeRouteCheck: String = routes.PurchaseTypeController.onPageLoad(CheckMode).url
+  lazy val purchaseTypeSubmitRouteCheck: String = routes.PurchaseTypeController.onSubmit(CheckMode).url
+  lazy val backLinkCallCheck: Call = routes.TotalVatPaidController.onPageLoad(CheckMode)
 
   "PurchaseType Controller" - {
 
@@ -59,6 +63,59 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(form, NormalMode, backLinkCall)(request, messages(application)).toString
       }
     }
+
+    "must return OK and the correct view for a GET in CheckMode with correct back link" in {
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, purchaseTypeRouteCheck)
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[PurchaseTypeView]
+        val formProvider = application.injector.instanceOf[PurchaseTypeFormProvider]
+        val form = formProvider()
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, CheckMode, backLinkCallCheck)(request, messages(application)).toString
+      }
+    }
+
+    "must return OK and the correct view for a GET when simplified invoice check exists with back link to simplified check" in {
+
+      val userAnswers = emptyUserAnswers.set(pages.SimplifiedInvoiceVatRegCheckPage, false).success.value
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, purchaseTypeRoute)
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[PurchaseTypeView]
+        val formProvider = application.injector.instanceOf[PurchaseTypeFormProvider]
+        val form = formProvider()
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, NormalMode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode))(request, messages(application)).toString
+      }
+    }
+
+      "must return OK and the correct view for a GET when simplified invoice check exists with value Yes and back link to TotalVatPaid" in {
+
+        val userAnswers = emptyUserAnswers.set(pages.SimplifiedInvoiceVatRegCheckPage, true).success.value
+        val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+        running(application) {
+          val request = FakeRequest(GET, purchaseTypeRoute)
+          val result = route(application, request).value
+
+          val view = application.injector.instanceOf[PurchaseTypeView]
+          val formProvider = application.injector.instanceOf[PurchaseTypeFormProvider]
+          val form = formProvider()
+
+          status(result) mustEqual OK
+          contentAsString(result) mustEqual view(form, NormalMode, backLinkCall)(request, messages(application)).toString
+        }
+      }
 
     "must redirect to Journey Recovery when no existing data is found on GET" in {
 

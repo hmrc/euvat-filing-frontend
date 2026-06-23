@@ -267,6 +267,18 @@ supplierVatRegistrationNumber.error.required = Enter the supplier’s VAT regist
 supplierVatRegistrationNumber.error.invalid = Enter the supplier’s VAT registration number in the correct format
 supplierVatRegistrationNumber.error.length = Supplier’s VAT registration number must be 12 characters or less
 
+totalVatPaid.title = Total VAT paid
+totalVatPaid.heading = Total VAT paid
+totalVatPaid.h2 = How much VAT did you pay?
+totalVatPaid.p1 = This is the amount of VAT charged. If your invoice does not show this amount, you''ll need to <a href="https://www.gov.uk/charge-reclaim-record-vat" class="govuk-link" target="_blank">calculate it (opens in a new tab)</a>.
+totalVatPaid.hint = For example, {0}150 or {0}120.45
+
+totalVatPaid.error.required = Enter total VAT paid
+totalVatPaid.error.invalidNumeric = Enter total VAT paid in the correct format
+totalVatPaid.error.nonNumeric = Enter total VAT paid in the correct format
+totalVatPaid.error.maxLength = Total VAT paid must be 15 numbers or less
+totalVatPaid.error.aboveMaximum = Total VAT paid must be between {0} and {1}
+
 supplierAddress.title = What is the supplier’s address?
 supplierAddress.heading = What is the supplier’s address?
 supplierAddress.lead = Enter the supplier’s address as it appears on the invoice or receipt.

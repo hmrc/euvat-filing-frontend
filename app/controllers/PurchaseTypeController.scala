@@ -21,6 +21,8 @@ import forms.PurchaseTypeFormProvider
 import models.{Mode, PurchaseType}
 import navigation.Navigator
 import pages.PurchaseTypePage
+import pages.SimplifiedInvoiceVatRegCheckPage
+import models.requests.DataRequest
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -47,17 +49,25 @@ class PurchaseTypeController @Inject() (
 
   val form: Form[PurchaseType] = formProvider()
 
+  private def backLink(mode: Mode)(implicit request: DataRequest[_]) =
+    request.userAnswers.get(SimplifiedInvoiceVatRegCheckPage) match {
+      // if the simplified-invoice VAT check was explicitly answered `false` we
+      // should return to that check page; otherwise go back to Total VAT Paid.
+      case Some(false) => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode)
+      case _           => routes.TotalVatPaidController.onPageLoad(mode)
+    }
+
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(PurchaseTypePage).fold(form)(form.fill)
 
-    Ok(view(preparedForm, mode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode: Mode)))
+    Ok(view(preparedForm, mode, backLink(mode)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, routes.AboutThePurchaseController.onPageLoad()))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)))),
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(PurchaseTypePage, value))
