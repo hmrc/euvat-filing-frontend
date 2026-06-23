@@ -146,7 +146,7 @@ class RefundPeriodController @Inject() (
                 if (!validStartDate) {
                   Some(baseForm.fill(value).withError("start", msg))
                 } else if (YearMonth.from(endDate).isAfter(YearMonth.from(deRegDate))) {
-                  Some(baseForm.fill(value).withError("end", "refundPeriod.error.periodEndDateBeforeDeRegDate"))
+                  Some(baseForm.fill(value).withError("end", "refundPeriod.error.periodEndDateAfterDeRegDate"))
                 } else {
                   None
                 }
@@ -159,7 +159,7 @@ class RefundPeriodController @Inject() (
                 }
               case (None, Some(deRegDate)) =>
                 if (YearMonth.from(endDate).isAfter(YearMonth.from(deRegDate))) {
-                  Some(baseForm.fill(value).withError("end", "refundPeriod.error.periodEndDateBeforeDeRegDate"))
+                  Some(baseForm.fill(value).withError("end", "refundPeriod.error.periodEndDateAfterDeRegDate"))
                 } else {
                   None
                 }
