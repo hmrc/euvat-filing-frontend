@@ -33,6 +33,8 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
 
   "BusinessActivityCodeTwo Controller" - {
 
+    // exclusion of prior codes is not required; list should always include all activities
+
     "must return OK and the correct view for a GET" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
@@ -134,6 +136,40 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
 
         val rawValidResult = route(application, rawValidRequest).value
         status(rawValidResult) mustEqual SEE_OTHER
+      }
+
+    }
+
+    "must return a Bad Request and duplicate error when submitted code matches first business activity" in {
+      val userAnswers = emptyUserAnswers.set(pages.BusinessActivityCodePage, "49200").success.value
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.BusinessActivityCodeTwoController.onSubmit(models.NormalMode).url)
+          .withFormUrlEncodedBody(("value", "49200"))
+        val result = route(application, request).value
+
+        status(result) mustEqual BAD_REQUEST
+        val body = contentAsString(result)
+        body must include(messages(application)("businessActivityCodeTwo.error.duplicate", "Business activity 1", "49200"))
+      }
+      }
+
+      "must return a Bad Request and duplicate error when submitted code matches third business activity" in {
+      val userAnswers = emptyUserAnswers
+        .set(pages.BusinessActivityCodePage, "49200")
+        .flatMap(_.set(pages.BusinessActivityCodeThreePage, "77777")).success.value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.BusinessActivityCodeTwoController.onSubmit(models.NormalMode).url)
+          .withFormUrlEncodedBody(("value", "77777"))
+        val result = route(application, request).value
+
+        status(result) mustEqual BAD_REQUEST
+        val body = contentAsString(result)
+        body must include(messages(application)("businessActivityCodeTwo.error.duplicate", "Business activity 3", "77777"))
       }
     }
   }

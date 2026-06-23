@@ -22,14 +22,14 @@ import models.{NormalMode, UserAnswers}
 import models.Mode
 import models.CheckMode
 import navigation.Navigator
-import pages.BusinessActivityCodeThreePage
+import pages.{BusinessActivityCodePage, BusinessActivityCodeTwoPage, BusinessActivityCodeThreePage}
 import play.api.Configuration
 import play.api.data.FormError
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.BusinessActivityList
+ 
 import views.html.BusinessActivityCodeThreeView
 
 import javax.inject.Inject
@@ -53,46 +53,78 @@ class BusinessActivityCodeThreeController @Inject() (
     with I18nSupport {
 
   private def buildListAndForm() = {
-    val activities = BusinessActivityList.fromConfig(config)
-    val allowed: Set[String] = activities.flatMap { case (name, code) => Seq(code, s"$code ($name)") }.toSet
-    val form = formProvider(allowed)
+    val activities = utils.BusinessActivityList.fromConfig(config)
+    val form = formProvider()
     (activities, form)
   }
 
+  
+
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val (activities, form) = buildListAndForm()
+    val (_, form) = buildListAndForm()
     val preparedForm = request.userAnswers.get(BusinessActivityCodeThreePage).fold(form)(form.fill)
-    Ok(view(preparedForm, activities, Some(routes.BusinessActivityTwoController.onPageLoad(mode).url), mode))
+    Ok(view(preparedForm, Some(routes.BusinessActivityTwoController.onPageLoad(mode).url), mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    val (activities, form) = buildListAndForm()
     val baseAnswers: UserAnswers = request.userAnswers
+    val excludeCodes = baseAnswers.get(BusinessActivityCodePage).toSeq.toSet ++ baseAnswers.get(BusinessActivityCodeTwoPage).toSeq.toSet
+    val (activities, form) = buildListAndForm()
 
     val boundResult = form
       .bindFromRequest()
       .fold(
         formWithErrors => {
           val typed = request.body.asFormUrlEncoded.flatMap(_.get("valueTyped").flatMap(_.headOption)).getOrElse("")
-          val adjustedForm = if (typed.trim.nonEmpty) {
-            val filtered = formWithErrors.errors.filterNot(e => e.key == "value" && e.message == "businessActivityCodeThree.error.required")
-            formWithErrors.copy(errors = filtered :+ FormError("value", "businessActivityCodeThree.error.invalid"))
+          val submitted = request.body.asFormUrlEncoded.flatMap(_.get("value").flatMap(_.headOption)).getOrElse("")
+          // if the submitted value is one of the excluded codes, replace the error with a duplicate-specific message
+          val duplicateFrom = if (baseAnswers.get(BusinessActivityCodeTwoPage).contains(submitted)) Some("Business activity 2")
+                              else if (baseAnswers.get(BusinessActivityCodePage).contains(submitted)) Some("Business activity 1")
+                              else None
+
+          if (duplicateFrom.isDefined) {
+            
+            val duplicateError = FormError("value", "businessActivityCodeThree.error.duplicate", Seq(duplicateFrom.get, submitted))
+            val filtered = formWithErrors.errors.filterNot(e => e.key == "value")
+            val adjustedForm = formWithErrors.copy(errors = filtered :+ duplicateError)
+            
+            Future.successful(BadRequest(view(adjustedForm, Some(routes.BusinessActivityTwoController.onPageLoad(mode).url), mode)))
           } else {
-            formWithErrors
+            val adjustedForm = if (typed.trim.nonEmpty) {
+              val filtered = formWithErrors.errors.filterNot(e => e.key == "value" && e.message == "businessActivityCodeThree.error.required")
+              formWithErrors.copy(errors = filtered :+ FormError("value", "businessActivityCodeThree.error.invalid"))
+            } else {
+              formWithErrors
+            }
+            Future.successful(BadRequest(view(adjustedForm, Some(routes.BusinessActivityTwoController.onPageLoad(mode).url), mode)))
           }
-          Future.successful(BadRequest(view(adjustedForm, activities, Some(routes.BusinessActivityTwoController.onPageLoad(mode).url), mode)))
         },
         value => {
-          for {
-            updatedAnswers <- Future.fromTry(baseAnswers.set(BusinessActivityCodeThreePage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(BusinessActivityCodeThreePage, mode, updatedAnswers))
+          // log stored answers and submitted value for debugging duplicate detection
+          Logger(getClass).info(s"BusinessActivityCodeThreeController.onSubmit - stored BA1=${baseAnswers.get(BusinessActivityCodePage)} BA2=${baseAnswers.get(BusinessActivityCodeTwoPage)} submitted=$value")
+
+          // if the submitted value duplicates BA1 or BA2, show duplicate error
+          val duplicateFrom = if (baseAnswers.get(BusinessActivityCodeTwoPage).contains(value)) Some("Business activity 2")
+                              else if (baseAnswers.get(BusinessActivityCodePage).contains(value)) Some("Business activity 1")
+                              else None
+
+          duplicateFrom match {
+            case Some(from) =>
+                val duplicateError = FormError("value", "businessActivityCodeThree.error.duplicate", Seq(from, value))
+                val duplicateForm = form.copy(errors = form.errors :+ duplicateError)
+                Future.successful(BadRequest(view(duplicateForm, Some(routes.BusinessActivityTwoController.onPageLoad(mode).url), mode)))
+            case None =>
+              for {
+                updatedAnswers <- Future.fromTry(baseAnswers.set(BusinessActivityCodeThreePage, value))
+                _              <- sessionRepository.set(updatedAnswers)
+              } yield Redirect(navigator.nextPage(BusinessActivityCodeThreePage, mode, updatedAnswers))
+          }
         }
       )
 
     boundResult.recover { case NonFatal(e) =>
       Logger(getClass).error("Error in BusinessActivityCodeThreeController.onSubmit", e)
-      BadRequest(view(form.bindFromRequest(), activities, Some(routes.BusinessActivityCodeTwoController.onPageLoad(mode).url), mode))
+      BadRequest(view(form.bindFromRequest(), Some(routes.BusinessActivityTwoController.onPageLoad(mode).url), mode))
     }
   }
 }
