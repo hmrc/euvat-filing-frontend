@@ -35,39 +35,33 @@
     @formHelper(action = routes.BusinessActivityController.onSubmit(mode)) {
         @mainErrorSummary(form)
 
-        <h2 class="govuk-caption-l hmrc-caption-l">
+        <span class="govuk-caption-l hmrc-caption-l">
             <span class="govuk-visually-hidden">This section is: </span>@messages("claim.caption.add")
-        </h2>
+        </span>
         <h1 class="govuk-heading-l">@messages("businessActivity.heading")</h1>
-
-        <p class="govuk-body-l">@messages("businessActivity.lead")</p>
 
         @if(baCode1 != "") {
             @govukInsetText(InsetText(
-                content = HtmlContent(s"<strong>${messages("businessActivity.insetText.label")}:</strong> ${baCode1}")
+                content = HtmlContent(s"${messages("businessActivity.lead")} ${baCode1}")
             ))
         } else {
             @govukInsetText(InsetText(
-                content = HtmlContent(s"<strong>${messages("businessActivity.insetText.no.label")}</strong>")
+                content = HtmlContent(s"${messages("businessActivity.lead.no")}")
             ))
         }
 
         <div class="govuk-form-group @if(isError){govuk-form-group--error}">
             <fieldset class="govuk-fieldset" @if(isError){aria-describedby="value-error"}>
                 <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-                    @messages("businessActivity.h2")
+                    @messages("businessActivity.legend")
                 </legend>
-                <div id="ba-para" class="govuk-body">@messages("businessActivity.p1")
-                    <a class="govuk-link" href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2026" target="_blank" rel="noreferrer noopener">
-                        @messages("businessActivity.link.text").
-                    </a>
-                </div>
+                <div id="ba-para" class="govuk-body govuk-hint">@messages("businessActivity.paragraph")</div>
                 @form.error("value").map { e =>
                     <p id="value-error" class="govuk-error-message">
                         <span class="govuk-visually-hidden">@messages("error.prefix"):</span> @messages(e.message, e.args*)
                     </p>
                 }
-                <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
+                <div class="govuk-radios" data-module="govuk-radios">
                     <div class="govuk-radios__item">
                         <input class="govuk-radios__input" id="value" name="value" type="radio" value="true" @if(form("value").value.contains("true")){checked}>
                         <label class="govuk-label govuk-radios__label" for="value">@messages("site.yes")</label>

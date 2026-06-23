@@ -154,12 +154,10 @@ contactDetails.error.telephone.format = Enter a phone number in the correct form
 
 businessActivity.title = Business activity for this claim
 businessActivity.heading = Business activity for this claim
-businessActivity.lead = This is the Standard Industrial Classification (SIC) code listed for your business.
-businessActivity.insetText.label = Business activity 1
-businessActivity.insetText.no.label = There is no first SIC code listed for your business
-businessActivity.h2 = Do you want to add another SIC code?
-businessActivity.p1 = If your claim relates to other business activities, you’ll need to enter a SIC code for each one
-businessActivity.link.text = Office for National Statistics website (opens in new tab)
+businessActivity.lead = This is the first Standard Industrial Classification (SIC) code listed for your business:
+businessActivity.lead.no = There is no first SIC code listed for your business
+businessActivity.legend = Do you want to add another SIC code?
+businessActivity.paragraph = If your claim relates to other business activities, you’ll need to enter a SIC code for each one
 businessActivity.error.required = Select yes if you want to add another SIC code
 
 businessActivityCodeTwo.title = What is the second SIC code?
@@ -182,13 +180,14 @@ removeSecond.heading = Are you sure you want to remove the second SIC code?
 removeSecond.title = Are you sure you want to remove the second SIC code?
 removeSecond.error.required = Select yes if you want to remove the second SIC code
 
-businessActivityCodeThree.title = What is the 3rd business activity?
-businessActivityCodeThree.heading = What is the 3rd business activity?
-businessActivityCodeThree.hint = Enter your SIC code or search term, for example "motor"
-businessActivityCodeThree.error.summary = Enter a business activity code
-businessActivityCodeThree.error.required = Enter a business activity code
-businessActivityCodeThree.error.invalid = Enter a valid business activity code
-businessActivityCodeThree.error.invalid.summary = Enter a valid business activity code
+businessActivityCodeThree.title = What is the third SIC code?
+businessActivityCodeThree.heading = What is the third SIC code?
+businessActivityCodeThree.hint = Enter the SIC code
+businessActivityCodeThree.hintHtml = <p class="govuk-body">You can find the SIC codes on the <a href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2007" class="govuk-link" target="_blank" rel="noreferrer noopener">Office for National Statistics website (opens in a new tab)</a>.</p>
+businessActivityCodeThree.error.summary = Enter a SIC code
+businessActivityCodeThree.error.required = Enter a SIC code
+businessActivityCodeThree.error.invalid = Enter a valid SIC code
+businessActivityCodeThree.error.invalid.summary = Enter a valid SIC code
 businessActivityCodeThree.checkYourAnswersLabel = 3rd business activity code
 businessActivityCodeThree.change.hidden = Change the 3rd business activity code
 
