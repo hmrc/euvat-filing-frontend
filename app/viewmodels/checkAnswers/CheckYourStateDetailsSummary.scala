@@ -21,24 +21,23 @@ import models.{CheckMode, UserAnswers}
 import pages.CheckYourStateDetailsPage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import viewmodels.govuk.summarylist._
-import viewmodels.implicits._
+import viewmodels.govuk.summarylist.*
+import viewmodels.implicits.*
 
-object CheckYourStateDetailsSummary  {
+object CheckYourStateDetailsSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(CheckYourStateDetailsPage).map {
-      answer =>
+    answers.get(CheckYourStateDetailsPage).map { answer =>
 
-        val value = if (answer) "site.yes" else "site.no"
+      val value = if (answer) "site.yes" else "site.no"
 
-        SummaryListRowViewModel(
-          key     = "checkYourStateDetails.checkYourAnswersLabel",
-          value   = ValueViewModel(value),
-          actions = Seq(
-            ActionItemViewModel("site.change", routes.CheckYourStateDetailsController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("checkYourStateDetails.change.hidden"))
-          )
+      SummaryListRowViewModel(
+        key   = "checkYourStateDetails.checkYourAnswersLabel",
+        value = ValueViewModel(value),
+        actions = Seq(
+          ActionItemViewModel("site.change", routes.CheckYourStateDetailsController.onPageLoad(CheckMode).url)
+            .withVisuallyHiddenText(messages("checkYourStateDetails.change.hidden"))
         )
+      )
     }
 }
