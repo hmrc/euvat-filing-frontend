@@ -492,7 +492,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
           when(mockService.retrieveTraderKnownFacts()(any()))
             .thenReturn(
               Future.successful(
-                TraderKnownFactsResponse(123, tradeClass = Some(baCode1), dateOfRegistration = Some(LocalDateTime.of(2025, 1, 20, 10, 38)))
+                TraderKnownFactsResponse(123, tradeClass = Some(baCode1), dateOfRegistration = Some(LocalDateTime.of(2025, 1, 1, 0, 0)))
               )
             )
 
