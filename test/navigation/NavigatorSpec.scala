@@ -191,6 +191,29 @@ class NavigatorSpec extends SpecBase {
         navigator.nextPage(SimplifiedInvoiceVatRegCheckPage, NormalMode, ua) mustBe
           routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode)
       }
+
+      "must go from SimplifiedInvoiceVatRegCheckPage to PurchaseTypeController if no selected" in {
+        val ua = userAnswers.set(SimplifiedInvoiceVatRegCheckPage, false).success.value
+        navigator.nextPage(SimplifiedInvoiceVatRegCheckPage, NormalMode, ua) mustBe
+          routes.PurchaseTypeController.onPageLoad(NormalMode)
+      }
+
+      "must go from CheckYourStateDetailsPage to CheckYourStateDetailsController if no selected" in {
+        val ua = userAnswers.set(CheckYourStateDetailsPage, false).success.value
+        navigator.nextPage(CheckYourStateDetailsPage, NormalMode, ua) mustBe
+          routes.CheckYourClaimDetailsController.onPageLoad()
+      }
+
+      "must go from CheckYourStateDetailsPage to JourneyRecoveryController if yes selected" in {
+        val ua = userAnswers.set(CheckYourStateDetailsPage, true).success.value
+        navigator.nextPage(CheckYourStateDetailsPage, NormalMode, ua) mustBe
+          routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from CheckYourStateDetailsPage to JourneyRecoveryController if no answer is given" in {
+        navigator.nextPage(CheckYourStateDetailsPage, NormalMode, userAnswers) mustBe
+          routes.JourneyRecoveryController.onPageLoad()
+      }
     }
 
     "in Check mode" - {
@@ -333,6 +356,11 @@ class NavigatorSpec extends SpecBase {
         val ua = userAnswers.set(SimplifiedInvoiceVatRegCheckPage, false).success.value
         navigator.nextPage(SimplifiedInvoiceVatRegCheckPage, CheckMode, ua) mustBe
           routes.TotalPurchaseAmountBeforeVatController.onPageLoad(CheckMode)
+      }
+
+      "must go from CheckYourStateDetailsPage to CheckYourClaimDetailsController" in {
+        navigator.nextPage(CheckYourStateDetailsPage, CheckMode, userAnswers) mustBe
+          routes.CheckYourClaimDetailsController.onPageLoad()
       }
     }
   }
