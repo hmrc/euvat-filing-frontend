@@ -50,7 +50,6 @@ class NavigatorSpec extends SpecBase {
         """)
       )
     )
-  
   )
   val userAnswers: UserAnswers = UserAnswers("id")
 

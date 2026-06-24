@@ -137,7 +137,7 @@ refundPeriod.end.error.invalidDateFormat.month = Enter a valid end month
 refundPeriod.end.error.invalidDateFormat.year = Enter a valid end year
 refundPeriod.end.error.inPast = Refund period end date must be in the past
 refundPeriod.end.error.beforeVatDeRegDate = Refund period end date must not be after date of cancelled VAT registration
-refundPeriod.error.startDateNotAfterEndDate = Enter a start date that comes before the refund period end date
+refundPeriod.error.startDateNotAfterEndDate = Refund period start date must be earlier than the refund period end date
 refundPeriod.error.startAndEndInSameYear = Refund period start date and end date must be in the same calendar year
 refundPeriod.error.periodNotLessThan3Months = Refund period must be at least 3 months long unless it ends in December
 
@@ -168,6 +168,7 @@ businessActivityCodeTwo.error.summary = Enter a SIC code
 businessActivityCodeTwo.error.required = Enter a SIC code
 businessActivityCodeTwo.error.invalid = Enter a valid SIC code
 businessActivityCodeTwo.error.invalid.summary = Enter a valid SIC code
+businessActivityCodeTwo.error.duplicate = Use a different code. Your {0} uses {1} code
 
 businessActivityTwo.title = Business activity for this claim
 businessActivityTwo.heading = Business activity for this claim
@@ -188,6 +189,7 @@ businessActivityCodeThree.error.summary = Enter a SIC code
 businessActivityCodeThree.error.required = Enter a SIC code
 businessActivityCodeThree.error.invalid = Enter a valid SIC code
 businessActivityCodeThree.error.invalid.summary = Enter a valid SIC code
+businessActivityCodeThree.error.duplicate = Use a different code. Your {0} uses {1} code
 businessActivityCodeThree.checkYourAnswersLabel = 3rd business activity code
 businessActivityCodeThree.change.hidden = Change the 3rd business activity code
 

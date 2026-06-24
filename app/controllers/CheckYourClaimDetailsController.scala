@@ -61,7 +61,7 @@ class CheckYourClaimDetailsController @Inject() (
         "checkYourClaimDetails.refundingCountry.label",
         getChangeUrl(CheckYourClaimDetailsSummary.rowCountryLabel()),
         SummaryListViewModel(Seq(CheckYourClaimDetailsSummary.rowCountry(answers)).flatten)
-      ),
+      )
     ) ++ {
       val maybeCountryCode = answers.get(pages.RefundingCountryPage).orElse {
         answers.get(pages.RefundingCountryNamePage).map { stored =>

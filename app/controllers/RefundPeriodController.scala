@@ -123,11 +123,11 @@ class RefundPeriodController @Inject() (
   )(using request: DataRequest[?], ec: ExecutionContext): Future[Result] = {
     val refundPeriod = RefundPeriod(startDate, endDate)
 
-    for
+    for {
       updatedAnswer1 <- Future.fromTry(request.userAnswers.set(TraderKnownFactsQuery, traderResponse))
       updatedAnswers <- Future.fromTry(updatedAnswer1.set(RefundPeriodPage, refundPeriod))
       _              <- sessionRepository.set(updatedAnswers)
-    yield Redirect(navigator.nextPage(RefundPeriodPage, mode, updatedAnswers))
+    } yield Redirect(navigator.nextPage(RefundPeriodPage, mode, updatedAnswers))
   }
 
   private def checkOverlappingPeriod(
@@ -180,32 +180,42 @@ class RefundPeriodController @Inject() (
     baseForm
       .bindFromRequest()
       .fold(
-        formWithErrors => renderError(formWithErrors, mode)(using request),
+        formWithErrors => renderError(formWithErrors, mode),
         value =>
           euVatRefundsService.retrieveTraderKnownFacts().flatMap { traderResponse =>
-            // Re‑inject contextual parameters inside async block
-            given DataRequest[?] = request
+            val startDate = YearMonth.of(value.start.getYear, value.start.getMonthValue).atDay(1).atStartOfDay()
+            val endDate = YearMonth.of(value.end.getYear, value.end.getMonthValue).atEndOfMonth().atTime(23, 59, 59, 999000000)
 
-            val startDate = java.time.YearMonth.of(value.start.getYear, value.start.getMonthValue).atDay(1).atStartOfDay()
-            val endDate = java.time.YearMonth.of(value.end.getYear, value.end.getMonthValue).atEndOfMonth().atTime(23, 59, 59, 999000000)
-
-            (traderResponse.dateOfRegistration, traderResponse.dateOfDeregistration) match {
+            val maybeErrorForm = (traderResponse.dateOfRegistration, traderResponse.dateOfDeregistration) match {
               case (Some(regDate), Some(deRegDate)) =>
-                val maybeErrorForm =
-                  val (validStartDate, msg) = isStartDateValid(startDate.toLocalDate, regDate.toLocalDate)
-                  if (!validStartDate) {
-                    Some(baseForm.fill(value).withError("start", msg))
-                  } else if (YearMonth.from(endDate).isAfter(YearMonth.from(deRegDate))) { // F6 check
-                    Some(baseForm.fill(value).withError("end", "refundPeriod.end.error.beforeVatDeRegDate"))
-                  } else {
-                    None
-                  }
+                val (validStartDate, msg) = isStartDateValid(startDate.toLocalDate, regDate.toLocalDate)
+                if (!validStartDate) {
+                  Some(baseForm.fill(value).withError("start", msg))
+                } else if (YearMonth.from(endDate).isAfter(YearMonth.from(deRegDate))) {
+                  Some(baseForm.fill(value).withError("end", "refundPeriod.end.error.afterVatDeRegDate"))
+                } else {
+                  None
+                }
+              case (Some(regDate), None) =>
+                val (validStartDate, msg) = isStartDateValid(startDate.toLocalDate, regDate.toLocalDate)
+                if (!validStartDate) {
+                  Some(baseForm.fill(value).withError("start", msg))
+                } else {
+                  None
+                }
+              case (None, Some(deRegDate)) =>
+                if (YearMonth.from(endDate).isAfter(YearMonth.from(deRegDate))) {
+                  Some(baseForm.fill(value).withError("end", "refundPeriod.end.error.afterVatDeRegDate"))
+                } else {
+                  None
+                }
+              // Missing reg or deReg dates → proceed normally and skip navigation
+              case _ => None
+            }
 
-                maybeErrorForm match
-                  case Some(formWithError) => renderError(formWithError, mode)(using request)
-                  case None                => checkOverlappingPeriod(traderResponse, startDate, endDate, mode)
-
-              case _ => checkOverlappingPeriod(traderResponse, startDate, endDate, mode)
+            maybeErrorForm match {
+              case Some(formWithError) => renderError(formWithError, mode)
+              case None                => checkOverlappingPeriod(traderResponse, startDate, endDate, mode)
             }
           }
       )
