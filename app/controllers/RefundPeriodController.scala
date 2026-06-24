@@ -99,17 +99,16 @@ class RefundPeriodController @Inject() (
     )
   }
 
-  private def isStartDateValid(startDate: LocalDate, regDate: LocalDate): (Boolean, String) = {
-    val start = YearMonth.from(startDate)
+  private def isStartDateValid(startDate: LocalDateTime, regDate: LocalDateTime): (Boolean, String) = {
     val reg = YearMonth.from(regDate)
     val regMonth = reg.getMonthValue
     // Case 1: Jan–Mar rule
     if (regMonth >= 1 && regMonth <= 3) {
       // Same month/year OR after regDate (same year)
-      (start.equals(reg) || start.isAfter(reg), "refundPeriod.error.periodStartDateBeforeRegDate.firstQuarter")
+      (startDate.equals(regDate) || startDate.isAfter(regDate), "refundPeriod.error.periodStartDateBeforeRegDate.firstQuarter")
     } else { // Case 2: Apr–Dec rule
-      val min = reg.minusMonths(3)
-      (!start.isBefore(min) || start.isAfter(reg), "refundPeriod.error.periodStartDateBeforeRegDate.remainingQuarter")
+      val min = regDate.minusMonths(3)
+      (!startDate.isBefore(min) || startDate.isAfter(regDate), "refundPeriod.error.periodStartDateBeforeRegDate.remainingQuarter")
     }
   }
 
@@ -142,23 +141,23 @@ class RefundPeriodController @Inject() (
 
             val maybeErrorForm = (traderResponse.dateOfRegistration, traderResponse.dateOfDeregistration) match {
               case (Some(regDate), Some(deRegDate)) =>
-                val (validStartDate, msg) = isStartDateValid(startDate.toLocalDate, regDate.toLocalDate)
+                val (validStartDate, msg) = isStartDateValid(startDate, regDate)
                 if (!validStartDate) {
                   Some(baseForm.fill(value).withError("start", msg))
-                } else if (YearMonth.from(endDate).isAfter(YearMonth.from(deRegDate))) {
+                } else if (endDate.isAfter(deRegDate)) {
                   Some(baseForm.fill(value).withError("end", "refundPeriod.error.periodEndDateAfterDeRegDate"))
                 } else {
                   None
                 }
               case (Some(regDate), None) =>
-                val (validStartDate, msg) = isStartDateValid(startDate.toLocalDate, regDate.toLocalDate)
+                val (validStartDate, msg) = isStartDateValid(startDate, regDate)
                 if (!validStartDate) {
                   Some(baseForm.fill(value).withError("start", msg))
                 } else {
                   None
                 }
               case (None, Some(deRegDate)) =>
-                if (YearMonth.from(endDate).isAfter(YearMonth.from(deRegDate))) {
+                if (endDate.isAfter(deRegDate)) {
                   Some(baseForm.fill(value).withError("end", "refundPeriod.error.periodEndDateAfterDeRegDate"))
                 } else {
                   None
