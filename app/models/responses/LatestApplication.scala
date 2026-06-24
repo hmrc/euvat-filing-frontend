@@ -16,31 +16,22 @@
 
 package models.responses
 
-import play.api.libs.json.{Format, __}
+import play.api.libs.json.{Format, Json, OFormat, __}
 import play.api.libs.functional.syntax.*
 
 import java.time.LocalDateTime
 
 case class LatestApplication(
-  applicationId: Long,
-  refundingCountryCode: String,
-  periodStartDate: LocalDateTime,
-  periodEndDate: LocalDateTime,
-  applicationNumber: String,
-  applicationStatus: String,
-  submissionStatus: String,
-  applicationVersion: LocalDateTime
-)
+                              applicationId: Long,
+                              refundingCountryCode: String,
+                              periodStartDate: LocalDateTime,
+                              periodEndDate: LocalDateTime,
+                              applicationNumber: String,
+                              applicationStatus: String,
+                              submissionStatus: String,
+                              applicationVersion: LocalDateTime
+                            )
 
-object LatestApplication:
-  implicit val format: Format[LatestApplication] =
-    (
-      (__ \ "applicationId").format[Long] and
-        (__ \ "refundingCountryCode").format[String] and
-        (__ \ "periodStartDate").format[LocalDateTime] and
-        (__ \ "periodEndDate").format[LocalDateTime] and
-        (__ \ "applicationNumber").format[String] and
-        (__ \ "applicationStatus").format[String] and
-        (__ \ "submissionStatus").format[String] and
-        (__ \ "applicationVersion").format[LocalDateTime]
-    )(LatestApplication.apply, o => Tuple.fromProductTyped(o))
+object LatestApplication {
+  implicit val format: OFormat[LatestApplication] = Json.format[LatestApplication]
+}

@@ -16,8 +16,7 @@
 
 package models.requests
 
-import play.api.libs.functional.syntax.toFunctionalBuilderOps
-import play.api.libs.json.{Format, __}
+import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDateTime
 
@@ -33,16 +32,6 @@ case class LatestApplicationRequest(
   startAt: Option[Int]
 )
 
-object LatestApplicationRequest:
-  implicit val format: Format[LatestApplicationRequest] =
-    (
-      (__ \ "applicantVatRegNumber").format[String] and
-        (__ \ "refundingCountry").formatNullable[String] and
-        (__ \ "startDate").formatNullable[LocalDateTime] and
-        (__ \ "endDate").formatNullable[LocalDateTime] and
-        (__ \ "representativeId").formatNullable[String] and
-        (__ \ "maxNumber").format[Int] and
-        (__ \ "orderBy").formatNullable[Int] and
-        (__ \ "sortOrder").formatNullable[String] and
-        (__ \ "startAt").formatNullable[Int]
-    )(LatestApplicationRequest.apply, o => Tuple.fromProductTyped(o))
+object LatestApplicationRequest {
+  implicit val format: OFormat[LatestApplicationRequest] = Json.format[LatestApplicationRequest]
+}
