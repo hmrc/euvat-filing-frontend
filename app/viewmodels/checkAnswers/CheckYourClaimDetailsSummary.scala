@@ -28,54 +28,41 @@ import viewmodels.implicits.*
 
 object CheckYourClaimDetailsSummary {
 
-  def rowCountryLabel()(implicit messages: Messages): SummaryListRow =
-    SummaryListRowViewModel(
-      key   = "checkYourClaimDetails.refundingCountry.label",
-      value = ValueViewModel(""),
-      actions = Seq(
-        ActionItemViewModel("site.change", routes.RefundingCountryController.onPageLoad(CheckMode).url)
-          .withVisuallyHiddenText(messages("checkYourClaimDetails.refundingCountry.change.hidden"))
-      )
-    )
-
   def rowCountry(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(RefundingCountryNamePage).map { countryName =>
       SummaryListRowViewModel(
-        key     = "checkYourClaimDetails.refundingCountry.subLabel",
-        value   = ValueViewModel(HtmlFormat.raw(countryName).toString),
-        actions = Seq.empty
+        key   = "checkYourClaimDetails.refundingCountry.subLabel",
+        value = ValueViewModel(HtmlFormat.raw(countryName).toString),
+        actions = Seq(
+          ActionItemViewModel("site.change", routes.RefundingCountryController.onPageLoad(CheckMode).url)
+            .withVisuallyHiddenText(messages("checkYourClaimDetails.refundingCountry.change.hidden"))
+        )
       )
     }
-
-  def rowLanguageLabel()(implicit messages: Messages): SummaryListRow =
-    SummaryListRowViewModel(
-      key   = "checkYourClaimDetails.refundingLanguage.label",
-      value = ValueViewModel(""),
-      actions = Seq(
-        ActionItemViewModel("site.change", routes.RefundingLanguageController.onPageLoad(CheckMode).url)
-          .withVisuallyHiddenText(messages("checkYourClaimDetails.refundingLanguage.change.hidden"))
-      )
-    )
 
   def rowLanguage(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(RefundingLanguagePage).map { answer =>
-
       SummaryListRowViewModel(
-        key     = "checkYourClaimDetails.refundingLanguage.subLabel",
-        value   = ValueViewModel(messages(s"refundingLanguage.${answer.toString}")),
-        actions = Seq.empty
+        key   = "checkYourClaimDetails.refundingLanguage.subLabel",
+        value = ValueViewModel(messages(s"refundingLanguage.${answer.toString}")),
+        actions = Seq(
+          ActionItemViewModel("site.change", routes.RefundingLanguageController.onPageLoad(CheckMode).url)
+            .withVisuallyHiddenText(messages("checkYourClaimDetails.refundingLanguage.change.hidden"))
+        )
       )
     }
 
-  def rowRefundPeriodLabel()(implicit messages: Messages): SummaryListRow =
-    SummaryListRowViewModel(
-      key   = "checkYourClaimDetails.refundingPeriod.label",
-      value = ValueViewModel(HtmlFormat.raw("").toString),
-      actions = Seq(
-        ActionItemViewModel("site.change", routes.RefundPeriodController.onPageLoad(CheckMode).url)
-          .withVisuallyHiddenText(messages("checkYourClaimDetails.refundingPeriod.change.hidden"))
+  def rowCurrency(displayName: Option[String])(implicit messages: Messages): Option[SummaryListRow] =
+    displayName.map { name =>
+      SummaryListRowViewModel(
+        key   = "checkYourClaimDetails.refundingCurrency.subLabel",
+        value = ValueViewModel(name),
+        actions = Seq(
+          ActionItemViewModel("site.change", routes.RefundingCurrencyController.onPageLoad(CheckMode).url)
+            .withVisuallyHiddenText(messages("checkYourClaimDetails.refundingCurrency.change.hidden"))
+        )
       )
-    )
+    }
 
   def rowRefundStart(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(RefundPeriodPage).map { answer =>
@@ -83,7 +70,10 @@ object CheckYourClaimDetailsSummary {
       SummaryListRowViewModel(
         key     = "checkYourClaimDetails.refundingPeriodStart.subLabel",
         value   = ValueViewModel(answer.startDate.format(shortMonthYearFormat())),
-        actions = Seq.empty
+        actions = Seq(
+          ActionItemViewModel("site.change", routes.RefundPeriodController.onPageLoad(CheckMode).url)
+            .withVisuallyHiddenText(messages("checkYourClaimDetails.refundingPeriod.change.hidden"))
+        )
       )
     }
 
@@ -93,19 +83,12 @@ object CheckYourClaimDetailsSummary {
       SummaryListRowViewModel(
         key     = "checkYourClaimDetails.refundingPeriodEnd.subLabel",
         value   = ValueViewModel(answer.endDate.format(shortMonthYearFormat())),
-        actions = Seq.empty
+        actions = Seq(
+          ActionItemViewModel("site.change", routes.RefundPeriodController.onPageLoad(CheckMode).url)
+            .withVisuallyHiddenText(messages("checkYourClaimDetails.refundingPeriod.change.hidden"))
+        )
       )
     }
-
-  def rowContactLabel()(implicit messages: Messages): SummaryListRow =
-    SummaryListRowViewModel(
-      key   = "checkYourClaimDetails.contactDetails.label",
-      value = ValueViewModel(HtmlFormat.raw("").toString),
-      actions = Seq(
-        ActionItemViewModel("site.change", routes.ContactDetailsController.onPageLoad(CheckMode).url)
-          .withVisuallyHiddenText(messages("checkYourClaimDetails.contactDetails.change.hidden"))
-      )
-    )
 
   def rowContactEmail(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(ContactDetailsPage).map { answer =>
@@ -113,7 +96,10 @@ object CheckYourClaimDetailsSummary {
       SummaryListRowViewModel(
         key     = "checkYourClaimDetails.contactEmail.subLabel",
         value   = ValueViewModel(HtmlFormat.raw(answer.email).toString),
-        actions = Seq.empty
+        actions = Seq(
+          ActionItemViewModel("site.change", routes.ContactDetailsController.onPageLoad(CheckMode).url)
+            .withVisuallyHiddenText(messages("checkYourClaimDetails.contactDetails.change.hidden"))
+        )
       )
     }
 
@@ -123,7 +109,10 @@ object CheckYourClaimDetailsSummary {
       SummaryListRowViewModel(
         key     = "checkYourClaimDetails.contactPhone.subLabel",
         value   = ValueViewModel(HtmlFormat.escape(answer.telephone.getOrElse("Not provided")).toString),
-        actions = Seq.empty
+        actions = Seq(
+          ActionItemViewModel("site.change", routes.ContactDetailsController.onPageLoad(CheckMode).url)
+            .withVisuallyHiddenText(messages("checkYourClaimDetails.contactDetails.change.hidden"))
+        )
       )
     }
 
