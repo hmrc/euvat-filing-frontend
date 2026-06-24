@@ -23,22 +23,17 @@
     govukButton: GovukButton
 )
 
-@(sections: Seq[(String, Option[String], SummaryList)])(implicit request: Request[_], messages: Messages)
+@(sections: Seq[(String, SummaryList)])(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("checkYourClaimDetails.title"))) {
     <h1 class="govuk-heading-l">@messages("checkYourClaimDetails.heading")</h1>
     <p class="govuk-body">@messages("checkYourClaimDetails.paragraph")</p><br/>
 
     @formHelper(action = routes.CheckYourClaimDetailsController.onSubmit(), Symbol("autoComplete") -> "off") {
-        @for((labelKey, changeHrefOpt, summary) <- sections) {
+        @for((labelKey, summary) <- sections) {
             <div class="govuk-!-margin-bottom-9">
-                <h2 class="govuk-heading-m govuk-!-margin-bottom-2 govuk-clearfix">@messages(labelKey)
-                @if(changeHrefOpt.isDefined) {
-                    <a href="@changeHrefOpt.get" class="govuk-link govuk-body govuk-!-margin-bottom-0" style="float: right;">@messages("site.change")
-                    <span class="govuk-visually-hidden">@messages(labelKey)</span></a>
-                }
+                <h2 class="govuk-heading-m govuk-!-margin-bottom-2">@messages(labelKey)
                 </h2>
-                <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-top-0 govuk-!-margin-bottom-0">
                 @govukSummaryList(summary.copy(classes = "govuk-summary-list govuk-!-margin-bottom-0"))
             </div>
         }

@@ -57,7 +57,8 @@ class RemoveThirdBusinessActivityControllerSpec extends SpecBase with MockitoSug
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).overrides(bind[SessionRepository].toInstance(mockSessionRepository)).build()
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers)).overrides(bind[SessionRepository].toInstance(mockSessionRepository)).build()
 
       running(application) {
         val request = FakeRequest(POST, removeRoute).withSession("removeOrigin" -> "business-activity-3").withFormUrlEncodedBody(("value", "true"))

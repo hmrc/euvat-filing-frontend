@@ -26,7 +26,7 @@ import uk.gov.hmrc.govukfrontend.views.Aliases.SummaryList
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.checkAnswers.CheckYourClaimDetailsSummary
-import utils.ConfigLanguageMapping
+import utils.{ConfigCurrencyMapping, ConfigLanguageMapping}
 import views.html.CheckYourClaimDetailsView
 import viewmodels.govuk.summarylist.*
 
@@ -37,7 +37,8 @@ class CheckYourClaimDetailsController @Inject() (
   requireData: DataRequiredAction,
   val controllerComponents: MessagesControllerComponents,
   view: CheckYourClaimDetailsView,
-  configLanguageMapping: ConfigLanguageMapping
+  configLanguageMapping: ConfigLanguageMapping,
+  configCurrencyMapping: ConfigCurrencyMapping
 ) extends FrontendBaseController
     with I18nSupport
     with Logging {
@@ -52,58 +53,76 @@ class CheckYourClaimDetailsController @Inject() (
     Redirect(controllers.routes.TaskListDashboardController.onPageLoad())
   }
 
-  private def getChangeUrl(rowOpt: SummaryListRow): Option[String] =
-    rowOpt.actions.flatMap(_.items.headOption.map(_.href))
+  private def buildSummaryList(answers: UserAnswers)(implicit messages: Messages): Seq[(String, SummaryList)] = {
 
-  private def buildSummaryList(answers: UserAnswers)(implicit messages: Messages): Seq[(String, Option[String], SummaryList)] =
-    Seq(
-      (
-        "checkYourClaimDetails.refundingCountry.label",
-        getChangeUrl(CheckYourClaimDetailsSummary.rowCountryLabel()),
-        SummaryListViewModel(Seq(CheckYourClaimDetailsSummary.rowCountry(answers)).flatten)
-      ),
-    ) ++ {
-      val maybeCountryCode = answers.get(pages.RefundingCountryPage).orElse {
-        answers.get(pages.RefundingCountryNamePage).map { stored =>
-          stored.split(",", 2).headOption.getOrElse(stored)
-        }
+    val maybeCountryCode = answers.get(pages.RefundingCountryPage).orElse {
+      answers.get(pages.RefundingCountryNamePage).map { stored =>
+        stored.split(",", 2).headOption.getOrElse(stored)
+      }
+    }
+
+    val maybeCurrencyDisplayName: Option[String] =
+      answers.get(pages.RefundingCurrencyPage).map { code =>
+        maybeCountryCode.toSeq
+          .flatMap(configCurrencyMapping.currenciesFor)
+          .find(_._2 == code)
+          .map(c => messages(s"refundingCurrency.${c._1}", c._3))
+          .getOrElse(code)
       }
 
+    val languageSection: Seq[(String, SummaryList)] =
       maybeCountryCode match {
         case Some(code) if configLanguageMapping.languagesFor(code).size > 1 =>
           Seq(
             (
               "checkYourClaimDetails.refundingLanguage.label",
-              getChangeUrl(CheckYourClaimDetailsSummary.rowLanguageLabel()),
               SummaryListViewModel(Seq(CheckYourClaimDetailsSummary.rowLanguage(answers)).flatten)
             )
           )
         case _ => Seq.empty
       }
-    } ++ Seq(
-      (
-        "checkYourClaimDetails.refundingPeriod.label",
-        getChangeUrl(CheckYourClaimDetailsSummary.rowRefundPeriodLabel()),
-        SummaryListViewModel(Seq(CheckYourClaimDetailsSummary.rowRefundStart(answers), CheckYourClaimDetailsSummary.rowRefundEnd(answers)).flatten)
-      ),
-      (
-        "checkYourClaimDetails.contactDetails.label",
-        getChangeUrl(CheckYourClaimDetailsSummary.rowContactLabel()),
-        SummaryListViewModel(
-          Seq(CheckYourClaimDetailsSummary.rowContactEmail(answers), CheckYourClaimDetailsSummary.rowContactPhone(answers)).flatten
-        )
-      ),
-      (
-        "checkYourClaimDetails.businessActivity.label",
-        getChangeUrl(CheckYourClaimDetailsSummary.rowBusinessActivityLabel(answers)),
-        SummaryListViewModel(
+
+    val currencySection: Seq[(String, SummaryList)] =
+      maybeCountryCode match {
+        case Some(code) if configCurrencyMapping.requiresCurrencySelection(code) =>
           Seq(
-            CheckYourClaimDetailsSummary.rowBusinessActivity(answers),
-            CheckYourClaimDetailsSummary.rowBusinessActivity2(answers),
-            CheckYourClaimDetailsSummary.rowBusinessActivity3(answers)
-          ).flatten
+            (
+              "checkYourClaimDetails.refundingCurrency.label",
+              SummaryListViewModel(Seq(CheckYourClaimDetailsSummary.rowCurrency(maybeCurrencyDisplayName)).flatten)
+            )
+          )
+        case _ => Seq.empty
+      }
+
+    Seq(
+      (
+        "checkYourClaimDetails.refundingCountry.label",
+        SummaryListViewModel(Seq(CheckYourClaimDetailsSummary.rowCountry(answers)).flatten)
+      )
+    ) ++
+      languageSection ++
+      currencySection ++
+      Seq(
+        (
+          "checkYourClaimDetails.refundingPeriod.label",
+          SummaryListViewModel(Seq(CheckYourClaimDetailsSummary.rowRefundStart(answers), CheckYourClaimDetailsSummary.rowRefundEnd(answers)).flatten)
+        ),
+        (
+          "checkYourClaimDetails.contactDetails.label",
+          SummaryListViewModel(
+            Seq(CheckYourClaimDetailsSummary.rowContactEmail(answers), CheckYourClaimDetailsSummary.rowContactPhone(answers)).flatten
+          )
+        ),
+        (
+          "checkYourClaimDetails.businessActivity.label",
+          SummaryListViewModel(
+            Seq(
+              CheckYourClaimDetailsSummary.rowBusinessActivity(answers),
+              CheckYourClaimDetailsSummary.rowBusinessActivity2(answers),
+              CheckYourClaimDetailsSummary.rowBusinessActivity3(answers)
+            ).flatten
+          )
         )
       )
-    )
-
+  }
 }

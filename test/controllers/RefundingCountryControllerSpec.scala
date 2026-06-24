@@ -160,8 +160,12 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
 
       // Start with a saved country and language
       val starting = emptyUserAnswers
-        .set(pages.RefundingCountryPage, "BG").success.value
-        .set(pages.RefundingLanguagePage, models.RefundingLanguage.Bulgarian).success.value
+        .set(pages.RefundingCountryPage, "BG")
+        .success
+        .value
+        .set(pages.RefundingLanguagePage, models.RefundingLanguage.Bulgarian)
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(starting))
         .overrides(

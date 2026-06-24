@@ -51,7 +51,9 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
 
     "must include language label when country has multiple languages" in {
       val ua = emptyUserAnswers
-        .set(pages.RefundingCountryPage, "BE").success.value
+        .set(pages.RefundingCountryPage, "BE")
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(ua)).build()
 
@@ -66,7 +68,9 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
 
     "must NOT include language label when country has only one language" in {
       val ua = emptyUserAnswers
-        .set(pages.RefundingCountryPage, "CZ").success.value
+        .set(pages.RefundingCountryPage, "CZ")
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(ua)).build()
 
