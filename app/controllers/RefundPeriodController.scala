@@ -188,7 +188,7 @@ class RefundPeriodController @Inject() (
                 if (!validStartDate) {
                   Some(baseForm.fill(value).withError("start", msg))
                 } else if (endDate.isAfter(deRegDate)) {
-                  Some(baseForm.fill(value).withError("end", "refundPeriod.error.periodEndDateAfterDeRegDate"))
+                  Some(baseForm.fill(value).withError("end", "refundPeriod.error.afterVatDeRegDate"))
                 } else {
                   None
                 }
