@@ -19,6 +19,7 @@ package forms
 import forms.mappings.Mappings
 import javax.inject.Inject
 import play.api.data.Form
+import play.api.data.validation.{Constraint, Invalid, Valid}
 
 class TotalVatClaimFormProvider @Inject() extends Mappings {
 
@@ -29,7 +30,16 @@ class TotalVatClaimFormProvider @Inject() extends Mappings {
         "totalVatClaim.error.invalidNumeric",
         "totalVatClaim.error.nonNumeric"
       )
-        .verifying(minimumCurrency(-999999999.99, "totalVatClaim.error.belowMinimum"))
-        .verifying(maximumCurrency(999999999.99, "totalVatClaim.error.aboveMaximum"))
+        .verifying(
+          Constraint[BigDecimal]("range") { amount =>
+            val min = BigDecimal("-999999999.99")
+            val max = BigDecimal("999999999.99")
+            val minStr = f"$min%.2f"
+            val maxStr = f"$min%.2f"
+            if (amount < min) Invalid("totalVatClaim.error.belowMinimum", minStr, maxStr)
+            else if (amount > max) Invalid("totalVatClaim.error.aboveMinimum", minStr, maxStr)
+            else Valid
+          }
+        )
     )
 }
