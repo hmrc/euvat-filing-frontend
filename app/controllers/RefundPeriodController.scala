@@ -169,7 +169,6 @@ class RefundPeriodController @Inject() (
             maybeErrorForm match
               case Some(formWithError) => renderError(formWithError, mode)
               case None                => saveAndRedirect(traderResponse, startDate, endDate, mode)
-
           }
       )
   }
