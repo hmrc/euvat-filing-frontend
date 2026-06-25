@@ -129,7 +129,7 @@ object CheckYourClaimDetailsSummary {
         key     = "checkYourClaimDetails.businessActivity.subLabel",
         value   = ValueViewModel(HtmlFormat.raw(answer).toString),
         actions = Seq(
-          ActionItemViewModel("site.view", routes.BusinessActivityController.onPageLoad(CheckMode).url)
+          ActionItemViewModel("site.view", viewUrl)
             .withVisuallyHiddenText(messages("checkYourClaimDetails.businessActivity1.view.hidden"))
         )
       )
@@ -142,7 +142,7 @@ object CheckYourClaimDetailsSummary {
         key     = "checkYourClaimDetails.businessActivity2.subLabel",
         value   = ValueViewModel(HtmlFormat.raw(answer).toString),
         actions = Seq(
-          ActionItemViewModel("site.change", routes.BusinessActivityTwoController.onPageLoad(CheckMode).url)
+          ActionItemViewModel("site.change", routes.BusinessActivityCodeTwoController.onPageLoad(CheckMode).url)
             .withVisuallyHiddenText(messages("checkYourClaimDetails.businessActivity2.change.hidden"))
         )
       )
@@ -155,7 +155,7 @@ object CheckYourClaimDetailsSummary {
         key     = "checkYourClaimDetails.businessActivity3.subLabel",
         value   = ValueViewModel(HtmlFormat.raw(answer).toString),
         actions = Seq(
-          ActionItemViewModel("site.change", routes.BusinessActivityThreeController.onPageLoad().url)
+          ActionItemViewModel("site.change", routes.BusinessActivityCodeThreeController.onPageLoad(CheckMode).url)
             .withVisuallyHiddenText(messages("checkYourClaimDetails.businessActivity3.change.hidden"))
         )
       )
