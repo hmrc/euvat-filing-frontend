@@ -35,9 +35,9 @@ class TotalVatClaimFormProvider @Inject() extends Mappings {
             val min = BigDecimal("-999999999.99")
             val max = BigDecimal("999999999.99")
             val minStr = f"$min%.2f"
-            val maxStr = f"$min%.2f"
+            val maxStr = f"$max%.2f"
             if (amount < min) Invalid("totalVatClaim.error.belowMinimum", minStr, maxStr)
-            else if (amount > max) Invalid("totalVatClaim.error.aboveMinimum", minStr, maxStr)
+            else if (amount > max) Invalid("totalVatClaim.error.aboveMaximum", minStr, maxStr)
             else Valid
           }
         )
