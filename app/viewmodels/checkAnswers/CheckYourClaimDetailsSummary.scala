@@ -72,7 +72,7 @@ object CheckYourClaimDetailsSummary {
         value   = ValueViewModel(answer.startDate.format(shortMonthYearFormat())),
         actions = Seq(
           ActionItemViewModel("site.change", routes.RefundPeriodController.onPageLoad(CheckMode).url)
-            .withVisuallyHiddenText(messages("checkYourClaimDetails.refundingPeriod.change.hidden"))
+            .withVisuallyHiddenText(messages("checkYourClaimDetails.refundingStartDate.change.hidden"))
         )
       )
     }
@@ -85,7 +85,7 @@ object CheckYourClaimDetailsSummary {
         value   = ValueViewModel(answer.endDate.format(shortMonthYearFormat())),
         actions = Seq(
           ActionItemViewModel("site.change", routes.RefundPeriodController.onPageLoad(CheckMode).url)
-            .withVisuallyHiddenText(messages("checkYourClaimDetails.refundingPeriod.change.hidden"))
+            .withVisuallyHiddenText(messages("checkYourClaimDetails.refundingEndDate.change.hidden"))
         )
       )
     }
@@ -98,7 +98,7 @@ object CheckYourClaimDetailsSummary {
         value   = ValueViewModel(HtmlFormat.raw(answer.email).toString),
         actions = Seq(
           ActionItemViewModel("site.change", routes.ContactDetailsController.onPageLoad(CheckMode).url)
-            .withVisuallyHiddenText(messages("checkYourClaimDetails.contactDetails.change.hidden"))
+            .withVisuallyHiddenText(messages("checkYourClaimDetails.Email.change.hidden"))
         )
       )
     }
@@ -111,37 +111,27 @@ object CheckYourClaimDetailsSummary {
         value   = ValueViewModel(HtmlFormat.escape(answer.telephone.getOrElse("Not provided")).toString),
         actions = Seq(
           ActionItemViewModel("site.change", routes.ContactDetailsController.onPageLoad(CheckMode).url)
-            .withVisuallyHiddenText(messages("checkYourClaimDetails.contactDetails.change.hidden"))
+            .withVisuallyHiddenText(messages("checkYourClaimDetails.Phone.change.hidden"))
         )
       )
     }
-
-  def rowBusinessActivityLabel(answers: UserAnswers)(implicit messages: Messages): SummaryListRow =
-    val action = if (answers.get(BusinessActivityCodeThreePage).nonEmpty) {
-      routes.BusinessActivityThreeController.onPageLoad()
-    } else if (answers.get(BusinessActivityCodeTwoPage).nonEmpty) {
-      routes.BusinessActivityTwoController.onPageLoad(CheckMode)
-    } else {
-      routes.BusinessActivityController.onPageLoad(CheckMode)
-    }
-
-    SummaryListRowViewModel(
-      key = KeyViewModel(
-        s"""<span class="govuk-!-width-one-half">${messages("checkYourClaimDetails.businessActivity.label")}</span>"""
-      ),
-      value = ValueViewModel(HtmlFormat.raw("").toString),
-      actions = Seq(
-        ActionItemViewModel("site.change", action.url).withVisuallyHiddenText(messages("checkYourClaimDetails.businessActivity.change.hidden"))
-      )
-    )
-
+  
   def rowBusinessActivity(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(BusinessActivityCodePage).map { answer =>
+
+      val viewUrl = (answers.get(BusinessActivityCodeTwoPage), answers.get(BusinessActivityCodeThreePage)) match {
+        case (_, Some(_)) => routes.BusinessActivityThreeController.onPageLoad().url
+        case (Some(_), _) => routes.BusinessActivityTwoController.onPageLoad(CheckMode).url
+        case _            => routes.BusinessActivityController.onPageLoad(CheckMode).url
+      }
 
       SummaryListRowViewModel(
         key     = "checkYourClaimDetails.businessActivity.subLabel",
         value   = ValueViewModel(HtmlFormat.raw(answer).toString),
-        actions = Seq.empty
+        actions = Seq(
+          ActionItemViewModel("site.view", routes.BusinessActivityController.onPageLoad(CheckMode).url)
+            .withVisuallyHiddenText(messages("checkYourClaimDetails.businessActivity1.view.hidden"))
+        )
       )
     }
 
@@ -151,7 +141,10 @@ object CheckYourClaimDetailsSummary {
       SummaryListRowViewModel(
         key     = "checkYourClaimDetails.businessActivity2.subLabel",
         value   = ValueViewModel(HtmlFormat.raw(answer).toString),
-        actions = Seq.empty
+        actions = Seq(
+          ActionItemViewModel("site.change", routes.BusinessActivityTwoController.onPageLoad(CheckMode).url)
+            .withVisuallyHiddenText(messages("checkYourClaimDetails.businessActivity2.change.hidden"))
+        )
       )
     }
 
@@ -161,7 +154,10 @@ object CheckYourClaimDetailsSummary {
       SummaryListRowViewModel(
         key     = "checkYourClaimDetails.businessActivity3.subLabel",
         value   = ValueViewModel(HtmlFormat.raw(answer).toString),
-        actions = Seq.empty
+        actions = Seq(
+          ActionItemViewModel("site.change", routes.BusinessActivityThreeController.onPageLoad().url)
+            .withVisuallyHiddenText(messages("checkYourClaimDetails.businessActivity3.change.hidden"))
+        )
       )
     }
 
