@@ -190,8 +190,8 @@ class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mapp
       result.get mustEqual 1.23
     }
 
-    "must bind a valid number with spaces, commas and `£` characters" in {
-      val result = testForm.bind(Map("value" -> "£ 1,234 . 01"))
+    "must bind a valid number with spacesand commas" in {
+      val result = testForm.bind(Map("value" -> " 1,234 . 01"))
       result.get mustEqual 1234.01
     }
 

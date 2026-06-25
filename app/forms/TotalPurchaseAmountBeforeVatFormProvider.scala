@@ -31,19 +31,13 @@ class TotalPurchaseAmountBeforeVatFormProvider @Inject() () extends Mappings {
         requiredKey       = "totalPurchaseAmountBeforeVat.error.required",
         invalidNumeric    = "totalPurchaseAmountBeforeVat.error.invalidNumeric",
         nonNumericKey     = "totalPurchaseAmountBeforeVat.error.nonNumeric",
-        maxLength         = currencyInputMaxLength,
-        maxLengthErrorKey = "totalPurchaseAmountBeforeVat.error.maxLength",
         enforceGrouping    = true,
         groupingErrorKey   = "totalPurchaseAmountBeforeVat.error.invalidNumeric",
         allowNegative      = true
       ).verifying(
         Constraint[BigDecimal]("range") { v =>
           if (v.abs <= maximumCurrencyAmount) Valid
-          else {
-            val minStr = f"${-maximumCurrencyAmount}%,1.2f"
-            val maxStr = f"${maximumCurrencyAmount}%,1.2f"
-            Invalid("totalPurchaseAmountBeforeVat.error.aboveMaximum", minStr, maxStr)
-          }
+          else Invalid("totalPurchaseAmountBeforeVat.error.aboveMaximum")
         }
       )
     )

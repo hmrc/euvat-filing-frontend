@@ -28,21 +28,16 @@ class TotalVatPaidFormProvider @Inject() () extends Mappings {
   def apply(): Form[BigDecimal] =
     Form(
       "value" -> currency(
-        requiredKey = "totalVatPaid.error.required",
-        invalidNumeric = "totalVatPaid.error.invalidNumeric",
-        nonNumericKey = "totalVatPaid.error.nonNumeric",
-        maxLength = currencyInputMaxLength,
-        maxLengthErrorKey = "totalVatPaid.error.maxLength",
-        enforceGrouping = true,
+        requiredKey      = "totalVatPaid.error.required",
+        invalidNumeric   = "totalVatPaid.error.invalidNumeric",
+        nonNumericKey    = "totalVatPaid.error.nonNumeric",
+        enforceGrouping  = true,
         groupingErrorKey = "totalVatPaid.error.invalidNumeric",
-        allowNegative = true
+        allowNegative    = true
       ).verifying(
         Constraint[BigDecimal]("range") { v =>
           if (v.abs <= maximumCurrencyAmount) Valid
-          else {
-            val fmt = (amt: BigDecimal) => f"$amt%,1.2f".replace(".00", "")
-            Invalid("totalVatPaid.error.aboveMaximum", fmt(-maximumCurrencyAmount), fmt(maximumCurrencyAmount))
-          }
+          else Invalid("totalVatPaid.error.aboveMaximum")
         }
       )
     )

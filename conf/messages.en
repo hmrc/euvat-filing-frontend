@@ -277,8 +277,7 @@ totalPurchaseAmountBeforeVat.change.hidden = Total purchase amount before VAT
 
 totalPurchaseAmountBeforeVat.error.nonNumeric = Enter the total purchase amount before VAT in the correct format
 totalPurchaseAmountBeforeVat.error.required = Enter the total purchase amount before VAT
-totalPurchaseAmountBeforeVat.error.aboveMaximum = Total purchase amount before VAT must be between {0} and {1}
-totalPurchaseAmountBeforeVat.error.maxLength = Total purchase amount before VAT must be 15 numbers or less
+totalPurchaseAmountBeforeVat.error.aboveMaximum = Total purchase amount before VAT must be between -99,999,999,999,999 and 999,999,999,999,999
 totalPurchaseAmountBeforeVat.error.invalidNumeric = Enter the total purchase amount before VAT in the correct format
 
 totalVatPaid.title = Total VAT paid
@@ -290,8 +289,7 @@ totalVatPaid.hint = For example, {0}150 or {0}120.45
 totalVatPaid.error.required = Enter total VAT paid
 totalVatPaid.error.invalidNumeric = Enter total VAT paid in the correct format
 totalVatPaid.error.nonNumeric = Enter total VAT paid in the correct format
-totalVatPaid.error.maxLength = Total VAT paid must be 15 numbers or less
-totalVatPaid.error.aboveMaximum = Total VAT paid must be between {0} and {1}
+totalVatPaid.error.aboveMaximum = Total VAT paid must be between -99,999,999,999,999 and 999,999,999,999,999
 
 supplierAddress.title = What is the supplier’s address?
 supplierAddress.heading = What is the supplier’s address?

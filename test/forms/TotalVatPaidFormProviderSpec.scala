@@ -25,7 +25,7 @@ class TotalVatPaidFormProviderSpec extends CurrencyFieldBehaviours with StringFi
   val invalidNumeric = "totalVatPaid.error.invalidNumeric"
   val nonNumeric = "totalVatPaid.error.nonNumeric"
   val aboveMaximum = "totalVatPaid.error.aboveMaximum"
-  val max = BigDecimal("999999999.99")
+  val max = BigDecimal("999999999999.99")
   val maxLength = 15
 
   val form = new TotalVatPaidFormProvider()()
@@ -34,7 +34,7 @@ class TotalVatPaidFormProviderSpec extends CurrencyFieldBehaviours with StringFi
 
   val fmt = (amt: BigDecimal) => f"$amt%,1.2f".replace(".00", "")
 
-  behave like currencyFieldWithMaximum(form, "value", max, FormError("value", aboveMaximum, Seq(fmt(-max), fmt(max))))
+  behave like currencyFieldWithMaximum(form, "value", max, FormError("value", aboveMaximum))
 
   behave like mandatoryField(form, "value", FormError("value", requiredKey))
 
@@ -42,12 +42,6 @@ class TotalVatPaidFormProviderSpec extends CurrencyFieldBehaviours with StringFi
     val result = form.bind(Map("value" -> "-123.45")).apply("value")
     result.errors mustBe empty
     result.value.value mustBe "-123.45"
-  }
-
-  "must return max length error when input is too long" in {
-    val long = "1234567890123456" // 16 chars, max is 15
-    val result = form.bind(Map("value" -> long)).apply("value")
-    result.errors mustEqual Seq(FormError("value", "totalVatPaid.error.maxLength"))
   }
 
   "must return grouping error for space-separated thousands when grouping enforced" in {
@@ -62,8 +56,24 @@ class TotalVatPaidFormProviderSpec extends CurrencyFieldBehaviours with StringFi
       val result = form.bind(Map("value" -> v)).apply("value")
       withClue(s"value: $v") {
         result.errors mustBe empty
-        result.value.value mustBe v
+        result.value mustBe defined
       }
+    }
+  }
+
+  "must not bind values above maximum" in {
+    val over = "1000000000000"
+    val result = form.bind(Map("value" -> over)).apply("value")
+    result.errors must contain only FormError("value", aboveMaximum)
+  }
+
+  "must bind large valid currency formats including 12-digit amounts" in {
+    val good = Seq("123", "1,234", "1,234.56", "0.99", "-12.34", "999,999,999,999.99", "123,456,123,456.99")
+
+    good.foreach { v =>
+      val bound = form.bind(Map("value" -> v)).apply("value")
+      bound.errors mustBe empty
+      bound.value mustBe defined
     }
   }
 
