@@ -391,6 +391,47 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
+      "must clear CountryChangedPage after successful submission" in {
+        when(mockService.retrieveTraderKnownFacts()(any()))
+          .thenReturn(Future.successful(TraderKnownFactsResponse(123, tradeClass = Some(baCode1))))
+
+        val mockSessionRepository = mock[repositories.SessionRepository]
+        when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+        val userAnswers = emptyUserAnswers
+          .set(pages.CountryChangedPage, true)
+          .success
+          .value
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[EuVatRefundsService].toInstance(mockService),
+            bind[repositories.SessionRepository].toInstance(mockSessionRepository),
+            bind[forms.RefundPeriodFormProvider].toInstance(formProviderAfterSept30)
+          )
+          .build()
+
+        running(application) {
+          val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit(NormalMode).url)
+            .withFormUrlEncodedBody(
+              "start.month" -> "03",
+              "start.year"  -> "2024",
+              "end.month"   -> "08",
+              "end.year"    -> "2024"
+            )
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+
+          import org.mockito.ArgumentCaptor
+          val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
+          verify(mockSessionRepository, times(1)).set(captor.capture())
+          val saved = captor.getValue
+          saved.get(pages.CountryChangedPage).isDefined mustBe false
+        }
+      }
+
       "September cutoff" - {
         "must reject start date before January of current year when today is after 30 September" in {
           val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
