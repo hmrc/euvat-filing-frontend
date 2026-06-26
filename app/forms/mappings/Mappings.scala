@@ -81,7 +81,7 @@ trait Mappings extends Formatters with Constraints {
   val businessActivityCodeMaxLength: Int = 4
   val businessActivityCodeRegex : String = """^[0-9]{4,4}$"""
   // Currency input constants (exposed from the companion object for binary compatibility)
-  val maximumCurrencyAmount: BigDecimal = BigDecimal("999999999999.99")
+  val maximumCurrencyAmount: BigDecimal = BigDecimal("999999999.99")
 
   // Regex for currency input allowing optional leading minus, grouped thousands with commas and up to 2 decimal places
   val currencyRegex: String = "^(-?\\d+(,\\d{3})*(\\.\\d{1,2})?)$"

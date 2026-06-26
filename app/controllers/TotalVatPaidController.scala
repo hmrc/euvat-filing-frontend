@@ -50,7 +50,7 @@ class TotalVatPaidController @Inject()(
 
   val form = formProvider()
 
-  private def backLink(mode: Mode) = routes.SupplierVatRegistrationNumberController.onPageLoad(mode)
+  private def backLink(mode: Mode) = routes.TotalPurchaseAmountBeforeVatController.onPageLoad(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 

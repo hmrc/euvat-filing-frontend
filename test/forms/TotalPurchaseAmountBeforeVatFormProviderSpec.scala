@@ -27,7 +27,7 @@ class TotalPurchaseAmountBeforeVatFormProviderSpec extends CurrencyFieldBehaviou
   val invalidNumeric = "totalPurchaseAmountBeforeVat.error.invalidNumeric"
   val nonNumeric = "totalPurchaseAmountBeforeVat.error.nonNumeric"
   val aboveMaximum = "totalPurchaseAmountBeforeVat.error.aboveMaximum"
-  val max = BigDecimal("999999999999.99")
+  val max = BigDecimal("999999999.99")
   val maxLength = 15
 
   val form = new TotalPurchaseAmountBeforeVatFormProvider()()
@@ -67,7 +67,7 @@ class TotalPurchaseAmountBeforeVatFormProviderSpec extends CurrencyFieldBehaviou
   }
 
   "must bind large valid currency formats including 12-digit amounts" in {
-    val good = Seq("123", "1,234", "1,234.56", "0.99", "-12.34", "999,999,999,999.99", "123,456,123,456.99")
+    val good = Seq("123", "1,234", "1,234.56", "0.99", "-12.34", "999,999,999.99", "123,456,123.99")
 
     good.foreach { v =>
       val bound = form.bind(Map("value" -> v)).apply("value")

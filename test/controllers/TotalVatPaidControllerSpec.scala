@@ -56,7 +56,7 @@ class TotalVatPaidControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[TotalVatPaidView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode), "€", "Euro")(
+        contentAsString(result) mustEqual view(form, NormalMode, routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode), "€", "Euro")(
           request,
           messages(application)
         ).toString
@@ -77,7 +77,7 @@ class TotalVatPaidControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[TotalVatPaidView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(BigDecimal("12.34")), NormalMode, routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode), "€", "Euro")(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(BigDecimal("12.34")), NormalMode, routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode), "€", "Euro")(request, messages(application)).toString
       }
     }
 
@@ -123,7 +123,7 @@ class TotalVatPaidControllerSpec extends SpecBase with MockitoSugar {
         val result = play.api.test.Helpers.route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode), "€", "Euro")(
+        contentAsString(result) mustEqual view(boundForm, NormalMode, routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode), "€", "Euro")(
           request,
           messages(application)
         ).toString

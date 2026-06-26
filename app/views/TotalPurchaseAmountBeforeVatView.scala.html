@@ -48,14 +48,10 @@
 
         <div id="total-purchase-before-vat" class="govuk-body">@Html(messages("totalPurchaseAmountBeforeVat.p1"))</div>
 
-        <h2 class="govuk-heading-m">
-            @messages("totalPurchaseAmountBeforeVat.h2")
-        </h2>
-
         @govukInput(
             InputViewModel(
                 field = form("value"),
-                label = LabelViewModel(messages("totalPurchaseAmountBeforeVat.h2")).withCssClass("govuk-visually-hidden")
+                label = LabelViewModel(messages("totalPurchaseAmountBeforeVat.h2")).withCssClass(LabelSize.Medium.toString)
             )
             .withPrefix(PrefixOrSuffix(content = prefix))
             .withWidth(Fixed5)
