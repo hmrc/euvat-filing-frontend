@@ -48,7 +48,7 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
           case _ => routes.RefundingLanguageController.onPageLoad(NormalMode)
         }
     case RefundingLanguagePage            => userAnswers => navigateFromRefundingLanguagePage(NormalMode)(userAnswers)
-    case RefundingCurrencyPage            => _ => routes.RefundPeriodController.onPageLoad(NormalMode)
+    case RefundingCurrencyPage            => userAnswers => navigateFromRefundingCurrencyPage(NormalMode)(userAnswers)
     case RefundPeriodPage                 => _ => routes.ContactDetailsController.onPageLoad(NormalMode)
     case ContactDetailsPage               => _ => routes.BusinessActivityController.onPageLoad(NormalMode)
     case BusinessActivityPage             => userAnswer => navigateFromBusinessActivityPage(NormalMode)(userAnswer)
@@ -84,7 +84,7 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
           case _ => routes.RefundingLanguageController.onPageLoad(CheckMode)
         }
     case RefundingLanguagePage            => userAnswers => navigateFromRefundingLanguagePage(CheckMode)(userAnswers)
-    case RefundingCurrencyPage            => _ => routes.CheckYourClaimDetailsController.onPageLoad()
+    case RefundingCurrencyPage            => userAnswers => navigateFromRefundingCurrencyPage(CheckMode)(userAnswers)
     case RefundPeriodPage                 => _ => routes.CheckYourClaimDetailsController.onPageLoad()
     case ContactDetailsPage               => _ => routes.CheckYourClaimDetailsController.onPageLoad()
     case BusinessActivityPage             => userAnswer => navigateFromBusinessActivityPage(CheckMode)(userAnswer)
@@ -112,23 +112,30 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
     }
     maybeCountryCode match {
       case Some(countryCode) if configCurrencyMapping.requiresCurrencySelection(countryCode) =>
-        mode match {
-          case NormalMode => routes.RefundingCurrencyController.onPageLoad(mode)
-          case CheckMode =>
-            if (userAnswers.get(pages.RefundingCurrencyPage).isDefined)
-              routes.CheckYourClaimDetailsController.onPageLoad()
-            else
-              routes.RefundingCurrencyController.onPageLoad(mode)
-        }
+        routes.RefundingCurrencyController.onPageLoad(mode) // simplified - same for both modes
       case Some(_) =>
         mode match {
           case NormalMode => routes.RefundPeriodController.onPageLoad(mode)
-          case CheckMode  => routes.CheckYourClaimDetailsController.onPageLoad()
+          case CheckMode =>
+            if (userAnswers.get(pages.CountryChangedPage).contains(true))
+              routes.RefundPeriodController.onPageLoad(CheckMode)
+            else
+              routes.CheckYourClaimDetailsController.onPageLoad()
         }
       case None =>
         routes.JourneyRecoveryController.onPageLoad()
     }
   }
+
+  private def navigateFromRefundingCurrencyPage(mode: Mode)(userAnswers: UserAnswers): Call =
+    mode match {
+      case NormalMode => routes.RefundPeriodController.onPageLoad(NormalMode)
+      case CheckMode =>
+        if (userAnswers.get(pages.CountryChangedPage).contains(true))
+          routes.RefundPeriodController.onPageLoad(CheckMode)
+        else
+          routes.CheckYourClaimDetailsController.onPageLoad()
+    }
 
   private def navigateFromBusinessActivityPage(mode: Mode)(userAnswers: UserAnswers): Call =
     userAnswers.get(BusinessActivityPage) match {

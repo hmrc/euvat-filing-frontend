@@ -122,9 +122,10 @@ class RefundPeriodController @Inject() (
 
     for {
       updatedAnswer1 <- Future.fromTry(request.userAnswers.set(TraderKnownFactsQuery, traderResponse))
-      updatedAnswers <- Future.fromTry(updatedAnswer1.set(RefundPeriodPage, refundPeriod))
-      _              <- sessionRepository.set(updatedAnswers)
-    } yield Redirect(navigator.nextPage(RefundPeriodPage, mode, updatedAnswers))
+      updatedAnswer2 <- Future.fromTry(updatedAnswer1.set(RefundPeriodPage, refundPeriod))
+      updatedAnswer3 <- Future.fromTry(updatedAnswer2.remove(pages.CountryChangedPage))
+      _              <- sessionRepository.set(updatedAnswer3)
+    } yield Redirect(navigator.nextPage(RefundPeriodPage, mode, updatedAnswer3))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
