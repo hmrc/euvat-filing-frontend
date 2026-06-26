@@ -204,7 +204,7 @@ class NavigatorSpec extends SpecBase {
           routes.RefundingCurrencyController.onPageLoad(CheckMode)
       }
 
-      "must go from RefundingLanguagePage to CheckYourClaimDetailsController in CheckMode if country has two currencies and currency already stored" in {
+      "must go from RefundingLanguagePage to RefundingCurrencyController in CheckMode if country has two currencies" in {
         val ua = userAnswers
           .set(pages.RefundingCountryPage, "BG")
           .success
@@ -213,7 +213,7 @@ class NavigatorSpec extends SpecBase {
           .success
           .value
         navigator.nextPage(pages.RefundingLanguagePage, CheckMode, ua) mustBe
-          routes.CheckYourClaimDetailsController.onPageLoad()
+          routes.RefundingCurrencyController.onPageLoad(CheckMode)
       }
 
       "must go from RefundingLanguagePage to CheckYourClaimDetailsController if country has one currency" in {
@@ -222,14 +222,32 @@ class NavigatorSpec extends SpecBase {
           routes.CheckYourClaimDetailsController.onPageLoad()
       }
 
-      "must go from RefundingCurrencyPage to CheckYourClaimDetailsController" in {
+      "must go from RefundPeriodPage to CheckYourClaimDetailsController" in {
+        navigator.nextPage(pages.RefundPeriodPage, CheckMode, userAnswers) mustBe
+          routes.CheckYourClaimDetailsController.onPageLoad()
+      }
+
+      "must go from RefundingCurrencyPage to RefundPeriodController in CheckMode if CountryChangedPage is true" in {
+        val ua = userAnswers.set(pages.CountryChangedPage, true).success.value
+        navigator.nextPage(pages.RefundingCurrencyPage, CheckMode, ua) mustBe
+          routes.RefundPeriodController.onPageLoad(CheckMode)
+      }
+
+      "must go from RefundingCurrencyPage to CheckYourClaimDetailsController in CheckMode if CountryChangedPage is not set" in {
         navigator.nextPage(pages.RefundingCurrencyPage, CheckMode, userAnswers) mustBe
           routes.CheckYourClaimDetailsController.onPageLoad()
       }
 
-      "must go from RefundPeriodPage to CheckYourClaimDetailsController" in {
-        navigator.nextPage(pages.RefundPeriodPage, CheckMode, userAnswers) mustBe
-          routes.CheckYourClaimDetailsController.onPageLoad()
+      "must go from RefundingLanguagePage to RefundPeriodController in CheckMode if country has one currency and CountryChangedPage is true" in {
+        val ua = userAnswers
+          .set(pages.RefundingCountryPage, "AT")
+          .success
+          .value
+          .set(pages.CountryChangedPage, true)
+          .success
+          .value
+        navigator.nextPage(pages.RefundingLanguagePage, CheckMode, ua) mustBe
+          routes.RefundPeriodController.onPageLoad(CheckMode)
       }
 
       "must go from ContactDetailsPage to CheckYourClaimDetailsController" in {

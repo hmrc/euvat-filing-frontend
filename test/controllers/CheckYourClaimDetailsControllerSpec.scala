@@ -49,23 +49,6 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
       }
     }
 
-    "must include language label when country has multiple languages" in {
-      val ua = emptyUserAnswers
-        .set(pages.RefundingCountryPage, "BE")
-        .success
-        .value
-
-      val application = applicationBuilder(userAnswers = Some(ua)).build()
-
-      running(application) {
-        val request = FakeRequest(GET, routes.CheckYourClaimDetailsController.onPageLoad().url)
-        val result = route(application, request).value
-        val html = contentAsString(result)
-
-        html must include(s"<span class=\"govuk-visually-hidden\">${messages(application)("checkYourClaimDetails.refundingLanguage.label")}</span>")
-      }
-    }
-
     "must NOT include language label when country has only one language" in {
       val ua = emptyUserAnswers
         .set(pages.RefundingCountryPage, "CZ")
@@ -108,6 +91,82 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
         html must include(contact.email)
         html must include(messages(application)("checkYourClaimDetails.contactPhone.subLabel"))
         html must include(messages(application)("Not provided"))
+      }
+    }
+
+    "must include language row with change link when country has multiple languages" in {
+      val ua = emptyUserAnswers
+        .set(pages.RefundingCountryPage, "BE")
+        .success
+        .value
+        .set(pages.RefundingLanguagePage, models.RefundingLanguage.English)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(ua)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.CheckYourClaimDetailsController.onPageLoad().url)
+        val result = route(application, request).value
+        val html = contentAsString(result)
+
+        html must include(messages(application)("checkYourClaimDetails.refundingLanguage.label"))
+        html must include(routes.RefundingLanguageController.onPageLoad(models.CheckMode).url)
+      }
+    }
+
+    "must NOT include language section when country has only one language" in {
+      val ua = emptyUserAnswers
+        .set(pages.RefundingCountryPage, "CZ")
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(ua)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.CheckYourClaimDetailsController.onPageLoad().url)
+        val result = route(application, request).value
+        val html = contentAsString(result)
+
+        html must not include messages(application)("checkYourClaimDetails.refundingLanguage.label")
+      }
+    }
+
+    "must include currency section when country has multiple currencies" in {
+      val ua = emptyUserAnswers
+        .set(pages.RefundingCountryPage, "BG")
+        .success
+        .value
+        .set(pages.RefundingCurrencyPage, "BGN")
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(ua)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.CheckYourClaimDetailsController.onPageLoad().url)
+        val result = route(application, request).value
+        val html = contentAsString(result)
+
+        html must include(messages(application)("checkYourClaimDetails.refundingCurrency.label"))
+        html must include(routes.RefundingCurrencyController.onPageLoad(models.CheckMode).url)
+      }
+    }
+
+    "must NOT include currency section when country has only one currency" in {
+      val ua = emptyUserAnswers
+        .set(pages.RefundingCountryPage, "AT")
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(ua)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.CheckYourClaimDetailsController.onPageLoad().url)
+        val result = route(application, request).value
+        val html = contentAsString(result)
+
+        html must not include messages(application)("checkYourClaimDetails.refundingCurrency.label")
       }
     }
 
