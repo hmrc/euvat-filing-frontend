@@ -140,6 +140,7 @@ refundPeriod.end.error.afterVatDeRegDate = Refund period end date must not be af
 refundPeriod.error.startDateNotAfterEndDate = Refund period start date must be earlier than the refund period end date
 refundPeriod.error.startAndEndInSameYear = Refund period start date and end date must be in the same calendar year
 refundPeriod.error.periodNotLessThan3Months = Refund period must be at least 3 months long unless it ends in December
+refundPeriod.error.overlap = Refund period cannot overlap with another claim for the same EU member state.
 
 contactDetails.title = How should we contact you about this claim?
 contactDetails.heading = How should we contact you about this claim?

@@ -136,10 +136,11 @@ refundPeriod.end.error.invalidDateFormat = Enter a valid end date
 refundPeriod.end.error.invalidDateFormat.month = Enter a valid end month
 refundPeriod.end.error.invalidDateFormat.year = Enter a valid end year
 refundPeriod.end.error.inPast = Refund period end date must be in the past
-refundPeriod.end.error.beforeVatDeRegDate = Refund period end date must not be after date of cancelled VAT registration
+refundPeriod.end.error.afterVatDeRegDate = Refund period end date must not be after date of cancelled VAT registration
 refundPeriod.error.startDateNotAfterEndDate = Refund period start date must be earlier than the refund period end date
 refundPeriod.error.startAndEndInSameYear = Refund period start date and end date must be in the same calendar year
 refundPeriod.error.periodNotLessThan3Months = Refund period must be at least 3 months long unless it ends in December
+refundPeriod.error.overlap = Refund period cannot overlap with another claim for the same EU member state.
 
 contactDetails.title = How should we contact you about this claim?
 contactDetails.heading = How should we contact you about this claim?
