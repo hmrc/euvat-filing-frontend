@@ -146,6 +146,6 @@ trait Formatters {
           }
 
       override def unbind(key: String, value: BigDecimal): Map[String, String] =
-        baseFormatter.unbind(key, value.toString)
+        baseFormatter.unbind(key, value.bigDecimal.toPlainString)
     }
 }
