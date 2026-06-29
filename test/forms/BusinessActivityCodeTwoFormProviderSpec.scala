@@ -46,7 +46,7 @@ class BusinessActivityCodeTwoFormProviderSpec extends StringFieldBehaviours with
     behave like fieldWithMaxLength(
       form,
       fieldName,
-      maxLength = 4,
+      maxLength   = 4,
       lengthError = FormError(fieldName, "businessActivityCodeTwo.error.invalid", Seq(4))
     )
 

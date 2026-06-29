@@ -37,7 +37,7 @@ class SupplierVatRegistrationNumberFormProviderSpec extends StringFieldBehaviour
     behave like fieldWithMaxLength(
       form,
       fieldName,
-      maxLength = 12,
+      maxLength   = 12,
       lengthError = FormError(fieldName, "supplierVatRegistrationNumber.error.length", Seq(12))
     )
 
