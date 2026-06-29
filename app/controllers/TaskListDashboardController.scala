@@ -26,11 +26,8 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.TaskListDashboardView
-import pages.RefundingCountryPage
-import models.NormalMode
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-import uk.gov.hmrc.govukfrontend.views.viewmodels.tag.Tag
-import uk.gov.hmrc.govukfrontend.views.viewmodels.tasklist.{TaskList, TaskListItem, TaskListItemStatus, TaskListItemTitle}
+import viewmodels.TaskListViewModel
+
 import scala.concurrent.ExecutionContext
 
 class TaskListDashboardController @Inject() (
@@ -39,6 +36,7 @@ class TaskListDashboardController @Inject() (
   getData: DataRetrievalAction,
   sessionRepository: SessionRepository,
   appConfig: FrontendAppConfig,
+  taskListViewModel: TaskListViewModel,
   val controllerComponents: MessagesControllerComponents,
   view: TaskListDashboardView
 )(using ExecutionContext)
@@ -48,24 +46,7 @@ class TaskListDashboardController @Inject() (
   def onPageLoad: Action[AnyContent] = (identify andThen getData).async { implicit request =>
     implicit val messages: Messages = messagesApi.preferred(request)
     val originalAnswers = request.userAnswers.getOrElse(UserAnswers(request.userId))
-
-    val detailsDone = originalAnswers.get(RefundingCountryPage).isDefined
-
-    val claimDetailsItem = TaskListItem(
-      title = TaskListItemTitle(content =
-        Text(
-          if (detailsDone) messages("taskListDashboard.listItem1.completed")
-          else messages("taskListDashboard.listItem1")
-        )
-      ),
-      status =
-        if (detailsDone) TaskListItemStatus(content = Text(messages("taskListDashboard.status3")))
-        else
-          TaskListItemStatus(
-            tag = Some(Tag(content = Text(messages("taskListDashboard.status1"))))
-          )
-    )
-    val taskList = TaskList(items = Seq(claimDetailsItem), idPrefix = "make-eu-vat-claim")
+    val taskList = taskListViewModel.buildTaskList(originalAnswers)
     sessionRepository.set(originalAnswers).map(_ => Ok(view(taskList)))
   }
 
