@@ -64,8 +64,8 @@ class TaskListDashboardController @Inject() (
           TaskListItemStatus(
             tag = Some(Tag(content = Text(messages("taskListDashboard.status1"))))
           )
-        val taskList = TaskList(items = Seq(claimDetailsItem), idPrefix = "make-eu-vat-claim")
     )
+    val taskList = TaskList(items = Seq(claimDetailsItem), idPrefix = "make-eu-vat-claim")
     sessionRepository.set(originalAnswers).map(_ => Ok(view(taskList)))
   }
 
