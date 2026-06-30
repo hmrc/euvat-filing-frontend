@@ -36,6 +36,7 @@ object CheckYourClaimDetailsSummary {
         actions = Seq(
           ActionItemViewModel("site.change", routes.RefundingCountryController.onPageLoad(CheckMode).url)
             .withVisuallyHiddenText(messages("checkYourClaimDetails.refundingCountry.change.hidden"))
+            .withAttribute("aria-label" -> s"${messages("site.change")} ${messages("checkYourClaimDetails.refundingCountry.change.hidden")}")
         )
       )
     }
@@ -48,6 +49,7 @@ object CheckYourClaimDetailsSummary {
         actions = Seq(
           ActionItemViewModel("site.change", routes.RefundingLanguageController.onPageLoad(CheckMode).url)
             .withVisuallyHiddenText(messages("checkYourClaimDetails.refundingLanguage.change.hidden"))
+            .withAttribute("aria-label" -> s"${messages("site.change")} ${messages("checkYourClaimDetails.refundingLanguage.change.hidden")}")
         )
       )
     }
@@ -60,6 +62,7 @@ object CheckYourClaimDetailsSummary {
         actions = Seq(
           ActionItemViewModel("site.change", routes.RefundingCurrencyController.onPageLoad(CheckMode).url)
             .withVisuallyHiddenText(messages("checkYourClaimDetails.refundingCurrency.change.hidden"))
+            .withAttribute("aria-label" -> s"${messages("site.change")} ${messages("checkYourClaimDetails.refundingCurrency.change.hidden")}")
         )
       )
     }
@@ -71,8 +74,9 @@ object CheckYourClaimDetailsSummary {
         key   = "checkYourClaimDetails.refundingPeriodStart.subLabel",
         value = ValueViewModel(answer.startDate.format(shortMonthYearFormat())),
         actions = Seq(
-          ActionItemViewModel("site.change", routes.RefundPeriodController.onPageLoad(CheckMode).url)
+          ActionItemViewModel("site.change", routes.RefundPeriodController.onPageLoad(CheckMode).url + "#start.month")
             .withVisuallyHiddenText(messages("checkYourClaimDetails.refundingStartDate.change.hidden"))
+            .withAttribute("aria-label" -> s"${messages("site.change")} ${messages("checkYourClaimDetails.refundingStartDate.change.hidden")}")
         )
       )
     }
@@ -84,34 +88,35 @@ object CheckYourClaimDetailsSummary {
         key   = "checkYourClaimDetails.refundingPeriodEnd.subLabel",
         value = ValueViewModel(answer.endDate.format(shortMonthYearFormat())),
         actions = Seq(
-          ActionItemViewModel("site.change", routes.RefundPeriodController.onPageLoad(CheckMode).url)
+          ActionItemViewModel("site.change", routes.RefundPeriodController.onPageLoad(CheckMode).url + "#end.month")
             .withVisuallyHiddenText(messages("checkYourClaimDetails.refundingEndDate.change.hidden"))
+            .withAttribute("aria-label" -> s"${messages("site.change")} ${messages("checkYourClaimDetails.refundingEndDate.change.hidden")}")
         )
       )
     }
 
   def rowContactEmail(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(ContactDetailsPage).map { answer =>
-
       SummaryListRowViewModel(
         key   = "checkYourClaimDetails.contactEmail.subLabel",
         value = ValueViewModel(HtmlFormat.raw(answer.email).toString),
         actions = Seq(
-          ActionItemViewModel("site.change", routes.ContactDetailsController.onPageLoad(CheckMode).url)
+          ActionItemViewModel("site.change", routes.ContactDetailsController.onPageLoad(CheckMode).url + "#contactEmail")
             .withVisuallyHiddenText(messages("checkYourClaimDetails.Email.change.hidden"))
+            .withAttribute("aria-label" -> s"${messages("site.change")} ${messages("checkYourClaimDetails.Email.change.hidden")}")
         )
       )
     }
 
   def rowContactPhone(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(ContactDetailsPage).map { answer =>
-
       SummaryListRowViewModel(
         key   = "checkYourClaimDetails.contactPhone.subLabel",
         value = ValueViewModel(HtmlFormat.escape(answer.telephone.getOrElse("Not provided")).toString),
         actions = Seq(
-          ActionItemViewModel("site.change", routes.ContactDetailsController.onPageLoad(CheckMode).url)
+          ActionItemViewModel("site.change", routes.ContactDetailsController.onPageLoad(CheckMode).url + "#contactTelephone")
             .withVisuallyHiddenText(messages("checkYourClaimDetails.Phone.change.hidden"))
+            .withAttribute("aria-label" -> s"${messages("site.change")} ${messages("checkYourClaimDetails.Phone.change.hidden")}")
         )
       )
     }
@@ -131,32 +136,33 @@ object CheckYourClaimDetailsSummary {
         actions = Seq(
           ActionItemViewModel("site.view", viewUrl)
             .withVisuallyHiddenText(messages("checkYourClaimDetails.businessActivity1.view.hidden"))
+            .withAttribute("aria-label" -> s"${messages("site.view")} ${messages("checkYourClaimDetails.businessActivity1.view.hidden")}")
         )
       )
     }
 
   def rowBusinessActivity2(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(BusinessActivityCodeTwoPage).map { answer =>
-
       SummaryListRowViewModel(
         key   = "checkYourClaimDetails.businessActivity2.subLabel",
         value = ValueViewModel(HtmlFormat.raw(answer).toString),
         actions = Seq(
           ActionItemViewModel("site.change", routes.BusinessActivityCodeTwoController.onPageLoad(CheckMode).url)
             .withVisuallyHiddenText(messages("checkYourClaimDetails.businessActivity2.change.hidden"))
+            .withAttribute("aria-label" -> s"${messages("site.change")} ${messages("checkYourClaimDetails.businessActivity2.change.hidden")}")
         )
       )
     }
 
   def rowBusinessActivity3(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(BusinessActivityCodeThreePage).map { answer =>
-
       SummaryListRowViewModel(
         key   = "checkYourClaimDetails.businessActivity3.subLabel",
         value = ValueViewModel(HtmlFormat.raw(answer).toString),
         actions = Seq(
           ActionItemViewModel("site.change", routes.BusinessActivityCodeThreeController.onPageLoad(CheckMode).url)
             .withVisuallyHiddenText(messages("checkYourClaimDetails.businessActivity3.change.hidden"))
+            .withAttribute("aria-label" -> s"${messages("site.change")} ${messages("checkYourClaimDetails.businessActivity3.change.hidden")}")
         )
       )
     }

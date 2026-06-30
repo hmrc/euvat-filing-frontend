@@ -38,7 +38,6 @@ class TotalPurchaseAmountBeforeVatFormProviderSpec extends CurrencyFieldBehaviou
 
   behave like mandatoryField(form, "value", FormError("value", requiredKey))
 
-
   "must bind valid currency formats" in {
     val good = Seq("123", "1,234", "1,234.56", "0.99", "-12.34", "999999999.99")
 

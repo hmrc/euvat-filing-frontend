@@ -16,7 +16,7 @@
 
 package controllers
 
-import controllers.actions._
+import controllers.actions.*
 import forms.TotalPurchaseAmountBeforeVatFormProvider
 
 import javax.inject.Inject
@@ -82,7 +82,9 @@ class TotalPurchaseAmountBeforeVatController @Inject() (
 
   private def humanizeName(name: String): String = {
     // split camelCase or words and capitalise each
-    name.replaceAll("([a-z])([A-Z])", "$1 $2").split("[ _-]+")
+    name
+      .replaceAll("([a-z])([A-Z])", "$1 $2")
+      .split("[ _-]+")
       .filter(_.nonEmpty)
       .map(s => s.head.toUpper.toString + s.tail)
       .mkString(" ")

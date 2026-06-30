@@ -18,7 +18,7 @@ package controllers
 
 import base.SpecBase
 import forms.PurchaseTypeFormProvider
-import models.{NormalMode, CheckMode, PurchaseType}
+import models.{CheckMode, NormalMode, PurchaseType}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
@@ -78,7 +78,10 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         val form = formProvider()
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode))(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode))(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
