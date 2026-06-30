@@ -231,9 +231,9 @@ checkYourClaimDetails.contactEmail.subLabel = Email address
 checkYourClaimDetails.contactPhone.subLabel = Phone number
 checkYourClaimDetails.businessActivity.label = Business activity
 checkYourClaimDetails.businessActivity.change.hidden = business activity
-checkYourClaimDetails.businessActivity.subLabel = First SIC Code
-checkYourClaimDetails.businessActivity2.subLabel = Second SIC Code
-checkYourClaimDetails.businessActivity3.subLabel = Third SIC Code
+checkYourClaimDetails.businessActivity.subLabel = First SIC code
+checkYourClaimDetails.businessActivity2.subLabel = Second SIC code
+checkYourClaimDetails.businessActivity3.subLabel = Third SIC code
 checkYourClaimDetails.businessActivity1.view.hidden = First SIC code
 checkYourClaimDetails.businessActivity2.change.hidden = Second SIC code
 checkYourClaimDetails.businessActivity3.change.hidden = Third SIC code
@@ -284,7 +284,7 @@ totalPurchaseAmountBeforeVat.change.hidden = Total purchase amount before VAT
 
 totalPurchaseAmountBeforeVat.error.nonNumeric = Enter the total purchase amount before VAT in the correct format
 totalPurchaseAmountBeforeVat.error.required = Enter the total purchase amount before VAT
-totalPurchaseAmountBeforeVat.error.aboveMaximum = Total purchase amount before VAT must be between -999,999,999 and 999,999,999
+totalPurchaseAmountBeforeVat.error.aboveMaximum = Total purchase amount before VAT must be between -999,999,999.99 and 999,999,999.99
 totalPurchaseAmountBeforeVat.error.invalidNumeric = Enter the total purchase amount before VAT in the correct format
 
 totalVatPaid.title = Total VAT paid
@@ -296,7 +296,7 @@ totalVatPaid.hint = For example, {0}150 or {0}120.45
 totalVatPaid.error.required = Enter total VAT paid
 totalVatPaid.error.invalidNumeric = Enter total VAT paid in the correct format
 totalVatPaid.error.nonNumeric = Enter total VAT paid in the correct format
-totalVatPaid.error.aboveMaximum = Total VAT paid must be between -999,999,999 and 999,999,999
+totalVatPaid.error.aboveMaximum = Total VAT paid must be between -999,999,999.99 and 999,999,999.99
 
 supplierAddress.title = What is the supplier’s address?
 supplierAddress.heading = What is the supplier’s address?

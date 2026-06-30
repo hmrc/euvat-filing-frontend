@@ -25,7 +25,7 @@
 
 @(sections: Seq[(String, SummaryList)])(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("checkYourClaimDetails.title"))) {
+@layout(pageTitle = titleNoForm(messages("checkYourClaimDetails.title")), showBackLink = false) {
     <h1 class="govuk-heading-l">@messages("checkYourClaimDetails.heading")</h1>
     <p class="govuk-body">@messages("checkYourClaimDetails.paragraph")</p><br/>
 
