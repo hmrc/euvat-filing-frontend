@@ -119,7 +119,10 @@ class BusinessActivityCodeThreeController @Inject() (
               for {
                 updatedAnswers <- Future.fromTry(baseAnswers.set(BusinessActivityCodeThreePage, value))
                 _              <- sessionRepository.set(updatedAnswers)
-              } yield Redirect(navigator.nextPage(BusinessActivityCodeThreePage, mode, updatedAnswers))
+              } yield mode match {
+                case CheckMode  => Redirect(routes.CheckYourClaimDetailsController.onPageLoad())
+                case NormalMode => Redirect(navigator.nextPage(BusinessActivityCodeThreePage, mode, updatedAnswers))
+              }
           }
         }
       )

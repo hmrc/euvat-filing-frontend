@@ -240,7 +240,7 @@ checkYourClaimDetails.businessActivity3.subLabel = Third SIC code
 checkYourClaimDetails.businessActivity1.view.hidden = First SIC code
 checkYourClaimDetails.businessActivity2.change.hidden = Second SIC code
 checkYourClaimDetails.businessActivity3.change.hidden = Third SIC code
-checkYourClaimDetails.paragraph = You cannot change the refunding EU member state after your save and continue.
+checkYourClaimDetails.paragraph = You cannot change the refunding EU member state after you save and continue.
 
 aboutThePurchase.title = About the purchase
 aboutThePurchase.heading = About the purchase

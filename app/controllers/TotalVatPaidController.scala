@@ -16,7 +16,7 @@
 
 package controllers
 
-import controllers.actions._
+import controllers.actions.*
 import forms.TotalVatPaidFormProvider
 
 import javax.inject.Inject
@@ -33,7 +33,7 @@ import views.html.TotalVatPaidView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class TotalVatPaidController @Inject()(
+class TotalVatPaidController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
   navigator: Navigator,
@@ -93,15 +93,19 @@ class TotalVatPaidController @Inject()(
       case None => defaultSymbol
       case Some(countryCode) =>
         userAnswers.get(RefundingCurrencyPage) match {
-            case Some(currencyCode) =>
-            configCurrencyMapping.currenciesFor(countryCode).find(_._2 == currencyCode).map(_._3).getOrElse(configCurrencyMapping.currenciesFor(countryCode).headOption.map(_._3).getOrElse(defaultSymbol))
+          case Some(currencyCode) =>
+            configCurrencyMapping
+              .currenciesFor(countryCode)
+              .find(_._2 == currencyCode)
+              .map(_._3)
+              .getOrElse(configCurrencyMapping.currenciesFor(countryCode).headOption.map(_._3).getOrElse(defaultSymbol))
           case None =>
             configCurrencyMapping.currenciesFor(countryCode).headOption.map(_._3).getOrElse(defaultSymbol)
         }
     }
   }
 
-  private def resolveCurrency(userAnswers: models.UserAnswers)(implicit request: play.api.mvc.Request[_]): (String, String) = {
+  private def resolveCurrency(userAnswers: models.UserAnswers)(implicit request: play.api.mvc.Request[?]): (String, String) = {
     val maybeCountry = userAnswers.get(pages.RefundingCountryPage).orElse {
       userAnswers.get(pages.RefundingCountryNamePage).map { stored =>
         stored.split(",", 2).headOption.getOrElse(stored)
@@ -116,7 +120,9 @@ class TotalVatPaidController @Inject()(
       case Some(countryCode) =>
         val selection = userAnswers.get(RefundingCurrencyPage) match {
           case Some(currencyCode) =>
-            configCurrencyMapping.currenciesFor(countryCode).find(_._2 == currencyCode)
+            configCurrencyMapping
+              .currenciesFor(countryCode)
+              .find(_._2 == currencyCode)
               .orElse(configCurrencyMapping.currenciesFor(countryCode).headOption)
           case None =>
             configCurrencyMapping.currenciesFor(countryCode).headOption
@@ -124,13 +130,15 @@ class TotalVatPaidController @Inject()(
 
         selection match {
           case Some((name, _code, symbol)) => (humanizeName(name), symbol)
-          case _ => (defaultName, defaultSymbol)
+          case _                           => (defaultName, defaultSymbol)
         }
     }
   }
 
   private def humanizeName(name: String): String = {
-    name.replaceAll("([a-z])([A-Z])", "$1 $2").split("[ _-]+")
+    name
+      .replaceAll("([a-z])([A-Z])", "$1 $2")
+      .split("[ _-]+")
       .filter(_.nonEmpty)
       .map(s => s.head.toUpper.toString + s.tail)
       .mkString(" ")
