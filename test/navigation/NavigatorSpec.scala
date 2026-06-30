@@ -175,9 +175,9 @@ class NavigatorSpec extends SpecBase {
           routes.TotalVatClaimController.onPageLoad(NormalMode)
       }
 
-      "must go from TotalVatClaimPage to PurchaseTypeController" in {
+      "must go from TotalVatClaimPage to JourneyRecoveryController" in {
         navigator.nextPage(TotalVatClaimPage, NormalMode, userAnswers) mustBe
-          routes.PurchaseTypeController.onPageLoad(NormalMode)
+          routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from SimplifiedInvoiceVatRegCheckPage to TotalPurchaseAmountBeforeVatController if no selected" in {
@@ -320,9 +320,9 @@ class NavigatorSpec extends SpecBase {
           routes.TotalVatClaimController.onPageLoad(CheckMode)
       }
 
-      "must go from TotalVatClaimPage to CheckYourClaimDetailsController in CheckMode" in {
+      "must go from TotalVatClaimPage to JourneyRecoveryController in CheckMode" in {
         navigator.nextPage(TotalVatClaimPage, CheckMode, userAnswers) mustBe
-          routes.CheckYourClaimDetailsController.onPageLoad()
+          routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from SimplifiedInvoiceVatRegCheckPage to TotalPurchaseAmountBeforeVatController if no selected" in {
