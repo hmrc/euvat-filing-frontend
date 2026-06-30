@@ -289,6 +289,17 @@ totalVatPaid.error.invalidNumeric = Enter total VAT paid in the correct format
 totalVatPaid.error.nonNumeric = Enter total VAT paid in the correct format
 totalVatPaid.error.aboveMaximum = Total VAT paid must be between -999,999,999.99 and 999,999,999.99
 
+totalVatClaim.title = Total VAT claim
+totalVatClaim.heading = Total VAT claim
+totalVatClaim.p1 = This is the amount of VAT you are entitled to claim back. It may be less than the amount you paid.
+totalVatClaim.h2 = How much VAT are you claiming?
+totalVatClaim.hint = For example, {0}150 or {0}120.45
+totalVatClaim.error.required = Enter the total amount of VAT you’re claiming
+totalVatClaim.error.invalidNumeric = Total VAT claim must be 15 numbers or less
+totalVatClaim.error.nonNumeric =  Enter total VAT claim in the correct format
+totalVatClaim.error.invalidNumeric = Enter total VAT claim in the correct format
+totalVatClaim.error.aboveMaximum = Total VAT claim must be between -999,999,999.99 and 999,999,999.99
+
 supplierAddress.title = What is the supplier’s address?
 supplierAddress.heading = What is the supplier’s address?
 supplierAddress.lead = Enter the supplier’s address as it appears on the invoice or receipt.
@@ -346,14 +357,3 @@ purchaseType.foodAndDrink = Food, drink and restaurant services
 purchaseType.luxuries = Expenditure on luxuries, amusements and entertainment
 purchaseType.other = Other
 purchaseType.error.required = Select a purchase type
-
-totalVatClaim.title = Total VAT claim
-totalVatClaim.heading = Total VAT claim
-totalVatClaim.p1 = This is the amount of VAT you are entitled to claim back. It may be less than the amount you paid.
-totalVatClaim.h2 = How much VAT are you claiming?
-totalVatClaim.hint = For example, {0}150 or {0}120.45
-totalVatClaim.error.required = Enter the total amount of VAT you’re claiming
-totalVatClaim.error.invalidNumeric = Total VAT claim must be 15 numbers or less
-totalVatClaim.error.nonNumeric =  Enter total VAT claim in the correct format
-totalVatClaim.error.invalidNumeric = Enter total VAT claim in the correct format
-totalVatClaim.error.aboveMaximum = Total VAT claim must be between -999,999,999.99 and 999,999,999.99
