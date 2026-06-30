@@ -23,7 +23,6 @@ import models.responses.TraderKnownFactsResponse
 import models.{Mode, RefundPeriod}
 import navigation.Navigator
 import pages.RefundPeriodPage
-import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.*
@@ -31,8 +30,8 @@ import queries.TraderKnownFactsQuery
 import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.RefundPeriodView
 import utils.{ConfigCurrencyMapping, ConfigLanguageMapping}
+import views.html.RefundPeriodView
 
 import java.time.{LocalDate, LocalDateTime, YearMonth}
 import javax.inject.Inject
@@ -99,16 +98,17 @@ class RefundPeriodController @Inject() (
     )
   }
 
+  // Business Function F6 check
   private def isStartDateValid(startDate: LocalDateTime, regDate: LocalDateTime): (Boolean, String) = {
     val reg = YearMonth.from(regDate)
     val regMonth = reg.getMonthValue
     // Case 1: Jan–Mar rule
     if (regMonth >= 1 && regMonth <= 3) {
       // Same month/year OR after regDate (same year)
-      (startDate.equals(regDate) || startDate.isAfter(regDate), "refundPeriod.error.periodStartDateBeforeRegDate.firstQuarter")
+      (startDate.equals(regDate) || startDate.isAfter(regDate), "refundPeriod.start.error.beforeVatRegDate.firstQuarter")
     } else { // Case 2: Apr–Dec rule
       val min = regDate.minusMonths(3)
-      (!startDate.isBefore(min) || startDate.isAfter(regDate), "refundPeriod.error.periodStartDateBeforeRegDate.remainingQuarter")
+      (!startDate.isBefore(min) || startDate.isAfter(regDate), "refundPeriod.start.error.beforeVatRegDate.remainingQuarter")
     }
   }
 
@@ -145,7 +145,7 @@ class RefundPeriodController @Inject() (
                 if (!validStartDate) {
                   Some(baseForm.fill(value).withError("start", msg))
                 } else if (endDate.isAfter(deRegDate)) {
-                  Some(baseForm.fill(value).withError("end", "refundPeriod.error.periodEndDateAfterDeRegDate"))
+                  Some(baseForm.fill(value).withError("end", "refundPeriod.end.error.afterVatDeRegDate"))
                 } else {
                   None
                 }
@@ -158,7 +158,7 @@ class RefundPeriodController @Inject() (
                 }
               case (None, Some(deRegDate)) =>
                 if (endDate.isAfter(deRegDate)) {
-                  Some(baseForm.fill(value).withError("end", "refundPeriod.error.periodEndDateAfterDeRegDate"))
+                  Some(baseForm.fill(value).withError("end", "refundPeriod.end.error.afterVatDeRegDate"))
                 } else {
                   None
                 }
@@ -169,7 +169,6 @@ class RefundPeriodController @Inject() (
             maybeErrorForm match
               case Some(formWithError) => renderError(formWithError, mode)
               case None                => saveAndRedirect(traderResponse, startDate, endDate, mode)
-
           }
       )
   }

@@ -22,7 +22,7 @@ import models.responses.TraderKnownFactsResponse
 import models.{NormalMode, RefundPeriod}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.RefundPeriodPage
 import play.api.i18n.Messages
@@ -31,7 +31,7 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.EuVatRefundsService
-import models.responses.TraderKnownFactsResponse
+
 import java.time.LocalDateTime
 import scala.concurrent.Future
 
@@ -204,7 +204,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual BAD_REQUEST
-          contentAsString(result) must include(messages(application)("refundPeriod.error.periodStartDatenotAfterEndDate"))
+          contentAsString(result) must include(messages(application)("refundPeriod.error.startDateNotAfterEndDate"))
         }
       }
 
@@ -224,7 +224,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual BAD_REQUEST
-          contentAsString(result) must include(messages(application)("refundPeriod.error.periodEndDaterefundPeriodInSingleYear"))
+          contentAsString(result) must include(messages(application)("refundPeriod.error.startAndEndInSameYear"))
         }
       }
 
@@ -244,7 +244,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual BAD_REQUEST
-          contentAsString(result) must include("Refund period start date must be on or after 1 January 2024")
+          contentAsString(result) must include("Refund period start date cannot be before 1 January 2024")
         }
       }
 
@@ -264,7 +264,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual BAD_REQUEST
-          contentAsString(result) must include(messages(application)("refundPeriod.error.periodStartDateperiodNotLessThan3Months"))
+          contentAsString(result) must include(messages(application)("refundPeriod.error.periodNotLessThan3Months"))
         }
       }
 
@@ -283,7 +283,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual BAD_REQUEST
-          contentAsString(result) must include(messages(application)("refundPeriod.error.periodEndDateInvalid"))
+          contentAsString(result) must include(messages(application)("refundPeriod.end.error.inPast"))
         }
       }
 
@@ -353,46 +353,29 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual BAD_REQUEST
-          contentAsString(result) must include(messages(application)("refundPeriod.error.periodStartDateperiodNotLessThan3Months"))
+          contentAsString(result) must include(messages(application)("refundPeriod.error.periodNotLessThan3Months"))
         }
       }
 
-      "must show start-date-invalid error when start is in the future and end is in the past" in {
+      "must show end-date-invalid error when end date is in the future" in {
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
         running(application) {
           val future = java.time.YearMonth.now().plusMonths(1)
           val past = java.time.YearMonth.now().minusMonths(3)
           val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit(NormalMode).url)
             .withFormUrlEncodedBody(
-              "start.month" -> future.getMonthValue.toString,
-              "start.year"  -> future.getYear.toString,
-              "end.month"   -> past.getMonthValue.toString,
-              "end.year"    -> past.getYear.toString
+              "start.month" -> past.getMonthValue.toString,
+              "start.year"  -> past.getYear.toString,
+              "end.month"   -> future.getMonthValue.toString,
+              "end.year"    -> future.getYear.toString
             )
           val result = route(application, request).value
           status(result) mustEqual BAD_REQUEST
-          contentAsString(result) must include(messages(application)("refundPeriod.error.periodStartDateInvalid"))
+          contentAsString(result) must include(messages(application)("refundPeriod.end.error.inPast"))
         }
       }
 
-      "must show both-dates-invalid error when both dates are in the future" in {
-        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-        running(application) {
-          val future = java.time.YearMonth.now().plusMonths(1)
-          val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit(NormalMode).url)
-            .withFormUrlEncodedBody(
-              "start.month" -> future.getMonthValue.toString,
-              "start.year"  -> future.getYear.toString,
-              "end.month"   -> future.plusMonths(3).getMonthValue.toString,
-              "end.year"    -> future.plusMonths(3).getYear.toString
-            )
-          val result = route(application, request).value
-          status(result) mustEqual BAD_REQUEST
-          contentAsString(result) must include(messages(application)("refundPeriod.error.periodBothDatesInvalid"))
-        }
-      }
-
-      "must show invalid year error when year is greater than 9999" in {
+      "must show invalid start year error when year is greater than 9999" in {
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
         running(application) {
           val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit(NormalMode).url)
@@ -404,7 +387,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
             )
           val result = route(application, request).value
           status(result) mustEqual BAD_REQUEST
-          contentAsString(result) must include(messages(application)("refundPeriod.error.periodStartDateinvalidStartEndDateFormat.year"))
+          contentAsString(result) must include(messages(application)("refundPeriod.start.error.invalidDateFormat.year"))
         }
       }
 
@@ -425,7 +408,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
             val result = route(application, request).value
 
             status(result) mustEqual BAD_REQUEST
-            contentAsString(result) must include("Refund period start date must be on or after 1 January 2024")
+            contentAsString(result) must include("Refund period start date cannot be before 1 January 2024")
           }
         }
 
@@ -472,7 +455,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
             val result = route(application, request).value
 
             status(result) mustEqual BAD_REQUEST
-            contentAsString(result) must include("Refund period start date must be on or after 1 January 2023")
+            contentAsString(result) must include("Refund period start date cannot be before 1 January 2023")
           }
         }
 
@@ -626,7 +609,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
             val result = route(application, request).value
 
             status(result) mustEqual BAD_REQUEST
-            contentAsString(result) must include(messages(application)("refundPeriod.error.periodStartDateBeforeRegDate.remainingQuarter"))
+            contentAsString(result) must include(messages(application)("refundPeriod.start.error.beforeVatRegDate.remainingQuarter"))
           }
         }
 
@@ -655,7 +638,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
             val result = route(application, request).value
 
             status(result) mustEqual BAD_REQUEST
-            contentAsString(result) must include(messages(application)("refundPeriod.error.periodStartDateBeforeRegDate.firstQuarter"))
+            contentAsString(result) must include(messages(application)("refundPeriod.start.error.beforeVatRegDate.firstQuarter"))
           }
         }
 
@@ -663,7 +646,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
           when(mockService.retrieveTraderKnownFacts()(any()))
             .thenReturn(
               Future.successful(
-                TraderKnownFactsResponse(123, tradeClass = Some(baCode1), dateOfDeregistration = Some(LocalDateTime.of(2026, 5, 31, 0, 0)))
+                TraderKnownFactsResponse(123, tradeClass = Some(baCode1), dateOfDeregistration = Some(LocalDateTime.of(2026, 3, 31, 0, 0)))
               )
             )
 
@@ -676,12 +659,13 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
               .withFormUrlEncodedBody(
                 "start.month" -> "01",
                 "start.year"  -> "2026",
-                "end.month"   -> "06",
+                "end.month"   -> "05",
                 "end.year"    -> "2026"
               )
             val result = route(application, request).value
 
             status(result) mustEqual BAD_REQUEST
+            contentAsString(result) must include(messages(application)("refundPeriod.end.error.afterVatDeRegDate"))
           }
         }
 
