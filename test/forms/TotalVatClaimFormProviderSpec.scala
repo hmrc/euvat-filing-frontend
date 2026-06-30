@@ -56,8 +56,8 @@ class TotalVatClaimFormProviderSpec extends CurrencyFieldBehaviours {
     behave like currencyFieldWithMaximum(
       form,
       fieldName,
-      maximum,
-      FormError(fieldName, "totalVatClaim.error.aboveMaximum", Seq(f"${BigDecimal("-999999999.99")}%.2f", f"${BigDecimal("999999999.99")}%.2f"))
+      BigDecimal("999999999.99"),
+      FormError(fieldName, "totalVatClaim.error.aboveMaximum")
     )
 
     behave like mandatoryField(

@@ -42,11 +42,11 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  val validAnswer = 0
+  val validAnswer = BigDecimal("123.45")
 
-  lazy val totalVatClaimRoute: String = routes.TotalVatClaimController.onPageLoad().url
+  lazy val totalVatClaimRoute: String = routes.TotalVatClaimController.onPageLoad(NormalMode).url
 
-  def backLink: Call = routes.JourneyRecoveryController.onPageLoad()
+  def backLink: Call = routes.TotalVatPaidController.onPageLoad(NormalMode)
 
   "TotalVatClaim Controller" - {
 
@@ -131,7 +131,6 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must have the correct back link" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -140,7 +139,7 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) must include(routes.JourneyRecoveryController.onPageLoad().url)
+        contentAsString(result) must include(routes.TotalVatPaidController.onPageLoad(NormalMode).url)
       }
     }
 

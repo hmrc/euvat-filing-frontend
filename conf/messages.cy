@@ -275,7 +275,7 @@ totalPurchaseAmountBeforeVat.change.hidden = Total purchase amount before VAT
 
 totalPurchaseAmountBeforeVat.error.nonNumeric = Enter the total purchase amount before VAT in the correct format
 totalPurchaseAmountBeforeVat.error.required = Enter the total purchase amount before VAT
-totalPurchaseAmountBeforeVat.error.aboveMaximum = Total purchase amount before VAT must be between -999,999,999 and 999,999,999
+totalPurchaseAmountBeforeVat.error.aboveMaximum = Total purchase amount before VAT must be between -999,999,999.99 and 999,999,999.99
 totalPurchaseAmountBeforeVat.error.invalidNumeric = Enter the total purchase amount before VAT in the correct format
 
 totalVatPaid.title = Total VAT paid
@@ -287,7 +287,7 @@ totalVatPaid.hint = For example, {0}150 or {0}120.45
 totalVatPaid.error.required = Enter total VAT paid
 totalVatPaid.error.invalidNumeric = Enter total VAT paid in the correct format
 totalVatPaid.error.nonNumeric = Enter total VAT paid in the correct format
-totalVatPaid.error.aboveMaximum = Total VAT paid must be between -999,999,999 and 999,999,999
+totalVatPaid.error.aboveMaximum = Total VAT paid must be between -999,999,999.99 and 999,999,999.99
 
 supplierAddress.title = What is the supplier’s address?
 supplierAddress.heading = What is the supplier’s address?
@@ -355,5 +355,5 @@ totalVatClaim.hint = For example, {0}150 or {0}120.45
 totalVatClaim.error.required = Enter the total amount of VAT you’re claiming
 totalVatClaim.error.invalidNumeric = Total VAT claim must be 15 numbers or less
 totalVatClaim.error.nonNumeric =  Enter total VAT claim in the correct format
-totalVatClaim.error.belowMinimum = Total VAT claim must be between -999,999,999.99 and 99,999,999.99
-totalVatClaim.error.aboveMaximum = Total VAT claim must be between -999,999,999.99 and 99,999,999.99
+totalVatClaim.error.invalidNumeric = Enter total VAT claim in the correct format
+totalVatClaim.error.aboveMaximum = Total VAT claim must be between -999,999,999.99 and 999,999,999.99

@@ -49,7 +49,7 @@ class TotalVatClaimController @Inject() (
 
   val form = formProvider()
 
-  private def backLink: Call = routes.JourneyRecoveryController.onPageLoad()
+  private def backLink(mode: Mode): Call = routes.TotalVatPaidController.onPageLoad(mode)
 
   // TODO - duplicated from RefundingCurrencyController; consider extracting to a shared helper (see DTR-4294)
   private def resolveCountryCode(userAnswers: UserAnswers): Option[String] =
@@ -75,7 +75,7 @@ class TotalVatClaimController @Inject() (
       }
       .getOrElse("€")
 
-    Ok(view(preparedForm, mode, backLink, currencySymbol))
+    Ok(view(preparedForm, mode, backLink(mode), currencySymbol))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -92,7 +92,7 @@ class TotalVatClaimController @Inject() (
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink, currencySymbol))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode), currencySymbol))),
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(TotalVatClaimPage, value))

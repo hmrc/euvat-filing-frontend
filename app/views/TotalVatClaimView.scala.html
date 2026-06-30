@@ -31,11 +31,11 @@
 
 @layout(pageTitle = title(form, messages("totalVatClaim.title")), backLinkUrl = Some(call.url)) {
 
-    @formHelper(action = routes.TotalVatClaimController.onSubmit()) {
+    @formHelper(action = routes.TotalVatClaimController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @mainErrorSummary(form)
 
-        <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">@messages("totalVatClaim.caption.hidden")</span>@messages("purchase.caption.add")</h2>
+        <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">@messages("caption.hidden.text")</span>@messages("purchase.caption.add")</h2>
 
         <h1 class="govuk-heading-l">@messages("totalVatClaim.heading")</h1>
 
