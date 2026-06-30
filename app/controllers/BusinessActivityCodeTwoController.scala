@@ -115,9 +115,12 @@ class BusinessActivityCodeTwoController @Inject() (
               updatedAnswer1 <- Future.fromTry(baseAnswers.set(BusinessActivityCodeTwoPage, value))
               updatedAnswers <- Future.fromTry(updatedAnswer1.remove(pages.BusinessActivityThreePage))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield
-              if (page3.contains("ba3Page")) Redirect(routes.BusinessActivityThreeController.onPageLoad().url)
-              else Redirect(routes.BusinessActivityTwoController.onPageLoad(NormalMode).url)
+            } yield mode match {
+              case models.CheckMode => Redirect(routes.CheckYourClaimDetailsController.onPageLoad())
+              case models.NormalMode =>
+                if (page3.contains("ba3Page")) Redirect(routes.BusinessActivityThreeController.onPageLoad().url)
+                else Redirect(routes.BusinessActivityTwoController.onPageLoad(NormalMode).url)
+            }
           } else if (ba1.contains(value) || ba3.contains(value)) {
             val from = if (ba3.contains(value)) "Business activity 3" else "Business activity 1"
             val duplicateForm = form.withError("value", "businessActivityCodeTwo.error.duplicate", from, value)
@@ -127,9 +130,12 @@ class BusinessActivityCodeTwoController @Inject() (
               updatedAnswer1 <- Future.fromTry(baseAnswers.set(BusinessActivityCodeTwoPage, value))
               updatedAnswers <- Future.fromTry(updatedAnswer1.remove(pages.BusinessActivityThreePage))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield
-              if (page3.contains("ba3Page")) Redirect(routes.BusinessActivityThreeController.onPageLoad().url)
-              else Redirect(routes.BusinessActivityTwoController.onPageLoad(NormalMode).url)
+            } yield mode match {
+              case models.CheckMode => Redirect(routes.CheckYourClaimDetailsController.onPageLoad())
+              case models.NormalMode =>
+                if (page3.contains("ba3Page")) Redirect(routes.BusinessActivityThreeController.onPageLoad().url)
+                else Redirect(routes.BusinessActivityTwoController.onPageLoad(NormalMode).url)
+            }
           }
         }
       )
