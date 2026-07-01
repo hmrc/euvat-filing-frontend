@@ -120,7 +120,7 @@ class BusinessActivityCodeThreeController @Inject() (
                 updatedAnswers <- Future.fromTry(baseAnswers.set(BusinessActivityCodeThreePage, value))
                 _              <- sessionRepository.set(updatedAnswers)
               } yield mode match {
-                case CheckMode  => Redirect(routes.CheckYourClaimDetailsController.onPageLoad())
+                case CheckMode => Redirect(routes.BusinessActivityThreeController.onPageLoad())
                 case NormalMode => Redirect(navigator.nextPage(BusinessActivityCodeThreePage, mode, updatedAnswers))
               }
           }

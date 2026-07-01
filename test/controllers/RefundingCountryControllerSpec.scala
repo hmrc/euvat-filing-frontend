@@ -54,8 +54,8 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         val backUrl = application.configuration.get[String]("urls.loginContinue") + controllers.routes.TaskListDashboardController.onPageLoad().url
         body must not include s"href=\"$backUrl\""
         body mustEqual view(form, countries, controllers.routes.TaskListDashboardController.onPageLoad(), models.NormalMode)(request,
-                                                                                                                             messages(application)
-                                                                                                                            ).toString
+          messages(application)
+        ).toString
       }
     }
 
@@ -94,8 +94,8 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         val backUrl = application.configuration.get[String]("urls.loginContinue") + controllers.routes.TaskListDashboardController.onPageLoad().url
         body must not include s"href=\"$backUrl\""
         body mustEqual view(form, countries, controllers.routes.TaskListDashboardController.onPageLoad(), models.NormalMode)(request,
-                                                                                                                             messages(application)
-                                                                                                                            ).toString
+          messages(application)
+        ).toString
       }
     }
 
@@ -213,8 +213,8 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         val backUrl = application.configuration.get[String]("urls.loginContinue") + controllers.routes.TaskListDashboardController.onPageLoad().url
         body must not include s"href=\"$backUrl\""
         body mustEqual view(form, countries, controllers.routes.TaskListDashboardController.onPageLoad(), models.NormalMode)(request,
-                                                                                                                             messages(application)
-                                                                                                                            ).toString
+          messages(application)
+        ).toString
       }
 
     }
@@ -242,8 +242,8 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         val backUrl = application.configuration.get[String]("urls.loginContinue") + controllers.routes.TaskListDashboardController.onPageLoad().url
         body must not include s"href=\"$backUrl\""
         body mustEqual view(form, countries, controllers.routes.TaskListDashboardController.onPageLoad(), models.NormalMode)(request,
-                                                                                                                             messages(application)
-                                                                                                                            ).toString
+          messages(application)
+        ).toString
       }
     }
 
@@ -309,7 +309,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must auto-set currency when country has single currency" in {
+    "must auto-set currency when country has single language and single currency" in {
       val mockSessionRepository = mock[repositories.SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn scala.concurrent.Future.successful(true)
 
@@ -319,7 +319,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
-          .withFormUrlEncodedBody(("value", "DE"))
+          .withFormUrlEncodedBody(("value", "CZ"))
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
@@ -328,47 +328,46 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
         val saved = captor.getValue
-        saved.get(pages.RefundingCurrencyPage) mustBe Some("EUR")
+        saved.get(pages.RefundingCurrencyPage) mustBe Some("CZK")
+      }
+    }
+
+    "must return a Bad Request and errors when invalid data is submitted" in {
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
+          .withFormUrlEncodedBody(("value", ""))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual BAD_REQUEST
+
+        val body = contentAsString(result)
+        body must include(messages(application)("refundingCountry.error.required"))
+        body must include(messages(application)("refundingCountry.error.summary"))
+
+        // typed-but-unmatched input should show invalid message
+        val typedRequest = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
+          .withFormUrlEncodedBody(("value", ""), ("valueTyped", "NotACountry"))
+
+        val typedResult = route(application, typedRequest).value
+        status(typedResult) mustEqual BAD_REQUEST
+        val typedBody = contentAsString(typedResult)
+        typedBody must include(messages(application)("refundingCountry.error.invalid"))
+        typedBody must include(messages(application)("refundingCountry.error.invalid.summary"))
+
+        // non-existent code should also show invalid message
+        val rawInvalidRequest = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
+          .withFormUrlEncodedBody(("value", "ZZ"))
+
+        val rawInvalidResult = route(application, rawInvalidRequest).value
+        status(rawInvalidResult) mustEqual BAD_REQUEST
+        val rawInvalidBody = contentAsString(rawInvalidResult)
+        rawInvalidBody must include(messages(application)("refundingCountry.error.invalid"))
+        rawInvalidBody must include(messages(application)("refundingCountry.error.invalid.summary"))
       }
     }
   }
-
-  "must return a Bad Request and errors when invalid data is submitted" in {
-
-    val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-
-    running(application) {
-      val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
-        .withFormUrlEncodedBody(("value", ""))
-
-      val result = route(application, request).value
-
-      status(result) mustEqual BAD_REQUEST
-
-      val body = contentAsString(result)
-      body must include(messages(application)("refundingCountry.error.required"))
-      body must include(messages(application)("refundingCountry.error.summary"))
-
-      // typed-but-unmatched input should show invalid message
-      val typedRequest = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
-        .withFormUrlEncodedBody(("value", ""), ("valueTyped", "NotACountry"))
-
-      val typedResult = route(application, typedRequest).value
-      status(typedResult) mustEqual BAD_REQUEST
-      val typedBody = contentAsString(typedResult)
-      typedBody must include(messages(application)("refundingCountry.error.invalid"))
-      typedBody must include(messages(application)("refundingCountry.error.invalid.summary"))
-
-      // non-existent code should also show invalid message
-      val rawInvalidRequest = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
-        .withFormUrlEncodedBody(("value", "ZZ"))
-
-      val rawInvalidResult = route(application, rawInvalidRequest).value
-      status(rawInvalidResult) mustEqual BAD_REQUEST
-      val rawInvalidBody = contentAsString(rawInvalidResult)
-      rawInvalidBody must include(messages(application)("refundingCountry.error.invalid"))
-      rawInvalidBody must include(messages(application)("refundingCountry.error.invalid.summary"))
-    }
-  }
-
 }
