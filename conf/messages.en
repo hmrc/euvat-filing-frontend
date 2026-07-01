@@ -47,8 +47,8 @@ claim.caption.add = Claim details
 caption.hidden.text = This section is:
 purchase.caption.add = Purchase details
 
-taskListDashboard.title = Make an EU VAT claim
-taskListDashboard.heading = Make an EU VAT claim
+taskListDashboard.title = Make a claim for an EU VAT refund
+taskListDashboard.heading = Make a claim for an EU VAT refund
 taskListDashboard.listItem1 = Add claim details
 taskListDashboard.listItem2 = Add a purchase
 taskListDashboard.listItem3 = Add an import
@@ -57,7 +57,7 @@ taskListDashboard.listItem5 = Add bank details
 taskListDashboard.listItem6 = Submit claim
 taskListDashboard.status1 = Not yet started
 taskListDashboard.status2 = Cannot start yet
-taskListDashboard.dashboardLink = Go to the claims dashboard
+taskListDashboard.dashboardLink = Return to Claim an EU VAT refund
 taskListDashboard.errorSummary1 = There is a problem
 taskListDashboard.errorSummary2 = Select add claim details to start a claim
 
