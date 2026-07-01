@@ -17,24 +17,23 @@
 @import views.html.components.*
 
 @this(
-    layout: templates.Layout,
-    govukSummaryList: GovukSummaryList,
-    formHelper: FormWithCSRF,
-    govukButton: GovukButton
+layout: templates.Layout,
+formHelper: FormWithCSRF,
+govukButton: GovukButton,
+customSummaryList: views.html.components.CustomSummaryList
 )
 
-@(sections: Seq[(String, SummaryList)])(implicit request: Request[_], messages: Messages)
+@(sections: Seq[(String, Seq[(String, Option[String], Seq[(String, String, String)])])])(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("checkYourClaimDetails.title")), showBackLink = false) {
     <h1 class="govuk-heading-l">@messages("checkYourClaimDetails.heading")</h1>
     <p class="govuk-body">@messages("checkYourClaimDetails.paragraph")</p><br/>
 
     @formHelper(action = routes.CheckYourClaimDetailsController.onSubmit(), Symbol("autoComplete") -> "off") {
-        @for((labelKey, summary) <- sections) {
+        @for((labelKey, rows) <- sections) {
             <div class="govuk-!-margin-bottom-9">
-                <h2 class="govuk-heading-m govuk-!-margin-bottom-2">@messages(labelKey)
-                </h2>
-                @govukSummaryList(summary.copy(classes = "govuk-summary-list govuk-!-margin-bottom-0"))
+                <h2 class="govuk-heading-m govuk-!-margin-bottom-2">@messages(labelKey)</h2>
+                @customSummaryList(rows)
             </div>
         }
 

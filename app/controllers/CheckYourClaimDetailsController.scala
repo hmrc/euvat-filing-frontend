@@ -22,13 +22,10 @@ import models.UserAnswers
 import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.govukfrontend.views.Aliases.SummaryList
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.checkAnswers.CheckYourClaimDetailsSummary
 import utils.{ConfigCurrencyMapping, ConfigLanguageMapping}
 import views.html.CheckYourClaimDetailsView
-import viewmodels.govuk.summarylist.*
 
 class CheckYourClaimDetailsController @Inject() (
   override val messagesApi: MessagesApi,
@@ -53,7 +50,7 @@ class CheckYourClaimDetailsController @Inject() (
     Redirect(controllers.routes.TaskListDashboardController.onPageLoad())
   }
 
-  private def buildSummaryList(answers: UserAnswers)(implicit messages: Messages): Seq[(String, SummaryList)] = {
+  private def buildSummaryList(answers: UserAnswers)(implicit messages: Messages): Seq[(String, Seq[(String, Option[String], Seq[(String, String, String)])])] = {
 
     val maybeCountryCode = answers.get(pages.RefundingCountryPage).orElse {
       answers.get(pages.RefundingCountryNamePage).map { stored =>
@@ -70,59 +67,27 @@ class CheckYourClaimDetailsController @Inject() (
           .getOrElse(code)
       }
 
-    val languageSection: Seq[(String, SummaryList)] =
+    val languageSection: Seq[(String, Seq[(String, Option[String], Seq[(String, String, String)])])] =
       maybeCountryCode match {
         case Some(code) if configLanguageMapping.languagesFor(code).size > 1 =>
-          Seq(
-            (
-              "checkYourClaimDetails.refundingLanguage.label",
-              SummaryListViewModel(Seq(CheckYourClaimDetailsSummary.rowLanguage(answers)).flatten)
-            )
-          )
+          Seq(("checkYourClaimDetails.refundingLanguage.label", Seq(CheckYourClaimDetailsSummary.rowLanguage(answers)).flatten))
         case _ => Seq.empty
       }
 
-    val currencySection: Seq[(String, SummaryList)] =
+    val currencySection: Seq[(String, Seq[(String, Option[String], Seq[(String, String, String)])])] =
       maybeCountryCode match {
         case Some(code) if configCurrencyMapping.requiresCurrencySelection(code) =>
-          Seq(
-            (
-              "checkYourClaimDetails.refundingCurrency.label",
-              SummaryListViewModel(Seq(CheckYourClaimDetailsSummary.rowCurrency(maybeCurrencyDisplayName)).flatten)
-            )
-          )
+          Seq(("checkYourClaimDetails.refundingCurrency.label", Seq(CheckYourClaimDetailsSummary.rowCurrency(maybeCurrencyDisplayName)).flatten))
         case _ => Seq.empty
       }
 
-    Seq(
-      (
-        "checkYourClaimDetails.refundingCountry.label",
-        SummaryListViewModel(Seq(CheckYourClaimDetailsSummary.rowCountry(answers)).flatten)
-      )
-    ) ++
+    Seq(("checkYourClaimDetails.refundingCountry.label", Seq(CheckYourClaimDetailsSummary.rowCountry(answers)).flatten)) ++
       languageSection ++
       currencySection ++
       Seq(
-        (
-          "checkYourClaimDetails.refundingPeriod.label",
-          SummaryListViewModel(Seq(CheckYourClaimDetailsSummary.rowRefundStart(answers), CheckYourClaimDetailsSummary.rowRefundEnd(answers)).flatten)
-        ),
-        (
-          "checkYourClaimDetails.contactDetails.label",
-          SummaryListViewModel(
-            Seq(CheckYourClaimDetailsSummary.rowContactEmail(answers), CheckYourClaimDetailsSummary.rowContactPhone(answers)).flatten
-          )
-        ),
-        (
-          "checkYourClaimDetails.businessActivity.label",
-          SummaryListViewModel(
-            Seq(
-              CheckYourClaimDetailsSummary.rowBusinessActivity(answers),
-              CheckYourClaimDetailsSummary.rowBusinessActivity2(answers),
-              CheckYourClaimDetailsSummary.rowBusinessActivity3(answers)
-            ).flatten
-          )
-        )
+        ("checkYourClaimDetails.refundingPeriod.label", Seq(CheckYourClaimDetailsSummary.rowRefundStart(answers), CheckYourClaimDetailsSummary.rowRefundEnd(answers)).flatten),
+        ("checkYourClaimDetails.contactDetails.label", Seq(CheckYourClaimDetailsSummary.rowContactEmail(answers), CheckYourClaimDetailsSummary.rowContactPhone(answers)).flatten),
+        ("checkYourClaimDetails.businessActivity.label", Seq(CheckYourClaimDetailsSummary.rowBusinessActivity(answers), CheckYourClaimDetailsSummary.rowBusinessActivity2(answers), CheckYourClaimDetailsSummary.rowBusinessActivity3(answers)).flatten)
       )
   }
 }
