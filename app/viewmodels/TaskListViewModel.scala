@@ -60,19 +60,19 @@ class TaskListViewModel @Inject() () {
     val addImportItem = TaskListItem(
       title  = TaskListItemTitle(content = Text(messages("taskListDashboard.listItem3"))),
       status = if (claimDetailsDone) notStartedStatus else cannotStartStatus,
-      href = if (claimDetailsDone) Some(controllers.routes.JourneyRecoveryController.onPageLoad().url) else None
+      href = if (claimDetailsDone) Some("#") else None
     )
 
     val addSupportingDocsItem = TaskListItem(
       title  = TaskListItemTitle(content = Text(messages("taskListDashboard.listItem4"))),
       status = if (claimDetailsDone) notStartedStatus else cannotStartStatus,
-      href = if (claimDetailsDone) Some(controllers.routes.JourneyRecoveryController.onPageLoad().url) else None
+      href = if (claimDetailsDone) Some("#") else None
     )
 
     val addBankDetailsItem = TaskListItem(
       title  = TaskListItemTitle(content = Text(messages("taskListDashboard.listItem5"))),
       status = if (claimDetailsDone) notStartedStatus else cannotStartStatus,
-      href = if (claimDetailsDone) Some(controllers.routes.JourneyRecoveryController.onPageLoad().url) else None
+      href = if (claimDetailsDone) Some("#") else None
     )
 
     val submitClaimItem = TaskListItem(
