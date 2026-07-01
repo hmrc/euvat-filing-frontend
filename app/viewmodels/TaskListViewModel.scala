@@ -26,6 +26,9 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.tasklist.{TaskList, TaskListIt
 
 class TaskListViewModel @Inject() () {
 
+  def showDeleteLink(answers: UserAnswers): Boolean =
+    answers.get(ClaimDetailsCompletedPage).contains(true)
+
   def buildTaskList(answers: UserAnswers)(implicit messages: Messages): TaskList = {
     val claimDetailsDone = answers.get(ClaimDetailsCompletedPage).contains(true)
 

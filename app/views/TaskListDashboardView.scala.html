@@ -23,15 +23,21 @@
   govukTaskList : GovukTaskList
 )
 
-@(taskList: uk.gov.hmrc.govukfrontend.views.viewmodels.tasklist.TaskList)(implicit request: Request[_], messages: Messages)
+@(taskList: uk.gov.hmrc.govukfrontend.views.viewmodels.tasklist.TaskList, showDeleteLink: Boolean)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("taskListDashboard.title")), showBackLink = false) {
 
   <h1 class="govuk-heading-l">@messages("taskListDashboard.heading")</h1>
 
-  @govukTaskList(taskList)
+    @govukTaskList(taskList)
 
-  <p class="govuk-body">
-   <a href="@controllers.routes.TaskListDashboardController.redirectToManageClaim().url" class="govuk-link" >@messages("taskListDashboard.dashboardLink")</a>
-  </p>
+    @if(showDeleteLink) {
+    <p class="govuk-body">
+        <a href="@controllers.routes.JourneyRecoveryController.onPageLoad().url" class="govuk-link">@messages("taskListDashboard.deleteLink")</a>
+    </p>
+    }
+
+    <p class="govuk-body">
+       <a href="@controllers.routes.TaskListDashboardController.redirectToManageClaim().url" class="govuk-link" >@messages("taskListDashboard.dashboardLink")</a>
+    </p>
 }

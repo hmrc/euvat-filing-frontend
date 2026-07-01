@@ -137,5 +137,17 @@ class TaskListViewModelSpec extends SpecBase {
       val taskList = viewModel.buildTaskList(emptyUserAnswers)
       taskList.idPrefix mustEqual "make-eu-vat-claim"
     }
+
+    "showDeleteLink" - {
+
+      "must return false when claim details are not completed" in {
+        viewModel.showDeleteLink(emptyUserAnswers) mustBe false
+      }
+
+      "must return true when claim details are completed" in {
+        val answers = emptyUserAnswers.set(ClaimDetailsCompletedPage, true).success.value
+        viewModel.showDeleteLink(answers) mustBe true
+      }
+    }
   }
 }

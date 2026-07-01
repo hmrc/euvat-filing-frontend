@@ -47,7 +47,8 @@ class TaskListDashboardController @Inject() (
     implicit val messages: Messages = messagesApi.preferred(request)
     val originalAnswers = request.userAnswers.getOrElse(UserAnswers(request.userId))
     val taskList = taskListViewModel.buildTaskList(originalAnswers)
-    sessionRepository.set(originalAnswers).map(_ => Ok(view(taskList)))
+    val deleteLink = taskListViewModel.showDeleteLink(originalAnswers)
+    sessionRepository.set(originalAnswers).map(_ => Ok(view(taskList, deleteLink)))
   }
 
   // Clear session before calling the manage frontend
