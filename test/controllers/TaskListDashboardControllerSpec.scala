@@ -171,5 +171,41 @@ class TaskListDashboardControllerSpec extends SpecBase with MockitoSugar {
         redirectLocation(result).value mustEqual config.claimDashboardUrl
       }
     }
+
+    "must show delete link when claim details are completed" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val userAnswers = emptyUserAnswers.set(ClaimDetailsCompletedPage, true).success.value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.TaskListDashboardController.onPageLoad().url)
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) must include(messages(application)("taskListDashboard.deleteLink"))
+      }
+    }
+
+    "must not show delete link when claim details are not completed" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.TaskListDashboardController.onPageLoad().url)
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) must not include messages(application)("taskListDashboard.deleteLink")
+      }
+    }
   }
 }
