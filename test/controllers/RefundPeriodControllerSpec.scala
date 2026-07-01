@@ -22,7 +22,7 @@ import models.responses.TraderKnownFactsResponse
 import models.{NormalMode, RefundPeriod}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.RefundPeriodPage
 import play.api.i18n.Messages
