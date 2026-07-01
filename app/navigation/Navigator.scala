@@ -33,19 +33,20 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
   }
 
   private val normalRoutes: Page => UserAnswers => Call = {
-    case RefundingCountryPage             => userAnswers =>
-      val maybeCountryCode = userAnswers.get(pages.RefundingCountryPage).orElse {
-        userAnswers.get(pages.RefundingCountryNamePage).map { stored =>
-          stored.split(",", 2).headOption.getOrElse(stored)
+    case RefundingCountryPage =>
+      userAnswers =>
+        val maybeCountryCode = userAnswers.get(pages.RefundingCountryPage).orElse {
+          userAnswers.get(pages.RefundingCountryNamePage).map { stored =>
+            stored.split(",", 2).headOption.getOrElse(stored)
+          }
         }
-      }
 
-      maybeCountryCode match {
-        case Some(code) if configLanguageMapping.languagesFor(code).size <= 1 =>
-          if (configCurrencyMapping.requiresCurrencySelection(code)) routes.RefundingCurrencyController.onPageLoad(NormalMode)
-          else routes.RefundPeriodController.onPageLoad(NormalMode)
-        case _ => routes.RefundingLanguageController.onPageLoad(NormalMode)
-      }
+        maybeCountryCode match {
+          case Some(code) if configLanguageMapping.languagesFor(code).size <= 1 =>
+            if (configCurrencyMapping.requiresCurrencySelection(code)) routes.RefundingCurrencyController.onPageLoad(NormalMode)
+            else routes.RefundPeriodController.onPageLoad(NormalMode)
+          case _ => routes.RefundingLanguageController.onPageLoad(NormalMode)
+        }
     case RefundingLanguagePage            => userAnswers => navigateFromRefundingLanguagePage(NormalMode)(userAnswers)
     case RefundingCurrencyPage            => _ => routes.RefundPeriodController.onPageLoad(NormalMode)
     case RefundPeriodPage                 => _ => routes.ContactDetailsController.onPageLoad(NormalMode)
@@ -63,23 +64,25 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
     case TotalPurchaseAmountBeforeVatPage => _ => routes.TotalVatPaidController.onPageLoad(NormalMode)
     case TotalVatPaidPage                 => _ => routes.PurchaseTypeController.onPageLoad(NormalMode)
     case PurchaseTypePage                 => _ => routes.JourneyRecoveryController.onPageLoad()
+    case CheckYourStateDetailsPage        => userAnswer => navigateFromCheckYourStateDetailsPage(NormalMode)(userAnswer)
     case _                                => _ => routes.IndexController.onPageLoad()
   }
 
   private val checkRoutes: Page => UserAnswers => Call = {
-    case RefundingCountryPage             => userAnswers =>
-      val maybeCountryCode = userAnswers.get(pages.RefundingCountryPage).orElse {
-        userAnswers.get(pages.RefundingCountryNamePage).map { stored =>
-          stored.split(",", 2).headOption.getOrElse(stored)
+    case RefundingCountryPage =>
+      userAnswers =>
+        val maybeCountryCode = userAnswers.get(pages.RefundingCountryPage).orElse {
+          userAnswers.get(pages.RefundingCountryNamePage).map { stored =>
+            stored.split(",", 2).headOption.getOrElse(stored)
+          }
         }
-      }
 
-      maybeCountryCode match {
-        case Some(code) if configLanguageMapping.languagesFor(code).size <= 1 =>
-          if (configCurrencyMapping.requiresCurrencySelection(code)) routes.RefundingCurrencyController.onPageLoad(CheckMode)
-          else routes.CheckYourClaimDetailsController.onPageLoad()
-        case _ => routes.RefundingLanguageController.onPageLoad(CheckMode)
-      }
+        maybeCountryCode match {
+          case Some(code) if configLanguageMapping.languagesFor(code).size <= 1 =>
+            if (configCurrencyMapping.requiresCurrencySelection(code)) routes.RefundingCurrencyController.onPageLoad(CheckMode)
+            else routes.CheckYourClaimDetailsController.onPageLoad()
+          case _ => routes.RefundingLanguageController.onPageLoad(CheckMode)
+        }
     case RefundingLanguagePage            => userAnswers => navigateFromRefundingLanguagePage(CheckMode)(userAnswers)
     case RefundingCurrencyPage            => _ => routes.CheckYourClaimDetailsController.onPageLoad()
     case RefundPeriodPage                 => _ => routes.CheckYourClaimDetailsController.onPageLoad()
@@ -97,6 +100,7 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
     case TotalPurchaseAmountBeforeVatPage => _ => routes.TotalVatPaidController.onPageLoad(CheckMode)
     case TotalVatPaidPage                 => _ => routes.PurchaseTypeController.onPageLoad(CheckMode)
     case PurchaseTypePage                 => _ => routes.IndexController.onPageLoad()
+    case CheckYourStateDetailsPage        => _ => routes.CheckYourClaimDetailsController.onPageLoad()
     case _                                => _ => routes.IndexController.onPageLoad()
   }
 
@@ -110,16 +114,17 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
       case Some(countryCode) if configCurrencyMapping.requiresCurrencySelection(countryCode) =>
         mode match {
           case NormalMode => routes.RefundingCurrencyController.onPageLoad(mode)
-          case CheckMode  =>
+          case CheckMode =>
             if (userAnswers.get(pages.RefundingCurrencyPage).isDefined)
               routes.CheckYourClaimDetailsController.onPageLoad()
             else
               routes.RefundingCurrencyController.onPageLoad(mode)
         }
-      case Some(_) => mode match {
-        case NormalMode => routes.RefundPeriodController.onPageLoad(mode)
-        case CheckMode  => routes.CheckYourClaimDetailsController.onPageLoad()
-      }
+      case Some(_) =>
+        mode match {
+          case NormalMode => routes.RefundPeriodController.onPageLoad(mode)
+          case CheckMode  => routes.CheckYourClaimDetailsController.onPageLoad()
+        }
       case None =>
         routes.JourneyRecoveryController.onPageLoad()
     }
@@ -149,7 +154,7 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
 
   private def navigateFromSimplifiedInvoiceVatRegCheckPage(mode: Mode)(userAnswers: UserAnswers): Call =
     userAnswers.get(SimplifiedInvoiceVatRegCheckPage) match {
-      case Some(true)  =>
+      case Some(true) =>
         userAnswers.get(InvoiceTypePage) match {
           case Some(InvoiceType.SimplifiedInvoice) => routes.SupplierVatRegistrationNumberController.onPageLoad(mode)
           case _ => routes.TotalPurchaseAmountBeforeVatController.onPageLoad(mode)
@@ -158,4 +163,10 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
       case _           => routes.JourneyRecoveryController.onPageLoad()
     }
 
+  private def navigateFromCheckYourStateDetailsPage(mode: Mode)(userAnswers: UserAnswers): Call =
+    userAnswers.get(CheckYourStateDetailsPage) match {
+      case Some(true)  => routes.JourneyRecoveryController.onPageLoad()
+      case Some(false) => routes.CheckYourClaimDetailsController.onPageLoad()
+      case _           => routes.JourneyRecoveryController.onPageLoad()
+    }
 }
