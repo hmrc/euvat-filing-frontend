@@ -18,10 +18,9 @@ package controllers
 
 import controllers.actions.*
 import forms.BusinessActivityCodeTwoFormProvider
-import models.{NormalMode, UserAnswers}
-import models.Mode
+import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import navigation.Navigator
-import pages.{BusinessActivityCodePage, BusinessActivityCodeTwoPage, BusinessActivityCodeThreePage}
+import pages.{BusinessActivityCodePage, BusinessActivityCodeThreePage, BusinessActivityCodeTwoPage}
 import play.api.Configuration
 import play.api.data.FormError
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -64,8 +63,9 @@ class BusinessActivityCodeTwoController @Inject() (
     val keyValue = request.getQueryString("key").getOrElse("") // check if page 3 Change link clicked otherwise empty
 
     for {
-      updatedAnswer <- Future.fromTry(userAnswers.set(pages.BusinessActivityThreePage, keyValue)) // Save the click to session page (transient navigation flag)
-      _             <- sessionRepository.set(updatedAnswer)
+      updatedAnswer <-
+        Future.fromTry(userAnswers.set(pages.BusinessActivityThreePage, keyValue)) // Save the click to session page (transient navigation flag)
+      _ <- sessionRepository.set(updatedAnswer)
     } yield None
 
     val preparedForm = userAnswers.get(BusinessActivityCodeTwoPage).fold(form)(form.fill)
@@ -87,10 +87,11 @@ class BusinessActivityCodeTwoController @Inject() (
           val typed = request.body.asFormUrlEncoded.flatMap(_.get("valueTyped").flatMap(_.headOption)).getOrElse("")
           val submitted = request.body.asFormUrlEncoded.flatMap(_.get("value").flatMap(_.headOption)).getOrElse("")
 
-          val duplicateFrom = if (ba1.contains(submitted)) Some("Business activity 1")
-                              else if (ba3.contains(submitted)) Some("Business activity 3")
-                              else if (ba2.contains(submitted)) Some("Business activity 2")
-                              else None
+          val duplicateFrom =
+            if (ba1.contains(submitted)) Some("Business activity 1")
+            else if (ba3.contains(submitted)) Some("Business activity 3")
+            else if (ba2.contains(submitted)) Some("Business activity 2")
+            else None
 
           if (duplicateFrom.isDefined && duplicateFrom.get != "Business activity 2") {
             val duplicateError = FormError("value", "businessActivityCodeTwo.error.duplicate", Seq(duplicateFrom.get, submitted))
@@ -113,9 +114,14 @@ class BusinessActivityCodeTwoController @Inject() (
               updatedAnswer1 <- Future.fromTry(baseAnswers.set(BusinessActivityCodeTwoPage, value))
               updatedAnswers <- Future.fromTry(updatedAnswer1.remove(pages.BusinessActivityThreePage))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield
-              if (page3.contains("ba3Page")) Redirect(routes.BusinessActivityThreeController.onPageLoad().url)
-              else Redirect(routes.BusinessActivityTwoController.onPageLoad(NormalMode).url)
+            } yield mode match {
+              case models.CheckMode =>
+                if (ba3.isDefined) Redirect(routes.BusinessActivityThreeController.onPageLoad())
+                else Redirect(routes.BusinessActivityTwoController.onPageLoad(CheckMode))
+              case models.NormalMode =>
+                if (page3.contains("ba3Page")) Redirect(routes.BusinessActivityThreeController.onPageLoad().url)
+                else Redirect(routes.BusinessActivityTwoController.onPageLoad(NormalMode).url)
+            }
           } else if (ba1.contains(value) || ba3.contains(value)) {
             val from = if (ba3.contains(value)) "Business activity 3" else "Business activity 1"
             val duplicateForm = form.withError("value", "businessActivityCodeTwo.error.duplicate", from, value)
@@ -125,9 +131,14 @@ class BusinessActivityCodeTwoController @Inject() (
               updatedAnswer1 <- Future.fromTry(baseAnswers.set(BusinessActivityCodeTwoPage, value))
               updatedAnswers <- Future.fromTry(updatedAnswer1.remove(pages.BusinessActivityThreePage))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield
-              if (page3.contains("ba3Page")) Redirect(routes.BusinessActivityThreeController.onPageLoad().url)
-              else Redirect(routes.BusinessActivityTwoController.onPageLoad(NormalMode).url)
+            } yield mode match {
+              case models.CheckMode =>
+                if (ba3.isDefined) Redirect(routes.BusinessActivityThreeController.onPageLoad())
+                else Redirect(routes.BusinessActivityTwoController.onPageLoad(CheckMode))
+              case models.NormalMode =>
+                if (page3.contains("ba3Page")) Redirect(routes.BusinessActivityThreeController.onPageLoad().url)
+                else Redirect(routes.BusinessActivityTwoController.onPageLoad(NormalMode).url)
+            }
           }
         }
       )

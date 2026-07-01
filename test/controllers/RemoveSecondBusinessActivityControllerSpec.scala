@@ -57,7 +57,8 @@ class RemoveSecondBusinessActivityControllerSpec extends SpecBase with MockitoSu
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).overrides(bind[SessionRepository].toInstance(mockSessionRepository)).build()
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers)).overrides(bind[SessionRepository].toInstance(mockSessionRepository)).build()
 
       running(application) {
         val request = FakeRequest(POST, removeRoute).withSession("removeOrigin" -> "business-activity-2").withFormUrlEncodedBody(("value", "true"))
@@ -70,13 +71,18 @@ class RemoveSecondBusinessActivityControllerSpec extends SpecBase with MockitoSu
 
     "must re-index when 3rd exists and yes selected" in {
       val userAnswers = emptyUserAnswers
-        .set(BusinessActivityCodeTwoPage, "48120").success.value
-        .set(BusinessActivityCodeThreePage, "39200").success.value
+        .set(BusinessActivityCodeTwoPage, "48120")
+        .success
+        .value
+        .set(BusinessActivityCodeThreePage, "39200")
+        .success
+        .value
 
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).overrides(bind[SessionRepository].toInstance(mockSessionRepository)).build()
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers)).overrides(bind[SessionRepository].toInstance(mockSessionRepository)).build()
 
       running(application) {
         val request = FakeRequest(POST, removeRoute).withSession("removeOrigin" -> "business-activity-2").withFormUrlEncodedBody(("value", "true"))
@@ -89,8 +95,12 @@ class RemoveSecondBusinessActivityControllerSpec extends SpecBase with MockitoSu
 
     "must re-index and redirect to business-activity-2 when origin is business-activity-3 and yes selected" in {
       val userAnswers = emptyUserAnswers
-        .set(BusinessActivityCodeTwoPage, "48120").success.value
-        .set(BusinessActivityCodeThreePage, "39200").success.value
+        .set(BusinessActivityCodeTwoPage, "48120")
+        .success
+        .value
+        .set(BusinessActivityCodeThreePage, "39200")
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -119,8 +129,12 @@ class RemoveSecondBusinessActivityControllerSpec extends SpecBase with MockitoSu
 
     "must redirect back to business-activity-3 when no is selected and origin is business-activity-3" in {
       val userAnswers = emptyUserAnswers
-        .set(BusinessActivityCodeTwoPage, "48120").success.value
-        .set(BusinessActivityCodeThreePage, "39200").success.value
+        .set(BusinessActivityCodeTwoPage, "48120")
+        .success
+        .value
+        .set(BusinessActivityCodeThreePage, "39200")
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 

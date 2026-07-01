@@ -119,7 +119,8 @@ class RefundingLanguageController @Inject() (
                 }
               }
               Future.successful(BadRequest(view(formWithErrors, items, routes.RefundingCountryController.onPageLoad(mode), mode)))
-          },
+          }
+        ,
         value =>
           val maybeCountryCode = request.userAnswers.get(pages.RefundingCountryPage).orElse {
             request.userAnswers.get(pages.RefundingCountryNamePage).map { stored =>
@@ -133,12 +134,12 @@ class RefundingLanguageController @Inject() (
               None
           }
           for {
-            updatedAnswers  <- Future.fromTry(request.userAnswers.set(RefundingLanguagePage, value))
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(RefundingLanguagePage, value))
             updatedAnswers2 <- autoStoredCurrencyCode match {
-              case Some(currencyCode) => Future.fromTry(updatedAnswers.set(RefundingCurrencyPage, currencyCode))
-              case None               => Future.successful(updatedAnswers)
-            }
-            _               <- sessionRepository.set(updatedAnswers2)
+                                 case Some(currencyCode) => Future.fromTry(updatedAnswers.set(RefundingCurrencyPage, currencyCode))
+                                 case None               => Future.successful(updatedAnswers)
+                               }
+            _ <- sessionRepository.set(updatedAnswers2)
           } yield Redirect(navigator.nextPage(RefundingLanguagePage, mode, updatedAnswers2))
       )
   }

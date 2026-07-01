@@ -18,9 +18,9 @@ package controllers
 
 import controllers.actions.*
 import forms.RemoveBusinessActivityFormProvider
-import models.{Mode, NormalMode, CheckMode}
+import models.{CheckMode, Mode, NormalMode}
 import navigation.Navigator
-import pages._
+import pages.*
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -49,73 +49,78 @@ class RemoveThirdBusinessActivityController @Inject() (
   private def backLinkFrom(origin: Option[String], mode: Mode): Call = origin match {
     case Some("business-activity-3") => routes.BusinessActivityThreeController.onPageLoad()
     case Some("business-activity-2") => routes.BusinessActivityTwoController.onPageLoad(mode)
-    case _                              => routes.BusinessActivityThreeController.onPageLoad()
+    case _                           => routes.BusinessActivityThreeController.onPageLoad()
   }
 
   private val SessionOriginKey = "removeOrigin"
-  private val SessionModeKey   = "removeMode"
+  private val SessionModeKey = "removeMode"
 
-  private def parseOrigin(implicit request: play.api.mvc.Request[_]): Option[String] =
+  private def parseOrigin(implicit request: play.api.mvc.Request[?]): Option[String] =
     request.getQueryString("origin").orElse(request.session.get(SessionOriginKey))
 
-  private def parseMode(implicit request: play.api.mvc.Request[_]): Mode =
-    request.getQueryString("mode").orElse(request.session.get(SessionModeKey)).flatMap {
-      case "check" => Some(CheckMode)
-      case _        => None
-    }.getOrElse(NormalMode)
+  private def parseMode(implicit request: play.api.mvc.Request[?]): Mode =
+    request
+      .getQueryString("mode")
+      .orElse(request.session.get(SessionModeKey))
+      .flatMap {
+        case "check" => Some(CheckMode)
+        case _       => None
+      }
+      .getOrElse(NormalMode)
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-      val form = formProvider("removeThird.error.required")
-      val origin = parseOrigin
-      val mode = parseMode
+    val form = formProvider("removeThird.error.required")
+    val origin = parseOrigin
+    val mode = parseMode
 
-      val actionCall = Call("POST", routes.RemoveThirdBusinessActivityController.onSubmit().url)
+    val actionCall = Call("POST", routes.RemoveThirdBusinessActivityController.onSubmit().url)
 
-      val result = Ok(view(form, headingKey, actionCall, backLinkFrom(origin, mode), mode))
+    val result = Ok(view(form, headingKey, actionCall, backLinkFrom(origin, mode), mode))
 
-      val withOrigin = request.getQueryString("origin") match {
-        case Some(o) => result.addingToSession(SessionOriginKey -> o)(request)
-        case None    => result
-      }
+    val withOrigin = request.getQueryString("origin") match {
+      case Some(o) => result.addingToSession(SessionOriginKey -> o)(request)
+      case None    => result
+    }
 
-      val withMode = request.getQueryString("mode") match {
-        case Some("check") => withOrigin.addingToSession(SessionModeKey -> "check")(request)
-        case _               => withOrigin
-      }
+    val withMode = request.getQueryString("mode") match {
+      case Some("check") => withOrigin.addingToSession(SessionModeKey -> "check")(request)
+      case _             => withOrigin
+    }
 
-      withMode
+    withMode
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-      val form = formProvider("removeThird.error.required")
-      val origin = parseOrigin
-      val mode = parseMode
+    val form = formProvider("removeThird.error.required")
+    val origin = parseOrigin
+    val mode = parseMode
 
-      form
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            {
-              val actionCall = Call("POST", routes.RemoveThirdBusinessActivityController.onSubmit().url)
-              Future.successful(BadRequest(view(formWithErrors, headingKey, actionCall, backLinkFrom(origin, mode), mode)))
-            },
-          {
-            case true =>
-              val base = request.userAnswers
-              val updatedAnswers = for {
-                r1 <- Future.fromTry(base.remove(BusinessActivityCodeThreePage))
-                r2 <- Future.fromTry(r1.remove(BusinessActivityTwoPage))
-              } yield r2
+    form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => {
+          val actionCall = Call("POST", routes.RemoveThirdBusinessActivityController.onSubmit().url)
+          Future.successful(BadRequest(view(formWithErrors, headingKey, actionCall, backLinkFrom(origin, mode), mode)))
+        },
+        {
+          case true =>
+            val base = request.userAnswers
+            val updatedAnswers = for {
+              r1 <- Future.fromTry(base.remove(BusinessActivityCodeThreePage))
+              r2 <- Future.fromTry(r1.remove(BusinessActivityTwoPage))
+            } yield r2
 
-              updatedAnswers.flatMap(u => sessionRepository.set(u).map { _ =>
+            updatedAnswers.flatMap(u =>
+              sessionRepository.set(u).map { _ =>
                 // clear any stored origin/mode
                 Redirect(routes.BusinessActivityTwoController.onPageLoad(NormalMode)).removingFromSession(SessionOriginKey, SessionModeKey)(request)
-              })
+              }
+            )
 
-            case false =>
-              Future.successful(Redirect(backLinkFrom(origin, mode)))
-          }
-        )
+          case false =>
+            Future.successful(Redirect(backLinkFrom(origin, mode)))
+        }
+      )
   }
 
 }

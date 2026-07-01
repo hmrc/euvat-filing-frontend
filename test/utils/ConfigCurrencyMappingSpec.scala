@@ -37,8 +37,8 @@ class ConfigCurrencyMappingSpec extends AnyWordSpec with Matchers {
       val cfg = Configuration(ConfigFactory.parseString(confString))
       val svc = new ConfigCurrencyMapping(cfg)
 
-      svc.currenciesFor("BG") shouldBe Seq(("euro", "EUR", "€"), ("bulgarianLev", "BGN", "лв"))
-      svc.currenciesFor("AT") shouldBe Seq(("euro", "EUR", "€"))
+      svc.currenciesFor("BG")      shouldBe Seq(("euro", "EUR", "€"), ("bulgarianLev", "BGN", "лв"))
+      svc.currenciesFor("AT")      shouldBe Seq(("euro", "EUR", "€"))
       svc.currenciesFor("UNKNOWN") shouldBe Seq(("euro", "EUR", "€"))
     }
 
