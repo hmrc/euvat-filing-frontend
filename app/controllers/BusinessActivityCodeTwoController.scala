@@ -18,8 +18,7 @@ package controllers
 
 import controllers.actions.*
 import forms.BusinessActivityCodeTwoFormProvider
-import models.{NormalMode, UserAnswers}
-import models.Mode
+import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import navigation.Navigator
 import pages.{BusinessActivityCodePage, BusinessActivityCodeThreePage, BusinessActivityCodeTwoPage}
 import play.api.Configuration
@@ -116,7 +115,9 @@ class BusinessActivityCodeTwoController @Inject() (
               updatedAnswers <- Future.fromTry(updatedAnswer1.remove(pages.BusinessActivityThreePage))
               _              <- sessionRepository.set(updatedAnswers)
             } yield mode match {
-              case models.CheckMode => Redirect(routes.CheckYourClaimDetailsController.onPageLoad())
+              case models.CheckMode =>
+                if (ba3.isDefined) Redirect(routes.BusinessActivityThreeController.onPageLoad())
+                else Redirect(routes.BusinessActivityTwoController.onPageLoad(CheckMode))
               case models.NormalMode =>
                 if (page3.contains("ba3Page")) Redirect(routes.BusinessActivityThreeController.onPageLoad().url)
                 else Redirect(routes.BusinessActivityTwoController.onPageLoad(NormalMode).url)
@@ -131,7 +132,9 @@ class BusinessActivityCodeTwoController @Inject() (
               updatedAnswers <- Future.fromTry(updatedAnswer1.remove(pages.BusinessActivityThreePage))
               _              <- sessionRepository.set(updatedAnswers)
             } yield mode match {
-              case models.CheckMode => Redirect(routes.CheckYourClaimDetailsController.onPageLoad())
+              case models.CheckMode =>
+                if (ba3.isDefined) Redirect(routes.BusinessActivityThreeController.onPageLoad())
+                else Redirect(routes.BusinessActivityTwoController.onPageLoad(CheckMode))
               case models.NormalMode =>
                 if (page3.contains("ba3Page")) Redirect(routes.BusinessActivityThreeController.onPageLoad().url)
                 else Redirect(routes.BusinessActivityTwoController.onPageLoad(NormalMode).url)
