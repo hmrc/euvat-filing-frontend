@@ -60,6 +60,9 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
     case SuppliersNamePage                => _ => routes.SupplierAddressController.onPageLoad(NormalMode)
     case SupplierAddressPage              => _ => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode)
     case SimplifiedInvoiceVatRegCheckPage => userAnswer => navigateFromSimplifiedInvoiceVatRegCheckPage(NormalMode)(userAnswer)
+    case SupplierVatRegistrationNumberPage => _ => routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
+    case TotalPurchaseAmountBeforeVatPage => _ => routes.TotalVatPaidController.onPageLoad(NormalMode)
+    case TotalVatPaidPage                 => _ => routes.PurchaseTypeController.onPageLoad(NormalMode)
     case PurchaseTypePage                 => _ => routes.JourneyRecoveryController.onPageLoad()
     case _                                => _ => routes.IndexController.onPageLoad()
   }
@@ -92,6 +95,9 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
     case SuppliersNamePage                => _ => routes.SupplierAddressController.onPageLoad(CheckMode)
     case SupplierAddressPage              => _ => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(CheckMode)
     case SimplifiedInvoiceVatRegCheckPage => userAnswer => navigateFromSimplifiedInvoiceVatRegCheckPage(CheckMode)(userAnswer)
+    case SupplierVatRegistrationNumberPage => _ => routes.TotalPurchaseAmountBeforeVatController.onPageLoad(CheckMode)
+    case TotalPurchaseAmountBeforeVatPage => _ => routes.TotalVatPaidController.onPageLoad(CheckMode)
+    case TotalVatPaidPage                 => _ => routes.PurchaseTypeController.onPageLoad(CheckMode)
     case PurchaseTypePage                 => _ => routes.IndexController.onPageLoad()
     case _                                => _ => routes.IndexController.onPageLoad()
   }
@@ -149,10 +155,10 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
     userAnswers.get(SimplifiedInvoiceVatRegCheckPage) match {
       case Some(true) =>
         userAnswers.get(InvoiceTypePage) match {
-          case Some(InvoiceType.StandardInvoice) => routes.SupplierVatRegistrationNumberController.onPageLoad(mode)
-          case _                                 => routes.PurchaseTypeController.onPageLoad(mode)
+          case Some(InvoiceType.SimplifiedInvoice) => routes.SupplierVatRegistrationNumberController.onPageLoad(mode)
+          case _ => routes.TotalPurchaseAmountBeforeVatController.onPageLoad(mode)
         }
-      case Some(false) => routes.PurchaseTypeController.onPageLoad(mode)
+      case Some(false) => routes.TotalPurchaseAmountBeforeVatController.onPageLoad(mode)
       case _           => routes.JourneyRecoveryController.onPageLoad()
     }
 

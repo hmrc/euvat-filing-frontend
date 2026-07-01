@@ -251,7 +251,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar with BeforeA
           val result = route(application, request).value
 
           status(result) mustEqual BAD_REQUEST
-          contentAsString(result) must include("Refund period start date must be on or after 1 January 2024")
+          contentAsString(result) must include("Refund period start date cannot be before 1 January 2024")
         }
       }
 
@@ -417,7 +417,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar with BeforeA
             val result = route(application, request).value
 
             status(result) mustEqual BAD_REQUEST
-            contentAsString(result) must include("Refund period start date must be on or after 1 January 2024")
+            contentAsString(result) must include("Refund period start date cannot be before 1 January 2024")
           }
         }
 
@@ -466,7 +466,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar with BeforeA
             val result = route(application, request).value
 
             status(result) mustEqual BAD_REQUEST
-            contentAsString(result) must include("Refund period start date must be on or after 1 January 2023")
+            contentAsString(result) must include("Refund period start date cannot be before 1 January 2023")
           }
         }
 
@@ -501,7 +501,6 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar with BeforeA
       }
 
       "overlap check" - {
-
         "must skip overlap check and redirect when end date is in December" in {
           when(mockService.retrieveTraderKnownFacts()(any()))
             .thenReturn(Future.successful(TraderKnownFactsResponse(123, tradeClass = Some(baCode1))))
@@ -557,7 +556,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar with BeforeA
           }
         }
 
-        "must redirect when draft exists but period does not overlap" in {
+        "must redirect to next page when draft exists but period does not overlap" in {
           when(mockService.retrieveTraderKnownFacts()(any()))
             .thenReturn(Future.successful(TraderKnownFactsResponse(123, tradeClass = Some(baCode1))))
           when(mockService.getLatestApplications(any())(any()))
@@ -576,7 +575,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar with BeforeA
                       applicationVersion   = LocalDateTime.of(2024, 1, 1, 0, 0)
                     )
                   ),
-                  1
+                  totalApplication = 0
                 )
               )
             )
@@ -621,7 +620,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar with BeforeA
                       applicationVersion   = LocalDateTime.of(2024, 1, 1, 0, 0)
                     )
                   ),
-                  1
+                  totalApplication = 1
                 )
               )
             )

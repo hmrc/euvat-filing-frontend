@@ -60,9 +60,25 @@ trait Mappings extends Formatters with Constraints {
   protected def currency(requiredKey: String = "error.required",
                          invalidNumeric: String = "error.invalidNumeric",
                          nonNumericKey: String = "error.nonNumeric",
+                         maxLength: Int = Int.MaxValue,
+                         maxLengthErrorKey: String = "error.maxLength",
+                         enforceGrouping: Boolean = false,
+                         groupingErrorKey: String = "error.invalidNumeric",
+                         allowNegative: Boolean = false,
                          args: Seq[String] = Seq.empty
                         ): FieldMapping[BigDecimal] =
-    of(currencyFormatter(requiredKey, invalidNumeric, nonNumericKey, args))
+    of(
+      currencyFormatter(requiredKey,
+                        invalidNumeric,
+                        nonNumericKey,
+                        maxLength,
+                        maxLengthErrorKey,
+                        enforceGrouping,
+                        groupingErrorKey,
+                        allowNegative,
+                        args
+                       )
+    )
 
   val validateEmailAddress: String = """^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9][a-zA-Z0-9_\-\.]*)\.([a-zA-Z]{2,})$"""
   val emailMaxLength: Int = 100
@@ -75,4 +91,6 @@ trait Mappings extends Formatters with Constraints {
   val supplierVatRegistrationNumberRegex: String = """^[A-Za-z0-9\+\\*]{1,12}$"""
   val businessActivityCodeMaxLength: Int = 4
   val businessActivityCodeRegex: String = """^[0-9]{4,4}$"""
+  // Currency input constants (exposed from the companion object for binary compatibility)
+  val maximumCurrencyAmount: BigDecimal = BigDecimal("999999999.99")
 }

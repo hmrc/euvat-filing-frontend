@@ -98,6 +98,7 @@ class RefundPeriodController @Inject() (
     )
   }
 
+  // Business Function F6 check
   private def isStartDateValid(startDate: LocalDateTime, regDate: LocalDateTime): (Boolean, String) = {
     val reg = YearMonth.from(regDate)
     val regMonth = reg.getMonthValue
@@ -143,8 +144,8 @@ class RefundPeriodController @Inject() (
       val latestApplicationRequest = LatestApplicationRequest(
         applicantVatRegNumber = traderResponse.vatRegNumber.toString,
         refundingCountry      = refundingCountry,
-        startDate             = None,
-        endDate               = None,
+        startDate             = Some(startDate),
+        endDate               = Some(endDate),
         representativeId      = None,
         maxNumber             = 100,
         orderBy               = None,
@@ -152,12 +153,13 @@ class RefundPeriodController @Inject() (
         startAt               = None
       )
       euVatRefundsService.getLatestApplications(latestApplicationRequest).flatMap { response =>
-        val hasDraftOverlap = response.applications
-          .filter(_.applicationStatus == "D")
-          .exists(app =>
-            YearMonth.from(app.periodStartDate) == YearMonth.from(startDate) &&
-              YearMonth.from(app.periodEndDate) == YearMonth.from(endDate)
-          )
+
+        val hasDraftOverlap =
+          response.totalApplication > 0 &&
+            response.applications.exists { app =>
+              app.applicationStatus.equalsIgnoreCase("D") &&
+              app.submissionStatus.equalsIgnoreCase("S")
+            }
 
         logger.info(s"F5 overlap check: hasDraftOverlap=$hasDraftOverlap, startDate=$startDate, endDate=$endDate")
 
@@ -165,9 +167,9 @@ class RefundPeriodController @Inject() (
           // TODO: redirect to warning page once designed — showing error as placeholder
           given DataRequest[AnyContent] = request.asInstanceOf[DataRequest[AnyContent]]
           given Messages = messagesApi.preferred(request)
-          val formWithError = formProvider().fill(
-            RefundPeriodData(YearMonth.from(startDate), YearMonth.from(endDate))
-          ).withError("start", "refundPeriod.error.overlap")
+          val formWithError = formProvider()
+            .fill(RefundPeriodData(YearMonth.from(startDate), YearMonth.from(endDate)))
+            .withError("start", "refundPeriod.error.overlap")
           renderError(formWithError, mode)
         } else
           saveAndRedirect(traderResponse, startDate, endDate, mode)
@@ -187,13 +189,13 @@ class RefundPeriodController @Inject() (
             val startDate = YearMonth.of(value.start.getYear, value.start.getMonthValue).atDay(1).atStartOfDay()
             val endDate = YearMonth.of(value.end.getYear, value.end.getMonthValue).atEndOfMonth().atTime(23, 59, 59, 999000000)
 
-            val maybeErrorForm = (traderResponse.dateOfRegistration, traderResponse.dateOfDeregistration) match {
+            val maybeErrorForm: Option[Form[RefundPeriodData]] = (traderResponse.dateOfRegistration, traderResponse.dateOfDeregistration) match {
               case (Some(regDate), Some(deRegDate)) =>
                 val (validStartDate, msg) = isStartDateValid(startDate, regDate)
                 if (!validStartDate) {
                   Some(baseForm.fill(value).withError("start", msg))
                 } else if (endDate.isAfter(deRegDate)) {
-                  Some(baseForm.fill(value).withError("end", "refundPeriod.error.afterVatDeRegDate"))
+                  Some(baseForm.fill(value).withError("end", "refundPeriod.end.error.afterVatDeRegDate"))
                 } else {
                   None
                 }
@@ -214,6 +216,8 @@ class RefundPeriodController @Inject() (
               case _ => None
             }
 
+            // Only apply mapped errors when they exist
+            maybeErrorForm.foreach(formProvider.withMappedErrors)
             maybeErrorForm match {
               case Some(formWithError) => renderError(formWithError, mode)
               case None                => checkOverlappingPeriod(traderResponse, startDate, endDate, mode)

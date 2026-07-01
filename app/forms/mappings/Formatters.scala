@@ -105,31 +105,47 @@ trait Formatters {
     requiredKey: String,
     invalidNumericKey: String,
     nonNumericKey: String,
+    maxLength: Int = Int.MaxValue,
+    maxLengthErrorKey: String = "error.maxLength",
+    enforceGrouping: Boolean = false,
+    groupingErrorKey: String = "error.invalidNumeric",
+    allowNegative: Boolean = false,
     args: Seq[String] = Seq.empty
   ): Formatter[BigDecimal] =
     new Formatter[BigDecimal] {
-      val isNumeric = """(^£?\d*$)|(^£?\d*\.\d*$)"""
-      val validDecimal = """(^£?\d*$)|(^£?\d*\.\d{1,2}$)"""
+      // Build numeric patterns depending on whether negatives are allowed
+      private val signPart = if (allowNegative) "-?" else ""
+
+      val isNumeric = "(^" + signPart + "\\d*$)|(^" + signPart + "\\d*\\.\\d*$)"
+      val validDecimal = "(^" + signPart + "\\d*$)|(^" + signPart + "\\d*\\.\\d{1,2}$)"
+
+      private val groupingRegex = "^\\s*(" + signPart + "(?:\\d+|\\d{1,3}(?:,\\d{3})*)(?:\\.\\d{1,2})?)\\s*$"
 
       private val baseFormatter = stringFormatter(requiredKey, args)
 
       override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], BigDecimal] =
         baseFormatter
           .bind(key, data)
-          .map(_.replace(",", "").replace(" ", ""))
-          .flatMap {
-            case s if !s.matches(isNumeric) =>
+          .flatMap { original =>
+            val s = original.replace(",", "").replace(" ", "")
+
+            if (!s.matches(isNumeric)) {
               Left(Seq(FormError(key, nonNumericKey, args)))
-            case s if !s.matches(validDecimal) =>
+            } else if (!s.matches(validDecimal)) {
               Left(Seq(FormError(key, invalidNumericKey, args)))
-            case s =>
+            } else if (original.length > maxLength) {
+              Left(Seq(FormError(key, maxLengthErrorKey, args)))
+            } else if (enforceGrouping && !original.matches(groupingRegex)) {
+              Left(Seq(FormError(key, groupingErrorKey, args)))
+            } else {
               nonFatalCatch
-                .either(BigDecimal(s.replace("£", "")))
+                .either(BigDecimal(s))
                 .left
                 .map(_ => Seq(FormError(key, nonNumericKey, args)))
+            }
           }
 
       override def unbind(key: String, value: BigDecimal): Map[String, String] =
-        baseFormatter.unbind(key, value.toString)
+        baseFormatter.unbind(key, value.bigDecimal.toPlainString)
     }
 }
