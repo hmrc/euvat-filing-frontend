@@ -28,7 +28,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.TaskListDashboardView
 import viewmodels.TaskListViewModel
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class TaskListDashboardController @Inject() (
   override val messagesApi: MessagesApi,
@@ -48,7 +48,10 @@ class TaskListDashboardController @Inject() (
     val originalAnswers = request.userAnswers.getOrElse(UserAnswers(request.userId))
     val taskList = taskListViewModel.buildTaskList(originalAnswers)
     val deleteLink = taskListViewModel.showDeleteLink(originalAnswers)
-    sessionRepository.set(originalAnswers).map(_ => Ok(view(taskList, deleteLink)))
+    request.userAnswers match {
+      case Some(answers) => sessionRepository.set(answers).map(_ => Ok(view(taskList, deleteLink)))
+      case None          => Future.successful(Ok(view(taskList, deleteLink)))
+    }
   }
 
   // Clear session before calling the manage frontend

@@ -19,7 +19,7 @@ GET         /account/signed-out                          controllers.auth.Signed
 GET         /unauthorised                                controllers.UnauthorisedController.onPageLoad()
 
 # Task list Dashboard
-GET         /make-eu-vat-claim                           controllers.TaskListDashboardController.onPageLoad()
+GET         /make-claim-for-eu-vat-refund                controllers.TaskListDashboardController.onPageLoad()
 GET         /redirect-to-manage-claim                    controllers.TaskListDashboardController.redirectToManageClaim()
 
 # Claim details journey
