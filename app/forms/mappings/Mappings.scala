@@ -67,7 +67,18 @@ trait Mappings extends Formatters with Constraints {
                          allowNegative: Boolean = false,
                          args: Seq[String] = Seq.empty
                         ): FieldMapping[BigDecimal] =
-    of(currencyFormatter(requiredKey, invalidNumeric, nonNumericKey, maxLength, maxLengthErrorKey, enforceGrouping, groupingErrorKey, allowNegative, args))
+    of(
+      currencyFormatter(requiredKey,
+                        invalidNumeric,
+                        nonNumericKey,
+                        maxLength,
+                        maxLengthErrorKey,
+                        enforceGrouping,
+                        groupingErrorKey,
+                        allowNegative,
+                        args
+                       )
+    )
 
   val validateEmailAddress: String = """^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9][a-zA-Z0-9_\-\.]*)\.([a-zA-Z]{2,})$"""
   val emailMaxLength: Int = 100
@@ -77,15 +88,9 @@ trait Mappings extends Formatters with Constraints {
   // Expression for invoice/reference-like fields: letters, digits, spaces and a limited set of symbols
   val validateInvoiceNumberExpression: String = """^[a-zA-Z0-9\s\.,\-\()/=!\"%&*;<>'\+:?#$@\[\]\\\^_`{}|~]{1,30}$"""
   val supplierVatRegistrationNumberMaxLength: Int = 12
-  val supplierVatRegistrationNumberRegex : String = """^[A-Za-z0-9\+\\*]{1,12}$"""
+  val supplierVatRegistrationNumberRegex: String = """^[A-Za-z0-9\+\\*]{1,12}$"""
   val businessActivityCodeMaxLength: Int = 4
-  val businessActivityCodeRegex : String = """^[0-9]{4,4}$"""
+  val businessActivityCodeRegex: String = """^[0-9]{4,4}$"""
   // Currency input constants (exposed from the companion object for binary compatibility)
   val maximumCurrencyAmount: BigDecimal = BigDecimal("999999999.99")
-
-  // Regex for currency input allowing optional leading minus, grouped thousands with commas and up to 2 decimal places
-  val currencyRegex: String = "^(-?\\d+(,\\d{3})*(\\.\\d{1,2})?)$"
-
-  // Maximum number of characters allowed in the input (including commas, decimals and sign)
-  val currencyInputMaxLength: Int = 15
 }

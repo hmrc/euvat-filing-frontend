@@ -51,11 +51,14 @@ class RefundPeriodFormProvider @Inject() () {
   private def fieldsForError(message: String): Set[String] = message match {
     case "refundPeriod.start.error.required" | "refundPeriod.start.error.after30Sept" | "refundPeriod.start.error.30SeptOrEarlier" =>
       Set("start.month", "start.year")
-    case "refundPeriod.error.startDateNotAfterEndDate"                       => Set("start.month", "start.year", "end.month", "end.year")
-    case "refundPeriod.end.error.required" | "refundPeriod.end.error.inPast" => Set("end.month", "end.year")
     case "refundPeriod.error.startAndEndInSameYear"                          => Set("start.year", "end.year")
     case "refundPeriod.error.periodNotLessThan3Months"                       => Set("start.month", "end.month")
-    case _                                                                   => Set.empty
+    case "refundPeriod.error.startDateNotAfterEndDate"                       => Set("start.month", "start.year", "end.month", "end.year")
+    case "refundPeriod.end.error.required" | "refundPeriod.end.error.inPast" => Set("end.month", "end.year")
+    case "refundPeriod.start.error.beforeVatRegDate.firstQuarter" | "refundPeriod.start.error.beforeVatRegDate.remainingQuarter" =>
+      Set("start.month", "start.year")
+    case "refundPeriod.end.error.afterVatDeRegDate" => Set("end.month", "end.year")
+    case _                                          => Set.empty
   }
 
   private def highlightedFields(form: Form[RefundPeriodData]): Set[String] = {
@@ -74,12 +77,15 @@ class RefundPeriodFormProvider @Inject() () {
 
   def withMappedErrors(form: Form[RefundPeriodData]): (Form[RefundPeriodData], Set[String]) = {
     val errorMappings = Map(
-      "refundPeriod.error.startDateNotAfterEndDate" -> "start",
-      "refundPeriod.error.startAndEndInSameYear"    -> "start",
-      "refundPeriod.error.periodNotLessThan3Months" -> "start",
-      "refundPeriod.end.error.inPast"               -> "end",
-      "refundPeriod.start.error.after30Sept"        -> "start",
-      "refundPeriod.start.error.30SeptOrEarlier"    -> "start"
+      "refundPeriod.error.startDateNotAfterEndDate"                -> "start",
+      "refundPeriod.error.startAndEndInSameYear"                   -> "start",
+      "refundPeriod.error.periodNotLessThan3Months"                -> "start",
+      "refundPeriod.start.error.after30Sept"                       -> "start",
+      "refundPeriod.start.error.30SeptOrEarlier"                   -> "start",
+      "refundPeriod.start.error.beforeVatRegDate.firstQuarter"     -> "start",
+      "refundPeriod.start.error.beforeVatRegDate.remainingQuarter" -> "start",
+      "refundPeriod.end.error.inPast"                              -> "end",
+      "refundPeriod.end.error.afterVatDeRegDate"                   -> "end"
     )
 
     val highlighted = highlightedFields(form)

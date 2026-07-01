@@ -19,13 +19,15 @@ package services
 import base.SpecBase
 import config.FrontendAppConfig
 import connectors.EuVatRefundsConnector
-import models.responses.TraderKnownFactsResponse
+import models.requests.LatestApplicationRequest
+import models.responses.{LatestApplicationResponse, TraderKnownFactsResponse}
 import org.mockito.ArgumentMatchers.*
 import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.http.HeaderCarrier
 
+import java.time.LocalDateTime
 import scala.concurrent.{ExecutionContext, Future}
 
 class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutures {
@@ -51,6 +53,45 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
       val result = service.retrieveTraderKnownFacts()(any()).futureValue
       result mustEqual expected
     }
+  }
+  "EuVatRefundsService.getLatestApplications" - {
 
+    val request = LatestApplicationRequest(
+      applicantVatRegNumber = "123456789",
+      refundingCountry      = Some("LV"),
+      startDate             = Some(LocalDateTime.of(2025, 2, 1, 0, 0)),
+      endDate               = Some(LocalDateTime.of(2025, 5, 31, 0, 0)),
+      representativeId      = Some("rep123"),
+      maxNumber             = 10,
+      orderBy               = None,
+      sortOrder             = None,
+      startAt               = None
+    )
+
+    val expectedResponse = LatestApplicationResponse(
+      applications     = List.empty,
+      totalApplication = 0
+    )
+
+    "should return latest applications from the connector" in {
+      when(mockConnector.getLatestApplications(any())(any()))
+        .thenReturn(Future.successful(expectedResponse))
+
+      val result = service.getLatestApplications(request)(hc).futureValue
+      result mustEqual expectedResponse
+    }
+
+    "should propagate an exception from the connector" in {
+      val failure = new RuntimeException("Connector failed")
+
+      when(mockConnector.getLatestApplications(any())(any()))
+        .thenReturn(Future.failed(failure))
+
+      val result = service.getLatestApplications(request)
+
+      whenReady(result.failed) { ex =>
+        ex mustEqual failure
+      }
+    }
   }
 }

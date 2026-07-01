@@ -14,22 +14,15 @@
  * limitations under the License.
  */
 
-package forms
+package models.responses
 
-import javax.inject.Inject
+import play.api.libs.functional.syntax.*
+import play.api.libs.json.{Format, Json, OFormat, __}
 
-import forms.mappings.Mappings
-import play.api.data.Form
-
-class BusinessActivityCodeThreeFormProvider @Inject() extends Mappings {
-  def apply(): Form[String] =
-    Form(
-      "value" -> text("businessActivityCodeThree.error.required")
-        .verifying(
-          firstError(
-            maxLength(businessActivityCodeMaxLength, "businessActivityCodeThree.error.invalid"),
-            regexp(businessActivityCodeRegex, "businessActivityCodeThree.error.invalid")
-          )
-        )
-    )
+case class LatestApplicationResponse(
+                                      applications: List[LatestApplication],
+                                      totalApplication: Int
+                                    )
+object LatestApplicationResponse {
+  implicit val format: OFormat[LatestApplicationResponse] = Json.format[LatestApplicationResponse]
 }

@@ -14,22 +14,24 @@
  * limitations under the License.
  */
 
-package forms
+package models.requests
 
-import javax.inject.Inject
+import play.api.libs.json.{Json, OFormat}
 
-import forms.mappings.Mappings
-import play.api.data.Form
+import java.time.LocalDateTime
 
-class BusinessActivityCodeThreeFormProvider @Inject() extends Mappings {
-  def apply(): Form[String] =
-    Form(
-      "value" -> text("businessActivityCodeThree.error.required")
-        .verifying(
-          firstError(
-            maxLength(businessActivityCodeMaxLength, "businessActivityCodeThree.error.invalid"),
-            regexp(businessActivityCodeRegex, "businessActivityCodeThree.error.invalid")
-          )
-        )
-    )
+case class LatestApplicationRequest(
+  applicantVatRegNumber: String,
+  refundingCountry: Option[String],
+  startDate: Option[LocalDateTime],
+  endDate: Option[LocalDateTime],
+  representativeId: Option[String],
+  maxNumber: Int,
+  orderBy: Option[Int],
+  sortOrder: Option[String],
+  startAt: Option[Int]
+)
+
+object LatestApplicationRequest {
+  implicit val format: OFormat[LatestApplicationRequest] = Json.format[LatestApplicationRequest]
 }
