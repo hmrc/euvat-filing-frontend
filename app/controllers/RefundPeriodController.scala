@@ -166,6 +166,9 @@ class RefundPeriodController @Inject() (
               case _ => None
             }
 
+            // Only apply mapped errors when they exist
+            maybeErrorForm.foreach(formProvider.withMappedErrors)
+
             maybeErrorForm match
               case Some(formWithError) => renderError(formWithError, mode)
               case None                => saveAndRedirect(traderResponse, startDate, endDate, mode)
