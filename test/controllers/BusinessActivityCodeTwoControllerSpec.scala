@@ -47,10 +47,10 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
         val form = formProvider()
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form,
-                       Some(routes.BusinessActivityController.onPageLoad(models.NormalMode).url),
-                       models.NormalMode
-                      )(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, Some(routes.BusinessActivityController.onPageLoad(models.NormalMode).url), models.NormalMode)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -102,10 +102,10 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
         val form = formProvider().fill("2534")
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form,
-                       Some(routes.BusinessActivityController.onPageLoad(models.NormalMode).url),
-                       models.NormalMode
-                      )(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, Some(routes.BusinessActivityController.onPageLoad(models.NormalMode).url), models.NormalMode)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -153,12 +153,14 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
         val body = contentAsString(result)
         body must include(messages(application)("businessActivityCodeTwo.error.duplicate", "Business activity 1", "49200"))
       }
-      }
+    }
 
-      "must return a Bad Request and duplicate error when submitted code matches third business activity" in {
+    "must return a Bad Request and duplicate error when submitted code matches third business activity" in {
       val userAnswers = emptyUserAnswers
         .set(pages.BusinessActivityCodePage, "49200")
-        .flatMap(_.set(pages.BusinessActivityCodeThreePage, "77777")).success.value
+        .flatMap(_.set(pages.BusinessActivityCodeThreePage, "77777"))
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 

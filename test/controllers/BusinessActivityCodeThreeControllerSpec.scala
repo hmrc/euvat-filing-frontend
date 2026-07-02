@@ -48,10 +48,10 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
         val form = formProvider()
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form,
-                       Some(routes.BusinessActivityTwoController.onPageLoad(models.NormalMode).url),
-                       models.NormalMode
-                      )(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, Some(routes.BusinessActivityTwoController.onPageLoad(models.NormalMode).url), models.NormalMode)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -105,10 +105,10 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
         val form = formProvider().fill("2534")
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form,
-                       Some(routes.BusinessActivityTwoController.onPageLoad(models.NormalMode).url),
-                       models.NormalMode
-                      )(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, Some(routes.BusinessActivityTwoController.onPageLoad(models.NormalMode).url), models.NormalMode)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -150,7 +150,9 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
     "must return a Bad Request and duplicate error when submitted code matches second business activity" in {
       val userAnswers = emptyUserAnswers
         .set(pages.BusinessActivityCodePage, "49200")
-        .flatMap(_.set(pages.BusinessActivityCodeTwoPage, "25344")).success.value
+        .flatMap(_.set(pages.BusinessActivityCodeTwoPage, "25344"))
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -161,7 +163,7 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
 
         status(result) mustEqual BAD_REQUEST
         val body = contentAsString(result)
-        
+
         body must include(messages(application)("businessActivityCodeThree.error.duplicate", "Business activity 2", "25344"))
       }
     }
@@ -169,7 +171,9 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
     "must return a Bad Request and duplicate error when submitted code matches first business activity" in {
       val userAnswers = emptyUserAnswers
         .set(pages.BusinessActivityCodePage, "49200")
-        .flatMap(_.set(pages.BusinessActivityCodeTwoPage, "25344")).success.value
+        .flatMap(_.set(pages.BusinessActivityCodeTwoPage, "25344"))
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 

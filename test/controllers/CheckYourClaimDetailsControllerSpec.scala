@@ -17,12 +17,22 @@
 package controllers
 
 import base.SpecBase
+import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.*
+import org.scalatestplus.mockito.MockitoSugar
+import pages.ClaimDetailsCompletedPage
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import repositories.SessionRepository
 import viewmodels.govuk.SummaryListFluency
 import views.html.CheckYourClaimDetailsView
+import models.UserAnswers
 
-class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluency {
+import scala.concurrent.Future
+
+class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluency with MockitoSugar {
 
   "Check Your Answers Controller" - {
 
@@ -31,14 +41,39 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
       running(application) {
         val request = FakeRequest(GET, routes.CheckYourClaimDetailsController.onPageLoad().url)
         val result = route(application, request).value
-        val view = application.injector.instanceOf[CheckYourClaimDetailsView]
 
         status(result) mustEqual OK
       }
     }
 
-    "must redirect to the task list on submit" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+    "must redirect to the task list on submit and set ClaimDetailsCompletedPage to true" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.CheckYourClaimDetailsController.onSubmit().url)
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.TaskListDashboardController.onPageLoad().url
+
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(mockSessionRepository).set(captor.capture())
+        captor.getValue.get(ClaimDetailsCompletedPage) mustBe Some(true)
+      }
+    }
+
+    "must still redirect to task list on submit even if sessionRepository.set returns false" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(false)
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
 
       running(application) {
         val request = FakeRequest(POST, routes.CheckYourClaimDetailsController.onSubmit().url)
@@ -51,7 +86,9 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
 
     "must include language label when country has multiple languages" in {
       val ua = emptyUserAnswers
-        .set(pages.RefundingCountryPage, "BE").success.value
+        .set(pages.RefundingCountryPage, "BE")
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(ua)).build()
 
@@ -66,7 +103,9 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
 
     "must NOT include language label when country has only one language" in {
       val ua = emptyUserAnswers
-        .set(pages.RefundingCountryPage, "CZ").success.value
+        .set(pages.RefundingCountryPage, "CZ")
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(ua)).build()
 
