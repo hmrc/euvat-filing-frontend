@@ -24,8 +24,6 @@ import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
-import uk.gov.hmrc.govukfrontend.views.Aliases.SummaryList
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.checkAnswers.CheckYourClaimDetailsSummary
 import utils.{ConfigCurrencyMapping, ConfigLanguageMapping}
@@ -41,7 +39,7 @@ class CheckYourClaimDetailsController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   view: CheckYourClaimDetailsView,
   configLanguageMapping: ConfigLanguageMapping,
-  configCurrencyMapping: ConfigCurrencyMapping
+  configCurrencyMapping: ConfigCurrencyMapping,
   sessionRepository: SessionRepository,
 )(using ExecutionContext)
     extends FrontendBaseController
