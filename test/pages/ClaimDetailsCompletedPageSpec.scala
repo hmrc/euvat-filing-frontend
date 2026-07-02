@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-package forms
+package pages
 
-import javax.inject.Inject
+import base.SpecBase
 
-import forms.mappings.Mappings
-import play.api.data.Form
+class ClaimDetailsCompletedPageSpec extends SpecBase {
 
-class BusinessActivityCodeThreeFormProvider @Inject() extends Mappings {
-  def apply(): Form[String] =
-    Form(
-      "value" -> text("businessActivityCodeThree.error.required")
-        .verifying(
-          firstError(
-            maxLength(businessActivityCodeMaxLength, "businessActivityCodeThree.error.invalid"),
-            regexp(businessActivityCodeRegex, "businessActivityCodeThree.error.invalid")
-          )
-        )
-    )
+  "ClaimDetailsCompletedPage" - {
+
+    "must be able to be set and retrieved from UserAnswers" in {
+      val answers = emptyUserAnswers.set(ClaimDetailsCompletedPage, true).success.value
+      answers.get(ClaimDetailsCompletedPage) mustBe Some(true)
+    }
+
+    "must return None when not set" in {
+      emptyUserAnswers.get(ClaimDetailsCompletedPage) mustBe None
+    }
+  }
 }

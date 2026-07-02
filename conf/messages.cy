@@ -57,9 +57,12 @@ taskListDashboard.listItem5 = Add bank details
 taskListDashboard.listItem6 = Submit claim
 taskListDashboard.status1 = Not yet started
 taskListDashboard.status2 = Cannot start yet
+taskListDashboard.status3 = Completed
+taskListDashboard.listItem1.completed = View claim details
 taskListDashboard.dashboardLink = Go to the claims dashboard
 taskListDashboard.errorSummary1 = There is a problem
 taskListDashboard.errorSummary2 = Select add claim details to start a claim
+taskListDashboard.deleteLink = Delete this claim
 
 refundingCountry.title = Which EU member state are you claiming back VAT from?
 refundingCountry.heading = Which EU member state are you claiming back VAT from?
@@ -272,7 +275,6 @@ totalPurchaseAmountBeforeVat.inset = The currency for this claim is in {0} ({1})
 totalPurchaseAmountBeforeVat.p1 = This is the purchase amount before VAT is added. If your invoice does not show this amount, you’ll need to <a href="https://www.gov.uk/charge-reclaim-record-vat" class="govuk-link" target="_blank" rel="noreferrer noopener">calculate it (opens in a new tab)</a>.
 totalPurchaseAmountBeforeVat.hint = For example, {0}150 or {0}120.45
 totalPurchaseAmountBeforeVat.change.hidden = Total purchase amount before VAT
-
 totalPurchaseAmountBeforeVat.error.nonNumeric = Enter the total purchase amount before VAT in the correct format
 totalPurchaseAmountBeforeVat.error.required = Enter the total purchase amount before VAT
 totalPurchaseAmountBeforeVat.error.aboveMaximum = Total purchase amount before VAT must be between -999,999,999.99 and 999,999,999.99
@@ -283,11 +285,21 @@ totalVatPaid.heading = Total VAT paid
 totalVatPaid.h2 = How much VAT did you pay?
 totalVatPaid.p1 = This is the amount of VAT charged. If your invoice does not show this amount, you''ll need to <a href="https://www.gov.uk/charge-reclaim-record-vat" class="govuk-link" target="_blank">calculate it (opens in a new tab)</a>.
 totalVatPaid.hint = For example, {0}150 or {0}120.45
-
 totalVatPaid.error.required = Enter total VAT paid
 totalVatPaid.error.invalidNumeric = Enter total VAT paid in the correct format
 totalVatPaid.error.nonNumeric = Enter total VAT paid in the correct format
 totalVatPaid.error.aboveMaximum = Total VAT paid must be between -999,999,999.99 and 999,999,999.99
+
+totalVatClaim.title = Total VAT claim
+totalVatClaim.heading = Total VAT claim
+totalVatClaim.p1 = This is the amount of VAT you are entitled to claim back. It may be less than the amount you paid.
+totalVatClaim.h2 = How much VAT are you claiming?
+totalVatClaim.hint = For example, {0}150 or {0}120.45
+totalVatClaim.error.required = Enter the total amount of VAT you’re claiming
+totalVatClaim.error.invalidNumeric = Total VAT claim must be 15 numbers or less
+totalVatClaim.error.nonNumeric =  Enter total VAT claim in the correct format
+totalVatClaim.error.invalidNumeric = Enter total VAT claim in the correct format
+totalVatClaim.error.aboveMaximum = Total VAT claim must be between -999,999,999.99 and 999,999,999.99
 
 supplierAddress.title = What is the supplier’s address?
 supplierAddress.heading = What is the supplier’s address?

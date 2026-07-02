@@ -50,7 +50,7 @@ class NavigatorSpec extends SpecBase {
         """)
       )
     )
-  
+
   )
   val userAnswers: UserAnswers = UserAnswers("id")
 
@@ -135,7 +135,7 @@ class NavigatorSpec extends SpecBase {
           routes.BusinessActivityThreeController.onPageLoad()
       }
 
-      "must go from PurchaseTypePage to JourneyRecoveryController" in { // TODO - update to about the purchase page when built
+      "must go from PurchaseTypePage to JourneyRecoveryController" in {
         navigator.nextPage(PurchaseTypePage, NormalMode, userAnswers) mustBe
           routes.JourneyRecoveryController.onPageLoad()
       }
@@ -170,9 +170,14 @@ class NavigatorSpec extends SpecBase {
           routes.TotalVatPaidController.onPageLoad(NormalMode)
       }
 
-      "must go from TotalVatPaidPage to PurchaseTypeController" in {
+      "must go from TotalVatPaidPage to TotalVatClaimController" in {
         navigator.nextPage(TotalVatPaidPage, NormalMode, userAnswers) mustBe
-          routes.PurchaseTypeController.onPageLoad(NormalMode)
+          routes.TotalVatClaimController.onPageLoad(NormalMode)
+      }
+
+      "must go from TotalVatClaimPage to JourneyRecoveryController" in {
+        navigator.nextPage(TotalVatClaimPage, NormalMode, userAnswers) mustBe
+          routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from SimplifiedInvoiceVatRegCheckPage to TotalPurchaseAmountBeforeVatController if no selected" in {
@@ -207,8 +212,12 @@ class NavigatorSpec extends SpecBase {
 
       "must go from RefundingLanguagePage to CheckYourClaimDetailsController in CheckMode if country has two currencies and currency already stored" in {
         val ua = userAnswers
-          .set(pages.RefundingCountryPage, "BG").success.value
-          .set(pages.RefundingCurrencyPage, "BGN").success.value
+          .set(pages.RefundingCountryPage, "BG")
+          .success
+          .value
+          .set(pages.RefundingCurrencyPage, "BGN")
+          .success
+          .value
         navigator.nextPage(pages.RefundingLanguagePage, CheckMode, ua) mustBe
           routes.CheckYourClaimDetailsController.onPageLoad()
       }
@@ -310,9 +319,14 @@ class NavigatorSpec extends SpecBase {
           routes.TotalVatPaidController.onPageLoad(CheckMode)
       }
 
-      "must go from TotalVatPaidPage to PurchaseTypeController in CheckMode" in {
+      "must go from TotalVatPaidPage to TotalVatClaimController in CheckMode" in {
         navigator.nextPage(TotalVatPaidPage, CheckMode, userAnswers) mustBe
-          routes.PurchaseTypeController.onPageLoad(CheckMode)
+          routes.TotalVatClaimController.onPageLoad(CheckMode)
+      }
+
+      "must go from TotalVatClaimPage to JourneyRecoveryController in CheckMode" in {
+        navigator.nextPage(TotalVatClaimPage, CheckMode, userAnswers) mustBe
+          routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from SimplifiedInvoiceVatRegCheckPage to TotalPurchaseAmountBeforeVatController if no selected" in {
