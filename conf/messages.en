@@ -57,9 +57,12 @@ taskListDashboard.listItem5 = Add bank details
 taskListDashboard.listItem6 = Submit claim
 taskListDashboard.status1 = Not yet started
 taskListDashboard.status2 = Cannot start yet
+taskListDashboard.status3 = Completed
+taskListDashboard.listItem1.completed = View claim details
 taskListDashboard.dashboardLink = Go to the claims dashboard
 taskListDashboard.errorSummary1 = There is a problem
 taskListDashboard.errorSummary2 = Select add claim details to start a claim
+taskListDashboard.deleteLink = Delete this claim
 
 refundingCountry.title = Which EU member state are you claiming back VAT from?
 refundingCountry.heading = Which EU member state are you claiming back VAT from?

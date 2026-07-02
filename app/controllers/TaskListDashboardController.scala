@@ -21,13 +21,14 @@ import controllers.actions.*
 import models.UserAnswers
 
 import javax.inject.Inject
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.TaskListDashboardView
+import viewmodels.TaskListViewModel
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class TaskListDashboardController @Inject() (
   override val messagesApi: MessagesApi,
@@ -35,6 +36,7 @@ class TaskListDashboardController @Inject() (
   getData: DataRetrievalAction,
   sessionRepository: SessionRepository,
   appConfig: FrontendAppConfig,
+  taskListViewModel: TaskListViewModel,
   val controllerComponents: MessagesControllerComponents,
   view: TaskListDashboardView
 )(using ExecutionContext)
@@ -42,8 +44,14 @@ class TaskListDashboardController @Inject() (
     with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData).async { implicit request =>
+    implicit val messages: Messages = messagesApi.preferred(request)
     val originalAnswers = request.userAnswers.getOrElse(UserAnswers(request.userId))
-    sessionRepository.set(originalAnswers).map(_ => Ok(view()))
+    val taskList = taskListViewModel.buildTaskList(originalAnswers)
+    val deleteLink = taskListViewModel.showDeleteLink(originalAnswers)
+    request.userAnswers match {
+      case Some(_) => Future.successful(Ok(view(taskList, deleteLink)))
+      case None    => sessionRepository.set(originalAnswers).map(_ => Ok(view(taskList, deleteLink)))
+    }
   }
 
   // Clear session before calling the manage frontend

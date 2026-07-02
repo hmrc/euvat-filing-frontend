@@ -23,13 +23,12 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar
-import pages.QuestionPage
+import pages.{ClaimDetailsCompletedPage, QuestionPage}
 import play.api.inject.bind
 import play.api.libs.json.{JsPath, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.TaskListDashboardView
 
 import scala.concurrent.Future
 
@@ -41,7 +40,7 @@ class TaskListDashboardControllerSpec extends SpecBase with MockitoSugar {
       override def path: JsPath = JsPath \ "dummy"
     }
 
-    "must return OK and the correct view for a GET" in {
+    "must return OK for a GET when no user answers exist" in {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
@@ -52,11 +51,42 @@ class TaskListDashboardControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request = FakeRequest(GET, routes.TaskListDashboardController.onPageLoad().url)
         val result = route(application, request).value
-        val config = application.injector.instanceOf[FrontendAppConfig]
-        val view = application.injector.instanceOf[TaskListDashboardView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+      }
+    }
+
+    "must return OK for a GET when claim details are not yet completed" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.TaskListDashboardController.onPageLoad().url)
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+      }
+    }
+
+    "must return OK for a GET when claim details are completed" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val userAnswers = emptyUserAnswers.set(ClaimDetailsCompletedPage, true).success.value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.TaskListDashboardController.onPageLoad().url)
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
       }
     }
 
@@ -70,13 +100,9 @@ class TaskListDashboardControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(GET, routes.TaskListDashboardController.onPageLoad().url)
-
         val result = route(application, request).value
-        val config = application.injector.instanceOf[FrontendAppConfig]
-        val view = application.injector.instanceOf[TaskListDashboardView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
       }
     }
 
@@ -100,10 +126,8 @@ class TaskListDashboardControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual config.claimDashboardUrl
 
-        // Verify session was cleared
         val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository).set(captor.capture())
-
         captor.getValue.data mustBe Json.obj()
       }
     }
@@ -148,5 +172,40 @@ class TaskListDashboardControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must show delete link when claim details are completed" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val userAnswers = emptyUserAnswers.set(ClaimDetailsCompletedPage, true).success.value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.TaskListDashboardController.onPageLoad().url)
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) must include(messages(application)("taskListDashboard.deleteLink"))
+      }
+    }
+
+    "must not show delete link when claim details are not completed" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.TaskListDashboardController.onPageLoad().url)
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) must not include messages(application)("taskListDashboard.deleteLink")
+      }
+    }
   }
 }

@@ -18,9 +18,9 @@ package controllers
 
 import controllers.actions.*
 import forms.RemoveBusinessActivityFormProvider
-import models.{Mode, NormalMode, UserAnswers, CheckMode}
+import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import navigation.Navigator
-import pages._
+import pages.*
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -47,25 +47,26 @@ class RemoveSecondBusinessActivityController @Inject() (
   private def headingKey = "removeSecond.heading"
 
   private def backLinkFrom(origin: Option[String], mode: Mode): Call = origin match {
-    case Some("business-activity-2") => routes.BusinessActivityTwoController.onPageLoad(mode)
-    case Some("business-activity-3") => routes.BusinessActivityThreeController.onPageLoad()
+    case Some("business-activity-2")               => routes.BusinessActivityTwoController.onPageLoad(mode)
+    case Some("business-activity-3")               => routes.BusinessActivityThreeController.onPageLoad()
     case Some("what-is-the-2nd-business-activity") => routes.BusinessActivityCodeTwoController.onPageLoad(mode)
-    case _                              => routes.BusinessActivityTwoController.onPageLoad(mode)
+    case _                                         => routes.BusinessActivityTwoController.onPageLoad(mode)
   }
 
   private val SessionOriginKey = "removeOrigin"
-  private val SessionModeKey   = "removeMode"
+  private val SessionModeKey = "removeMode"
 
-  private def parseOrigin(implicit request: play.api.mvc.Request[_]): Option[String] =
+  private def parseOrigin(implicit request: play.api.mvc.Request[?]): Option[String] =
     request.getQueryString("origin").orElse(request.session.get(SessionOriginKey))
 
-  private def parseMode(implicit request: play.api.mvc.Request[_]): Mode =
+  private def parseMode(implicit request: play.api.mvc.Request[?]): Mode =
     request.getQueryString("mode") match {
       case Some("check") => CheckMode
-      case _ => request.session.get(SessionModeKey) match {
-        case Some("check") => CheckMode
-        case _ => NormalMode
-      }
+      case _ =>
+        request.session.get(SessionModeKey) match {
+          case Some("check") => CheckMode
+          case _             => NormalMode
+        }
     }
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
@@ -85,62 +86,61 @@ class RemoveSecondBusinessActivityController @Inject() (
 
     val reqWithMode = request.getQueryString("mode") match {
       case Some("check") => reqWithOrigin.addingToSession(SessionModeKey -> "check")(request)
-      case _               => reqWithOrigin
+      case _             => reqWithOrigin
     }
 
     reqWithMode
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-      val form = formProvider("removeSecond.error.required")
-      val origin = parseOrigin
-      val mode = parseMode
+    val form = formProvider("removeSecond.error.required")
+    val origin = parseOrigin
+    val mode = parseMode
 
-      form
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            {
-              val actionCall = Call("POST", routes.RemoveSecondBusinessActivityController.onSubmit().url)
-              Future.successful(BadRequest(view(formWithErrors, headingKey, actionCall, backLinkFrom(origin, mode), mode)))
-            },
-          {
-            case true =>
-              val base = request.userAnswers
-              val updatedAnswers: UserAnswers = base.get(BusinessActivityCodeThreePage) match {
-                case Some(code3) =>
-                  // re-index: move 3rd to 2nd, remove 3rd and remove any stored
-                  // boolean so the target page doesn't pre-select a radio
-                  val u1 = base.set(BusinessActivityCodeTwoPage, code3).get
-                  val u2 = u1.remove(BusinessActivityCodeThreePage).get
-                  val u3 = u2.remove(BusinessActivityTwoPage).getOrElse(u2)
-                  u3
-                case None =>
-                  // simply remove 2nd and remove any stored BusinessActivityPage
-                  // boolean so the main page does not pre-select 'No'
-                  val r1Try = base.remove(BusinessActivityCodeTwoPage)
-                  val r1 = r1Try.getOrElse(base)
-                  val r2 = r1.remove(BusinessActivityTwoPage).getOrElse(r1)
-                  val r3 = r2.remove(BusinessActivityPage).getOrElse(r2)
-                  r3
+    form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => {
+          val actionCall = Call("POST", routes.RemoveSecondBusinessActivityController.onSubmit().url)
+          Future.successful(BadRequest(view(formWithErrors, headingKey, actionCall, backLinkFrom(origin, mode), mode)))
+        },
+        {
+          case true =>
+            val base = request.userAnswers
+            val updatedAnswers: UserAnswers = base.get(BusinessActivityCodeThreePage) match {
+              case Some(code3) =>
+                // re-index: move 3rd to 2nd, remove 3rd and remove any stored
+                // boolean so the target page doesn't pre-select a radio
+                val u1 = base.set(BusinessActivityCodeTwoPage, code3).get
+                val u2 = u1.remove(BusinessActivityCodeThreePage).get
+                val u3 = u2.remove(BusinessActivityTwoPage).getOrElse(u2)
+                u3
+              case None =>
+                // simply remove 2nd and remove any stored BusinessActivityPage
+                // boolean so the main page does not pre-select 'No'
+                val r1Try = base.remove(BusinessActivityCodeTwoPage)
+                val r1 = r1Try.getOrElse(base)
+                val r2 = r1.remove(BusinessActivityTwoPage).getOrElse(r1)
+                val r3 = r2.remove(BusinessActivityPage).getOrElse(r2)
+                r3
+            }
+
+            for {
+              _ <- sessionRepository.set(updatedAnswers)
+            } yield {
+              val redirect = origin match {
+                case Some("business-activity-3") => Redirect(routes.BusinessActivityTwoController.onPageLoad(NormalMode))
+                case _                           => Redirect(routes.BusinessActivityController.onPageLoad(NormalMode))
               }
 
-              for {
-                _ <- sessionRepository.set(updatedAnswers)
-              } yield {
-                val redirect = origin match {
-                  case Some("business-activity-3") => Redirect(routes.BusinessActivityTwoController.onPageLoad(NormalMode))
-                  case _                             => Redirect(routes.BusinessActivityController.onPageLoad(NormalMode))
-                }
+              // clear the stored origin/mode from the session
+              redirect.removingFromSession(SessionOriginKey, SessionModeKey)(request)
+            }
 
-                // clear the stored origin/mode from the session
-                redirect.removingFromSession(SessionOriginKey, SessionModeKey)(request)
-              }
-
-            case false =>
-              Future.successful(Redirect(backLinkFrom(origin, mode)))
-          }
-        )
+          case false =>
+            Future.successful(Redirect(backLinkFrom(origin, mode)))
+        }
+      )
   }
 
 }
