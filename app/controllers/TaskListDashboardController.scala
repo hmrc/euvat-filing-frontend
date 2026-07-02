@@ -49,8 +49,8 @@ class TaskListDashboardController @Inject() (
     val taskList = taskListViewModel.buildTaskList(originalAnswers)
     val deleteLink = taskListViewModel.showDeleteLink(originalAnswers)
     request.userAnswers match {
-      case Some(answers) => sessionRepository.set(answers).map(_ => Ok(view(taskList, deleteLink)))
-      case None          => Future.successful(Ok(view(taskList, deleteLink)))
+      case Some(_) => Future.successful(Ok(view(taskList, deleteLink)))
+      case None    => sessionRepository.set(originalAnswers).map(_ => Ok(view(taskList, deleteLink)))
     }
   }
 
