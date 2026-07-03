@@ -34,7 +34,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.{ConfigCurrencyMapping, ConfigLanguageMapping}
 import views.html.RefundPeriodView
 
-import java.time.{LocalDate, LocalDateTime, YearMonth}
+import java.time.{LocalDateTime, YearMonth}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -158,9 +158,9 @@ class RefundPeriodController @Inject() (
           response.totalApplication > 0 &&
             response.applications.exists { app =>
               (app.applicationStatus.equalsIgnoreCase("D") ||
-              app.submissionStatus.equalsIgnoreCase("S")) &&
-                !YearMonth.from(app.periodStartDate).isAfter(YearMonth.from(endDate)) &&
-                !YearMonth.from(app.periodEndDate).isBefore(YearMonth.from(startDate))
+                app.submissionStatus.equalsIgnoreCase("S")) &&
+              (!startDate.isBefore(app.periodStartDate) ||
+                !endDate.isAfter(app.periodEndDate))
             }
 
         logger.info(s"F5 overlap check: hasDraftOverlap=$hasDraftOverlap, startDate=$startDate, endDate=$endDate")

@@ -601,7 +601,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar with BeforeA
           }
         }
 
-        "must show overlap error when draft exists with matching period" in {
+        "must show overlap error when draft exists and submitted status with both matching refund period" in {
           when(mockService.retrieveTraderKnownFacts()(any()))
             .thenReturn(Future.successful(TraderKnownFactsResponse(123, tradeClass = Some(baCode1))))
           when(mockService.getLatestApplications(any())(any()))
@@ -636,7 +636,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar with BeforeA
               .withFormUrlEncodedBody(
                 "start.month" -> "03",
                 "start.year"  -> "2024",
-                "end.month"   -> "08",
+                "end.month"   -> "06",
                 "end.year"    -> "2024"
               )
             val result = route(application, request).value
@@ -647,7 +647,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar with BeforeA
           }
         }
 
-        "must show overlap error when approved submitted application overlaps with new period" in {
+        "must show overlap error when draft exists with both matching period" in {
           when(mockService.retrieveTraderKnownFacts()(any()))
             .thenReturn(Future.successful(TraderKnownFactsResponse(123, tradeClass = Some(baCode1))))
           when(mockService.getLatestApplications(any())(any()))
@@ -661,8 +661,54 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar with BeforeA
                       periodStartDate      = LocalDateTime.of(2024, 3, 1, 0, 0),
                       periodEndDate        = LocalDateTime.of(2024, 8, 31, 23, 59),
                       applicationNumber    = "GB001",
-                      applicationStatus    = "A",
-                      submissionStatus     = "S",
+                      applicationStatus    = "d",
+                      submissionStatus     = "",
+                      applicationVersion   = LocalDateTime.of(2024, 1, 1, 0, 0)
+                    )
+                  ),
+                  totalApplication = 1
+                )
+              )
+            )
+
+          val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+            .overrides(bind[Navigator].toInstance(new FakeNavigator(onwardRoute)))
+            .overrides(bind[EuVatRefundsService].toInstance(mockService))
+            .overrides(bind[forms.RefundPeriodFormProvider].toInstance(formProviderAfterSept30))
+            .build()
+
+          running(application) {
+            val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit(NormalMode).url)
+              .withFormUrlEncodedBody(
+                "start.month" -> "03",
+                "start.year"  -> "2024",
+                "end.month"   -> "08",
+                "end.year"    -> "2024"
+              )
+            val result = route(application, request).value
+
+            // TODO: update to warning page redirect once designed
+            status(result) mustEqual BAD_REQUEST
+            contentAsString(result) must include(messages(application)("refundPeriod.error.overlap"))
+          }
+        }
+
+        "must show overlap error when approved submitted application overlaps with start refund period matching" in {
+          when(mockService.retrieveTraderKnownFacts()(any()))
+            .thenReturn(Future.successful(TraderKnownFactsResponse(123, tradeClass = Some(baCode1))))
+          when(mockService.getLatestApplications(any())(any()))
+            .thenReturn(
+              Future.successful(
+                LatestApplicationResponse(
+                  List(
+                    LatestApplication(
+                      applicationId        = 1L,
+                      refundingCountryCode = "LV",
+                      periodStartDate      = LocalDateTime.of(2024, 3, 1, 0, 0),
+                      periodEndDate        = LocalDateTime.of(2024, 8, 31, 23, 59),
+                      applicationNumber    = "GB001",
+                      applicationStatus    = "a",
+                      submissionStatus     = "s",
                       applicationVersion   = LocalDateTime.of(2024, 1, 1, 0, 0)
                     )
                   ),
@@ -680,14 +726,15 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar with BeforeA
           running(application) {
             val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit(NormalMode).url)
               .withFormUrlEncodedBody(
-                "start.month" -> "03",
+                "start.month" -> "06",
                 "start.year"  -> "2024",
-                "end.month"   -> "08",
+                "end.month"   -> "09",
                 "end.year"    -> "2024"
               )
             val result = route(application, request).value
 
             status(result) mustEqual BAD_REQUEST
+            contentAsString(result) must include(messages(application)("refundPeriod.error.overlap"))
           }
         }
       }
