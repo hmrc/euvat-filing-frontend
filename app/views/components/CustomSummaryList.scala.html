@@ -40,10 +40,12 @@
             </ul>
             } else {
             @for((url, linkText, hiddenKey) <- links) {
-            <a class="govuk-link" href="@url">
-                <span aria-hidden="true">@messages(linkText)</span>
-                <span class="govuk-visually-hidden">@messages(hiddenKey)</span>
-            </a>
+            <div>
+                <a class="govuk-link" href="@url">
+                    <span aria-hidden="true">@messages(linkText)</span>
+                    <span class="govuk-visually-hidden">@messages(hiddenKey)</span>
+                </a>
+            </div>
             }
             }
             }
