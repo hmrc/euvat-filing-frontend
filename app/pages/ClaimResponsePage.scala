@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
-package models.requests
+package pages
 
-import play.api.mvc.{Request, WrappedRequest}
+import models.ContactDetails
+import models.responses.ApplicationResponse
+import play.api.libs.json.JsPath
 
-case class IdentifierRequest[A](request: Request[A], userId: String, identifierName: Option[String] = None, identifierValue: Option[String])
-    extends WrappedRequest[A](request)
+case object ClaimApplicationResponsePage extends QuestionPage[ApplicationResponse] {
+  override def path: JsPath = JsPath \ toString
+  override def toString: String = "claimApplicationResponsePage"
+}

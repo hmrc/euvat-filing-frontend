@@ -19,11 +19,14 @@ package controllers
 import com.google.inject.Inject
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import models.UserAnswers
-import pages.ClaimDetailsCompletedPage
+import models.requests.ApplicationRequest
+import models.responses.ApplicationResponse
+import pages.{BusinessActivityCodePage, BusinessActivityCodeThreePage, BusinessActivityCodeTwoPage, ClaimApplicationResponsePage, ClaimDetailsCompletedPage, ContactDetailsPage, RefundPeriodPage, RefundingCountryPage, RefundingCurrencyPage, RefundingLanguagePage}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import services.EuVatRefundsService
 import uk.gov.hmrc.govukfrontend.views.Aliases.SummaryList
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -42,7 +45,8 @@ class CheckYourClaimDetailsController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   view: CheckYourClaimDetailsView,
   sessionRepository: SessionRepository,
-  configLanguageMapping: ConfigLanguageMapping
+  configLanguageMapping: ConfigLanguageMapping,
+  service: EuVatRefundsService
 )(using ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
@@ -55,8 +59,22 @@ class CheckYourClaimDetailsController @Inject() (
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    val updatedAnswers = request.userAnswers.set(ClaimDetailsCompletedPage, true).getOrElse(request.userAnswers)
-    sessionRepository.set(updatedAnswers).map(_ => Redirect(controllers.routes.TaskListDashboardController.onPageLoad()))
+
+    val userAnswers = request.userAnswers
+    for {
+      updatedAnswer1 <- userAnswers.set(ClaimDetailsCompletedPage, true).getOrElse(userAnswers)
+      appRequest     <- buildAppRequest(updatedAnswer1)
+      claimResponse  <- service.createApplication(appRequest)
+      updatedAnswers <- updatedAnswer1.set(ClaimApplicationResponsePage, claimResponse)
+      _              <- sessionRepository.set(updatedAnswers)
+    } yield {
+      if (claimResponse.applicationId > 0) {
+        Redirect(controllers.routes.TaskListDashboardController.onPageLoad())
+      } else {
+        Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+      }
+    }
+
   }
 
   private def getChangeUrl(rowOpt: SummaryListRow): Option[String] =
@@ -112,5 +130,50 @@ class CheckYourClaimDetailsController @Inject() (
         )
       )
     )
+
+  private def buildAppRequest(userAnswers: UserAnswers): ApplicationRequest = {
+    val countryCode = userAnswers
+      .get(RefundingCountryPage)
+      .getOrElse(throw new RuntimeException("Country code missing"))
+    val currencyCode = userAnswers
+      .get(RefundingCurrencyPage)
+      .getOrElse(throw new RuntimeException("Currency code missing"))
+    val languageCode = userAnswers
+      .get(RefundingLanguagePage)
+      .getOrElse(throw new RuntimeException("Language code missing"))
+    val refundStartDate = userAnswers
+      .get(RefundPeriodPage)
+      .map(_.startDate)
+      .getOrElse(throw new RuntimeException("RefundPeriodPage startDate missing"))
+    val refundEndDate = userAnswers
+      .get(RefundPeriodPage)
+      .map(_.endDate)
+      .getOrElse(throw new RuntimeException("RefundPeriodPage endDate missing"))
+    val email = userAnswers
+      .get(ContactDetailsPage)
+      .map(_.email)
+      .getOrElse(throw new RuntimeException("Email contact detail missing"))
+    val telephone = userAnswers
+      .get(ContactDetailsPage)
+      .map(_.email)
+      .getOrElse(throw new RuntimeException("Telephone contact detail missing"))
+    val businessActivityCode1 = userAnswers
+      .get(BusinessActivityCodePage)
+      .getOrElse(throw new RuntimeException("Telephone contact detail missing"))
+    val businessActivityCode2 = userAnswers.get(BusinessActivityCodeTwoPage).getOrElse("")
+    val businessActivityCode3 = userAnswers.get(BusinessActivityCodeThreePage).getOrElse("")
+
+    ApplicationRequest(
+      applicationLanguage      = Some(languageCode),
+      applicantEmailAddress    = Some(email),
+      applicantTelephoneNumber = Some(telephone),
+      refundingCountryCode     = Some(countryCode),
+      periodStartDate          = Some(refundStartDate),
+      periodEndDate            = Some(refundEndDate),
+      businessActivityCode1    = Some(businessActivity1),
+      businessActivityCode2    = Some(businessActivity2),
+      businessActivityCode3    = Some(businessActivity3)
+    )
+  }
 
 }

@@ -19,13 +19,13 @@ package controllers.actions
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import controllers.routes
-import models.requests.IdentifierRequest
+import models.requests.{DataRequest, IdentifierRequest}
 import play.api.mvc.*
 import play.api.mvc.Results.*
 import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.~
-import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
+import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys, UnauthorizedException}
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -43,27 +43,36 @@ class AuthenticatedIdentifierAction @Inject() (
   private def usingSupportedAffinityAndEnrolments(
     affinityGroup: AffinityGroup,
     enrolments: Enrolments
-  ): Boolean = {
-    // Map enrolment keys → required identifier name
+  ): (Boolean, String, String) = {
+
+    // enrolment → identifier name
     val requiredIdentifiers: Map[String, String] = Map(
       "HMRC-EU-REF-ORG" -> "VATRegNo",
       "HMCE-VAT-AGNT"   -> "AgentRefNo",
       "HMRC-NOVRN-AGNT" -> "VATAgentRefNo"
     )
 
-    // Select which enrolment keys apply for this affinity group
+    // allowed enrolments per affinity group
     val allowedKeys: Set[String] = affinityGroup match {
       case AffinityGroup.Organisation | AffinityGroup.Individual => Set("HMRC-EU-REF-ORG")
       case AffinityGroup.Agent                                   => Set("HMCE-VAT-AGNT", "HMRC-NOVRN-AGNT")
       case _                                                     => Set.empty[String]
     }
 
-    enrolments.enrolments.exists { enrolment =>
-      enrolment.isActivated &&
-      allowedKeys.contains(enrolment.key) &&
-      requiredIdentifiers.get(enrolment.key).exists { requiredIdName =>
-        enrolment.identifiers.exists(id => id.key == requiredIdName && id.value.trim.nonEmpty)
-      }
+    // find matching enrolment + identifier
+    val identifiers: Option[(String, String)] =
+      enrolments.enrolments.collectFirst {
+        case enrol if enrol.isActivated && allowedKeys.contains(enrol.key) =>
+          requiredIdentifiers.get(enrol.key).flatMap { requiredIdName =>
+            enrol.identifiers
+              .find(id => id.key == requiredIdName && id.value.trim.nonEmpty)
+              .map(id => (requiredIdName, id.value))
+          }
+      }.flatten
+
+    identifiers match {
+      case Some((idName, idValue)) => (true, idName, idValue)
+      case None                    => throw new UnauthorizedException("Missing or empty enrolment identifier")
     }
   }
 
@@ -72,8 +81,10 @@ class AuthenticatedIdentifierAction @Inject() (
 
     authorised().retrieve(Retrievals.affinityGroup and Retrievals.credentials and Retrievals.allEnrolments) {
       case Some(affinityGroup) ~ Some(credentials) ~ enrolments =>
-        if (usingSupportedAffinityAndEnrolments(affinityGroup, enrolments)) {
-          block(IdentifierRequest(request, credentials.providerId))
+        val (isValid, idKey, idValue) = usingSupportedAffinityAndEnrolments(affinityGroup, enrolments)
+
+        if (isValid) {
+          block(IdentifierRequest(request, credentials.providerId, Some(idKey), Some(idValue)))
         } else {
           Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
         }
@@ -97,7 +108,7 @@ class SessionIdentifierAction @Inject() (
 
     hc.sessionId match {
       case Some(session) =>
-        block(IdentifierRequest(request, session.value))
+        block(IdentifierRequest(request, session.value, None, None))
       case None =>
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
     }
