@@ -19,9 +19,11 @@ package controllers
 import com.google.inject.Inject
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import models.UserAnswers
+import pages.ClaimDetailsCompletedPage
 import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
 import uk.gov.hmrc.govukfrontend.views.Aliases.SummaryList
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -30,6 +32,8 @@ import utils.ConfigLanguageMapping
 import views.html.CheckYourClaimDetailsView
 import viewmodels.govuk.summarylist.*
 
+import scala.concurrent.ExecutionContext
+
 class CheckYourClaimDetailsController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
@@ -37,8 +41,10 @@ class CheckYourClaimDetailsController @Inject() (
   requireData: DataRequiredAction,
   val controllerComponents: MessagesControllerComponents,
   view: CheckYourClaimDetailsView,
+  sessionRepository: SessionRepository,
   configLanguageMapping: ConfigLanguageMapping
-) extends FrontendBaseController
+)(using ExecutionContext)
+    extends FrontendBaseController
     with I18nSupport
     with Logging {
 
@@ -48,8 +54,9 @@ class CheckYourClaimDetailsController @Inject() (
     Ok(view(summaryList))
   }
 
-  def onSubmit(): Action[AnyContent] = Action { implicit request =>
-    Redirect(controllers.routes.TaskListDashboardController.onPageLoad())
+  def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+    val updatedAnswers = request.userAnswers.set(ClaimDetailsCompletedPage, true).getOrElse(request.userAnswers)
+    sessionRepository.set(updatedAnswers).map(_ => Redirect(controllers.routes.TaskListDashboardController.onPageLoad()))
   }
 
   private def getChangeUrl(rowOpt: SummaryListRow): Option[String] =

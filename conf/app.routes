@@ -19,7 +19,7 @@ GET         /account/signed-out                          controllers.auth.Signed
 GET         /unauthorised                                controllers.UnauthorisedController.onPageLoad()
 
 # Task list Dashboard
-GET         /make-eu-vat-claim                           controllers.TaskListDashboardController.onPageLoad()
+GET         /make-claim-for-eu-vat-refund                controllers.TaskListDashboardController.onPageLoad()
 GET         /redirect-to-manage-claim                    controllers.TaskListDashboardController.redirectToManageClaim()
 
 # Claim details journey
@@ -130,7 +130,13 @@ POST        /total-vat-paid                                          controllers
 GET         /change-total-vat-paid                                   controllers.TotalVatPaidController.onPageLoad(mode: models.Mode = CheckMode)
 POST        /change-total-vat-paid                                   controllers.TotalVatPaidController.onSubmit(mode: models.Mode = CheckMode)
 
+GET         /total-vat-claim                             controllers.TotalVatClaimController.onPageLoad(mode: Mode = NormalMode)
+POST        /total-vat-claim                             controllers.TotalVatClaimController.onSubmit(mode: Mode = NormalMode)
+GET         /change-total-vat-claim                      controllers.TotalVatClaimController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-total-vat-claim                      controllers.TotalVatClaimController.onSubmit(mode: Mode = CheckMode)
+
 GET         /purchase-type                               controllers.PurchaseTypeController.onPageLoad(mode: Mode = NormalMode)
 POST        /purchase-type                               controllers.PurchaseTypeController.onSubmit(mode: Mode = NormalMode)
 GET         /change-purchase-type                        controllers.PurchaseTypeController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-purchase-type                        controllers.PurchaseTypeController.onSubmit(mode: Mode = CheckMode)
+

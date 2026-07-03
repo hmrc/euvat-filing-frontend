@@ -1,0 +1,58 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import viewmodels.InputWidth._
+@import views.html.components.MainErrorSummary
+@import viewmodels.LabelSize
+
+@this(
+    layout: templates.Layout,
+    formHelper: FormWithCSRF,
+    govukErrorSummary: GovukErrorSummary,
+    govukInput: GovukInput,
+    govukButton: GovukButton,
+    mainErrorSummary: MainErrorSummary
+)
+
+@(form: Form[_], mode: Mode, call: Call, currencySymbol: String)(implicit request: Request[_], messages: Messages)
+
+@layout(pageTitle = title(form, messages("totalVatClaim.title")), backLinkUrl = Some(call.url)) {
+
+    @formHelper(action = routes.TotalVatClaimController.onSubmit(mode), Symbol("autoComplete") -> "off") {
+
+        @mainErrorSummary(form)
+
+        <span class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is: </span>@messages("purchase.caption.add")</span>
+
+        <h1 class="govuk-heading-l">@messages("totalVatClaim.heading")</h1>
+
+        <p class="govuk-body-m">@messages("totalVatClaim.p1")</p>
+
+        @govukInput(
+            InputViewModel(
+                field = form("value"),
+                label = LabelViewModel(messages("totalVatClaim.h2")).withCssClass(LabelSize.Medium.toString)
+            )
+            .withHint(HintViewModel(messages("totalVatClaim.hint", currencySymbol)))
+            .withPrefix(PrefixOrSuffix(content = Text(currencySymbol)))
+            .withWidth(Fixed5)
+        )
+
+        @govukButton(
+            ButtonViewModel(messages("site.continue"))
+        )
+    }
+}
