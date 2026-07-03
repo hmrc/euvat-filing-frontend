@@ -647,7 +647,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar with BeforeA
           }
         }
 
-        "must redirect when applications exist but none are drafts" in {
+        "must show overlap error when approved submitted application overlaps with new period" in {
           when(mockService.retrieveTraderKnownFacts()(any()))
             .thenReturn(Future.successful(TraderKnownFactsResponse(123, tradeClass = Some(baCode1))))
           when(mockService.getLatestApplications(any())(any()))
@@ -687,8 +687,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar with BeforeA
               )
             val result = route(application, request).value
 
-            status(result) mustEqual SEE_OTHER
-            redirectLocation(result).value mustEqual onwardRoute.url
+            status(result) mustEqual BAD_REQUEST
           }
         }
       }

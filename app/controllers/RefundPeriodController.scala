@@ -157,8 +157,10 @@ class RefundPeriodController @Inject() (
         val hasDraftOverlap =
           response.totalApplication > 0 &&
             response.applications.exists { app =>
-              app.applicationStatus.equalsIgnoreCase("D") &&
-              app.submissionStatus.equalsIgnoreCase("S")
+              (app.applicationStatus.equalsIgnoreCase("D") ||
+              app.submissionStatus.equalsIgnoreCase("S")) &&
+                !YearMonth.from(app.periodStartDate).isAfter(YearMonth.from(endDate)) &&
+                !YearMonth.from(app.periodEndDate).isBefore(YearMonth.from(startDate))
             }
 
         logger.info(s"F5 overlap check: hasDraftOverlap=$hasDraftOverlap, startDate=$startDate, endDate=$endDate")
