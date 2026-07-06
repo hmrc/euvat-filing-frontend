@@ -21,26 +21,25 @@ import play.api.libs.json.{Json, OFormat}
 import java.time.LocalDateTime
 
 case class ApplicationRequest(
-  applicantVatRegNumber: String,
-  refundingCountryCode: Option[String],
-  periodStartDate: Option[LocalDateTime],
-  periodEndDate: Option[LocalDateTime],
-  applicantEmailAddress: Option[String],
-  applicantTelephoneNumber: Option[String],
-  applicationLanguage: Option[String],
-  businessActivityCode1: Option[String],
-  businessActivityCode2: Option[String],
-  businessActivityCode3: Option[String],
-  representativeId: Option[String],
-  representativeCountryCode: Option[String],
-  representativeEmailAddress: Option[String],
-  representativeIdType: Option[String],
-  representativeTelephoneNumber: Option[String],
-  bankAccountOwnerName: Option[String],
-  bankAccountOwnerType: Option[String],
-  iBanCode: Option[String],
-  bicCode: Option[String],
-  bankAccountCurrencyCode: Option[String]
+  refundingCountryCode: Option[String] = None,
+  periodStartDate: Option[LocalDateTime] = None,
+  periodEndDate: Option[LocalDateTime] = None,
+  applicantEmailAddress: Option[String] = None,
+  applicantTelephoneNumber: Option[String] = None,
+  applicationLanguage: Option[String] = None,
+  businessActivityCode1: Option[String] = None,
+  businessActivityCode2: Option[String] = None,
+  businessActivityCode3: Option[String] = None,
+  representativeId: Option[String] = None,
+  representativeCountryCode: Option[String] = None,
+  representativeEmailAddress: Option[String] = None,
+  representativeIdType: Option[String] = None,
+  representativeTelephoneNumber: Option[String] = None,
+  bankAccountOwnerName: Option[String] = None,
+  bankAccountOwnerType: Option[String] = None,
+  iBanCode: Option[String] = None,
+  bicCode: Option[String] = None,
+  bankAccountCurrencyCode: Option[String] = None
 )
 
 object ApplicationRequest {

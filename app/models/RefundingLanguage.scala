@@ -20,34 +20,37 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 
-sealed trait RefundingLanguage
+sealed abstract class RefundingLanguage(
+  val value: String,
+  val code: String
+) extends WithName(value)
 
 object RefundingLanguage extends Enumerable.Implicits {
 
-  case object English    extends WithName("english") with RefundingLanguage
-  case object German     extends WithName("german") with RefundingLanguage
-  case object French     extends WithName("french") with RefundingLanguage
-  case object Dutch      extends WithName("dutch") with RefundingLanguage
-  case object Bulgarian  extends WithName("bulgarian") with RefundingLanguage
-  case object Spanish    extends WithName("spanish") with RefundingLanguage
-  case object Turkish    extends WithName("turkish") with RefundingLanguage
-  case object Czech      extends WithName("czech") with RefundingLanguage
-  case object Danish     extends WithName("danish") with RefundingLanguage
-  case object Estonian   extends WithName("estonian") with RefundingLanguage
-  case object Finnish    extends WithName("finnish") with RefundingLanguage
-  case object Swedish    extends WithName("swedish") with RefundingLanguage
-  case object Italian    extends WithName("italian") with RefundingLanguage
-  case object Latvian    extends WithName("latvian") with RefundingLanguage
-  case object Lithuanian extends WithName("lithuanian") with RefundingLanguage
-  case object Maltese    extends WithName("maltese") with RefundingLanguage
-  case object Polish     extends WithName("polish") with RefundingLanguage
-  case object Portuguese extends WithName("portuguese") with RefundingLanguage
-  case object Romanian   extends WithName("romanian") with RefundingLanguage
-  case object Hungarian  extends WithName("hungarian") with RefundingLanguage
-  case object Greek      extends WithName("greek") with RefundingLanguage
-  case object Slovak     extends WithName("slovak") with RefundingLanguage
-  case object Slovenian  extends WithName("slovenian") with RefundingLanguage
-  case object Irish      extends WithName("irish") with RefundingLanguage
+  case object English    extends RefundingLanguage("english", "en")
+  case object German     extends RefundingLanguage("german", "de")
+  case object French     extends RefundingLanguage("french", "fr")
+  case object Dutch      extends RefundingLanguage("dutch", "nl")
+  case object Bulgarian  extends RefundingLanguage("bulgarian", "bg")
+  case object Spanish    extends RefundingLanguage("spanish", "es")
+  case object Turkish    extends RefundingLanguage("turkish", "tr")
+  case object Czech      extends RefundingLanguage("czech", "cz")
+  case object Danish     extends RefundingLanguage("danish", "da")
+  case object Estonian   extends RefundingLanguage("estonian", "est")
+  case object Finnish    extends RefundingLanguage("finnish", "fn")
+  case object Swedish    extends RefundingLanguage("swedish", "sw")
+  case object Italian    extends RefundingLanguage("italian", "ita")
+  case object Latvian    extends RefundingLanguage("latvian", "lt")
+  case object Lithuanian extends RefundingLanguage("lithuanian", "ln")
+  case object Maltese    extends RefundingLanguage("maltese", "ma")
+  case object Polish     extends RefundingLanguage("polish", "pl")
+  case object Portuguese extends RefundingLanguage("portuguese", "pr")
+  case object Romanian   extends RefundingLanguage("romanian", "rm")
+  case object Hungarian  extends RefundingLanguage("hungarian", "hg")
+  case object Greek      extends RefundingLanguage("greek", "gr")
+  case object Slovak     extends RefundingLanguage("slovak", "sk")
+  case object Slovenian  extends RefundingLanguage("slovenian", "sl")
+  case object Irish      extends RefundingLanguage("irish", "ir")
 
   val values: Seq[RefundingLanguage] = Seq(
     English,

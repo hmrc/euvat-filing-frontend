@@ -84,7 +84,7 @@ class AuthenticatedIdentifierAction @Inject() (
         val (isValid, idKey, idValue) = usingSupportedAffinityAndEnrolments(affinityGroup, enrolments)
 
         if (isValid) {
-          block(IdentifierRequest(request, credentials.providerId, Some(idKey), Some(idValue)))
+          block(IdentifierRequest(request, credentials.providerId))
         } else {
           Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
         }
@@ -108,7 +108,7 @@ class SessionIdentifierAction @Inject() (
 
     hc.sessionId match {
       case Some(session) =>
-        block(IdentifierRequest(request, session.value, None, None))
+        block(IdentifierRequest(request, session.value))
       case None =>
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
     }

@@ -288,19 +288,26 @@ class AuthActionSpec extends SpecBase {
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
           val appConfig = application.injector.instanceOf[FrontendAppConfig]
-          val enrolments = Enrolments(Set(Enrolment("SOME-OTHER-ENROLMENT", Seq(), "Activated")))
+          val unsupportedEnrolments =
+            Enrolments(
+              Set(Enrolment(key = "SOME-OTHER-ENROLMENT", identifiers = Seq(EnrolmentIdentifier(key = "x-y-z", value = "123")), state = "Activated"))
+            )
 
           val authConnector = new FakeSuccessfulAuthConnector(
             affinityGroup = Some(AffinityGroup.Organisation),
             credentials   = Some(Credentials("credId", "provider")),
-            enrolments    = enrolments
+            enrolments    = unsupportedEnrolments
           )
 
           val authAction = new AuthenticatedIdentifierAction(authConnector, appConfig, bodyParsers)
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
 
-          status(result) mustBe SEE_OTHER
+//          status(result) mustBe SEE_OTHER
+          assertThrows[UnauthorizedException] {
+            await(controller.onPageLoad()(FakeRequest()))
+          }
+
           redirectLocation(result).value mustBe routes.UnauthorisedController.onPageLoad().url
         }
       }

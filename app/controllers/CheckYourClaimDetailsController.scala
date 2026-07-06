@@ -21,7 +21,7 @@ import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierA
 import models.UserAnswers
 import models.requests.ApplicationRequest
 import models.responses.ApplicationResponse
-import pages.{BusinessActivityCodePage, BusinessActivityCodeThreePage, BusinessActivityCodeTwoPage, ClaimApplicationResponsePage, ClaimDetailsCompletedPage, ContactDetailsPage, RefundPeriodPage, RefundingCountryPage, RefundingCurrencyPage, RefundingLanguagePage}
+import pages.*
 import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -30,12 +30,12 @@ import services.EuVatRefundsService
 import uk.gov.hmrc.govukfrontend.views.Aliases.SummaryList
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import viewmodels.checkAnswers.CheckYourClaimDetailsSummary
 import utils.ConfigLanguageMapping
-import views.html.CheckYourClaimDetailsView
+import viewmodels.checkAnswers.CheckYourClaimDetailsSummary
 import viewmodels.govuk.summarylist.*
+import views.html.CheckYourClaimDetailsView
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class CheckYourClaimDetailsController @Inject() (
   override val messagesApi: MessagesApi,
@@ -60,13 +60,12 @@ class CheckYourClaimDetailsController @Inject() (
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
 
-    val userAnswers = request.userAnswers
     for {
-      updatedAnswer1 <- userAnswers.set(ClaimDetailsCompletedPage, true).getOrElse(userAnswers)
-      appRequest     <- buildAppRequest(updatedAnswer1)
-      claimResponse  <- service.createApplication(appRequest)
-      updatedAnswers <- updatedAnswer1.set(ClaimApplicationResponsePage, claimResponse)
-      _              <- sessionRepository.set(updatedAnswers)
+      updatedAnswers1 <- Future.fromTry(request.userAnswers.set(ClaimDetailsCompletedPage, true))
+      appRequest      <- buildAppRequest(updatedAnswers1)
+      claimResponse   <- service.createApplication(appRequest)
+      updatedAnswers  <- Future.fromTry(updatedAnswers1.set(ClaimApplicationResponsePage, claimResponse))
+      _               <- sessionRepository.set(updatedAnswers)
     } yield {
       if (claimResponse.applicationId > 0) {
         Redirect(controllers.routes.TaskListDashboardController.onPageLoad())
@@ -131,7 +130,7 @@ class CheckYourClaimDetailsController @Inject() (
       )
     )
 
-  private def buildAppRequest(userAnswers: UserAnswers): ApplicationRequest = {
+  private def buildAppRequest(userAnswers: UserAnswers): Future[ApplicationRequest] = {
     val countryCode = userAnswers
       .get(RefundingCountryPage)
       .getOrElse(throw new RuntimeException("Country code missing"))
@@ -140,6 +139,7 @@ class CheckYourClaimDetailsController @Inject() (
       .getOrElse(throw new RuntimeException("Currency code missing"))
     val languageCode = userAnswers
       .get(RefundingLanguagePage)
+      .map(_.code)
       .getOrElse(throw new RuntimeException("Language code missing"))
     val refundStartDate = userAnswers
       .get(RefundPeriodPage)
@@ -163,17 +163,18 @@ class CheckYourClaimDetailsController @Inject() (
     val businessActivityCode2 = userAnswers.get(BusinessActivityCodeTwoPage).getOrElse("")
     val businessActivityCode3 = userAnswers.get(BusinessActivityCodeThreePage).getOrElse("")
 
-    ApplicationRequest(
-      applicantVatRegNumber    = "",
-      applicationLanguage      = Some(languageCode),
-      applicantEmailAddress    = Some(email),
-      applicantTelephoneNumber = Some(telephone),
-      refundingCountryCode     = Some(countryCode),
-      periodStartDate          = Some(refundStartDate),
-      periodEndDate            = Some(refundEndDate),
-      businessActivityCode1    = Some(businessActivityCode1),
-      businessActivityCode2    = Some(businessActivityCode2),
-      businessActivityCode3    = Some(businessActivityCode3)
+    Future.successful(
+      ApplicationRequest(
+        applicationLanguage      = Some(languageCode),
+        applicantEmailAddress    = Some(email),
+        applicantTelephoneNumber = Some(telephone),
+        refundingCountryCode     = Some(countryCode),
+        periodStartDate          = Some(refundStartDate),
+        periodEndDate            = Some(refundEndDate),
+        businessActivityCode1    = Some(businessActivityCode1),
+        businessActivityCode2    = Some(businessActivityCode2),
+        businessActivityCode3    = Some(businessActivityCode3)
+      )
     )
   }
 
