@@ -39,15 +39,13 @@
                 }
             </ul>
             } else {
-            @for((url, linkText, hiddenKey) <- links) {
-            <div>
-                <a class="govuk-link" href="@url">
-                    <span aria-hidden="true">@messages(linkText)</span>
-                    <span class="govuk-visually-hidden">@messages(hiddenKey)</span>
-                </a>
-            </div>
-            }
-            }
+                @for((url, linkText, hiddenKey) <- links) {
+                    <a class="govuk-link" href="@url" aria-label="@messages(hiddenKey)">
+                        <span aria-hidden="true">@messages(linkText)</span>
+                        <span class="govuk-visually-hidden">@messages(hiddenKey)</span>
+                    </a>
+                    }
+                }
             }
         </dd>
     </div>
