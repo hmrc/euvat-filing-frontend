@@ -27,27 +27,25 @@
         </dd>
         <dd class="govuk-summary-list__actions govuk-!-width-one-third">
             @if(links.nonEmpty) {
-            @if(links.size > 1) {
-            <ul class="govuk-summary-list__actions-list">
-                @for((url, linkText, hiddenKey) <- links) {
-                <li class="govuk-summary-list__actions-list-item">
-                    <a class="govuk-link" href="@url">
-                        <span aria-hidden="true">@messages(linkText)</span>
-                        <span class="govuk-visually-hidden">@messages(hiddenKey)</span>
-                    </a>
-                </li>
+                @if(links.size > 1) {
+                <ul class="govuk-summary-list__actions-list">
+                    @for((url, linkText, hiddenKey) <- links) {
+                    <li class="govuk-summary-list__actions-list-item">
+                        <a class="govuk-link" href="@url" aria-label="@messages(hiddenKey)">
+                            <span aria-hidden="true">@messages(linkText)</span>
+                            <span class="govuk-visually-hidden">@messages(hiddenKey)</span>
+                        </a>
+                    </li>
+                    }
+                </ul>
+                } else {
+                    @for((url, linkText, hiddenKey) <- links) {
+                        <a class="govuk-link" href="@url" aria-label="@messages(hiddenKey)">
+                            <span aria-hidden="true">@messages(linkText)</span>
+                            <span class="govuk-visually-hidden">@messages(hiddenKey)</span>
+                        </a>
+                    }
                 }
-            </ul>
-            } else {
-            @for((url, linkText, hiddenKey) <- links) {
-            <div>
-                <a class="govuk-link" href="@url">
-                    <span aria-hidden="true">@messages(linkText)</span>
-                    <span class="govuk-visually-hidden">@messages(hiddenKey)</span>
-                </a>
-            </div>
-            }
-            }
             }
         </dd>
     </div>
