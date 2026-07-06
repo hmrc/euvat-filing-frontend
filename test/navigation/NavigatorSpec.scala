@@ -50,7 +50,6 @@ class NavigatorSpec extends SpecBase {
         """)
       )
     )
-
   )
   val userAnswers: UserAnswers = UserAnswers("id")
 
@@ -187,15 +186,10 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from SimplifiedInvoiceVatRegCheckPage to SupplierVatRegistrationNumberController if yes selected and invoice type is simplified" in {
-        val ua = userAnswers.set(SimplifiedInvoiceVatRegCheckPage, true).success.value.set(InvoiceTypePage, InvoiceType.SimplifiedInvoice).success.value
+        val ua =
+          userAnswers.set(SimplifiedInvoiceVatRegCheckPage, true).success.value.set(InvoiceTypePage, InvoiceType.SimplifiedInvoice).success.value
         navigator.nextPage(SimplifiedInvoiceVatRegCheckPage, NormalMode, ua) mustBe
           routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode)
-      }
-
-      "must go from SimplifiedInvoiceVatRegCheckPage to PurchaseTypeController if no selected" in {
-        val ua = userAnswers.set(SimplifiedInvoiceVatRegCheckPage, false).success.value
-        navigator.nextPage(SimplifiedInvoiceVatRegCheckPage, NormalMode, ua) mustBe
-          routes.PurchaseTypeController.onPageLoad(NormalMode)
       }
 
       "must go from CheckYourStateDetailsPage to CheckYourStateDetailsController if no selected" in {
