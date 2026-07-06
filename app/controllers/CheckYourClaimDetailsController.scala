@@ -48,12 +48,17 @@ class CheckYourClaimDetailsController @Inject() (
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val summaryList = buildSummaryList(request.userAnswers)
-
-    Ok(view(summaryList))
+    val isPostSubmission = request.userAnswers.get(pages.ClaimDetailsCompletedPage).contains(true)
+    Ok(view(summaryList, isPostSubmission))
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    val updatedAnswers = request.userAnswers.set(ClaimDetailsCompletedPage, true).getOrElse(request.userAnswers)
+    val isPostSubmission = request.userAnswers.get(pages.ClaimDetailsCompletedPage).contains(true)
+    val updatedAnswers = if (!isPostSubmission) {
+      request.userAnswers.set(ClaimDetailsCompletedPage, true).getOrElse(request.userAnswers)
+    } else {
+      request.userAnswers
+    }
     sessionRepository.set(updatedAnswers).map(_ => Redirect(controllers.routes.TaskListDashboardController.onPageLoad()))
   }
 

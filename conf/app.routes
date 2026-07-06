@@ -73,6 +73,8 @@ POST        /business-activity-3                         controllers.BusinessAct
 
 GET         /check-your-claim-details                    controllers.CheckYourClaimDetailsController.onPageLoad()
 POST        /check-your-claim-details                    controllers.CheckYourClaimDetailsController.onSubmit()
+GET         /claim-details                               controllers.CheckYourClaimDetailsController.onPageLoad()
+POST        /claim-details                               controllers.CheckYourClaimDetailsController.onSubmit()
 
 GET         /remove-second-SIC-code                      controllers.RemoveSecondBusinessActivityController.onPageLoad()
 POST        /remove-second-SIC-code                      controllers.RemoveSecondBusinessActivityController.onSubmit()

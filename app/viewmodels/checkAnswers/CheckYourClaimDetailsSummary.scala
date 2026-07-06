@@ -29,12 +29,16 @@ object CheckYourClaimDetailsSummary {
 
   type Row = (String, Option[String], Seq[(String, String, String)])
 
-  def rowCountry(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
+  def rowCountry(answers: UserAnswers)(implicit messages: Messages): Option[(String, Option[String], Seq[(String, String, String)])] =
     answers.get(RefundingCountryNamePage).map { countryName =>
+      val changeUrl = if (answers.get(ClaimDetailsCompletedPage).contains(true))
+        routes.JourneyRecoveryController.onPageLoad().url  // placeholder for DTR-6336 interception page
+      else
+        routes.RefundingCountryController.onPageLoad(CheckMode).url
       (
         messages("checkYourClaimDetails.refundingCountry.subLabel"),
         Some(countryName),
-        Seq((routes.RefundingCountryController.onPageLoad(CheckMode).url, "site.change", "checkYourClaimDetails.refundingCountry.change.hidden"))
+        Seq((changeUrl, "site.change", "checkYourClaimDetails.refundingCountry.change.hidden"))
       )
     }
 
