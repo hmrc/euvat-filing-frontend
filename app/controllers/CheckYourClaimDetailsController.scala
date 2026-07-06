@@ -164,15 +164,16 @@ class CheckYourClaimDetailsController @Inject() (
     val businessActivityCode3 = userAnswers.get(BusinessActivityCodeThreePage).getOrElse("")
 
     ApplicationRequest(
+      applicantVatRegNumber    = "",
       applicationLanguage      = Some(languageCode),
       applicantEmailAddress    = Some(email),
       applicantTelephoneNumber = Some(telephone),
       refundingCountryCode     = Some(countryCode),
       periodStartDate          = Some(refundStartDate),
       periodEndDate            = Some(refundEndDate),
-      businessActivityCode1    = Some(businessActivity1),
-      businessActivityCode2    = Some(businessActivity2),
-      businessActivityCode3    = Some(businessActivity3)
+      businessActivityCode1    = Some(businessActivityCode1),
+      businessActivityCode2    = Some(businessActivityCode2),
+      businessActivityCode3    = Some(businessActivityCode3)
     )
   }
 
