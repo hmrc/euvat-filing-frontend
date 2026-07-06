@@ -128,8 +128,8 @@ refundPeriod.start.error.invalidDateFormat.month = Enter a valid start month
 refundPeriod.start.error.invalidDateFormat.year = Enter a valid start year
 refundPeriod.start.error.after30Sept = Refund period start date cannot be before 1 January {0}
 refundPeriod.start.error.30SeptOrEarlier = Refund period start date cannot be before 1 January {0}
-refundPeriod.start.error.beforeVatRegDate.firstQuarter = Refund period start date must be after the VAT registration date if you registered for VAT during the first quarter of the year
-refundPeriod.start.error.beforeVatRegDate.remainingQuarter = Refund period start date must fall within the three-month ‘grace period’ if you did not register for VAT during the first quarter of the year
+refundPeriod.start.error.beforeVatRegDate.firstQuarter = Refund period start date must be after the VAT registration date if you registered for VAT during the first quarter
+refundPeriod.start.error.beforeVatRegDate.remainingQuarter = Refund period start date must be within three months before or anytime after the VAT registration date if you did not register for VAT during the first quarter
 refundPeriod.end.heading = When is the refund period end date?
 refundPeriod.end.hint = For example, 12 2025
 refundPeriod.end.error.required = Enter the end date
@@ -139,7 +139,7 @@ refundPeriod.end.error.invalidDateFormat = Enter a valid end date
 refundPeriod.end.error.invalidDateFormat.month = Enter a valid end month
 refundPeriod.end.error.invalidDateFormat.year = Enter a valid end year
 refundPeriod.end.error.inPast = Refund period end date must be in the past
-refundPeriod.end.error.afterVatDeRegDate = Refund period end date must not be after date of cancelled VAT registration
+refundPeriod.end.error.afterVatDeRegDate = Refund period end date must not be after the VAT deregistration date
 refundPeriod.error.startDateNotAfterEndDate = Refund period start date must be earlier than the refund period end date
 refundPeriod.error.startAndEndInSameYear = Refund period start date and end date must be in the same calendar year
 refundPeriod.error.overlap = Refund period cannot overlap with another claim for the same EU member state.
@@ -276,7 +276,6 @@ totalPurchaseAmountBeforeVat.inset = The currency for this claim is in {0} ({1})
 totalPurchaseAmountBeforeVat.p1 = This is the purchase amount before VAT is added. If your invoice does not show this amount, you’ll need to <a href="https://www.gov.uk/charge-reclaim-record-vat" class="govuk-link" target="_blank" rel="noreferrer noopener">calculate it (opens in a new tab)</a>.
 totalPurchaseAmountBeforeVat.hint = For example, {0}150 or {0}120.45
 totalPurchaseAmountBeforeVat.change.hidden = Total purchase amount before VAT
-
 totalPurchaseAmountBeforeVat.error.nonNumeric = Enter the total purchase amount before VAT in the correct format
 totalPurchaseAmountBeforeVat.error.required = Enter the total purchase amount before VAT
 totalPurchaseAmountBeforeVat.error.aboveMaximum = Total purchase amount before VAT must be between -999,999,999.99 and 999,999,999.99
@@ -287,7 +286,6 @@ totalVatPaid.heading = Total VAT paid
 totalVatPaid.h2 = How much VAT did you pay?
 totalVatPaid.p1 = This is the amount of VAT charged. If your invoice does not show this amount, you''ll need to <a href="https://www.gov.uk/charge-reclaim-record-vat" class="govuk-link" target="_blank">calculate it (opens in a new tab)</a>.
 totalVatPaid.hint = For example, {0}150 or {0}120.45
-
 totalVatPaid.error.required = Enter total VAT paid
 totalVatPaid.error.invalidNumeric = Enter total VAT paid in the correct format
 totalVatPaid.error.nonNumeric = Enter total VAT paid in the correct format

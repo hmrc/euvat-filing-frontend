@@ -49,16 +49,15 @@ class RefundPeriodFormProvider @Inject() () {
     }
 
   private def fieldsForError(message: String): Set[String] = message match {
-    case "refundPeriod.start.error.required" | "refundPeriod.start.error.after30Sept" | "refundPeriod.start.error.30SeptOrEarlier" =>
+    case "refundPeriod.start.error.required" | "refundPeriod.start.error.after30Sept" | "refundPeriod.start.error.30SeptOrEarlier" |
+        "refundPeriod.start.error.beforeVatRegDate.remainingQuarter" | "refundPeriod.start.error.beforeVatRegDate.firstQuarter" =>
       Set("start.month", "start.year")
-    case "refundPeriod.error.startAndEndInSameYear"                          => Set("start.year", "end.year")
-    case "refundPeriod.error.periodNotLessThan3Months"                       => Set("start.month", "end.month")
-    case "refundPeriod.error.startDateNotAfterEndDate"                       => Set("start.month", "start.year", "end.month", "end.year")
-    case "refundPeriod.end.error.required" | "refundPeriod.end.error.inPast" => Set("end.month", "end.year")
-    case "refundPeriod.start.error.beforeVatRegDate.firstQuarter" | "refundPeriod.start.error.beforeVatRegDate.remainingQuarter" =>
-      Set("start.month", "start.year")
-    case "refundPeriod.end.error.afterVatDeRegDate" => Set("end.month", "end.year")
-    case _                                          => Set.empty
+    case "refundPeriod.error.startDateNotAfterEndDate" => Set("start.month", "start.year", "end.month", "end.year")
+    case "refundPeriod.end.error.required" | "refundPeriod.end.error.inPast" | "refundPeriod.end.error.afterVatDeRegDate" =>
+      Set("end.month", "end.year")
+    case "refundPeriod.error.startAndEndInSameYear"    => Set("start.year", "end.year")
+    case "refundPeriod.error.periodNotLessThan3Months" => Set("start.month", "end.month")
+    case _                                             => Set.empty
   }
 
   private def highlightedFields(form: Form[RefundPeriodData]): Set[String] = {
