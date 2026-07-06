@@ -40,10 +40,10 @@ class AuthenticatedIdentifierAction @Inject() (
     extends IdentifierAction
     with AuthorisedFunctions {
 
-  private def usingSupportedAffinityAndEnrolments(
+  private def supportedEnrolmentIdentifier(
     affinityGroup: AffinityGroup,
     enrolments: Enrolments
-  ): (Boolean, String, String) = {
+  ): Option[(String, String)] = {
 
     // enrolment → identifier name
     val requiredIdentifiers: Map[String, String] = Map(
@@ -60,20 +60,14 @@ class AuthenticatedIdentifierAction @Inject() (
     }
 
     // find matching enrolment + identifier
-    val identifiers: Option[(String, String)] =
-      enrolments.enrolments.collectFirst {
-        case enrol if enrol.isActivated && allowedKeys.contains(enrol.key) =>
-          requiredIdentifiers.get(enrol.key).flatMap { requiredIdName =>
-            enrol.identifiers
-              .find(id => id.key == requiredIdName && id.value.trim.nonEmpty)
-              .map(id => (requiredIdName, id.value))
-          }
-      }.flatten
-
-    identifiers match {
-      case Some((idName, idValue)) => (true, idName, idValue)
-      case None                    => throw new UnauthorizedException("Missing or empty enrolment identifier")
-    }
+    enrolments.enrolments.collectFirst {
+      case enrol if enrol.isActivated && allowedKeys.contains(enrol.key) =>
+        requiredIdentifiers.get(enrol.key).flatMap { requiredIdentifier =>
+          enrol.identifiers
+            .find(id => id.key == requiredIdentifier && id.value.trim.nonEmpty)
+            .map(id => (requiredIdentifier, id.value))
+        }
+    }.flatten
   }
 
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
@@ -81,14 +75,11 @@ class AuthenticatedIdentifierAction @Inject() (
 
     authorised().retrieve(Retrievals.affinityGroup and Retrievals.credentials and Retrievals.allEnrolments) {
       case Some(affinityGroup) ~ Some(credentials) ~ enrolments =>
-        val (isValid, idKey, idValue) = usingSupportedAffinityAndEnrolments(affinityGroup, enrolments)
-
-        if (isValid) {
-          block(IdentifierRequest(request, credentials.providerId))
-        } else {
-          Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
+        supportedEnrolmentIdentifier(affinityGroup, enrolments) match {
+          case Some((_, _)) => block(IdentifierRequest(request, credentials.providerId))
+          case None         => Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
         }
-      case _ => throw new UnauthorizedException("Unable to retrieve affinity, enrolments or credentials")
+      case _ => Future.failed(new UnauthorizedException("Unable to retrieve affinity, enrolments or credentials"))
     } recover {
       case _: NoActiveSession =>
         Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))

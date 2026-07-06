@@ -17,6 +17,8 @@
 package controllers
 
 import base.SpecBase
+import models.responses.ApplicationResponse
+import models.{ContactDetails, RefundPeriod, RefundingLanguage, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
@@ -26,15 +28,16 @@ import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
+import services.EuVatRefundsService
 import viewmodels.govuk.SummaryListFluency
-import views.html.CheckYourClaimDetailsView
-import models.UserAnswers
 
+import java.time.LocalDateTime
 import scala.concurrent.Future
 
 class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluency with MockitoSugar {
 
   "Check Your Answers Controller" - {
+    val mockService: EuVatRefundsService = mock[EuVatRefundsService]
 
     "must return OK and the correct view for a GET" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
@@ -47,11 +50,36 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
     }
 
     "must redirect to the task list on submit and set ClaimDetailsCompletedPage to true" in {
+      val ua = emptyUserAnswers
+        .set(pages.RefundingCountryPage, "BE")
+        .success
+        .value
+        .set(pages.ClaimDetailsCompletedPage, true)
+        .success
+        .value
+        .set(pages.RefundingCurrencyPage, "eur")
+        .success
+        .value
+        .set(pages.RefundingLanguagePage, RefundingLanguage.English)
+        .success
+        .value
+        .set(pages.RefundPeriodPage, RefundPeriod.apply(LocalDateTime.of(2025, 4, 1, 10, 10, 10, 10), LocalDateTime.of(2025, 12, 31, 23, 2, 10, 10)))
+        .success
+        .value
+        .set(pages.ContactDetailsPage, ContactDetails("test@email.com", None))
+        .success
+        .value
+        .set(pages.BusinessActivityCodePage, "9999")
+        .success
+        .value
+
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      when(mockService.createApplication(any())(any()))
+        .thenReturn(Future.successful(ApplicationResponse(123, "GB123456789", 10)))
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+      val application = applicationBuilder(userAnswers = Some(ua))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository), bind[EuVatRefundsService].toInstance(mockService))
         .build()
 
       running(application) {
@@ -68,11 +96,36 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
     }
 
     "must still redirect to task list on submit even if sessionRepository.set returns false" in {
+      val ua = emptyUserAnswers
+        .set(pages.RefundingCountryPage, "BE")
+        .success
+        .value
+        .set(pages.ClaimDetailsCompletedPage, true)
+        .success
+        .value
+        .set(pages.RefundingCurrencyPage, "eur")
+        .success
+        .value
+        .set(pages.RefundingLanguagePage, RefundingLanguage.English)
+        .success
+        .value
+        .set(pages.RefundPeriodPage, RefundPeriod.apply(LocalDateTime.of(2025, 4, 1, 10, 10, 10, 10), LocalDateTime.of(2025, 12, 31, 23, 2, 10, 10)))
+        .success
+        .value
+        .set(pages.ContactDetailsPage, ContactDetails("test@email.com", None))
+        .success
+        .value
+        .set(pages.BusinessActivityCodePage, "9999")
+        .success
+        .value
+
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(false)
+      when(mockService.createApplication(any())(any()))
+        .thenReturn(Future.successful(ApplicationResponse(123, "GB123456789", 10)))
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+      val application = applicationBuilder(userAnswers = Some(ua))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository), bind[EuVatRefundsService].toInstance(mockService))
         .build()
 
       running(application) {

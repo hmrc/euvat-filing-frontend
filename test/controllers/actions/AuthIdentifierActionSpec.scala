@@ -31,13 +31,13 @@ import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
-class AuthActionSpec extends SpecBase {
+class AuthIdentifierActionSpec extends SpecBase {
 
   class Harness(authAction: IdentifierAction) {
     def onPageLoad(): Action[AnyContent] = authAction(_ => Results.Ok)
   }
 
-  "Auth Action" - {
+  "Auth Identifier Action" - {
 
     "when the user hasn't logged in" - {
       "must redirect the user to log in " in {
@@ -290,7 +290,7 @@ class AuthActionSpec extends SpecBase {
           val appConfig = application.injector.instanceOf[FrontendAppConfig]
           val unsupportedEnrolments =
             Enrolments(
-              Set(Enrolment(key = "SOME-OTHER-ENROLMENT", identifiers = Seq(EnrolmentIdentifier(key = "x-y-z", value = "123")), state = "Activated"))
+              Set(Enrolment(key = "SOME-OTHER-ENROLMENT", identifiers = Seq.empty, state = "Activated"))
             )
 
           val authConnector = new FakeSuccessfulAuthConnector(
@@ -303,11 +303,7 @@ class AuthActionSpec extends SpecBase {
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
 
-//          status(result) mustBe SEE_OTHER
-          assertThrows[UnauthorizedException] {
-            await(controller.onPageLoad()(FakeRequest()))
-          }
-
+          status(result) mustBe SEE_OTHER
           redirectLocation(result).value mustBe routes.UnauthorisedController.onPageLoad().url
         }
       }

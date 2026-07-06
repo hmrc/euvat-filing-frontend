@@ -155,11 +155,11 @@ class CheckYourClaimDetailsController @Inject() (
       .getOrElse(throw new RuntimeException("Email contact detail missing"))
     val telephone = userAnswers
       .get(ContactDetailsPage)
-      .map(_.email)
+      .map(_.telephone)
       .getOrElse(throw new RuntimeException("Telephone contact detail missing"))
     val businessActivityCode1 = userAnswers
       .get(BusinessActivityCodePage)
-      .getOrElse(throw new RuntimeException("Telephone contact detail missing"))
+      .getOrElse(throw new RuntimeException("Business activity code missing"))
     val businessActivityCode2 = userAnswers.get(BusinessActivityCodeTwoPage).getOrElse("")
     val businessActivityCode3 = userAnswers.get(BusinessActivityCodeThreePage).getOrElse("")
 
@@ -167,7 +167,7 @@ class CheckYourClaimDetailsController @Inject() (
       ApplicationRequest(
         applicationLanguage      = Some(languageCode),
         applicantEmailAddress    = Some(email),
-        applicantTelephoneNumber = Some(telephone),
+        applicantTelephoneNumber = Some(telephone).value,
         refundingCountryCode     = Some(countryCode),
         periodStartDate          = Some(refundStartDate),
         periodEndDate            = Some(refundEndDate),
