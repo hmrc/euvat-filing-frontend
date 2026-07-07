@@ -23,7 +23,7 @@ govukButton: GovukButton,
 customSummaryList: views.html.components.CustomSummaryList
 )
 
-@(sections: Seq[(String, Seq[(String, Option[String], Seq[(String, String, String)])])], isPostSubmission: Boolean)(implicit request: Request[_], messages: Messages)
+@(sections: Seq[(String, Seq[(String, Option[String], Seq[(String, String, String)])])], isPostSubmission: Boolean, isAmended: Boolean)(implicit request: Request[_], messages: Messages)
 
 @layout(
 pageTitle = titleNoForm(messages(if(isPostSubmission) "claimDetails.title" else "checkYourClaimDetails.title")),
@@ -42,6 +42,9 @@ showBackLink = false
             </div>
         }
 
-        @govukButton(ButtonViewModel(messages(if(isPostSubmission) "site.continue" else "site.save.continue")))
+        @govukButton(ButtonViewModel(messages(
+            if(isPostSubmission && !isAmended) "site.continue"
+            else "site.save.continue"
+        )))
     }
 }

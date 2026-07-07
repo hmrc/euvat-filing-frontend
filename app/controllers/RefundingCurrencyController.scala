@@ -112,10 +112,18 @@ class RefundingCurrencyController @Inject() (
                   logger.warn(s"RefundingCurrencyController.onSubmit - could not find currency code for ${value.toString}")
                   Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
                 case Some(currencyCode) =>
+                  val isChanged = request.userAnswers.get(RefundingCurrencyPage) match {
+                    case Some(existing) => existing != currencyCode
+                    case None           => true
+                  }
                   for {
                     updatedAnswers <- Future.fromTry(request.userAnswers.set(RefundingCurrencyPage, currencyCode))
-                    _              <- sessionRepository.set(updatedAnswers)
-                  } yield Redirect(navigator.nextPage(RefundingCurrencyPage, mode, updatedAnswers))
+                    updatedAnswers2 <- if (isChanged && request.userAnswers.get(pages.ClaimDetailsCompletedPage).contains(true))
+                                         Future.fromTry(updatedAnswers.set(pages.ClaimDetailsAmendedPage, true))
+                                       else
+                                         Future.successful(updatedAnswers)
+                    _ <- sessionRepository.set(updatedAnswers2)
+                  } yield Redirect(navigator.nextPage(RefundingCurrencyPage, mode, updatedAnswers2))
               }
           }
       )

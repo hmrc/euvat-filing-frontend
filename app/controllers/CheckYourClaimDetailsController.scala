@@ -19,7 +19,7 @@ package controllers
 import com.google.inject.Inject
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import models.UserAnswers
-import pages.ClaimDetailsCompletedPage
+import pages.*
 import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -40,7 +40,7 @@ class CheckYourClaimDetailsController @Inject() (
   view: CheckYourClaimDetailsView,
   configLanguageMapping: ConfigLanguageMapping,
   configCurrencyMapping: ConfigCurrencyMapping,
-  sessionRepository: SessionRepository,
+  sessionRepository: SessionRepository
 )(using ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
@@ -49,7 +49,8 @@ class CheckYourClaimDetailsController @Inject() (
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val summaryList = buildSummaryList(request.userAnswers)
     val isPostSubmission = request.userAnswers.get(pages.ClaimDetailsCompletedPage).contains(true)
-    Ok(view(summaryList, isPostSubmission))
+    val isAmended = request.userAnswers.get(pages.ClaimDetailsAmendedPage).contains(true)
+    Ok(view(summaryList, isPostSubmission, isAmended))
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -57,12 +58,14 @@ class CheckYourClaimDetailsController @Inject() (
     val updatedAnswers = if (!isPostSubmission) {
       request.userAnswers.set(ClaimDetailsCompletedPage, true).getOrElse(request.userAnswers)
     } else {
-      request.userAnswers
+      request.userAnswers.remove(pages.ClaimDetailsAmendedPage).getOrElse(request.userAnswers)
     }
     sessionRepository.set(updatedAnswers).map(_ => Redirect(controllers.routes.TaskListDashboardController.onPageLoad()))
   }
 
-  private def buildSummaryList(answers: UserAnswers)(implicit messages: Messages): Seq[(String, Seq[(String, Option[String], Seq[(String, String, String)])])] = {
+  private def buildSummaryList(
+    answers: UserAnswers
+  )(implicit messages: Messages): Seq[(String, Seq[(String, Option[String], Seq[(String, String, String)])])] = {
 
     val maybeCountryCode = answers.get(pages.RefundingCountryPage).orElse {
       answers.get(pages.RefundingCountryNamePage).map { stored =>
@@ -97,9 +100,19 @@ class CheckYourClaimDetailsController @Inject() (
       languageSection ++
       currencySection ++
       Seq(
-        ("checkYourClaimDetails.refundingPeriod.label", Seq(CheckYourClaimDetailsSummary.rowRefundStart(answers), CheckYourClaimDetailsSummary.rowRefundEnd(answers)).flatten),
-        ("checkYourClaimDetails.contactDetails.label", Seq(CheckYourClaimDetailsSummary.rowContactEmail(answers), CheckYourClaimDetailsSummary.rowContactPhone(answers)).flatten),
-        ("checkYourClaimDetails.businessActivity.label", Seq(CheckYourClaimDetailsSummary.rowBusinessActivity(answers), CheckYourClaimDetailsSummary.rowBusinessActivity2(answers), CheckYourClaimDetailsSummary.rowBusinessActivity3(answers)).flatten)
+        ("checkYourClaimDetails.refundingPeriod.label",
+         Seq(CheckYourClaimDetailsSummary.rowRefundStart(answers), CheckYourClaimDetailsSummary.rowRefundEnd(answers)).flatten
+        ),
+        ("checkYourClaimDetails.contactDetails.label",
+         Seq(CheckYourClaimDetailsSummary.rowContactEmail(answers), CheckYourClaimDetailsSummary.rowContactPhone(answers)).flatten
+        ),
+        ("checkYourClaimDetails.businessActivity.label",
+         Seq(
+           CheckYourClaimDetailsSummary.rowBusinessActivity(answers),
+           CheckYourClaimDetailsSummary.rowBusinessActivity2(answers),
+           CheckYourClaimDetailsSummary.rowBusinessActivity3(answers)
+         ).flatten
+        )
       )
   }
 }

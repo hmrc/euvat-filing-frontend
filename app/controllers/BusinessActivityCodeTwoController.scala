@@ -110,10 +110,18 @@ class BusinessActivityCodeTwoController @Inject() (
         },
         value => {
           if (ba2.contains(value)) {
+            val isChanged = baseAnswers.get(BusinessActivityCodeTwoPage) match {
+              case Some(existing) => existing != value
+              case None           => true
+            }
             for {
               updatedAnswer1 <- Future.fromTry(baseAnswers.set(BusinessActivityCodeTwoPage, value))
               updatedAnswers <- Future.fromTry(updatedAnswer1.remove(pages.BusinessActivityThreePage))
-              _              <- sessionRepository.set(updatedAnswers)
+              updatedAnswers2 <- if (isChanged && request.userAnswers.get(pages.ClaimDetailsCompletedPage).contains(true))
+                                   Future.fromTry(updatedAnswers.set(pages.ClaimDetailsAmendedPage, true))
+                                 else
+                                   Future.successful(updatedAnswers)
+              _ <- sessionRepository.set(updatedAnswers2)
             } yield mode match {
               case models.CheckMode =>
                 if (ba3.isDefined) Redirect(routes.BusinessActivityThreeController.onPageLoad())
@@ -127,10 +135,18 @@ class BusinessActivityCodeTwoController @Inject() (
             val duplicateForm = form.withError("value", "businessActivityCodeTwo.error.duplicate", from, value)
             Future.successful(BadRequest(view(duplicateForm, Some(routes.BusinessActivityController.onPageLoad(mode).url), mode)))
           } else {
+            val isChanged = baseAnswers.get(BusinessActivityCodeTwoPage) match {
+              case Some(existing) => existing != value
+              case None           => true
+            }
             for {
               updatedAnswer1 <- Future.fromTry(baseAnswers.set(BusinessActivityCodeTwoPage, value))
               updatedAnswers <- Future.fromTry(updatedAnswer1.remove(pages.BusinessActivityThreePage))
-              _              <- sessionRepository.set(updatedAnswers)
+              updatedAnswers2 <- if (isChanged && request.userAnswers.get(pages.ClaimDetailsCompletedPage).contains(true))
+                                   Future.fromTry(updatedAnswers.set(pages.ClaimDetailsAmendedPage, true))
+                                 else
+                                   Future.successful(updatedAnswers)
+              _ <- sessionRepository.set(updatedAnswers2)
             } yield mode match {
               case models.CheckMode =>
                 if (ba3.isDefined) Redirect(routes.BusinessActivityThreeController.onPageLoad())

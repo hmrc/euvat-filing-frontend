@@ -18,17 +18,17 @@ package pages
 
 import base.SpecBase
 
-class ClaimDetailsCompletedPageSpec extends SpecBase {
+class ClaimDetailsAmendedPageSpec extends SpecBase {
 
-  "ClaimDetailsCompletedPage" - {
+  "ClaimDetailsAmendedPage" - {
 
     "must be able to be set and retrieved from UserAnswers" in {
-      val answers = emptyUserAnswers.set(ClaimDetailsCompletedPage, true).success.value
-      answers.get(ClaimDetailsCompletedPage) mustBe Some(true)
+      val answers = emptyUserAnswers.set(ClaimDetailsAmendedPage, true).success.value
+      answers.get(ClaimDetailsAmendedPage) mustBe Some(true)
     }
 
     "must return None when not set" in {
-      emptyUserAnswers.get(ClaimDetailsCompletedPage) mustBe None
+      emptyUserAnswers.get(ClaimDetailsAmendedPage) mustBe None
     }
   }
 }

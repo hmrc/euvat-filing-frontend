@@ -116,12 +116,20 @@ class BusinessActivityCodeThreeController @Inject() (
               val duplicateForm = form.copy(errors = form.errors :+ duplicateError)
               Future.successful(BadRequest(view(duplicateForm, Some(routes.BusinessActivityTwoController.onPageLoad(mode).url), mode)))
             case None =>
+              val isChanged = baseAnswers.get(BusinessActivityCodeThreePage) match {
+                case Some(existing) => existing != value
+                case None           => true
+              }
               for {
                 updatedAnswers <- Future.fromTry(baseAnswers.set(BusinessActivityCodeThreePage, value))
-                _              <- sessionRepository.set(updatedAnswers)
+                updatedAnswers2 <- if (isChanged && request.userAnswers.get(pages.ClaimDetailsCompletedPage).contains(true))
+                                     Future.fromTry(updatedAnswers.set(pages.ClaimDetailsAmendedPage, true))
+                                   else
+                                     Future.successful(updatedAnswers)
+                _ <- sessionRepository.set(updatedAnswers2)
               } yield mode match {
-                case CheckMode => Redirect(routes.BusinessActivityThreeController.onPageLoad())
-                case NormalMode => Redirect(navigator.nextPage(BusinessActivityCodeThreePage, mode, updatedAnswers))
+                case CheckMode  => Redirect(routes.BusinessActivityThreeController.onPageLoad())
+                case NormalMode => Redirect(navigator.nextPage(BusinessActivityCodeThreePage, mode, updatedAnswers2))
               }
           }
         }

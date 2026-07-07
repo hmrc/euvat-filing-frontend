@@ -16,19 +16,9 @@
 
 package pages
 
-import base.SpecBase
+import play.api.libs.json.JsPath
 
-class ClaimDetailsCompletedPageSpec extends SpecBase {
-
-  "ClaimDetailsCompletedPage" - {
-
-    "must be able to be set and retrieved from UserAnswers" in {
-      val answers = emptyUserAnswers.set(ClaimDetailsCompletedPage, true).success.value
-      answers.get(ClaimDetailsCompletedPage) mustBe Some(true)
-    }
-
-    "must return None when not set" in {
-      emptyUserAnswers.get(ClaimDetailsCompletedPage) mustBe None
-    }
-  }
+case object ClaimDetailsAmendedPage extends QuestionPage[Boolean] {
+  override def path: JsPath = JsPath \ toString
+  override def toString: String = "claimDetailsAmended"
 }

@@ -216,5 +216,95 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
+
+    "must render post submission view when ClaimDetailsCompletedPage is true" in {
+      val ua = emptyUserAnswers.set(pages.ClaimDetailsCompletedPage, true).success.value
+
+      val application = applicationBuilder(userAnswers = Some(ua)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.CheckYourClaimDetailsController.onPageLoad().url)
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) must include(messages(application)("claimDetails.heading"))
+      }
+    }
+
+    "must render pre submission view when ClaimDetailsCompletedPage is not set" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.CheckYourClaimDetailsController.onPageLoad().url)
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) must include(messages(application)("checkYourClaimDetails.heading"))
+      }
+    }
+
+    "must show Save and continue button when ClaimDetailsAmendedPage is true" in {
+      val ua = emptyUserAnswers
+        .set(pages.ClaimDetailsCompletedPage, true)
+        .success
+        .value
+        .set(pages.ClaimDetailsAmendedPage, true)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(ua)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.CheckYourClaimDetailsController.onPageLoad().url)
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) must include(messages(application)("site.save.continue"))
+      }
+    }
+
+    "must show Continue button when post submission and ClaimDetailsAmendedPage is not set" in {
+      val ua = emptyUserAnswers.set(pages.ClaimDetailsCompletedPage, true).success.value
+
+      val application = applicationBuilder(userAnswers = Some(ua)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.CheckYourClaimDetailsController.onPageLoad().url)
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) must include(messages(application)("site.continue"))
+      }
+    }
+
+    "must clear ClaimDetailsAmendedPage on submit when post submission" in {
+      val mockSessionRepository = mock[repositories.SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val ua = emptyUserAnswers
+        .set(pages.ClaimDetailsCompletedPage, true)
+        .success
+        .value
+        .set(pages.ClaimDetailsAmendedPage, true)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(ua))
+        .overrides(bind[repositories.SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.CheckYourClaimDetailsController.onSubmit().url)
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+
+        import org.mockito.ArgumentCaptor
+        val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
+        verify(mockSessionRepository, times(1)).set(captor.capture())
+        val saved = captor.getValue
+        saved.get(pages.ClaimDetailsAmendedPage).isDefined mustBe false
+      }
+    }
   }
 }
