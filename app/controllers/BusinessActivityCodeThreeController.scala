@@ -122,7 +122,7 @@ class BusinessActivityCodeThreeController @Inject() (
               }
               for {
                 updatedAnswers <- Future.fromTry(baseAnswers.set(BusinessActivityCodeThreePage, value))
-                updatedAnswers2 <- if (isChanged && request.userAnswers.get(pages.ClaimDetailsCompletedPage).contains(true))
+                updatedAnswers2 <- if (isChanged && updatedAnswers.get(pages.ClaimDetailsCompletedPage).contains(true))
                                      Future.fromTry(updatedAnswers.set(pages.ClaimDetailsAmendedPage, true))
                                    else
                                      Future.successful(updatedAnswers)
