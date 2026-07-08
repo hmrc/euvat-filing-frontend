@@ -65,7 +65,7 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
     case TotalVatPaidPage                  => _ => routes.TotalVatClaimController.onPageLoad(NormalMode)
     case TotalVatClaimPage                 => _ => routes.JourneyRecoveryController.onPageLoad()
     case PurchaseTypePage                  => _ => routes.JourneyRecoveryController.onPageLoad()
-    case CheckYourStateDetailsPage        => userAnswer => navigateFromCheckYourStateDetailsPage(NormalMode)(userAnswer)
+    case CheckYourStateDetailsPage         => userAnswer => navigateFromCheckYourStateDetailsPage(NormalMode)(userAnswer)
     case _                                 => _ => routes.IndexController.onPageLoad()
   }
 
@@ -102,7 +102,7 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
     case TotalVatPaidPage                  => _ => routes.TotalVatClaimController.onPageLoad(CheckMode)
     case TotalVatClaimPage                 => _ => routes.JourneyRecoveryController.onPageLoad()
     case PurchaseTypePage                  => _ => routes.IndexController.onPageLoad()
-    case CheckYourStateDetailsPage        => _ => routes.CheckYourClaimDetailsController.onPageLoad()
+    case CheckYourStateDetailsPage         => userAnswers => navigateFromCheckYourStateDetailsPage(CheckMode)(userAnswers)
     case _                                 => _ => routes.IndexController.onPageLoad()
   }
 
@@ -181,8 +181,8 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
 
   private def navigateFromCheckYourStateDetailsPage(mode: Mode)(userAnswers: UserAnswers): Call =
     userAnswers.get(CheckYourStateDetailsPage) match {
-      case Some(true)  => routes.JourneyRecoveryController.onPageLoad()
-      case Some(false) => routes.CheckYourClaimDetailsController.onPageLoad()
-      case _           => routes.JourneyRecoveryController.onPageLoad()
+      case Some(true)  => routes.JourneyRecoveryController.onPageLoad() // TODO: replace when F8 delete application is in place
+      case Some(false) => Call("GET", "/file-eu-vat/claim-details")
+      case None        => routes.JourneyRecoveryController.onPageLoad()
     }
 }

@@ -24,6 +24,7 @@ import utils.ConfigCurrencyMapping
 import utils.ConfigLanguageMapping
 import play.api.Configuration
 import com.typesafe.config.ConfigFactory
+import play.api.mvc.Call
 
 class NavigatorSpec extends SpecBase {
 
@@ -192,10 +193,10 @@ class NavigatorSpec extends SpecBase {
           routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode)
       }
 
-      "must go from CheckYourStateDetailsPage to CheckYourStateDetailsController if no selected" in {
+      "must go from CheckYourStateDetailsPage to claim-details if no selected" in {
         val ua = userAnswers.set(CheckYourStateDetailsPage, false).success.value
         navigator.nextPage(CheckYourStateDetailsPage, NormalMode, ua) mustBe
-          routes.CheckYourClaimDetailsController.onPageLoad()
+          Call("GET", "/file-eu-vat/claim-details")
       }
 
       "must go from CheckYourStateDetailsPage to JourneyRecoveryController if yes selected" in {
@@ -370,9 +371,10 @@ class NavigatorSpec extends SpecBase {
           routes.TotalPurchaseAmountBeforeVatController.onPageLoad(CheckMode)
       }
 
-      "must go from CheckYourStateDetailsPage to CheckYourClaimDetailsController" in {
-        navigator.nextPage(CheckYourStateDetailsPage, CheckMode, userAnswers) mustBe
-          routes.CheckYourClaimDetailsController.onPageLoad()
+      "must go from CheckYourStateDetailsPage to claim-details in CheckMode if no selected" in {
+        val ua = userAnswers.set(CheckYourStateDetailsPage, false).success.value
+        navigator.nextPage(CheckYourStateDetailsPage, CheckMode, ua) mustBe
+          Call("GET", "/file-eu-vat/claim-details")
       }
     }
   }

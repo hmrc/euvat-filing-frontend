@@ -184,8 +184,12 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar with Sca
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val ua = emptyUserAnswers
-        .set(pages.BusinessActivityPage, false).success.value
-        .set(pages.ClaimDetailsCompletedPage, true).success.value
+        .set(pages.BusinessActivityPage, false)
+        .success
+        .value
+        .set(pages.ClaimDetailsCompletedPage, true)
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(ua))
         .overrides(bind[repositories.SessionRepository].toInstance(mockSessionRepository))
@@ -210,8 +214,12 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar with Sca
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val ua = emptyUserAnswers
-        .set(pages.BusinessActivityPage, true).success.value
-        .set(pages.ClaimDetailsCompletedPage, true).success.value
+        .set(pages.BusinessActivityPage, true)
+        .success
+        .value
+        .set(pages.ClaimDetailsCompletedPage, true)
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(ua))
         .overrides(bind[repositories.SessionRepository].toInstance(mockSessionRepository))

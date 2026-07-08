@@ -195,10 +195,18 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val ua = emptyUserAnswers
-        .set(pages.BusinessActivityCodePage, "7020").success.value
-        .set(pages.BusinessActivityCodeTwoPage, "1234").success.value
-        .set(pages.BusinessActivityCodeThreePage, "5678").success.value
-        .set(pages.ClaimDetailsCompletedPage, true).success.value
+        .set(pages.BusinessActivityCodePage, "7020")
+        .success
+        .value
+        .set(pages.BusinessActivityCodeTwoPage, "1234")
+        .success
+        .value
+        .set(pages.BusinessActivityCodeThreePage, "5678")
+        .success
+        .value
+        .set(pages.ClaimDetailsCompletedPage, true)
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(ua))
         .overrides(bind[repositories.SessionRepository].toInstance(mockSessionRepository))
@@ -223,10 +231,18 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val ua = emptyUserAnswers
-        .set(pages.BusinessActivityCodePage, "7020").success.value
-        .set(pages.BusinessActivityCodeTwoPage, "1234").success.value
-        .set(pages.BusinessActivityCodeThreePage, "5678").success.value
-        .set(pages.ClaimDetailsCompletedPage, true).success.value
+        .set(pages.BusinessActivityCodePage, "7020")
+        .success
+        .value
+        .set(pages.BusinessActivityCodeTwoPage, "1234")
+        .success
+        .value
+        .set(pages.BusinessActivityCodeThreePage, "5678")
+        .success
+        .value
+        .set(pages.ClaimDetailsCompletedPage, true)
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(ua))
         .overrides(bind[repositories.SessionRepository].toInstance(mockSessionRepository))
@@ -251,8 +267,12 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val ua = emptyUserAnswers
-        .set(pages.BusinessActivityCodePage, "7020").success.value
-        .set(pages.BusinessActivityCodeTwoPage, "1234").success.value
+        .set(pages.BusinessActivityCodePage, "7020")
+        .success
+        .value
+        .set(pages.BusinessActivityCodeTwoPage, "1234")
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(ua))
         .overrides(bind[repositories.SessionRepository].toInstance(mockSessionRepository))

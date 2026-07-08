@@ -218,8 +218,12 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
         when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
         val ua = emptyUserAnswers
-          .set(pages.ContactDetailsPage, models.ContactDetails("existing@email.com", None)).success.value
-          .set(pages.ClaimDetailsCompletedPage, true).success.value
+          .set(pages.ContactDetailsPage, models.ContactDetails("existing@email.com", None))
+          .success
+          .value
+          .set(pages.ClaimDetailsCompletedPage, true)
+          .success
+          .value
 
         val application = applicationBuilder(userAnswers = Some(ua))
           .overrides(bind[repositories.SessionRepository].toInstance(mockSessionRepository))
@@ -228,7 +232,7 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
         running(application) {
           val request = FakeRequest(POST, routes.ContactDetailsController.onSubmit(models.CheckMode).url)
             .withFormUrlEncodedBody(
-              "contactEmail" -> "new@email.com",
+              "contactEmail"     -> "new@email.com",
               "contactTelephone" -> ""
             )
           val result = route(application, request).value
@@ -246,8 +250,12 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
         when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
         val ua = emptyUserAnswers
-          .set(pages.ContactDetailsPage, models.ContactDetails("test@email.com", None)).success.value
-          .set(pages.ClaimDetailsCompletedPage, true).success.value
+          .set(pages.ContactDetailsPage, models.ContactDetails("test@email.com", None))
+          .success
+          .value
+          .set(pages.ClaimDetailsCompletedPage, true)
+          .success
+          .value
 
         val application = applicationBuilder(userAnswers = Some(ua))
           .overrides(bind[repositories.SessionRepository].toInstance(mockSessionRepository))
@@ -256,7 +264,7 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
         running(application) {
           val request = FakeRequest(POST, routes.ContactDetailsController.onSubmit(models.CheckMode).url)
             .withFormUrlEncodedBody(
-              "contactEmail" -> "test@email.com",
+              "contactEmail"     -> "test@email.com",
               "contactTelephone" -> ""
             )
           val result = route(application, request).value
@@ -280,7 +288,7 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
         running(application) {
           val request = FakeRequest(POST, routes.ContactDetailsController.onSubmit(models.NormalMode).url)
             .withFormUrlEncodedBody(
-              "contactEmail" -> "test@email.com",
+              "contactEmail"     -> "test@email.com",
               "contactTelephone" -> ""
             )
           val result = route(application, request).value
