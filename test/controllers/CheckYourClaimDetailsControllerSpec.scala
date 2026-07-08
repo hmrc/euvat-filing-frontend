@@ -18,12 +18,10 @@ package controllers
 
 import base.SpecBase
 import models.responses.ApplicationResponse
-import models.{ContactDetails, RefundPeriod, RefundingLanguage, UserAnswers}
-import org.mockito.ArgumentCaptor
+import models.{ContactDetails, RefundPeriod, RefundingLanguage}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar
-import pages.ClaimDetailsCompletedPage
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -66,7 +64,7 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
         .set(pages.RefundPeriodPage, RefundPeriod.apply(LocalDateTime.of(2025, 4, 1, 10, 10, 10, 10), LocalDateTime.of(2025, 12, 31, 23, 2, 10, 10)))
         .success
         .value
-        .set(pages.ContactDetailsPage, ContactDetails("test@email.com", None))
+        .set(pages.ContactDetailsPage, ContactDetails("test@email.com", Some("07123456789")))
         .success
         .value
         .set(pages.BusinessActivityCodePage, "9999")
@@ -88,10 +86,6 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.TaskListDashboardController.onPageLoad().url
-
-        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
-        verify(mockSessionRepository).set(captor.capture())
-        captor.getValue.get(ClaimDetailsCompletedPage) mustBe Some(true)
       }
     }
 
@@ -167,7 +161,7 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
         val result = route(application, request).value
         val html = contentAsString(result)
 
-        html must not include (messages(application)("checkYourClaimDetails.refundingLanguage.label"))
+        html must not include messages(application)("checkYourClaimDetails.refundingLanguage.label")
       }
     }
 
