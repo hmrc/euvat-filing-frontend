@@ -50,7 +50,6 @@ class NavigatorSpec extends SpecBase {
         """)
       )
     )
-
   )
   val userAnswers: UserAnswers = UserAnswers("id")
 
@@ -155,9 +154,38 @@ class NavigatorSpec extends SpecBase {
           routes.SupplierAddressController.onPageLoad(NormalMode)
       }
 
-      "must go from SupplierAddressPage to SimplifiedInvoiceVatRegCheckController" in {
+      "must go from SupplierAddressPage to SupplierTaxNumberController if country is Germany" in {
+        val ua = userAnswers.set(pages.RefundingCountryPage, "DE").success.value
+        navigator.nextPage(SupplierAddressPage, NormalMode, ua) mustBe
+          routes.SupplierTaxNumberController.onPageLoad(NormalMode)
+      }
+
+      "must go from SupplierAddressPage to SimplifiedInvoiceVatRegCheckController if country is not Germany" in {
+        val ua = userAnswers.set(pages.RefundingCountryPage, "AT").success.value
+        navigator.nextPage(SupplierAddressPage, NormalMode, ua) mustBe
+          routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode)
+      }
+
+      "must go from SupplierAddressPage to SimplifiedInvoiceVatRegCheckController if country is missing" in {
         navigator.nextPage(SupplierAddressPage, NormalMode, userAnswers) mustBe
           routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode)
+      }
+
+      "must go from SupplierTaxNumberPage to JourneyRecoveryController if VAT registration number is selected" in {
+        val ua = userAnswers.set(SupplierTaxNumberPage, SupplierTaxNumber.Vatregistrationnumber).success.value
+        navigator.nextPage(SupplierTaxNumberPage, NormalMode, ua) mustBe
+          routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from SupplierTaxNumberPage to JourneyRecoveryController if tax identifier number is selected" in {
+        val ua = userAnswers.set(SupplierTaxNumberPage, SupplierTaxNumber.Taxidentifiernumber).success.value
+        navigator.nextPage(SupplierTaxNumberPage, NormalMode, ua) mustBe
+          routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from SupplierTaxNumberPage to JourneyRecoveryController if no answer is present" in {
+        navigator.nextPage(SupplierTaxNumberPage, NormalMode, userAnswers) mustBe
+          routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from SupplierVatRegistrationNumberPage to TotalPurchaseAmountBeforeVatController" in {
@@ -323,9 +351,38 @@ class NavigatorSpec extends SpecBase {
           routes.SupplierAddressController.onPageLoad(CheckMode)
       }
 
-      "must go from SupplierAddressPage to SimplifiedInvoiceVatRegCheckController" in {
+      "must go from SupplierAddressPage to SupplierTaxNumberController if country is Germany" in {
+        val ua = userAnswers.set(pages.RefundingCountryPage, "DE").success.value
+        navigator.nextPage(SupplierAddressPage, CheckMode, ua) mustBe
+          routes.SupplierTaxNumberController.onPageLoad(CheckMode)
+      }
+
+      "must go from SupplierAddressPage to SimplifiedInvoiceVatRegCheckController if country is not Germany" in {
+        val ua = userAnswers.set(pages.RefundingCountryPage, "AT").success.value
+        navigator.nextPage(SupplierAddressPage, CheckMode, ua) mustBe
+          routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(CheckMode)
+      }
+
+      "must go from SupplierAddressPage to SimplifiedInvoiceVatRegCheckController if country is missing" in {
         navigator.nextPage(SupplierAddressPage, CheckMode, userAnswers) mustBe
           routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(CheckMode)
+      }
+
+      "must go from SupplierTaxNumberPage to JourneyRecoveryController if VAT registration number is selected" in {
+        val ua = userAnswers.set(SupplierTaxNumberPage, SupplierTaxNumber.Vatregistrationnumber).success.value
+        navigator.nextPage(SupplierTaxNumberPage, CheckMode, ua) mustBe
+          routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from SupplierTaxNumberPage to JourneyRecoveryController if tax identifier number is selected" in {
+        val ua = userAnswers.set(SupplierTaxNumberPage, SupplierTaxNumber.Taxidentifiernumber).success.value
+        navigator.nextPage(SupplierTaxNumberPage, CheckMode, ua) mustBe
+          routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from SupplierTaxNumberPage to JourneyRecoveryController if no answer is present" in {
+        navigator.nextPage(SupplierTaxNumberPage, CheckMode, userAnswers) mustBe
+          routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from SupplierVatRegistrationNumberPage to TotalPurchaseAmountBeforeVatController in CheckMode" in {

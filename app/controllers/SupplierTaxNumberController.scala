@@ -20,56 +20,79 @@ import controllers.actions.*
 import forms.SupplierTaxNumberFormProvider
 
 import javax.inject.Inject
-import models.{Mode, NormalMode}
+import models.{Mode, NormalMode, UserAnswers}
 import navigation.Navigator
-import pages.SupplierTaxNumberPage
+import pages.{RefundingCountryPage, SupplierTaxNumberPage}
+import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.SupplierTaxNumberView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SupplierTaxNumberController @Inject()(
-                                       override val messagesApi: MessagesApi,
-                                       sessionRepository: SessionRepository,
-                                       navigator: Navigator,
-                                       identify: IdentifierAction,
-                                       getData: DataRetrievalAction,
-                                       requireData: DataRequiredAction,
-                                       formProvider: SupplierTaxNumberFormProvider,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       view: SupplierTaxNumberView
-                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+class SupplierTaxNumberController @Inject() (
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  navigator: Navigator,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: SupplierTaxNumberFormProvider,
+  val controllerComponents: MessagesControllerComponents,
+  view: SupplierTaxNumberView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
 
   val form = formProvider()
+  private val logger = Logger(getClass)
 
   private def backLink: Call = routes.SupplierAddressController.onPageLoad(NormalMode)
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) {
-    implicit request =>
+  private def resolveCountryCode(userAnswers: UserAnswers): Option[String] =
+    userAnswers.get(pages.RefundingCountryPage).orElse {
+      userAnswers.get(pages.RefundingCountryNamePage).map { stored =>
+        stored.split(",", 2).headOption.getOrElse(stored)
+      }
+    }
 
+  private def requireGermany(userAnswers: UserAnswers): Option[Result] =
+    resolveCountryCode(userAnswers) match {
+      case Some("DE") => None
+      case _ =>
+        logger.warn("SupplierTaxNumberController - country is not Germany or missing from session, redirecting to JourneyRecovery")
+        Some(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+    }
+
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+
+    requireGermany(request.userAnswers).getOrElse {
       val preparedForm = request.userAnswers.get(SupplierTaxNumberPage) match {
-        case None => form
+        case None        => form
         case Some(value) => form.fill(value)
       }
 
       Ok(view(preparedForm, mode, backLink))
+    }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
-    implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
 
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode, backLink))),
-
-        value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(SupplierTaxNumberPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(SupplierTaxNumberPage, mode, updatedAnswers))
-      )
+    requireGermany(request.userAnswers) match {
+      case Some(result) => Future.successful(result)
+      case None =>
+        form
+          .bindFromRequest()
+          .fold(
+            formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink))),
+            value =>
+              for {
+                updatedAnswers <- Future.fromTry(request.userAnswers.set(SupplierTaxNumberPage, value))
+                _              <- sessionRepository.set(updatedAnswers)
+              } yield Redirect(navigator.nextPage(SupplierTaxNumberPage, mode, updatedAnswers))
+          )
+    }
   }
 }

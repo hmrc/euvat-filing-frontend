@@ -40,7 +40,7 @@ class CheckYourClaimDetailsController @Inject() (
   view: CheckYourClaimDetailsView,
   configLanguageMapping: ConfigLanguageMapping,
   configCurrencyMapping: ConfigCurrencyMapping,
-  sessionRepository: SessionRepository,
+  sessionRepository: SessionRepository
 )(using ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
@@ -57,7 +57,9 @@ class CheckYourClaimDetailsController @Inject() (
     sessionRepository.set(updatedAnswers).map(_ => Redirect(controllers.routes.TaskListDashboardController.onPageLoad()))
   }
 
-  private def buildSummaryList(answers: UserAnswers)(implicit messages: Messages): Seq[(String, Seq[(String, Option[String], Seq[(String, String, String)])])] = {
+  private def buildSummaryList(
+    answers: UserAnswers
+  )(implicit messages: Messages): Seq[(String, Seq[(String, Option[String], Seq[(String, String, String)])])] = {
 
     val maybeCountryCode = answers.get(pages.RefundingCountryPage).orElse {
       answers.get(pages.RefundingCountryNamePage).map { stored =>
@@ -92,9 +94,19 @@ class CheckYourClaimDetailsController @Inject() (
       languageSection ++
       currencySection ++
       Seq(
-        ("checkYourClaimDetails.refundingPeriod.label", Seq(CheckYourClaimDetailsSummary.rowRefundStart(answers), CheckYourClaimDetailsSummary.rowRefundEnd(answers)).flatten),
-        ("checkYourClaimDetails.contactDetails.label", Seq(CheckYourClaimDetailsSummary.rowContactEmail(answers), CheckYourClaimDetailsSummary.rowContactPhone(answers)).flatten),
-        ("checkYourClaimDetails.businessActivity.label", Seq(CheckYourClaimDetailsSummary.rowBusinessActivity(answers), CheckYourClaimDetailsSummary.rowBusinessActivity2(answers), CheckYourClaimDetailsSummary.rowBusinessActivity3(answers)).flatten)
+        ("checkYourClaimDetails.refundingPeriod.label",
+         Seq(CheckYourClaimDetailsSummary.rowRefundStart(answers), CheckYourClaimDetailsSummary.rowRefundEnd(answers)).flatten
+        ),
+        ("checkYourClaimDetails.contactDetails.label",
+         Seq(CheckYourClaimDetailsSummary.rowContactEmail(answers), CheckYourClaimDetailsSummary.rowContactPhone(answers)).flatten
+        ),
+        ("checkYourClaimDetails.businessActivity.label",
+         Seq(
+           CheckYourClaimDetailsSummary.rowBusinessActivity(answers),
+           CheckYourClaimDetailsSummary.rowBusinessActivity2(answers),
+           CheckYourClaimDetailsSummary.rowBusinessActivity3(answers)
+         ).flatten
+        )
       )
   }
 }

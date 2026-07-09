@@ -17,18 +17,15 @@
 package pages
 
 import base.SpecBase
+import models.SupplierTaxNumber
 
-class ClaimDetailsCompletedPageSpec extends SpecBase {
+class SupplierTaxNumberPageSpec extends SpecBase {
 
-  "ClaimDetailsCompletedPage" - {
+  "SupplierTaxNumberPage" - {
 
     "must be able to be set and retrieved from UserAnswers" in {
-      val answers = emptyUserAnswers.set(ClaimDetailsCompletedPage, true).success.value
-      answers.get(ClaimDetailsCompletedPage) mustBe Some(true)
-    }
-
-    "must return None when not set" in {
-      emptyUserAnswers.get(ClaimDetailsCompletedPage) mustBe None
+      val answers = emptyUserAnswers.set(SupplierTaxNumberPage, SupplierTaxNumber.values.head).success.value
+      answers.get(SupplierTaxNumberPage) mustBe Some(SupplierTaxNumber.values.head)
     }
   }
 }
