@@ -49,10 +49,10 @@ class PurchaseTypeController @Inject() (
 
   val form: Form[PurchaseType] = formProvider()
 
-  private def backLink(mode: Mode)(implicit request: DataRequest[_]) =
+  private def backLink(mode: Mode)(implicit request: DataRequest[?]) =
     request.userAnswers.get(SimplifiedInvoiceVatRegCheckPage) match {
       case Some(false) => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode)
-      case _ => routes.TotalVatPaidController.onPageLoad(mode)
+      case _           => routes.TotalVatPaidController.onPageLoad(mode)
     }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>

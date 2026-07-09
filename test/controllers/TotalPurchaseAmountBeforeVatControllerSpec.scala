@@ -18,7 +18,7 @@ package controllers
 
 import base.SpecBase
 import forms.TotalPurchaseAmountBeforeVatFormProvider
-import models.{NormalMode, CheckMode, UserAnswers}
+import models.{CheckMode, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -79,7 +79,12 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(BigDecimal("12.34")), NormalMode, routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode), "€", "Euro")(
+        contentAsString(result) mustEqual view(form.fill(BigDecimal("12.34")),
+                                               NormalMode,
+                                               routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode),
+                                               "€",
+                                               "Euro"
+                                              )(
           request,
           messages(application)
         ).toString
@@ -128,7 +133,12 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode), "€", "Euro")(
+        contentAsString(result) mustEqual view(boundForm,
+                                               NormalMode,
+                                               routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode),
+                                               "€",
+                                               "Euro"
+                                              )(
           request,
           messages(application)
         ).toString
@@ -173,7 +183,7 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
-    
+
     }
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
@@ -190,61 +200,77 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
+    }
+
+    "must show euro symbol for a country with a single currency" in {
+
+      val userAnswers = UserAnswers(userAnswersId).set(RefundingCountryPage, "AT").success.value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
+
+        val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, NormalMode, routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode), "€", "Euro")(
+          request,
+          messages(application)
+        ).toString
       }
+    }
 
-      "must show euro symbol for a country with a single currency" in {
+    "must show selected currency symbol when a currency is selected for a multi-currency country" in {
 
-        val userAnswers = UserAnswers(userAnswersId).set(RefundingCountryPage, "AT").success.value
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(RefundingCountryPage, "BG")
+        .success
+        .value
+        .set(RefundingCurrencyPage, "BGN")
+        .success
+        .value
 
-        val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
-        running(application) {
-          val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
+      running(application) {
+        val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
 
-          val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
+        val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
 
-          val result = route(application, request).value
+        val result = route(application, request).value
 
-          status(result) mustEqual OK
-          contentAsString(result) mustEqual view(form, NormalMode, routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode), "€", "Euro")(request, messages(application)).toString
-        }
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form,
+                                               NormalMode,
+                                               routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode),
+                                               "лв",
+                                               "Bulgarian Lev"
+                                              )(request, messages(application)).toString
       }
+    }
 
-      "must show selected currency symbol when a currency is selected for a multi-currency country" in {
+    "must fallback to first currency symbol when no currency selected for a multi-currency country" in {
 
-        val userAnswers = UserAnswers(userAnswersId).set(RefundingCountryPage, "BG").success.value
-          .set(RefundingCurrencyPage, "BGN").success.value
+      val userAnswers = UserAnswers(userAnswersId).set(RefundingCountryPage, "BG").success.value
 
-        val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
-        running(application) {
-          val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
+      running(application) {
+        val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
 
-          val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
+        val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
 
-          val result = route(application, request).value
+        val result = route(application, request).value
 
-          status(result) mustEqual OK
-          contentAsString(result) mustEqual view(form, NormalMode, routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode), "лв", "Bulgarian Lev")(request, messages(application)).toString
-        }
-      }
-
-      "must fallback to first currency symbol when no currency selected for a multi-currency country" in {
-
-        val userAnswers = UserAnswers(userAnswersId).set(RefundingCountryPage, "BG").success.value
-
-        val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
-
-        running(application) {
-          val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
-
-          val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
-
-          val result = route(application, request).value
-
-          status(result) mustEqual OK
-          contentAsString(result) mustEqual view(form, NormalMode, routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode), "€", "Euro")(request, messages(application)).toString
-        }
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, NormalMode, routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode), "€", "Euro")(
+          request,
+          messages(application)
+        ).toString
       }
     }
   }
+}
