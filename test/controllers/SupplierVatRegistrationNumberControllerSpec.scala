@@ -23,7 +23,7 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.SupplierVatRegistrationNumberPage
+import pages.{RefundingCountryPage, SupplierVatRegistrationNumberPage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -56,13 +56,81 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
         val view = application.injector.instanceOf[SupplierVatRegistrationNumberView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode))(
+        contentAsString(result) mustEqual view(form, NormalMode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode), false)(
           request,
           messages(application)
         ).toString
       }
     }
 
+    "must show the Germany-specific hint when the refunding country is Germany" in {
+
+      val userAnswers = emptyUserAnswers.set(RefundingCountryPage, "DE").success.value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, supplierVatRegistrationNumberRoute)
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[SupplierVatRegistrationNumberView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, NormalMode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode), true)(
+          request,
+          messages(application)
+        ).toString
+      }
+    }
+
+    "must show the default hint when the refunding country is not Germany" in {
+
+      val userAnswers = emptyUserAnswers.set(RefundingCountryPage, "FR").success.value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, supplierVatRegistrationNumberRoute)
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[SupplierVatRegistrationNumberView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, NormalMode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode), false)(
+          request,
+          messages(application)
+        ).toString
+      }
+    }
+
+    "must show the Germany-specific hint regardless of the casing of the country code" in {
+
+      val germanyVariants = Seq("DE", "de", "De", "dE")
+
+      germanyVariants.foreach { countryCode =>
+        val userAnswers = emptyUserAnswers.set(RefundingCountryPage, countryCode).success.value
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+        running(application) {
+          val request = FakeRequest(GET, supplierVatRegistrationNumberRoute)
+
+          val result = route(application, request).value
+
+          val view = application.injector.instanceOf[SupplierVatRegistrationNumberView]
+
+          withClue(s"failed for country code: $countryCode") {
+            status(result) mustEqual OK
+            contentAsString(result) mustEqual view(form, NormalMode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode), true)(
+              request,
+              messages(application)
+            ).toString
+          }
+        }
+      }
+    }
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
       val userAnswers = UserAnswers(userAnswersId).set(SupplierVatRegistrationNumberPage, "answer").success.value
@@ -77,7 +145,11 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode))(
+        contentAsString(result) mustEqual view(form.fill("answer"),
+                                               NormalMode,
+                                               routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode),
+                                               false
+                                              )(
           request,
           messages(application)
         ).toString
@@ -126,7 +198,7 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode))(
+        contentAsString(result) mustEqual view(boundForm, NormalMode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode), false)(
           request,
           messages(application)
         ).toString
@@ -149,7 +221,7 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode))(
+        contentAsString(result) mustEqual view(boundForm, NormalMode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode), false)(
           request,
           messages(application)
         ).toString
@@ -172,7 +244,7 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, CheckMode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(CheckMode))(
+        contentAsString(result) mustEqual view(boundForm, CheckMode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(CheckMode), false)(
           request,
           messages(application)
         ).toString
