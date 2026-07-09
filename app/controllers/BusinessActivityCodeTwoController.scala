@@ -64,7 +64,7 @@ class BusinessActivityCodeTwoController @Inject() (
 
     for {
       updatedAnswer <-
-        Future.fromTry(userAnswers.set(pages.BusinessActivityThreePage, keyValue)) // Save the click to session page (transient navigation flag)
+        Future.fromTry(userAnswers.set(BusinessActivityThreePage, keyValue)) // Save the click to session page (transient navigation flag)
       _ <- sessionRepository.set(updatedAnswer)
     } yield None
 
@@ -78,7 +78,7 @@ class BusinessActivityCodeTwoController @Inject() (
     val ba2 = baseAnswers.get(BusinessActivityCodeTwoPage)
     val ba3 = baseAnswers.get(BusinessActivityCodeThreePage)
     val (activities, form) = buildListAndForm()
-    val page3 = baseAnswers.get(pages.BusinessActivityThreePage)
+    val page3 = baseAnswers.get(BusinessActivityThreePage)
 
     val boundResult = form
       .bindFromRequest()

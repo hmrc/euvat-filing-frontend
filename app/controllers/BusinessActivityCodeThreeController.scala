@@ -22,19 +22,19 @@ import models.{NormalMode, UserAnswers}
 import models.Mode
 import models.CheckMode
 import navigation.Navigator
-import pages.{BusinessActivityCodePage, BusinessActivityCodeThreePage, BusinessActivityCodeTwoPage}
+import pages.{BusinessActivityCodePage, BusinessActivityCodeThreePage, BusinessActivityCodeTwoPage, ClaimDetailsAmendedPage, ClaimDetailsCompletedPage}
 import play.api.Configuration
 import play.api.data.FormError
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-
 import views.html.BusinessActivityCodeThreeView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.Logger
+
 import scala.util.control.NonFatal
 
 class BusinessActivityCodeThreeController @Inject() (
@@ -122,8 +122,8 @@ class BusinessActivityCodeThreeController @Inject() (
               }
               for {
                 updatedAnswers <- Future.fromTry(baseAnswers.set(BusinessActivityCodeThreePage, value))
-                updatedAnswers2 <- if (isChanged && updatedAnswers.get(pages.ClaimDetailsCompletedPage).contains(true))
-                                     Future.fromTry(updatedAnswers.set(pages.ClaimDetailsAmendedPage, true))
+                updatedAnswers2 <- if (isChanged && updatedAnswers.get(ClaimDetailsCompletedPage).contains(true))
+                                     Future.fromTry(updatedAnswers.set(ClaimDetailsAmendedPage, true))
                                    else
                                      Future.successful(updatedAnswers)
                 _ <- sessionRepository.set(updatedAnswers2)
