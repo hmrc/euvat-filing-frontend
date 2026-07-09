@@ -17,59 +17,41 @@
 package controllers
 
 import controllers.actions.*
-import models.requests.DataRequest
-import forms.PurchaseTypeFormProvider
-import models.{Mode, PurchaseType}
+import forms.SupplierTaxIdentifierNumberFormProvider
+
+import javax.inject.Inject
+import models.Mode
 import navigation.Navigator
-import pages.PurchaseTypePage
-import pages.SimplifiedInvoiceVatRegCheckPage
+import pages.SupplierTaxIdentifierNumberPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.PurchaseTypeView
+import views.html.SupplierTaxIdentifierNumberView
 
-import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class PurchaseTypeController @Inject() (
+class SupplierTaxIdentifierNumberController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
   navigator: Navigator,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  formProvider: PurchaseTypeFormProvider,
+  formProvider: SupplierTaxIdentifierNumberFormProvider,
   val controllerComponents: MessagesControllerComponents,
-  view: PurchaseTypeView
+  view: SupplierTaxIdentifierNumberView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
-  val form: Form[PurchaseType] = formProvider()
+  val form: Form[String] = formProvider()
 
-  private def backLink(mode: Mode)(implicit request: DataRequest[_]) =
-    {
-      val maybeCountryCode = request.userAnswers.get(pages.RefundingCountryPage).orElse {
-        request.userAnswers.get(pages.RefundingCountryNamePage).map { stored =>
-          stored.split(",", 2).headOption.getOrElse(stored)
-        }
-      }
-
-      maybeCountryCode match {
-        case Some("DE") => routes.SupplierTaxIdentifierNumberController.onPageLoad(mode)
-        case _ =>
-          request.userAnswers.get(SimplifiedInvoiceVatRegCheckPage) match {
-            case Some(false) => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode)
-            case _           => routes.TotalVatPaidController.onPageLoad(mode)
-          }
-      }
-    }
+  private def backLink(mode: Mode) = routes.SupplierAddressController.onPageLoad(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = request.userAnswers.get(PurchaseTypePage).fold(form)(form.fill)
-
+    val preparedForm = request.userAnswers.get(SupplierTaxIdentifierNumberPage).fold(form)(form.fill)
     Ok(view(preparedForm, mode, backLink(mode)))
   }
 
@@ -80,9 +62,10 @@ class PurchaseTypeController @Inject() (
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)))),
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(PurchaseTypePage, value))
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(SupplierTaxIdentifierNumberPage, value))
             _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(PurchaseTypePage, mode, updatedAnswers))
+          } yield Redirect(navigator.nextPage(SupplierTaxIdentifierNumberPage, mode, updatedAnswers))
       )
   }
+
 }

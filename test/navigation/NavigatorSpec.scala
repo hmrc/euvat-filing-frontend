@@ -154,6 +154,7 @@ class NavigatorSpec extends SpecBase {
           routes.SupplierAddressController.onPageLoad(NormalMode)
       }
 
+<<<<<<< HEAD
       "must go from SupplierAddressPage to SupplierTaxNumberController if country is Germany" in {
         val ua = userAnswers.set(pages.RefundingCountryPage, "DE").success.value
         navigator.nextPage(SupplierAddressPage, NormalMode, ua) mustBe
@@ -167,6 +168,15 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from SupplierAddressPage to SimplifiedInvoiceVatRegCheckController if country is missing" in {
+=======
+      "must go from SupplierAddressPage to SupplierTaxIdentifierNumberController when country is Germany" in {
+        val ua = userAnswers.set(RefundingCountryPage, "DE").success.value
+        navigator.nextPage(SupplierAddressPage, NormalMode, ua) mustBe
+          routes.SupplierTaxIdentifierNumberController.onPageLoad(NormalMode)
+      }
+
+      "must go from SupplierAddressPage to SimplifiedInvoiceVatRegCheckController" in {
+>>>>>>> e5d48c6 (DTR-6317 : RA8.1.2 — What is the suppliers tax identifier number?)
         navigator.nextPage(SupplierAddressPage, NormalMode, userAnswers) mustBe
           routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode)
       }
