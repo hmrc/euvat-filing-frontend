@@ -271,6 +271,15 @@ suppliersName.error.length = The supplier’s name must be 35 characters or less
 suppliersName.checkYourAnswersLabel = Supplier’s name
 suppliersName.change.hidden = Change supplier’s name
 
+supplierTaxNumber.title = Select the supplier tax numbers shown on the invoice
+supplierTaxNumber.heading = Select the supplier tax numbers shown on the invoice
+supplierTaxNumber.caption = Purchase details
+supplierTaxNumber.vatRegistrationNumber = VAT registration number (also known as Umsatzsteuer-Identifikationsnummer)
+supplierTaxNumber.vatRegistrationNumber.hint = This is usually 11 characters and starts with DE, for example DE123456789
+supplierTaxNumber.taxIdentifierNumber = Tax identifier number (also known as Steuernummer)
+supplierTaxNumber.taxIdentifierNumber.hint = This is 10 or 11 digits, for example 12/345/67890
+supplierTaxNumber.error.required = Select the supplier tax numbers shown on the invoice
+
 supplierVatRegistrationNumber.title = What is the supplier’s VAT registration number?
 supplierVatRegistrationNumber.heading = What is the supplier’s VAT registration number?
 supplierVatRegistrationNumber.hint = This can be up to 12 characters and may start with a 2-letter EU country code. For example, FR123456789
