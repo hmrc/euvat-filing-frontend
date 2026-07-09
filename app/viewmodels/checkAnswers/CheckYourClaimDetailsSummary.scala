@@ -29,7 +29,7 @@ object CheckYourClaimDetailsSummary {
 
   type Row = (String, Option[String], Seq[(String, String, String)])
 
-  def rowCountry(answers: UserAnswers)(implicit messages: Messages): Option[(String, Option[String], Seq[(String, String, String)])] =
+  def rowCountry(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
     answers.get(RefundingCountryNamePage).map { countryName =>
       val changeUrl =
         if (answers.get(ClaimDetailsCompletedPage).contains(true))
