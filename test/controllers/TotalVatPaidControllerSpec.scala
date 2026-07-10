@@ -77,7 +77,12 @@ class TotalVatPaidControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[TotalVatPaidView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(BigDecimal("12.34")), NormalMode, routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode), "€", "Euro")(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(BigDecimal("12.34")),
+                                               NormalMode,
+                                               routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode),
+                                               "€",
+                                               "Euro"
+                                              )(request, messages(application)).toString
       }
     }
 
@@ -123,41 +128,46 @@ class TotalVatPaidControllerSpec extends SpecBase with MockitoSugar {
         val result = play.api.test.Helpers.route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode), "€", "Euro")(
+        contentAsString(result) mustEqual view(boundForm,
+                                               NormalMode,
+                                               routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode),
+                                               "€",
+                                               "Euro"
+                                              )(
           request,
           messages(application)
         ).toString
       }
     }
 
-      "must redirect to Journey Recovery when no existing data is found on GET" in {
+    "must redirect to Journey Recovery when no existing data is found on GET" in {
 
-        val application = applicationBuilder(userAnswers = None).build()
+      val application = applicationBuilder(userAnswers = None).build()
 
-        running(application) {
-          val request = FakeRequest(GET, url)
+      running(application) {
+        val request = FakeRequest(GET, url)
 
-          val result = play.api.test.Helpers.route(application, request).value
+        val result = play.api.test.Helpers.route(application, request).value
 
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
-        }
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
+    }
 
-      "must redirect to Journey Recovery when no existing data is found on POST" in {
+    "must redirect to Journey Recovery when no existing data is found on POST" in {
 
-        val application = applicationBuilder(userAnswers = None).build()
+      val application = applicationBuilder(userAnswers = None).build()
 
-        running(application) {
-          val request =
-            FakeRequest(POST, url)
-              .withFormUrlEncodedBody(("value", "123.45"))
+      running(application) {
+        val request =
+          FakeRequest(POST, url)
+            .withFormUrlEncodedBody(("value", "123.45"))
 
-          val result = play.api.test.Helpers.route(application, request).value
+        val result = play.api.test.Helpers.route(application, request).value
 
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
-        }
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
     }
   }
 }

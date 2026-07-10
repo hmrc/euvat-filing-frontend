@@ -135,7 +135,7 @@ class TaskListViewModelSpec extends SpecBase {
 
     "must use the correct idPrefix" in {
       val taskList = viewModel.buildTaskList(emptyUserAnswers)
-      taskList.idPrefix mustEqual "make-eu-vat-claim"
+      taskList.idPrefix mustEqual "make-a-claim-eu-vat-refund"
     }
 
     "showDeleteLink" - {

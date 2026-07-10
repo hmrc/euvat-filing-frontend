@@ -18,12 +18,11 @@ package controllers
 
 import base.SpecBase
 import forms.RefundPeriodFormProvider
-import java.time.LocalDateTime
 import models.responses.{LatestApplication, LatestApplicationResponse, TraderKnownFactsResponse}
 import models.{NormalMode, RefundPeriod}
 import navigation.{FakeNavigator, Navigator}
-import org.mockito.Mockito.*
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.RefundPeriodPage
@@ -33,6 +32,8 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.EuVatRefundsService
+
+import java.time.LocalDateTime
 import scala.concurrent.Future
 
 class RefundPeriodControllerSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
@@ -397,6 +398,49 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar with BeforeA
           val result = route(application, request).value
           status(result) mustEqual BAD_REQUEST
           contentAsString(result) must include(messages(application)("refundPeriod.start.error.invalidDateFormat.year"))
+        }
+      }
+
+      "must clear CountryChangedPage after successful submission" in {
+        when(mockService.retrieveTraderKnownFacts()(any()))
+          .thenReturn(Future.successful(TraderKnownFactsResponse(123, tradeClass = Some(baCode1))))
+        when(mockService.getLatestApplications(any())(any()))
+          .thenReturn(Future.successful(LatestApplicationResponse(List.empty, 0)))
+
+        val mockSessionRepository = mock[repositories.SessionRepository]
+        when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+        val userAnswers = emptyUserAnswers
+          .set(pages.CountryChangedPage, true)
+          .success
+          .value
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[EuVatRefundsService].toInstance(mockService),
+            bind[repositories.SessionRepository].toInstance(mockSessionRepository),
+            bind[forms.RefundPeriodFormProvider].toInstance(formProviderAfterSept30)
+          )
+          .build()
+
+        running(application) {
+          val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit(NormalMode).url)
+            .withFormUrlEncodedBody(
+              "start.month" -> "03",
+              "start.year"  -> "2024",
+              "end.month"   -> "08",
+              "end.year"    -> "2024"
+            )
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+
+          import org.mockito.ArgumentCaptor
+          val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
+          verify(mockSessionRepository, times(1)).set(captor.capture())
+          val saved = captor.getValue
+          saved.get(pages.CountryChangedPage).isDefined mustBe false
         }
       }
 
