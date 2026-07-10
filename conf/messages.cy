@@ -242,14 +242,13 @@ checkYourClaimDetails.businessActivity2.change.hidden = Change second SIC code
 checkYourClaimDetails.businessActivity3.change.hidden = Change third SIC code
 checkYourClaimDetails.paragraph = You cannot change the refunding EU member state after you save and continue.
 
-aboutThePurchase.title = About the purchase
-aboutThePurchase.heading = About the purchase
-aboutThePurchase.p1 = You’ll need the following information about the purchase:
-aboutThePurchase.bullet1 = the purchase type
-aboutThePurchase.bullet2 = the invoice dates
-aboutThePurchase.bullet3 = the VAT registration number
-aboutThePurchase.bullet4 = the supplier name and address
-aboutThePurchase.bullet5 = the VAT amount
+beforeYouStart.title = Before you start
+beforeYouStart.heading = Before you start
+beforeYouStart.p1 = To tell HMRC about your purchase, you’ll need the:
+beforeYouStart.bullet1 = invoice details
+beforeYouStart.bullet2 = supplier’s details, for example name and address
+beforeYouStart.bullet3 = purchase type
+beforeYouStart.bullet4 = VAT amounts
 
 invoiceType.title = Invoice type
 invoiceType.caption = Purchase details
