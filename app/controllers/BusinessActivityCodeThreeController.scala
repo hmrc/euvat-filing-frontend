@@ -112,7 +112,7 @@ class BusinessActivityCodeThreeController @Inject() (
 
           duplicateFrom match {
             case Some(from) =>
-              val duplicateError = FormError("value", "businessActivityCodeThree.error.duplicate", Seq(from, value))
+              val duplicateError = FormError("value", "businessActivityCodeThree.error.duplicate")
               val duplicateForm = form.copy(errors = form.errors :+ duplicateError)
               Future.successful(BadRequest(view(duplicateForm, Some(routes.BusinessActivityTwoController.onPageLoad(mode).url), mode)))
             case None =>
@@ -120,7 +120,7 @@ class BusinessActivityCodeThreeController @Inject() (
                 updatedAnswers <- Future.fromTry(baseAnswers.set(BusinessActivityCodeThreePage, value))
                 _              <- sessionRepository.set(updatedAnswers)
               } yield mode match {
-                case CheckMode => Redirect(routes.BusinessActivityThreeController.onPageLoad())
+                case CheckMode  => Redirect(routes.BusinessActivityThreeController.onPageLoad())
                 case NormalMode => Redirect(navigator.nextPage(BusinessActivityCodeThreePage, mode, updatedAnswers))
               }
           }
