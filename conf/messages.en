@@ -171,8 +171,8 @@ businessActivityCodeTwo.hint = Enter the SIC code
 businessActivityCodeTwo.hintHtml = <p class="govuk-body">You can find the SIC codes on the <a href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2007" class="govuk-link" target="_blank" rel="noreferrer noopener">Office for National Statistics website (opens in a new tab)</a>.</p>
 businessActivityCodeTwo.error.summary = Enter a SIC code
 businessActivityCodeTwo.error.required = Enter a SIC code
-businessActivityCodeTwo.error.invalid = Enter a valid SIC code
-businessActivityCodeTwo.error.invalid.summary = Enter a valid SIC code
+businessActivityCodeTwo.error.invalid = Enter a SIC code in the correct format
+businessActivityCodeTwo.error.invalid.summary = Enter a SIC code in the correct format
 businessActivityCodeTwo.error.duplicate = You cannot use a SIC code that you’ve already used
 
 businessActivityTwo.title = Business activity for this claim
@@ -192,8 +192,8 @@ businessActivityCodeThree.hint = Enter the SIC code
 businessActivityCodeThree.hintHtml = <p class="govuk-body">You can find the SIC codes on the <a href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2007" class="govuk-link" target="_blank" rel="noreferrer noopener">Office for National Statistics website (opens in a new tab)</a>.</p>
 businessActivityCodeThree.error.summary = Enter a SIC code
 businessActivityCodeThree.error.required = Enter a SIC code
-businessActivityCodeThree.error.invalid = Enter a valid SIC code
-businessActivityCodeThree.error.invalid.summary = Enter a valid SIC code
+businessActivityCodeThree.error.invalid = Enter a SIC code in the correct format
+businessActivityCodeThree.error.invalid.summary = Enter a SIC code in the correct format
 businessActivityCodeThree.error.duplicate = You cannot use a SIC code that you’ve already used
 businessActivityCodeThree.checkYourAnswersLabel = 3rd business activity code
 businessActivityCodeThree.change.hidden = Change the 3rd business activity code
