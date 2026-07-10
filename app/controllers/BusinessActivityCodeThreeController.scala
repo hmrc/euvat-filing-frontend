@@ -99,10 +99,6 @@ class BusinessActivityCodeThreeController @Inject() (
           }
         },
         value => {
-          // log stored answers and submitted value for debugging duplicate detection
-          Logger(getClass).info(
-            s"BusinessActivityCodeThreeController.onSubmit - stored BA1=${baseAnswers.get(BusinessActivityCodePage)} BA2=${baseAnswers.get(BusinessActivityCodeTwoPage)} submitted=$value"
-          )
 
           // if the submitted value duplicates BA1 or BA2, show duplicate error
           val duplicateFrom =

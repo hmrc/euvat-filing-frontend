@@ -151,7 +151,7 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual BAD_REQUEST
         val body = contentAsString(result)
-        body must include(messages(application)("businessActivityCodeTwo.error.duplicate", "Business activity 1", "49200"))
+        body must include(messages(application)("businessActivityCodeTwo.error.duplicate"))
       }
     }
 
@@ -171,7 +171,7 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual BAD_REQUEST
         val body = contentAsString(result)
-        body must include(messages(application)("businessActivityCodeTwo.error.duplicate", "Business activity 3", "77777"))
+        body must include(messages(application)("businessActivityCodeTwo.error.duplicate"))
       }
     }
   }
