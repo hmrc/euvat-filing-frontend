@@ -32,12 +32,12 @@
     @govukTaskList(taskList)
 
     @if(showDeleteLink) {
-    <p class="govuk-body">
+    <div class="govuk-body">
         <a href="#" class="govuk-link">@messages("taskListDashboard.deleteLink")</a>
-    </p>
+    </div>
     }
 
-    <p class="govuk-body">
+    <div class="govuk-body">
        <a href="@controllers.routes.TaskListDashboardController.redirectToManageClaim().url" class="govuk-link" >@messages("taskListDashboard.dashboardLink")</a>
-    </p>
+    </div>
 }

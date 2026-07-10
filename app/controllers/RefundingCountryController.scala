@@ -27,7 +27,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.{ConfigLanguageMapping, CountryList}
+import utils.{ConfigCurrencyMapping, ConfigLanguageMapping, CountryList}
 import models.RefundingLanguage
 import views.html.RefundingCountryView
 
@@ -47,6 +47,7 @@ class RefundingCountryController @Inject() (
   formProvider: RefundingCountryFormProvider,
   config: Configuration,
   configLanguageMapping: ConfigLanguageMapping,
+  configCurrencyMapping: ConfigCurrencyMapping,
   val controllerComponents: MessagesControllerComponents,
   view: RefundingCountryView
 )(implicit ec: ExecutionContext)
@@ -113,7 +114,11 @@ class RefundingCountryController @Inject() (
             // If the country has changed, remove any previously stored language so the user must re-select
             updatedAnswers2 <- maybePrevCode match {
                                  case Some(prev) if !prev.equalsIgnoreCase(value) =>
-                                   Future.fromTry(updatedAnswers1.remove(pages.RefundingLanguagePage))
+                                   for {
+                                     a <- Future.fromTry(updatedAnswers1.remove(pages.RefundingLanguagePage))
+                                     b <- Future.fromTry(a.remove(pages.RefundingCurrencyPage))
+                                     c <- Future.fromTry(b.set(pages.CountryChangedPage, true))
+                                   } yield c
                                  case _ => Future.successful(updatedAnswers1)
                                }
             updatedAnswers3 <- if (langs.size == 1) {
@@ -121,8 +126,15 @@ class RefundingCountryController @Inject() (
                                  val langModel = RefundingLanguage.values.find(_.toString == langStr).getOrElse(RefundingLanguage.English)
                                  Future.fromTry(updatedAnswers2.set(pages.RefundingLanguagePage, langModel))
                                } else Future.successful(updatedAnswers2)
-            _ <- sessionRepository.set(updatedAnswers3)
-          } yield Redirect(navigator.nextPage(RefundingCountryPage, mode, updatedAnswers3))
+            updatedAnswers4 <- {
+              val currencies = configCurrencyMapping.currenciesFor(value)
+              if (currencies.size == 1 && langs.size == 1)
+                Future.fromTry(updatedAnswers3.set(pages.RefundingCurrencyPage, currencies.head._2))
+              else
+                Future.successful(updatedAnswers3)
+            }
+            _ <- sessionRepository.set(updatedAnswers4)
+          } yield Redirect(navigator.nextPage(RefundingCountryPage, mode, updatedAnswers4))
 
           result
         }
