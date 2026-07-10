@@ -292,7 +292,7 @@ supplierTaxIdentifierNumber.title = What is the supplier’s tax identifier numb
 supplierTaxIdentifierNumber.heading = What is the supplier’s tax identifier number?
 supplierTaxIdentifierNumber.hint = This is 10 or 11 digits, for example 12/345/67890
 supplierTaxIdentifierNumber.error.required = Enter the supplier’s tax identifier number
-supplierTaxIdentifierNumber.error.length = Supplier’s tax identifier number must be 20 characters or less
+supplierTaxIdentifierNumber.error.length = Supplier’s tax identifier number cannot be more than 20 characters
 supplierTaxIdentifierNumber.checkYourAnswersLabel = Supplier’s tax identifier number
 supplierTaxIdentifierNumber.change.hidden = Change supplier’s tax identifier number
 
