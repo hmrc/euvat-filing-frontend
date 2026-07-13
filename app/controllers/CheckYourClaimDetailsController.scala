@@ -27,6 +27,7 @@ import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.EuVatRefundsService
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.{ConfigCurrencyMapping, ConfigLanguageMapping}
 import viewmodels.checkAnswers.CheckYourClaimDetailsSummary
@@ -57,20 +58,25 @@ class CheckYourClaimDetailsController @Inject() (
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-
-    for {
-      updatedAnswers1 <- Future.fromTry(request.userAnswers.set(ClaimDetailsCompletedPage, true))
-      appRequest      <- buildAppRequest(updatedAnswers1)
-      claimResponse   <- service.createApplication(appRequest)
-      updatedAnswers  <- Future.fromTry(updatedAnswers1.set(ClaimApplicationResponsePage, claimResponse))
-      _               <- sessionRepository.set(updatedAnswers)
-    } yield {
-      if (claimResponse.applicationId > 0) {
-        Redirect(controllers.routes.TaskListDashboardController.onPageLoad())
-      } else {
+    (
+      for {
+        updatedAnswers1 <- Future.fromTry(request.userAnswers.set(ClaimDetailsCompletedPage, true))
+        appRequest      <- buildAppRequest(updatedAnswers1)
+        claimResponse   <- service.createApplication(appRequest)
+        updatedAnswers  <- Future.fromTry(updatedAnswers1.set(ClaimApplicationResponsePage, claimResponse))
+        _               <- sessionRepository.set(updatedAnswers)
+      } yield {
+        if (claimResponse.applicationId > 0) {
+          Redirect(controllers.routes.TaskListDashboardController.onPageLoad())
+        } else {
+          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+        }
+      }
+    )
+      .recover { case ex: Exception =>
+        logger.error("Error while saving the refund application", ex)
         Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
-    }
 
   }
 
