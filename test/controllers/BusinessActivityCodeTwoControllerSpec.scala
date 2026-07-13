@@ -141,24 +141,25 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return a Bad Request and duplicate error when submitted code matches first business activity" in {
-      val userAnswers = emptyUserAnswers.set(pages.BusinessActivityCodePage, "49200").success.value
+      val userAnswers = emptyUserAnswers.set(pages.BusinessActivityCodePage, "4920").success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(POST, routes.BusinessActivityCodeTwoController.onSubmit(models.NormalMode).url)
-          .withFormUrlEncodedBody(("value", "49200"))
+          .withFormUrlEncodedBody(("value", "4920"))
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
         val body = contentAsString(result)
         body must include(messages(application)("businessActivityCodeTwo.error.duplicate"))
+        body must include("4920")
       }
     }
 
     "must return a Bad Request and duplicate error when submitted code matches third business activity" in {
       val userAnswers = emptyUserAnswers
-        .set(pages.BusinessActivityCodePage, "49200")
-        .flatMap(_.set(pages.BusinessActivityCodeThreePage, "77777"))
+        .set(pages.BusinessActivityCodePage, "4920")
+        .flatMap(_.set(pages.BusinessActivityCodeThreePage, "7777"))
         .success
         .value
 
@@ -166,12 +167,43 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(POST, routes.BusinessActivityCodeTwoController.onSubmit(models.NormalMode).url)
-          .withFormUrlEncodedBody(("value", "77777"))
+          .withFormUrlEncodedBody(("value", "7777"))
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
         val body = contentAsString(result)
         body must include(messages(application)("businessActivityCodeTwo.error.duplicate"))
+        body must include("7777")
+      }
+    }
+
+    "must return a Bad Request and length error when submitted code exceeds 4 digits" in {
+      val userAnswers = emptyUserAnswers
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.BusinessActivityCodeTwoController.onSubmit(models.NormalMode).url)
+          .withFormUrlEncodedBody(("value", "12345"))
+        val result = route(application, request).value
+
+        status(result) mustEqual BAD_REQUEST
+        val body = contentAsString(result)
+        body must include(messages(application)("businessActivityCodeTwo.error.length"))
+      }
+    }
+
+    "must return a Bad Request and invalid format error when submitted code is not numeric" in {
+      val userAnswers = emptyUserAnswers
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.BusinessActivityCodeTwoController.onSubmit(models.NormalMode).url)
+          .withFormUrlEncodedBody(("value", "12ab"))
+        val result = route(application, request).value
+
+        status(result) mustEqual BAD_REQUEST
+        val body = contentAsString(result)
+        body must include(messages(application)("businessActivityCodeTwo.error.invalid"))
       }
     }
   }
