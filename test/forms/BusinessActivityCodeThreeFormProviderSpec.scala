@@ -47,7 +47,7 @@ class BusinessActivityCodeThreeFormProviderSpec extends StringFieldBehaviours wi
       form,
       fieldName,
       maxLength   = 4,
-      lengthError = FormError(fieldName, "businessActivityCodeThree.error.invalid", Seq(4))
+      lengthError = FormError(fieldName, "businessActivityCodeThree.error.length", Seq(4))
     )
 
     "not bind invalid formats" in {
