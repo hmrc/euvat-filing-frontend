@@ -109,7 +109,7 @@ class BusinessActivityCodeThreeController @Inject() (
           duplicateFrom match {
             case Some(from) =>
               val duplicateError = FormError("value", "businessActivityCodeThree.error.duplicate")
-              val duplicateForm = form.copy(errors = form.errors :+ duplicateError)
+              val duplicateForm = form.fill(value).withError(duplicateError)
               Future.successful(BadRequest(view(duplicateForm, Some(routes.BusinessActivityTwoController.onPageLoad(mode).url), mode)))
             case None =>
               for {
