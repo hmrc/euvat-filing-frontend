@@ -138,6 +138,27 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
     }
   }
 
+  private def navigateFromSupplierAddress(mode: Mode): UserAnswers => Call = { userAnswers =>
+    val maybeCountryCode = userAnswers.get(pages.RefundingCountryPage).orElse {
+      userAnswers.get(pages.RefundingCountryNamePage).map { stored =>
+        stored.split(",", 2).headOption.getOrElse(stored)
+      }
+    }
+
+    maybeCountryCode match {
+      case Some("DE") =>
+        mode match {
+          case NormalMode => routes.SupplierTaxIdentifierNumberController.onPageLoad(NormalMode)
+          case CheckMode  => routes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode)
+        }
+      case _ =>
+        mode match {
+          case NormalMode => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode)
+          case CheckMode  => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(CheckMode)
+        }
+    }
+  }
+
   private def navigateFromRefundingCurrencyPage(mode: Mode)(userAnswers: UserAnswers): Call =
     mode match {
       case NormalMode => routes.RefundPeriodController.onPageLoad(NormalMode)
