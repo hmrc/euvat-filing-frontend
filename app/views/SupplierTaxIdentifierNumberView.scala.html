@@ -32,9 +32,9 @@
 
     @formHelper(action = routes.SupplierTaxIdentifierNumberController.onSubmit(mode), Symbol("autocomplete") -> "off") {
 
-        @mainErrorSummary(form, Map.empty)
+        @mainErrorSummary(form, Map("value" -> "event-name"))
 
-        <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is: </span>@messages("purchase.caption.add")</h2>
+        <span class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is: </span>@messages("purchase.caption.add")</span>
 
         @govukInput(
             InputViewModel(
