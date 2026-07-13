@@ -27,8 +27,8 @@ case class LatestApplication(
                               periodStartDate: LocalDateTime,
                               periodEndDate: LocalDateTime,
                               applicationNumber: String,
-                              applicationStatus: String,
-                              submissionStatus: String,
+                              applicationStatus: Option[String],
+                              submissionStatus: Option[String],
                               applicationVersion: LocalDateTime
                             )
 

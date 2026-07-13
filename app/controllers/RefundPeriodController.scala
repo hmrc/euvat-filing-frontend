@@ -155,18 +155,7 @@ class RefundPeriodController @Inject() (
       )
       euVatRefundsService.getLatestApplications(latestApplicationRequest).flatMap { response =>
 
-        val hasDraftOverlap =
-          response.totalApplication > 0 &&
-            response.applications.exists { app =>
-              (app.applicationStatus.equalsIgnoreCase("D") ||
-                app.submissionStatus.equalsIgnoreCase("S")) &&
-              (!startDate.isBefore(app.periodStartDate) ||
-                !endDate.isAfter(app.periodEndDate))
-            }
-
-        logger.info(s"F5 overlap check: hasDraftOverlap=$hasDraftOverlap, startDate=$startDate, endDate=$endDate")
-
-        if (hasDraftOverlap) {
+        if (response.applications.nonEmpty) {
           // TODO: redirect to warning page once designed — showing error as placeholder
           given DataRequest[AnyContent] = request.asInstanceOf[DataRequest[AnyContent]]
           given Messages = messagesApi.preferred(request)

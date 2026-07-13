@@ -30,8 +30,8 @@ class LatestApplicationSpec extends AnyFreeSpec with Matchers {
     periodStartDate      = LocalDateTime.of(2025, 2, 1, 0, 0),
     periodEndDate        = LocalDateTime.of(2025, 5, 31, 23, 59),
     applicationNumber    = "GB0000000000000133",
-    applicationStatus    = "D",
-    submissionStatus     = "S",
+    applicationStatus    = Some("D"),
+    submissionStatus     = Some("S"),
     applicationVersion   = LocalDateTime.of(2025, 2, 11, 10, 38)
   )
 
@@ -44,8 +44,8 @@ class LatestApplicationSpec extends AnyFreeSpec with Matchers {
         "periodStartDate"      -> "2025-02-01T00:00:00",
         "periodEndDate"        -> "2025-05-31T23:59:00",
         "applicationNumber"    -> "GB0000000000000133",
-        "applicationStatus"    -> "D",
-        "submissionStatus"     -> "S",
+        "applicationStatus"    -> Some("D"),
+        "submissionStatus"     -> Some("S"),
         "applicationVersion"   -> "2025-02-11T10:38:00"
       )
     }
@@ -57,8 +57,8 @@ class LatestApplicationSpec extends AnyFreeSpec with Matchers {
         "periodStartDate"      -> "2025-02-01T00:00:00",
         "periodEndDate"        -> "2025-05-31T23:59:00",
         "applicationNumber"    -> "GB0000000000000133",
-        "applicationStatus"    -> "D",
-        "submissionStatus"     -> "S",
+        "applicationStatus"    -> Some("D"),
+        "submissionStatus"     -> Some("S"),
         "applicationVersion"   -> "2025-02-11T10:38:00"
       )
       json.as[LatestApplication] mustEqual sampleApplication
