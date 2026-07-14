@@ -19,7 +19,7 @@ GET         /account/signed-out                          controllers.auth.Signed
 GET         /unauthorised                                controllers.UnauthorisedController.onPageLoad()
 
 # Task list Dashboard
-GET         /make-claim-for-eu-vat-refund                controllers.TaskListDashboardController.onPageLoad()
+GET         /make-a-claim-eu-vat-refund                  controllers.TaskListDashboardController.onPageLoad()
 GET         /redirect-to-manage-claim                    controllers.TaskListDashboardController.redirectToManageClaim()
 
 # Claim details journey
@@ -84,8 +84,8 @@ POST        /remove-third-SIC-code                       controllers.RemoveThird
 
 # Purchase details journey
 
-GET         /about-the-purchase                          controllers.AboutThePurchaseController.onPageLoad()
-POST        /about-the-purchase                          controllers.AboutThePurchaseController.onSubmit()
+GET         /before-you-start                            controllers.BeforeYouStartPurchaseController.onPageLoad()
+POST        /before-you-start                            controllers.BeforeYouStartPurchaseController.onSubmit()
 
 GET         /invoice-type                                controllers.InvoiceTypeController.onPageLoad(mode: Mode = NormalMode)
 POST        /invoice-type                                controllers.InvoiceTypeController.onSubmit(mode: Mode = NormalMode)

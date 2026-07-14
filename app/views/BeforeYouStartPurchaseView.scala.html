@@ -26,19 +26,18 @@
 
 @(backLinkCall: Call)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("aboutThePurchase.title")), backLinkUrl = Some(backLinkCall.url)) {
-    @formHelper(action = routes.AboutThePurchaseController.onSubmit()) {
+@layout(pageTitle = titleNoForm(messages("beforeYouStart.title")), backLinkUrl = Some(backLinkCall.url)) {
+    @formHelper(action = routes.BeforeYouStartPurchaseController.onSubmit()) {
 
         <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is </span>@messages("purchase.caption.add")</h2>
-        <h1 class="govuk-heading-l">@messages("aboutThePurchase.heading")</h1>
-        <p class="govuk-body">@messages("aboutThePurchase.p1")</p>
+        <h1 class="govuk-heading-l">@messages("beforeYouStart.heading")</h1>
+        <p class="govuk-body">@messages("beforeYouStart.p1")</p>
 
         <ul class="govuk-list govuk-list--bullet">
-            <li>@messages("aboutThePurchase.bullet1")</li>
-            <li>@messages("aboutThePurchase.bullet2")</li>
-            <li>@messages("aboutThePurchase.bullet3")</li>
-            <li>@messages("aboutThePurchase.bullet4")</li>
-            <li>@messages("aboutThePurchase.bullet5")</li>
+            <li>@messages("beforeYouStart.bullet1")</li>
+            <li>@messages("beforeYouStart.bullet2")</li>
+            <li>@messages("beforeYouStart.bullet3")</li>
+            <li>@messages("beforeYouStart.bullet4")</li>
         </ul>
 
         @govukButton(ButtonViewModel(Text(messages("site.continue"))))
