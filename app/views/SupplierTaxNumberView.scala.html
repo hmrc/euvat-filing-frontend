@@ -32,7 +32,7 @@ govukButton: GovukButton
 @layout(pageTitle = views.ViewUtils.title(form, messages("supplierTaxNumber.title")), backLinkUrl = Some(call.url)) {
 
 @formHelper(action = routes.SupplierTaxNumberController.onSubmit(mode)) {
-@mainErrorSummary(form, Map("value" -> "value_0"))
+@mainErrorSummary(form, Map.empty)
 
 <span class="govuk-caption-l hmrc-caption-l">
             <span class="govuk-visually-hidden">This section is: </span>@messages("supplierTaxNumber.caption")
