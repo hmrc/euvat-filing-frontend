@@ -33,7 +33,9 @@
 @radioLegend = {<h2 class="govuk-fieldset__heading">@messages("purchaseType.h2")</h2>}
 
 @layout(pageTitle = views.ViewUtils.title(form, "purchaseType.title"), backLinkUrl = Some(call.url)) {
-    <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is: </span>@messages("purchase.caption.add")</h2>
+    <span class="govuk-caption-l hmrc-caption-l">
+            <span class="govuk-visually-hidden">This section is: </span>@messages("invoiceType.caption")
+    </span>
 
     <h1 class="govuk-heading-l">@messages("purchaseType.heading")</h1>
 
