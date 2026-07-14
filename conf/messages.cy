@@ -173,7 +173,8 @@ businessActivityCodeTwo.error.summary = Enter a SIC code
 businessActivityCodeTwo.error.required = Enter a SIC code
 businessActivityCodeTwo.error.invalid = Enter a valid SIC code
 businessActivityCodeTwo.error.invalid.summary = Enter a valid SIC code
-businessActivityCodeTwo.error.duplicate = Use a different code. Your {0} uses {1} code
+businessActivityCodeTwo.error.duplicate = You cannot use a SIC code that you’ve already used
+businessActivityCodeTwo.error.length = SIC code cannot be more than 4 numbers
 
 businessActivityTwo.title = Business activity for this claim
 businessActivityTwo.heading = Business activity for this claim
@@ -194,7 +195,8 @@ businessActivityCodeThree.error.summary = Enter a SIC code
 businessActivityCodeThree.error.required = Enter a SIC code
 businessActivityCodeThree.error.invalid = Enter a valid SIC code
 businessActivityCodeThree.error.invalid.summary = Enter a valid SIC code
-businessActivityCodeThree.error.duplicate = Use a different code. Your {0} uses {1} code
+businessActivityCodeThree.error.duplicate = You cannot use a SIC code that you’ve already used
+businessActivityCodeThree.error.length = SIC code cannot be more than 4 numbers
 businessActivityCodeThree.checkYourAnswersLabel = 3rd business activity code
 businessActivityCodeThree.change.hidden = Change the 3rd business activity code
 
