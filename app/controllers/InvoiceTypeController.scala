@@ -48,7 +48,7 @@ class InvoiceTypeController @Inject() (
 
   val form = formProvider()
 
-  private def backLink: Call = routes.BeforeYouStartPurchaseController.onPageLoad()
+  private def backLink: Call = routes.PurchaseTypeController.onPageLoad(NormalMode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 

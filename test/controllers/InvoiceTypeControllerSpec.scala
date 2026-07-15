@@ -56,7 +56,7 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[InvoiceTypeView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, routes.BeforeYouStartPurchaseController.onPageLoad())(request,
+        contentAsString(result) mustEqual view(form, NormalMode, routes.PurchaseTypeController.onPageLoad(NormalMode))(request,
                                                                                                                  messages(application)
                                                                                                                 ).toString
       }
@@ -76,7 +76,7 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(InvoiceType.values.head), NormalMode, routes.BeforeYouStartPurchaseController.onPageLoad())(
+        contentAsString(result) mustEqual view(form.fill(InvoiceType.values.head), NormalMode, routes.PurchaseTypeController.onPageLoad(NormalMode))(
           request,
           messages(application)
         ).toString
@@ -149,7 +149,7 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, routes.BeforeYouStartPurchaseController.onPageLoad())(request,
+        contentAsString(result) mustEqual view(boundForm, NormalMode, routes.PurchaseTypeController.onPageLoad(NormalMode))(request,
                                                                                                                       messages(application)
                                                                                                                      ).toString
       }
