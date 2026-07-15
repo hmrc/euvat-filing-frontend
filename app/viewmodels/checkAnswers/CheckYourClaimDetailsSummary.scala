@@ -62,7 +62,12 @@ object CheckYourClaimDetailsSummary {
       (
         messages("checkYourClaimDetails.refundingPeriodStart.subLabel"),
         Some(answer.startDate.format(shortMonthYearFormat())),
-        Seq((routes.RefundPeriodController.onPageLoad(CheckMode).url + "#start.month", "site.change", "checkYourClaimDetails.refundingStartDate.change.hidden"))
+        Seq(
+          (routes.RefundPeriodController.onPageLoad(CheckMode).url + "#start.month",
+           "site.change",
+           "checkYourClaimDetails.refundingStartDate.change.hidden"
+          )
+        )
       )
     }
 
@@ -72,7 +77,12 @@ object CheckYourClaimDetailsSummary {
       (
         messages("checkYourClaimDetails.refundingPeriodEnd.subLabel"),
         Some(answer.endDate.format(shortMonthYearFormat())),
-        Seq((routes.RefundPeriodController.onPageLoad(CheckMode).url + "#end.month", "site.change", "checkYourClaimDetails.refundingEndDate.change.hidden"))
+        Seq(
+          (routes.RefundPeriodController.onPageLoad(CheckMode).url + "#end.month",
+           "site.change",
+           "checkYourClaimDetails.refundingEndDate.change.hidden"
+          )
+        )
       )
     }
 
@@ -90,7 +100,12 @@ object CheckYourClaimDetailsSummary {
       (
         messages("checkYourClaimDetails.contactPhone.subLabel"),
         Some(answer.telephone.getOrElse("Not provided")),
-        Seq((routes.ContactDetailsController.onPageLoad(CheckMode).url + "#contactTelephone", "site.change", "checkYourClaimDetails.Phone.change.hidden"))
+        Seq(
+          (routes.ContactDetailsController.onPageLoad(CheckMode).url + "#contactTelephone",
+           "site.change",
+           "checkYourClaimDetails.Phone.change.hidden"
+          )
+        )
       )
     }
 
@@ -113,7 +128,9 @@ object CheckYourClaimDetailsSummary {
       (
         messages("checkYourClaimDetails.businessActivity2.subLabel"),
         Some(answer),
-        Seq((routes.BusinessActivityCodeTwoController.onPageLoad(CheckMode).url, "site.change", "checkYourClaimDetails.businessActivity2.change.hidden"))
+        Seq(
+          (routes.BusinessActivityCodeTwoController.onPageLoad(CheckMode).url, "site.change", "checkYourClaimDetails.businessActivity2.change.hidden")
+        )
       )
     }
 
@@ -122,7 +139,12 @@ object CheckYourClaimDetailsSummary {
       (
         messages("checkYourClaimDetails.businessActivity3.subLabel"),
         Some(answer),
-        Seq((routes.BusinessActivityCodeThreeController.onPageLoad(CheckMode).url, "site.change", "checkYourClaimDetails.businessActivity3.change.hidden"))
+        Seq(
+          (routes.BusinessActivityCodeThreeController.onPageLoad(CheckMode).url,
+           "site.change",
+           "checkYourClaimDetails.businessActivity3.change.hidden"
+          )
+        )
       )
     }
 }

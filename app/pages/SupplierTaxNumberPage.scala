@@ -16,19 +16,12 @@
 
 package pages
 
-import base.SpecBase
+import models.SupplierTaxNumber
+import play.api.libs.json.JsPath
 
-class ClaimDetailsCompletedPageSpec extends SpecBase {
+case object SupplierTaxNumberPage extends QuestionPage[SupplierTaxNumber] {
 
-  "ClaimDetailsCompletedPage" - {
+  override def path: JsPath = JsPath \ toString
 
-    "must be able to be set and retrieved from UserAnswers" in {
-      val answers = emptyUserAnswers.set(ClaimDetailsCompletedPage, true).success.value
-      answers.get(ClaimDetailsCompletedPage) mustBe Some(true)
-    }
-
-    "must return None when not set" in {
-      emptyUserAnswers.get(ClaimDetailsCompletedPage) mustBe None
-    }
-  }
+  override def toString: String = "supplierTaxNumber"
 }
