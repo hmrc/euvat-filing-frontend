@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package forms
+package pages
 
-import forms.mappings.Mappings
-import javax.inject.Inject
-import play.api.data.Form
+import base.SpecBase
 
-class DescribeItemsOnInvoiceFormProvider @Inject() extends Mappings {
+class DescribeItemsOnInvoicePageSpec extends SpecBase {
 
-  def apply(): Form[String] =
-    Form(
-      "value" -> text("describeItemsOnInvoice.error.required")
-        .verifying(maxLength(255, "describeItemsOnInvoice.error.length"))
-    )
+  "DescribeItemsOnInvoicePage" - {
+
+    "must be able to be set and retrieved from UserAnswers" in {
+      val answers = emptyUserAnswers.set(DescribeItemsOnInvoicePage, "Fuel and transport costs").success.value
+      answers.get(DescribeItemsOnInvoicePage) mustBe Some("Fuel and transport costs")
+    }
+  }
 }
