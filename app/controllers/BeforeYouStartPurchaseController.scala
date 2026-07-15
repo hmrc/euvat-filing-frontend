@@ -39,7 +39,7 @@ class BeforeYouStartPurchaseController @Inject() (
     Ok(view(routes.TaskListDashboardController.onPageLoad()))
   }
 
-  def onSubmit(): Action[AnyContent] = Action { implicit request =>
-    Redirect(controllers.routes.InvoiceTypeController.onPageLoad(NormalMode))
+  def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+    Redirect(controllers.routes.PurchaseTypeController.onPageLoad(NormalMode))
   }
 }
