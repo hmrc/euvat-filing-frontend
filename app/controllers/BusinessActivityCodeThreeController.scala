@@ -99,10 +99,6 @@ class BusinessActivityCodeThreeController @Inject() (
           }
         },
         value => {
-          // log stored answers and submitted value for debugging duplicate detection
-          Logger(getClass).info(
-            s"BusinessActivityCodeThreeController.onSubmit - stored BA1=${baseAnswers.get(BusinessActivityCodePage)} BA2=${baseAnswers.get(BusinessActivityCodeTwoPage)} submitted=$value"
-          )
 
           // if the submitted value duplicates BA1 or BA2, show duplicate error
           val duplicateFrom =
@@ -112,15 +108,15 @@ class BusinessActivityCodeThreeController @Inject() (
 
           duplicateFrom match {
             case Some(from) =>
-              val duplicateError = FormError("value", "businessActivityCodeThree.error.duplicate", Seq(from, value))
-              val duplicateForm = form.copy(errors = form.errors :+ duplicateError)
+              val duplicateError = FormError("value", "businessActivityCodeThree.error.duplicate")
+              val duplicateForm = form.fill(value).withError(duplicateError)
               Future.successful(BadRequest(view(duplicateForm, Some(routes.BusinessActivityTwoController.onPageLoad(mode).url), mode)))
             case None =>
               for {
                 updatedAnswers <- Future.fromTry(baseAnswers.set(BusinessActivityCodeThreePage, value))
                 _              <- sessionRepository.set(updatedAnswers)
               } yield mode match {
-                case CheckMode => Redirect(routes.BusinessActivityThreeController.onPageLoad())
+                case CheckMode  => Redirect(routes.BusinessActivityThreeController.onPageLoad())
                 case NormalMode => Redirect(navigator.nextPage(BusinessActivityCodeThreePage, mode, updatedAnswers))
               }
           }

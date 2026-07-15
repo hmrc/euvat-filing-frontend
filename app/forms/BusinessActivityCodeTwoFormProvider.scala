@@ -28,7 +28,7 @@ class BusinessActivityCodeTwoFormProvider @Inject() extends Mappings {
       "value" -> text("businessActivityCodeTwo.error.required")
         .verifying(
           firstError(
-            maxLength(businessActivityCodeMaxLength, "businessActivityCodeTwo.error.invalid"),
+            maxLength(businessActivityCodeMaxLength, "businessActivityCodeTwo.error.length"),
             regexp(businessActivityCodeRegex, "businessActivityCodeTwo.error.invalid")
           )
         )

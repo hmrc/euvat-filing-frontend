@@ -124,7 +124,7 @@ class BusinessActivityCodeTwoController @Inject() (
             }
           } else if (ba1.contains(value) || ba3.contains(value)) {
             val from = if (ba3.contains(value)) "Business activity 3" else "Business activity 1"
-            val duplicateForm = form.withError("value", "businessActivityCodeTwo.error.duplicate", from, value)
+            val duplicateForm = form.fill(value).withError("value", "businessActivityCodeTwo.error.duplicate")
             Future.successful(BadRequest(view(duplicateForm, Some(routes.BusinessActivityController.onPageLoad(mode).url), mode)))
           } else {
             for {

@@ -54,7 +54,7 @@ class TaskListViewModel @Inject() () {
     val addPurchaseItem = TaskListItem(
       title  = TaskListItemTitle(content = Text(messages("taskListDashboard.listItem2"))),
       status = if (claimDetailsDone) notStartedStatus else cannotStartStatus,
-      href   = if (claimDetailsDone) Some(controllers.routes.AboutThePurchaseController.onPageLoad().url) else None
+      href   = if (claimDetailsDone) Some(controllers.routes.BeforeYouStartPurchaseController.onPageLoad().url) else None
     )
 
     val addImportItem = TaskListItem(
