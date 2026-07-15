@@ -56,7 +56,7 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
         val view = application.injector.instanceOf[SupplierTaxIdentifierNumberView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, routes.SupplierAddressController.onPageLoad(NormalMode))(
+        contentAsString(result) mustEqual view(form, NormalMode, routes.SupplierTaxNumberController.onPageLoad(NormalMode))(
           request,
           messages(application)
         ).toString
@@ -77,7 +77,7 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode, routes.SupplierAddressController.onPageLoad(NormalMode))(
+        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode, routes.SupplierTaxNumberController.onPageLoad(NormalMode))(
           request,
           messages(application)
         ).toString
@@ -126,7 +126,7 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, routes.SupplierAddressController.onPageLoad(NormalMode))(
+        contentAsString(result) mustEqual view(boundForm, NormalMode, routes.SupplierTaxNumberController.onPageLoad(NormalMode))(
           request,
           messages(application)
         ).toString
@@ -149,7 +149,7 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, routes.SupplierAddressController.onPageLoad(NormalMode))(
+        contentAsString(result) mustEqual view(boundForm, NormalMode, routes.SupplierTaxNumberController.onPageLoad(NormalMode))(
           request,
           messages(application)
         ).toString
@@ -172,7 +172,7 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, CheckMode, routes.SupplierAddressController.onPageLoad(CheckMode))(
+        contentAsString(result) mustEqual view(boundForm, CheckMode, routes.SupplierTaxNumberController.onPageLoad(CheckMode))(
           request,
           messages(application)
         ).toString
@@ -204,6 +204,46 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
         redirectLocation(result).value mustEqual onwardRoute.url
       }
     }
+
+      "must return OK and the correct view for a GET in CheckMode" in {
+
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+        running(application) {
+          val request = FakeRequest(GET, routes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode).url)
+
+          val result = route(application, request).value
+
+          val view = application.injector.instanceOf[SupplierTaxIdentifierNumberView]
+
+          status(result) mustEqual OK
+          contentAsString(result) mustEqual view(form, CheckMode, routes.SupplierTaxNumberController.onPageLoad(CheckMode))(
+            request,
+            messages(application)
+          ).toString
+        }
+      }
+
+      "must populate the view correctly on a GET in CheckMode when the question has previously been answered" in {
+
+        val userAnswers = UserAnswers(userAnswersId).set(SupplierTaxIdentifierNumberPage, "answer").success.value
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+        running(application) {
+          val request = FakeRequest(GET, routes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode).url)
+
+          val view = application.injector.instanceOf[SupplierTaxIdentifierNumberView]
+
+          val result = route(application, request).value
+
+          status(result) mustEqual OK
+          contentAsString(result) mustEqual view(form.fill("answer"), CheckMode, routes.SupplierTaxNumberController.onPageLoad(CheckMode))(
+            request,
+            messages(application)
+          ).toString
+        }
+      }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
 

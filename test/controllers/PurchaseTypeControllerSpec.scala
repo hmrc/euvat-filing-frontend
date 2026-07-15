@@ -99,7 +99,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
           val form = formProvider()
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(form, NormalMode, routes.SupplierTaxIdentifierNumberController.onPageLoad(NormalMode))(request, messages(application)).toString
+          contentAsString(result) mustEqual view(form, NormalMode, backLinkCall)(request, messages(application)).toString
         }
       }
 
@@ -152,7 +152,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
           val form = formProvider()
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(form, CheckMode, routes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode))(request, messages(application)).toString
+          contentAsString(result) mustEqual view(form, CheckMode, backLinkCallCheck)(request, messages(application)).toString
         }
       }
 

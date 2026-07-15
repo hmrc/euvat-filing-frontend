@@ -50,22 +50,7 @@ class PurchaseTypeController @Inject() (
   val form: Form[PurchaseType] = formProvider()
 
   private def backLink(mode: Mode)(implicit request: DataRequest[_]) =
-    {
-      val maybeCountryCode = request.userAnswers.get(pages.RefundingCountryPage).orElse {
-        request.userAnswers.get(pages.RefundingCountryNamePage).map { stored =>
-          stored.split(",", 2).headOption.getOrElse(stored)
-        }
-      }
-
-      maybeCountryCode match {
-        case Some("DE") => routes.SupplierTaxIdentifierNumberController.onPageLoad(mode)
-        case _ =>
-          request.userAnswers.get(SimplifiedInvoiceVatRegCheckPage) match {
-            case Some(false) => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode)
-            case _           => routes.TotalVatPaidController.onPageLoad(mode)
-          }
-      }
-    }
+    routes.BeforeYouStartPurchaseController.onPageLoad()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(PurchaseTypePage).fold(form)(form.fill)
