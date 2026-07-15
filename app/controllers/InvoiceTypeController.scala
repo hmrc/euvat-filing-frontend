@@ -18,8 +18,9 @@ package controllers
 
 import controllers.actions.*
 import forms.InvoiceTypeFormProvider
+
 import javax.inject.Inject
-import models.Mode
+import models.{Mode, NormalMode}
 import navigation.Navigator
 import pages.InvoiceTypePage
 import play.api.i18n.{I18nSupport, MessagesApi}
