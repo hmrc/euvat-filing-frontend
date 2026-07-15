@@ -171,8 +171,8 @@ businessActivityCodeTwo.hint = Enter the SIC code
 businessActivityCodeTwo.hintHtml = <p class="govuk-body">You can find the SIC codes on the <a href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2007" class="govuk-link" target="_blank" rel="noreferrer noopener">Office for National Statistics website (opens in a new tab)</a>.</p>
 businessActivityCodeTwo.error.summary = Enter a SIC code
 businessActivityCodeTwo.error.required = Enter a SIC code
-businessActivityCodeTwo.error.invalid = Enter a valid SIC code
-businessActivityCodeTwo.error.invalid.summary = Enter a valid SIC code
+businessActivityCodeTwo.error.invalid = Enter a SIC code in the correct format
+businessActivityCodeTwo.error.invalid.summary = Enter a SIC code in the correct format
 businessActivityCodeTwo.error.duplicate = You cannot use a SIC code that you’ve already used
 businessActivityCodeTwo.error.length = SIC code cannot be more than 4 numbers
 
@@ -193,8 +193,8 @@ businessActivityCodeThree.hint = Enter the SIC code
 businessActivityCodeThree.hintHtml = <p class="govuk-body">You can find the SIC codes on the <a href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2007" class="govuk-link" target="_blank" rel="noreferrer noopener">Office for National Statistics website (opens in a new tab)</a>.</p>
 businessActivityCodeThree.error.summary = Enter a SIC code
 businessActivityCodeThree.error.required = Enter a SIC code
-businessActivityCodeThree.error.invalid = Enter a valid SIC code
-businessActivityCodeThree.error.invalid.summary = Enter a valid SIC code
+businessActivityCodeThree.error.invalid = Enter a SIC code in the correct format
+businessActivityCodeThree.error.invalid.summary = Enter a SIC code in the correct format
 businessActivityCodeThree.error.duplicate = You cannot use a SIC code that you’ve already used
 businessActivityCodeThree.error.length = SIC code cannot be more than 4 numbers
 businessActivityCodeThree.checkYourAnswersLabel = 3rd business activity code
@@ -360,7 +360,7 @@ purchaseType.title = Purchase type
 purchaseType.heading = Purchase type
 purchaseType.h2 = What category best describes the item on your invoice?
 purchaseType.p1 = If your invoice includes items that fall under more than one category (for example, a hotel bill including both accommodation and meals), you must either select:
-purchaseType.li1 = ’Other’ and give a description of the items
+purchaseType.li1 = ‘Other’ and give a description of the items
 purchaseType.li2 = the category that relates to the highest-value item
 purchaseType.detail.summary = Check what is eligible for a VAT refund
 purchaseType.detail.content = <p class="govuk-body">Check the rules in your country for what items are eligible for a VAT refund in <a href="https://www.gov.uk/guidance/refunds-of-uk-vat-for-non-uk-businesses-or-eu-vat-for-uk-businesses" class="govuk-link" target="_blank" rel="noreferrer noopener">VAT Notice 723A on GOV.UK (opens in a new tab)</a>.</p>

@@ -180,7 +180,7 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
   private def navigateFromPurchaseTypePage(mode: Mode)(userAnswers: UserAnswers): Call =
     userAnswers.get(PurchaseTypePage) match {
       case Some(_) =>
-        routes.JourneyRecoveryController.onPageLoad() // TODO - route to RA6.0 PurchaseSubCode once built, keyed by Country + Category
+        routes.InvoiceTypeController.onPageLoad(mode) // TODO - route to RA6.0 PurchaseSubCode once built, keyed by Country + Category
       case _ => routes.JourneyRecoveryController.onPageLoad()
     }
 
