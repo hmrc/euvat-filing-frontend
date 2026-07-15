@@ -66,7 +66,6 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
     case TotalVatPaidPage                  => _ => routes.TotalVatClaimController.onPageLoad(NormalMode)
     case TotalVatClaimPage                 => _ => routes.JourneyRecoveryController.onPageLoad()
     case CheckYourStateDetailsPage         => userAnswer => navigateFromCheckYourStateDetailsPage(NormalMode)(userAnswer)
-    case TotalVatClaimPage                => _ => routes.JourneyRecoveryController.onPageLoad()
     case _                                 => _ => routes.IndexController.onPageLoad()
   }
 
