@@ -64,7 +64,7 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
 
       result shouldBe expected
 
-      verify(mockHttp).get(url"$baseUrl/traders/getKnownFacts")
+      verify(mockHttp).get(url"$baseUrl/traders/get-known-facts")
       verify(mockRequestBuilder).execute[TraderKnownFactsResponse](any(), any())
     }
 
