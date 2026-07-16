@@ -37,7 +37,7 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
 
   def retrieveTradersKnownFacts()(implicit hc: HeaderCarrier): Future[TraderKnownFactsResponse] = {
     http
-      .get(url"$euVatRefundsBaseUrl/traders/getKnownFacts")
+      .get(url"$euVatRefundsBaseUrl/traders/get-known-facts")
       .execute[TraderKnownFactsResponse]
   }
 
