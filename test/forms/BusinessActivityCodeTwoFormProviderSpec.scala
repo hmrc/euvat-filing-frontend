@@ -47,11 +47,11 @@ class BusinessActivityCodeTwoFormProviderSpec extends StringFieldBehaviours with
       form,
       fieldName,
       maxLength   = 4,
-      lengthError = FormError(fieldName, "businessActivityCodeTwo.error.invalid", Seq(4))
+      lengthError = FormError(fieldName, "businessActivityCodeTwo.error.length", Seq(4))
     )
 
     "not bind invalid formats" in {
-      val invalidValues = Seq("abcd", "12a4", "123", "1 234", "12-3")
+      val invalidValues = Seq("abcd", "12a4", "123", "1 23", "12-3")
       invalidValues.foreach { v =>
         val result = form.bind(Map(fieldName -> v)).apply(fieldName)
         result.errors.map(_.message) must contain only "businessActivityCodeTwo.error.invalid"

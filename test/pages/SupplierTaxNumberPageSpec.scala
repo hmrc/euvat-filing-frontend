@@ -14,22 +14,18 @@
  * limitations under the License.
  */
 
-package forms
+package pages
 
-import javax.inject.Inject
+import base.SpecBase
+import models.SupplierTaxNumber
 
-import forms.mappings.Mappings
-import play.api.data.Form
+class SupplierTaxNumberPageSpec extends SpecBase {
 
-class BusinessActivityCodeThreeFormProvider @Inject() extends Mappings {
-  def apply(): Form[String] =
-    Form(
-      "value" -> text("businessActivityCodeThree.error.required")
-        .verifying(
-          firstError(
-            maxLength(businessActivityCodeMaxLength, "businessActivityCodeThree.error.length"),
-            regexp(businessActivityCodeRegex, "businessActivityCodeThree.error.invalid")
-          )
-        )
-    )
+  "SupplierTaxNumberPage" - {
+
+    "must be able to be set and retrieved from UserAnswers" in {
+      val answers = emptyUserAnswers.set(SupplierTaxNumberPage, SupplierTaxNumber.values.head).success.value
+      answers.get(SupplierTaxNumberPage) mustBe Some(SupplierTaxNumber.values.head)
+    }
+  }
 }

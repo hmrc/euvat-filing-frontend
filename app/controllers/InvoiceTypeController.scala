@@ -18,8 +18,9 @@ package controllers
 
 import controllers.actions.*
 import forms.InvoiceTypeFormProvider
+
 import javax.inject.Inject
-import models.Mode
+import models.{Mode, NormalMode}
 import navigation.Navigator
 import pages.InvoiceTypePage
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -28,7 +29,6 @@ import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.InvoiceTypeView
 import play.api.mvc.Call
-import models.NormalMode
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -48,7 +48,7 @@ class InvoiceTypeController @Inject() (
 
   val form = formProvider()
 
-  private def backLink: Call = routes.AboutThePurchaseController.onPageLoad()
+  private def backLink: Call = routes.PurchaseTypeController.onPageLoad(NormalMode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 

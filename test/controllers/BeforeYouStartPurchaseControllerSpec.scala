@@ -20,39 +20,39 @@ import base.SpecBase
 import models.NormalMode
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import views.html.AboutThePurchaseView
+import views.html.BeforeYouStartPurchaseView
 
-class AboutThePurchaseControllerSpec extends SpecBase {
+class BeforeYouStartPurchaseControllerSpec extends SpecBase {
 
-  "AboutThePurchase Controller" - {
+  "BeforeYouStartPurchase Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.AboutThePurchaseController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.BeforeYouStartPurchaseController.onPageLoad().url)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[AboutThePurchaseView]
+        val view = application.injector.instanceOf[BeforeYouStartPurchaseView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(routes.TaskListDashboardController.onPageLoad())(request, messages(application)).toString
       }
     }
 
-    "must redirect to the Invoice Type Page when submit button is clicked (POST)" in {
+    "must redirect to the Purchase Type Page when submit button is clicked (POST)" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.AboutThePurchaseController.onSubmit().url)
+        val request = FakeRequest(POST, routes.BeforeYouStartPurchaseController.onSubmit().url)
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
 
-        redirectLocation(result).value mustEqual routes.InvoiceTypeController.onPageLoad(NormalMode).url
+        redirectLocation(result).value mustEqual routes.PurchaseTypeController.onPageLoad(NormalMode).url
       }
     }
 
@@ -60,7 +60,7 @@ class AboutThePurchaseControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.AboutThePurchaseController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.BeforeYouStartPurchaseController.onPageLoad().url)
 
         val result = route(application, request).value
 

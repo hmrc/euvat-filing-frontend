@@ -39,11 +39,11 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
   lazy val purchaseTypeRoute: String = routes.PurchaseTypeController.onPageLoad(NormalMode).url
   lazy val purchaseTypeSubmitRoute: String = routes.PurchaseTypeController.onSubmit(NormalMode).url
-  lazy val backLinkCall: Call = routes.TotalVatPaidController.onPageLoad(NormalMode)
+  lazy val backLinkCall: Call = routes.BeforeYouStartPurchaseController.onPageLoad()
 
   lazy val purchaseTypeRouteCheck: String = routes.PurchaseTypeController.onPageLoad(CheckMode).url
   lazy val purchaseTypeSubmitRouteCheck: String = routes.PurchaseTypeController.onSubmit(CheckMode).url
-  lazy val backLinkCallCheck: Call = routes.TotalVatPaidController.onPageLoad(CheckMode)
+  lazy val backLinkCallCheck: Call = routes.BeforeYouStartPurchaseController.onPageLoad()
 
   "PurchaseType Controller" - {
 
@@ -78,7 +78,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         val form = formProvider()
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode))(
+        contentAsString(result) mustEqual view(form, NormalMode, routes.BeforeYouStartPurchaseController.onPageLoad())(
           request,
           messages(application)
         ).toString

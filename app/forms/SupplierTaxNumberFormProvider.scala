@@ -20,16 +20,12 @@ import javax.inject.Inject
 
 import forms.mappings.Mappings
 import play.api.data.Form
+import models.SupplierTaxNumber
 
-class BusinessActivityCodeThreeFormProvider @Inject() extends Mappings {
-  def apply(): Form[String] =
+class SupplierTaxNumberFormProvider @Inject() extends Mappings {
+
+  def apply(): Form[SupplierTaxNumber] =
     Form(
-      "value" -> text("businessActivityCodeThree.error.required")
-        .verifying(
-          firstError(
-            maxLength(businessActivityCodeMaxLength, "businessActivityCodeThree.error.length"),
-            regexp(businessActivityCodeRegex, "businessActivityCodeThree.error.invalid")
-          )
-        )
+      "value" -> enumerable[SupplierTaxNumber]("supplierTaxNumber.error.required")
     )
 }

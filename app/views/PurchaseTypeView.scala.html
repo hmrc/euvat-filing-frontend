@@ -17,13 +17,15 @@
 @import models.{Mode, PurchaseType}
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import views.html.components.MainErrorSummary
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 
 @this(
     layout: templates.Layout,
     formHelper: FormWithCSRF,
     govukRadios: GovukRadios,
     govukButton: GovukButton,
-    mainErrorSummary: MainErrorSummary
+    mainErrorSummary: MainErrorSummary,
+    govukDetails : GovukDetails
 )
 
 @(form: Form[?], mode: Mode, call: Call)(implicit request: Request[?], messages: Messages)
@@ -31,7 +33,9 @@
 @radioLegend = {<h2 class="govuk-fieldset__heading">@messages("purchaseType.h2")</h2>}
 
 @layout(pageTitle = views.ViewUtils.title(form, "purchaseType.title"), backLinkUrl = Some(call.url)) {
-    <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is: </span>@messages("purchase.caption.add")</h2>
+    <span class="govuk-caption-l hmrc-caption-l">
+            <span class="govuk-visually-hidden">This section is: </span>@messages("invoiceType.caption")
+    </span>
 
     <h1 class="govuk-heading-l">@messages("purchaseType.heading")</h1>
 
@@ -39,8 +43,15 @@
         @mainErrorSummary(form, Map("value" -> "value_0"))
 
         <p class="govuk-body">@messages("purchaseType.p1")</p>
-        <p class="govuk-body">@messages("purchaseType.p2")</p>
-        <p class="govuk-body">@messages("purchaseType.p3")</p>
+        <ul>
+            <li class="govuk-body">@messages("purchaseType.li1")</li>
+            <li class="govuk-body">@messages("purchaseType.li2")</li>
+        </ul>
+
+        @govukDetails(Details(
+            summary = Text(messages("purchaseType.detail.summary")),
+            content = HtmlContent(messages("purchaseType.detail.content"))
+        ))
 
         @govukRadios(
             RadiosViewModel(

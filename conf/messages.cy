@@ -172,9 +172,10 @@ businessActivityCodeTwo.hint = Enter the SIC code
 businessActivityCodeTwo.hintHtml = <p class="govuk-body">You can find the SIC codes on the <a href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2007" class="govuk-link" target="_blank" rel="noreferrer noopener">Office for National Statistics website (opens in a new tab)</a>.</p>
 businessActivityCodeTwo.error.summary = Enter a SIC code
 businessActivityCodeTwo.error.required = Enter a SIC code
-businessActivityCodeTwo.error.invalid = Enter a valid SIC code
-businessActivityCodeTwo.error.invalid.summary = Enter a valid SIC code
-businessActivityCodeTwo.error.duplicate = Use a different code. Your {0} uses {1} code
+businessActivityCodeTwo.error.invalid = Enter a SIC code in the correct format
+businessActivityCodeTwo.error.invalid.summary = Enter a SIC code in the correct format
+businessActivityCodeTwo.error.duplicate = You cannot use a SIC code that you’ve already used
+businessActivityCodeTwo.error.length = SIC code cannot be more than 4 numbers
 
 businessActivityTwo.title = Business activity for this claim
 businessActivityTwo.heading = Business activity for this claim
@@ -193,9 +194,10 @@ businessActivityCodeThree.hint = Enter the SIC code
 businessActivityCodeThree.hintHtml = <p class="govuk-body">You can find the SIC codes on the <a href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2007" class="govuk-link" target="_blank" rel="noreferrer noopener">Office for National Statistics website (opens in a new tab)</a>.</p>
 businessActivityCodeThree.error.summary = Enter a SIC code
 businessActivityCodeThree.error.required = Enter a SIC code
-businessActivityCodeThree.error.invalid = Enter a valid SIC code
-businessActivityCodeThree.error.invalid.summary = Enter a valid SIC code
-businessActivityCodeThree.error.duplicate = Use a different code. Your {0} uses {1} code
+businessActivityCodeThree.error.invalid = Enter a SIC code in the correct format
+businessActivityCodeThree.error.invalid.summary = Enter a SIC code in the correct format
+businessActivityCodeThree.error.duplicate = You cannot use a SIC code that you’ve already used
+businessActivityCodeThree.error.length = SIC code cannot be more than 4 numbers
 businessActivityCodeThree.checkYourAnswersLabel = 3rd business activity code
 businessActivityCodeThree.change.hidden = Change the 3rd business activity code
 
@@ -243,14 +245,13 @@ checkYourClaimDetails.businessActivity2.change.hidden = Change second SIC code
 checkYourClaimDetails.businessActivity3.change.hidden = Change third SIC code
 checkYourClaimDetails.paragraph = You cannot change the refunding EU member state after you save and continue.
 
-aboutThePurchase.title = About the purchase
-aboutThePurchase.heading = About the purchase
-aboutThePurchase.p1 = You’ll need the following information about the purchase:
-aboutThePurchase.bullet1 = the purchase type
-aboutThePurchase.bullet2 = the invoice dates
-aboutThePurchase.bullet3 = the VAT registration number
-aboutThePurchase.bullet4 = the supplier name and address
-aboutThePurchase.bullet5 = the VAT amount
+beforeYouStart.title = Before you start
+beforeYouStart.heading = Before you start
+beforeYouStart.p1 = To tell HMRC about your purchase, you’ll need the:
+beforeYouStart.bullet1 = invoice details
+beforeYouStart.bullet2 = supplier’s details, for example name and address
+beforeYouStart.bullet3 = purchase type
+beforeYouStart.bullet4 = VAT amounts
 
 invoiceType.title = Invoice type
 invoiceType.caption = Purchase details
@@ -270,6 +271,15 @@ suppliersName.error.required = Enter a supplier’s name
 suppliersName.error.length = The supplier’s name must be 35 characters or less
 suppliersName.checkYourAnswersLabel = Supplier’s name
 suppliersName.change.hidden = Change supplier’s name
+
+supplierTaxNumber.title = Select the supplier tax numbers shown on the invoice
+supplierTaxNumber.heading = Select the supplier tax numbers shown on the invoice
+supplierTaxNumber.caption = Purchase details
+supplierTaxNumber.vatRegistrationNumber = VAT registration number (also known as Umsatzsteuer-Identifikationsnummer)
+supplierTaxNumber.vatRegistrationNumber.hint = This is usually 11 characters and starts with DE, for example DE123456789
+supplierTaxNumber.taxIdentifierNumber = Tax identifier number (also known as Steuernummer)
+supplierTaxNumber.taxIdentifierNumber.hint = This is 10 or 11 digits, for example 12/345/67890
+supplierTaxNumber.error.required = Select the supplier tax numbers shown on the invoice
 
 supplierVatRegistrationNumber.title = What is the supplier’s VAT registration number?
 supplierVatRegistrationNumber.heading = What is the supplier’s VAT registration number?
@@ -358,13 +368,15 @@ simplifiedInvoiceVatRegCheck.error.required = Select yes if the simplified invoi
 
 purchaseType.title = Purchase type
 purchaseType.heading = Purchase type
-purchaseType.h2 = What is the purchase type that best describes the item on your invoice?
-purchaseType.p1 = If the invoice includes more than one type of purchase, do not split the invoice over more than one line using the same purchase reference number.
-purchaseType.p2 = This may be treated as a duplicate entry and could delay or reject your claim.
-purchaseType.p3 = Instead, select ‘Other’ and itemise the different items and amounts in the purchase description, or select the highest-value item on the invoice.
+purchaseType.h2 = What category best describes the item on your invoice?
+purchaseType.p1 = If your invoice includes items that fall under more than one category (for example, a hotel bill including both accommodation and meals), you must either select:
+purchaseType.li1 = ‘Other’ and give a description of the items
+purchaseType.li2 = the category that relates to the highest-value item
+purchaseType.detail.summary = Check what is eligible for a VAT refund
+purchaseType.detail.content = <p class="govuk-body">Check the rules in your country for what items are eligible for a VAT refund in <a href="https://www.gov.uk/guidance/refunds-of-uk-vat-for-non-uk-businesses-or-eu-vat-for-uk-businesses" class="govuk-link" target="_blank" rel="noreferrer noopener">VAT Notice 723A on GOV.UK (opens in a new tab)</a>.</p>
 purchaseType.fuel = Fuel
-purchaseType.transport = Expenditure relating to means of transport
+purchaseType.transport = Transport costs
 purchaseType.foodAndDrink = Food, drink and restaurant services
-purchaseType.luxuries = Expenditure on luxuries, amusements and entertainment
+purchaseType.luxuries = Luxuries, entertainment and hospitality
 purchaseType.other = Other
-purchaseType.error.required = Select a purchase type
+purchaseType.error.required = Select the type of purchase
