@@ -21,8 +21,7 @@ import models.requests.DataRequest
 import forms.PurchaseTypeFormProvider
 import models.{Mode, PurchaseType}
 import navigation.Navigator
-import pages.PurchaseTypePage
-import pages.SimplifiedInvoiceVatRegCheckPage
+import pages.{PurchaseTypePage, CountryChangedPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -52,10 +51,26 @@ class PurchaseTypeController @Inject() (
   private def backLink(mode: Mode)(implicit request: DataRequest[_]) =
     routes.BeforeYouStartPurchaseController.onPageLoad()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = request.userAnswers.get(PurchaseTypePage).fold(form)(form.fill)
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+    // If the country was changed, clear the whole purchase chain
+    if (request.userAnswers.get(pages.CountryChangedPage).contains(true)) {
+      val clearedTry = for {
+        a1 <- request.userAnswers.remove(pages.PurchaseTypePage)
+        a2 <- a1.remove(pages.PurchaseSubTypePage)
+        a3 <- a2.remove(pages.PurchaseSubTypeLabelPage)
+        a4 <- a3.remove(pages.PurchaseSubCategoryPage)
+        a5 <- a4.remove(pages.PurchaseSubCategoryLabelPage)
+        a6 <- a5.remove(pages.CountryChangedPage)
+      } yield a6
 
-    Ok(view(preparedForm, mode, backLink(mode)))
+      Future.fromTry(clearedTry).flatMap(updated => sessionRepository.set(updated).map(_ => {
+        val preparedForm = updated.get(PurchaseTypePage).fold(form)(form.fill)
+        Ok(view(preparedForm, mode, backLink(mode)))
+      }))
+    } else {
+      val preparedForm = request.userAnswers.get(PurchaseTypePage).fold(form)(form.fill)
+      Future.successful(Ok(view(preparedForm, mode, backLink(mode))))
+    }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -64,8 +79,21 @@ class PurchaseTypeController @Inject() (
       .fold(
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)))),
         value =>
+          val saved = request.userAnswers.get(PurchaseTypePage) match {
+            case Some(prev) if prev != value =>
+              for {
+                a1 <- request.userAnswers.remove(pages.PurchaseSubTypePage)
+                a2 <- a1.remove(pages.PurchaseSubTypeLabelPage)
+                a3 <- a2.remove(pages.PurchaseSubCategoryPage)
+                a4 <- a3.remove(pages.PurchaseSubCategoryLabelPage)
+                a5 <- a4.remove(pages.DescribeItemsOnInvoicePage)
+                a6 <- a5.set(PurchaseTypePage, value)
+              } yield a6
+            case _ => request.userAnswers.set(PurchaseTypePage, value)
+          }
+
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(PurchaseTypePage, value))
+            updatedAnswers <- Future.fromTry(saved)
             _              <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(PurchaseTypePage, mode, updatedAnswers))
       )
