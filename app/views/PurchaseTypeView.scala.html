@@ -43,15 +43,10 @@
         @mainErrorSummary(form, Map("value" -> "value_0"))
 
         <p class="govuk-body">@messages("purchaseType.p1")</p>
-        <ul>
+        <ul class="govuk-list govuk-list--bullet">
             <li class="govuk-body">@messages("purchaseType.li1")</li>
             <li class="govuk-body">@messages("purchaseType.li2")</li>
         </ul>
-
-        @govukDetails(Details(
-            summary = Text(messages("purchaseType.detail.summary")),
-            content = HtmlContent(messages("purchaseType.detail.content"))
-        ))
 
         @govukRadios(
             RadiosViewModel(
