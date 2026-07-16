@@ -163,8 +163,10 @@ class RefundPeriodController @Inject() (
             .fill(RefundPeriodData(YearMonth.from(startDate), YearMonth.from(endDate)))
             .withError("start", "refundPeriod.error.overlap")
           renderError(formWithError, mode)
-        } else
+        } else {
+          logger.info(s"F5 overlap check: no overlapping applications found, startDate=$startDate, endDate=$endDate")
           saveAndRedirect(traderResponse, startDate, endDate, mode)
+        }
       }
     }
   }
