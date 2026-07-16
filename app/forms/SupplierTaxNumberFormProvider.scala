@@ -14,21 +14,18 @@
  * limitations under the License.
  */
 
-package pages
+package forms
 
-import base.SpecBase
+import javax.inject.Inject
 
-class ClaimDetailsCompletedPageSpec extends SpecBase {
+import forms.mappings.Mappings
+import play.api.data.Form
+import models.SupplierTaxNumber
 
-  "ClaimDetailsCompletedPage" - {
+class SupplierTaxNumberFormProvider @Inject() extends Mappings {
 
-    "must be able to be set and retrieved from UserAnswers" in {
-      val answers = emptyUserAnswers.set(ClaimDetailsCompletedPage, true).success.value
-      answers.get(ClaimDetailsCompletedPage) mustBe Some(true)
-    }
-
-    "must return None when not set" in {
-      emptyUserAnswers.get(ClaimDetailsCompletedPage) mustBe None
-    }
-  }
+  def apply(): Form[SupplierTaxNumber] =
+    Form(
+      "value" -> enumerable[SupplierTaxNumber]("supplierTaxNumber.error.required")
+    )
 }

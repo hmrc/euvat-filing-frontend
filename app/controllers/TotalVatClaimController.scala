@@ -33,18 +33,18 @@ import views.html.TotalVatClaimView
 import scala.concurrent.{ExecutionContext, Future}
 
 class TotalVatClaimController @Inject() (
-                                          override val messagesApi: MessagesApi,
-                                          sessionRepository: SessionRepository,
-                                          navigator: Navigator,
-                                          identify: IdentifierAction,
-                                          getData: DataRetrievalAction,
-                                          requireData: DataRequiredAction,
-                                          formProvider: TotalVatClaimFormProvider,
-                                          configCurrencyMapping: ConfigCurrencyMapping,
-                                          val controllerComponents: MessagesControllerComponents,
-                                          view: TotalVatClaimView
-                                        )(implicit ec: ExecutionContext)
-  extends FrontendBaseController
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  navigator: Navigator,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: TotalVatClaimFormProvider,
+  configCurrencyMapping: ConfigCurrencyMapping,
+  val controllerComponents: MessagesControllerComponents,
+  view: TotalVatClaimView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
     with I18nSupport {
 
   val form = formProvider()
@@ -65,7 +65,10 @@ class TotalVatClaimController @Inject() (
       case Some(countryCode) =>
         userAnswers.get(RefundingCurrencyPage) match {
           case Some(currencyCode) =>
-            configCurrencyMapping.currenciesFor(countryCode).find(_._2 == currencyCode).map(_._3)
+            configCurrencyMapping
+              .currenciesFor(countryCode)
+              .find(_._2 == currencyCode)
+              .map(_._3)
               .getOrElse(configCurrencyMapping.currenciesFor(countryCode).headOption.map(_._3).getOrElse(defaultSymbol))
           case None =>
             configCurrencyMapping.currenciesFor(countryCode).headOption.map(_._3).getOrElse(defaultSymbol)

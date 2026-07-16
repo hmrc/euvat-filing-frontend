@@ -54,17 +54,18 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
     case BusinessActivityPage              => userAnswer => navigateFromBusinessActivityPage(NormalMode)(userAnswer)
     case BusinessActivityTwoPage           => userAnswer => navigateFromBusinessActivity2Page(NormalMode)(userAnswer)
     case BusinessActivityCodeThreePage     => _ => routes.BusinessActivityThreeController.onPageLoad()
+    case PurchaseTypePage                  => userAnswer => navigateFromPurchaseTypePage(NormalMode)(userAnswer)
     case InvoiceTypePage                   => userAnswer => navigateFromInvoiceTypePage(NormalMode)(userAnswer)
     case InvoiceNumberPage                 => _ => routes.InvoiceDateController.onPageLoad(NormalMode)
     case InvoiceDatePage                   => _ => routes.SuppliersNameController.onPageLoad(NormalMode)
     case SuppliersNamePage                 => _ => routes.SupplierAddressController.onPageLoad(NormalMode)
-    case SupplierAddressPage               => _ => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode)
+    case SupplierAddressPage               => userAnswers => navigateFromSupplierAddressPage(NormalMode)(userAnswers)
+    case SupplierTaxNumberPage             => userAnswers => navigateFromSupplierTaxNumberPage(NormalMode)(userAnswers)
     case SimplifiedInvoiceVatRegCheckPage  => userAnswer => navigateFromSimplifiedInvoiceVatRegCheckPage(NormalMode)(userAnswer)
     case SupplierVatRegistrationNumberPage => _ => routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
     case TotalPurchaseAmountBeforeVatPage  => _ => routes.TotalVatPaidController.onPageLoad(NormalMode)
     case TotalVatPaidPage                  => _ => routes.TotalVatClaimController.onPageLoad(NormalMode)
     case TotalVatClaimPage                => _ => routes.JourneyRecoveryController.onPageLoad()
-    case PurchaseTypePage                  => _ => routes.JourneyRecoveryController.onPageLoad()
     case _                                 => _ => routes.IndexController.onPageLoad()
   }
 
@@ -90,17 +91,18 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
     case BusinessActivityPage              => userAnswer => navigateFromBusinessActivityPage(CheckMode)(userAnswer)
     case BusinessActivityTwoPage           => userAnswer => navigateFromBusinessActivity2Page(CheckMode)(userAnswer)
     case BusinessActivityCodeThreePage     => _ => routes.BusinessActivityThreeController.onPageLoad()
+    case PurchaseTypePage                  => userAnswer => navigateFromPurchaseTypePage(CheckMode)(userAnswer)
     case InvoiceTypePage                   => userAnswer => navigateFromInvoiceTypePage(CheckMode)(userAnswer)
     case InvoiceNumberPage                 => _ => routes.InvoiceDateController.onPageLoad(CheckMode)
     case InvoiceDatePage                   => _ => routes.SuppliersNameController.onPageLoad(CheckMode)
     case SuppliersNamePage                 => _ => routes.SupplierAddressController.onPageLoad(CheckMode)
-    case SupplierAddressPage               => _ => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(CheckMode)
+    case SupplierAddressPage               => userAnswers => navigateFromSupplierAddressPage(CheckMode)(userAnswers)
+    case SupplierTaxNumberPage             => userAnswers => navigateFromSupplierTaxNumberPage(CheckMode)(userAnswers)
     case SimplifiedInvoiceVatRegCheckPage  => userAnswer => navigateFromSimplifiedInvoiceVatRegCheckPage(CheckMode)(userAnswer)
     case SupplierVatRegistrationNumberPage => _ => routes.TotalPurchaseAmountBeforeVatController.onPageLoad(CheckMode)
     case TotalPurchaseAmountBeforeVatPage  => _ => routes.TotalVatPaidController.onPageLoad(CheckMode)
     case TotalVatPaidPage                  => _ => routes.TotalVatClaimController.onPageLoad(CheckMode)
     case TotalVatClaimPage                => _ => routes.JourneyRecoveryController.onPageLoad()
-    case PurchaseTypePage                  => _ => routes.IndexController.onPageLoad()
     case _                                 => _ => routes.IndexController.onPageLoad()
   }
 
@@ -175,6 +177,34 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
         }
       case Some(false) => routes.TotalPurchaseAmountBeforeVatController.onPageLoad(mode)
       case _           => routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateFromPurchaseTypePage(mode: Mode)(userAnswers: UserAnswers): Call =
+    userAnswers.get(PurchaseTypePage) match {
+      case Some(_) =>
+        routes.InvoiceTypeController.onPageLoad(mode) // TODO - route to RA6.0 PurchaseSubCode once built, keyed by Country + Category
+      case _ => routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateFromSupplierAddressPage(mode: Mode)(userAnswers: UserAnswers): Call = {
+    val maybeCountryCode = userAnswers.get(pages.RefundingCountryPage).orElse {
+      userAnswers.get(pages.RefundingCountryNamePage).map { stored =>
+        stored.split(",", 2).headOption.getOrElse(stored)
+      }
+    }
+    maybeCountryCode match {
+      case Some("DE") => routes.SupplierTaxNumberController.onPageLoad(mode)
+      case _          => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode)
+    }
+  }
+
+  private def navigateFromSupplierTaxNumberPage(mode: Mode)(userAnswers: UserAnswers): Call =
+    userAnswers.get(SupplierTaxNumberPage) match {
+      case Some(SupplierTaxNumber.Vatregistrationnumber) =>
+        routes.JourneyRecoveryController.onPageLoad() // TODO - link to VAT registration number page once built
+      case Some(SupplierTaxNumber.Taxidentifiernumber) =>
+        routes.JourneyRecoveryController.onPageLoad() // TODO - link to tax identifier number page once built (Onder)
+      case _ => routes.JourneyRecoveryController.onPageLoad()
     }
 
 }
