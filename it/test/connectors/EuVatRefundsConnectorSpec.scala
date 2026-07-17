@@ -44,7 +44,7 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
 
   val connector = new EuVatRefundsConnector(mockConfig, mockHttp)
 
-  "EuVatRefundsConnector.retrieveBusinessActivityCode" should {
+  "EuVatRefundsConnector.retrieveTradersKnownFacts" should {
 
     "call the correct URL and return the expected response" in {
       val expected = TraderKnownFactsResponse(
@@ -60,11 +60,11 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
       when(mockRequestBuilder.execute[TraderKnownFactsResponse](any(), any()))
         .thenReturn(Future.successful(expected))
 
-      val result = connector.retrieveBusinessActivityCode().futureValue
+      val result = connector.retrieveTradersKnownFacts().futureValue
 
       result shouldBe expected
 
-      verify(mockHttp).get(url"$baseUrl/traders/getKnownFacts")
+      verify(mockHttp).get(url"$baseUrl/traders/get-known-facts")
       verify(mockRequestBuilder).execute[TraderKnownFactsResponse](any(), any())
     }
 
@@ -75,7 +75,7 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
       when(mockRequestBuilder.execute[TraderKnownFactsResponse](any(), any()))
         .thenReturn(Future.failed(failure))
 
-      val result = connector.retrieveBusinessActivityCode()
+      val result = connector.retrieveTradersKnownFacts()
 
       whenReady(result.failed) { ex =>
         ex shouldBe failure
