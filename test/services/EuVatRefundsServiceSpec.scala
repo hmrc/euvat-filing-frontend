@@ -47,7 +47,7 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
     )
 
     "should retrieve existing details from Cache first" in {
-      when(mockConnector.retrieveBusinessActivityCode()(any()))
+      when(mockConnector.retrieveTradersKnownFacts()(any()))
         .thenReturn(Future.successful(expected))
 
       val result = service.retrieveTraderKnownFacts()(any()).futureValue

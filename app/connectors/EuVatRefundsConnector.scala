@@ -16,19 +16,17 @@
 
 package connectors
 
-import models.requests.LatestApplicationRequest
-import models.responses.{LatestApplicationResponse, TraderKnownFactsResponse}
+import models.requests.{ApplicationRequest, LatestApplicationRequest}
+import models.responses.{ApplicationResponse, LatestApplicationResponse, TraderKnownFactsResponse}
 import play.api.Logging
-import play.api.http.Status.OK
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, HttpReadsInstances, HttpResponse, StringContextOps, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpReadsInstances, StringContextOps}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
 
 @Singleton
 class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV2)(implicit ec: ExecutionContext)
@@ -37,9 +35,9 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
 
   private val euVatRefundsBaseUrl: String = config.baseUrl("euvat-refunds") + "/euvat-refunds"
 
-  def retrieveBusinessActivityCode()(implicit hc: HeaderCarrier): Future[TraderKnownFactsResponse] = {
+  def retrieveTradersKnownFacts()(implicit hc: HeaderCarrier): Future[TraderKnownFactsResponse] = {
     http
-      .get(url"$euVatRefundsBaseUrl/traders/getKnownFacts")(hc)
+      .get(url"$euVatRefundsBaseUrl/traders/get-known-facts")
       .execute[TraderKnownFactsResponse]
   }
 
@@ -48,5 +46,12 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
       .post(url"$euVatRefundsBaseUrl/get-latest-application")
       .withBody(Json.toJson(request))
       .execute[LatestApplicationResponse]
+
+  def createApplication(request: ApplicationRequest)(implicit hc: HeaderCarrier): Future[ApplicationResponse] = {
+    http
+      .post(url"$euVatRefundsBaseUrl/create-application")
+      .withBody(Json.toJson(request))
+      .execute[ApplicationResponse]
+  }
 
 }
