@@ -43,8 +43,8 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
 
         maybeCountryCode match {
           case Some(code) if configLanguageMapping.languagesFor(code).size <= 1 =>
-            if (configCurrencyMapping.requiresCurrencySelection(code)) routes.RefundingCurrencyController.onPageLoad(NormalMode)
-            else routes.RefundPeriodController.onPageLoad(NormalMode)
+            if (configCurrencyMapping.requiresCurrencySelection(code)) { routes.RefundingCurrencyController.onPageLoad(NormalMode) }
+            else { routes.RefundPeriodController.onPageLoad(NormalMode) }
           case _ => routes.RefundingLanguageController.onPageLoad(NormalMode)
         }
     case RefundingLanguagePage             => userAnswers => navigateFromRefundingLanguagePage(NormalMode)(userAnswers)
@@ -80,8 +80,8 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
 
         maybeCountryCode match {
           case Some(code) if configLanguageMapping.languagesFor(code).size <= 1 =>
-            if (configCurrencyMapping.requiresCurrencySelection(code)) routes.RefundingCurrencyController.onPageLoad(CheckMode)
-            else routes.CheckYourClaimDetailsController.onPageLoad()
+            if (configCurrencyMapping.requiresCurrencySelection(code)) { routes.RefundingCurrencyController.onPageLoad(CheckMode) }
+            else { routes.CheckYourClaimDetailsController.onPageLoad() }
           case _ => routes.RefundingLanguageController.onPageLoad(CheckMode)
         }
     case RefundingLanguagePage             => userAnswers => navigateFromRefundingLanguagePage(CheckMode)(userAnswers)
@@ -140,10 +140,11 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
     mode match {
       case NormalMode => routes.RefundPeriodController.onPageLoad(NormalMode)
       case CheckMode =>
-        if (userAnswers.get(pages.CountryChangedPage).contains(true))
+        if (userAnswers.get(pages.CountryChangedPage).contains(true)) {
           routes.RefundPeriodController.onPageLoad(CheckMode)
-        else
+        } else {
           routes.CheckYourClaimDetailsController.onPageLoad()
+        }
     }
 
   private def navigateFromBusinessActivityPage(mode: Mode)(userAnswers: UserAnswers): Call =

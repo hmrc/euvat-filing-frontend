@@ -18,11 +18,12 @@ package controllers
 
 import controllers.actions.*
 import forms.{RefundPeriodData, RefundPeriodFormProvider}
-import models.requests.DataRequest
+import models.requests.{DataRequest, LatestApplicationRequest}
 import models.responses.TraderKnownFactsResponse
 import models.{Mode, RefundPeriod}
 import navigation.Navigator
 import pages.RefundPeriodPage
+import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.*
@@ -33,7 +34,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.{ConfigCurrencyMapping, ConfigLanguageMapping}
 import views.html.RefundPeriodView
 
-import java.time.{LocalDate, LocalDateTime, YearMonth}
+import java.time.{LocalDateTime, YearMonth}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -52,7 +53,8 @@ class RefundPeriodController @Inject() (
   view: RefundPeriodView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
   private def errorMessage(form: Form[RefundPeriodData], keys: Seq[String])(implicit messages: Messages): Option[String] = {
     val errors = form.errors.filter(e => keys.contains(e.key))
@@ -81,12 +83,10 @@ class RefundPeriodController @Inject() (
     val (mappedForm, highlighted) = formProvider.withMappedErrors(preparedForm)
     val startMsg = errorMessage(mappedForm, Seq("start", "start.month", "start.year"))
     val endMsg = errorMessage(mappedForm, Seq("end", "end.month", "end.year"))
-    Ok(
-      view(mappedForm, mode, backLink(mode), startMsg, endMsg, highlighted, errorLinkOverrides(mappedForm))
-    )
+    Ok(view(mappedForm, mode, backLink(mode), startMsg, endMsg, highlighted, errorLinkOverrides(mappedForm)))
   }
 
-  private def renderError(form: Form[RefundPeriodData], mode: Mode)(using request: DataRequest[?], messages: Messages) = {
+  private def renderError(form: Form[RefundPeriodData], mode: Mode)(implicit request: DataRequest[AnyContent], messages: Messages) = {
     val (mappedForm, highlighted) = formProvider.withMappedErrors(form)
     val startMsg = errorMessage(mappedForm, Seq("start", "start.month", "start.year"))
     val endMsg = errorMessage(mappedForm, Seq("end", "end.month", "end.year"))
@@ -128,6 +128,49 @@ class RefundPeriodController @Inject() (
     } yield Redirect(navigator.nextPage(RefundPeriodPage, mode, updatedAnswer3))
   }
 
+  private def checkOverlappingPeriod(
+    traderResponse: TraderKnownFactsResponse,
+    startDate: LocalDateTime,
+    endDate: LocalDateTime,
+    mode: Mode
+  )(using request: DataRequest[?], ec: ExecutionContext): Future[Result] = {
+    if (endDate.getMonthValue == 12) {
+      saveAndRedirect(traderResponse, startDate, endDate, mode)
+    } else {
+      val refundingCountry = request.userAnswers.get(pages.RefundingCountryPage).orElse {
+        request.userAnswers.get(pages.RefundingCountryNamePage).map { stored =>
+          stored.split(",", 2).headOption.getOrElse(stored)
+        }
+      }
+      val latestApplicationRequest = LatestApplicationRequest(
+        applicantVatRegNumber = traderResponse.vatRegNumber.toString,
+        refundingCountry      = refundingCountry,
+        startDate             = Some(startDate),
+        endDate               = Some(endDate),
+        representativeId      = None,
+        maxNumber             = 100,
+        orderBy               = None,
+        sortOrder             = None,
+        startAt               = None
+      )
+      euVatRefundsService.getLatestApplications(latestApplicationRequest).flatMap { response =>
+
+        if (response.applications.nonEmpty) {
+          // TODO: redirect to warning page once designed — showing error as placeholder
+          given DataRequest[AnyContent] = request.asInstanceOf[DataRequest[AnyContent]]
+          given Messages = messagesApi.preferred(request)
+          val formWithError = formProvider()
+            .fill(RefundPeriodData(YearMonth.from(startDate), YearMonth.from(endDate)))
+            .withError("start", "refundPeriod.error.overlap")
+          renderError(formWithError, mode)
+        } else {
+          logger.info(s"F5 overlap check: no overlapping applications found, startDate=$startDate, endDate=$endDate")
+          saveAndRedirect(traderResponse, startDate, endDate, mode)
+        }
+      }
+    }
+  }
+
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     val baseForm = formProvider()
 
@@ -140,7 +183,7 @@ class RefundPeriodController @Inject() (
             val startDate = YearMonth.of(value.start.getYear, value.start.getMonthValue).atDay(1).atStartOfDay()
             val endDate = YearMonth.of(value.end.getYear, value.end.getMonthValue).atEndOfMonth().atTime(23, 59, 59, 999000000)
 
-            val maybeErrorForm = (traderResponse.dateOfRegistration, traderResponse.dateOfDeregistration) match {
+            val maybeErrorForm: Option[Form[RefundPeriodData]] = (traderResponse.dateOfRegistration, traderResponse.dateOfDeregistration) match {
               case (Some(regDate), Some(deRegDate)) =>
                 val (validStartDate, msg) = isStartDateValid(startDate, regDate)
                 if (!validStartDate) {
@@ -169,10 +212,10 @@ class RefundPeriodController @Inject() (
 
             // Only apply mapped errors when they exist
             maybeErrorForm.foreach(formProvider.withMappedErrors)
-
-            maybeErrorForm match
+            maybeErrorForm match {
               case Some(formWithError) => renderError(formWithError, mode)
-              case None                => saveAndRedirect(traderResponse, startDate, endDate, mode)
+              case None                => checkOverlappingPeriod(traderResponse, startDate, endDate, mode)
+            }
           }
       )
   }
