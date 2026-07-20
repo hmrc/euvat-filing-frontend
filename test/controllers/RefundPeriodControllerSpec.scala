@@ -447,6 +447,8 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar with BeforeA
       "must set ClaimDetailsAmendedPage to true when refund period is changed and ClaimDetailsCompletedPage is true" in {
         when(mockService.retrieveTraderKnownFacts()(any()))
           .thenReturn(Future.successful(TraderKnownFactsResponse(123, tradeClass = Some(baCode1))))
+        when(mockService.getLatestApplications(any())(any()))
+          .thenReturn(Future.successful(LatestApplicationResponse(List.empty, 0)))
 
         val mockSessionRepository = mock[repositories.SessionRepository]
         when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
@@ -486,6 +488,8 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar with BeforeA
       "must NOT set ClaimDetailsAmendedPage when refund period is unchanged" in {
         when(mockService.retrieveTraderKnownFacts()(any()))
           .thenReturn(Future.successful(TraderKnownFactsResponse(123, tradeClass = Some(baCode1))))
+        when(mockService.getLatestApplications(any())(any()))
+          .thenReturn(Future.successful(LatestApplicationResponse(List.empty, 0)))
 
         val mockSessionRepository = mock[repositories.SessionRepository]
         when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
@@ -533,6 +537,8 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar with BeforeA
       "must NOT set ClaimDetailsAmendedPage when ClaimDetailsCompletedPage is not set" in {
         when(mockService.retrieveTraderKnownFacts()(any()))
           .thenReturn(Future.successful(TraderKnownFactsResponse(123, tradeClass = Some(baCode1))))
+        when(mockService.getLatestApplications(any())(any()))
+          .thenReturn(Future.successful(LatestApplicationResponse(List.empty, 0)))
 
         val mockSessionRepository = mock[repositories.SessionRepository]
         when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
