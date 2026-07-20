@@ -186,7 +186,6 @@ class NavigatorSpec extends SpecBase {
       "must go from SupplierTaxNumberPage to JourneyRecoveryController if no answer is present" in {
         navigator.nextPage(SupplierTaxNumberPage, NormalMode, userAnswers) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
-      
 
       "must go from SupplierVatRegistrationNumberPage to TotalPurchaseAmountBeforeVatController" in {
         navigator.nextPage(SupplierVatRegistrationNumberPage, NormalMode, userAnswers) mustBe
@@ -221,6 +220,12 @@ class NavigatorSpec extends SpecBase {
           routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode)
       }
 
+      "must go from SimplifiedInvoiceVatRegCheckPage to TotalPurchaseAmountBeforeVatController if yes selected and invoice type is not simplified" in {
+        val ua = userAnswers.set(SimplifiedInvoiceVatRegCheckPage, true).success.value
+        navigator.nextPage(SimplifiedInvoiceVatRegCheckPage, NormalMode, ua) mustBe
+          routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
+      }
+
       "must go from CheckYourStateDetailsPage to claim-details if no selected" in {
         val ua = userAnswers.set(CheckYourStateDetailsPage, false).success.value
         navigator.nextPage(CheckYourStateDetailsPage, NormalMode, ua) mustBe
@@ -236,10 +241,6 @@ class NavigatorSpec extends SpecBase {
       "must go from CheckYourStateDetailsPage to JourneyRecoveryController if no answer is given" in {
         navigator.nextPage(CheckYourStateDetailsPage, NormalMode, userAnswers) mustBe
           routes.JourneyRecoveryController.onPageLoad()
-      "must go from SimplifiedInvoiceVatRegCheckPage to TotalPurchaseAmountBeforeVatController if yes selected and invoice type is not simplified" in {
-        val ua = userAnswers.set(SimplifiedInvoiceVatRegCheckPage, true).success.value
-        navigator.nextPage(SimplifiedInvoiceVatRegCheckPage, NormalMode, ua) mustBe
-          routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
       }
     }
 
@@ -381,6 +382,11 @@ class NavigatorSpec extends SpecBase {
         navigator.nextPage(SupplierAddressPage, CheckMode, ua) mustBe routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(CheckMode)
       }
 
+      "must go from SupplierAddressPage to SimplifiedInvoiceVatRegCheckController if country is missing" in {
+        navigator.nextPage(SupplierAddressPage, CheckMode, userAnswers) mustBe
+          routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(CheckMode)
+      }
+
       "must go from SupplierTaxNumberPage to JourneyRecoveryController in CheckMode when VAT registration number selected" in {
         val ua = userAnswers.set(SupplierTaxNumberPage, SupplierTaxNumber.Vatregistrationnumber).success.value
         navigator.nextPage(SupplierTaxNumberPage, CheckMode, ua) mustBe routes.JourneyRecoveryController.onPageLoad()
@@ -393,44 +399,6 @@ class NavigatorSpec extends SpecBase {
 
       "must go from SupplierTaxNumberPage to JourneyRecoveryController in CheckMode when no answer present" in {
         navigator.nextPage(SupplierTaxNumberPage, CheckMode, userAnswers) mustBe routes.JourneyRecoveryController.onPageLoad()
-      }
-
-        navigator.nextPage(SuppliersNamePage, CheckMode, userAnswers) mustBe
-          routes.SupplierAddressController.onPageLoad(CheckMode)
-      }
-
-      "must go from SupplierAddressPage to SupplierTaxNumberController if country is Germany" in {
-        val ua = userAnswers.set(pages.RefundingCountryPage, "DE").success.value
-        navigator.nextPage(SupplierAddressPage, CheckMode, ua) mustBe
-          routes.SupplierTaxNumberController.onPageLoad(CheckMode)
-      }
-
-      "must go from SupplierAddressPage to SimplifiedInvoiceVatRegCheckController if country is not Germany" in {
-        val ua = userAnswers.set(pages.RefundingCountryPage, "AT").success.value
-        navigator.nextPage(SupplierAddressPage, CheckMode, ua) mustBe
-          routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(CheckMode)
-      }
-
-      "must go from SupplierAddressPage to SimplifiedInvoiceVatRegCheckController if country is missing" in {
-        navigator.nextPage(SupplierAddressPage, CheckMode, userAnswers) mustBe
-          routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(CheckMode)
-      }
-
-      "must go from SupplierTaxNumberPage to JourneyRecoveryController if VAT registration number is selected" in {
-        val ua = userAnswers.set(SupplierTaxNumberPage, SupplierTaxNumber.Vatregistrationnumber).success.value
-        navigator.nextPage(SupplierTaxNumberPage, CheckMode, ua) mustBe
-          routes.JourneyRecoveryController.onPageLoad()
-      }
-
-      "must go from SupplierTaxNumberPage to SupplierTaxIdentifierNumberController if tax identifier number is selected" in {
-        val ua = userAnswers.set(SupplierTaxNumberPage, SupplierTaxNumber.Taxidentifiernumber).success.value
-        navigator.nextPage(SupplierTaxNumberPage, CheckMode, ua) mustBe
-          routes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode)
-      }
-
-      "must go from SupplierTaxNumberPage to JourneyRecoveryController if no answer is present" in {
-        navigator.nextPage(SupplierTaxNumberPage, CheckMode, userAnswers) mustBe
-          routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from SupplierVatRegistrationNumberPage to TotalPurchaseAmountBeforeVatController in CheckMode" in {
@@ -466,3 +434,4 @@ class NavigatorSpec extends SpecBase {
       }
     }
   }
+}
