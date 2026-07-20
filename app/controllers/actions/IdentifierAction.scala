@@ -40,31 +40,34 @@ class AuthenticatedIdentifierAction @Inject() (
     extends IdentifierAction
     with AuthorisedFunctions {
 
-  private def usingSupportedAffinityAndEnrolments(
+  private def supportedEnrolmentIdentifier(
     affinityGroup: AffinityGroup,
     enrolments: Enrolments
-  ): Boolean = {
-    // Map enrolment keys → required identifier name
+  ): Option[(String, String)] = {
+
+    // enrolment → identifier name
     val requiredIdentifiers: Map[String, String] = Map(
       "HMRC-EU-REF-ORG" -> "VATRegNo",
       "HMCE-VAT-AGNT"   -> "AgentRefNo",
       "HMRC-NOVRN-AGNT" -> "VATAgentRefNo"
     )
 
-    // Select which enrolment keys apply for this affinity group
+    // allowed enrolments per affinity group
     val allowedKeys: Set[String] = affinityGroup match {
       case AffinityGroup.Organisation | AffinityGroup.Individual => Set("HMRC-EU-REF-ORG")
       case AffinityGroup.Agent                                   => Set("HMCE-VAT-AGNT", "HMRC-NOVRN-AGNT")
       case _                                                     => Set.empty[String]
     }
 
-    enrolments.enrolments.exists { enrolment =>
-      enrolment.isActivated &&
-      allowedKeys.contains(enrolment.key) &&
-      requiredIdentifiers.get(enrolment.key).exists { requiredIdName =>
-        enrolment.identifiers.exists(id => id.key == requiredIdName && id.value.trim.nonEmpty)
-      }
-    }
+    // find matching enrolment + identifier
+    enrolments.enrolments.collectFirst {
+      case enrol if enrol.isActivated && allowedKeys.contains(enrol.key) =>
+        requiredIdentifiers.get(enrol.key).flatMap { requiredIdentifier =>
+          enrol.identifiers
+            .find(id => id.key == requiredIdentifier && id.value.trim.nonEmpty)
+            .map(id => (requiredIdentifier, id.value))
+        }
+    }.flatten
   }
 
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
@@ -72,12 +75,11 @@ class AuthenticatedIdentifierAction @Inject() (
 
     authorised().retrieve(Retrievals.affinityGroup and Retrievals.credentials and Retrievals.allEnrolments) {
       case Some(affinityGroup) ~ Some(credentials) ~ enrolments =>
-        if (usingSupportedAffinityAndEnrolments(affinityGroup, enrolments)) {
-          block(IdentifierRequest(request, credentials.providerId))
-        } else {
-          Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
+        supportedEnrolmentIdentifier(affinityGroup, enrolments) match {
+          case Some((_, _)) => block(IdentifierRequest(request, credentials.providerId))
+          case None         => Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
         }
-      case _ => throw new UnauthorizedException("Unable to retrieve affinity, enrolments or credentials")
+      case _ => Future.failed(new UnauthorizedException("Unable to retrieve affinity, enrolments or credentials"))
     } recover {
       case _: NoActiveSession =>
         Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))

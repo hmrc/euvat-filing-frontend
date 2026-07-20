@@ -16,7 +16,8 @@
 
 package connectors
 
-import models.responses.TraderKnownFactsResponse
+import models.requests.LatestApplicationRequest
+import models.responses.{LatestApplicationResponse, TraderKnownFactsResponse}
 import org.mockito.ArgumentMatchers.*
 import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
@@ -27,6 +28,7 @@ import uk.gov.hmrc.http.*
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import java.time.LocalDateTime
 import scala.concurrent.{ExecutionContext, Future}
 
 class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSugar with ScalaFutures {
@@ -44,7 +46,7 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
 
   val connector = new EuVatRefundsConnector(mockConfig, mockHttp)
 
-  "EuVatRefundsConnector.retrieveBusinessActivityCode" should {
+  "EuVatRefundsConnector.retrieveTradersKnownFacts" should {
 
     "call the correct URL and return the expected response" in {
       val expected = TraderKnownFactsResponse(
@@ -60,11 +62,11 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
       when(mockRequestBuilder.execute[TraderKnownFactsResponse](any(), any()))
         .thenReturn(Future.successful(expected))
 
-      val result = connector.retrieveBusinessActivityCode().futureValue
+      val result = connector.retrieveTradersKnownFacts().futureValue
 
       result shouldBe expected
 
-      verify(mockHttp).get(url"$baseUrl/traders/getKnownFacts")
+      verify(mockHttp).get(url"$baseUrl/traders/get-known-facts")
       verify(mockRequestBuilder).execute[TraderKnownFactsResponse](any(), any())
     }
 
@@ -75,7 +77,57 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
       when(mockRequestBuilder.execute[TraderKnownFactsResponse](any(), any()))
         .thenReturn(Future.failed(failure))
 
-      val result = connector.retrieveBusinessActivityCode()
+      val result = connector.retrieveTradersKnownFacts()
+
+      whenReady(result.failed) { ex =>
+        ex shouldBe failure
+      }
+    }
+  }
+
+  "EuVatRefundsConnector.getLatestApplications" should {
+
+    val request = LatestApplicationRequest(
+      applicantVatRegNumber = "123456789",
+      refundingCountry = Some("LV"),
+      startDate = Some(LocalDateTime.of(2025, 2, 1, 0, 0)),
+      endDate = Some(LocalDateTime.of(2025, 5, 31, 0, 0)),
+      representativeId = Some("rep123"),
+      maxNumber = 10,
+      orderBy = None,
+      sortOrder = None,
+      startAt = None
+    )
+    val expectedResponse = LatestApplicationResponse(
+      applications = List.empty,
+      totalApplication = 0
+    )
+
+    "call the correct URL and return the expected response" in {
+      reset(mockHttp, mockRequestBuilder)
+      
+      when(mockHttp.post(any())(any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.execute[LatestApplicationResponse](any(), any()))
+        .thenReturn(Future.successful(expectedResponse))
+
+      val result = connector.getLatestApplications(request).futureValue
+
+      result shouldBe expectedResponse
+
+      verify(mockHttp).post(url"$baseUrl/get-latest-application")
+      verify(mockRequestBuilder).execute[LatestApplicationResponse](any(), any())
+    }
+
+    "propagate failures from the HTTP client" in {
+      val failure = new RuntimeException("boom")
+
+      when(mockHttp.post(any())(any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.execute[LatestApplicationResponse](any(), any()))
+        .thenReturn(Future.failed(failure))
+
+      val result = connector.getLatestApplications(request)
 
       whenReady(result.failed) { ex =>
         ex shouldBe failure
