@@ -288,6 +288,14 @@ supplierVatRegistrationNumber.error.required = Enter the supplier’s VAT regist
 supplierVatRegistrationNumber.error.invalid = Enter the supplier’s VAT registration number in the correct format
 supplierVatRegistrationNumber.error.length = Supplier’s VAT registration number must be 12 characters or less
 
+supplierTaxIdentifierNumber.title = What is the supplier’s tax identifier number?
+supplierTaxIdentifierNumber.heading = What is the supplier’s tax identifier number?
+supplierTaxIdentifierNumber.hint = This is 10 or 11 digits, for example 12/345/67890
+supplierTaxIdentifierNumber.error.required = Enter the supplier’s tax identifier number
+supplierTaxIdentifierNumber.error.length = Supplier’s tax identifier number cannot be more than 20 characters
+supplierTaxIdentifierNumber.checkYourAnswersLabel = Supplier’s tax identifier number
+supplierTaxIdentifierNumber.change.hidden = Change supplier’s tax identifier number
+
 totalPurchaseAmountBeforeVat.title = Total purchase amount before VAT
 totalPurchaseAmountBeforeVat.heading = Total purchase amount before VAT
 totalPurchaseAmountBeforeVat.h2 = How much did the purchase cost before VAT?
