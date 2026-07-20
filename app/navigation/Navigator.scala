@@ -146,16 +146,8 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
     }
 
     maybeCountryCode match {
-      case Some("DE") =>
-        mode match {
-          case NormalMode => routes.SupplierTaxIdentifierNumberController.onPageLoad(NormalMode)
-          case CheckMode  => routes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode)
-        }
-      case _ =>
-        mode match {
-          case NormalMode => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode)
-          case CheckMode  => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(CheckMode)
-        }
+      case Some("DE") => routes.SupplierTaxIdentifierNumberController.onPageLoad(mode)
+      case _          => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode)
     }
   }
 
