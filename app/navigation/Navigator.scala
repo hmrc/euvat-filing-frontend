@@ -63,6 +63,7 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
     case SupplierTaxNumberPage             => userAnswers => navigateFromSupplierTaxNumberPage(NormalMode)(userAnswers)
     case SimplifiedInvoiceVatRegCheckPage  => userAnswer => navigateFromSimplifiedInvoiceVatRegCheckPage(NormalMode)(userAnswer)
     case SupplierVatRegistrationNumberPage => _ => routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
+    case SupplierTaxIdentifierNumberPage    => _ => routes.JourneyRecoveryController.onPageLoad()
     case TotalPurchaseAmountBeforeVatPage  => _ => routes.TotalVatPaidController.onPageLoad(NormalMode)
     case TotalVatPaidPage                  => _ => routes.TotalVatClaimController.onPageLoad(NormalMode)
     case TotalVatClaimPage                 => _ => routes.JourneyRecoveryController.onPageLoad()
@@ -101,6 +102,7 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
     case SupplierTaxNumberPage             => userAnswers => navigateFromSupplierTaxNumberPage(CheckMode)(userAnswers)
     case SimplifiedInvoiceVatRegCheckPage  => userAnswer => navigateFromSimplifiedInvoiceVatRegCheckPage(CheckMode)(userAnswer)
     case SupplierVatRegistrationNumberPage => _ => routes.TotalPurchaseAmountBeforeVatController.onPageLoad(CheckMode)
+    case SupplierTaxIdentifierNumberPage    => _ => routes.JourneyRecoveryController.onPageLoad()
     case TotalPurchaseAmountBeforeVatPage  => _ => routes.TotalVatPaidController.onPageLoad(CheckMode)
     case TotalVatPaidPage                  => _ => routes.TotalVatClaimController.onPageLoad(CheckMode)
     case TotalVatClaimPage                 => _ => routes.JourneyRecoveryController.onPageLoad()
@@ -135,6 +137,19 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
         }
       case None =>
         routes.JourneyRecoveryController.onPageLoad()
+    }
+  }
+
+  private def navigateFromSupplierAddress(mode: Mode): UserAnswers => Call = { userAnswers =>
+    val maybeCountryCode = userAnswers.get(pages.RefundingCountryPage).orElse {
+      userAnswers.get(pages.RefundingCountryNamePage).map { stored =>
+        stored.split(",", 2).headOption.getOrElse(stored)
+      }
+    }
+
+    maybeCountryCode match {
+      case Some("DE") => routes.SupplierTaxIdentifierNumberController.onPageLoad(mode)
+      case _          => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode)
     }
   }
 
@@ -212,7 +227,7 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
       case Some(SupplierTaxNumber.Vatregistrationnumber) =>
         routes.JourneyRecoveryController.onPageLoad() // TODO - link to VAT registration number page once built
       case Some(SupplierTaxNumber.Taxidentifiernumber) =>
-        routes.JourneyRecoveryController.onPageLoad() // TODO - link to tax identifier number page once built (Onder)
+        routes.SupplierTaxIdentifierNumberController.onPageLoad(mode)
       case _ => routes.JourneyRecoveryController.onPageLoad()
     }
 
