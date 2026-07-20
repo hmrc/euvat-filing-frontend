@@ -372,8 +372,6 @@ purchaseType.h2 = What category best describes the item on your invoice?
 purchaseType.p1 = If your invoice includes items that fall under more than one category (for example, a hotel bill including both accommodation and meals), you must either select:
 purchaseType.li1 = ‘Other’ and give a description of the items
 purchaseType.li2 = the category that relates to the highest-value item
-purchaseType.detail.summary = Check what is eligible for a VAT refund
-purchaseType.detail.content = <p class="govuk-body">Check the rules in your country for what items are eligible for a VAT refund in <a href="https://www.gov.uk/guidance/refunds-of-uk-vat-for-non-uk-businesses-or-eu-vat-for-uk-businesses" class="govuk-link" target="_blank" rel="noreferrer noopener">VAT Notice 723A on GOV.UK (opens in a new tab)</a>.</p>
 purchaseType.fuel = Fuel
 purchaseType.transport = Transport costs
 purchaseType.foodAndDrink = Food, drink and restaurant services
