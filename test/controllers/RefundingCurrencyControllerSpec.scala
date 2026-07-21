@@ -219,10 +219,10 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val ua = emptyUserAnswers
-        .set(pages.RefundingCountryPage, "BG")
+        .set(pages.RefundingCountryPage, "EE")
         .success
         .value
-        .set(pages.RefundingCurrencyPage, "BGN")
+        .set(pages.RefundingCurrencyPage, "EEK")
         .success
         .value
         .set(pages.ClaimDetailsCompletedPage, true)
@@ -252,7 +252,7 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val ua = emptyUserAnswers
-        .set(pages.RefundingCountryPage, "BG")
+        .set(pages.RefundingCountryPage, "EE")
         .success
         .value
         .set(pages.RefundingCurrencyPage, "EUR")
@@ -285,7 +285,7 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val ua = emptyUserAnswers
-        .set(pages.RefundingCountryPage, "BG")
+        .set(pages.RefundingCountryPage, "EE")
         .success
         .value
 
