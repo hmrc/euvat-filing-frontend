@@ -244,6 +244,8 @@ checkYourClaimDetails.businessActivity1.view.hidden = View first SIC code
 checkYourClaimDetails.businessActivity2.change.hidden = Change second SIC code
 checkYourClaimDetails.businessActivity3.change.hidden = Change third SIC code
 checkYourClaimDetails.paragraph = You cannot change the refunding EU member state after you save and continue.
+claimDetails.title = Claim details
+claimDetails.heading = Claim details
 
 beforeYouStart.title = Before you start
 beforeYouStart.heading = Before you start
@@ -385,4 +387,14 @@ purchaseType.transport = Transport costs
 purchaseType.foodAndDrink = Food, drink and restaurant services
 purchaseType.luxuries = Luxuries, entertainment and hospitality
 purchaseType.other = Other
+purchaseType.error.required = Select the type of purchase
+
+checkYourStateDetails.title = EU member state details
+checkYourStateDetails.heading = EU member state details
+checkYourStateDetails.p1 = You cannot change the refunding EU member state for an existing claim.
+checkYourStateDetails.p2 = If you want to claim a VAT refund from a different EU member state, you must delete this claim and start a new one. Any existing claim details will not be saved.
+checkYourStateDetails.h2 = Do you want to delete this claim and start a new one for a different EU member state?
+checkYourStateDetails.yes = Yes, delete this claim
+checkYourStateDetails.no = No, return to claim
+checkYourStateDetails.error.required = Select yes if you want to delete this claim
 purchaseType.error.required = Select the type of purchase

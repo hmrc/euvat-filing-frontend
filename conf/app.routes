@@ -73,6 +73,8 @@ POST        /business-activity-3                         controllers.BusinessAct
 
 GET         /check-your-claim-details                    controllers.CheckYourClaimDetailsController.onPageLoad()
 POST        /check-your-claim-details                    controllers.CheckYourClaimDetailsController.onSubmit()
+GET         /claim-details                               controllers.CheckYourClaimDetailsController.onPageLoad()
+POST        /claim-details                               controllers.CheckYourClaimDetailsController.onSubmit()
 
 GET         /remove-second-SIC-code                      controllers.RemoveSecondBusinessActivityController.onPageLoad()
 POST        /remove-second-SIC-code                      controllers.RemoveSecondBusinessActivityController.onSubmit()
@@ -150,3 +152,7 @@ POST        /purchase-type                               controllers.PurchaseTyp
 GET         /change-purchase-type                        controllers.PurchaseTypeController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-purchase-type                        controllers.PurchaseTypeController.onSubmit(mode: Mode = CheckMode)
 
+GET         /eu-member-state-details                     controllers.CheckYourStateDetailsController.onPageLoad(mode: Mode = NormalMode)
+POST        /eu-member-state-details                     controllers.CheckYourStateDetailsController.onSubmit(mode: Mode = NormalMode)
+GET         /change-eu-member-state-details              controllers.CheckYourStateDetailsController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-eu-member-state-details              controllers.CheckYourStateDetailsController.onSubmit(mode: Mode = CheckMode)

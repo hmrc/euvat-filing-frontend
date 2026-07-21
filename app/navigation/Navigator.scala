@@ -66,7 +66,8 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
     case SupplierTaxIdentifierNumberPage    => _ => routes.JourneyRecoveryController.onPageLoad()
     case TotalPurchaseAmountBeforeVatPage  => _ => routes.TotalVatPaidController.onPageLoad(NormalMode)
     case TotalVatPaidPage                  => _ => routes.TotalVatClaimController.onPageLoad(NormalMode)
-    case TotalVatClaimPage                => _ => routes.JourneyRecoveryController.onPageLoad()
+    case TotalVatClaimPage                 => _ => routes.JourneyRecoveryController.onPageLoad()
+    case CheckYourStateDetailsPage         => userAnswer => navigateFromCheckYourStateDetailsPage(NormalMode)(userAnswer)
     case _                                 => _ => routes.IndexController.onPageLoad()
   }
 
@@ -104,7 +105,8 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
     case SupplierTaxIdentifierNumberPage    => _ => routes.JourneyRecoveryController.onPageLoad()
     case TotalPurchaseAmountBeforeVatPage  => _ => routes.TotalVatPaidController.onPageLoad(CheckMode)
     case TotalVatPaidPage                  => _ => routes.TotalVatClaimController.onPageLoad(CheckMode)
-    case TotalVatClaimPage                => _ => routes.JourneyRecoveryController.onPageLoad()
+    case TotalVatClaimPage                 => _ => routes.JourneyRecoveryController.onPageLoad()
+    case CheckYourStateDetailsPage         => userAnswers => navigateFromCheckYourStateDetailsPage(CheckMode)(userAnswers)
     case _                                 => _ => routes.IndexController.onPageLoad()
   }
 
@@ -195,6 +197,12 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
       case _           => routes.JourneyRecoveryController.onPageLoad()
     }
 
+  private def navigateFromCheckYourStateDetailsPage(mode: Mode)(userAnswers: UserAnswers): Call =
+    userAnswers.get(CheckYourStateDetailsPage) match {
+      case Some(true)  => routes.JourneyRecoveryController.onPageLoad() // TODO: replace when F8 delete application is in place
+      case Some(false) => Call("GET", "/file-eu-vat/claim-details")
+      case None        => routes.JourneyRecoveryController.onPageLoad()
+    }
   private def navigateFromPurchaseTypePage(mode: Mode)(userAnswers: UserAnswers): Call =
     userAnswers.get(PurchaseTypePage) match {
       case Some(_) =>
