@@ -165,13 +165,7 @@ class RefundPeriodController @Inject() (
       euVatRefundsService.getLatestApplications(latestApplicationRequest).flatMap { response =>
 
         if (response.applications.nonEmpty) {
-          // TODO: redirect to warning page once designed — showing error as placeholder
-          given DataRequest[AnyContent] = request.asInstanceOf[DataRequest[AnyContent]]
-          given Messages = messagesApi.preferred(request)
-          val formWithError = formProvider()
-            .fill(RefundPeriodData(YearMonth.from(startDate), YearMonth.from(endDate)))
-            .withError("start", "refundPeriod.error.overlap")
-          renderError(formWithError, mode)
+          Future.successful(Redirect(controllers.routes.PeriodOverlapWarningController.onPageLoad()))
         } else {
           logger.info(s"F5 overlap check: no overlapping applications found, startDate=$startDate, endDate=$endDate")
           saveAndRedirect(traderResponse, startDate, endDate, mode)
