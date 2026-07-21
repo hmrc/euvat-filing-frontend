@@ -218,10 +218,10 @@ class NavigatorSpec extends SpecBase {
           routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from SimplifiedInvoiceVatRegCheckPage to PurchaseTypeController if no selected" in {
+      "must go from SimplifiedInvoiceVatRegCheckPage to TotalPurchaseAmountBeforeVatController if no selected" in {
         val ua = userAnswers.set(SimplifiedInvoiceVatRegCheckPage, false).success.value
         navigator.nextPage(SimplifiedInvoiceVatRegCheckPage, NormalMode, ua) mustBe
-          routes.PurchaseTypeController.onPageLoad(NormalMode)
+          routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
       }
 
       "must go from SimplifiedInvoiceVatRegCheckPage to SupplierVatRegistrationNumberController if yes selected and invoice type is simplified" in {
