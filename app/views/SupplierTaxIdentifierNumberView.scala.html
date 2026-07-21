@@ -17,6 +17,7 @@
 @import viewmodels.InputWidth._
 @import viewmodels.LabelSize
 @import views.html.components.MainErrorSummary
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 
 @this(
     layout: templates.Layout,
@@ -34,20 +35,23 @@
 
         @mainErrorSummary(form, Map("value" -> "event-name"))
 
-        <span class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">This section is: </span>@messages("purchase.caption.add")</span>
+        <div class="govuk-form-group @if(form.error("value").isDefined){govuk-form-group--error}">
+            <h2 class="govuk-caption-l hmrc-caption-l"><span class="govuk-visually-hidden">@messages("this.section.is")</span>@messages("purchase.caption.add")</h2>
+            <h1 class="govuk-heading-l">@messages("supplierTaxIdentifierNumber.heading")</h1>
 
-        @govukInput(
-            InputViewModel(
-                field = form("value"),
-                label = LabelViewModel(messages("supplierTaxIdentifierNumber.heading")).asPageHeading(LabelSize.Large).forAttr("event-name")
+            @govukInput(
+                InputViewModel(
+                    field = form("value"),
+                    label = LabelViewModel(messages("supplierTaxIdentifierNumber.heading")).withCssClass("govuk-visually-hidden")
+                )
+                .withId("event-name")
+                .withAttribute("name" -> "eventName")
+                .describedBy("event-name-hint")
+                .withCssClass("govuk-input--width-10")
+                .withAutocomplete("off")
+                .withHint(HintViewModel(Text(messages("supplierTaxIdentifierNumber.hint"))).withId("event-name-hint"))
             )
-            .withId("event-name")
-            .withAttribute("name" -> "eventName")
-            .describedBy("event-name-hint")
-            .withCssClass("govuk-input--width-10")
-            .withAutocomplete("off")
-            .withHint(HintViewModel(Text(messages("supplierTaxIdentifierNumber.hint"))).withId("event-name-hint"))
-        )
+        </div>
 
         @govukButton(
             ButtonViewModel(messages("site.continue"))
