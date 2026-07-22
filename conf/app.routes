@@ -156,3 +156,9 @@ GET         /eu-member-state-details                     controllers.CheckYourSt
 POST        /eu-member-state-details                     controllers.CheckYourStateDetailsController.onSubmit(mode: Mode = NormalMode)
 GET         /change-eu-member-state-details              controllers.CheckYourStateDetailsController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-eu-member-state-details              controllers.CheckYourStateDetailsController.onSubmit(mode: Mode = CheckMode)
+
+GET         /describe-items-on-invoice                   controllers.DescribeItemsOnInvoiceController.onPageLoad(mode: Mode = NormalMode)
+POST        /describe-items-on-invoice                   controllers.DescribeItemsOnInvoiceController.onSubmit(mode: Mode = NormalMode)
+GET         /change-describe-items-on-invoice            controllers.DescribeItemsOnInvoiceController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-describe-items-on-invoice            controllers.DescribeItemsOnInvoiceController.onSubmit(mode: Mode = CheckMode)
+

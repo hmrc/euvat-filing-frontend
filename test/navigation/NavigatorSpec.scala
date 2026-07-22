@@ -140,9 +140,20 @@ class NavigatorSpec extends SpecBase {
           routes.BusinessActivityThreeController.onPageLoad()
       }
 
-      "must go from PurchaseTypePage to JourneyRecoveryController" in {
+      "must go from PurchaseTypePage to DescribeItemsOnInvoiceController" in {
+        val ua = userAnswers.set(PurchaseTypePage, PurchaseType.values.head).success.value
+        navigator.nextPage(PurchaseTypePage, NormalMode, ua) mustBe
+          routes.DescribeItemsOnInvoiceController.onPageLoad(NormalMode)
+      }
+
+      "must go from PurchaseTypePage to JourneyRecoveryController if no answer is present" in {
         navigator.nextPage(PurchaseTypePage, NormalMode, userAnswers) mustBe
           routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from DescribeItemsOnInvoicePage to InvoiceTypeController" in {
+        navigator.nextPage(DescribeItemsOnInvoicePage, NormalMode, userAnswers) mustBe
+          routes.InvoiceTypeController.onPageLoad(NormalMode)
       }
 
       "must go from InvoiceNumberPage to InvoiceDateController" in {
@@ -353,9 +364,20 @@ class NavigatorSpec extends SpecBase {
           routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from PurchaseTypePage to Journey recovery" in {
+      "must go from PurchaseTypePage to DescribeItemsOnInvoiceController" in {
+        val ua = userAnswers.set(PurchaseTypePage, PurchaseType.values.head).success.value
+        navigator.nextPage(PurchaseTypePage, CheckMode, ua) mustBe
+          routes.DescribeItemsOnInvoiceController.onPageLoad(CheckMode)
+      }
+
+      "must go from PurchaseTypePage to JourneyRecoveryController if no answer is present" in {
         navigator.nextPage(PurchaseTypePage, CheckMode, userAnswers) mustBe
           routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from DescribeItemsOnInvoicePage to InvoiceTypeController in CheckMode" in {
+        navigator.nextPage(DescribeItemsOnInvoicePage, CheckMode, userAnswers) mustBe
+          routes.InvoiceTypeController.onPageLoad(CheckMode)
       }
 
       "must go from InvoiceNumberPage to InvoiceDateController in CheckMode" in {

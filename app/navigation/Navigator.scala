@@ -55,6 +55,7 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
     case BusinessActivityTwoPage           => userAnswer => navigateFromBusinessActivity2Page(NormalMode)(userAnswer)
     case BusinessActivityCodeThreePage     => _ => routes.BusinessActivityThreeController.onPageLoad()
     case PurchaseTypePage                  => userAnswer => navigateFromPurchaseTypePage(NormalMode)(userAnswer)
+    case DescribeItemsOnInvoicePage        => _ => routes.InvoiceTypeController.onPageLoad(NormalMode)
     case InvoiceTypePage                   => userAnswer => navigateFromInvoiceTypePage(NormalMode)(userAnswer)
     case InvoiceNumberPage                 => _ => routes.InvoiceDateController.onPageLoad(NormalMode)
     case InvoiceDatePage                   => _ => routes.SuppliersNameController.onPageLoad(NormalMode)
@@ -94,6 +95,7 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
     case BusinessActivityTwoPage           => userAnswer => navigateFromBusinessActivity2Page(CheckMode)(userAnswer)
     case BusinessActivityCodeThreePage     => _ => routes.BusinessActivityThreeController.onPageLoad()
     case PurchaseTypePage                  => userAnswer => navigateFromPurchaseTypePage(CheckMode)(userAnswer)
+    case DescribeItemsOnInvoicePage        => _ => routes.InvoiceTypeController.onPageLoad(CheckMode)
     case InvoiceTypePage                   => userAnswer => navigateFromInvoiceTypePage(CheckMode)(userAnswer)
     case InvoiceNumberPage                 => _ => routes.InvoiceDateController.onPageLoad(CheckMode)
     case InvoiceDatePage                   => _ => routes.SuppliersNameController.onPageLoad(CheckMode)
@@ -206,7 +208,7 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
   private def navigateFromPurchaseTypePage(mode: Mode)(userAnswers: UserAnswers): Call =
     userAnswers.get(PurchaseTypePage) match {
       case Some(_) =>
-        routes.InvoiceTypeController.onPageLoad(mode) // TODO - route to RA6.0 PurchaseSubCode once built, keyed by Country + Category
+        routes.DescribeItemsOnInvoiceController.onPageLoad(mode) // TODO - route to RA6.0 PurchaseSubCode once built, keyed by Country + Category
       case _ => routes.JourneyRecoveryController.onPageLoad()
     }
 
