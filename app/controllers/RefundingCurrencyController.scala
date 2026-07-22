@@ -107,7 +107,7 @@ class RefundingCurrencyController @Inject() (
               Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
             case Some(countryCode) =>
               val currencies = configCurrencyMapping.currenciesFor(countryCode)
-              currencies.find(_._1 == value.toString).map(_._2) match {
+              currencies.find(_._1.equalsIgnoreCase(value.toString)).map(_._2) match {
                 case None =>
                   logger.warn(s"RefundingCurrencyController.onSubmit - could not find currency code for ${value.toString}")
                   Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))

@@ -216,10 +216,10 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
 
     "must include currency section when country has multiple currencies" in {
       val ua = emptyUserAnswers
-        .set(pages.RefundingCountryPage, "BG")
+        .set(pages.RefundingCountryPage, "EE")
         .success
         .value
-        .set(pages.RefundingCurrencyPage, "BGN")
+        .set(pages.RefundingCurrencyPage, "EEK")
         .success
         .value
 

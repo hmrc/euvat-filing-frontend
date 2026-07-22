@@ -113,7 +113,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar with BeforeA
       }
 
       "must use RefundingCurrencyController as back link when country has two currencies" in {
-        val userAnswers = emptyUserAnswers.set(pages.RefundingCountryPage, "BG").success.value
+        val userAnswers = emptyUserAnswers.set(pages.RefundingCountryPage, "EE").success.value
         val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
         running(application) {
