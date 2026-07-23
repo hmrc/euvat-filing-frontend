@@ -794,7 +794,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar with BeforeA
             val result = route(application, request).value
 
             status(result) mustEqual SEE_OTHER
-            redirectLocation(result).value mustEqual routes.PeriodOverlapWarningController.onPageLoad().url
+            redirectLocation(result).value mustEqual routes.PeriodOverlapWarningController.onPageLoad(NormalMode).url
           }
         }
 
@@ -839,7 +839,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar with BeforeA
             val result = route(application, request).value
 
             status(result) mustEqual SEE_OTHER
-            redirectLocation(result).value mustEqual routes.PeriodOverlapWarningController.onPageLoad().url
+            redirectLocation(result).value mustEqual routes.PeriodOverlapWarningController.onPageLoad(NormalMode).url
           }
         }
 
@@ -884,7 +884,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar with BeforeA
             val result = route(application, request).value
 
             status(result) mustEqual SEE_OTHER
-            redirectLocation(result).value mustEqual routes.PeriodOverlapWarningController.onPageLoad().url
+            redirectLocation(result).value mustEqual routes.PeriodOverlapWarningController.onPageLoad(NormalMode).url
           }
         }
       }
