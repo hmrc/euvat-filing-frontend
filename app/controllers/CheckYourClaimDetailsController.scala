@@ -59,32 +59,36 @@ class CheckYourClaimDetailsController @Inject() (
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     val isPostSubmission = request.userAnswers.get(pages.ClaimDetailsCompletedPage).contains(true)
+    val isAmended = request.userAnswers.get(pages.ClaimDetailsAmendedPage).contains(true)
 
-    (
-      for {
-        flaggedAnswers <- Future.fromTry {
-                            if (!isPostSubmission) {
-                              request.userAnswers.set(ClaimDetailsCompletedPage, true)
-                            } else {
-                              request.userAnswers.remove(pages.ClaimDetailsAmendedPage)
-                            }
-                          }
-        appRequest     <- buildAppRequest(flaggedAnswers)
-        claimResponse  <- service.createApplication(appRequest)
-        updatedAnswers <- Future.fromTry(flaggedAnswers.set(ClaimApplicationResponsePage, claimResponse))
-        _              <- sessionRepository.set(updatedAnswers)
-      } yield {
-        if (claimResponse.applicationId > 0) {
-          Redirect(controllers.routes.TaskListDashboardController.onPageLoad())
-        } else {
-          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+    if (!isPostSubmission || isAmended) {
+      (
+        for {
+          flaggedAnswers <- Future.fromTry {
+            if (!isPostSubmission) {
+              request.userAnswers.set(ClaimDetailsCompletedPage, true)
+            } else {
+              request.userAnswers.remove(pages.ClaimDetailsAmendedPage)
+            }
+          }
+          appRequest     <- buildAppRequest(flaggedAnswers)
+          claimResponse  <- service.createApplication(appRequest)
+          updatedAnswers <- Future.fromTry(flaggedAnswers.set(ClaimApplicationResponsePage, claimResponse))
+          _              <- sessionRepository.set(updatedAnswers)
+        } yield {
+          if (claimResponse.applicationId > 0) {
+            Redirect(controllers.routes.TaskListDashboardController.onPageLoad())
+          } else {
+            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+          }
         }
-      }
-    )
-      .recover { case ex: Exception =>
+        ).recover { case ex: Exception =>
         logger.error("Error while saving the refund application", ex)
         Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
+    } else {
+      Future.successful(Redirect(controllers.routes.TaskListDashboardController.onPageLoad()))
+    }
   }
 
   private def buildSummaryList(
