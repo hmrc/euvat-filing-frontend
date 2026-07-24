@@ -21,7 +21,9 @@ import forms.DescribeItemsOnInvoiceFormProvider
 import javax.inject.Inject
 import models.Mode
 import navigation.Navigator
-import pages.DescribeItemsOnInvoicePage
+import pages.{DescribeItemsOnInvoicePage, PurchaseTypePage, PurchaseSubTypePage, PurchaseSubCategoryPage}
+import play.api.mvc.Call
+import scala.util.Try
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -52,14 +54,49 @@ class DescribeItemsOnInvoiceController @Inject() (
       case Some(value) => form.fill(value)
     }
 
-    Ok(view(preparedForm, mode))
+    // compute a sensible back target: prefer PurchaseSubCategory -> PurchaseSubType -> PurchaseType
+    val maybePurchaseTypeSlug = request.userAnswers.get(PurchaseTypePage).map(models.PurchaseType.slugOf)
+    val maybeParentCode = request.userAnswers.get(PurchaseSubTypePage)
+    val maybeChildCode = request.userAnswers.get(PurchaseSubCategoryPage)
+
+    val back: Call = (maybePurchaseTypeSlug, maybeParentCode, maybeChildCode) match {
+      case (Some(slug), Some(parent), Some(child)) =>
+        // try a few candidate parent forms safely
+        val head = parent.split("\\.").headOption.getOrElse(parent)
+        val last = parent.split("\\.").lastOption.getOrElse(parent)
+        val candidates = Seq(parent, last, head, child).distinct
+        candidates.iterator.map { c => Try(controllers.routes.PurchaseSubCategoryController.onPageLoad(slug, c, mode)).toOption }.collectFirst { case Some(call) => call }.getOrElse(routes.PurchaseTypeController.onPageLoad(mode))
+
+      case (Some(slug), Some(_), None) => controllers.routes.PurchaseSubTypeController.onPageLoad(slug, mode)
+
+      case _ => routes.PurchaseTypeController.onPageLoad(mode)
+    }
+
+    Ok(view(preparedForm, mode, back))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
+        formWithErrors =>
+          {
+            val maybePurchaseTypeSlug = request.userAnswers.get(PurchaseTypePage).map(models.PurchaseType.slugOf)
+            val maybeParentCode = request.userAnswers.get(PurchaseSubTypePage)
+            val maybeChildCode = request.userAnswers.get(PurchaseSubCategoryPage)
+
+            val back: Call = (maybePurchaseTypeSlug, maybeParentCode, maybeChildCode) match {
+              case (Some(slug), Some(parent), Some(child)) =>
+                val head = parent.split("\\.").headOption.getOrElse(parent)
+                val last = parent.split("\\.").lastOption.getOrElse(parent)
+                val candidates = Seq(parent, last, head, child).distinct
+                candidates.iterator.map { c => Try(controllers.routes.PurchaseSubCategoryController.onPageLoad(slug, c, mode)).toOption }.collectFirst { case Some(call) => call }.getOrElse(routes.PurchaseTypeController.onPageLoad(mode))
+              case (Some(slug), Some(_), None) => controllers.routes.PurchaseSubTypeController.onPageLoad(slug, mode)
+              case _ => routes.PurchaseTypeController.onPageLoad(mode)
+            }
+
+            Future.successful(BadRequest(view(formWithErrors, mode, back)))
+          },
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(DescribeItemsOnInvoicePage, value))

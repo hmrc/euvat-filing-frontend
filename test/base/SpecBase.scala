@@ -43,4 +43,14 @@ trait SpecBase extends AnyFreeSpec with Matchers with TryValues with OptionValue
         bind[IdentifierAction].to[FakeIdentifierAction],
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
       )
+
+  // Normalize dynamic values in rendered HTML to make string comparisons deterministic in tests.
+  // - strips any `nonce="..."` attributes
+  // - removes any CSRF hidden input elements entirely
+  def normalizeHtml(html: String): String =
+    html
+      .replaceAll("nonce=\"[^\"]*\"", "nonce=\"\"")
+      .replaceAll("(?s)<input[^>]*name=\"csrfToken\"[^>]*>", "")
+      .replaceAll("\\s+", " ")
+      .trim
 }
