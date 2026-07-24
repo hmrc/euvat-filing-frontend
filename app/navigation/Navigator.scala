@@ -64,7 +64,7 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
     case SupplierTaxNumberPage             => userAnswers => navigateFromSupplierTaxNumberPage(NormalMode)(userAnswers)
     case SimplifiedInvoiceVatRegCheckPage  => userAnswer => navigateFromSimplifiedInvoiceVatRegCheckPage(NormalMode)(userAnswer)
     case SupplierVatRegistrationNumberPage => _ => routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
-    case SupplierTaxIdentifierNumberPage    => _ => routes.JourneyRecoveryController.onPageLoad()
+    case SupplierTaxIdentifierNumberPage   => _ => routes.JourneyRecoveryController.onPageLoad()
     case TotalPurchaseAmountBeforeVatPage  => _ => routes.TotalVatPaidController.onPageLoad(NormalMode)
     case TotalVatPaidPage                  => _ => routes.TotalVatClaimController.onPageLoad(NormalMode)
     case TotalVatClaimPage                 => _ => routes.JourneyRecoveryController.onPageLoad()
@@ -104,7 +104,7 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
     case SupplierTaxNumberPage             => userAnswers => navigateFromSupplierTaxNumberPage(CheckMode)(userAnswers)
     case SimplifiedInvoiceVatRegCheckPage  => userAnswer => navigateFromSimplifiedInvoiceVatRegCheckPage(CheckMode)(userAnswer)
     case SupplierVatRegistrationNumberPage => _ => routes.TotalPurchaseAmountBeforeVatController.onPageLoad(CheckMode)
-    case SupplierTaxIdentifierNumberPage    => _ => routes.JourneyRecoveryController.onPageLoad()
+    case SupplierTaxIdentifierNumberPage   => _ => routes.JourneyRecoveryController.onPageLoad()
     case TotalPurchaseAmountBeforeVatPage  => _ => routes.TotalVatPaidController.onPageLoad(CheckMode)
     case TotalVatPaidPage                  => _ => routes.TotalVatClaimController.onPageLoad(CheckMode)
     case TotalVatClaimPage                 => _ => routes.JourneyRecoveryController.onPageLoad()
@@ -184,7 +184,7 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
     userAnswers.get(InvoiceTypePage) match {
       case Some(InvoiceType.StandardInvoice) => routes.InvoiceNumberController.onPageLoad(mode)
       case Some(InvoiceType.SimplifiedInvoice) =>
-        routes.JourneyRecoveryController.onPageLoad() // TODO - link to navigate to simp.invoicevatregcheck page
+        routes.InvoiceNumberController.onPageLoad(mode)
       case _ => routes.JourneyRecoveryController.onPageLoad()
     }
 
@@ -224,6 +224,8 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping, configL
         routes.JourneyRecoveryController.onPageLoad() // TODO - link to VAT registration number page once built
       case Some(SupplierTaxNumber.Taxidentifiernumber) =>
         routes.SupplierTaxIdentifierNumberController.onPageLoad(mode)
+      case Some(SupplierTaxNumber.Neither) =>
+        routes.PurchaseTypeController.onPageLoad(mode)
       case _ => routes.JourneyRecoveryController.onPageLoad()
     }
 
