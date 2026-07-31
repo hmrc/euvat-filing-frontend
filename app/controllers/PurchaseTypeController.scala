@@ -51,7 +51,7 @@ class PurchaseTypeController @Inject() (
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
-      with Logging {
+    with Logging {
 
   val form: Form[PurchaseType] = formProvider()
 
@@ -96,7 +96,7 @@ class PurchaseTypeController @Inject() (
         value => {
           val saved = request.userAnswers.get(PurchaseTypePage) match {
             case Some(prev) if prev != value =>
-              (for {
+              for {
                 afterRemovedSubType        <- request.userAnswers.remove(pages.PurchaseSubTypePage)
                 afterRemovedSubTypeLabel   <- afterRemovedSubType.remove(pages.PurchaseSubTypeLabelPage)
                 afterRemovedSubCategory    <- afterRemovedSubTypeLabel.remove(pages.PurchaseSubCategoryPage)
@@ -120,7 +120,7 @@ class PurchaseTypeController @Inject() (
     answers: UserAnswers,
     purchaseType: PurchaseType,
     mode: Mode
-  )(implicit request: DataRequest[?]): Future[Result] = {
+   )(implicit request: DataRequest[?]): Future[Result] = {
 
     implicit val hc: HeaderCarrier =
       HeaderCarrierConverter.fromRequestAndSession(request, request.session)
