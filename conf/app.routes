@@ -48,6 +48,9 @@ POST        /check-refund-period                         controllers.PeriodOverl
 GET         /change-check-refund-period                  controllers.PeriodOverlapWarningController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-check-refund-period                  controllers.PeriodOverlapWarningController.onSubmit(mode: Mode = CheckMode)
 
+GET         /check-refund-period-start-date             controllers.ConfirmRefundPeriodStartDateController.onPageLoad()
+POST        /check-refund-period-start-date             controllers.ConfirmRefundPeriodStartDateController.onSubmit()
+
 GET         /how-contact-you-about-claim                controllers.ContactDetailsController.onPageLoad(mode: Mode = NormalMode)
 POST        /how-contact-you-about-claim                controllers.ContactDetailsController.onSubmit(mode: Mode = NormalMode)
 GET         /change-how-contact-you-about-claim         controllers.ContactDetailsController.onPageLoad(mode: Mode = CheckMode)

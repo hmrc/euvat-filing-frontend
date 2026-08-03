@@ -163,6 +163,13 @@ periodOverlapWarning.warning = If you submit a claim with inaccurate information
 periodOverlapWarning.correct = Yes, this is correct
 periodOverlapWarning.backLink = No, change the refund period
 
+confirmRefundPeriodStartDate.title = Are you sure the refund period start date is correct?
+confirmRefundPeriodStartDate.heading = Are you sure the refund period start date is correct?
+confirmRefundPeriodStartDate.paragraph = You’ve told us the refund period start date is {0}. The refund period start date cannot be before {1}.
+confirmRefundPeriodStartDate.warning = If you submit a claim with inaccurate information, it may be rejected.
+confirmRefundPeriodStartDate.button = Yes, this is correct
+confirmRefundPeriodStartDate.link = No, change the start date
+
 contactDetails.title = How should we contact you about this claim?
 contactDetails.heading = How should we contact you about this claim?
 contactDetails.contactEmail.label = Email address
