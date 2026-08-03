@@ -18,15 +18,21 @@ package controllers
 
 import controllers.actions.*
 import forms.SupplierVatRegistrationNumberFormProvider
+import models.requests.{DataRequest, SupplierVrnCountRequest}
 
 import javax.inject.Inject
-import models.Mode
+import models.{Mode, UserAnswers}
 import navigation.Navigator
+import pages.{AddPurchaseResponsePage, ClaimApplicationResponsePage, InvoiceNumberPage, SupplierVatRegistrationNumberPage, VrnWarningFlowPage}
 import pages.{RefundingCountryPage, SupplierTaxIdentifierNumberPage, SupplierVatRegistrationNumberPage}
 import play.api.data.Form
+import play.api.i18n.Lang.logger
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
+import services.EuVatRefundsService
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.SupplierVatRegistrationNumberView
 
@@ -41,6 +47,7 @@ class SupplierVatRegistrationNumberController @Inject() (
   requireData: DataRequiredAction,
   formProvider: SupplierVatRegistrationNumberFormProvider,
   val controllerComponents: MessagesControllerComponents,
+  euVatRefundsService : EuVatRefundsService,
   view: SupplierVatRegistrationNumberView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
@@ -66,12 +73,47 @@ class SupplierVatRegistrationNumberController @Inject() (
       .bindFromRequest()
       .fold(
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode), isGermany))),
-        value =>
+        value => {
+          val changed = !request.userAnswers.get(SupplierVatRegistrationNumberPage).contains(value)
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(SupplierVatRegistrationNumberPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(SupplierVatRegistrationNumberPage, mode, updatedAnswers))
+            updated <- Future.fromTry(request.userAnswers.set(SupplierVatRegistrationNumberPage, value))
+            finalAnswers <- Future.fromTry(
+              if (request.userAnswers.get(VrnWarningFlowPage).isDefined && changed)
+                updated.set(VrnWarningFlowPage, false)
+              else
+                scala.util.Success(updated)
+            )
+            _      <- sessionRepository.set(finalAnswers)
+            result <- checkDuplicate(value, finalAnswers, mode)
+          } yield result
+        }
       )
+  }
+
+  private def checkDuplicate(vatNumber: String, answers: UserAnswers, mode: Mode)(implicit request: DataRequest[_]): Future[Result] = {
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+
+    val maybeRequest = for {
+      applicationId <- answers.get(ClaimApplicationResponsePage).map(_.applicationId)
+      itemNumber    <- answers.get(AddPurchaseResponsePage).map(_.itemNumber)
+      invoiceNumber <- answers.get(InvoiceNumberPage)
+    } yield SupplierVrnCountRequest(applicationId.toLong, itemNumber, vatNumber, invoiceNumber)
+
+    maybeRequest match {
+      case Some(req) =>
+        euVatRefundsService.getSupplierVrnCount(req).map { response =>
+          if (response.duplicateCount > 0)
+            Redirect(routes.SupplierVrnWarningController.onPageLoad(mode))
+          else
+            Redirect(navigator.nextPage(SupplierVatRegistrationNumberPage, mode, answers))
+        }.recover { case ex: Exception =>
+          logger.error("Error retrieving supplier VRN count", ex)
+          Redirect(routes.JourneyRecoveryController.onPageLoad())
+        }
+      case None =>
+        logger.warn("Missing data for duplicate VRN check")
+        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+    }
   }
 
 }

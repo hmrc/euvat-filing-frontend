@@ -22,7 +22,7 @@ import forms.InvoiceNumberFormProvider
 import javax.inject.Inject
 import models.{Mode, NormalMode}
 import navigation.Navigator
-import pages.InvoiceNumberPage
+import pages.{InvoiceNumberPage, VrnWarningFlowPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -61,16 +61,23 @@ class InvoiceNumberController @Inject() (
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-
     form
       .bindFromRequest()
       .fold(
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, routes.InvoiceTypeController.onPageLoad(mode)))),
-        value =>
+        value => {
+          val changed = !request.userAnswers.get(InvoiceNumberPage).contains(value)
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(InvoiceNumberPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(InvoiceNumberPage, mode, updatedAnswers))
+            updated <- Future.fromTry(request.userAnswers.set(InvoiceNumberPage, value))
+            finalAnswers <- Future.fromTry(
+              if (request.userAnswers.get(VrnWarningFlowPage).isDefined && changed)
+                updated.set(VrnWarningFlowPage, false)
+              else
+                scala.util.Success(updated)
+            )
+            _ <- sessionRepository.set(finalAnswers)
+          } yield Redirect(navigator.nextPage(InvoiceNumberPage, mode, finalAnswers))
+        }
       )
   }
 }
