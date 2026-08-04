@@ -34,7 +34,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.{ConfigCurrencyMapping, ConfigLanguageMapping}
 import views.html.RefundPeriodView
 
-import java.time.{LocalDateTime, YearMonth}
+import java.time.{LocalDate, LocalDateTime, MonthDay, YearMonth}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -76,8 +76,11 @@ class RefundPeriodController @Inject() (
 
   private def errorMessage(form: Form[RefundPeriodData], keys: Seq[String])(implicit messages: Messages): Option[String] = {
     val errors = form.errors.filter(e => keys.contains(e.key))
-    if (errors.isEmpty) { None }
-    else { Some(errors.map(e => messages(e.message, e.args*)).mkString("<br>")) }
+    if (errors.isEmpty) {
+      None
+    } else {
+      Some(errors.map(e => messages(e.message, e.args*)).mkString("<br>"))
+    }
   }
 
   private def errorLinkOverrides(form: Form[RefundPeriodData]): Map[String, String] = Map(
@@ -161,6 +164,36 @@ class RefundPeriodController @Inject() (
     } yield Redirect(navigator.nextPage(RefundPeriodPage, mode, updatedAnswer4))
   }
 
+  private def earliestPermittedStartDate(today: LocalDate = LocalDate.now()): YearMonth = {
+    val cutoff = MonthDay.of(9, 30).atYear(today.getYear)
+    if (!today.isAfter(cutoff)) {
+      YearMonth.of(today.getYear - 1, 1)
+    } else {
+      YearMonth.of(today.getYear, 1)
+    }
+  }
+
+  private def checkEarliestStartDate(
+    traderResponse: TraderKnownFactsResponse,
+    startDate: LocalDateTime,
+    endDate: LocalDateTime,
+    mode: Mode
+  )(using request: DataRequest[?], ec: ExecutionContext): Future[Result] = {
+    val startYearMonth = YearMonth.from(startDate)
+    val minAllowed = earliestPermittedStartDate()
+
+    if (startYearMonth.isBefore(minAllowed)) {
+      val refundPeriod = RefundPeriod(startDate, endDate)
+      for {
+        updatedAnswer1 <- Future.fromTry(request.userAnswers.set(TraderKnownFactsQuery, traderResponse))
+        updatedAnswer2 <- Future.fromTry(updatedAnswer1.set(RefundPeriodPage, refundPeriod))
+        _              <- sessionRepository.set(updatedAnswer2)
+      } yield Redirect(controllers.routes.ConfirmRefundPeriodStartDateController.onPageLoad())
+    } else {
+      checkOverlappingPeriod(traderResponse, startDate, endDate, mode)
+    }
+  }
+
   private def checkOverlappingPeriod(
     traderResponse: TraderKnownFactsResponse,
     startDate: LocalDateTime,
@@ -175,6 +208,7 @@ class RefundPeriodController @Inject() (
           stored.split(",", 2).headOption.getOrElse(stored)
         }
       }
+
       val latestApplicationRequest = LatestApplicationRequest(
         applicantVatRegNumber = traderResponse.vatRegNumber.toString,
         refundingCountry      = refundingCountry,
@@ -295,7 +329,7 @@ class RefundPeriodController @Inject() (
 
                     maybeErrorForm match {
                       case Some(formWithError) => renderError(formWithError, mode, Some(traderResponse.vatRegNumber.toString))
-                      case None                => checkOverlappingPeriod(traderResponse, startDate, endDate, mode)
+                      case None                => checkEarliestStartDate(traderResponse, startDate, endDate, mode)
                     }
                 }
             }
