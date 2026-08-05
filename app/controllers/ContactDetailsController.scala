@@ -60,10 +60,18 @@ class ContactDetailsController @Inject() (
       .fold(
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, routes.RefundPeriodController.onPageLoad(NormalMode)))),
         value =>
+          val isChanged = request.userAnswers.get(ContactDetailsPage) match {
+            case Some(existing) => existing != value
+            case None           => true
+          }
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(ContactDetailsPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(ContactDetailsPage, mode, updatedAnswers))
+            updatedAnswers2 <- if (isChanged && request.userAnswers.get(pages.ClaimDetailsCompletedPage).contains(true))
+                                 Future.fromTry(updatedAnswers.set(pages.ClaimDetailsAmendedPage, true))
+                               else
+                                 Future.successful(updatedAnswers)
+            _ <- sessionRepository.set(updatedAnswers2)
+          } yield Redirect(navigator.nextPage(ContactDetailsPage, mode, updatedAnswers2))
       )
   }
 }

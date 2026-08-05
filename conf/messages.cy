@@ -6,12 +6,14 @@ site.change = Change
 site.view = View
 site.no = No
 site.yes = Yes
+site.or = or
 site.continue = Continue
 site.start = Start now
 site.startAgain = Start again
 site.signIn = Sign in
 site.govuk = GOV.UK
 site.save.continue = Save and continue
+
 
 date.day = Day
 date.month = Month
@@ -44,9 +46,8 @@ unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
 unauthorised.guidance = You do not have access to this service.
 
-claim.caption.add = Claim details
-caption.hidden.text = This section is:
-purchase.caption.add = Purchase details
+claim.caption = Claim details
+purchase.caption = Purchase details
 
 taskListDashboard.title = Make a claim for an EU VAT refund
 taskListDashboard.heading = Make a claim for an EU VAT refund
@@ -60,7 +61,6 @@ taskListDashboard.status1 = Not yet started
 taskListDashboard.status2 = Cannot start yet
 taskListDashboard.status3 = Completed
 taskListDashboard.listItem1.completed = View claim details
-taskListDashboard.dashboardLink = Go to the claims dashboard
 taskListDashboard.dashboardLink = Return to Claim an EU VAT refund
 taskListDashboard.errorSummary1 = There is a problem
 taskListDashboard.errorSummary2 = Select add claim details to start a claim
@@ -73,6 +73,8 @@ refundingCountry.error.summary = Select an EU member state
 refundingCountry.error.required = Select an EU member state
 refundingCountry.error.invalid = Select a valid EU member state
 refundingCountry.error.invalid.summary = Select a valid EU member state
+refundingCountry.error.duplicate = You cannot have more than one draft claim for each EU member state
+refundingCountry.error.duplicate.summary = You cannot have more than one draft claim for each EU member state
 
 refundingLanguage.title = Which language do you want to use for this claim?
 refundingLanguage.heading = Which language do you want to use for this claim?
@@ -120,6 +122,13 @@ refundPeriod.rule.1 = be in the past
 refundPeriod.rule.2 = be within the same calendar year
 refundPeriod.rule.3 = be at least 3 months long, unless it ends in December (for example, 10 2025 to 12 2025 counts as 3 months)
 refundPeriod.rule.4 = not overlap with a period you''ve already made a claim for
+
+refundPeriod.error.beforeEarliest.start = Refund period must be after {0}
+refundPeriod.error.beforeEarliest.end = Refund period must be after {0}
+refundPeriod.error.beforeEarliest.both = Refund period must be after {0}
+refundPeriod.error.afterLatest.start = Refund period must be before {0}
+refundPeriod.error.afterLatest.end = Refund period must be before {0}
+refundPeriod.error.afterLatest.both = Refund period must be before {0}
 refundPeriod.start.heading = When is the refund period start date?
 refundPeriod.start.hint = For example, 10 2025
 refundPeriod.start.error.required = Enter the start date
@@ -147,6 +156,13 @@ refundPeriod.error.startAndEndInSameYear = Refund period start date and end date
 refundPeriod.error.overlap = Refund period cannot overlap with another claim for the same EU member state.
 refundPeriod.error.periodNotLessThan3Months = Refund period must be at least 3 months long unless the period ends in December
 
+periodOverlapWarning.title = Are you sure the refund period is correct?
+periodOverlapWarning.heading = Are you sure the refund period is correct?
+periodOverlapWarning.p = You’ve told us the refund period is the same used for another claim. The refund period must not overlap with another claim for the same EU member state.
+periodOverlapWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
+periodOverlapWarning.correct = Yes, this is correct
+periodOverlapWarning.backLink = No, change the refund period
+
 contactDetails.title = How should we contact you about this claim?
 contactDetails.heading = How should we contact you about this claim?
 contactDetails.contactEmail.label = Email address
@@ -168,8 +184,8 @@ businessActivity.error.required = Select yes if you want to add another SIC code
 
 businessActivityCodeTwo.title = What is the second SIC code?
 businessActivityCodeTwo.heading = What is the second SIC code?
-businessActivityCodeTwo.hint = Enter the SIC code
-businessActivityCodeTwo.hintHtml = <p class="govuk-body">You can find the SIC codes on the <a href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2007" class="govuk-link" target="_blank" rel="noreferrer noopener">Office for National Statistics website (opens in a new tab)</a>.</p>
+businessActivityCodeTwo.textLabel = Enter the SIC code
+businessActivityCodeTwo.p = <p class="govuk-body">You can find the SIC codes on the <a href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2007" class="govuk-link" target="_blank" rel="noreferrer noopener">Office for National Statistics website (opens in a new tab)</a>.</p>
 businessActivityCodeTwo.error.summary = Enter a SIC code
 businessActivityCodeTwo.error.required = Enter a SIC code
 businessActivityCodeTwo.error.invalid = Enter a SIC code in the correct format
@@ -190,8 +206,8 @@ removeSecond.error.required = Select yes if you want to remove the second SIC co
 
 businessActivityCodeThree.title = What is the third SIC code?
 businessActivityCodeThree.heading = What is the third SIC code?
-businessActivityCodeThree.hint = Enter the SIC code
-businessActivityCodeThree.hintHtml = <p class="govuk-body">You can find the SIC codes on the <a href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2007" class="govuk-link" target="_blank" rel="noreferrer noopener">Office for National Statistics website (opens in a new tab)</a>.</p>
+businessActivityCodeThree.textLabel = Enter the SIC code
+businessActivityCodeThree.p = <p class="govuk-body">You can find the SIC codes on the <a href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2007" class="govuk-link" target="_blank" rel="noreferrer noopener">Office for National Statistics website (opens in a new tab)</a>.</p>
 businessActivityCodeThree.error.summary = Enter a SIC code
 businessActivityCodeThree.error.required = Enter a SIC code
 businessActivityCodeThree.error.invalid = Enter a SIC code in the correct format
@@ -244,6 +260,8 @@ checkYourClaimDetails.businessActivity1.view.hidden = View first SIC code
 checkYourClaimDetails.businessActivity2.change.hidden = Change second SIC code
 checkYourClaimDetails.businessActivity3.change.hidden = Change third SIC code
 checkYourClaimDetails.paragraph = You cannot change the refunding EU member state after you save and continue.
+checkYourClaimDetails.claimDetails.title = Claim details
+checkYourClaimDetails.claimDetails.heading = Claim details
 
 beforeYouStart.title = Before you start
 beforeYouStart.heading = Before you start
@@ -254,7 +272,6 @@ beforeYouStart.bullet3 = purchase type
 beforeYouStart.bullet4 = VAT amounts
 
 invoiceType.title = Invoice type
-invoiceType.caption = Purchase details
 invoiceType.heading = Invoice type
 invoiceType.lead = You will need a valid VAT invoice or receipt. You cannot use statements, orders, letters, emails or other general correspondence to claim VAT.
 invoiceType.h2 = What type of invoice do you have?
@@ -266,7 +283,7 @@ invoiceType.error.required = Select an invoice type
 
 suppliersName.title = What is the supplier’s name?
 suppliersName.heading = What is the supplier’s name?
-suppliersName.hint = Find the supplier’s name on the invoice or receipt.
+suppliersName.hint = Find the supplier’s name on the invoice or receipt
 suppliersName.error.required = Enter a supplier’s name
 suppliersName.error.length = The supplier’s name must be 35 characters or less
 suppliersName.checkYourAnswersLabel = Supplier’s name
@@ -274,12 +291,12 @@ suppliersName.change.hidden = Change supplier’s name
 
 supplierTaxNumber.title = Select the supplier tax numbers shown on the invoice
 supplierTaxNumber.heading = Select the supplier tax numbers shown on the invoice
-supplierTaxNumber.caption = Purchase details
 supplierTaxNumber.vatRegistrationNumber = VAT registration number (also known as Umsatzsteuer-Identifikationsnummer)
 supplierTaxNumber.vatRegistrationNumber.hint = This is usually 11 characters and starts with DE, for example DE123456789
 supplierTaxNumber.taxIdentifierNumber = Tax identifier number (also known as Steuernummer)
 supplierTaxNumber.taxIdentifierNumber.hint = This is 10 or 11 digits, for example 12/345/67890
 supplierTaxNumber.error.required = Select the supplier tax numbers shown on the invoice
+supplierTaxNumber.neither = I do not have any of these on the invoice
 
 supplierVatRegistrationNumber.title = What is the supplier’s VAT registration number?
 supplierVatRegistrationNumber.heading = What is the supplier’s VAT registration number?
@@ -324,9 +341,8 @@ totalVatClaim.p1 = This is the amount of VAT you are entitled to claim back. It 
 totalVatClaim.h2 = How much VAT are you claiming?
 totalVatClaim.hint = For example, {0}150 or {0}120.45
 totalVatClaim.error.required = Enter the total amount of VAT you’re claiming
-totalVatClaim.error.invalidNumeric = Total VAT claim must be 15 numbers or less
-totalVatClaim.error.nonNumeric =  Enter total VAT claim in the correct format
 totalVatClaim.error.invalidNumeric = Enter total VAT claim in the correct format
+totalVatClaim.error.nonNumeric =  Enter total VAT claim in the correct format
 totalVatClaim.error.aboveMaximum = Total VAT claim must be between -999,999,999.99 and 999,999,999.99
 
 supplierAddress.title = What is the supplier’s address?
@@ -335,9 +351,6 @@ supplierAddress.lead = Enter the supplier’s address as it appears on the invoi
 supplierAddress.line1.label = Address line 1
 supplierAddress.line2.label = Address line 2 (optional)
 supplierAddress.line3.label = Address line 3 (optional)
-supplierAddress.line1.label.short = Address line 1
-supplierAddress.line2.label.short = Address line 2
-supplierAddress.line3.label.short = Address line 3
 supplierAddress.error.line1.required = Enter address line 1, typically the building and street
 supplierAddress.error.maxLength = must be 35 characters or less
 supplierAddress.error.maxLength.withLabel = {0} {1}
@@ -386,3 +399,33 @@ purchaseType.foodAndDrink = Food, drink and restaurant services
 purchaseType.luxuries = Luxuries, entertainment and hospitality
 purchaseType.other = Other
 purchaseType.error.required = Select the type of purchase
+
+checkYourStateDetails.title = EU member state details
+checkYourStateDetails.heading = EU member state details
+checkYourStateDetails.p1 = You cannot change the refunding EU member state for an existing claim.
+checkYourStateDetails.p2 = If you want to claim a VAT refund from a different EU member state, you must delete this claim and start a new one. Any existing claim details will not be saved.
+checkYourStateDetails.legend = Do you want to delete this claim and start a new one for a different EU member state?
+checkYourStateDetails.yes = Yes, delete this claim
+checkYourStateDetails.no = No, return to claim
+checkYourStateDetails.error.required = Select yes if you want to delete this claim
+
+describeItemsOnInvoice.title = Describe the items on your invoice
+describeItemsOnInvoice.heading = Describe the items on your invoice
+describeItemsOnInvoice.hint = List each item and the exact amount you paid for it. Include the currency shown on the invoice. For example, an invoice including €150 for fuel and €50 for transport costs.
+describeItemsOnInvoice.error.required = Enter a description of the items on your invoice
+describeItemsOnInvoice.error.length = Item description must be 255 characters or less
+
+# Warning messages
+vatPaidWarning.title = Are you sure the amount of VAT you paid is correct?
+vatPaidWarning.heading = Are you sure the amount of VAT you paid is correct?
+vatPaidWarning.p = The amount of VAT you paid must be less than the purchase amount before VAT.
+vatPaidWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
+vatPaidWarning.yes = Yes, this is correct
+vatPaidWarning.no = No, change the VAT amount
+
+vatClaimWarning.title = Are you sure the amount of VAT you''re claiming is correct?
+vatClaimWarning.heading = Are you sure the amount of VAT you''re claiming is correct?
+vatClaimWarning.p = You''ve told us the amount of VAT you''re claiming is {0}. The amount you''re claiming cannot be more than the amount of VAT you paid.
+vatClaimWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
+vatClaimWarning.yes = Yes, this is correct
+vatClaimWarning.no = No, change the VAT claim amount

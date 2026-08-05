@@ -83,7 +83,7 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
           val view = application.injector.instanceOf[ContactDetailsView]
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(form, NormalMode, backUrl)(request, messages(application)).toString
+          normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(view(form, NormalMode, backUrl)(request, messages(application)).toString)
         }
       }
 
@@ -97,7 +97,7 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
           val view = application.injector.instanceOf[ContactDetailsView]
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(form.fill(contactDetails), NormalMode, backUrl)(request, messages(application)).toString
+          normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(view(form.fill(contactDetails), NormalMode, backUrl)(request, messages(application)).toString)
         }
       }
 
@@ -160,11 +160,11 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
           val view = application.injector.instanceOf[ContactDetailsView]
 
           status(result) mustEqual BAD_REQUEST
-          contentAsString(result) mustEqual view(
+          normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(view(
             form.bind(Map("contactEmail" -> "")),
             NormalMode,
             backUrl
-          )(request, messages(application)).toString
+          )(request, messages(application)).toString)
           verify(mockSessionRepository, never).set(any())
         }
       }
@@ -210,6 +210,94 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual onwardRoute.url
           verify(mockSessionRepository, times(1)).set(any())
+        }
+      }
+
+      "must set ClaimDetailsAmendedPage to true when contact details are changed and ClaimDetailsCompletedPage is true" in {
+        val mockSessionRepository = mock[repositories.SessionRepository]
+        when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+        val ua = emptyUserAnswers
+          .set(pages.ContactDetailsPage, models.ContactDetails("existing@email.com", None))
+          .success
+          .value
+          .set(pages.ClaimDetailsCompletedPage, true)
+          .success
+          .value
+
+        val application = applicationBuilder(userAnswers = Some(ua))
+          .overrides(bind[repositories.SessionRepository].toInstance(mockSessionRepository))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(POST, routes.ContactDetailsController.onSubmit(models.CheckMode).url)
+            .withFormUrlEncodedBody(
+              "contactEmail"     -> "new@email.com",
+              "contactTelephone" -> ""
+            )
+          val result = route(application, request).value
+          status(result) mustEqual SEE_OTHER
+
+          import org.mockito.ArgumentCaptor
+          val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
+          verify(mockSessionRepository, times(1)).set(captor.capture())
+          captor.getValue.get(pages.ClaimDetailsAmendedPage) mustBe Some(true)
+        }
+      }
+
+      "must NOT set ClaimDetailsAmendedPage when contact details are unchanged" in {
+        val mockSessionRepository = mock[repositories.SessionRepository]
+        when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+        val ua = emptyUserAnswers
+          .set(pages.ContactDetailsPage, models.ContactDetails("test@email.com", None))
+          .success
+          .value
+          .set(pages.ClaimDetailsCompletedPage, true)
+          .success
+          .value
+
+        val application = applicationBuilder(userAnswers = Some(ua))
+          .overrides(bind[repositories.SessionRepository].toInstance(mockSessionRepository))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(POST, routes.ContactDetailsController.onSubmit(models.CheckMode).url)
+            .withFormUrlEncodedBody(
+              "contactEmail"     -> "test@email.com",
+              "contactTelephone" -> ""
+            )
+          val result = route(application, request).value
+          status(result) mustEqual SEE_OTHER
+
+          import org.mockito.ArgumentCaptor
+          val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
+          verify(mockSessionRepository, times(1)).set(captor.capture())
+          captor.getValue.get(pages.ClaimDetailsAmendedPage).isDefined mustBe false
+        }
+      }
+
+      "must NOT set ClaimDetailsAmendedPage when ClaimDetailsCompletedPage is not set" in {
+        val mockSessionRepository = mock[repositories.SessionRepository]
+        when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(bind[repositories.SessionRepository].toInstance(mockSessionRepository))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(POST, routes.ContactDetailsController.onSubmit(models.NormalMode).url)
+            .withFormUrlEncodedBody(
+              "contactEmail"     -> "test@email.com",
+              "contactTelephone" -> ""
+            )
+          val result = route(application, request).value
+          status(result) mustEqual SEE_OTHER
+
+          import org.mockito.ArgumentCaptor
+          val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
+          verify(mockSessionRepository, times(1)).set(captor.capture())
+          captor.getValue.get(pages.ClaimDetailsAmendedPage).isDefined mustBe false
         }
       }
     }

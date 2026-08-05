@@ -20,19 +20,47 @@ import controllers.actions.*
 import models.UserAnswers
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{OptionValues, TryValues}
+import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import scala.concurrent.Future
+import services.EuVatRefundsService
+import models.responses.{LatestApplicationResponse, TraderKnownFactsResponse}
 import play.api.Application
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 
-trait SpecBase extends AnyFreeSpec with Matchers with TryValues with OptionValues with ScalaFutures with IntegrationPatience {
+trait SpecBase
+    extends AnyFreeSpec
+    with Matchers
+    with TryValues
+    with OptionValues
+    with ScalaFutures
+    with IntegrationPatience
+    with MockitoSugar
+    with BeforeAndAfterEach {
 
   val userAnswersId: String = "id"
 
   def emptyUserAnswers: UserAnswers = UserAnswers(userAnswersId)
+
+  // Default mock for controllers that call the EuVatRefundsService
+  protected val mockEuVatRefundsService: EuVatRefundsService = mock[EuVatRefundsService]
+
+  override protected def beforeEach(): Unit = {
+    super.beforeEach()
+    org.mockito.Mockito.reset(mockEuVatRefundsService)
+    // safe defaults: no duplicate applications, and simple trader known facts
+    when(mockEuVatRefundsService.retrieveTraderKnownFacts()(any()))
+      .thenReturn(Future.successful(TraderKnownFactsResponse(vatRegNumber = 123, traderName = None, tradeClass = None)))
+    when(mockEuVatRefundsService.getLatestApplications(any())(any()))
+      .thenReturn(Future.successful(LatestApplicationResponse(applications = List.empty, totalApplication = 0)))
+  }
 
   def messages(app: Application): Messages = app.injector.instanceOf[MessagesApi].preferred(FakeRequest())
 
@@ -41,6 +69,18 @@ trait SpecBase extends AnyFreeSpec with Matchers with TryValues with OptionValue
       .overrides(
         bind[DataRequiredAction].to[DataRequiredActionImpl],
         bind[IdentifierAction].to[FakeIdentifierAction],
-        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
+        bind[EuVatRefundsService].toInstance(mockEuVatRefundsService)
       )
+      
+
+  // Normalize dynamic values in rendered HTML to make string comparisons deterministic in tests.
+  // - strips any `nonce="..."` attributes
+  // - removes any CSRF hidden input elements entirely
+  def normalizeHtml(html: String): String =
+    html
+      .replaceAll("nonce=\"[^\"]*\"", "nonce=\"\"")
+      .replaceAll("(?s)<input[^>]*name=\"csrfToken\"[^>]*>", "")
+      .replaceAll("\\s+", " ")
+      .trim
 }
