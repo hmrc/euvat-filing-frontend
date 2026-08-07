@@ -14,22 +14,11 @@
  * limitations under the License.
  */
 
-package config
+package models.responses
 
-import org.scalatest.freespec.AnyFreeSpec
-import org.scalatest.matchers.must.Matchers
-import play.api.Configuration
+import play.api.libs.json.{Json, OFormat}
 
-class LangsProviderSpec extends AnyFreeSpec with Matchers {
-
-  "LangsProvider" - {
-    "should produce a DefaultLangs instance for configured languages" in {
-      val cfg = Configuration.from(Map("play.i18n.langs" -> Seq("en", "cy")))
-      val provider = new LangsProvider(cfg)
-      val langs = provider.get()
-
-      // implementation returns DefaultLangs; ensure type is as expected
-      langs.getClass.getSimpleName must include("DefaultLangs")
-    }
-  }
+case class AddPurchaseResponse(itemNumber: Int, updateSequenceNumber: Int)
+object AddPurchaseResponse {
+  implicit val format: OFormat[AddPurchaseResponse] = Json.format[AddPurchaseResponse]
 }

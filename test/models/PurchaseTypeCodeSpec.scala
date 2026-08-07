@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-package config
+package models
 
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
-import play.api.Configuration
 
-class LangsProviderSpec extends AnyFreeSpec with Matchers {
+class PurchaseTypeCodeSpec extends AnyFreeSpec with Matchers {
 
-  "LangsProvider" - {
-    "should produce a DefaultLangs instance for configured languages" in {
-      val cfg = Configuration.from(Map("play.i18n.langs" -> Seq("en", "cy")))
-      val provider = new LangsProvider(cfg)
-      val langs = provider.get()
+  "PurchaseTypeCode.codeFor" - {
 
-      // implementation returns DefaultLangs; ensure type is as expected
-      langs.getClass.getSimpleName must include("DefaultLangs")
+    "must return the correct code for each purchase type" in {
+      PurchaseTypeCode.codeFor(PurchaseType.Fuel) mustEqual "1"
+      PurchaseTypeCode.codeFor(PurchaseType.Transport) mustEqual "3"
+      PurchaseTypeCode.codeFor(PurchaseType.FoodAndDrink) mustEqual "7"
+      PurchaseTypeCode.codeFor(PurchaseType.Luxuries) mustEqual "9"
+      PurchaseTypeCode.codeFor(PurchaseType.Other) mustEqual "10"
     }
   }
 }

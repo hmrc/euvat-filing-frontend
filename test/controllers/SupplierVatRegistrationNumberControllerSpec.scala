@@ -44,16 +44,12 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
   lazy val supplierVatRegistrationNumberRoute: String = routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode).url
 
   "SupplierVatRegistrationNumber Controller" - {
-
     "must return OK and the correct view for a GET" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, supplierVatRegistrationNumberRoute)
-
         val result = route(application, request).value
-
         val view = application.injector.instanceOf[SupplierVatRegistrationNumberView]
 
         status(result) mustEqual OK
@@ -65,16 +61,12 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
     }
 
     "must show the Germany-specific hint when the refunding country is Germany" in {
-
       val userAnswers = emptyUserAnswers.set(RefundingCountryPage, "DE").success.value
-
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, supplierVatRegistrationNumberRoute)
-
         val result = route(application, request).value
-
         val view = application.injector.instanceOf[SupplierVatRegistrationNumberView]
 
         status(result) mustEqual OK
@@ -86,16 +78,12 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
     }
 
     "must show the default hint when the refunding country is not Germany" in {
-
       val userAnswers = emptyUserAnswers.set(RefundingCountryPage, "FR").success.value
-
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, supplierVatRegistrationNumberRoute)
-
         val result = route(application, request).value
-
         val view = application.injector.instanceOf[SupplierVatRegistrationNumberView]
 
         status(result) mustEqual OK
@@ -107,19 +95,15 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
     }
 
     "must show the Germany-specific hint regardless of the casing of the country code" in {
-
       val germanyVariants = Seq("DE", "de", "De", "dE")
 
       germanyVariants.foreach { countryCode =>
         val userAnswers = emptyUserAnswers.set(RefundingCountryPage, countryCode).success.value
-
         val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
         running(application) {
           val request = FakeRequest(GET, supplierVatRegistrationNumberRoute)
-
           val result = route(application, request).value
-
           val view = application.injector.instanceOf[SupplierVatRegistrationNumberView]
 
           withClue(s"failed for country code: $countryCode") {
@@ -133,16 +117,12 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
       }
     }
     "must populate the view correctly on a GET when the question has previously been answered" in {
-
       val userAnswers = UserAnswers(userAnswersId).set(SupplierVatRegistrationNumberPage, "answer").success.value
-
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, supplierVatRegistrationNumberRoute)
-
         val view = application.injector.instanceOf[SupplierVatRegistrationNumberView]
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -154,9 +134,7 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
     }
 
     "must redirect to the next page when valid data is submitted" in {
-
       val mockSessionRepository = mock[SessionRepository]
-
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val application =
@@ -180,7 +158,6 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -189,9 +166,7 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
             .withFormUrlEncodedBody(("value", ""))
 
         val boundForm = form.bind(Map("value" -> ""))
-
         val view = application.injector.instanceOf[SupplierVatRegistrationNumberView]
-
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
@@ -203,7 +178,6 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
     }
 
     "must return a Bad Request and errors when more than 12 characters are submitted" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -212,9 +186,7 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
             .withFormUrlEncodedBody(("value", "a" * 13))
 
         val boundForm = form.bind(Map("value" -> "a" * 13))
-
         val view = application.injector.instanceOf[SupplierVatRegistrationNumberView]
-
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
@@ -226,7 +198,6 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
     }
 
     "must return a Bad Request and errors when invalid data is submitted in CheckMode" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -235,9 +206,7 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
             .withFormUrlEncodedBody(("value", ""))
 
         val boundForm = form.bind(Map("value" -> ""))
-
         val view = application.injector.instanceOf[SupplierVatRegistrationNumberView]
-
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
@@ -249,7 +218,6 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
     }
 
     "must redirect to the next page when valid data is submitted in CheckMode" in {
-
       val mockSessionRepository = mock[SessionRepository]
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
@@ -275,21 +243,17 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
         val request = FakeRequest(GET, supplierVatRegistrationNumberRoute)
-
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
@@ -298,7 +262,6 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
             .withFormUrlEncodedBody(("value", "FR123456789"))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }

@@ -14,22 +14,19 @@
  * limitations under the License.
  */
 
-package config
+package pages
 
-import org.scalatest.freespec.AnyFreeSpec
-import org.scalatest.matchers.must.Matchers
-import play.api.Configuration
+import base.SpecBase
+import models.responses.AddPurchaseResponse
 
-class LangsProviderSpec extends AnyFreeSpec with Matchers {
+class AddPurchaseResponsePageSpec extends SpecBase {
 
-  "LangsProvider" - {
-    "should produce a DefaultLangs instance for configured languages" in {
-      val cfg = Configuration.from(Map("play.i18n.langs" -> Seq("en", "cy")))
-      val provider = new LangsProvider(cfg)
-      val langs = provider.get()
+  "AddPurchaseResponsePage" - {
 
-      // implementation returns DefaultLangs; ensure type is as expected
-      langs.getClass.getSimpleName must include("DefaultLangs")
+    "must be able to be set and retrieved from UserAnswers" in {
+      val response = AddPurchaseResponse(itemNumber = 1, updateSequenceNumber = 2)
+      val answers = emptyUserAnswers.set(AddPurchaseResponsePage, response).success.value
+      answers.get(AddPurchaseResponsePage) mustBe Some(response)
     }
   }
 }
