@@ -22,7 +22,7 @@ import forms.SupplierVatRegistrationNumberFormProvider
 import javax.inject.Inject
 import models.Mode
 import navigation.Navigator
-import pages.{RefundingCountryPage, SupplierVatRegistrationNumberPage}
+import pages.{RefundingCountryPage, SupplierTaxIdentifierNumberPage, SupplierVatRegistrationNumberPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -51,6 +51,10 @@ class SupplierVatRegistrationNumberController @Inject() (
   private def backLink(mode: Mode) = routes.SupplierTaxNumberController.onPageLoad(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+    for {
+      updatedAnswers <- Future.fromTry(request.userAnswers.remove(SupplierTaxIdentifierNumberPage))
+      _              <- sessionRepository.set(updatedAnswers)
+    } yield None
     val preparedForm = request.userAnswers.get(SupplierVatRegistrationNumberPage).fold(form)(form.fill)
     val isGermany = request.userAnswers.get(RefundingCountryPage).exists(_.equalsIgnoreCase("DE"))
     Ok(view(preparedForm, mode, backLink(mode), isGermany))
