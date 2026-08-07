@@ -159,6 +159,11 @@ POST        /describe-items-on-invoice                    controllers.DescribeIt
 GET         /change-describe-items-on-invoice             controllers.DescribeItemsOnInvoiceController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-describe-items-on-invoice             controllers.DescribeItemsOnInvoiceController.onSubmit(mode: Mode = CheckMode)
 
+GET         /remove-purchase                              controllers.RemovePurchaseController.onPageLoad(mode: Mode = NormalMode)
+POST        /remove-purchase                              controllers.RemovePurchaseController.onSubmit(mode: Mode = NormalMode)
+GET         /remove-purchase                              controllers.RemovePurchaseController.onPageLoad(mode: Mode = CheckMode)
+POST        /remove-purchase                              controllers.RemovePurchaseController.onSubmit(mode: Mode = CheckMode)
+
 # Warning pages
 
 GET         /check-refund-period                         controllers.PeriodOverlapWarningController.onPageLoad(mode: Mode = NormalMode)
