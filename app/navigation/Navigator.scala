@@ -131,7 +131,13 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping,
   private def navigateFromSupplierAddressPage(mode: Mode)(userAnswers: UserAnswers): Call = {
     findCountryCode(userAnswers) match {
       case Some("DE") => routes.SupplierTaxNumberController.onPageLoad(mode)
-      case _          => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode)
+      case _ => {
+        if (userAnswers.get(InvoiceTypePage).contains(InvoiceType.SimplifiedInvoice)) {
+          routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode)
+        } else {
+          routes.SupplierVatRegistrationNumberController.onPageLoad(mode)
+        }
+      }
     }
   }
 
@@ -218,9 +224,9 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping,
 
   private def navigateFromInvoiceNumberPage(mode: Mode)(answers: UserAnswers): Call =
     answers.get(VrnWarningFlowPage) match {
-      case Some(true) => routes.SupplierVrnWarningController.onPageLoad(mode)
+      case Some(true)  => routes.SupplierVrnWarningController.onPageLoad(mode)
       case Some(false) => routes.SupplierVatRegistrationNumberController.onPageLoad(mode)
-      case None => routes.InvoiceDateController.onPageLoad(mode)
+      case None        => routes.InvoiceDateController.onPageLoad(mode)
     }
 
 }

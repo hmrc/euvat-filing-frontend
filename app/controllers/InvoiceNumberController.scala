@@ -70,11 +70,11 @@ class InvoiceNumberController @Inject() (
           for {
             updated <- Future.fromTry(request.userAnswers.set(InvoiceNumberPage, value))
             finalAnswers <- Future.fromTry(
-              if (request.userAnswers.get(VrnWarningFlowPage).isDefined && changed)
-                updated.set(VrnWarningFlowPage, false)
-              else
-                scala.util.Success(updated)
-            )
+                              if (request.userAnswers.get(VrnWarningFlowPage).isDefined && changed)
+                                updated.set(VrnWarningFlowPage, false)
+                              else
+                                scala.util.Success(updated)
+                            )
             _ <- sessionRepository.set(finalAnswers)
           } yield Redirect(navigator.nextPage(InvoiceNumberPage, mode, finalAnswers))
         }

@@ -117,64 +117,66 @@ class PurchaseTypeController @Inject() (
   }
 
   private def addPurchaseAndPersist(
-                                     answers: UserAnswers,
-                                     purchaseType: PurchaseType,
-                                     mode: Mode
-                                   )(implicit request: DataRequest[?]): Future[Result] = {
+    answers: UserAnswers,
+    purchaseType: PurchaseType,
+    mode: Mode
+  )(implicit request: DataRequest[?]): Future[Result] = {
 
     implicit val hc: HeaderCarrier =
       HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-    answers.get(ClaimApplicationResponsePage).fold {
-      logger.warn("Missing applicationId for addPurchase")
-      Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
-    } { claimResponse =>
+    answers
+      .get(ClaimApplicationResponsePage)
+      .fold {
+        logger.warn("Missing applicationId for addPurchase")
+        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+      } { claimResponse =>
 
-      val purchaseRequest = AddPurchaseRequest(
-        applicationId              = claimResponse.applicationId.toLong,
-        goodsDescriptionCategory   = PurchaseTypeCode.codeFor(purchaseType),
-        goodsDescriptionText       = None,
-        purchaseSubcategory        = None,
-        simplifiedInvoiceIndicator = None,
-        supplierName               = None,
-        supplierAddress1           = None,
-        supplierAddress2           = None,
-        supplierAddress3           = None,
-        supplierVatRegNumber       = None,
-        supplierTaxIdentifier      = None,
-        invoiceDate                = None,
-        invoiceNumber              = None,
-        currencyCode               = None,
-        taxableAmount              = None,
-        vatAmount                  = None,
-        deductibleVatAmount        = None,
-        updateSequenceNumber       = claimResponse.updateSeqNumber
-      )
+        val purchaseRequest = AddPurchaseRequest(
+          applicationId              = claimResponse.applicationId.toLong,
+          goodsDescriptionCategory   = PurchaseTypeCode.codeFor(purchaseType),
+          goodsDescriptionText       = None,
+          purchaseSubcategory        = None,
+          simplifiedInvoiceIndicator = None,
+          supplierName               = None,
+          supplierAddress1           = None,
+          supplierAddress2           = None,
+          supplierAddress3           = None,
+          supplierVatRegNumber       = None,
+          supplierTaxIdentifier      = None,
+          invoiceDate                = None,
+          invoiceNumber              = None,
+          currencyCode               = None,
+          taxableAmount              = None,
+          vatAmount                  = None,
+          deductibleVatAmount        = None,
+          updateSequenceNumber       = claimResponse.updateSeqNumber
+        )
 
-      euVatRefundsService
-        .addPurchase(purchaseRequest)
-        .flatMap { response =>
-          for {
-            updatedAnswers <- Future.fromTry(
-              answers.set(AddPurchaseResponsePage, response)
-            )
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield {
-            val call   = navigator.nextPage(PurchaseTypePage, mode, updatedAnswers)
-            val prefix = MountPrefix.get
+        euVatRefundsService
+          .addPurchase(purchaseRequest)
+          .flatMap { response =>
+            for {
+              updatedAnswers <- Future.fromTry(
+                                  answers.set(AddPurchaseResponsePage, response)
+                                )
+              _ <- sessionRepository.set(updatedAnswers)
+            } yield {
+              val call = navigator.nextPage(PurchaseTypePage, mode, updatedAnswers)
+              val prefix = MountPrefix.get
 
-            if (prefix.isEmpty || call.url.startsWith(prefix)) {
-              Redirect(call)
-            } else {
-              Redirect(Call(call.method, s"$prefix${call.url}"))
+              if (prefix.isEmpty || call.url.startsWith(prefix)) {
+                Redirect(call)
+              } else {
+                Redirect(Call(call.method, s"$prefix${call.url}"))
+              }
             }
           }
-        }
-        .recover { case ex =>
-          logger.error("Error while adding the purchase", ex)
-          Redirect(routes.JourneyRecoveryController.onPageLoad())
-        }
-    }
+          .recover { case ex =>
+            logger.error("Error while adding the purchase", ex)
+            Redirect(routes.JourneyRecoveryController.onPageLoad())
+          }
+      }
   }
   // mount prefix is provided by utils.MountPrefix
 }
