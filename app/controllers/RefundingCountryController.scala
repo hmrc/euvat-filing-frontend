@@ -28,9 +28,7 @@ import play.api.mvc.*
 import play.api.{Configuration, Logging}
 import repositories.SessionRepository
 import services.EuVatRefundsService
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import utils.{ConfigCurrencyMapping, ConfigLanguageMapping, CountryCode, CountryList}
 import views.html.RefundingCountryView
 
@@ -104,8 +102,6 @@ class RefundingCountryController @Inject() (
           euVatRefundsService
             .retrieveTraderKnownFacts()
             .flatMap { traderFacts =>
-              implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-
               val latestReq = LatestApplicationRequest(
                 applicantVatRegNumber = traderFacts.vatRegNumber.toString,
                 refundingCountry      = Some(value),
