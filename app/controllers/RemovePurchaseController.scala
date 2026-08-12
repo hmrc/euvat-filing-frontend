@@ -16,7 +16,7 @@
 
 package controllers
 
-import controllers.actions._
+import controllers.actions.*
 import forms.RemovePurchaseFormProvider
 import javax.inject.Inject
 import models.Mode
@@ -31,17 +31,19 @@ import views.html.RemovePurchaseView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class RemovePurchaseController @Inject()(
-                                          sessionRepository: SessionRepository,
-                                          navigator: Navigator,
-                                          identify: IdentifierAction,
-                                          getData: DataRetrievalAction,
-                                          requireData: DataRequiredAction,
-                                          formProvider: RemovePurchaseFormProvider,
-                                          configCurrencyMapping: ConfigCurrencyMapping,
-                                          val controllerComponents: MessagesControllerComponents,
-                                          view: RemovePurchaseView
-                                        )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+class RemovePurchaseController @Inject() (
+  sessionRepository: SessionRepository,
+  navigator: Navigator,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: RemovePurchaseFormProvider,
+  configCurrencyMapping: ConfigCurrencyMapping,
+  val controllerComponents: MessagesControllerComponents,
+  view: RemovePurchaseView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
 
   val form = formProvider()
 
@@ -72,49 +74,52 @@ class RemovePurchaseController @Inject()(
     }
   }
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
-      implicit val messages: Messages = messagesApi.preferred(request)
+    implicit val messages: Messages = messagesApi.preferred(request)
 
-      val preparedForm = request.userAnswers.get(RemovePurchasePage) match {
-        case None => form
-        case Some(value) => form.fill(value)
-      }
+    val preparedForm = request.userAnswers.get(RemovePurchasePage) match {
+      case None        => form
+      case Some(value) => form.fill(value)
+    }
 
-      val purchaseType = request.userAnswers.get(PurchaseTypePage)
-        .map(pt => messages(s"purchaseType.$pt"))
-        .getOrElse("")
+    val purchaseType = request.userAnswers
+      .get(PurchaseTypePage)
+      .map(pt => messages(s"purchaseType.$pt"))
+      .getOrElse("")
 
-      val vatClaiming = request.userAnswers.get(TotalVatClaimPage)
-        .map(amount => s"${resolveCurrencyPrefix(request.userAnswers)}$amount")
-        .getOrElse("")
+    val vatClaiming = request.userAnswers
+      .get(TotalVatClaimPage)
+      .map(amount => s"${resolveCurrencyPrefix(request.userAnswers)}$amount")
+      .getOrElse("")
 
-      Ok(view(preparedForm, mode, purchaseType, vatClaiming))
+    Ok(view(preparedForm, mode, purchaseType, vatClaiming))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
-    implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
 
-      implicit val messages: Messages = messagesApi.preferred(request)
+    implicit val messages: Messages = messagesApi.preferred(request)
 
-      form.bindFromRequest().fold(
+    form
+      .bindFromRequest()
+      .fold(
         formWithErrors => {
-          val purchaseType = request.userAnswers.get(PurchaseTypePage)
+          val purchaseType = request.userAnswers
+            .get(PurchaseTypePage)
             .map(pt => messages(s"purchaseType.$pt"))
             .getOrElse("")
 
-          val vatClaiming = request.userAnswers.get(TotalVatClaimPage)
+          val vatClaiming = request.userAnswers
+            .get(TotalVatClaimPage)
             .map(amount => s"${resolveCurrencyPrefix(request.userAnswers)}$amount")
             .getOrElse("")
 
           Future.successful(BadRequest(view(formWithErrors, mode, purchaseType, vatClaiming)))
         },
-
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(RemovePurchasePage, value))
-            _ <- sessionRepository.set(updatedAnswers)
+            _              <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(RemovePurchasePage, mode, updatedAnswers))
       )
   }

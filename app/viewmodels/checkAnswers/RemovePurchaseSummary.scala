@@ -21,24 +21,23 @@ import models.{CheckMode, UserAnswers}
 import pages.RemovePurchasePage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import viewmodels.govuk.summarylist._
-import viewmodels.implicits._
+import viewmodels.govuk.summarylist.*
+import viewmodels.implicits.*
 
-object RemovePurchaseSummary  {
+object RemovePurchaseSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(RemovePurchasePage).map {
-      answer =>
+    answers.get(RemovePurchasePage).map { answer =>
 
-        val value = if (answer) "site.yes" else "site.no"
+      val value = if (answer) "site.yes" else "site.no"
 
-        SummaryListRowViewModel(
-          key     = "removePurchase.checkYourAnswersLabel",
-          value   = ValueViewModel(value),
-          actions = Seq(
-            ActionItemViewModel("site.change", routes.RemovePurchaseController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("removePurchase.change.hidden"))
-          )
+      SummaryListRowViewModel(
+        key   = "removePurchase.checkYourAnswersLabel",
+        value = ValueViewModel(value),
+        actions = Seq(
+          ActionItemViewModel("site.change", routes.RemovePurchaseController.onPageLoad(CheckMode).url)
+            .withVisuallyHiddenText(messages("removePurchase.change.hidden"))
         )
+      )
     }
 }

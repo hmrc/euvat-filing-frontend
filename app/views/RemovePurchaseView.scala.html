@@ -52,8 +52,8 @@
             RadiosViewModel.yesNo(
                 field = form("value"),
                 legend = LegendViewModel(messages("removePurchase.legend"))
-                    .withCssClass("govuk-fieldset__legend--m")
-            )
+            .withCssClass("govuk-fieldset__legend--m")
+            ).copy(classes = "govuk-radios")
         )
 
         @govukButton(
