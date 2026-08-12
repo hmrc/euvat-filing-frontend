@@ -15,7 +15,6 @@ site.govuk = GOV.UK
 site.save.continue = Save and continue
 site.warning = Warning
 
-
 date.day = Day
 date.month = Month
 date.year = Year
