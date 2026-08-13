@@ -37,6 +37,10 @@ import scala.concurrent.Future
 
 class RefundPeriodMatrixSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
 
+  private val safeFutureYear: Int = java.time.LocalDate.now().plusYears(5).getYear
+  private val currentYear: Int = LocalDate.now().getYear
+  private val previousYear: Int = LocalDate.now().minusYears(1).getYear
+
   val onwardRoute: Call = Call("GET", "/foo")
 
   override def beforeEach(): Unit = {
@@ -71,7 +75,7 @@ class RefundPeriodMatrixSpec extends SpecBase with MockitoSugar with BeforeAndAf
       when(mockEuVatRefundsService.getLatestApplications(any())(any())).thenReturn(Future.successful(LatestApplicationResponse(List.empty, 0)))
 
       val application = appBuilder(userAnswers = Some(userAnswers))
-        .configure("settings.refund.can.create.vrns" -> "111111111", "settings.refund.start.date.latest.permitted" -> "12/26")
+        .configure("settings.refund.can.create.vrns" -> "111111111", "settings.refund.start.date.latest.permitted" -> safeFutureYear.toString)
         .overrides(bind[navigation.Navigator].toInstance(new FakeNavigator(onwardRoute)))
         .build()
 
@@ -79,9 +83,9 @@ class RefundPeriodMatrixSpec extends SpecBase with MockitoSugar with BeforeAndAf
         val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody(
             "start.month" -> "01",
-            "start.year"  -> "2026",
+            "start.year"  -> safeFutureYear.toString,
             "end.month"   -> "12",
-            "end.year"    -> "2026"
+            "end.year"    -> safeFutureYear.toString
           )
 
         val result = route(application, request).value
@@ -308,7 +312,7 @@ class RefundPeriodMatrixSpec extends SpecBase with MockitoSugar with BeforeAndAf
     val application = appBuilder(userAnswers = Some(userAnswers))
       .configure(
         "settings.refund.can.create.vrns"             -> "888888881",
-        "settings.refund.start.date.latest.permitted" -> "12/26"
+        "settings.refund.start.date.latest.permitted" -> safeFutureYear.toString
       )
       .overrides(bind[navigation.Navigator].toInstance(new FakeNavigator(onwardRoute)))
       .build()
@@ -317,9 +321,9 @@ class RefundPeriodMatrixSpec extends SpecBase with MockitoSugar with BeforeAndAf
       val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit(NormalMode).url)
         .withFormUrlEncodedBody(
           "start.month" -> "10",
-          "start.year"  -> "2026",
+          "start.year"  -> safeFutureYear.toString,
           "end.month"   -> "12",
-          "end.year"    -> "2026"
+          "end.year"    -> safeFutureYear.toString
         )
 
       val result = route(application, request).value
@@ -345,9 +349,9 @@ class RefundPeriodMatrixSpec extends SpecBase with MockitoSugar with BeforeAndAf
       val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit(NormalMode).url)
         .withFormUrlEncodedBody(
           "start.month" -> "01",
-          "start.year"  -> "2030",
+          "start.year"  -> safeFutureYear.toString,
           "end.month"   -> "03",
-          "end.year"    -> "2030"
+          "end.year"    -> safeFutureYear.toString
         )
 
       val result = route(application, request).value
@@ -451,8 +455,8 @@ class RefundPeriodMatrixSpec extends SpecBase with MockitoSugar with BeforeAndAf
     val existingApp = LatestApplication(
       applicationId        = 1L,
       refundingCountryCode = "DE",
-      periodStartDate      = LocalDateTime.of(2027, 2, 1, 0, 0),
-      periodEndDate        = LocalDateTime.of(2027, 2, 28, 23, 59),
+      periodStartDate      = LocalDateTime.of(safeFutureYear, 2, 1, 0, 0),
+      periodEndDate        = LocalDateTime.of(safeFutureYear, 2, 28, 23, 59),
       applicationNumber    = "A1",
       applicationStatus    = None,
       submissionStatus     = None,
@@ -467,9 +471,9 @@ class RefundPeriodMatrixSpec extends SpecBase with MockitoSugar with BeforeAndAf
       val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit(NormalMode).url)
         .withFormUrlEncodedBody(
           "start.month" -> "01",
-          "start.year"  -> "2027",
+          "start.year"  -> safeFutureYear.toString,
           "end.month"   -> "03",
-          "end.year"    -> "2027"
+          "end.year"    -> safeFutureYear.toString
         )
 
       val result = route(application, request).value
