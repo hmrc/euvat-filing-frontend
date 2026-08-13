@@ -58,7 +58,8 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping,
     case RefundingCurrencyPage             => _ => routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
     case TotalPurchaseAmountBeforeVatPage  => _ => routes.TotalVatPaidController.onPageLoad(NormalMode)
     case TotalVatPaidPage                  => _ => routes.TotalVatClaimController.onPageLoad(NormalMode)
-    case TotalVatClaimPage                 => _ => routes.JourneyRecoveryController.onPageLoad()
+    case TotalVatClaimPage                 => _ => routes.RemovePurchaseController.onPageLoad(NormalMode)
+    case RemovePurchasePage                => _ => routes.TaskListDashboardController.onPageLoad()
     case _                                 => _ => routes.IndexController.onPageLoad()
   }
 
@@ -86,7 +87,8 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping,
     case RefundingCurrencyPage             => _ => routes.TotalPurchaseAmountBeforeVatController.onPageLoad(CheckMode)
     case TotalPurchaseAmountBeforeVatPage  => _ => routes.TotalVatPaidController.onPageLoad(CheckMode)
     case TotalVatPaidPage                  => _ => routes.TotalVatClaimController.onPageLoad(CheckMode)
-    case TotalVatClaimPage                 => _ => routes.JourneyRecoveryController.onPageLoad()
+    case TotalVatClaimPage                 => _ => routes.RemovePurchaseController.onPageLoad(CheckMode)
+    case RemovePurchasePage                => _ => routes.TaskListDashboardController.onPageLoad()
     case _                                 => _ => routes.IndexController.onPageLoad()
   }
 
