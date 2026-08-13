@@ -38,7 +38,6 @@ import scala.concurrent.Future
 class RefundPeriodMatrixSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
 
   private val safeFutureYear: Int = java.time.LocalDate.now().plusYears(5).getYear
-  private val currentYear: Int = LocalDate.now().getYear
   private val previousYear: Int = LocalDate.now().minusYears(1).getYear
 
   val onwardRoute: Call = Call("GET", "/foo")
