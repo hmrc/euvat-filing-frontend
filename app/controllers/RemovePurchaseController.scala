@@ -18,6 +18,7 @@ package controllers
 
 import controllers.actions.*
 import forms.RemovePurchaseFormProvider
+
 import javax.inject.Inject
 import models.Mode
 import navigation.Navigator
@@ -25,7 +26,7 @@ import pages.{PurchaseTypePage, RemovePurchasePage, TotalVatClaimPage}
 import play.api.i18n.{I18nSupport, Messages}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
-import utils.ConfigCurrencyMapping
+import utils.{ConfigCurrencyMapping, RefundingAndPurchaseUtils}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.RemovePurchaseView
 
@@ -38,7 +39,7 @@ class RemovePurchaseController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: RemovePurchaseFormProvider,
-  configCurrencyMapping: ConfigCurrencyMapping,
+  refundingAndPurchaseUtils: RefundingAndPurchaseUtils,
   val controllerComponents: MessagesControllerComponents,
   view: RemovePurchaseView
 )(implicit ec: ExecutionContext)
@@ -46,33 +47,6 @@ class RemovePurchaseController @Inject() (
     with I18nSupport {
 
   val form = formProvider()
-
-  // Duplicated from TotalVatClaimController.resolveCurrencyPrefix (private there) —
-  // worth pulling into a shared util if a third page ends up needing this.
-  private def resolveCurrencyPrefix(userAnswers: models.UserAnswers): String = {
-    val maybeCountry = userAnswers.get(pages.RefundingCountryPage).orElse {
-      userAnswers.get(pages.RefundingCountryNamePage).map { stored =>
-        stored.split(",", 2).headOption.getOrElse(stored)
-      }
-    }
-
-    val defaultSymbol = "€"
-
-    maybeCountry match {
-      case None => defaultSymbol
-      case Some(countryCode) =>
-        userAnswers.get(pages.RefundingCurrencyPage) match {
-          case Some(currencyCode) =>
-            configCurrencyMapping
-              .currenciesFor(countryCode)
-              .find(_._2 == currencyCode)
-              .map(_._3)
-              .getOrElse(configCurrencyMapping.currenciesFor(countryCode).headOption.map(_._3).getOrElse(defaultSymbol))
-          case None =>
-            configCurrencyMapping.currenciesFor(countryCode).headOption.map(_._3).getOrElse(defaultSymbol)
-        }
-    }
-  }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
@@ -90,7 +64,7 @@ class RemovePurchaseController @Inject() (
 
     val vatClaiming = request.userAnswers
       .get(TotalVatClaimPage)
-      .map(amount => s"${resolveCurrencyPrefix(request.userAnswers)}$amount")
+      .map(amount => s"${refundingAndPurchaseUtils.resolveCurrencySymbol(request.userAnswers)}$amount")
       .getOrElse("")
 
     Ok(view(preparedForm, mode, purchaseType, vatClaiming))
@@ -111,7 +85,7 @@ class RemovePurchaseController @Inject() (
 
           val vatClaiming = request.userAnswers
             .get(TotalVatClaimPage)
-            .map(amount => s"${resolveCurrencyPrefix(request.userAnswers)}$amount")
+            .map(amount => s"${refundingAndPurchaseUtils.resolveCurrencySymbol(request.userAnswers)}$amount")
             .getOrElse("")
 
           Future.successful(BadRequest(view(formWithErrors, mode, purchaseType, vatClaiming)))

@@ -22,7 +22,7 @@ import forms.TotalVatPaidFormProvider
 import javax.inject.Inject
 import models.Mode
 import navigation.Navigator
-import utils.ConfigCurrencyMapping
+import utils.{ConfigCurrencyMapping, RefundingAndPurchaseUtils}
 import pages.{RefundingCurrencyPage, TotalPurchaseAmountBeforeVatPage, TotalVatPaidPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -37,7 +37,7 @@ class TotalVatPaidController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
   navigator: Navigator,
-  configCurrencyMapping: ConfigCurrencyMapping,
+  refundingAndPurchaseUtils: RefundingAndPurchaseUtils,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
@@ -58,7 +58,7 @@ class TotalVatPaidController @Inject() (
       case Some(value) => form.fill(value)
     }
 
-    val (currencyName, prefix) = resolveCurrency(request.userAnswers)
+    val (currencyName, prefix) = refundingAndPurchaseUtils.resolveCurrency(request.userAnswers)
     Ok(view(preparedForm, mode, backLink(mode), prefix, currencyName))
   }
 
@@ -67,7 +67,7 @@ class TotalVatPaidController @Inject() (
       .bindFromRequest()
       .fold(
         formWithErrors => {
-          val (currencyName, prefix) = resolveCurrency(request.userAnswers)
+          val (currencyName, prefix) = refundingAndPurchaseUtils.resolveCurrency(request.userAnswers)
           Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode), prefix, currencyName)))
         },
         value =>
@@ -83,70 +83,6 @@ class TotalVatPaidController @Inject() (
             }
           }
       )
-  }
-
-  private def resolveCurrencyPrefix(userAnswers: models.UserAnswers): String = {
-    val maybeCountry = userAnswers.get(pages.RefundingCountryPage).orElse {
-      userAnswers.get(pages.RefundingCountryNamePage).map { stored =>
-        stored.split(",", 2).headOption.getOrElse(stored)
-      }
-    }
-
-    val defaultSymbol = "€"
-
-    maybeCountry match {
-      case None => defaultSymbol
-      case Some(countryCode) =>
-        userAnswers.get(RefundingCurrencyPage) match {
-          case Some(currencyCode) =>
-            configCurrencyMapping
-              .currenciesFor(countryCode)
-              .find(_._2 == currencyCode)
-              .map(_._3)
-              .getOrElse(configCurrencyMapping.currenciesFor(countryCode).headOption.map(_._3).getOrElse(defaultSymbol))
-          case None =>
-            configCurrencyMapping.currenciesFor(countryCode).headOption.map(_._3).getOrElse(defaultSymbol)
-        }
-    }
-  }
-
-  private def resolveCurrency(userAnswers: models.UserAnswers)(implicit request: play.api.mvc.Request[?]): (String, String) = {
-    val maybeCountry = userAnswers.get(pages.RefundingCountryPage).orElse {
-      userAnswers.get(pages.RefundingCountryNamePage).map { stored =>
-        stored.split(",", 2).headOption.getOrElse(stored)
-      }
-    }
-
-    val defaultSymbol = "€"
-    val defaultName = "Euro"
-
-    maybeCountry match {
-      case None => (defaultName, defaultSymbol)
-      case Some(countryCode) =>
-        val selection = userAnswers.get(RefundingCurrencyPage) match {
-          case Some(currencyCode) =>
-            configCurrencyMapping
-              .currenciesFor(countryCode)
-              .find(_._2 == currencyCode)
-              .orElse(configCurrencyMapping.currenciesFor(countryCode).headOption)
-          case None =>
-            configCurrencyMapping.currenciesFor(countryCode).headOption
-        }
-
-        selection match {
-          case Some((name, _code, symbol)) => (humanizeName(name), symbol)
-          case _                           => (defaultName, defaultSymbol)
-        }
-    }
-  }
-
-  private def humanizeName(name: String): String = {
-    name
-      .replaceAll("([a-z])([A-Z])", "$1 $2")
-      .split("[ _-]+")
-      .filter(_.nonEmpty)
-      .map(s => s.head.toUpper.toString + s.tail)
-      .mkString(" ")
   }
 
 }

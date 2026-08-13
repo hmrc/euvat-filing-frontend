@@ -30,7 +30,7 @@ import queries.LatestCountryResponseQuery
 import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.{ConfigCurrencyMapping, ConfigLanguageMapping, CountryCode, CountryList}
+import utils.{ConfigCurrencyMapping, ConfigLanguageMapping, CountryList, RefundingAndPurchaseUtils}
 import views.html.RefundingCountryView
 
 import javax.inject.Inject
@@ -49,6 +49,7 @@ class RefundingCountryController @Inject() (
   config: Configuration,
   configLanguageMapping: ConfigLanguageMapping,
   configCurrencyMapping: ConfigCurrencyMapping,
+  refundingAndPurchaseUtils: RefundingAndPurchaseUtils,
   val controllerComponents: MessagesControllerComponents,
   view: RefundingCountryView
 )(implicit ec: ExecutionContext)
@@ -86,10 +87,7 @@ class RefundingCountryController @Inject() (
           Future.successful(BadRequest(view(adjustedForm, countries, routes.TaskListDashboardController.onPageLoad(), mode)))
         },
         value => {
-          val latestReq = LatestApplicationRequest(
-            applicantVatRegNumber = request.identifierValue.getOrElse(throw new IllegalStateException("Missing Vat registration number")),
-            refundingCountry      = Some(value)
-          )
+          val maybePrevCode = refundingAndPurchaseUtils.findCountryCode(baseAnswers)
 
           euVatRefundsService
             .getLatestApplications(latestReq)
