@@ -1,21 +1,14 @@
 # microservice specific routes
 
 ->          /hmrc-frontend                              hmrcfrontend.Routes
-
 GET         /                                           controllers.IndexController.onPageLoad()
-
 GET         /assets/*file                               controllers.Assets.versioned(path="/public", file: Asset)
-
 GET         /language/:lang                             controllers.LanguageSwitchController.switchToLanguage(lang: String)
-
 GET         /refresh-session                            controllers.KeepAliveController.keepAlive()
-
 GET         /there-is-a-problem                         controllers.JourneyRecoveryController.onPageLoad(continueUrl: Option[RedirectUrl] ?= None)
-
 GET         /account/sign-out-survey                    controllers.auth.AuthController.signOut()
 GET         /account/sign-out                           controllers.auth.AuthController.signOutNoSurvey()
 GET         /account/signed-out                         controllers.auth.SignedOutController.onPageLoad()
-
 GET         /unauthorised                               controllers.UnauthorisedController.onPageLoad()
 
 # Task list Dashboard
@@ -42,11 +35,6 @@ GET         /refund-period                              controllers.RefundPeriod
 POST        /refund-period                              controllers.RefundPeriodController.onSubmit(mode: Mode = NormalMode)
 GET         /change-refund-period                       controllers.RefundPeriodController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-refund-period                       controllers.RefundPeriodController.onSubmit(mode: Mode = CheckMode)
-
-GET         /check-refund-period                         controllers.PeriodOverlapWarningController.onPageLoad(mode: Mode = NormalMode)
-POST        /check-refund-period                         controllers.PeriodOverlapWarningController.onSubmit(mode: Mode = NormalMode)
-GET         /change-check-refund-period                  controllers.PeriodOverlapWarningController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-check-refund-period                  controllers.PeriodOverlapWarningController.onSubmit(mode: Mode = CheckMode)
 
 GET         /how-contact-you-about-claim                controllers.ContactDetailsController.onPageLoad(mode: Mode = NormalMode)
 POST        /how-contact-you-about-claim                controllers.ContactDetailsController.onSubmit(mode: Mode = NormalMode)
@@ -172,6 +160,18 @@ GET         /change-describe-items-on-invoice             controllers.DescribeIt
 POST        /change-describe-items-on-invoice             controllers.DescribeItemsOnInvoiceController.onSubmit(mode: Mode = CheckMode)
 
 # Warning pages
+
+GET         /check-refund-period                         controllers.PeriodOverlapWarningController.onPageLoad(mode: Mode = NormalMode)
+POST        /check-refund-period                         controllers.PeriodOverlapWarningController.onSubmit(mode: Mode = NormalMode)
+GET         /change-check-refund-period                  controllers.PeriodOverlapWarningController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-check-refund-period                  controllers.PeriodOverlapWarningController.onSubmit(mode: Mode = CheckMode)
+
+
+GET         /check-purchase-details                      controllers.PurchaseWarningController.onPageLoad(mode: Mode = NormalMode)
+POST        /check-purchase-details                      controllers.PurchaseWarningController.onSubmit(mode: Mode = NormalMode)
+GET         /change-check-purchase-details               controllers.PurchaseWarningController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-check-purchase-details               controllers.PurchaseWarningController.onSubmit(mode: Mode = CheckMode)
+
 GET         /check-vat-amount                             controllers.VatPaidWarningController.onPageLoad(mode: Mode = NormalMode)
 POST        /check-vat-amount                             controllers.VatPaidWarningController.onSubmit(mode: Mode = NormalMode)
 GET         /change-check-vat-amount                      controllers.VatPaidWarningController.onPageLoad(mode: Mode = CheckMode)
