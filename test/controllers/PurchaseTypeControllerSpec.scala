@@ -298,7 +298,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         .thenReturn(Future.successful(AddPurchaseResponse(itemNumber = 1, updateSequenceNumber = 2)))
 
       val userAnswers = emptyUserAnswers
-        .set(pages.ClaimApplicationResponsePage, ApplicationResponse(134, "GB123134", 1))
+        .set(ClaimApplicationResponseQuery, ApplicationResponse(134, "GB123134", 1))
         .success
         .value
 
@@ -327,7 +327,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         .thenReturn(Future.failed(new RuntimeException("boom")))
 
       val userAnswers = emptyUserAnswers
-        .set(pages.ClaimApplicationResponsePage, ApplicationResponse(134, "GB123134", 1))
+        .set(ClaimApplicationResponseQuery, ApplicationResponse(134, "GB123134", 1))
         .success
         .value
 
