@@ -22,21 +22,24 @@ import models.requests.{DataRequest, LatestApplicationRequest}
 import models.responses.TraderKnownFactsResponse
 import models.{Mode, RefundPeriod, UserAnswers}
 import navigation.Navigator
-import pages.{RefundPeriodPage, RefundingCountryNamePage, RefundingCountryPage}
-import play.api.{Configuration, Logging}
+import pages.*
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.*
+import play.api.{Configuration, Logging}
 import queries.TraderKnownFactsQuery
 import repositories.SessionRepository
 import services.EuVatRefundsService
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.{ConfigCurrencyMapping, ConfigLanguageMapping}
+import utils.{ConfigCurrencyMapping, ConfigLanguageMapping, CountryCode}
 import views.html.RefundPeriodView
 
+import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalDateTime, MonthDay, YearMonth}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 class RefundPeriodController @Inject() (
   override val messagesApi: MessagesApi,
@@ -58,18 +61,13 @@ class RefundPeriodController @Inject() (
     with Logging {
 
   private def backLink(mode: Mode)(implicit request: DataRequest[?]): Call = {
-    val maybeCountryCode = request.userAnswers
-      .get(RefundingCountryPage)
-      .orElse(
-        request.userAnswers
-          .get(RefundingCountryNamePage)
-          .map(stored => stored.split(",", 2).headOption.getOrElse(stored))
-      )
-    maybeCountryCode match {
+    CountryCode.findCountryCode(request.userAnswers) match {
       case Some(code) =>
         if (configLanguageMapping.languagesFor(code).size <= 1) {
           controllers.routes.RefundingCountryController.onPageLoad(mode)
-        } else { controllers.routes.RefundingLanguageController.onPageLoad(mode) }
+        } else {
+          controllers.routes.RefundingLanguageController.onPageLoad(mode)
+        }
       case None => controllers.routes.RefundingLanguageController.onPageLoad(mode)
     }
   }
@@ -109,11 +107,10 @@ class RefundPeriodController @Inject() (
     Ok(view(mappedForm, mode, backLink(mode), startMsg, endMsg, highlighted, errorLinkOverrides(mappedForm)))
   }
 
-  private def renderError(form: Form[RefundPeriodData], mode: Mode, traderVrnOverride: Option[String] = None)(implicit
+  private def renderError(form: Form[RefundPeriodData], mode: Mode, isExempt: Boolean)(implicit
     request: DataRequest[AnyContent],
     messages: Messages
-  ) = {
-    val (_, _, isExempt) = computeEarliestAndLatest(request, traderVrnOverride)
+  ): Future[Result] = {
     val (mappedForm, highlighted) = formProvider.withMappedErrors(form, suppressCutoff = isExempt)
     val startMsg = errorMessage(mappedForm, Seq("start", "start.month", "start.year"))
     val endMsg = errorMessage(mappedForm, Seq("end", "end.month", "end.year"))
@@ -128,19 +125,32 @@ class RefundPeriodController @Inject() (
     // Case 1: Jan–Mar rule
     if (regMonth >= 1 && regMonth <= 3) {
       // Same month/year OR after regDate (same year)
-      (startDate.equals(regDate) || startDate.isAfter(regDate), "refundPeriod.start.error.beforeVatRegDate.firstQuarter")
+      (!startDate.isBefore(regDate), "refundPeriod.start.error.beforeVatRegDate.firstQuarter")
     } else { // Case 2: Apr–Dec rule
-      val min = regDate.minusMonths(3)
       // valid when start is within three months before the registration date or anytime after
-      (!startDate.isBefore(min) || startDate.isAfter(regDate), "refundPeriod.start.error.beforeVatRegDate.remainingQuarter")
+      (!startDate.isBefore(regDate.minusMonths(3)) || startDate.isAfter(regDate), "refundPeriod.start.error.beforeVatRegDate.remainingQuarter")
     }
   }
 
-  private def isChanged(userAnswers: UserAnswers, startDate: LocalDateTime, endDate: LocalDateTime) = {
-    userAnswers.get(RefundPeriodPage) match {
-      case Some(existing) => existing.startDate != startDate || existing.endDate != endDate
-      case None           => true
-    }
+  private def hasRefundPeriodChanged(userAnswers: UserAnswers, refundPeriod: RefundPeriod) = {
+    userAnswers.get(RefundPeriodPage) != Some(refundPeriod)
+  }
+
+  private def updateUserAnswers(
+    traderResponse: TraderKnownFactsResponse,
+    refundPeriod: RefundPeriod
+  )(using request: DataRequest[?]): Future[UserAnswers] = {
+    for {
+      updatedWithKnownFacts   <- Future.fromTry(request.userAnswers.set(TraderKnownFactsQuery, traderResponse))
+      updatedWithRefundPeriod <- Future.fromTry(updatedWithKnownFacts.set(RefundPeriodPage, refundPeriod))
+      updatedWithoutCountry   <- Future.fromTry(updatedWithRefundPeriod.remove(CountryChangedPage))
+      finalAnswers <-
+        if (hasRefundPeriodChanged(updatedWithoutCountry, refundPeriod) && updatedWithoutCountry.get(ClaimDetailsCompletedPage).contains(true)) {
+          Future.fromTry(updatedWithoutCountry.set(ClaimDetailsAmendedPage, true))
+        } else {
+          Future.successful(updatedWithoutCountry)
+        }
+    } yield finalAnswers
   }
 
   private def saveAndRedirect(
@@ -152,51 +162,43 @@ class RefundPeriodController @Inject() (
     val refundPeriod = RefundPeriod(startDate, endDate)
 
     for {
-      updatedAnswer1 <- Future.fromTry(request.userAnswers.set(TraderKnownFactsQuery, traderResponse))
-      updatedAnswer2 <- Future.fromTry(updatedAnswer1.set(RefundPeriodPage, refundPeriod))
-      updatedAnswer3 <- Future.fromTry(updatedAnswer2.remove(pages.CountryChangedPage))
-      updatedAnswer4 <- if (isChanged(request.userAnswers, startDate, endDate) && updatedAnswer3.get(pages.ClaimDetailsCompletedPage).contains(true)) {
-                          Future.fromTry(updatedAnswer3.set(pages.ClaimDetailsAmendedPage, true))
-                        } else {
-                          Future.successful(updatedAnswer3)
-                        }
-      _ <- sessionRepository.set(updatedAnswer4)
-    } yield Redirect(navigator.nextPage(RefundPeriodPage, mode, updatedAnswer4))
+      updatedUserAnswers <- updateUserAnswers(traderResponse, refundPeriod)
+      _                  <- sessionRepository.set(updatedUserAnswers)
+    } yield Redirect(navigator.nextPage(RefundPeriodPage, mode, updatedUserAnswers))
   }
 
-  protected def today: LocalDate = LocalDate.now()
-
-  private[controllers] def earliestPermittedStartDate(): YearMonth = {
+  private def septemberCutOffPeriod(today: LocalDate = LocalDate.now()): YearMonth = {
     val cutoff = MonthDay.of(9, 30).atYear(today.getYear)
-    if (!today.isAfter(cutoff)) {
-      YearMonth.of(today.getYear - 1, 1)
-    } else {
+    if (today.isAfter(cutoff)) {
       YearMonth.of(today.getYear, 1)
+    } else {
+      YearMonth.of(today.getYear - 1, 1)
     }
   }
 
   private def checkEarliestStartDate(
+    vrn: String,
     traderResponse: TraderKnownFactsResponse,
     startDate: LocalDateTime,
     endDate: LocalDateTime,
     mode: Mode
   )(using request: DataRequest[?], ec: ExecutionContext): Future[Result] = {
     val startYearMonth = YearMonth.from(startDate)
-    val minAllowed = earliestPermittedStartDate()
+    val minAllowed = septemberCutOffPeriod()
 
     if (startYearMonth.isBefore(minAllowed)) {
       val refundPeriod = RefundPeriod(startDate, endDate)
       for {
-        updatedAnswer1 <- Future.fromTry(request.userAnswers.set(TraderKnownFactsQuery, traderResponse))
-        updatedAnswer2 <- Future.fromTry(updatedAnswer1.set(RefundPeriodPage, refundPeriod))
-        _              <- sessionRepository.set(updatedAnswer2)
+        updatedUserAnswers <- updateUserAnswers(traderResponse, refundPeriod)
+        _                  <- sessionRepository.set(updatedUserAnswers)
       } yield Redirect(controllers.routes.ConfirmRefundPeriodStartDateController.onPageLoad(mode))
     } else {
-      checkOverlappingPeriod(traderResponse, startDate, endDate, mode)
+      checkOverlappingPeriod(vrn, traderResponse, startDate, endDate, mode)
     }
   }
 
   private def checkOverlappingPeriod(
+    vrn: String,
     traderResponse: TraderKnownFactsResponse,
     startDate: LocalDateTime,
     endDate: LocalDateTime,
@@ -205,33 +207,22 @@ class RefundPeriodController @Inject() (
     if (endDate.getMonthValue == 12) {
       saveAndRedirect(traderResponse, startDate, endDate, mode)
     } else {
-      val refundingCountry = request.userAnswers.get(pages.RefundingCountryPage).orElse {
-        request.userAnswers.get(pages.RefundingCountryNamePage).map { stored =>
-          stored.split(",", 2).headOption.getOrElse(stored)
-        }
-      }
-
+      val refundingCountry = CountryCode.findCountryCode(request.userAnswers)
       val latestApplicationRequest = LatestApplicationRequest(
-        applicantVatRegNumber = traderResponse.vatRegNumber.toString,
+        applicantVatRegNumber = vrn,
         refundingCountry      = refundingCountry,
         startDate             = Some(startDate),
-        endDate               = Some(endDate),
-        representativeId      = None,
-        maxNumber             = 100,
-        orderBy               = None,
-        sortOrder             = None,
-        startAt               = None
+        endDate               = Some(endDate)
       )
       euVatRefundsService.getLatestApplications(latestApplicationRequest).flatMap { response =>
-
-        if (response.applications.nonEmpty) {
+        if (response.totalApplication > 0) {
           val refundPeriod = RefundPeriod(startDate, endDate)
           for {
             updatedAnswer1 <- Future.fromTry(request.userAnswers.set(TraderKnownFactsQuery, traderResponse))
             updatedAnswer2 <- Future.fromTry(updatedAnswer1.set(RefundPeriodPage, refundPeriod))
             updatedAnswer3 <-
-              if (isChanged(request.userAnswers, startDate, endDate) && updatedAnswer2.get(pages.ClaimDetailsCompletedPage).contains(true)) {
-                Future.fromTry(updatedAnswer2.set(pages.ClaimDetailsAmendedPage, true))
+              if (hasRefundPeriodChanged(updatedAnswer2, refundPeriod) && updatedAnswer2.get(ClaimDetailsCompletedPage).contains(true)) {
+                Future.fromTry(updatedAnswer2.set(ClaimDetailsAmendedPage, true))
               } else {
                 Future.successful(updatedAnswer2)
               }
@@ -245,105 +236,126 @@ class RefundPeriodController @Inject() (
     }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    val traderInAnswers = request.userAnswers.get(TraderKnownFactsQuery)
-
-    def processWithTrader(traderResponse: TraderKnownFactsResponse): Future[Result] = {
-      val (earliestForTrader, latestForTrader, isExemptForTrader) = computeEarliestAndLatest(request, Some(traderResponse.vatRegNumber.toString))
-      val baseForm = formProvider(earliestForTrader, latestForTrader, isExemptForTrader)
-
-      baseForm
-        .bindFromRequest()
-        .fold(
-          formWithErrors => {
-            // Do not override cutoff errors with VAT-registration checks here; surface
-            // the binding/form errors directly so validation precedence remains
-            // earliest/latest -> field-level -> VAT-registration (F6) -> overlap.
-            renderError(formWithErrors, mode, Some(traderResponse.vatRegNumber.toString))
-          },
-          value => {
-            val startDate = YearMonth.of(value.start.getYear, value.start.getMonthValue).atDay(1).atStartOfDay()
-            val endDate = YearMonth.of(value.end.getYear, value.end.getMonthValue).atEndOfMonth().atTime(23, 59, 59, 999000000)
-
-            // earliest/latest re-check (defensive) and business checks
-            earliestForTrader match {
-              case Some(min) if value.start.isBefore(min) || value.end.isBefore(min) =>
-                val startBefore = value.start.isBefore(min)
-                val endBefore = value.end.isBefore(min)
-                val human = min.atDay(1).format(java.time.format.DateTimeFormatter.ofPattern("MMMM yyyy"))
-                var f = baseForm.fill(value)
-                if (startBefore && endBefore) {
-                  f = f
-                    .withError("start", "refundPeriod.error.beforeEarliest.both", human)
-                    .withError("end", "refundPeriod.error.beforeEarliest.both", human)
-                } else if (startBefore) {
-                  f = f.withError("start", "refundPeriod.error.beforeEarliest.start", human)
-                } else if (endBefore) {
-                  f = f.withError("end", "refundPeriod.error.beforeEarliest.end", human)
-                }
-                val formWithError = f
-                renderError(formWithError, mode, Some(traderResponse.vatRegNumber.toString))
-              case _ =>
-                latestForTrader match {
-                  case Some(max) if value.start.isAfter(max) || value.end.isAfter(max) =>
-                    val startAfter = value.start.isAfter(max)
-                    val endAfter = value.end.isAfter(max)
-                    val human = max.atDay(1).format(java.time.format.DateTimeFormatter.ofPattern("MMMM yyyy"))
-                    var f2 = baseForm.fill(value)
-                    if (startAfter && endAfter) {
-                      f2 = f2
-                        .withError("start", "refundPeriod.error.afterLatest.both", human)
-                        .withError("end", "refundPeriod.error.afterLatest.both", human)
-                    } else if (startAfter) {
-                      f2 = f2.withError("start", "refundPeriod.error.afterLatest.start", human)
-                    } else if (endAfter) {
-                      f2 = f2.withError("end", "refundPeriod.error.afterLatest.end", human)
-                    }
-                    val formWithError = f2
-                    renderError(formWithError, mode, Some(traderResponse.vatRegNumber.toString))
-                  case _ =>
-                    val maybeErrorForm: Option[Form[RefundPeriodData]] =
-                      (traderResponse.dateOfRegistration, traderResponse.dateOfDeregistration) match {
-                        case (Some(regDate), Some(deRegDate)) =>
-                          val (validStartDate, msg) = isStartDateValid(startDate, regDate)
-                          if (!validStartDate) {
-                            Some(baseForm.fill(value).withError("start", msg))
-                          } else if (endDate.isAfter(deRegDate)) {
-                            Some(baseForm.fill(value).withError("end", "refundPeriod.end.error.afterVatDeRegDate"))
-                          } else {
-                            None
-                          }
-                        case (Some(regDate), None) =>
-                          val (validStartDate, msg) = isStartDateValid(startDate, regDate)
-                          if (!validStartDate) {
-                            Some(baseForm.fill(value).withError("start", msg))
-                          } else {
-                            None
-                          }
-                        case (None, Some(deRegDate)) =>
-                          if (endDate.isAfter(deRegDate)) {
-                            Some(baseForm.fill(value).withError("end", "refundPeriod.end.error.afterVatDeRegDate"))
-                          } else {
-                            None
-                          }
-                        case _ => None
-                      }
-
-                    maybeErrorForm match {
-                      case Some(formWithError) => renderError(formWithError, mode, Some(traderResponse.vatRegNumber.toString))
-                      case None                => checkEarliestStartDate(traderResponse, startDate, endDate, mode)
-                    }
-                }
-            }
+  private def earliestDateValidation(value: RefundPeriodData,
+                                     earliest: Option[YearMonth],
+                                     form: Form[RefundPeriodData]
+                                    ): Option[Form[RefundPeriodData]] = {
+    earliest.flatMap { min =>
+      val startBefore = value.start.isBefore(min)
+      val endBefore = value.end.isBefore(min)
+      val filledForm = form.fill(value)
+      if (!startBefore && !endBefore) {
+        None
+      } else {
+        val human = min.atDay(1).format(DateTimeFormatter.ofPattern("MMMM yyyy"))
+        Some {
+          (startBefore, endBefore) match {
+            case (true, true) =>
+              filledForm
+                .withError("start", "refundPeriod.error.beforeEarliest.both", human)
+                .withError("end", "refundPeriod.error.beforeEarliest.both", human)
+            case (true, false) => filledForm.withError("start", "refundPeriod.error.beforeEarliest.start", human)
+            case (false, true) => filledForm.withError("end", "refundPeriod.error.beforeEarliest.end", human)
+            case _             => filledForm
           }
-        )
-    }
-
-    traderInAnswers match {
-      case Some(trader) => processWithTrader(trader)
-      case None         => euVatRefundsService.retrieveTraderKnownFacts().flatMap(processWithTrader)
+        }
+      }
     }
   }
+
+  private def latestDateValidation(value: RefundPeriodData,
+                                   latest: Option[YearMonth],
+                                   form: Form[RefundPeriodData]
+                                  ): Option[Form[RefundPeriodData]] = {
+    latest.flatMap { max =>
+      val startAfter = value.start.isAfter(max)
+      val endAfter = value.end.isAfter(max)
+      if (!startAfter && !endAfter) {
+        None
+      } else {
+        val human = max.atDay(1).format(DateTimeFormatter.ofPattern("MMMM yyyy"))
+        val filledForm = form.fill(value)
+        Some {
+          (startAfter, endAfter) match {
+            case (true, true) =>
+              filledForm
+                .withError("start", "refundPeriod.error.afterLatest.both", human)
+                .withError("end", "refundPeriod.error.afterLatest.both", human)
+            case (true, false) => filledForm.withError("start", "refundPeriod.error.afterLatest.start", human)
+            case (false, true) => filledForm.withError("end", "refundPeriod.error.afterLatest.end", human)
+            case _             => filledForm
+          }
+        }
+      }
+    }
+  }
+
+  private def vatDateValidation(
+    value: RefundPeriodData,
+    startDate: LocalDateTime,
+    endDate: LocalDateTime,
+    trader: TraderKnownFactsResponse,
+    baseForm: Form[RefundPeriodData]
+  ): Option[Form[RefundPeriodData]] = {
+    (trader.dateOfRegistration, trader.dateOfDeregistration) match {
+      case (Some(regDate), Some(deRegDate)) =>
+        val (validStartDate, msg) = isStartDateValid(startDate, regDate)
+        if (!validStartDate) {
+          Some(baseForm.fill(value).withError("start", msg))
+        } else if (endDate.isAfter(deRegDate)) {
+          Some(baseForm.fill(value).withError("end", "refundPeriod.end.error.afterVatDeRegDate"))
+        } else {
+          None
+        }
+      case (Some(regDate), None) =>
+        val (validStartDate, msg) = isStartDateValid(startDate, regDate)
+        if (!validStartDate) {
+          Some(baseForm.fill(value).withError("start", msg))
+        } else {
+          None
+        }
+      case (None, Some(deRegDate)) =>
+        if (endDate.isAfter(deRegDate)) {
+          Some(baseForm.fill(value).withError("end", "refundPeriod.end.error.afterVatDeRegDate"))
+        } else {
+          None
+        }
+      case _ => None
+    }
+  }
+
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData)
+    .async { implicit request =>
+      euVatRefundsService
+        .retrieveTraderKnownFacts()
+        .flatMap { traderResponse =>
+          val vrn = request.identifierValue.getOrElse(throw new IllegalStateException("Missing Vat registration number"))
+          val (earliestForTrader, latestForTrader, isExemptForTrader) = computeEarliestAndLatest(request, Some(vrn))
+          val baseForm = formProvider(earliestForTrader, latestForTrader, isExemptForTrader)
+
+          baseForm
+            .bindFromRequest()
+            .fold(
+              formWithErrors => renderError(formWithErrors, mode, isExemptForTrader),
+              value =>
+                val startDate = YearMonth.of(value.start.getYear, value.start.getMonthValue).atDay(1).atStartOfDay()
+                val endDate = YearMonth.of(value.end.getYear, value.end.getMonthValue).atEndOfMonth().atTime(23, 59, 59, 999000000)
+
+                val validationResult = earliestDateValidation(value, earliestForTrader, baseForm)
+                  .orElse(latestDateValidation(value, latestForTrader, baseForm))
+                  .orElse(vatDateValidation(value, startDate, endDate, traderResponse, baseForm))
+
+                validationResult match {
+                  case None                => checkEarliestStartDate(vrn, traderResponse, startDate, endDate, mode)
+                  case Some(formWithError) => renderError(formWithError, mode, isExemptForTrader)
+                }
+            )
+        }
+        .recover { case NonFatal(e) =>
+          logger.error("Failed to retrieve data from backend", e)
+          Redirect(routes.JourneyRecoveryController.onPageLoad())
+        }
+    }
 
   private def computeEarliestAndLatest(request: DataRequest[?],
                                        traderVrnOverride: Option[String] = None
@@ -362,15 +374,11 @@ class RefundPeriodController @Inject() (
       } else None
     }
 
-    val traderVrnOpt = traderVrnOverride.orElse(request.userAnswers.get(TraderKnownFactsQuery).map(_.vatRegNumber.toString))
-
+    val traderVrnOpt = traderVrnOverride.orElse(request.identifierValue)
     val canCreate = configuration.getOptional[String]("settings.refund.can.create.vrns").map(_.split(",").map(_.trim).toSet).getOrElse(Set.empty)
     val canAmend = configuration.getOptional[String]("settings.refund.can.amend.vrns").map(_.split(",").map(_.trim).toSet).getOrElse(Set.empty)
-
     val exemptSet = canCreate ++ canAmend
-
     val isExempt = traderVrnOpt.exists(exemptSet.contains)
-
     val earliest: Option[YearMonth] = if (isExempt) {
       Some(YearMonth.of(2020, 1))
     } else {

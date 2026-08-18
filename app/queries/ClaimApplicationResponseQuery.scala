@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-package forms
+package queries
 
-import forms.mappings.Mappings
-import javax.inject.Inject
-import play.api.data.Form
+import models.ContactDetails
+import models.responses.ApplicationResponse
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-class DescribeItemsOnInvoiceFormProvider @Inject() extends Mappings {
-
-  def apply(): Form[String] =
-    Form(
-      "value" -> text("describeItemsOnInvoice.error.required")
-        .verifying(maxLength(255, "describeItemsOnInvoice.error.length"))
-    )
+case object ClaimApplicationResponseQuery extends QuestionPage[ApplicationResponse] {
+  override def path: JsPath = JsPath \ toString
+  override def toString: String = "claimApplicationResponse"
 }
