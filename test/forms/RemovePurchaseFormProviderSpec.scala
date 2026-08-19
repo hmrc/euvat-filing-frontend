@@ -14,21 +14,32 @@
  * limitations under the License.
  */
 
-package utils
+package forms
 
-import models.UserAnswers
-import pages.{RefundingCountryNamePage, RefundingCountryPage}
+import forms.behaviours.BooleanFieldBehaviours
+import play.api.data.FormError
 
-object CountryCode {
+class RemovePurchaseFormProviderSpec extends BooleanFieldBehaviours {
 
-  def findCountryCode(userAnswers: UserAnswers): Option[String] = {
-    userAnswers
-      .get(RefundingCountryPage)
-      .orElse(
-        userAnswers
-          .get(RefundingCountryNamePage)
-          .map(stored => stored.split(",", 2).headOption.getOrElse(stored))
-      )
+  val requiredKey = "removePurchase.error.required"
+  val invalidKey = "error.boolean"
+
+  val form = new RemovePurchaseFormProvider()()
+
+  ".value" - {
+
+    val fieldName = "value"
+
+    behave like booleanField(
+      form,
+      fieldName,
+      invalidError = FormError(fieldName, invalidKey)
+    )
+
+    behave like mandatoryField(
+      form,
+      fieldName,
+      requiredError = FormError(fieldName, requiredKey)
+    )
   }
-
 }

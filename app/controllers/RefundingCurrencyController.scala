@@ -29,7 +29,7 @@ import repositories.SessionRepository
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.{ConfigCurrencyMapping, ConfigLanguageMapping, CountryCode}
+import utils.{ConfigCurrencyMapping, ConfigLanguageMapping, RefundingAndPurchaseUtils}
 import views.html.RefundingCurrencyView
 
 import javax.inject.Inject
@@ -45,6 +45,7 @@ class RefundingCurrencyController @Inject() (
   formProvider: RefundingCurrencyFormProvider,
   configCurrencyMapping: ConfigCurrencyMapping,
   configLanguageMapping: ConfigLanguageMapping,
+  refundingAndPurchaseUtils: RefundingAndPurchaseUtils,
   val controllerComponents: MessagesControllerComponents,
   view: RefundingCurrencyView
 )(implicit ec: ExecutionContext)
@@ -57,7 +58,7 @@ class RefundingCurrencyController @Inject() (
   private def backLink(mode: Mode): Call = routes.SupplierVatRegistrationNumberController.onPageLoad(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    CountryCode.findCountryCode(request.userAnswers) match {
+    refundingAndPurchaseUtils.findCountryCode(request.userAnswers) match {
       case None =>
         logger.warn("RefundingCurrencyController.onPageLoad - no refunding country in session, redirecting to JourneyRecovery")
         Redirect(routes.JourneyRecoveryController.onPageLoad())
@@ -83,7 +84,7 @@ class RefundingCurrencyController @Inject() (
       .bindFromRequest()
       .fold(
         formWithErrors =>
-          CountryCode.findCountryCode(request.userAnswers) match {
+          refundingAndPurchaseUtils.findCountryCode(request.userAnswers) match {
             case None =>
               logger.warn(
                 "RefundingCurrencyController.onSubmit - no refunding country in session while binding form errors; redirecting to JourneyRecovery"
@@ -96,7 +97,7 @@ class RefundingCurrencyController @Inject() (
               Future.successful(BadRequest(view(formWithErrors, items, backLink(mode), mode)))
           },
         value =>
-          CountryCode.findCountryCode(request.userAnswers) match {
+          refundingAndPurchaseUtils.findCountryCode(request.userAnswers) match {
             case None =>
               logger.warn("RefundingCurrencyController.onSubmit - no refunding country in session; redirecting to JourneyRecovery")
               Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))

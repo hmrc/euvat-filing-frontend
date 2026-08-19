@@ -21,7 +21,7 @@ import config.FrontendAppConfig
 import connectors.EuVatRefundsConnector
 import models.requests.{AddPurchaseRequest, LatestApplicationRequest}
 import models.requests.{AddPurchaseRequest, LatestApplicationRequest, SupplierTaxIdentifierCountRequest}
-import models.responses.{AddPurchaseResponse, LatestApplicationResponse, TraderKnownFactsResponse, SupplierTaxIdentifierCountResponse}
+import models.responses.{AddPurchaseResponse, LatestApplicationResponse, SupplierTaxIdentifierCountResponse, TraderKnownFactsResponse}
 import org.mockito.ArgumentMatchers.*
 import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures

@@ -417,6 +417,13 @@ describeItemsOnInvoice.hint = List each item and the exact amount you paid for i
 describeItemsOnInvoice.error.required = Enter a description of the items on your invoice
 describeItemsOnInvoice.error.length = Item description must be 255 characters or less
 
+removePurchase.title = Remove purchase
+removePurchase.heading = Remove purchase
+removePurchase.legend = Are you sure you want to remove this purchase?
+removePurchase.purchaseType = Purchase type
+removePurchase.vat = VAT claiming
+removePurchase.error = Select yes if you want to remove this purchase
+
 # Warning messages
 
 periodOverlapWarning.title = Are you sure the refund period is correct?

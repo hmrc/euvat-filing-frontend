@@ -24,7 +24,7 @@ import models.Mode
 import navigation.Navigator
 import pages.{RefundingCurrencyPage, TotalVatClaimPage, TotalVatPaidPage}
 import play.api.data.Form
-import utils.ConfigCurrencyMapping
+import utils.{ConfigCurrencyMapping, RefundingAndPurchaseUtils}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -41,7 +41,7 @@ class TotalVatClaimController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: TotalVatClaimFormProvider,
-  configCurrencyMapping: ConfigCurrencyMapping,
+  refundingAndPurchaseUtils: RefundingAndPurchaseUtils,
   val controllerComponents: MessagesControllerComponents,
   view: TotalVatClaimView
 )(implicit ec: ExecutionContext)
@@ -52,42 +52,17 @@ class TotalVatClaimController @Inject() (
 
   private def backLink(mode: Mode): Call = routes.TotalVatPaidController.onPageLoad(mode)
 
-  private def resolveCurrencyPrefix(userAnswers: models.UserAnswers): String = {
-    val maybeCountry = userAnswers.get(pages.RefundingCountryPage).orElse {
-      userAnswers.get(pages.RefundingCountryNamePage).map { stored =>
-        stored.split(",", 2).headOption.getOrElse(stored)
-      }
-    }
-
-    val defaultSymbol = "€"
-
-    maybeCountry match {
-      case None => defaultSymbol
-      case Some(countryCode) =>
-        userAnswers.get(RefundingCurrencyPage) match {
-          case Some(currencyCode) =>
-            configCurrencyMapping
-              .currenciesFor(countryCode)
-              .find(_._2 == currencyCode)
-              .map(_._3)
-              .getOrElse(configCurrencyMapping.currenciesFor(countryCode).headOption.map(_._3).getOrElse(defaultSymbol))
-          case None =>
-            configCurrencyMapping.currenciesFor(countryCode).headOption.map(_._3).getOrElse(defaultSymbol)
-        }
-    }
-  }
-
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(TotalVatClaimPage) match {
       case None        => form
       case Some(value) => form.fill(value)
     }
-    val currencySymbol = resolveCurrencyPrefix(request.userAnswers)
+    val currencySymbol = refundingAndPurchaseUtils.resolveCurrencySymbol(request.userAnswers)
     Ok(view(preparedForm, mode, backLink(mode), currencySymbol))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    val currencySymbol = resolveCurrencyPrefix(request.userAnswers)
+    val currencySymbol = refundingAndPurchaseUtils.resolveCurrencySymbol(request.userAnswers)
     form
       .bindFromRequest()
       .fold(

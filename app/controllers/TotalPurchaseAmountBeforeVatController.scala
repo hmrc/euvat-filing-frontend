@@ -26,7 +26,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.ConfigCurrencyMapping
+import utils.{ConfigCurrencyMapping, RefundingAndPurchaseUtils}
 import views.html.TotalPurchaseAmountBeforeVatView
 
 import javax.inject.Inject
@@ -36,7 +36,7 @@ class TotalPurchaseAmountBeforeVatController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
   navigator: Navigator,
-  configCurrencyMapping: ConfigCurrencyMapping,
+  refundingAndPurchaseUtils: RefundingAndPurchaseUtils,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
@@ -51,7 +51,7 @@ class TotalPurchaseAmountBeforeVatController @Inject() (
   private def backLink(mode: Mode)(userAnswers: UserAnswers): Call = {
     // If this country requires currency selection, the currency page was shown right before this one.
     userAnswers.get(RefundingCountryPage) match {
-      case Some(countryCode) if configCurrencyMapping.requiresCurrencySelection(countryCode) =>
+      case Some(countryCode) if refundingAndPurchaseUtils.requiresCurrencySelection(countryCode) =>
         routes.RefundingCurrencyController.onPageLoad(mode)
 
       case Some("DE") =>
@@ -63,7 +63,7 @@ class TotalPurchaseAmountBeforeVatController @Inject() (
           case None =>
             userAnswers.get(SupplierTaxNumberPage) match {
               case Some(SupplierTaxNumber.Vatregistrationnumber) => routes.SupplierVatRegistrationNumberController.onPageLoad(mode)
-              case Some(SupplierTaxNumber.Taxidentifiernumber)  => routes.SupplierTaxIdentifierNumberController.onPageLoad(mode)
+              case Some(SupplierTaxNumber.Taxidentifiernumber)   => routes.SupplierTaxIdentifierNumberController.onPageLoad(mode)
               case _ =>
                 if (userAnswers.get(SupplierTaxIdentifierNumberPage).isDefined) {
                   routes.SupplierTaxIdentifierNumberController.onPageLoad(mode)
@@ -86,7 +86,7 @@ class TotalPurchaseAmountBeforeVatController @Inject() (
       case None        => form
       case Some(value) => form.fill(value)
     }
-    val (currencyName, prefix) = resolveCurrency(request.userAnswers)
+    val (currencyName, prefix) = refundingAndPurchaseUtils.resolveCurrency(request.userAnswers)
     Ok(view(preparedForm, mode, backLink(mode)(request.userAnswers), prefix, currencyName))
   }
 
@@ -95,7 +95,7 @@ class TotalPurchaseAmountBeforeVatController @Inject() (
       .bindFromRequest()
       .fold(
         formWithErrors => {
-          val (currencyName, prefix) = resolveCurrency(request.userAnswers)
+          val (currencyName, prefix) = refundingAndPurchaseUtils.resolveCurrency(request.userAnswers)
           Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)(request.userAnswers), prefix, currencyName)))
         },
         value =>
@@ -104,39 +104,6 @@ class TotalPurchaseAmountBeforeVatController @Inject() (
             _              <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(TotalPurchaseAmountBeforeVatPage, mode, updatedAnswers))
       )
-  }
-
-  private def humanizeName(name: String): String = {
-    // split camelCase or words and capitalise each
-    name
-      .replaceAll("([a-z])([A-Z])", "$1 $2")
-      .split("[ _-]+")
-      .filter(_.nonEmpty)
-      .map(s => s.head.toUpper.toString + s.tail)
-      .mkString(" ")
-  }
-
-  private def resolveCurrency(userAnswers: models.UserAnswers): (String, String) = {
-    val maybeCountry = userAnswers.get(pages.RefundingCountryPage).orElse {
-      userAnswers.get(pages.RefundingCountryNamePage).map { stored =>
-        stored.split(",", 2).headOption.getOrElse(stored)
-      }
-    }
-
-    val defaultSymbol = "€"
-    maybeCountry match {
-      case None => ("Euro", defaultSymbol)
-      case Some(countryCode) =>
-        val currencies = configCurrencyMapping.currenciesFor(countryCode)
-        val chosen: Option[(String, String, String)] = userAnswers.get(RefundingCurrencyPage) match {
-          case Some(currencyCode) => currencies.find(_._2 == currencyCode)
-          case None               => currencies.headOption
-        }
-        chosen match {
-          case Some((name, _, symbol)) => (humanizeName(name), symbol)
-          case None                    => ("Euro", defaultSymbol)
-        }
-    }
   }
 
 }

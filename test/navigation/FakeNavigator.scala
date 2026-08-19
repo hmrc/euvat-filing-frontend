@@ -19,7 +19,7 @@ package navigation
 import play.api.mvc.Call
 import pages.*
 import models.{Mode, UserAnswers}
-import utils.{ConfigCurrencyMapping, ConfigLanguageMapping, ConfigPurchaseMapping}
+import utils.{ConfigCurrencyMapping, ConfigLanguageMapping, ConfigPurchaseMapping, RefundingAndPurchaseUtils}
 import play.api.Configuration
 import com.typesafe.config.ConfigFactory
 
@@ -54,6 +54,19 @@ class FakeNavigator(desiredRoute: Call)
           DE = ["parent|sub1|purchase.sub.parent.sub1"]
         }
       """)
+        )
+      ),
+      new RefundingAndPurchaseUtils(
+        new ConfigCurrencyMapping(
+          Configuration(
+            ConfigFactory.parseString("""
+      currency.mapping {
+        BG = ["euro|EUR|€", "bulgarianLev|BGN|лв"]
+        EE = ["euro|EUR|€", "estonianKroon|EEK|kr"]
+        AT = ["euro|EUR|€"]
+      }
+    """)
+          )
         )
       )
     ) {

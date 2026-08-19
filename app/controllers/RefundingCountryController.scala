@@ -30,7 +30,7 @@ import queries.LatestCountryResponseQuery
 import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.{ConfigCurrencyMapping, ConfigLanguageMapping, CountryCode, CountryList}
+import utils.{ConfigCurrencyMapping, ConfigLanguageMapping, CountryList, RefundingAndPurchaseUtils}
 import views.html.RefundingCountryView
 
 import javax.inject.Inject
@@ -49,6 +49,7 @@ class RefundingCountryController @Inject() (
   config: Configuration,
   configLanguageMapping: ConfigLanguageMapping,
   configCurrencyMapping: ConfigCurrencyMapping,
+  refundingAndPurchaseUtils: RefundingAndPurchaseUtils,
   val controllerComponents: MessagesControllerComponents,
   view: RefundingCountryView
 )(implicit ec: ExecutionContext)
@@ -64,7 +65,7 @@ class RefundingCountryController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val (countries, form) = buildFormAndCountries()
-    val countryCode = CountryCode.findCountryCode(request.userAnswers)
+    val countryCode = refundingAndPurchaseUtils.findCountryCode(request.userAnswers)
     val preparedForm = countryCode.fold(form)(code => form.fill(code))
     Ok(view(preparedForm, countries, routes.TaskListDashboardController.onPageLoad(), mode))
   }
@@ -103,7 +104,7 @@ class RefundingCountryController @Inject() (
                 val baseAnswers: UserAnswers = request.userAnswers
                 val countryName = countries.find(_._2.equalsIgnoreCase(value)).map(_._1).getOrElse(value)
                 val languages = configLanguageMapping.languagesFor(value).map(_.toLowerCase)
-                val prevCountryCode = CountryCode.findCountryCode(baseAnswers)
+                val prevCountryCode = refundingAndPurchaseUtils.findCountryCode(baseAnswers)
 
                 // no duplicates - proceed with save flow (note: on country change only clear language/currency)
                 for {

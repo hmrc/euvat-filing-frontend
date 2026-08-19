@@ -32,7 +32,7 @@ import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.{ConfigCurrencyMapping, ConfigLanguageMapping, CountryCode}
+import utils.{ConfigCurrencyMapping, ConfigLanguageMapping, RefundingAndPurchaseUtils}
 import views.html.RefundPeriodView
 
 import java.time.format.DateTimeFormatter
@@ -53,6 +53,7 @@ class RefundPeriodController @Inject() (
   configuration: Configuration,
   configCurrencyMapping: ConfigCurrencyMapping,
   configLanguageMapping: ConfigLanguageMapping,
+  refundingAndPurchaseUtils: RefundingAndPurchaseUtils,
   val controllerComponents: MessagesControllerComponents,
   view: RefundPeriodView
 )(implicit ec: ExecutionContext)
@@ -61,7 +62,7 @@ class RefundPeriodController @Inject() (
     with Logging {
 
   private def backLink(mode: Mode)(implicit request: DataRequest[?]): Call = {
-    CountryCode.findCountryCode(request.userAnswers) match {
+    refundingAndPurchaseUtils.findCountryCode(request.userAnswers) match {
       case Some(code) =>
         if (configLanguageMapping.languagesFor(code).size <= 1) {
           controllers.routes.RefundingCountryController.onPageLoad(mode)
@@ -172,7 +173,7 @@ class RefundPeriodController @Inject() (
     if (endDate.getMonthValue == 12) {
       saveAndRedirect(traderResponse, startDate, endDate, mode)
     } else {
-      val refundingCountry = CountryCode.findCountryCode(request.userAnswers)
+      val refundingCountry = refundingAndPurchaseUtils.findCountryCode(request.userAnswers)
       val latestApplicationRequest = LatestApplicationRequest(
         applicantVatRegNumber = vrn,
         refundingCountry      = refundingCountry,

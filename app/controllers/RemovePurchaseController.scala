@@ -17,72 +17,84 @@
 package controllers
 
 import controllers.actions.*
-import forms.TotalVatPaidFormProvider
+import forms.RemovePurchaseFormProvider
 
 import javax.inject.Inject
 import models.Mode
 import navigation.Navigator
-import utils.{ConfigCurrencyMapping, RefundingAndPurchaseUtils}
-import pages.{RefundingCurrencyPage, TotalPurchaseAmountBeforeVatPage, TotalVatPaidPage}
-import play.api.data.Form
-import play.api.i18n.{I18nSupport, MessagesApi}
+import pages.{PurchaseTypePage, RemovePurchasePage, TotalVatClaimPage}
+import play.api.i18n.{I18nSupport, Messages}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import utils.{ConfigCurrencyMapping, RefundingAndPurchaseUtils}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.TotalVatPaidView
+import views.html.RemovePurchaseView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class TotalVatPaidController @Inject() (
-  override val messagesApi: MessagesApi,
+class RemovePurchaseController @Inject() (
   sessionRepository: SessionRepository,
   navigator: Navigator,
-  refundingAndPurchaseUtils: RefundingAndPurchaseUtils,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  formProvider: TotalVatPaidFormProvider,
+  formProvider: RemovePurchaseFormProvider,
+  refundingAndPurchaseUtils: RefundingAndPurchaseUtils,
   val controllerComponents: MessagesControllerComponents,
-  view: TotalVatPaidView
+  view: RemovePurchaseView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
-  val form: Form[BigDecimal] = formProvider()
-
-  private def backLink(mode: Mode) = routes.TotalPurchaseAmountBeforeVatController.onPageLoad(mode)
+  val form = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = request.userAnswers.get(TotalVatPaidPage) match {
+
+    implicit val messages: Messages = messagesApi.preferred(request)
+
+    val preparedForm = request.userAnswers.get(RemovePurchasePage) match {
       case None        => form
       case Some(value) => form.fill(value)
     }
 
-    val (currencyName, prefix) = refundingAndPurchaseUtils.resolveCurrency(request.userAnswers)
-    Ok(view(preparedForm, mode, backLink(mode), prefix, currencyName))
+    val purchaseType = request.userAnswers
+      .get(PurchaseTypePage)
+      .map(pt => messages(s"purchaseType.$pt"))
+      .getOrElse("")
+
+    val vatClaiming = request.userAnswers
+      .get(TotalVatClaimPage)
+      .map(amount => s"${refundingAndPurchaseUtils.resolveCurrencySymbol(request.userAnswers)}$amount")
+      .getOrElse("")
+
+    Ok(view(preparedForm, mode, purchaseType, vatClaiming))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+
+    implicit val messages: Messages = messagesApi.preferred(request)
+
     form
       .bindFromRequest()
       .fold(
         formWithErrors => {
-          val (currencyName, prefix) = refundingAndPurchaseUtils.resolveCurrency(request.userAnswers)
-          Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode), prefix, currencyName)))
+          val purchaseType = request.userAnswers
+            .get(PurchaseTypePage)
+            .map(pt => messages(s"purchaseType.$pt"))
+            .getOrElse("")
+
+          val vatClaiming = request.userAnswers
+            .get(TotalVatClaimPage)
+            .map(amount => s"${refundingAndPurchaseUtils.resolveCurrencySymbol(request.userAnswers)}$amount")
+            .getOrElse("")
+
+          Future.successful(BadRequest(view(formWithErrors, mode, purchaseType, vatClaiming)))
         },
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(TotalVatPaidPage, value))
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(RemovePurchasePage, value))
             _              <- sessionRepository.set(updatedAnswers)
-          } yield {
-            val totalPurchaseAmt: BigDecimal = request.userAnswers.get(TotalPurchaseAmountBeforeVatPage).getOrElse(BigDecimal(0))
-            if (value >= totalPurchaseAmt) {
-              Redirect(routes.VatPaidWarningController.onPageLoad(mode))
-            } else {
-              Redirect(navigator.nextPage(TotalVatPaidPage, mode, updatedAnswers))
-            }
-          }
+          } yield Redirect(navigator.nextPage(RemovePurchasePage, mode, updatedAnswers))
       )
   }
-
 }
