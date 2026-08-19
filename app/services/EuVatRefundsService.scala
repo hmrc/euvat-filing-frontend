@@ -16,15 +16,14 @@
 
 package services
 
-import com.google.inject.Inject
 import config.FrontendAppConfig
 import connectors.EuVatRefundsConnector
-import models.requests.{AddPurchaseRequest, ApplicationRequest, LatestApplicationRequest}
-import models.requests.{AddPurchaseRequest, ApplicationRequest, LatestApplicationRequest, SupplierTaxIdentifierCountRequest}
-import models.responses.{AddPurchaseResponse, ApplicationResponse, LatestApplicationResponse, TraderKnownFactsResponse, SupplierTaxIdentifierCountResponse}
+import models.requests.*
+import models.responses.*
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class EuVatRefundsService @Inject() (euVatRefundsConnector: EuVatRefundsConnector, config: FrontendAppConfig)(implicit ec: ExecutionContext)
@@ -44,7 +43,13 @@ class EuVatRefundsService @Inject() (euVatRefundsConnector: EuVatRefundsConnecto
   def addPurchase(request: AddPurchaseRequest)(implicit hc: HeaderCarrier): Future[AddPurchaseResponse] =
     euVatRefundsConnector.addPurchase(request)
 
-  def getSupplierTaxIdentifierCount(request: SupplierTaxIdentifierCountRequest)(implicit hc: HeaderCarrier): Future[SupplierTaxIdentifierCountResponse] =
+  def getSupplierVrnCount(request: SupplierVrnCountRequest)(implicit hc: HeaderCarrier): Future[SupplierVrnCountResponse] = {
+    euVatRefundsConnector.getSupplierVrnCount(request)
+  }
+
+  def getSupplierTaxIdentifierCount(request: SupplierTaxIdentifierCountRequest)(implicit
+    hc: HeaderCarrier
+  ): Future[SupplierTaxIdentifierCountResponse] =
     euVatRefundsConnector.getSupplierTaxIdentifierCount(request)
 
 }
