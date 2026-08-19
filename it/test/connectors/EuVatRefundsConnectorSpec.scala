@@ -16,8 +16,8 @@
 
 package connectors
 
-import models.requests.{AddPurchaseRequest, LatestApplicationRequest, SupplierVrnCountRequest}
-import models.responses.{AddPurchaseResponse, LatestApplicationResponse, SupplierVrnCountResponse, TraderKnownFactsResponse}
+import models.requests.{AddPurchaseRequest, LatestApplicationRequest, SupplierTaxIdentifierCountRequest, SupplierVrnCountRequest}
+import models.responses.*
 import org.mockito.ArgumentMatchers.*
 import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
@@ -32,7 +32,6 @@ import java.time.LocalDateTime
 import scala.concurrent.{ExecutionContext, Future}
 
 class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSugar with ScalaFutures {
-
   implicit val ec: ExecutionContext = ExecutionContext.global
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
@@ -47,7 +46,6 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
   val connector = new EuVatRefundsConnector(mockConfig, mockHttp)
 
   "EuVatRefundsConnector.retrieveTradersKnownFacts" should {
-
     "call the correct URL and return the expected response" in {
       val expected = TraderKnownFactsResponse(
         vatRegNumber = 123,
@@ -86,26 +84,25 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
   }
 
   "EuVatRefundsConnector.getLatestApplications" should {
-
     val request = LatestApplicationRequest(
       applicantVatRegNumber = "123456789",
-      refundingCountry = Some("LV"),
-      startDate = Some(LocalDateTime.of(2025, 2, 1, 0, 0)),
-      endDate = Some(LocalDateTime.of(2025, 5, 31, 0, 0)),
-      representativeId = Some("rep123"),
-      maxNumber = 10,
-      orderBy = None,
-      sortOrder = None,
-      startAt = None
+      refundingCountry      = Some("LV"),
+      startDate             = Some(LocalDateTime.of(2025, 2, 1, 0, 0)),
+      endDate               = Some(LocalDateTime.of(2025, 5, 31, 0, 0)),
+      representativeId      = Some("rep123"),
+      maxNumber             = 10,
+      orderBy               = None,
+      sortOrder             = None,
+      startAt               = None
     )
     val expectedResponse = LatestApplicationResponse(
-      applications = List.empty,
+      applications     = List.empty,
       totalApplication = 0
     )
 
     "call the correct URL and return the expected response" in {
       reset(mockHttp, mockRequestBuilder)
-      
+
       when(mockHttp.post(any())(any())).thenReturn(mockRequestBuilder)
       when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)
       when(mockRequestBuilder.execute[LatestApplicationResponse](any(), any()))
@@ -135,12 +132,96 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
     }
   }
 
-  "EuVatRefundsConnector.getSupplierVrnCount" should {
+  "EuVatRefundsConnector.addPurchase" should {
+    val request = AddPurchaseRequest(
+      applicationId              = 123456,
+      goodsDescriptionCategory   = "1",
+      goodsDescriptionText       = Some("Fuel"),
+      purchaseSubcategory        = None,
+      simplifiedInvoiceIndicator = None,
+      supplierName               = None,
+      supplierAddress1           = None,
+      supplierAddress2           = None,
+      supplierAddress3           = None,
+      supplierVatRegNumber       = None,
+      supplierTaxIdentifier      = None,
+      invoiceDate                = None,
+      invoiceNumber              = None,
+      currencyCode               = None,
+      taxableAmount              = None,
+      vatAmount                  = None,
+      deductibleVatAmount        = None,
+      updateSequenceNumber       = 1
+    )
 
+    val expectedResponse = AddPurchaseResponse(itemNumber = 4, updateSequenceNumber = 1)
+
+    "call the correct URL and return the expected response" in {
+      reset(mockHttp, mockRequestBuilder)
+
+      when(mockHttp.post(any())(any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.execute[AddPurchaseResponse](any(), any()))
+        .thenReturn(Future.successful(expectedResponse))
+
+      val result = connector.addPurchase(request).futureValue
+
+      result shouldBe expectedResponse
+
+      verify(mockHttp).post(url"$baseUrl/add-purchase")
+      verify(mockRequestBuilder).execute[AddPurchaseResponse](any(), any())
+    }
+
+    "propagate failures from the HTTP client" in {
+      when(mockHttp.post(any())(any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.execute[AddPurchaseResponse](any(), any()))
+        .thenReturn(Future.failed(new RuntimeException("boom")))
+
+      whenReady(connector.addPurchase(request).failed) { ex =>
+        ex shouldBe a[RuntimeException]
+      }
+    }
+
+  }
+
+  "EuVatRefundsConnector.getSupplierTaxIdentifierCount" should {
+    val requestPayload = SupplierTaxIdentifierCountRequest(applicationId = 123L, itemNumber = 1, taxIdentifier = "TAX123", invoiceNumber = "INV1")
+    val expectedResponse = SupplierTaxIdentifierCountResponse(duplicateCount = 2)
+
+    "call the correct URL and return the expected response" in {
+      reset(mockHttp, mockRequestBuilder)
+
+      when(mockHttp.post(any())(any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.execute[SupplierTaxIdentifierCountResponse](any(), any()))
+        .thenReturn(Future.successful(expectedResponse))
+
+      val result = connector.getSupplierTaxIdentifierCount(requestPayload).futureValue
+
+      result shouldBe expectedResponse
+
+      verify(mockHttp).post(url"$baseUrl/get-supplier-taxIdentifier-count")
+      verify(mockRequestBuilder).execute[SupplierTaxIdentifierCountResponse](any(), any())
+    }
+
+    "propagate failures from the HTTP client" in {
+      when(mockHttp.post(any())(any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.execute[SupplierTaxIdentifierCountResponse](any(), any()))
+        .thenReturn(Future.failed(new RuntimeException("boom")))
+
+      whenReady(connector.getSupplierTaxIdentifierCount(requestPayload).failed) { ex =>
+        ex shouldBe a[RuntimeException]
+      }
+    }
+  }
+
+  "EuVatRefundsConnector.getSupplierVrnCount" should {
     val request = SupplierVrnCountRequest(
       applicationId = 133,
-      itemNumber = 4,
-      vatNumber = "500000881",
+      itemNumber    = 4,
+      vatNumber     = "500000881",
       invoiceNumber = "a444"
     )
     val expectedResponse = SupplierVrnCountResponse(duplicateCount = 1)
@@ -177,56 +258,4 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
     }
   }
 
-  "EuVatRefundsConnector.addPurchase" should {
-
-    val request = AddPurchaseRequest(
-      applicationId = 123456,
-      goodsDescriptionCategory = "1",
-      goodsDescriptionText = Some("Fuel"),
-      purchaseSubcategory = None,
-      simplifiedInvoiceIndicator = None,
-      supplierName = None,
-      supplierAddress1 = None,
-      supplierAddress2 = None,
-      supplierAddress3 = None,
-      supplierVatRegNumber = None,
-      supplierTaxIdentifier = None,
-      invoiceDate = None,
-      invoiceNumber = None,
-      currencyCode = None,
-      taxableAmount = None,
-      vatAmount = None,
-      deductibleVatAmount = None,
-      updateSequenceNumber = 1
-    )
-
-    val expectedResponse = AddPurchaseResponse(itemNumber = 4, updateSequenceNumber = 1)
-
-    "call the correct URL and return the expected response" in {
-      reset(mockHttp, mockRequestBuilder)
-
-      when(mockHttp.post(any())(any())).thenReturn(mockRequestBuilder)
-      when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)
-      when(mockRequestBuilder.execute[AddPurchaseResponse](any(), any()))
-        .thenReturn(Future.successful(expectedResponse))
-
-      val result = connector.addPurchase(request).futureValue
-
-      result shouldBe expectedResponse
-
-      verify(mockHttp).post(url"$baseUrl/add-purchase")
-      verify(mockRequestBuilder).execute[AddPurchaseResponse](any(), any())
-    }
-
-    "propagate failures from the HTTP client" in {
-      when(mockHttp.post(any())(any())).thenReturn(mockRequestBuilder)
-      when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)
-      when(mockRequestBuilder.execute[AddPurchaseResponse](any(), any()))
-        .thenReturn(Future.failed(new RuntimeException("boom")))
-
-      whenReady(connector.addPurchase(request).failed) { ex =>
-        ex shouldBe a[RuntimeException]
-      }
-    }
-  }
 }

@@ -16,12 +16,11 @@
 
 package connectors
 
-import models.requests.{AddPurchaseRequest, ApplicationRequest, LatestApplicationRequest, SupplierVrnCountRequest}
-import models.responses.{AddPurchaseResponse, ApplicationResponse, LatestApplicationResponse, SupplierVrnCountResponse, TraderKnownFactsResponse}
+import models.requests.*
+import models.responses.*
 import play.api.Logging
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
-import play.api.libs.json.Json
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReadsInstances, StringContextOps}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -62,6 +61,12 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
       .execute[ApplicationResponse]
   }
 
+  def addPurchase(request: AddPurchaseRequest)(implicit hc: HeaderCarrier): Future[AddPurchaseResponse] =
+    http
+      .post(url"$euVatRefundsBaseUrl/add-purchase")
+      .withBody(Json.toJson(request))
+      .execute[AddPurchaseResponse]
+
   def getSupplierVrnCount(request: SupplierVrnCountRequest)(implicit hc: HeaderCarrier): Future[SupplierVrnCountResponse] = {
     http
       .post(url"$euVatRefundsBaseUrl/get-supplier-vrn-count")
@@ -69,10 +74,13 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
       .execute[SupplierVrnCountResponse]
   }
 
-  def addPurchase(request: AddPurchaseRequest)(implicit hc: HeaderCarrier): Future[AddPurchaseResponse] =
+  def getSupplierTaxIdentifierCount(
+    request: SupplierTaxIdentifierCountRequest
+  )(implicit hc: HeaderCarrier): Future[SupplierTaxIdentifierCountResponse] = {
     http
-      .post(url"$euVatRefundsBaseUrl/add-purchase")
+      .post(url"$euVatRefundsBaseUrl/get-supplier-taxIdentifier-count")
       .withBody(Json.toJson(request))
-      .execute[AddPurchaseResponse]
+      .execute[SupplierTaxIdentifierCountResponse]
+  }
 
 }

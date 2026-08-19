@@ -19,8 +19,8 @@ package services
 import base.SpecBase
 import config.FrontendAppConfig
 import connectors.EuVatRefundsConnector
-import models.requests.{AddPurchaseRequest, LatestApplicationRequest, SupplierVrnCountRequest}
-import models.responses.{AddPurchaseResponse, LatestApplicationResponse, SupplierVrnCountResponse, TraderKnownFactsResponse}
+import models.requests.{AddPurchaseRequest, LatestApplicationRequest, SupplierTaxIdentifierCountRequest, SupplierVrnCountRequest}
+import models.responses.*
 import org.mockito.ArgumentMatchers.*
 import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
@@ -31,7 +31,6 @@ import java.time.LocalDateTime
 import scala.concurrent.{ExecutionContext, Future}
 
 class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutures {
-
   implicit val ec: ExecutionContext = ExecutionContext.global
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
@@ -54,8 +53,8 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
       result mustEqual expected
     }
   }
-  "EuVatRefundsService.getLatestApplications" - {
 
+  "EuVatRefundsService.getLatestApplications" - {
     val request = LatestApplicationRequest(
       applicantVatRegNumber = "123456789",
       refundingCountry      = Some("LV"),
@@ -95,41 +94,7 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
     }
   }
 
-  "EuVatRefundsService.getSupplierVrnCount" - {
-
-    val request = SupplierVrnCountRequest(
-      applicationId = 133,
-      itemNumber    = 4,
-      vatNumber     = "500000881",
-      invoiceNumber = "a444"
-    )
-
-    val expectedResponse = SupplierVrnCountResponse(duplicateCount = 1)
-
-    "should return the supplier VRN count from the connector" in {
-      when(mockConnector.getSupplierVrnCount(any())(any()))
-        .thenReturn(Future.successful(expectedResponse))
-
-      val result = service.getSupplierVrnCount(request)(hc).futureValue
-      result mustEqual expectedResponse
-    }
-
-    "should propagate an exception from the connector" in {
-      val failure = new RuntimeException("Connector failed")
-
-      when(mockConnector.getSupplierVrnCount(any())(any()))
-        .thenReturn(Future.failed(failure))
-
-      val result = service.getSupplierVrnCount(request)
-
-      whenReady(result.failed) { ex =>
-        ex mustEqual failure
-      }
-    }
-  }
-
   "EuVatRefundsService.addPurchase" - {
-
     val request = AddPurchaseRequest(
       applicationId              = 123456,
       goodsDescriptionCategory   = "1",
@@ -171,4 +136,60 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
       }
     }
   }
+
+  "EuVatRefundsService.getSupplierVrnCount" - {
+    val request = SupplierVrnCountRequest(
+      applicationId = 133,
+      itemNumber    = 4,
+      vatNumber     = "500000881",
+      invoiceNumber = "a444"
+    )
+
+    val expectedResponse = SupplierVrnCountResponse(duplicateCount = 1)
+
+    "should return the supplier VRN count from the connector" in {
+      when(mockConnector.getSupplierVrnCount(any())(any()))
+        .thenReturn(Future.successful(expectedResponse))
+
+      val result = service.getSupplierVrnCount(request)(hc).futureValue
+      result mustEqual expectedResponse
+    }
+
+    "should propagate an exception from the connector" in {
+      val failure = new RuntimeException("Connector failed")
+
+      when(mockConnector.getSupplierVrnCount(any())(any()))
+        .thenReturn(Future.failed(failure))
+
+      val result = service.getSupplierVrnCount(request)
+
+      whenReady(result.failed) { ex =>
+        ex mustEqual failure
+      }
+    }
+  }
+
+  "EuVatRefundsService.getSupplierTaxIdentifierCount" - {
+    val request = SupplierTaxIdentifierCountRequest(applicationId = 123L, itemNumber = 1, taxIdentifier = "TAX123", invoiceNumber = "INV1")
+    val expectedResponse = SupplierTaxIdentifierCountResponse(duplicateCount = 0)
+
+    "should return the response from the connector" in {
+      when(mockConnector.getSupplierTaxIdentifierCount(any())(any()))
+        .thenReturn(Future.successful(expectedResponse))
+
+      service.getSupplierTaxIdentifierCount(request)(hc).futureValue mustEqual expectedResponse
+    }
+
+    "should propagate an exception from the connector" in {
+      val failure = new RuntimeException("Connector failed")
+
+      when(mockConnector.getSupplierTaxIdentifierCount(any())(any()))
+        .thenReturn(Future.failed(failure))
+
+      whenReady(service.getSupplierTaxIdentifierCount(request).failed) { ex =>
+        ex mustEqual failure
+      }
+    }
+  }
+
 }

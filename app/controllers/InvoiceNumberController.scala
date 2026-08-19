@@ -22,7 +22,8 @@ import forms.InvoiceNumberFormProvider
 import javax.inject.Inject
 import models.{Mode, NormalMode}
 import navigation.Navigator
-import pages.{InvoiceNumberPage, VrnWarningFlowPage}
+import pages.{InvoiceNumberPage, SupplierTaxIdentifierWarningShownPage, VrnWarningFlowPage}
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -31,6 +32,7 @@ import views.html.InvoiceNumberView
 import play.api.mvc.Call
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Success
 
 class InvoiceNumberController @Inject() (
   override val messagesApi: MessagesApi,
@@ -46,8 +48,7 @@ class InvoiceNumberController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  val form = formProvider()
-
+  val form: Form[String] = formProvider()
   private def backLink(mode: Mode): Call = routes.InvoiceTypeController.onPageLoad(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
@@ -68,16 +69,38 @@ class InvoiceNumberController @Inject() (
         value => {
           val changed = !request.userAnswers.get(InvoiceNumberPage).contains(value)
           for {
-            updated <- Future.fromTry(request.userAnswers.set(InvoiceNumberPage, value))
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(InvoiceNumberPage, value))
             finalAnswers <- Future.fromTry(
-                              if (request.userAnswers.get(VrnWarningFlowPage).isDefined && changed)
-                                updated.set(VrnWarningFlowPage, false)
-                              else
-                                scala.util.Success(updated)
+                              if (updatedAnswers.get(VrnWarningFlowPage).isDefined && changed) {
+                                updatedAnswers.set(VrnWarningFlowPage, false)
+                              } else {
+                                Success(updatedAnswers)
+                              }
                             )
             _ <- sessionRepository.set(finalAnswers)
-          } yield Redirect(navigator.nextPage(InvoiceNumberPage, mode, finalAnswers))
+            result <- {
+              // special flows when coming from the supplier tax identifier warning
+              val wasShown = finalAnswers.get(SupplierTaxIdentifierWarningShownPage).contains(true)
+              val previousInvoice = finalAnswers.get(InvoiceNumberPage)
+
+              if (wasShown) {
+                if (previousInvoice.contains(value)) {
+                  // invoice not changed -> show warning again
+                  Future.successful(Redirect(routes.SupplierTaxIdentifierWarningController.onPageLoad(mode)))
+                } else {
+                  // invoice changed -> clear the flag and route to supplier tax id page
+                  val cleared = finalAnswers.remove(SupplierTaxIdentifierWarningShownPage)
+                  Future
+                    .fromTry(cleared)
+                    .flatMap(ua => sessionRepository.set(ua).map(_ => Redirect(routes.SupplierTaxIdentifierNumberController.onPageLoad(mode))))
+                }
+              } else {
+                Future.successful(Redirect(navigator.nextPage(InvoiceNumberPage, mode, finalAnswers)))
+              }
+            }
+          } yield result
         }
       )
   }
+
 }
