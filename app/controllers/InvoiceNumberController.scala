@@ -81,10 +81,9 @@ class InvoiceNumberController @Inject() (
             result <- {
               // special flows when coming from the supplier tax identifier warning
               val wasShown = finalAnswers.get(SupplierTaxIdentifierWarningShownPage).contains(true)
-              val previousInvoice = finalAnswers.get(InvoiceNumberPage)
 
               if (wasShown) {
-                if (previousInvoice.contains(value)) {
+                if (!changed) {
                   // invoice not changed -> show warning again
                   Future.successful(Redirect(routes.SupplierTaxIdentifierWarningController.onPageLoad(mode)))
                 } else {

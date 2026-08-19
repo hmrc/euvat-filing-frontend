@@ -328,39 +328,6 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Journey Recovery when the addPurchase call fails" in {
-      val mockSessionRepository = mock[SessionRepository]
-      when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
-      when(mockEuVatRefundsService.addPurchase(any())(any()))
-        .thenReturn(Future.failed(new RuntimeException("boom")))
-
-      val userAnswers = emptyUserAnswers
-        .set(ClaimApplicationResponseQuery, ApplicationResponse(134, "GB123134", 1))
-        .success
-        .value
-
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(
-          bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-          bind[SessionRepository].toInstance(mockSessionRepository)
-        )
-        .build()
-
-      running(application) {
-        val request = FakeRequest(POST, purchaseTypeSubmitRoute)
-          .withFormUrlEncodedBody("value" -> PurchaseType.Transport.toString)
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-
-        val captor = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
-        verify(mockSessionRepository, times(1)).set(captor.capture())
-        val saved = captor.getValue
-        saved.get(pages.DescribeItemsOnInvoicePage) mustBe None
-      }
-    }
-
     "must add the purchase, persist the response, and redirect when valid data is submitted" in {
 
       val mockSessionRepository = mock[SessionRepository]
@@ -417,6 +384,11 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+
+        val captor = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
+        verify(mockSessionRepository, times(1)).set(captor.capture())
+        val saved = captor.getValue
+        saved.get(pages.DescribeItemsOnInvoicePage) mustBe None
       }
     }
 
