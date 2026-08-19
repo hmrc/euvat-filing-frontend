@@ -45,6 +45,7 @@ class RefundingLanguageController @Inject() (
   formProvider: RefundingLanguageFormProvider,
   configLanguageMapping: ConfigLanguageMapping,
   configCurrencyMapping: ConfigCurrencyMapping,
+  refundingAndPurchaseUtils: RefundingAndPurchaseUtils,
   val controllerComponents: MessagesControllerComponents,
   view: RefundingLanguageView
 )(implicit ec: ExecutionContext)
@@ -58,7 +59,7 @@ class RefundingLanguageController @Inject() (
     // Data guard: require a previously selected refunding country. Support two storage formats:
     // - `RefundingCountryPage` contains the country code
     // - `RefundingCountryNamePage` may contain a delimited string where the code is first ("code,name")
-    CountryCode.findCountryCode(request.userAnswers) match {
+    refundingAndPurchaseUtils.findCountryCode(request.userAnswers) match {
       case None =>
         logger.warn("RefundingLanguageController.onPageLoad - no refunding country in session, redirecting to JourneyRecovery")
         Redirect(routes.JourneyRecoveryController.onPageLoad())
@@ -88,7 +89,7 @@ class RefundingLanguageController @Inject() (
       .fold(
         formWithErrors =>
           // need country code to rebuild options; support either RefundingCountryPage or delimited RefundingCountryNamePage
-          CountryCode.findCountryCode(request.userAnswers) match {
+          refundingAndPurchaseUtils.findCountryCode(request.userAnswers) match {
             case None =>
               logger.warn(
                 "RefundingLanguageController.onSubmit - no refunding country in session while binding form errors; redirecting to JourneyRecovery"

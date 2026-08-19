@@ -21,12 +21,13 @@ import play.api.mvc.Call
 import controllers.routes
 import pages.*
 import models.*
-import utils.{ConfigCurrencyMapping, ConfigLanguageMapping, ConfigPurchaseMapping, CountryCode}
+import utils.{ConfigCurrencyMapping, ConfigLanguageMapping, ConfigPurchaseMapping, RefundingAndPurchaseUtils}
 
 @Singleton
 class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping,
                            configLanguageMapping: ConfigLanguageMapping,
-                           configPurchaseMapping: ConfigPurchaseMapping
+                           configPurchaseMapping: ConfigPurchaseMapping,
+                           refundingAndPurchaseUtils: RefundingAndPurchaseUtils
                           ) {
 
   def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call = mode match {
@@ -93,7 +94,7 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping,
   }
 
   private def navigateFromRefundingCountryPage(mode: Mode, userAnswers: UserAnswers) = {
-    CountryCode.findCountryCode(userAnswers) match {
+    refundingAndPurchaseUtils.findCountryCode(userAnswers) match {
       case Some(code) if configLanguageMapping.languagesFor(code).size <= 1 =>
         mode match {
           case NormalMode => routes.RefundPeriodController.onPageLoad(NormalMode)
@@ -104,7 +105,7 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping,
   }
 
   private def navigateFromRefundingLanguagePage(mode: Mode)(userAnswers: UserAnswers): Call = {
-    CountryCode.findCountryCode(userAnswers) match {
+    refundingAndPurchaseUtils.findCountryCode(userAnswers) match {
       case Some(_) =>
         mode match {
           case NormalMode => routes.RefundPeriodController.onPageLoad(NormalMode)
@@ -120,7 +121,7 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping,
   }
 
   private def navigateFromSupplierAddressPage(mode: Mode)(userAnswers: UserAnswers): Call = {
-    CountryCode.findCountryCode(userAnswers) match {
+    refundingAndPurchaseUtils.findCountryCode(userAnswers) match {
       case Some("DE") => routes.SupplierTaxNumberController.onPageLoad(mode)
       case _          => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode)
     }
@@ -149,7 +150,7 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping,
   }
 
   private def navigateToCurrencyOrPurchaseAmount(mode: Mode)(userAnswers: UserAnswers): Call = {
-    CountryCode.findCountryCode(userAnswers) match {
+    refundingAndPurchaseUtils.findCountryCode(userAnswers) match {
       case Some(countryCode) if configCurrencyMapping.requiresCurrencySelection(countryCode) =>
         routes.RefundingCurrencyController.onPageLoad(mode)
       case Some(_) => routes.TotalPurchaseAmountBeforeVatController.onPageLoad(mode)
@@ -167,7 +168,7 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping,
   private def navigateFromPurchaseTypePage(mode: Mode)(userAnswers: UserAnswers): Call =
     userAnswers.get(PurchaseTypePage) match {
       case Some(parent) =>
-        CountryCode.findCountryCode(userAnswers) match {
+        refundingAndPurchaseUtils.findCountryCode(userAnswers) match {
           case Some(country) =>
             val subs = configPurchaseMapping.subcodesFor(country, parent.toString)
             if (subs.nonEmpty) {
@@ -201,7 +202,7 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping,
     }
 
   private def navigateFromSupplierTaxIdentifierNumberPage(mode: Mode)(userAnswers: UserAnswers): Call = {
-    val maybeCountryCode = CountryCode.findCountryCode(userAnswers)
+    val maybeCountryCode = refundingAndPurchaseUtils.findCountryCode(userAnswers)
     mode match {
       case CheckMode =>
         maybeCountryCode match {
@@ -217,7 +218,7 @@ class Navigator @Inject() (configCurrencyMapping: ConfigCurrencyMapping,
           case Some(code) if configCurrencyMapping.requiresCurrencySelection(code) =>
             routes.RefundingCurrencyController.onPageLoad(mode)
           case Some("DE") => routes.TotalPurchaseAmountBeforeVatController.onPageLoad(mode)
-          case _           => routes.JourneyRecoveryController.onPageLoad()
+          case _          => routes.JourneyRecoveryController.onPageLoad()
         }
     }
   }

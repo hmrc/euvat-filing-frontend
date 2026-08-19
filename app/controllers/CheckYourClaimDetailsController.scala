@@ -29,7 +29,7 @@ import queries.{ClaimApplicationResponseQuery, LatestCountryResponseQuery}
 import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.{ConfigCurrencyMapping, ConfigLanguageMapping, CountryCode}
+import utils.{ConfigCurrencyMapping, ConfigLanguageMapping, RefundingAndPurchaseUtils}
 import viewmodels.checkAnswers.CheckYourClaimDetailsSummary
 import views.html.CheckYourClaimDetailsView
 
@@ -44,6 +44,7 @@ class CheckYourClaimDetailsController @Inject() (
   view: CheckYourClaimDetailsView,
   configLanguageMapping: ConfigLanguageMapping,
   configCurrencyMapping: ConfigCurrencyMapping,
+  refundingAndPurchaseUtils: RefundingAndPurchaseUtils,
   sessionRepository: SessionRepository,
   service: EuVatRefundsService
 )(using ExecutionContext)
@@ -110,7 +111,7 @@ class CheckYourClaimDetailsController @Inject() (
     answers: UserAnswers
   )(implicit messages: Messages): Seq[(String, Seq[(String, Option[String], Seq[(String, String, String)])])] = {
     val languageSection: Seq[(String, Seq[(String, Option[String], Seq[(String, String, String)])])] =
-      CountryCode.findCountryCode(answers) match {
+      refundingAndPurchaseUtils.findCountryCode(answers) match {
         case Some(code) if configLanguageMapping.languagesFor(code).size > 1 =>
           Seq(("checkYourClaimDetails.refundingLanguage.label", Seq(CheckYourClaimDetailsSummary.rowLanguage(answers)).flatten))
         case _ => Seq.empty
