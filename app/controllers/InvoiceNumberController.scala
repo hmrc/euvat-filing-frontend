@@ -82,7 +82,9 @@ class InvoiceNumberController @Inject() (
                 } else {
                   // invoice changed -> clear the flag and route to supplier tax id page
                   val cleared = updatedAnswers.remove(pages.SupplierTaxIdentifierWarningShownPage)
-                  Future.fromTry(cleared).flatMap(ua => sessionRepository.set(ua).map(_ => Redirect(routes.SupplierTaxIdentifierNumberController.onPageLoad(mode))))
+                  Future
+                    .fromTry(cleared)
+                    .flatMap(ua => sessionRepository.set(ua).map(_ => Redirect(routes.SupplierTaxIdentifierNumberController.onPageLoad(mode))))
                 }
               } else {
                 Future.successful(Redirect(navigator.nextPage(InvoiceNumberPage, mode, updatedAnswers)))
