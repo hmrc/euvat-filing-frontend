@@ -256,6 +256,14 @@ checkYourClaimDetails.paragraph = You cannot change the refunding EU member stat
 checkYourClaimDetails.claimDetails.title = Claim details
 checkYourClaimDetails.claimDetails.heading = Claim details
 
+deleteClaim.title = Delete claim
+deleteClaim.heading = Delete claim
+deleteClaim.legend = Are you sure you want to delete this claim?
+deleteClaim.memberState = Refunding EU member state
+deleteClaim.periodStartDate = Refund period start date
+deleteClaim.periodEndDate = Refund period end date
+deleteClaim.error.required = Select yes if you want to delete this claim
+
 beforeYouStart.title = Before you start
 beforeYouStart.heading = Before you start
 beforeYouStart.p1 = To tell HMRC about your purchase, you’ll need the:
@@ -290,14 +298,6 @@ supplierTaxNumber.taxIdentifierNumber = Tax identifier number (also known as Ste
 supplierTaxNumber.taxIdentifierNumber.hint = This is 10 or 11 digits, for example 12/345/67890
 supplierTaxNumber.error.required = Select the supplier tax numbers shown on the invoice
 supplierTaxNumber.neither = I do not have any of these on the invoice
-
-supplierTaxIdentifierWarning.title = Are you sure the supplier’s tax identifier number is correct?
-supplierTaxIdentifierWarning.heading = Are you sure the supplier’s tax identifier number is correct?
-supplierTaxIdentifierWarning.p = You’ve already made a claim with the same supplier’s tax identifier and invoice number. Use a different supplier’s tax identifier or invoice number for this claim.
-supplierTaxIdentifierWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
-supplierTaxIdentifierWarning.changeTax = Change supplier’s tax identifier number
-supplierTaxIdentifierWarning.changeInvoice = Change invoice number
-supplierTaxIdentifierWarning.confirm = Yes, this is correct
 
 supplierVatRegistrationNumber.title = What is the supplier’s VAT registration number?
 supplierVatRegistrationNumber.heading = What is the supplier’s VAT registration number?
@@ -446,3 +446,12 @@ vatClaimWarning.p = You''ve told us the amount of VAT you''re claiming is {0}. T
 vatClaimWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
 vatClaimWarning.yes = Yes, this is correct
 vatClaimWarning.no = No, change the VAT claim amount
+
+
+supplierTaxIdentifierWarning.title = Are you sure the supplier’s tax identifier number is correct?
+supplierTaxIdentifierWarning.heading = Are you sure the supplier’s tax identifier number is correct?
+supplierTaxIdentifierWarning.p = You’ve already made a claim with the same supplier’s tax identifier and invoice number. Use a different supplier’s tax identifier or invoice number for this claim.
+supplierTaxIdentifierWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
+supplierTaxIdentifierWarning.changeTax = Change supplier’s tax identifier number
+supplierTaxIdentifierWarning.changeInvoice = Change invoice number
+supplierTaxIdentifierWarning.confirm = Yes, this is correct
