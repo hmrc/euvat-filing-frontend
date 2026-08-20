@@ -34,28 +34,12 @@ class RefundPeriodFormProvider @Inject() () {
 
   private def currentYearMonth: YearMonth = YearMonth.of(today.getYear, today.getMonthValue)
 
-  private val septemberCutoffConstraint: Constraint[RefundPeriodData] =
-    Constraint { data =>
-      if (!data.start.isBefore(currentYearMonth) || !data.end.isBefore(currentYearMonth)) { Valid }
-      else {
-        val (cutoff, errorKey) =
-          if (today.isAfter(LocalDate.of(today.getYear, 9, 30))) {
-            (YearMonth.of(today.getYear, 1), "refundPeriod.start.error.after30Sept")
-          } else {
-            (YearMonth.of(today.getYear - 1, 1), "refundPeriod.start.error.30SeptOrEarlier")
-          }
-
-        if (!data.start.isBefore(cutoff)) { Valid }
-        else { Invalid(errorKey, cutoff.getYear.toString) }
-      }
-    }
-
   private def fieldsForError(message: String): Set[String] = message match {
     case "refundPeriod.start.error.required" | "refundPeriod.start.error.after30Sept" | "refundPeriod.start.error.30SeptOrEarlier" |
         "refundPeriod.start.error.beforeVatRegDate.remainingQuarter" | "refundPeriod.start.error.beforeVatRegDate.firstQuarter" =>
       Set("start.month", "start.year")
     case "refundPeriod.error.startDateNotAfterEndDate" => Set("start.month", "start.year", "end.month", "end.year")
-    case "refundPeriod.end.error.required" | "refundPeriod.end.error.inPast" | "refundPeriod.end.error.afterVatDeRegDate" =>
+    case "refundPeriod.end.error.required" | "refundPeriod.end.error.afterVatDeRegDate" =>
       Set("end.month", "end.year")
     case "refundPeriod.error.startAndEndInSameYear"    => Set("start.year", "end.year")
     case "refundPeriod.error.periodNotLessThan3Months" => Set("start.month", "end.month")
@@ -85,7 +69,6 @@ class RefundPeriodFormProvider @Inject() () {
       "refundPeriod.start.error.30SeptOrEarlier"                   -> "start",
       "refundPeriod.start.error.beforeVatRegDate.firstQuarter"     -> "start",
       "refundPeriod.start.error.beforeVatRegDate.remainingQuarter" -> "start",
-      "refundPeriod.end.error.inPast"                              -> "end",
       "refundPeriod.end.error.afterVatDeRegDate"                   -> "end"
     )
 
@@ -132,18 +115,12 @@ class RefundPeriodFormProvider @Inject() () {
       if (suppressCutoff && hasLatestOrEarliest) filteredAfterCutoff.filterNot(_.message == "refundPeriod.error.startAndEndInSameYear")
       else filteredAfterCutoff
 
-    // Prefer start/year mismatch, earliest/latest, or period-length error over the generic end-in-past message
-    val filteredErrorsAfterInPast =
-      if (filteredAfterCutoff2.exists(_.message == "refundPeriod.error.startAndEndInSameYear") || hasLatestOrEarliest || hasPeriodLengthError)
-        filteredAfterCutoff2.filterNot(_.message == "refundPeriod.end.error.inPast")
-      else filteredAfterCutoff2
-
     // If there are no field-level errors and an earliest business-rule error exists,
     // only surface the earliest errors (suppress calendar-year and other checks).
     val hasEarliestBusiness = filteredAfterCutoff2.exists(e => e.message.startsWith(earliestPrefix))
     val filteredErrors2 = if (!hasFieldLevelErrors && hasEarliestBusiness) {
-      filteredErrorsAfterInPast.filter(e => e.message.startsWith(earliestPrefix))
-    } else filteredErrorsAfterInPast
+      filteredAfterCutoff2.filter(e => e.message.startsWith(earliestPrefix))
+    } else filteredAfterCutoff2
 
     import play.api.data.FormError
 
@@ -201,18 +178,6 @@ class RefundPeriodFormProvider @Inject() () {
       )
       .verifying("refundPeriod.error.startAndEndInSameYear", datesInSameYear(earliest))
       .verifying("refundPeriod.error.periodNotLessThan3Months", periodLessThan3Months)
-      .verifying(
-        "refundPeriod.end.error.inPast",
-        data => {
-          if (!data.start.isBefore(currentYearMonth) && !data.end.isBefore(currentYearMonth)) {
-            true
-          } else {
-            data.end.isBefore(currentYearMonth) || data.end.getMonthValue == 12
-          }
-        }
-      )
-
-    if (!skipSeptemberCutoff) mapped = mapped.verifying(septemberCutoffConstraint)
 
     Form(mapped)
   }

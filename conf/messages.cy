@@ -13,7 +13,7 @@ site.startAgain = Start again
 site.signIn = Sign in
 site.govuk = GOV.UK
 site.save.continue = Save and continue
-
+site.warning = Warning
 
 date.day = Day
 date.month = Month
@@ -418,13 +418,26 @@ describeItemsOnInvoice.error.required = Enter a description of the items on your
 describeItemsOnInvoice.error.length = Item description must be 255 characters or less
 
 # Warning messages
-
 periodOverlapWarning.title = Are you sure the refund period is correct?
 periodOverlapWarning.heading = Are you sure the refund period is correct?
 periodOverlapWarning.p = You’ve told us the refund period is the same used for another claim. The refund period must not overlap with another claim for the same EU member state.
 periodOverlapWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
 periodOverlapWarning.correct = Yes, this is correct
 periodOverlapWarning.backLink = No, change the refund period
+
+confirmRefundPeriodStartDate.title = Are you sure the refund period start date is correct?
+confirmRefundPeriodStartDate.heading = Are you sure the refund period start date is correct?
+confirmRefundPeriodStartDate.paragraph = You’ve told us the refund period start date is {0}. The refund period start date cannot be before {1}.
+confirmRefundPeriodStartDate.warning = If you submit a claim with inaccurate information, it may be rejected.
+confirmRefundPeriodStartDate.button = Yes, this is correct
+confirmRefundPeriodStartDate.link = No, change the start date
+
+confirmRefundPeriodEndDate.title = Are you sure the refund period end date is correct?
+confirmRefundPeriodEndDate.heading = Are you sure the refund period end date is correct?
+confirmRefundPeriodEndDate.paragraph = You’ve told us the refund period end date is {0}. The refund period end date must be in the past.
+confirmRefundPeriodEndDate.warning = If you submit a claim with inaccurate information, it may be rejected.
+confirmRefundPeriodEndDate.button = Yes, this is correct
+confirmRefundPeriodEndDate.link = No, change the end date
 
 purchaseWarning.title = Are you sure the purchase details are correct?
 purchaseWarning.heading = Are you sure the purchase details are correct?
