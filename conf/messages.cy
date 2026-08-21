@@ -1,6 +1,5 @@
 service.name = Hawlio ad-daliad TAW yr UE
 
-service.name = Hawlio ad-daliad TAW yr UE
 site.remove = Remove
 site.change = Change
 site.view = View
