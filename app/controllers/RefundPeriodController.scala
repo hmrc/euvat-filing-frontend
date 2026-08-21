@@ -153,7 +153,7 @@ class RefundPeriodController @Inject() (
       updatedAnswer2 <- Future.fromTry(updatedAnswer1.set(RefundPeriodPage, refundPeriod))
       updatedAnswer3 <- Future.fromTry(updatedAnswer2.remove(CountryChangedPage))
       updatedAnswer4 <-
-        if (isChanged(updatedAnswer3, startDate, endDate) && updatedAnswer3.get(ClaimDetailsCompletedPage).contains(true)) {
+        if (isChanged(request.userAnswers, startDate, endDate) && updatedAnswer3.get(ClaimDetailsCompletedPage).contains(true)) {
           Future.fromTry(updatedAnswer3.set(ClaimDetailsAmendedPage, true))
         } else {
           Future.successful(updatedAnswer3)
