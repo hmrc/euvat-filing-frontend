@@ -1,5 +1,6 @@
 service.name = Hawlio ad-daliad TAW yr UE
 
+site.back = Yn ôl
 site.remove = Remove
 site.change = Change
 site.view = View
