@@ -1,13 +1,13 @@
 service.name = EU VAT
 
-site.back = Back
-site.remove = Remove
-site.change = Change
+site.back = Yn ôl
+site.remove = Dileu
+site.change = Newid
 site.view = View
-site.no = No
-site.yes = Yes
+site.no = Na
+site.yes = Iawn
 site.or = or
-site.continue = Continue
+site.continue = Parhau
 site.start = Start now
 site.startAgain = Start again
 site.signIn = Sign in
@@ -30,7 +30,7 @@ timeout.signOut = Sign out
 
 error.title.prefix = Error:
 error.prefix = Error
-error.summary.title = There is a problem
+error.summary.title = Mae problem
 
 journeyRecovery.continue.title = Sorry, there is a problem with the service
 journeyRecovery.continue.heading = Sorry, there is a problem with the service
@@ -47,7 +47,7 @@ unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
 unauthorised.guidance = You do not have access to this service.
 
-claim.caption = Claim details
+claim.caption = Manylion yr hawliad
 purchase.caption = Purchase details
 purchasesAndImports.caption = Purchases and imports
 
@@ -175,58 +175,58 @@ contactDetails.error.email.invalidFormat = Enter an email address in the correct
 contactDetails.error.telephone.maxLength = Phone number must be 20 characters or less
 contactDetails.error.telephone.format = Enter a phone number in the correct format
 
-businessActivity.title = Business activity for this claim
-businessActivity.heading = Business activity for this claim
-businessActivity.lead = This is the first Standard Industrial Classification (SIC) code listed for your business:
-businessActivity.lead.no = There is no first SIC code listed for your business
-businessActivity.legend = Do you want to add another SIC code?
-businessActivity.paragraph = If your claim relates to other business activities, you’ll need to enter a SIC code for each one
-businessActivity.error.required = Select yes if you want to add another SIC code
+businessActivity.title = Gweithgarwch busnes ar gyfer yr hawliad hwn
+businessActivity.heading = Gweithgarwch busnes ar gyfer yr hawliad hwn
+businessActivity.lead = Dyma'r cod Dosbarthiad Diwydiannol Safonol (SIC) cyntaf a restrir ar gyfer eich busnes: {0}
+businessActivity.lead.no = Nid oes cod SIC cyntaf wedi'i restru ar gyfer eich busnes
+businessActivity.legend = A ydych am ychwanegu cod SIC arall?
+businessActivity.paragraph = Os yw’ch hawliad yn ymwneud â gweithgarwch busnes arall, bydd angen i chi nodi cod SIC ar gyfer pob un
+businessActivity.error.required = 	Dewiswch ‘Iawn’ os ydych am ychwanegu cod SIC arall
 
-businessActivityCodeTwo.title = What is the second SIC code?
-businessActivityCodeTwo.heading = What is the second SIC code?
+businessActivityCodeTwo.title = Beth yw’r ail god SIC?
+businessActivityCodeTwo.heading = Beth yw’r ail god SIC?
 businessActivityCodeTwo.textLabel = Enter the SIC code
-businessActivityCodeTwo.p = <p class="govuk-body">You can find the SIC codes on the <a href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2007" class="govuk-link" target="_blank" rel="noreferrer noopener">Office for National Statistics website (opens in a new tab)</a>.</p>
-businessActivityCodeTwo.error.summary = Enter a SIC code
-businessActivityCodeTwo.error.required = Enter a SIC code
-businessActivityCodeTwo.error.invalid = Enter a SIC code in the correct format
-businessActivityCodeTwo.error.invalid.summary = Enter a SIC code in the correct format
-businessActivityCodeTwo.error.duplicate = You cannot use a SIC code that you’ve already used
-businessActivityCodeTwo.error.length = SIC code cannot be more than 4 numbers
+businessActivityCodeTwo.p = <p class="govuk-body">Gallwch ddod o hyd i'r codau SIC ar <a href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2007" class="govuk-link" target="_blank" rel="noreferrer noopener">wefan y Swyddfa Ystadegau Gwladol (yn agor tab newydd)</a>.</p>
+businessActivityCodeTwo.error.summary = Nodwch god SIC
+businessActivityCodeTwo.error.required = Nodwch god SIC
+businessActivityCodeTwo.error.invalid = Nodwch god SIC yn y fformat cywir
+businessActivityCodeTwo.error.invalid.summary = Nodwch god SIC yn y fformat cywir
+businessActivityCodeTwo.error.duplicate = Ni allwch ddefnyddio cod SIC rydych eisoes wedi'i ddefnyddio
+businessActivityCodeTwo.error.length = 	Ni all cod SIC fod yn fwy na 4 rhif
 
-businessActivityTwo.title = Business activity for this claim
-businessActivityTwo.heading = Business activity for this claim
-businessActivityTwo.insetText = This is the first Standard Industrial Classification (SIC) code listed for your business: {0}
-businessActivityTwo.ba2.label = Second SIC code
-businessActivityTwo.ba2.change.hidden = Change second SIC code
-businessActivityTwo.ba2.remove.hidden = Remove second SIC code
+businessActivityTwo.title = Gweithgarwch busnes ar gyfer yr hawliad hwn
+businessActivityTwo.heading = Gweithgarwch busnes ar gyfer yr hawliad hwn
+businessActivityTwo.insetText = Dyma'r cod Dosbarthiad Diwydiannol Safonol (SIC) cyntaf a restrir ar gyfer eich busnes: {0}
+businessActivityTwo.ba2.label = Ail god SIC
+businessActivityTwo.ba2.change.hidden = Newidiwch yr ail god SIC
+businessActivityTwo.ba2.remove.hidden = Tynnwch yr ail god SIC
 
 removeSecond.heading = Are you sure you want to remove the second SIC code?
 removeSecond.title = Are you sure you want to remove the second SIC code?
 removeSecond.error.required = Select yes if you want to remove the second SIC code
 
-businessActivityCodeThree.title = What is the third SIC code?
-businessActivityCodeThree.heading = What is the third SIC code?
+businessActivityCodeThree.title = Beth yw’r trydydd cod SIC?
+businessActivityCodeThree.heading = Beth yw’r trydydd cod SIC?
 businessActivityCodeThree.textLabel = Enter the SIC code
-businessActivityCodeThree.p = <p class="govuk-body">You can find the SIC codes on the <a href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2007" class="govuk-link" target="_blank" rel="noreferrer noopener">Office for National Statistics website (opens in a new tab)</a>.</p>
-businessActivityCodeThree.error.summary = Enter a SIC code
-businessActivityCodeThree.error.required = Enter a SIC code
-businessActivityCodeThree.error.invalid = Enter a SIC code in the correct format
-businessActivityCodeThree.error.invalid.summary = Enter a SIC code in the correct format
-businessActivityCodeThree.error.duplicate = You cannot use a SIC code that you’ve already used
-businessActivityCodeThree.error.length = SIC code cannot be more than 4 numbers
-businessActivityCodeThree.checkYourAnswersLabel = 3rd business activity code
-businessActivityCodeThree.change.hidden = Change the 3rd business activity code
+businessActivityCodeThree.p = <p class="govuk-body">Gallwch ddod o hyd i'r codau SIC ar <a href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2007" class="govuk-link" target="_blank" rel="noreferrer noopener"> wefan y Swyddfa Ystadegau Gwladol (yn agor tab</a>.</p>
+businessActivityCodeThree.error.summary = Nodwch god SIC
+businessActivityCodeThree.error.required = Nodwch god SIC
+businessActivityCodeThree.error.invalid = Nodwch god SIC yn y fformat cywir
+businessActivityCodeThree.error.invalid.summary = Nodwch god SIC yn y fformat cywir
+businessActivityCodeThree.error.duplicate = Ni allwch ddefnyddio cod SIC rydych eisoes wedi'i ddefnyddio
+businessActivityCodeThree.error.length = Ni all cod SIC fod yn fwy na 4 rhif
+businessActivityCodeThree.checkYourAnswersLabel = 3ydd cod gweithgarwch busnes
+businessActivityCodeThree.change.hidden = Newidiwch y 3ydd cod gweithgarwch busnes
 
-businessActivityThree.title = Business activity for this claim
-businessActivityThree.heading = Business activity for this claim
-businessActivityThree.lead = This is the first Standard Industrial Classification (SIC) code listed for your business:
-businessActivityThree.ba2.label = Second SIC code
-businessActivityThree.ba3.label = Third SIC code
-businessActivityThree.ba2.remove.hidden = Remove second SIC Code
-businessActivityThree.ba3.remove.hidden = Remove third SIC Code
-businessActivityThree.ba2.change.hidden = Change second SIC Code
-businessActivityThree.ba3.change.hidden = Change third SIC Code
+businessActivityThree.title = Gweithgarwch busnes ar gyfer yr hawliad hwn
+businessActivityThree.heading = Gweithgarwch busnes ar gyfer yr hawliad hwn
+businessActivityThree.lead = Dyma'r cod Dosbarthiad Diwydiannol Safonol (SIC) cyntaf a restrir ar gyfer eich busnes: {0}
+businessActivityThree.ba2.label = Ail god SIC
+businessActivityThree.ba3.label = Trydydd cod SIC
+businessActivityThree.ba2.remove.hidden = Tynnwch yr ail god SIC
+businessActivityThree.ba3.remove.hidden = Tynnwch y trydydd cod SIC
+businessActivityThree.ba2.change.hidden = Newidiwch yr ail god SIC
+businessActivityThree.ba3.change.hidden = Newidiwch y trydydd cod SIC
 
 removeThird.heading = Are you sure you want to remove the third SIC code?
 removeThird.title = Are you sure you want to remove the third SIC code?
