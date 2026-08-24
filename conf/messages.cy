@@ -1,4 +1,4 @@
-service.name = Hawlio ad-daliad TAW yr UE
+service.name = TAW yr UE
 
 site.back = Yn ôl
 site.remove = Remove
