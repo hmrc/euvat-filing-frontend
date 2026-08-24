@@ -1,13 +1,13 @@
-service.name = EU VAT
+service.name = TAW yr UE
 
-site.back = Back
+site.back = Yn ôl
 site.remove = Remove
 site.change = Change
 site.view = View
 site.no = No
 site.yes = Yes
 site.or = or
-site.continue = Continue
+site.continue = Parhau
 site.start = Start now
 site.startAgain = Start again
 site.signIn = Sign in
@@ -348,34 +348,34 @@ totalPurchaseAmountBeforeVat.inset = The currency for this claim is in {0} ({1})
 totalPurchaseAmountBeforeVat.p1 = This is the purchase amount before VAT is added. If your invoice does not show this amount, you’ll need to <a href="https://www.gov.uk/charge-reclaim-record-vat" class="govuk-link" target="_blank" rel="noreferrer noopener">calculate it (opens in a new tab)</a>.
 totalPurchaseAmountBeforeVat.hint = For example, {0}150 or {0}120.45
 totalPurchaseAmountBeforeVat.checkYourAnswersLabel = Amount before VAT
-totalPurchaseAmountBeforeVat.change.hidden = Total purchase amount before VAT
-totalPurchaseAmountBeforeVat.error.nonNumeric = Enter the total purchase amount before VAT in the correct format
-totalPurchaseAmountBeforeVat.error.required = Enter the total purchase amount before VAT
-totalPurchaseAmountBeforeVat.error.aboveMaximum = Total purchase amount before VAT must be between -999,999,999.99 and 999,999,999.99
-totalPurchaseAmountBeforeVat.error.invalidNumeric = Enter the total purchase amount before VAT in the correct format
+totalPurchaseAmountBeforeVat.change.hidden = Cyfanswm y pryniant cyn TAW
+totalPurchaseAmountBeforeVat.error.nonNumeric = Nodwch gyfanswm y pryniant cyn TAW yn y fformat cywir
+totalPurchaseAmountBeforeVat.error.required = Nodwch gyfanswm y pryniant cyn TAW
+totalPurchaseAmountBeforeVat.error.aboveMaximum = Mae’n rhaid i gyfanswm y pryniant cyn TAW fod rhwng -999,999,999.99 a 999,999,999.99
+totalPurchaseAmountBeforeVat.error.invalidNumeric = Nodwch gyfanswm y pryniant cyn TAW yn y fformat cywir
 
-totalVatPaid.title = Total VAT paid
-totalVatPaid.heading = Total VAT paid
-totalVatPaid.h2 = How much VAT did you pay?
-totalVatPaid.p1 = This is the amount of VAT charged. If your invoice does not show this amount, you''ll need to <a href="https://www.gov.uk/charge-reclaim-record-vat" class="govuk-link" target="_blank">calculate it (opens in a new tab)</a>.
-totalVatPaid.hint = For example, {0}150 or {0}120.45
-totalVatPaid.error.required = Enter total VAT paid
-totalVatPaid.error.invalidNumeric = Enter total VAT paid in the correct format
-totalVatPaid.error.nonNumeric = Enter total VAT paid in the correct format
-totalVatPaid.error.aboveMaximum = Total VAT paid must be between -999,999,999.99 and 999,999,999.99
+totalVatPaid.title = Cyfanswm y TAW a dalwyd
+totalVatPaid.heading = Cyfanswm y TAW a dalwyd
+totalVatPaid.h2 = Faint o TAW a daloch?
+totalVatPaid.p1 = Dyma swm y TAW a godir. Os nad yw’ch anfoneb yn dangos y swm hwn, bydd angen i chi <a href="https://www.gov.uk/charge-reclaim-record-vat" class="govuk-link" target="_blank">ei gyfrifo (yn agor tab newydd)</a>.
+totalVatPaid.hint = Er enghraifft, {0}150 neu {0}120.45
+totalVatPaid.error.required = Nodwch gyfanswm y TAW a dalwyd
+totalVatPaid.error.invalidNumeric = Nodwch gyfanswm y TAW a dalwyd yn y fformat cywir
+totalVatPaid.error.nonNumeric = Nodwch gyfanswm y TAW a dalwyd yn y fformat cywir
+totalVatPaid.error.aboveMaximum = Mae’n rhaid i gyfanswm y TAW a dalwyd fod rhwng -999,999,999.99 a 999,999,999.99
 totalVatPaid.checkYourAnswersLabel = VAT paid
 totalVatPaid.change.hidden=Change VAT paid
 
-totalVatClaim.title = Total VAT claim
-totalVatClaim.heading = Total VAT claim
-totalVatClaim.p1 = This is the amount of VAT you are entitled to claim back. It may be less than the amount you paid.
-totalVatClaim.checkYourAnswersLabel=VAT claim
-totalVatClaim.h2 = How much VAT are you claiming?
-totalVatClaim.hint = For example, {0}150 or {0}120.45
-totalVatClaim.error.required = Enter the total amount of VAT you’re claiming
-totalVatClaim.error.invalidNumeric = Enter total VAT claim in the correct format
-totalVatClaim.error.nonNumeric =  Enter total VAT claim in the correct format
-totalVatClaim.error.aboveMaximum = Total VAT claim must be between -999,999,999.99 and 999,999,999.99
+totalVatClaim.title = Cyfanswm y TAW a hawliwyd
+totalVatClaim.heading = Cyfanswm y TAW a hawliwyd
+totalVatClaim.p1 = Dyma swm y TAW y mae gennych hawl i’w hawlio’n ôl. Efallai ei fod yn llai na’r swm a dalwyd gennych.
+totalVatClaim.checkYourAnswersLabel = VAT claim
+totalVatClaim.h2 = Faint o TAW rydych yn ei hawlio?
+totalVatClaim.hint = Er enghraifft, {0}150  neu {0}120.45
+totalVatClaim.error.required = Nodwch gyfanswm y TAW rydych yn ei hawlio
+totalVatClaim.error.invalidNumeric = Nodwch gyfanswm yr hawliad TAW yn y fformat cywir
+totalVatClaim.error.nonNumeric = Nodwch gyfanswm yr hawliad TAW yn y fformat cywir
+totalVatClaim.error.aboveMaximum = Mae’n rhaid i gyfanswm yr hawliad TAW fod rhwng -999,999,999.99 a 999,999,999.99
 totalVatClaim.change.hidden = Change VAT claim
 
 supplierAddress.title = What is the supplier’s address?
