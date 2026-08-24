@@ -1,4 +1,4 @@
-service.name = EU VAT
+service.name = TAW yr UE
 
 site.back = Yn ôl
 site.remove = Dileu
@@ -177,8 +177,8 @@ contactDetails.error.telephone.format = Enter a phone number in the correct form
 
 businessActivity.title = Gweithgarwch busnes ar gyfer yr hawliad hwn
 businessActivity.heading = Gweithgarwch busnes ar gyfer yr hawliad hwn
-businessActivity.lead = Dyma'r cod Dosbarthiad Diwydiannol Safonol (SIC) cyntaf a restrir ar gyfer eich busnes: {0}
-businessActivity.lead.no = Nid oes cod SIC cyntaf wedi'i restru ar gyfer eich busnes
+businessActivity.lead = Dyma’r cod Dosbarthiad Diwydiannol Safonol (SIC) cyntaf a restrir ar gyfer eich busnes: {0}
+businessActivity.lead.no = Nid oes cod SIC cyntaf wedi’i restru ar gyfer eich busnes
 businessActivity.legend = A ydych am ychwanegu cod SIC arall?
 businessActivity.paragraph = Os yw’ch hawliad yn ymwneud â gweithgarwch busnes arall, bydd angen i chi nodi cod SIC ar gyfer pob un
 businessActivity.error.required = 	Dewiswch ‘Iawn’ os ydych am ychwanegu cod SIC arall
@@ -186,17 +186,17 @@ businessActivity.error.required = 	Dewiswch ‘Iawn’ os ydych am ychwanegu cod
 businessActivityCodeTwo.title = Beth yw’r ail god SIC?
 businessActivityCodeTwo.heading = Beth yw’r ail god SIC?
 businessActivityCodeTwo.textLabel = Enter the SIC code
-businessActivityCodeTwo.p = <p class="govuk-body">Gallwch ddod o hyd i'r codau SIC ar <a href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2007" class="govuk-link" target="_blank" rel="noreferrer noopener">wefan y Swyddfa Ystadegau Gwladol (yn agor tab newydd)</a>.</p>
+businessActivityCodeTwo.p = <p class="govuk-body">Gallwch ddod o hyd i’r codau SIC ar <a href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2007" class="govuk-link" target="_blank" rel="noreferrer noopener">wefan y Swyddfa Ystadegau Gwladol (yn agor tab newydd)</a>.</p>
 businessActivityCodeTwo.error.summary = Nodwch god SIC
 businessActivityCodeTwo.error.required = Nodwch god SIC
 businessActivityCodeTwo.error.invalid = Nodwch god SIC yn y fformat cywir
 businessActivityCodeTwo.error.invalid.summary = Nodwch god SIC yn y fformat cywir
-businessActivityCodeTwo.error.duplicate = Ni allwch ddefnyddio cod SIC rydych eisoes wedi'i ddefnyddio
+businessActivityCodeTwo.error.duplicate = Ni allwch ddefnyddio cod SIC rydych eisoes wedi’i ddefnyddio
 businessActivityCodeTwo.error.length = 	Ni all cod SIC fod yn fwy na 4 rhif
 
 businessActivityTwo.title = Gweithgarwch busnes ar gyfer yr hawliad hwn
 businessActivityTwo.heading = Gweithgarwch busnes ar gyfer yr hawliad hwn
-businessActivityTwo.insetText = Dyma'r cod Dosbarthiad Diwydiannol Safonol (SIC) cyntaf a restrir ar gyfer eich busnes: {0}
+businessActivityTwo.insetText = Dyma’r cod Dosbarthiad Diwydiannol Safonol (SIC) cyntaf a restrir ar gyfer eich busnes: {0}
 businessActivityTwo.ba2.label = Ail god SIC
 businessActivityTwo.ba2.change.hidden = Newidiwch yr ail god SIC
 businessActivityTwo.ba2.remove.hidden = Tynnwch yr ail god SIC
@@ -208,7 +208,7 @@ removeSecond.error.required = Select yes if you want to remove the second SIC co
 businessActivityCodeThree.title = Beth yw’r trydydd cod SIC?
 businessActivityCodeThree.heading = Beth yw’r trydydd cod SIC?
 businessActivityCodeThree.textLabel = Enter the SIC code
-businessActivityCodeThree.p = <p class="govuk-body">Gallwch ddod o hyd i'r codau SIC ar <a href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2007" class="govuk-link" target="_blank" rel="noreferrer noopener"> wefan y Swyddfa Ystadegau Gwladol (yn agor tab</a>.</p>
+businessActivityCodeThree.p = <p class="govuk-body">Gallwch ddod o hyd i’r codau SIC ar <a href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2007" class="govuk-link" target="_blank" rel="noreferrer noopener"> wefan y Swyddfa Ystadegau Gwladol (yn agor tab</a>.</p>
 businessActivityCodeThree.error.summary = Nodwch god SIC
 businessActivityCodeThree.error.required = Nodwch god SIC
 businessActivityCodeThree.error.invalid = Nodwch god SIC yn y fformat cywir
@@ -220,7 +220,7 @@ businessActivityCodeThree.change.hidden = Newidiwch y 3ydd cod gweithgarwch busn
 
 businessActivityThree.title = Gweithgarwch busnes ar gyfer yr hawliad hwn
 businessActivityThree.heading = Gweithgarwch busnes ar gyfer yr hawliad hwn
-businessActivityThree.lead = Dyma'r cod Dosbarthiad Diwydiannol Safonol (SIC) cyntaf a restrir ar gyfer eich busnes: {0}
+businessActivityThree.lead = Dyma’r cod Dosbarthiad Diwydiannol Safonol (SIC) cyntaf a restrir ar gyfer eich busnes: {0}
 businessActivityThree.ba2.label = Ail god SIC
 businessActivityThree.ba3.label = Trydydd cod SIC
 businessActivityThree.ba2.remove.hidden = Tynnwch yr ail god SIC
