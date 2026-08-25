@@ -165,8 +165,8 @@ refundPeriod.error.startAndEndInSameYear = Mae’n rhaid i ddyddiad dechrau a dy
 refundPeriod.error.overlap = Refund period cannot overlap with another claim for the same EU member state.
 refundPeriod.error.periodNotLessThan3Months = Mae’n rhaid i cyfnod yr ad-daliad fod o leiaf 3 mis o hyd oni bai bod y cyfnod yn dod i ben ym mis Rhagfyr
 
-contactDetails.title = Sut ddylem gysylltu â chi ynglŷn â'r hawliad hwn?
-contactDetails.heading = Sut ddylem gysylltu â chi ynglŷn â'r hawliad hwn?
+contactDetails.title = Sut ddylem gysylltu â chi ynglŷn â’r hawliad hwn?
+contactDetails.heading = Sut ddylem gysylltu â chi ynglŷn â’r hawliad hwn?
 contactDetails.contactEmail.label = Cyfeiriad e-bost
 contactDetails.contactTelephone.label = Rhif ffôn (dewisol)
 contactDetails.contactTelephone.hint = Cynhwyswch cod yr ardal, er enghraifft 01632960001 neu +448081570192
