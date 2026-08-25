@@ -1,13 +1,13 @@
-service.name = EU VAT
+service.name = TAW yr UE
 
-site.back = Back
+site.back = Yn ôl
 site.remove = Remove
 site.change = Change
 site.view = View
-site.no = No
-site.yes = Yes
+site.no = Na
+site.yes = Iawn
 site.or = or
-site.continue = Continue
+site.continue = Parhau
 site.start = Start now
 site.startAgain = Start again
 site.signIn = Sign in
@@ -28,9 +28,9 @@ timeout.message = For security reasons, you will be signed out of this service i
 timeout.keepAlive = Stay signed in
 timeout.signOut = Sign out
 
-error.title.prefix = Error:
-error.prefix = Error
-error.summary.title = There is a problem
+error.title.prefix = Gwall:
+error.prefix = Gwall
+error.summary.title = Mae problem
 
 journeyRecovery.continue.title = Sorry, there is a problem with the service
 journeyRecovery.continue.heading = Sorry, there is a problem with the service
@@ -48,7 +48,7 @@ unauthorised.heading = You can’t access this service with this account
 unauthorised.guidance = You do not have access to this service.
 
 claim.caption = Claim details
-purchase.caption = Purchase details
+purchase.caption = Manylion y pryniant
 
 taskListDashboard.title = Make a claim for an EU VAT refund
 taskListDashboard.heading = Make a claim for an EU VAT refund
@@ -312,13 +312,13 @@ supplierTaxNumber.neither = I do not have any of these on the invoice
 supplierTaxNumber.checkYourAnswersLabel = Supplier tax numbers
 supplierTaxNumber.change.hidden = Change supplier tax numbers
 
-supplierVatRegistrationNumber.title = What is the supplier’s VAT registration number?
-supplierVatRegistrationNumber.heading = What is the supplier’s VAT registration number?
-supplierVatRegistrationNumber.hint = This can be up to 12 characters and may start with a 2-letter EU country code. For example, FR123456789
-supplierVatRegistrationNumber.hint.germany = Enter the supplier’s VAT registration number as it appears on the invoice. Do not include the 2-letter country code, for example 123456789
-supplierVatRegistrationNumber.error.required = Enter the supplier’s VAT registration number
-supplierVatRegistrationNumber.error.invalid = Enter the supplier’s VAT registration number in the correct format
-supplierVatRegistrationNumber.error.length = Supplier’s VAT registration number must be 12 characters or less
+supplierVatRegistrationNumber.title = Beth yw rhif cofrestru TAW y cyflenwr?
+supplierVatRegistrationNumber.heading = Beth yw rhif cofrestru TAW y cyflenwr?
+supplierVatRegistrationNumber.hint = Gall hwn fod hyd at 12 cymeriad a gall ddechrau gyda chod gwlad 2 lythyren yr UE. Er enghraifft, FR123456789
+supplierVatRegistrationNumber.hint.germany = Nodwch rif cofrestru TAW y cyflenwr fel y mae’n ymddangos ar yr anfoneb. Peidiwch â chynnwys y cod gwlad 2 lythyren, er enghraifft 123456789
+supplierVatRegistrationNumber.error.required = Nodwch rif cofrestru TAW y cyflenwr
+supplierVatRegistrationNumber.error.invalid = Nodwch rif cofrestru TAW y cyflenwr yn y fformat cywir
+supplierVatRegistrationNumber.error.length = Mae’n rhaid i rif cofrestru TAW y cyflenwr fod yn 12 cymeriad neu lai
 supplierVatRegistrationNumber.checkYourAnswersLabel = Supplier VAT registration number
 supplierVatRegistrationNumber.change.hidden = Change supplier VAT registration number
 
@@ -375,14 +375,14 @@ totalVatClaim.error.nonNumeric =  Enter total VAT claim in the correct format
 totalVatClaim.error.aboveMaximum = Total VAT claim must be between -999,999,999.99 and 999,999,999.99
 totalVatClaim.change.hidden = Change VAT claim
 
-supplierAddress.title = What is the supplier’s address?
-supplierAddress.heading = What is the supplier’s address?
-supplierAddress.lead = Enter the supplier’s address as it appears on the invoice or receipt.
-supplierAddress.line1.label = Address line 1
-supplierAddress.line2.label = Address line 2 (optional)
-supplierAddress.line3.label = Address line 3 (optional)
-supplierAddress.error.line1.required = Enter address line 1, typically the building and street
-supplierAddress.error.maxLength = must be 35 characters or less
+supplierAddress.title = Beth yw cyfeiriad y cyflenwr?
+supplierAddress.heading = Beth yw cyfeiriad y cyflenwr?
+supplierAddress.lead = Nodwch gyfeiriad y cyflenwr fel y mae’n ymddangos ar yr anfoneb neu’r dderbynneb.
+supplierAddress.line1.label = Cyfeiriad – llinell 1
+supplierAddress.line2.label = Cyfeiriad – llinell 2 (dewisol)
+supplierAddress.line3.label = Cyfeiriad – llinell 3 (dewisol)
+supplierAddress.error.line1.required = Nodwch linell 1 y cyfeiriad (enw’r adeilad a’r stryd gan amlaf)
+supplierAddress.error.maxLength = mae’n rhaid fod yn 35 cymeriad neu lai
 supplierAddress.error.maxLength.withLabel = {0} {1}
 supplierAddress.checkYourAnswersLabel=Supplier address
 supplierAddress.change.hidden = Change supplier address
@@ -414,10 +414,10 @@ invoiceNumber.error.invalid = Enter a valid invoice number
 invoiceNumber.checkYourAnswersLabel = Invoice number
 invoiceNumber.change.hidden = Change the invoice number
 
-simplifiedInvoiceVatRegCheck.title = Does the simplified invoice contain the supplier’s VAT registration number?
-simplifiedInvoiceVatRegCheck.heading = Does the simplified invoice contain the supplier’s VAT registration number?
-simplifiedInvoiceVatRegCheck.hint = This can be up to 12 characters and may start with a 2-letter EU country code. For example, FR123456789
-simplifiedInvoiceVatRegCheck.error.required = Select yes if the simplified invoice contains the supplier’s VAT registration number
+simplifiedInvoiceVatRegCheck.title = A yw’r anfoneb symlach yn cynnwys rhif cofrestru TAW y cyflenwr?
+simplifiedInvoiceVatRegCheck.heading = A yw’r anfoneb symlach yn cynnwys rhif cofrestru TAW y cyflenwr?
+simplifiedInvoiceVatRegCheck.hint = Gall hwn fod hyd at 12 cymeriad a gall ddechrau gyda chod gwlad 2 lythyren yr UE. Er enghraifft, FR123456789
+simplifiedInvoiceVatRegCheck.error.required = Dewiswch ‘Iawn’ os yw’r anfoneb symlach yn cynnwys rhif cofrestru TAW y cyflenwr
 simplifiedInvoiceVatRegCheck.checkYourAnswersLabel = Supplier VAT registration check
 simplifiedInvoiceVatRegCheck.change.hidden = Change supplier VAT registration check
 
