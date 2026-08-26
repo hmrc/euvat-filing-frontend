@@ -28,8 +28,8 @@ timeout.message = For security reasons, you will be signed out of this service i
 timeout.keepAlive = Stay signed in
 timeout.signOut = Sign out
 
-error.title.prefix = Error:
-error.prefix = Error
+error.title.prefix = Gwall:
+error.prefix = Gwall
 error.summary.title = Mae problem
 
 journeyRecovery.continue.title = Sorry, there is a problem with the service
@@ -177,7 +177,7 @@ contactDetails.error.telephone.format = Enter a phone number in the correct form
 
 businessActivity.title = Gweithgarwch busnes ar gyfer yr hawliad hwn
 businessActivity.heading = Gweithgarwch busnes ar gyfer yr hawliad hwn
-businessActivity.lead = Dyma’r cod Dosbarthiad Diwydiannol Safonol (SIC) cyntaf a restrir ar gyfer eich busnes: {0}
+businessActivity.lead = Dyma’r cod Dosbarthiad Diwydiannol Safonol (SIC) cyntaf a restrir ar gyfer eich busnes:
 businessActivity.lead.no = Nid oes cod SIC cyntaf wedi’i restru ar gyfer eich busnes
 businessActivity.legend = A ydych am ychwanegu cod SIC arall?
 businessActivity.paragraph = Os yw’ch hawliad yn ymwneud â gweithgarwch busnes arall, bydd angen i chi nodi cod SIC ar gyfer pob un
@@ -213,14 +213,14 @@ businessActivityCodeThree.error.summary = Nodwch god SIC
 businessActivityCodeThree.error.required = Nodwch god SIC
 businessActivityCodeThree.error.invalid = Nodwch god SIC yn y fformat cywir
 businessActivityCodeThree.error.invalid.summary = Nodwch god SIC yn y fformat cywir
-businessActivityCodeThree.error.duplicate = Ni allwch ddefnyddio cod SIC rydych eisoes wedi'i ddefnyddio
+businessActivityCodeThree.error.duplicate = Ni allwch ddefnyddio cod SIC rydych eisoes wedi’i ddefnyddio
 businessActivityCodeThree.error.length = Ni all cod SIC fod yn fwy na 4 rhif
 businessActivityCodeThree.checkYourAnswersLabel = 3ydd cod gweithgarwch busnes
 businessActivityCodeThree.change.hidden = Newidiwch y 3ydd cod gweithgarwch busnes
 
 businessActivityThree.title = Gweithgarwch busnes ar gyfer yr hawliad hwn
 businessActivityThree.heading = Gweithgarwch busnes ar gyfer yr hawliad hwn
-businessActivityThree.lead = Dyma’r cod Dosbarthiad Diwydiannol Safonol (SIC) cyntaf a restrir ar gyfer eich busnes: {0}
+businessActivityThree.lead = Dyma’r cod Dosbarthiad Diwydiannol Safonol (SIC) cyntaf a restrir ar gyfer eich busnes:
 businessActivityThree.ba2.label = Ail god SIC
 businessActivityThree.ba3.label = Trydydd cod SIC
 businessActivityThree.ba2.remove.hidden = Tynnwch yr ail god SIC
