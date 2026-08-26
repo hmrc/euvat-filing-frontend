@@ -49,11 +49,10 @@ class SupplierAddressController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  val form = formProvider()
-
   private def backLink: Call = routes.SuppliersNameController.onPageLoad(NormalMode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+    val form = formProvider()
     // Prepare the form by reading any stored SupplierAddress from session
     val preparedForm = preparedFormFromAnswers(_.get(SupplierAddressPage), form)
     // Render page with OK and shared rendering helper
@@ -62,7 +61,7 @@ class SupplierAddressController @Inject() (
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     // Bind the form and handle both invalid and valid cases
-    form
+    formProvider()
       .bindFromRequest()
       .fold(
         // On form errors render BadRequest using shared helper

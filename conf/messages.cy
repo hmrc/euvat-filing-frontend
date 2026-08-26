@@ -384,6 +384,8 @@ supplierAddress.line3.label = Cyfeiriad – llinell 3 (dewisol)
 supplierAddress.error.line1.required = Nodwch linell 1 y cyfeiriad (enw’r adeilad a’r stryd gan amlaf)
 supplierAddress.error.maxLength = mae’n rhaid fod yn 35 cymeriad neu lai
 supplierAddress.error.maxLength.withLabel = {0} {1}
+supplierAddress.line2.label.short = Cyfeiriad – llinell 2
+supplierAddress.line3.label.short = Cyfeiriad – llinell 3
 supplierAddress.checkYourAnswersLabel=Supplier address
 supplierAddress.change.hidden = Change supplier address
 
