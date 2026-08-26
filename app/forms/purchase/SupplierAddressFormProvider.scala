@@ -32,8 +32,12 @@ class SupplierAddressFormProvider @Inject() (messagesApi: MessagesApi) extends M
 
   private def fieldMaxLengthConstraint(labelKey: String, errorKey: String)(implicit messages: Messages): Constraint[String] =
     Constraint { str =>
-      if (str.length <= addressLineMaxLength) Valid
-      else Invalid("supplierAddress.error.maxLength.withLabel", messages(labelKey), messages("supplierAddress.error.maxLength"))
+      if (str.length <= addressLineMaxLength) {
+        Valid
+      }
+      else {
+        Invalid("supplierAddress.error.maxLength.withLabel", messages(labelKey), messages("supplierAddress.error.maxLength"))
+      }
     }
 
   def apply()(implicit request: RequestHeader): Form[SupplierAddress] = {
