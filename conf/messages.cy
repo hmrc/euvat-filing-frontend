@@ -311,7 +311,7 @@ supplierTaxNumber.vatRegistrationNumber.hint = Fel arfer mae hwn yn 11 cymeriad 
 supplierTaxNumber.taxIdentifierNumber = rhif dynodi Treth (a elwir hefyd yn Steuernummer)
 supplierTaxNumber.taxIdentifierNumber.hint = Mae hwn yn 10 neu 11 digid, er enghraifft 12/345/67890
 supplierTaxNumber.error.required = Dewiswch rifau treth y cyflenwyr a ddangosir ar yr anfoneb
-supplierTaxNumber.neither = I do not have any of these on the invoice
+supplierTaxNumber.neither = Nid oes gennyf unrhyw un o’r rhain ar yr anfoneb
 supplierTaxNumber.checkYourAnswersLabel = Supplier tax numbers
 supplierTaxNumber.change.hidden = Change supplier tax numbers
 
