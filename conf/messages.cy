@@ -1,4 +1,4 @@
-service.name = EU VAT
+service.name = TAW yr UE
 
 site.back = Yn ôl
 site.remove = Remove
