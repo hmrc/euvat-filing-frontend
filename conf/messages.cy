@@ -162,7 +162,6 @@ refundPeriod.end.error.inPast = Mae’n rhaid i ddyddiad diwedd cyfnod yr ad-dal
 refundPeriod.end.error.afterVatDeRegDate = Ni ddylai dyddiad diwedd cyfnod yr ad-daliad fod ar ôl y dyddiad datgofrestru TAW
 refundPeriod.error.startDateNotAfterEndDate = Mae’n rhaid i ddyddiad dechrau cyfnod yr ad-daliad fod yn gynharach na dyddiad gorffen cyfnod yr ad-daliad
 refundPeriod.error.startAndEndInSameYear = Mae’n rhaid i ddyddiad dechrau a dyddiad gorffen cyfnod yr ad-daliad fod yn yr un flwyddyn galendr
-refundPeriod.error.overlap = Refund period cannot overlap with another claim for the same EU member state.
 refundPeriod.error.periodNotLessThan3Months = Mae’n rhaid i cyfnod yr ad-daliad fod o leiaf 3 mis o hyd oni bai bod y cyfnod yn dod i ben ym mis Rhagfyr
 
 contactDetails.title = Sut ddylem gysylltu â chi ynglŷn â’r hawliad hwn?
