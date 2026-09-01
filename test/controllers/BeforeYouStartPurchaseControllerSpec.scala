@@ -44,7 +44,25 @@ class BeforeYouStartPurchaseControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to the Purchase Type Page when submit button is clicked (POST)" in {
+    "must render the correct back link" in {
+
+          val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+          running(application) {
+            val request = FakeRequest(GET, routes.BeforeYouStartPurchaseController.onPageLoad().url)
+
+            val result = route(application, request).value
+
+            val view = application.injector.instanceOf[BeforeYouStartPurchaseView]
+
+            status(result) mustEqual OK
+            normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
+              view(routes.TaskListDashboardController.onPageLoad())(request, messages(application)).toString
+            )
+          }
+        }
+
+    "must redirect to the Journey Recovery Page when submit button is clicked (POST)" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -54,7 +72,7 @@ class BeforeYouStartPurchaseControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
 
-        redirectLocation(result).value mustEqual routes.PurchaseTypeController.onPageLoad(NormalMode).url
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 
