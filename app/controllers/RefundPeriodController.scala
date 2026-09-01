@@ -24,10 +24,10 @@ import models.responses.TraderKnownFactsResponse
 import models.{Mode, RefundPeriod, UserAnswers}
 import navigation.Navigator
 import pages.*
+import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.*
-import play.api.{Configuration, Logging}
 import queries.TraderKnownFactsQuery
 import repositories.SessionRepository
 import services.EuVatRefundsService
