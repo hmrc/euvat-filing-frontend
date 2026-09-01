@@ -40,6 +40,6 @@ class BeforeYouStartController @Inject() (
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    Redirect(controllers.routes.PurchaseTypeController.onPageLoad(NormalMode))
+    Redirect(controllers.routes.PurchaseOrImportController.onPageLoad)
   }
 }

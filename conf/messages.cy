@@ -478,7 +478,27 @@ describeItemsOnInvoice.error.length = Item description must be 255 characters or
 describeItemsOnInvoice.checkYourAnswersLabel = Purchase description
 describeItemsOnInvoice.change.hidden = Change purchase description
 
+purchaseOrImport.title = What do you want to add to this claim?
+purchaseOrImport.heading = What do you want to add to this claim?
+purchaseOrImport.purchase = Purchase
+purchaseOrImport.import = Import
+purchaseOrImport.error.required = Select an item you want to add to this claim
+
 # Warning messages
+confirmRefundPeriodStartDate.title = Are you sure the refund period start date is correct?
+confirmRefundPeriodStartDate.heading = Are you sure the refund period start date is correct?
+confirmRefundPeriodStartDate.paragraph = You’ve told us the refund period start date is {0}. The refund period start date cannot be before {1}.
+confirmRefundPeriodStartDate.warning = If you submit a claim with inaccurate information, it may be rejected.
+confirmRefundPeriodStartDate.button = Yes, this is correct
+confirmRefundPeriodStartDate.link = No, change the start date
+
+periodOverlapWarning.title = Are you sure the refund period is correct?
+periodOverlapWarning.heading = Are you sure the refund period is correct?
+periodOverlapWarning.p = You’ve told us the refund period is the same used for another claim. The refund period must not overlap with another claim for the same EU member state.
+periodOverlapWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
+periodOverlapWarning.correct = Yes, this is correct
+periodOverlapWarning.backLink = No, change the refund period
+
 confirmRefundPeriodStartDate.title = Are you sure the refund period start date is correct?
 confirmRefundPeriodStartDate.heading = Are you sure the refund period start date is correct?
 confirmRefundPeriodStartDate.paragraph = You’ve told us the refund period start date is {0}. The refund period start date cannot be before {1}.
@@ -492,13 +512,6 @@ confirmRefundPeriodEndDate.paragraph = You’ve told us the refund period end da
 confirmRefundPeriodEndDate.warning = If you submit a claim with inaccurate information, it may be rejected.
 confirmRefundPeriodEndDate.button = Yes, this is correct
 confirmRefundPeriodEndDate.link = No, change the end date
-
-periodOverlapWarning.title = Are you sure the refund period is correct?
-periodOverlapWarning.heading = Are you sure the refund period is correct?
-periodOverlapWarning.p = You’ve told us the refund period is the same used for another claim. The refund period must not overlap with another claim for the same EU member state.
-periodOverlapWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
-periodOverlapWarning.correct = Yes, this is correct
-periodOverlapWarning.backLink = No, change the refund period
 
 purchaseWarning.title = Are you sure the purchase details are correct?
 purchaseWarning.heading = Are you sure the purchase details are correct?
