@@ -265,7 +265,6 @@ checkYourClaimDetails.paragraph = You cannot change the refunding EU member stat
 checkYourClaimDetails.claimDetails.title = Claim details
 checkYourClaimDetails.claimDetails.heading = Claim details
 
-# Check your purchase details page
 checkYourPurchaseDetails.title = Check your purchase details
 checkYourPurchaseDetails.heading = Check your purchase details
 
@@ -445,7 +444,6 @@ purchase.checkYourPurchase.invoiceDetails = Invoice details
 purchase.checkYourPurchase.supplierDetails = Supplier details
 purchase.checkYourPurchase.purchaseAmounts = Purchase amounts
 
-# Purchase sub-type headings for Check Your Answers
 purchase.subType.fuel-use = Fuel use
 purchase.subType.transport-cost = Transport cost type
 purchase.subType.food-drink-restaurant-cost = Food, drink or restaurant cost type
@@ -453,7 +451,6 @@ purchase.subType.luxury-entertainment-hospitality-cost = Luxury, entertainment o
 purchase.subType.purchase-type-other = Other purchase type
 purchase.subType.change.hidden = Change sub type
 
-# Purchase sub-category headings for Check Your Answers
 purchase.subCategory.fuel-type = Fuel type
 purchase.subCategory.fuel-type-or-vehicle = Fuel or vehicle type
 purchase.subCategory.vehicle-use = Vehicle use
@@ -482,7 +479,6 @@ describeItemsOnInvoice.checkYourAnswersLabel = Purchase description
 describeItemsOnInvoice.change.hidden = Change purchase description
 
 # Warning messages
-
 confirmRefundPeriodStartDate.title = Are you sure the refund period start date is correct?
 confirmRefundPeriodStartDate.heading = Are you sure the refund period start date is correct?
 confirmRefundPeriodStartDate.paragraph = You’ve told us the refund period start date is {0}. The refund period start date cannot be before {1}.

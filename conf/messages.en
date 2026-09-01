@@ -265,7 +265,6 @@ checkYourClaimDetails.paragraph = You cannot change the refunding EU member stat
 checkYourClaimDetails.claimDetails.title = Claim details
 checkYourClaimDetails.claimDetails.heading = Claim details
 
-# Check your purchase details page
 checkYourPurchaseDetails.title = Check your purchase details
 checkYourPurchaseDetails.heading = Check your purchase details
 
@@ -445,7 +444,6 @@ purchase.checkYourPurchase.invoiceDetails = Invoice details
 purchase.checkYourPurchase.supplierDetails = Supplier details
 purchase.checkYourPurchase.purchaseAmounts = Purchase amounts
 
-# Purchase sub-type headings for Check Your Answers
 purchase.subType.fuel-use = Fuel use
 purchase.subType.transport-cost = Transport cost type
 purchase.subType.food-drink-restaurant-cost = Food, drink or restaurant cost type
@@ -453,7 +451,6 @@ purchase.subType.luxury-entertainment-hospitality-cost = Luxury, entertainment o
 purchase.subType.purchase-type-other = Other purchase type
 purchase.subType.change.hidden = Change sub type
 
-# Purchase sub-category headings for Check Your Answers
 purchase.subCategory.fuel-type = Fuel type
 purchase.subCategory.fuel-type-or-vehicle = Fuel or vehicle type
 purchase.subCategory.vehicle-use = Vehicle use
@@ -482,21 +479,6 @@ describeItemsOnInvoice.checkYourAnswersLabel = Purchase description
 describeItemsOnInvoice.change.hidden = Change purchase description
 
 # Warning messages
-
-confirmRefundPeriodStartDate.title = Are you sure the refund period start date is correct?
-confirmRefundPeriodStartDate.heading = Are you sure the refund period start date is correct?
-confirmRefundPeriodStartDate.paragraph = You’ve told us the refund period start date is {0}. The refund period start date cannot be before {1}.
-confirmRefundPeriodStartDate.warning = If you submit a claim with inaccurate information, it may be rejected.
-confirmRefundPeriodStartDate.button = Yes, this is correct
-confirmRefundPeriodStartDate.link = No, change the start date
-
-periodOverlapWarning.title = Are you sure the refund period is correct?
-periodOverlapWarning.heading = Are you sure the refund period is correct?
-periodOverlapWarning.p = You’ve told us the refund period is the same used for another claim. The refund period must not overlap with another claim for the same EU member state.
-periodOverlapWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
-periodOverlapWarning.correct = Yes, this is correct
-periodOverlapWarning.backLink = No, change the refund period
-
 confirmRefundPeriodStartDate.title = Are you sure the refund period start date is correct?
 confirmRefundPeriodStartDate.heading = Are you sure the refund period start date is correct?
 confirmRefundPeriodStartDate.paragraph = You’ve told us the refund period start date is {0}. The refund period start date cannot be before {1}.
@@ -510,6 +492,13 @@ confirmRefundPeriodEndDate.paragraph = You’ve told us the refund period end da
 confirmRefundPeriodEndDate.warning = If you submit a claim with inaccurate information, it may be rejected.
 confirmRefundPeriodEndDate.button = Yes, this is correct
 confirmRefundPeriodEndDate.link = No, change the end date
+
+periodOverlapWarning.title = Are you sure the refund period is correct?
+periodOverlapWarning.heading = Are you sure the refund period is correct?
+periodOverlapWarning.p = You’ve told us the refund period is the same used for another claim. The refund period must not overlap with another claim for the same EU member state.
+periodOverlapWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
+periodOverlapWarning.correct = Yes, this is correct
+periodOverlapWarning.backLink = No, change the refund period
 
 purchaseWarning.title = Are you sure the purchase details are correct?
 purchaseWarning.heading = Are you sure the purchase details are correct?
@@ -539,11 +528,3 @@ vatClaimWarning.p = You''ve told us the amount of VAT you''re claiming is {0}. T
 vatClaimWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
 vatClaimWarning.yes = Yes, this is correct
 vatClaimWarning.no = No, change the VAT claim amount
-
-supplierTaxIdentifierWarning.title = Are you sure the supplier’s tax identifier number is correct?
-supplierTaxIdentifierWarning.heading = Are you sure the supplier’s tax identifier number is correct?
-supplierTaxIdentifierWarning.p = You’ve already made a claim with the same supplier’s tax identifier and invoice number. Use a different supplier’s tax identifier or invoice number for this claim.
-supplierTaxIdentifierWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
-supplierTaxIdentifierWarning.changeTax = Change supplier’s tax identifier number
-supplierTaxIdentifierWarning.changeInvoice = Change invoice number
-supplierTaxIdentifierWarning.confirm = Yes, this is correct

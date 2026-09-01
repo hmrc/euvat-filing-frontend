@@ -124,16 +124,7 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
         if (userAnswers.get(pages.CountryChangedPage).contains(true)) {
           routes.RefundPeriodController.onPageLoad(CheckMode)
         } else {
-          // Estonia special-case: if the user changed currency in CheckMode and
-          // the country is Estonia (EE) we need to route them back through the
-          // amounts pages so they can re-enter currency-dependent amounts.
-          val maybeCountryCode = userAnswers.get(pages.RefundingCountryPage).orElse {
-            userAnswers.get(pages.RefundingCountryNamePage).map { stored =>
-              stored.split(",", 2).headOption.getOrElse(stored)
-            }
-          }
-
-          if (maybeCountryCode.contains("EE") && userAnswers.get(pages.CurrencyChangedPage).contains(true)) {
+          if (CountryCode.findCountryCode(userAnswers).contains("EE") && userAnswers.get(pages.CurrencyChangedPage).contains(true)) {
             routes.TotalPurchaseAmountBeforeVatController.onPageLoad(CheckMode)
           } else {
             controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()
@@ -184,8 +175,7 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
               CountryCode.findCountryCode(userAnswers) match {
                 case Some(country) if currencyConfig.requiresCurrencySelection(country) =>
                   routes.RefundingCurrencyController.onPageLoad(mode)
-                case _ =>
-                  routes.TotalPurchaseAmountBeforeVatController.onPageLoad(mode)
+                case _ => routes.TotalPurchaseAmountBeforeVatController.onPageLoad(mode)
               }
         }
       case Some(false) =>
@@ -195,17 +185,17 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
           CountryCode.findCountryCode(userAnswers) match {
             case Some(country) if currencyConfig.requiresCurrencySelection(country) =>
               routes.RefundingCurrencyController.onPageLoad(mode)
-            case _ =>
-              routes.TotalPurchaseAmountBeforeVatController.onPageLoad(mode)
+            case _ => routes.TotalPurchaseAmountBeforeVatController.onPageLoad(mode)
           }
       case _ => routes.JourneyRecoveryController.onPageLoad()
     }
 
   private def navigateFromSupplierVatRegistrationPage(mode: Mode)(userAnswers: UserAnswers): Call = {
-    if (mode == CheckMode && userAnswers.get(pages.InvoiceTypeChangedPage).contains(true))
+    if (mode == CheckMode && userAnswers.get(pages.InvoiceTypeChangedPage).contains(true)) {
       controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()
-    else
+    } else {
       routes.TotalPurchaseAmountBeforeVatController.onPageLoad(mode)
+    }
   }
 
   private def navigateFromPurchaseTypePage(mode: Mode)(userAnswers: UserAnswers): Call =
@@ -217,27 +207,19 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
             if (subs.nonEmpty) {
               Call("GET", s"/${PurchaseType.urlSlugForPurchaseType(parent)}")
             } else {
-              if (mode == CheckMode) controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()
-              else routes.InvoiceTypeController.onPageLoad(mode)
+              if (mode == CheckMode) { controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad() }
+              else { routes.InvoiceTypeController.onPageLoad(mode) }
             }
-          case _ =>
-            // No country present: gracefully route to the Describe Items page so the
-            // flow remains usable in tests and UI scenarios where country is set later.
-            routes.DescribeItemsOnInvoiceController.onPageLoad(mode)
+          case _ => routes.DescribeItemsOnInvoiceController.onPageLoad(mode)
         }
 
       case _ => routes.JourneyRecoveryController.onPageLoad()
     }
 
   private def navigateFromSupplierAddressPage(mode: Mode)(userAnswers: UserAnswers): Call = {
-    val maybeCountryCode = userAnswers.get(pages.RefundingCountryPage).orElse {
-      userAnswers.get(pages.RefundingCountryNamePage).map { stored =>
-        stored.split(",", 2).headOption.getOrElse(stored)
-      }
-    }
     val maybeInvoiceType = userAnswers.get(InvoiceTypePage)
 
-    maybeCountryCode match {
+    CountryCode.findCountryCode(userAnswers) match {
       case Some("DE") => routes.SupplierTaxNumberController.onPageLoad(mode)
       case Some(_) =>
         maybeInvoiceType match {
@@ -252,8 +234,8 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
   private def navigateFromPurchaseSubCategoryPage(mode: Mode, userAnswers: UserAnswers): Call = {
     userAnswers.get(PurchaseTypePage) match {
       case Some(_) =>
-        if (mode == CheckMode) controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()
-        else routes.InvoiceTypeController.onPageLoad(mode)
+        if (mode == CheckMode) { controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad() }
+        else { routes.InvoiceTypeController.onPageLoad(mode) }
       case _ => routes.JourneyRecoveryController.onPageLoad()
     }
   }
@@ -265,32 +247,20 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
       case Some(SupplierTaxNumber.Taxidentifiernumber) =>
         routes.SupplierTaxIdentifierNumberController.onPageLoad(mode)
       case Some(SupplierTaxNumber.Neither) =>
-        if (mode == CheckMode)
+        if (mode == CheckMode) {
           controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()
-        else
+        } else {
           navigateToCurrencyOrPurchaseAmount(mode)(userAnswers)
+        }
       case _ => routes.JourneyRecoveryController.onPageLoad()
     }
 
   private def navigateFromSupplierTaxIdentifierNumberPage(mode: Mode)(userAnswers: UserAnswers): Call = {
-    val maybeCountryCode = CountryCode.findCountryCode(userAnswers)
-    mode match {
-      case CheckMode =>
-        maybeCountryCode match {
-          case Some(code) if currencyConfig.requiresCurrencySelection(code) =>
-            routes.RefundingCurrencyController.onPageLoad(mode)
-          case Some(code) if code == "DE" || (currencyConfig.currencyConfig.contains(code) && currencyConfig.currencyConfig(code).nonEmpty) =>
-            routes.TotalPurchaseAmountBeforeVatController.onPageLoad(mode)
-          case _ => routes.JourneyRecoveryController.onPageLoad()
-        }
-
-      case NormalMode =>
-        maybeCountryCode match {
-          case Some(code) if currencyConfig.requiresCurrencySelection(code) =>
-            routes.RefundingCurrencyController.onPageLoad(mode)
-          case Some("DE") => routes.TotalPurchaseAmountBeforeVatController.onPageLoad(mode)
-          case _          => routes.JourneyRecoveryController.onPageLoad()
-        }
+    CountryCode.findCountryCode(userAnswers) match {
+      case Some(code) if currencyConfig.requiresCurrencySelection(code) => routes.RefundingCurrencyController.onPageLoad(mode)
+      case Some(code) if code == "DE" || (mode == CheckMode && currencyConfig.currencyConfig.get(code).exists(_.nonEmpty)) =>
+        routes.TotalPurchaseAmountBeforeVatController.onPageLoad(mode)
+      case _ => routes.JourneyRecoveryController.onPageLoad()
     }
   }
 

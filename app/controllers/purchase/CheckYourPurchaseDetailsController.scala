@@ -52,13 +52,12 @@ class CheckYourPurchaseDetailsController @Inject() (
         .getOrElse(currencyConfig.default)
 
     val (maybeCurrencyDisplayName, maybeCurrencySymbol): (Option[String], Option[String]) =
-      (request.userAnswers.get(RefundingCurrencyPage), currencyList) match
-        case (_, currencyList) if currencyList.size > 1 =>
-          Some(msgs("site.notProvided")) -> None
-        case (Some(code), Seq(currency)) =>
-          Some(msgs(s"refundingCurrency.${currency.code}", currency.symbol)) -> Some(currency.symbol)
-        case _ =>
-          (None, None)
+      request.userAnswers
+        .get(RefundingCurrencyPage)
+        .flatMap(code => currencyList.find(_.code == code))
+        .map(currency => Some(msgs(s"refundingCurrency.${currency.name}", currency.symbol)) -> Some(currency.symbol))
+        .orElse(Option.when(currencyList.lengthCompare(1) > 0)(Some(msgs("site.notProvided")) -> None))
+        .getOrElse(None -> None)
 
     Ok(
       view(
