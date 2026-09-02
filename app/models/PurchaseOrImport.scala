@@ -25,21 +25,21 @@ sealed trait PurchaseOrImport
 object PurchaseOrImport extends Enumerable.Implicits {
 
   case object Purchase extends WithName("purchase") with PurchaseOrImport
-  case object Import extends WithName("import") with PurchaseOrImport
+  case object Import   extends WithName("import") with PurchaseOrImport
 
   val values: Seq[PurchaseOrImport] = Seq(
-    Purchase, Import
+    Purchase,
+    Import
   )
 
-  def options(implicit messages: Messages): Seq[RadioItem] = values.zipWithIndex.map {
-    case (value, index) =>
-      RadioItem(
-        content = Text(messages(s"purchaseOrImport.${value.toString}")),
-        value   = Some(value.toString),
-        id      = Some(s"value_$index")
-      )
+  def options(implicit messages: Messages): Seq[RadioItem] = values.zipWithIndex.map { case (value, index) =>
+    RadioItem(
+      content = Text(messages(s"purchaseOrImport.${value.toString}")),
+      value   = Some(value.toString),
+      id      = Some(s"value_$index")
+    )
   }
 
   implicit val enumerable: Enumerable[PurchaseOrImport] =
-    Enumerable(values.map(v => v.toString -> v): _*)
+    Enumerable(values.map(v => v.toString -> v)*)
 }

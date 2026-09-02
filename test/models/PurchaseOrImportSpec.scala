@@ -32,10 +32,9 @@ class PurchaseOrImportSpec extends AnyFreeSpec with Matchers with ScalaCheckProp
 
       val gen = Gen.oneOf(PurchaseOrImport.values.toSeq)
 
-      forAll(gen) {
-        purchaseOrImport =>
+      forAll(gen) { purchaseOrImport =>
 
-          JsString(purchaseOrImport.toString).validate[PurchaseOrImport].asOpt.value mustEqual purchaseOrImport
+        JsString(purchaseOrImport.toString).validate[PurchaseOrImport].asOpt.value mustEqual purchaseOrImport
       }
     }
 
@@ -43,10 +42,9 @@ class PurchaseOrImportSpec extends AnyFreeSpec with Matchers with ScalaCheckProp
 
       val gen = arbitrary[String] suchThat (!PurchaseOrImport.values.map(_.toString).contains(_))
 
-      forAll(gen) {
-        invalidValue =>
+      forAll(gen) { invalidValue =>
 
-          JsString(invalidValue).validate[PurchaseOrImport] mustEqual JsError("error.invalid")
+        JsString(invalidValue).validate[PurchaseOrImport] mustEqual JsError("error.invalid")
       }
     }
 
@@ -54,10 +52,9 @@ class PurchaseOrImportSpec extends AnyFreeSpec with Matchers with ScalaCheckProp
 
       val gen = Gen.oneOf(PurchaseOrImport.values.toSeq)
 
-      forAll(gen) {
-        purchaseOrImport =>
+      forAll(gen) { purchaseOrImport =>
 
-          Json.toJson(purchaseOrImport) mustEqual JsString(purchaseOrImport.toString)
+        Json.toJson(purchaseOrImport) mustEqual JsString(purchaseOrImport.toString)
       }
     }
   }
