@@ -94,8 +94,8 @@ GET         /delete-claim                               controllers.DeleteClaimC
 POST        /delete-claim                               controllers.DeleteClaimController.onSubmit()
 
 # Purchase details journey
-GET         /before-you-start                           controllers.BeforeYouStartPurchaseController.onPageLoad()
-POST        /before-you-start                           controllers.BeforeYouStartPurchaseController.onSubmit()
+GET         /before-you-start                           controllers.BeforeYouStartController.onPageLoad()
+POST        /before-you-start                           controllers.BeforeYouStartController.onSubmit()
 
 GET         /invoice-type                               controllers.InvoiceTypeController.onPageLoad(mode: Mode = NormalMode)
 POST        /invoice-type                               controllers.InvoiceTypeController.onSubmit(mode: Mode = NormalMode)

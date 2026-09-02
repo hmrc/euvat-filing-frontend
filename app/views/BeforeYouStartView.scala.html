@@ -27,7 +27,7 @@
 @(backLinkCall: Call)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("beforeYouStart.title")), backLinkUrl = Some(backLinkCall.url)) {
-    @formHelper(action = routes.BeforeYouStartPurchaseController.onSubmit()) {
+    @formHelper(action = routes.BeforeYouStartController.onSubmit()) {
         <h1 class="govuk-heading-l">
             <span class="govuk-caption-l">@messages("purchasesAndImports.caption")</span>
             @messages("beforeYouStart.heading")
