@@ -17,7 +17,7 @@
 package controllers
 
 import base.SpecBase
-import models.responses.{ApplicationResponse, LatestApplication, LatestApplicationResponse}
+import models.responses.{ApplicationResponse, LatestApplication}
 import models.{ContactDetails, RefundPeriod, RefundingLanguage}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
@@ -27,7 +27,6 @@ import play.api.inject.bind
 import play.api.test.CSRFTokenHelper.*
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import queries.LatestCountryResponseQuery
 import repositories.SessionRepository
 import viewmodels.govuk.SummaryListFluency
 
@@ -37,7 +36,7 @@ import scala.concurrent.Future
 class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluency with MockitoSugar {
 
   "Check Your Answers Controller" - {
-    // use shared mock from SpecBase
+
     "must return OK and the correct view for a GET" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
       running(application) {
@@ -254,23 +253,6 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
         val html = contentAsString(result)
 
         html must not include messages(application)("checkYourClaimDetails.refundingLanguage.label")
-      }
-    }
-
-    "must NOT include currency section when country has only one currency" in {
-      val ua = emptyUserAnswers
-        .set(RefundingCountryPage, "AT")
-        .success
-        .value
-
-      val application = applicationBuilder(userAnswers = Some(ua)).build()
-
-      running(application) {
-        val request = FakeRequest(GET, routes.CheckYourClaimDetailsController.onPageLoad().url).withCSRFToken
-        val result = route(application, request).value
-        val html = contentAsString(result)
-
-        html must not include messages(application)("checkYourClaimDetails.refundingCurrency.label")
       }
     }
 

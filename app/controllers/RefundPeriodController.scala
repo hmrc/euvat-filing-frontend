@@ -16,6 +16,7 @@
 
 package controllers
 
+import config.FrontendAppConfig
 import controllers.actions.*
 import forms.{RefundPeriodData, RefundPeriodFormProvider}
 import models.requests.{DataRequest, LatestApplicationRequest}
@@ -23,16 +24,15 @@ import models.responses.TraderKnownFactsResponse
 import models.{Mode, RefundPeriod, UserAnswers}
 import navigation.Navigator
 import pages.*
+import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.*
-import play.api.{Configuration, Logging}
 import queries.TraderKnownFactsQuery
 import repositories.SessionRepository
 import services.EuVatRefundsService
-import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.{ConfigCurrencyMapping, ConfigLanguageMapping, CountryCode}
+import utils.{ConfigLanguageMapping, CountryCode}
 import views.html.RefundPeriodView
 
 import java.time.format.DateTimeFormatter
@@ -50,8 +50,7 @@ class RefundPeriodController @Inject() (
   requireData: DataRequiredAction,
   formProvider: RefundPeriodFormProvider,
   euVatRefundsService: EuVatRefundsService,
-  configuration: Configuration,
-  configCurrencyMapping: ConfigCurrencyMapping,
+  configuration: FrontendAppConfig,
   configLanguageMapping: ConfigLanguageMapping,
   val controllerComponents: MessagesControllerComponents,
   view: RefundPeriodView
@@ -97,9 +96,10 @@ class RefundPeriodController @Inject() (
     val preparedForm = request.userAnswers.get(RefundPeriodPage) match {
       case None => formProvider(earliestOpt, latestOpt, isExempt)
       case Some(value) =>
-        val start = java.time.YearMonth.of(value.startDate.getYear, value.startDate.getMonthValue)
-        val end = java.time.YearMonth.of(value.endDate.getYear, value.endDate.getMonthValue)
-        formProvider(earliestOpt, latestOpt, isExempt).fill(RefundPeriodData(start, end))
+        val start = YearMonth.from(value.startDate)
+        val end = YearMonth.from(value.endDate)
+        formProvider(earliestOpt, latestOpt, isExempt)
+          .fill(RefundPeriodData(start, end))
     }
     val (mappedForm, highlighted) = formProvider.withMappedErrors(preparedForm, suppressCutoff = isExempt)
     val startMsg = errorMessage(mappedForm, Seq("start", "start.month", "start.year"))
@@ -132,9 +132,8 @@ class RefundPeriodController @Inject() (
     }
   }
 
-  private def hasRefundPeriodChanged(userAnswers: UserAnswers, refundPeriod: RefundPeriod) = {
-    userAnswers.get(RefundPeriodPage) != Some(refundPeriod)
-  }
+  private def hasRefundPeriodChanged(userAnswers: UserAnswers, refundPeriod: RefundPeriod) =
+    !userAnswers.get(RefundPeriodPage).contains(refundPeriod)
 
   private def updateUserAnswers(
     traderResponse: TraderKnownFactsResponse,
@@ -350,7 +349,7 @@ class RefundPeriodController @Inject() (
       euVatRefundsService
         .retrieveTraderKnownFacts()
         .flatMap { traderResponse =>
-          val vrn = request.identifierValue.getOrElse(throw new IllegalStateException("Missing Vat registration number"))
+          val vrn = request.identifierValue
           val (earliestForTrader, latestForTrader, isExemptForTrader) = computeEarliestAndLatest(request, Some(vrn))
           val baseForm = formProvider(earliestForTrader, latestForTrader, isExemptForTrader)
 
@@ -381,39 +380,17 @@ class RefundPeriodController @Inject() (
   private def computeEarliestAndLatest(request: DataRequest[?],
                                        traderVrnOverride: Option[String] = None
                                       ): (Option[YearMonth], Option[YearMonth], Boolean) = {
-    def parseMMYY(s: String): Option[YearMonth] = {
-      val parts = s.split("/")
-      if (parts.length == 2 && parts(0).forall(_.isDigit) && parts(1).forall(_.isDigit) && parts(0).length == 2 && parts(1).length == 2) {
-        try {
-          val month = parts(0).toInt
-          val yearTwo = parts(1).toInt
-          val year = 2000 + yearTwo
-          Some(YearMonth.of(year, month))
-        } catch {
-          case _: Throwable => None
-        }
-      } else None
-    }
 
-    val traderVrnOpt = traderVrnOverride.orElse(request.identifierValue)
-    val canCreate = configuration.getOptional[String]("settings.refund.can.create.vrns").map(_.split(",").map(_.trim).toSet).getOrElse(Set.empty)
-    val canAmend = configuration.getOptional[String]("settings.refund.can.amend.vrns").map(_.split(",").map(_.trim).toSet).getOrElse(Set.empty)
-    val exemptSet = canCreate ++ canAmend
-    val isExempt = traderVrnOpt.exists(exemptSet.contains)
+    val traderVrn = traderVrnOverride.getOrElse(request.identifierValue)
+    val exemptSet = configuration.refundAllowlistCreate ++ configuration.refundAllowlistAmend
+    val isExempt = exemptSet(traderVrn)
     val earliest: Option[YearMonth] = if (isExempt) {
       Some(YearMonth.of(2020, 1))
     } else {
-      // If config is missing or blank => default to January 2021 per spec.
-      // If config exists but fails to parse, skip earliest validation (None).
-      configuration.getOptional[String]("settings.refund.start.date.earliest.permitted") match {
-        case None                      => Some(YearMonth.of(2021, 1))
-        case Some(v) if v.trim.isEmpty => Some(YearMonth.of(2021, 1))
-        case Some(v)                   => parseMMYY(v) // if parse fails -> None => skip validation
-      }
+      Some(configuration.earliestRefundStart)
     }
-
     val latest: Option[YearMonth] = if (isExempt) {
-      configuration.getOptional[String]("settings.refund.start.date.latest.permitted").flatMap(s => if (s.trim.isEmpty) None else parseMMYY(s))
+      Some(configuration.latestRefundStart)
     } else None
 
     (earliest, latest, isExempt)

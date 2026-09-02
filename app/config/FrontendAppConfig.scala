@@ -21,6 +21,8 @@ import play.api.Configuration
 import play.api.i18n.Lang
 import play.api.mvc.RequestHeader
 
+import java.time.YearMonth
+
 @Singleton
 class FrontendAppConfig @Inject() (configuration: Configuration) {
 
@@ -51,4 +53,16 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val timeout: Int = configuration.get[Int]("timeout-dialog.timeout")
   val countdown: Int = configuration.get[Int]("timeout-dialog.countdown")
   val cacheTtl: Long = configuration.get[Int]("mongodb.timeToLiveInSeconds")
+
+  val countriesInEU: Map[String, String] = configuration.get[Map[String, String]]("eu.member-states")
+
+  val refundAllowlistCreate: Set[String] = configuration.get[Seq[String]]("allowlist.refund.create.vrns").toSet
+  val refundAllowlistAmend: Set[String] = configuration.get[Seq[String]]("allowlist.refund.amend.vrns").toSet
+
+  private def getYearMonth(path: String) = YearMonth.of(
+    configuration.get[Int](s"$path.year"),
+    configuration.get[Int](s"$path.month")
+  )
+  val earliestRefundStart: YearMonth = getYearMonth("refund.start.earliest")
+  val latestRefundStart: YearMonth = getYearMonth("refund.start.latest")
 }

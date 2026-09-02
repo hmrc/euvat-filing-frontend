@@ -17,19 +17,15 @@
 package viewmodels.checkAnswers
 
 import base.SpecBase
-import models.{InvoiceType, PurchaseType, SupplierTaxNumber}
+import controllers.routes
+import models.{CheckMode, FoodAndDrink, Fuel, InvoiceType, Other, PurchaseType, SupplierTaxNumber, UserAnswers}
 import pages.*
-import utils.ConfigPurchaseMapping
+import play.api.i18n.Messages
+import play.api.test.Helpers.*
+import utils.{ConfigPurchaseMapping, MountPrefix}
+import viewmodels.checkAnswers.CheckYourPurchaseDetailsSummary
 
 import java.time.LocalDate
-
-import play.api.test.Helpers.*
-import play.api.i18n.Messages
-import controllers.routes
-import models.CheckMode
-import models.UserAnswers
-import viewmodels.checkAnswers.CheckYourPurchaseDetailsSummary
-import utils.MountPrefix
 
 class CheckYourPurchaseDetailsSummarySpec extends SpecBase {
 
@@ -40,7 +36,7 @@ class CheckYourPurchaseDetailsSummarySpec extends SpecBase {
         .set(RefundingCountryPage, "BG")
         .success
         .value
-        .set(PurchaseTypePage, PurchaseType.FoodAndDrink)
+        .set(PurchaseTypePage, FoodAndDrink)
         .success
         .value
         .set(PurchaseSubCategoryPage, "7.1")
@@ -68,7 +64,7 @@ class CheckYourPurchaseDetailsSummarySpec extends SpecBase {
         .set(RefundingCountryPage, "BG")
         .success
         .value
-        .set(PurchaseTypePage, PurchaseType.FoodAndDrink)
+        .set(PurchaseTypePage, FoodAndDrink)
         .success
         .value
         .set(PurchaseSubTypePage, ConfigPurchaseMapping.NoneValue)
@@ -96,7 +92,7 @@ class CheckYourPurchaseDetailsSummarySpec extends SpecBase {
         .set(RefundingCountryPage, "BG")
         .success
         .value
-        .set(PurchaseTypePage, PurchaseType.FoodAndDrink)
+        .set(PurchaseTypePage, FoodAndDrink)
         .success
         .value
         .set(PurchaseSubTypePage, "7.1")
@@ -137,7 +133,7 @@ class CheckYourPurchaseDetailsSummarySpec extends SpecBase {
         .set(TotalVatClaimPage, BigDecimal(5))
         .success
         .value
-        .set(PurchaseTypePage, PurchaseType.Fuel)
+        .set(PurchaseTypePage, Fuel)
         .success
         .value
 
@@ -150,7 +146,7 @@ class CheckYourPurchaseDetailsSummarySpec extends SpecBase {
 
       // verify amounts section contains currency display and formatted amounts
       val amounts = sections.find(_._1 == "purchase.checkYourPurchase.purchaseAmounts").value._2
-      amounts.map(_._1) must contain(msgs("refundingCurrency.checkYourAnswersLabel"))
+      amounts.map(_._1) must contain(msgs("checkYourPurchaseDetails.refundingCurrency.label"))
       amounts.map(_._1) must contain(msgs("totalPurchaseAmountBeforeVat.checkYourAnswersLabel"))
       amounts.map(_._1) must contain(msgs("totalVatPaid.checkYourAnswersLabel"))
       amounts.map(_._1) must contain(msgs("totalVatClaim.checkYourAnswersLabel"))
@@ -170,7 +166,7 @@ class CheckYourPurchaseDetailsSummarySpec extends SpecBase {
     }
 
     "renderSubTypeRow should produce a label when no message key exists" in {
-      val ua = emptyUserAnswers.set(PurchaseTypePage, PurchaseType.Fuel).success.value
+      val ua = emptyUserAnswers.set(PurchaseTypePage, Fuel).success.value
       val app = applicationBuilder().build()
       implicit val msgs = messages(app)
 
@@ -217,9 +213,9 @@ class CheckYourPurchaseDetailsSummarySpec extends SpecBase {
           amountsSection mustBe defined
           val rows = amountsSection.value._2
 
-          rows.exists(_._1 == msgs("refundingCurrency.checkYourAnswersLabel")) mustBe true
+          rows.exists(_._1 == msgs("checkYourPurchaseDetails.refundingCurrency.label")) mustBe true
 
-          val currencyRow = rows.find(_._1 == msgs("refundingCurrency.checkYourAnswersLabel")).value
+          val currencyRow = rows.find(_._1 == msgs("checkYourPurchaseDetails.refundingCurrency.label")).value
           currencyRow._3.head._1 mustEqual routes.RefundingCurrencyController.onPageLoad(CheckMode).url
         }
       }
@@ -231,7 +227,7 @@ class CheckYourPurchaseDetailsSummarySpec extends SpecBase {
           .set(RefundingCountryPage, "LT")
           .success
           .value
-          .set(PurchaseTypePage, PurchaseType.Fuel)
+          .set(PurchaseTypePage, Fuel)
           .success
           .value
 
