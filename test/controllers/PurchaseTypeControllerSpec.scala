@@ -44,11 +44,10 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
   lazy val purchaseTypeRoute: String = routes.PurchaseTypeController.onPageLoad(NormalMode).url
   lazy val purchaseTypeSubmitRoute: String = routes.PurchaseTypeController.onSubmit(NormalMode).url
-  lazy val backLinkCall: Call = routes.BeforeYouStartController.onPageLoad()
+  lazy val backLinkCall: Call = routes.PurchaseOrImportController.onPageLoad
 
   lazy val purchaseTypeRouteCheck: String = routes.PurchaseTypeController.onPageLoad(CheckMode).url
   lazy val purchaseTypeSubmitRouteCheck: String = routes.PurchaseTypeController.onSubmit(CheckMode).url
-  lazy val backLinkCallCheck: Call = routes.BeforeYouStartController.onPageLoad()
 
   "PurchaseType Controller" - {
 
@@ -122,7 +121,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, routes.BeforeYouStartController.onPageLoad())(
+          view(form, NormalMode, backLinkCall)(
             request,
             messages(application)
           ).toString
@@ -180,7 +179,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, CheckMode, backLinkCallCheck)(request, messages(application)).toString
+          view(form, CheckMode, backLinkCall)(request, messages(application)).toString
         )
       }
     }
@@ -199,7 +198,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         val form = formProvider()
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, CheckMode, backLinkCallCheck)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, CheckMode, backLinkCall)(request, messages(application)).toString
       }
     }
 

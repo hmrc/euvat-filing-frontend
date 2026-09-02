@@ -47,14 +47,16 @@ class PurchaseOrImportController @Inject() (
 
   val form = formProvider()
 
+  private def backLink = routes.BeforeYouStartPurchaseController.onPageLoad()
+
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
     val preparedForm = request.userAnswers.get(PurchaseOrImportPage) match {
-      case None        => form
+      case None => form
       case Some(value) => form.fill(value)
     }
 
-    Ok(view(preparedForm))
+    Ok(view(preparedForm, backLink))
   }
 
   def onSubmit: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -62,11 +64,11 @@ class PurchaseOrImportController @Inject() (
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, backLink))),
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(PurchaseOrImportPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
+            _ <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(PurchaseOrImportPage, NormalMode, updatedAnswers))
       )
   }
