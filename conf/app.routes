@@ -182,7 +182,6 @@ POST        /describe-items-on-invoice                    controllers.DescribeIt
 GET         /change-describe-items-on-invoice             controllers.DescribeItemsOnInvoiceController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-describe-items-on-invoice             controllers.DescribeItemsOnInvoiceController.onSubmit(mode: Mode = CheckMode)
 
-# Import details journey
 GET         /purchase-or-import                           controllers.PurchaseOrImportController.onPageLoad
 POST        /purchase-or-import                           controllers.PurchaseOrImportController.onSubmit
 
