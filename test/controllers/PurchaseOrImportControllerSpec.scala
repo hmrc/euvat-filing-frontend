@@ -18,7 +18,7 @@ package controllers
 
 import base.SpecBase
 import forms.PurchaseOrImportFormProvider
-import models.{NormalMode, PurchaseOrImport, UserAnswers}
+import models.{PurchaseOrImport, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -37,7 +37,7 @@ class PurchaseOrImportControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  lazy val purchaseOrImportRoute = routes.PurchaseOrImportController.onPageLoad(NormalMode).url
+  lazy val purchaseOrImportRoute = routes.PurchaseOrImportController.onPageLoad.url
 
   val formProvider = new PurchaseOrImportFormProvider()
   val form = formProvider()
@@ -56,7 +56,7 @@ class PurchaseOrImportControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[PurchaseOrImportView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form)(request, messages(application)).toString
       }
     }
 
@@ -74,7 +74,7 @@ class PurchaseOrImportControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(PurchaseOrImport.values.head), NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(PurchaseOrImport.values.head))(request, messages(application)).toString
       }
     }
 
@@ -120,7 +120,7 @@ class PurchaseOrImportControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm)(request, messages(application)).toString
       }
     }
 

@@ -62,7 +62,7 @@ class BeforeYouStartControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to the Purchase Type Page when submit button is clicked" in {
+    "must redirect to the Purchase or Import Page when submit button is clicked (POST)" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -72,7 +72,7 @@ class BeforeYouStartControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
 
-        redirectLocation(result).value mustEqual routes.PurchaseTypeController.onPageLoad(NormalMode).url
+        redirectLocation(result).value mustEqual routes.PurchaseOrImportController.onPageLoad.url
       }
     }
 
