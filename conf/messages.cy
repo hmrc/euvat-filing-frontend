@@ -49,6 +49,7 @@ unauthorised.guidance = You do not have access to this service.
 
 claim.caption = Claim details
 purchase.caption = Purchase details
+purchasesAndImports.caption = Purchases and imports
 
 taskListDashboard.title = Make a claim for an EU VAT refund
 taskListDashboard.heading = Make a claim for an EU VAT refund
@@ -280,7 +281,8 @@ beforeYouStart.bullet1 = VAT amounts
 beforeYouStart.bullet2 = supplier details
 beforeYouStart.bullet3 = invoice details or import document
 beforeYouStart.bullet4 = Single Administrative Document (SAD) reference number for imports
-beforeYouStart.p2 = <p class="govuk-body">Find what you can or cannot claim from each member state in <a href="https://www.gov.uk/guidance/refunds-of-uk-vat-for-non-uk-businesses-or-eu-vat-for-uk-businesses" class="govuk-link" target="_blank" rel="noreferrer noopener">Public Notice 723A (opens in a new tab)</a>.</p>
+beforeYouStart.p2 = Find what you can or cannot claim from each member state in
+beforeYouStart.p2.link = Public Notice 723A (opens in a new tab)
 
 invoiceType.title = Invoice type
 invoiceType.heading = Invoice type

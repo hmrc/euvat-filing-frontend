@@ -23,7 +23,7 @@ import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.BeforeYouStartPurchaseView
+import views.html.BeforeYouStartView
 
 class BeforeYouStartPurchaseController @Inject() (
   override val messagesApi: MessagesApi,
@@ -31,7 +31,7 @@ class BeforeYouStartPurchaseController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   val controllerComponents: MessagesControllerComponents,
-  view: BeforeYouStartPurchaseView
+  view: BeforeYouStartView
 ) extends FrontendBaseController
     with I18nSupport {
 

@@ -20,22 +20,22 @@ import base.SpecBase
 import models.NormalMode
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import views.html.BeforeYouStartPurchaseView
+import views.html.BeforeYouStartView
 
-class BeforeYouStartPurchaseControllerSpec extends SpecBase {
+class BeforeYouStartControllerSpec extends SpecBase {
 
-  "BeforeYouStartPurchase Controller" - {
+  "BeforeYouStart Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.BeforeYouStartPurchaseController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.BeforeYouStartController.onPageLoad().url)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[BeforeYouStartPurchaseView]
+        val view = application.injector.instanceOf[BeforeYouStartView]
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
@@ -49,11 +49,11 @@ class BeforeYouStartPurchaseControllerSpec extends SpecBase {
           val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
           running(application) {
-            val request = FakeRequest(GET, routes.BeforeYouStartPurchaseController.onPageLoad().url)
+            val request = FakeRequest(GET, routes.BeforeYouStartController.onPageLoad().url)
 
             val result = route(application, request).value
 
-            val view = application.injector.instanceOf[BeforeYouStartPurchaseView]
+            val view = application.injector.instanceOf[BeforeYouStartView]
 
             status(result) mustEqual OK
             normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
@@ -66,7 +66,7 @@ class BeforeYouStartPurchaseControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.BeforeYouStartPurchaseController.onSubmit().url)
+        val request = FakeRequest(POST, routes.BeforeYouStartController.onSubmit().url)
 
         val result = route(application, request).value
 
@@ -80,7 +80,7 @@ class BeforeYouStartPurchaseControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.BeforeYouStartPurchaseController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.BeforeYouStartController.onPageLoad().url)
 
         val result = route(application, request).value
 
