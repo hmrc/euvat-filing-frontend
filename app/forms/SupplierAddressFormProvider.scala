@@ -21,7 +21,8 @@ import models.SupplierAddress
 import play.api.data.Form
 import play.api.data.Forms.{mapping, optional}
 import play.api.data.validation.{Constraint, Invalid, Valid}
-import play.api.i18n.{Lang, MessagesApi}
+import play.api.i18n.{Lang, Messages, MessagesApi}
+import play.api.mvc.RequestHeader
 
 import javax.inject.Inject
 
@@ -29,15 +30,19 @@ class SupplierAddressFormProvider @Inject() (messagesApi: MessagesApi) extends M
 
   val addressLineMaxLength: Int = 35
 
-  private val defaultMessages = messagesApi.preferred(Seq(Lang("en")))
-
-  private def fieldMaxLengthConstraint(labelKey: String, errorKey: String): Constraint[String] =
+  private def fieldMaxLengthConstraint(labelKey: String, errorKey: String)(implicit messages: Messages): Constraint[String] =
     Constraint { str =>
-      if (str.length <= addressLineMaxLength) Valid
-      else Invalid("supplierAddress.error.maxLength.withLabel", defaultMessages(labelKey), defaultMessages("supplierAddress.error.maxLength"))
+      if (str.length <= addressLineMaxLength) {
+        Valid
+      }
+      else {
+        Invalid("supplierAddress.error.maxLength.withLabel", messages(labelKey), messages("supplierAddress.error.maxLength"))
+      }
     }
 
-  def apply(): Form[SupplierAddress] =
+  def apply()(implicit request: RequestHeader): Form[SupplierAddress] = {
+    implicit val messages: Messages = messagesApi.preferred(request)
+
     Form(
       mapping(
         "addressLine1" -> text("supplierAddress.error.line1.required")
@@ -50,4 +55,5 @@ class SupplierAddressFormProvider @Inject() (messagesApi: MessagesApi) extends M
         )
       )(SupplierAddress.apply)(o => Some(Tuple.fromProductTyped(o)))
     )
+  }
 }
