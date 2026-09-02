@@ -146,7 +146,7 @@ class CheckYourPurchaseDetailsSummarySpec extends SpecBase {
 
       // verify amounts section contains currency display and formatted amounts
       val amounts = sections.find(_._1 == "purchase.checkYourPurchase.purchaseAmounts").value._2
-      amounts.map(_._1) must contain(msgs("refundingCurrency.checkYourAnswersLabel"))
+      amounts.map(_._1) must contain(msgs("checkYourPurchaseDetails.refundingCurrency.label"))
       amounts.map(_._1) must contain(msgs("totalPurchaseAmountBeforeVat.checkYourAnswersLabel"))
       amounts.map(_._1) must contain(msgs("totalVatPaid.checkYourAnswersLabel"))
       amounts.map(_._1) must contain(msgs("totalVatClaim.checkYourAnswersLabel"))
@@ -213,9 +213,9 @@ class CheckYourPurchaseDetailsSummarySpec extends SpecBase {
           amountsSection mustBe defined
           val rows = amountsSection.value._2
 
-          rows.exists(_._1 == msgs("refundingCurrency.checkYourAnswersLabel")) mustBe true
+          rows.exists(_._1 == msgs("checkYourPurchaseDetails.refundingCurrency.label")) mustBe true
 
-          val currencyRow = rows.find(_._1 == msgs("refundingCurrency.checkYourAnswersLabel")).value
+          val currencyRow = rows.find(_._1 == msgs("checkYourPurchaseDetails.refundingCurrency.label")).value
           currencyRow._3.head._1 mustEqual routes.RefundingCurrencyController.onPageLoad(CheckMode).url
         }
       }

@@ -16,7 +16,6 @@ site.save.continue = Save and continue
 site.warning = Warning
 site.notProvided = Not provided
 
-
 date.day = Day
 date.month = Month
 date.year = Year
@@ -240,10 +239,6 @@ checkYourClaimDetails.refundingCountry.subLabel = EU member state
 checkYourClaimDetails.refundingLanguage.label = Claim language
 checkYourClaimDetails.refundingLanguage.change.hidden = Change language
 checkYourClaimDetails.refundingLanguage.subLabel = Language
-checkYourClaimDetails.refundingCurrency.label = Currency
-refundingCurrency.checkYourAnswersLabel = Currency
-checkYourClaimDetails.refundingCurrency.subLabel = Currency
-checkYourClaimDetails.refundingCurrency.change.hidden = Change currency
 checkYourClaimDetails.refundingPeriod.label = Refund period
 checkYourClaimDetails.refundingStartDate.change.hidden = Change refund period start date
 checkYourClaimDetails.refundingEndDate.change.hidden = Change refund period end date
@@ -267,6 +262,8 @@ checkYourClaimDetails.claimDetails.heading = Claim details
 
 checkYourPurchaseDetails.title = Check your purchase details
 checkYourPurchaseDetails.heading = Check your purchase details
+checkYourPurchaseDetails.refundingCurrency.label = Currency
+checkYourPurchaseDetails.refundingCurrency.change.hidden = Change currency
 
 deleteClaim.title = Delete claim
 deleteClaim.heading = Delete claim
@@ -325,6 +322,14 @@ supplierVatRegistrationNumber.error.length = Supplier’s VAT registration numbe
 supplierVatRegistrationNumber.checkYourAnswersLabel = Supplier VAT registration number
 supplierVatRegistrationNumber.change.hidden = Change supplier VAT registration number
 
+supplierVrnWarning.title = Are you sure the supplier’s VAT registration number is correct?
+supplierVrnWarning.heading = Are you sure the supplier’s VAT registration number is correct?
+supplierVrnWarning.p = You’ve already made a claim with the same supplier’s VAT registration number and invoice number. Use a different supplier’s VAT registration number or invoice number for this claim.
+supplierVrnWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
+supplierVrnWarning.changeVRN = Change supplier’s VAT registration number
+supplierVrnWarning.changeInvoiceNo = Change invoice number
+supplierVrnWarning.correct = Yes, this is correct
+
 supplierTaxIdentifierNumber.title = What is the supplier’s tax identifier number?
 supplierTaxIdentifierNumber.heading = What is the supplier’s tax identifier number?
 supplierTaxIdentifierNumber.hint = This is 10 or 11 digits, for example 12/345/67890
@@ -332,14 +337,6 @@ supplierTaxIdentifierNumber.error.required = Enter the supplier’s tax identifi
 supplierTaxIdentifierNumber.error.length = Supplier’s tax identifier number cannot be more than 20 characters
 supplierTaxIdentifierNumber.checkYourAnswersLabel = Supplier’s tax identifier number
 supplierTaxIdentifierNumber.change.hidden = Change supplier’s tax identifier number
-
-supplierTaxIdentifierWarning.title = Are you sure the supplier’s tax identifier number is correct?
-supplierTaxIdentifierWarning.heading = Are you sure the supplier’s tax identifier number is correct?
-supplierTaxIdentifierWarning.p = You’ve already made a claim with the same supplier’s tax identifier and invoice number. Use a different supplier’s tax identifier or invoice number for this claim.
-supplierTaxIdentifierWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
-supplierTaxIdentifierWarning.changeTax = Change supplier’s tax identifier number
-supplierTaxIdentifierWarning.changeInvoice = Change invoice number
-supplierTaxIdentifierWarning.confirm = Yes, this is correct
 
 totalPurchaseAmountBeforeVat.title = Total purchase amount before VAT
 totalPurchaseAmountBeforeVat.heading = Total purchase amount before VAT

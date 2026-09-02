@@ -257,23 +257,6 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
       }
     }
 
-    "must NOT include currency section when country has only one currency" in {
-      val ua = emptyUserAnswers
-        .set(RefundingCountryPage, "AT")
-        .success
-        .value
-
-      val application = applicationBuilder(userAnswers = Some(ua)).build()
-
-      running(application) {
-        val request = FakeRequest(GET, routes.CheckYourClaimDetailsController.onPageLoad().url).withCSRFToken
-        val result = route(application, request).value
-        val html = contentAsString(result)
-
-        html must not include messages(application)("checkYourClaimDetails.refundingCurrency.label")
-      }
-    }
-
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
       val application = applicationBuilder(userAnswers = None).build()
 

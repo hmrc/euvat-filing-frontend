@@ -237,9 +237,9 @@ object CheckYourPurchaseDetailsSummary {
   def rowCurrency(displayName: Option[String])(implicit messages: Messages): Option[Row] =
     displayName.map { name =>
       val url = controllers.routes.RefundingCurrencyController.onPageLoad(CheckMode).url
-      (messages("refundingCurrency.checkYourAnswersLabel"),
+      (messages("checkYourPurchaseDetails.refundingCurrency.label"),
        Some(name),
-       Seq((url, "site.change", "checkYourClaimDetails.refundingCurrency.change.hidden"))
+       Seq((url, "site.change", "checkYourPurchaseDetails.refundingCurrency.change.hidden"))
       )
     }
 
