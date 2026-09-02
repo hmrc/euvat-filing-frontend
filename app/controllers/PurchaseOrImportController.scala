@@ -52,7 +52,7 @@ class PurchaseOrImportController @Inject() (
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
     val preparedForm = request.userAnswers.get(PurchaseOrImportPage) match {
-      case None => form
+      case None        => form
       case Some(value) => form.fill(value)
     }
 
@@ -68,7 +68,7 @@ class PurchaseOrImportController @Inject() (
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(PurchaseOrImportPage, value))
-            _ <- sessionRepository.set(updatedAnswers)
+            _              <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(PurchaseOrImportPage, NormalMode, updatedAnswers))
       )
   }
