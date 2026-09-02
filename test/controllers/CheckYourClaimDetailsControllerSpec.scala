@@ -17,7 +17,7 @@
 package controllers
 
 import base.SpecBase
-import models.responses.{ApplicationResponse, LatestApplication, LatestApplicationResponse}
+import models.responses.{ApplicationResponse, LatestApplication}
 import models.{ContactDetails, RefundPeriod, RefundingLanguage}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
@@ -27,7 +27,6 @@ import play.api.inject.bind
 import play.api.test.CSRFTokenHelper.*
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import queries.LatestCountryResponseQuery
 import repositories.SessionRepository
 import viewmodels.govuk.SummaryListFluency
 
@@ -37,7 +36,7 @@ import scala.concurrent.Future
 class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluency with MockitoSugar {
 
   "Check Your Answers Controller" - {
-    // use shared mock from SpecBase
+
     "must return OK and the correct view for a GET" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
       running(application) {
