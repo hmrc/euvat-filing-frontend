@@ -47,7 +47,7 @@ class PurchaseOrImportController @Inject() (
 
   val form = formProvider()
 
-  private def backLink = routes.BeforeYouStartPurchaseController.onPageLoad()
+  private def backLink = routes.BeforeYouStartController.onPageLoad()
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 

@@ -41,7 +41,7 @@ class PurchaseOrImportControllerSpec extends SpecBase with MockitoSugar {
 
   val formProvider = new PurchaseOrImportFormProvider()
   val form = formProvider()
-  lazy val backLinkCall: Call = routes.BeforeYouStartPurchaseController.onPageLoad()
+  lazy val backLinkCall: Call = routes.BeforeYouStartController.onPageLoad()
 
   "PurchaseOrImport Controller" - {
 
