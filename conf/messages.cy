@@ -1,13 +1,13 @@
-service.name = EU VAT
+service.name = TAW yr UE
 
-site.back = Back
+site.back = Yn ôl
 site.remove = Remove
 site.change = Change
 site.view = View
-site.no = No
-site.yes = Yes
+site.no = Na
+site.yes = Iawn
 site.or = or
-site.continue = Continue
+site.continue = Parhau
 site.start = Start now
 site.startAgain = Start again
 site.signIn = Sign in
@@ -28,9 +28,9 @@ timeout.message = For security reasons, you will be signed out of this service i
 timeout.keepAlive = Stay signed in
 timeout.signOut = Sign out
 
-error.title.prefix = Error:
-error.prefix = Error
-error.summary.title = There is a problem
+error.title.prefix = Gwall:
+error.prefix = Gwall
+error.summary.title = Mae problem
 
 journeyRecovery.continue.title = Sorry, there is a problem with the service
 journeyRecovery.continue.heading = Sorry, there is a problem with the service
@@ -47,7 +47,7 @@ unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
 unauthorised.guidance = You do not have access to this service.
 
-claim.caption = Claim details
+claim.caption = Manylion yr hawliad
 purchase.caption = Purchase details
 purchasesAndImports.caption = Purchases and imports
 
@@ -109,10 +109,10 @@ refundingLanguage.irish = Irish
 refundingLanguage.hungarian = Hungarian
 refundingLanguage.greek = Greek
 
-refundingCurrency.title = Which currency do you want to use for this claim?
-refundingCurrency.heading = Which currency do you want to use for this claim?
-refundingCurrency.hint = You will use this currency for all the items you add to this claim
-refundingCurrency.euro = Euro ({0})
+refundingCurrency.title = Pa arian cyfred ydych am ei ddefnyddio ar gyfer yr hawliad hwn?
+refundingCurrency.heading = Pa arian cyfred ydych am ei ddefnyddio ar gyfer yr hawliad hwn?
+refundingCurrency.hint = Byddwch yn defnyddio’r arian cyfred hwn ar gyfer yr holl eitemau rydych yn eu hychwanegu at yr hawliad hwn
+refundingCurrency.euro = Ewro ({0})
 refundingCurrency.estonianKroon = Estonian Kroon ({0})
 refundingCurrency.bulgarianLev = Bulgarian Lev ({0})
 refundingCurrency.czechKoruna = Czech Koruna ({0})
@@ -122,7 +122,7 @@ refundingCurrency.forint = Forint ({0})
 refundingCurrency.zloty = Zloty ({0})
 refundingCurrency.newLeu = Romanian Leu ({0})
 refundingCurrency.swedishKrona = Swedish Krona ({0})
-refundingCurrency.error.required = Select a currency for this claim
+refundingCurrency.error.required = Dewiswch arian cyfred ar gyfer yr hawliad hwn
 
 refundPeriod.title = Refund period
 refundPeriod.heading = Refund period
@@ -201,9 +201,9 @@ businessActivityTwo.ba2.label = Second SIC code
 businessActivityTwo.ba2.change.hidden = Change second SIC code
 businessActivityTwo.ba2.remove.hidden = Remove second SIC code
 
-removeSecond.heading = Are you sure you want to remove the second SIC code?
-removeSecond.title = Are you sure you want to remove the second SIC code?
-removeSecond.error.required = Select yes if you want to remove the second SIC code
+removeSecond.heading = A ydych yn siŵr eich bod am dynnu’r ail god SIC?
+removeSecond.title = A ydych yn siŵr eich bod am dynnu’r ail god SIC?
+removeSecond.error.required = Dewiswch ‘Iawn’ os ydych am dynnu’r ail god SIC
 
 businessActivityCodeThree.title = What is the third SIC code?
 businessActivityCodeThree.heading = What is the third SIC code?
@@ -228,9 +228,9 @@ businessActivityThree.ba3.remove.hidden = Remove third SIC Code
 businessActivityThree.ba2.change.hidden = Change second SIC Code
 businessActivityThree.ba3.change.hidden = Change third SIC Code
 
-removeThird.heading = Are you sure you want to remove the third SIC code?
-removeThird.title = Are you sure you want to remove the third SIC code?
-removeThird.error.required = Select yes if you want to remove the third SIC code
+removeThird.heading = A ydych yn siŵr yr hoffech dynnu’r trydydd cod SIC?
+removeThird.title = A ydych yn siŵr yr hoffech dynnu’r trydydd cod SIC?
+removeThird.error.required = Dewiswch ‘Iawn’ os ydych am dynnu’r trydydd cod SIC
 
 checkYourClaimDetails.title = Check your claim details
 checkYourClaimDetails.heading = Check your claim details
@@ -304,14 +304,14 @@ suppliersName.error.length = The supplier’s name must be 35 characters or less
 suppliersName.checkYourAnswersLabel = Supplier name
 suppliersName.change.hidden = Change supplier name
 
-supplierTaxNumber.title = Select the supplier tax numbers shown on the invoice
-supplierTaxNumber.heading = Select the supplier tax numbers shown on the invoice
-supplierTaxNumber.vatRegistrationNumber = VAT registration number (also known as Umsatzsteuer-Identifikationsnummer)
-supplierTaxNumber.vatRegistrationNumber.hint = This is usually 11 characters and starts with DE, for example DE123456789
-supplierTaxNumber.taxIdentifierNumber = Tax identifier number (also known as Steuernummer)
-supplierTaxNumber.taxIdentifierNumber.hint = This is 10 or 11 digits, for example 12/345/67890
-supplierTaxNumber.error.required = Select the supplier tax numbers shown on the invoice
-supplierTaxNumber.neither = I do not have any of these on the invoice
+supplierTaxNumber.title = Dewiswch rifau treth y cyflenwyr a ddangosir ar yr anfoneb
+supplierTaxNumber.heading = Dewiswch rifau treth y cyflenwyr a ddangosir ar yr anfoneb
+supplierTaxNumber.vatRegistrationNumber = rhif cofrestriad TAW (a elwir hefyd yn Umsatzsteuer-Identifikationsnummer)
+supplierTaxNumber.vatRegistrationNumber.hint = Fel arfer mae hwn yn 11 cymeriad ac yn dechrau gyda DE, er enghraifft DE123456789
+supplierTaxNumber.taxIdentifierNumber = rhif dynodi Treth (a elwir hefyd yn Steuernummer)
+supplierTaxNumber.taxIdentifierNumber.hint = Mae hwn yn 10 neu 11 digid, er enghraifft 12/345/67890
+supplierTaxNumber.error.required = Dewiswch rifau treth y cyflenwyr a ddangosir ar yr anfoneb
+supplierTaxNumber.neither = Nid oes gennyf unrhyw un o’r rhain ar yr anfoneb
 supplierTaxNumber.checkYourAnswersLabel = Supplier tax numbers
 supplierTaxNumber.change.hidden = Change supplier tax numbers
 
@@ -324,14 +324,6 @@ supplierVatRegistrationNumber.error.invalid = Enter the supplier’s VAT registr
 supplierVatRegistrationNumber.error.length = Supplier’s VAT registration number must be 12 characters or less
 supplierVatRegistrationNumber.checkYourAnswersLabel = Supplier VAT registration number
 supplierVatRegistrationNumber.change.hidden = Change supplier VAT registration number
-
-supplierVrnWarning.title = Are you sure the supplier’s VAT registration number is correct?
-supplierVrnWarning.heading = Are you sure the supplier’s VAT registration number is correct?
-supplierVrnWarning.p = You’ve already made a claim with the same supplier’s VAT registration number and invoice number. Use a different supplier’s VAT registration number or invoice number for this claim.
-supplierVrnWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
-supplierVrnWarning.changeVRN = Change supplier’s VAT registration number
-supplierVrnWarning.changeInvoiceNo = Change invoice number
-supplierVrnWarning.correct = Yes, this is correct
 
 supplierTaxIdentifierNumber.title = What is the supplier’s tax identifier number?
 supplierTaxIdentifierNumber.heading = What is the supplier’s tax identifier number?
@@ -514,6 +506,14 @@ supplierTaxIdentifierWarning.warning = If you submit a claim with inaccurate inf
 supplierTaxIdentifierWarning.changeTax = Change supplier’s tax identifier number
 supplierTaxIdentifierWarning.changeInvoice = Change invoice number
 supplierTaxIdentifierWarning.confirm = Yes, this is correct
+
+supplierVrnWarning.title = Are you sure the supplier’s VAT registration number is correct?
+supplierVrnWarning.heading = Are you sure the supplier’s VAT registration number is correct?
+supplierVrnWarning.p = You’ve already made a claim with the same supplier’s VAT registration number and invoice number. Use a different supplier’s VAT registration number or invoice number for this claim.
+supplierVrnWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
+supplierVrnWarning.changeVRN = Change supplier’s VAT registration number
+supplierVrnWarning.changeInvoiceNo = Change invoice number
+supplierVrnWarning.correct = Yes, this is correct
 
 vatPaidWarning.title = Are you sure the amount of VAT you paid is correct?
 vatPaidWarning.heading = Are you sure the amount of VAT you paid is correct?
