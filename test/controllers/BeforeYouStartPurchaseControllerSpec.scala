@@ -54,7 +54,7 @@ class BeforeYouStartPurchaseControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
 
-        redirectLocation(result).value mustEqual routes.PurchaseTypeController.onPageLoad(NormalMode).url
+        redirectLocation(result).value mustEqual controllers.purchase.routes.PurchaseTypeController.onPageLoad(NormalMode).url
       }
     }
 

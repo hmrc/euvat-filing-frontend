@@ -17,6 +17,7 @@
 package forms
 
 import forms.behaviours.{FieldBehaviours, StringFieldBehaviours}
+import forms.purchase.SupplierVatRegistrationNumberFormProvider
 import play.api.data.FormError
 
 class SupplierVatRegistrationNumberFormProviderSpec extends StringFieldBehaviours with FieldBehaviours {

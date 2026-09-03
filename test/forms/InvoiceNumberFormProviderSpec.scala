@@ -17,6 +17,7 @@
 package forms
 
 import forms.behaviours.StringFieldBehaviours
+import forms.purchase.InvoiceNumberFormProvider
 import org.scalacheck.Gen.{choose, listOfN, oneOf}
 import play.api.data.FormError
 

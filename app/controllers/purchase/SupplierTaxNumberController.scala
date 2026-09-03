@@ -1,0 +1,127 @@
+/*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package controllers.purchase
+
+import controllers.actions.*
+import forms.purchase.SupplierTaxNumberFormProvider
+import models.requests.DataRequest
+import models.{InvoiceType, Mode, NormalMode, SupplierTaxNumber, UserAnswers}
+import navigation.Navigator
+import pages.{InvoiceTypePage, SupplierTaxIdentifierNumberPage, SupplierTaxNumberPage, SupplierVatRegistrationNumberPage}
+import play.api.Logger
+import play.api.data.Form
+import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.mvc.*
+import repositories.SessionRepository
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.CheckModeShortCircuit
+import utils.ControllerHelpers.*
+import views.html.purchase.SupplierTaxNumberView
+
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
+
+class SupplierTaxNumberController @Inject() (
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  navigator: Navigator,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: SupplierTaxNumberFormProvider,
+  val controllerComponents: MessagesControllerComponents,
+  view: SupplierTaxNumberView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
+
+  val form: Form[SupplierTaxNumber] = formProvider()
+  private val logger = Logger(getClass)
+
+  private def backLink: Call = routes.SupplierAddressController.onPageLoad(NormalMode)
+
+  private def requireGermany(userAnswers: UserAnswers): Option[Result] =
+    utils.CountryCode.findCountryCode(userAnswers) match {
+      case Some("DE") => None
+      case _ =>
+        logger.warn("SupplierTaxNumberController - country is not Germany or missing from session, redirecting to JourneyRecovery")
+        Some(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+    }
+
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+    requireGermany(request.userAnswers).getOrElse {
+      val preparedForm = preparedFormFromAnswers(_.get(SupplierTaxNumberPage), form)
+      val isSimplifiedInvoice: Boolean = request.userAnswers.get(InvoiceTypePage).contains(InvoiceType.SimplifiedInvoice)
+      okView(preparedForm, mode, isSimplifiedInvoice)
+    }
+  }
+
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+    requireGermany(request.userAnswers) match {
+      case Some(result) => Future.successful(result)
+      case None =>
+        val isSimplifiedInvoice: Boolean = request.userAnswers.get(InvoiceTypePage).contains(InvoiceType.SimplifiedInvoice)
+        form
+          .bindFromRequest()
+          .fold(
+            formWithErrors => Future.successful(badRequestView(formWithErrors, mode, isSimplifiedInvoice)),
+            value =>
+              CheckModeShortCircuit.shortCircuitIfUnchanged(
+                SupplierTaxNumberPage,
+                value,
+                mode,
+                request.userAnswers,
+                routes.CheckYourPurchaseDetailsController.onPageLoad()
+              ) match {
+                case Some(res) => Future.successful(res)
+                case None =>
+                  val userAnswersTry = request.userAnswers.set(SupplierTaxNumberPage, value)
+
+                  persistWithCleaning(userAnswersTry, value).map { cleaned =>
+                    Redirect(navigator.nextPage(SupplierTaxNumberPage, mode, cleaned))
+                  }
+              }
+          )
+    }
+  }
+
+  private def okView(preparedForm: Form[SupplierTaxNumber], mode: Mode, isSimplifiedInvoice: Boolean)(implicit request: DataRequest[?]) =
+    Ok(view(preparedForm, mode, backLink, isSimplifiedInvoice))
+
+  private def badRequestView(formWithErrors: Form[SupplierTaxNumber], mode: Mode, isSimplifiedInvoice: Boolean)(implicit request: DataRequest[?]) =
+    BadRequest(view(formWithErrors, mode, backLink, isSimplifiedInvoice))
+
+  private def persistWithCleaning(userAnswersTry: scala.util.Try[UserAnswers], value: SupplierTaxNumber)(implicit
+    request: DataRequest[?]
+  ): Future[UserAnswers] =
+    Future.fromTry(userAnswersTry).flatMap { updatedAnswers =>
+      val cleaned: UserAnswers = value match {
+        case SupplierTaxNumber.Vatregistrationnumber =>
+          updatedAnswers.remove(SupplierTaxIdentifierNumberPage).get
+        case SupplierTaxNumber.Taxidentifiernumber =>
+          updatedAnswers.remove(SupplierVatRegistrationNumberPage).get
+        case SupplierTaxNumber.Neither =>
+          updatedAnswers
+            .remove(SupplierVatRegistrationNumberPage)
+            .get
+            .remove(SupplierTaxIdentifierNumberPage)
+            .get
+      }
+
+      sessionRepository.set(cleaned).map(_ => cleaned)
+    }
+}

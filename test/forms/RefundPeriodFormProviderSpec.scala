@@ -16,6 +16,7 @@
 
 package forms
 
+import forms.claim.RefundPeriodFormProvider
 import org.scalatest.matchers.must.Matchers
 import play.api.data.FormError
 import play.api.i18n.Messages

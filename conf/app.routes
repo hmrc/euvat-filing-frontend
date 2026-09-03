@@ -1,205 +1,52 @@
 # microservice specific routes
 
-->          /hmrc-frontend                              hmrcfrontend.Routes
-GET         /                                           controllers.IndexController.onPageLoad()
-GET         /assets/*file                               controllers.Assets.versioned(path="/public", file: Asset)
-GET         /language/:lang                             controllers.LanguageSwitchController.switchToLanguage(lang: String)
-GET         /refresh-session                            controllers.KeepAliveController.keepAlive()
-GET         /there-is-a-problem                         controllers.JourneyRecoveryController.onPageLoad(continueUrl: Option[RedirectUrl] ?= None)
-GET         /account/sign-out-survey                    controllers.auth.AuthController.signOut()
-GET         /account/sign-out                           controllers.auth.AuthController.signOutNoSurvey()
-GET         /account/signed-out                         controllers.auth.SignedOutController.onPageLoad()
-GET         /unauthorised                               controllers.UnauthorisedController.onPageLoad()
+->          /hmrc-frontend                                hmrcfrontend.Routes
+GET         /                                             controllers.IndexController.onPageLoad()
+GET         /assets/*file                                 controllers.Assets.versioned(path="/public", file: Asset)
+GET         /language/:lang                               controllers.LanguageSwitchController.switchToLanguage(lang: String)
+GET         /refresh-session                              controllers.KeepAliveController.keepAlive()
+GET         /there-is-a-problem                           controllers.JourneyRecoveryController.onPageLoad(continueUrl: Option[RedirectUrl] ?= None)
+GET         /account/sign-out-survey                      controllers.auth.AuthController.signOut()
+GET         /account/sign-out                             controllers.auth.AuthController.signOutNoSurvey()
+GET         /account/signed-out                           controllers.auth.SignedOutController.onPageLoad()
+GET         /unauthorised                                 controllers.UnauthorisedController.onPageLoad()
 
-# Task list Dashboard
-GET         /make-a-claim-eu-vat-refund                 controllers.TaskListDashboardController.onPageLoad()
-GET         /redirect-to-manage-claim                   controllers.TaskListDashboardController.redirectToManageClaim()
+GET         /make-a-claim-eu-vat-refund                   controllers.TaskListDashboardController.onPageLoad()
+GET         /redirect-to-manage-claim                     controllers.TaskListDashboardController.redirectToManageClaim()
 
-# Claim details journey
-GET         /which-eu-member-state                      controllers.RefundingCountryController.onPageLoad(mode: Mode = NormalMode)
-POST        /which-eu-member-state                      controllers.RefundingCountryController.onSubmit(mode: Mode = NormalMode)
-GET         /change-which-eu-member-state               controllers.RefundingCountryController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-which-eu-member-state               controllers.RefundingCountryController.onSubmit(mode: Mode = CheckMode)
+GET         /delete-claim                                 controllers.DeleteClaimController.onPageLoad()
+POST        /delete-claim                                 controllers.DeleteClaimController.onSubmit()
 
-GET         /which-language                             controllers.RefundingLanguageController.onPageLoad(mode: Mode = NormalMode)
-POST        /which-language                             controllers.RefundingLanguageController.onSubmit(mode: Mode = NormalMode)
-GET         /change-which-language                      controllers.RefundingLanguageController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-which-language                      controllers.RefundingLanguageController.onSubmit(mode: Mode = CheckMode)
-
-GET         /which-currency                             controllers.RefundingCurrencyController.onPageLoad(mode: Mode = NormalMode)
-POST        /which-currency                             controllers.RefundingCurrencyController.onSubmit(mode: Mode = NormalMode)
-GET         /change-which-currency                      controllers.RefundingCurrencyController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-which-currency                      controllers.RefundingCurrencyController.onSubmit(mode: Mode = CheckMode)
-
-GET         /refund-period                              controllers.RefundPeriodController.onPageLoad(mode: Mode = NormalMode)
-POST        /refund-period                              controllers.RefundPeriodController.onSubmit(mode: Mode = NormalMode)
-GET         /change-refund-period                       controllers.RefundPeriodController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-refund-period                       controllers.RefundPeriodController.onSubmit(mode: Mode = CheckMode)
-
-GET         /check-refund-period                         controllers.PeriodOverlapWarningController.onPageLoad(mode: Mode = NormalMode)
-POST        /check-refund-period                         controllers.PeriodOverlapWarningController.onSubmit(mode: Mode = NormalMode)
-GET         /change-check-refund-period                  controllers.PeriodOverlapWarningController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-check-refund-period                  controllers.PeriodOverlapWarningController.onSubmit(mode: Mode = CheckMode)
-
-GET         /check-refund-period-start-date             controllers.ConfirmRefundPeriodStartDateController.onPageLoad(mode: Mode = NormalMode)
-POST        /check-refund-period-start-date             controllers.ConfirmRefundPeriodStartDateController.onSubmit(mode: Mode = NormalMode)
-GET         /change-check-refund-period-start-date      controllers.ConfirmRefundPeriodStartDateController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-check-refund-period-start-date      controllers.ConfirmRefundPeriodStartDateController.onSubmit(mode: Mode = CheckMode)
-
-GET         /check-refund-period-end-date               controllers.ConfirmRefundPeriodEndDateController.onPageLoad(mode: Mode = NormalMode)
-POST        /check-refund-period-end-date               controllers.ConfirmRefundPeriodEndDateController.onSubmit(mode: Mode = NormalMode)
-GET         /change-check-refund-period-end-date        controllers.ConfirmRefundPeriodEndDateController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-check-refund-period-end-date        controllers.ConfirmRefundPeriodEndDateController.onSubmit(mode: Mode = CheckMode)
-
-GET         /how-contact-you-about-claim                controllers.ContactDetailsController.onPageLoad(mode: Mode = NormalMode)
-POST        /how-contact-you-about-claim                controllers.ContactDetailsController.onSubmit(mode: Mode = NormalMode)
-GET         /change-how-contact-you-about-claim         controllers.ContactDetailsController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-how-contact-you-about-claim         controllers.ContactDetailsController.onSubmit(mode: Mode = CheckMode)
-
-GET         /business-activity                          controllers.BusinessActivityController.onPageLoad(mode: Mode = NormalMode)
-POST        /business-activity                          controllers.BusinessActivityController.onSubmit(mode: Mode = NormalMode)
-GET         /change-business-activity                   controllers.BusinessActivityController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-business-activity                   controllers.BusinessActivityController.onSubmit(mode: Mode = CheckMode)
-
-GET         /what-is-the-second-SIC-code                controllers.BusinessActivityCodeTwoController.onPageLoad(mode: Mode = NormalMode)
-POST        /what-is-the-second-SIC-code                controllers.BusinessActivityCodeTwoController.onSubmit(mode: Mode = NormalMode)
-GET         /change-what-is-the-second-SIC-code         controllers.BusinessActivityCodeTwoController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-what-is-the-second-SIC-code         controllers.BusinessActivityCodeTwoController.onSubmit(mode: Mode = CheckMode)
-
-GET         /business-activity-2                        controllers.BusinessActivityTwoController.onPageLoad(mode: Mode = NormalMode)
-POST        /business-activity-2                        controllers.BusinessActivityTwoController.onSubmit(mode: Mode = NormalMode)
-GET         /change-business-activity-2                 controllers.BusinessActivityTwoController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-business-activity-2                 controllers.BusinessActivityTwoController.onSubmit(mode: Mode = CheckMode)
-
-GET         /what-is-the-third-SIC-code                 controllers.BusinessActivityCodeThreeController.onPageLoad(mode: Mode = NormalMode)
-POST        /what-is-the-third-SIC-code                 controllers.BusinessActivityCodeThreeController.onSubmit(mode: Mode = NormalMode)
-GET         /change-what-is-the-third-SIC-code          controllers.BusinessActivityCodeThreeController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-what-is-the-third-SIC-code          controllers.BusinessActivityCodeThreeController.onSubmit(mode: Mode = CheckMode)
-
-GET         /business-activity-3                        controllers.BusinessActivityThreeController.onPageLoad()
-POST        /business-activity-3                        controllers.BusinessActivityThreeController.onSubmit()
-
-GET         /check-your-claim-details                   controllers.CheckYourClaimDetailsController.onPageLoad()
-POST        /check-your-claim-details                   controllers.CheckYourClaimDetailsController.onSubmit()
-GET         /claim-details                              controllers.CheckYourClaimDetailsController.onPageLoad()
-POST        /claim-details                              controllers.CheckYourClaimDetailsController.onSubmit()
-
-GET         /remove-second-SIC-code                     controllers.RemoveSecondBusinessActivityController.onPageLoad()
-POST        /remove-second-SIC-code                     controllers.RemoveSecondBusinessActivityController.onSubmit()
-
-GET         /remove-third-SIC-code                      controllers.RemoveThirdBusinessActivityController.onPageLoad()
-POST        /remove-third-SIC-code                      controllers.RemoveThirdBusinessActivityController.onSubmit()
-
-GET         /delete-claim                               controllers.DeleteClaimController.onPageLoad()
-POST        /delete-claim                               controllers.DeleteClaimController.onSubmit()
-
-# Purchase details journey
-GET         /before-you-start                           controllers.BeforeYouStartPurchaseController.onPageLoad()
-POST        /before-you-start                           controllers.BeforeYouStartPurchaseController.onSubmit()
-
-GET         /invoice-type                               controllers.InvoiceTypeController.onPageLoad(mode: Mode = NormalMode)
-POST        /invoice-type                               controllers.InvoiceTypeController.onSubmit(mode: Mode = NormalMode)
-GET         /change-invoice-type                        controllers.InvoiceTypeController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-invoice-type                        controllers.InvoiceTypeController.onSubmit(mode: Mode = CheckMode)
-
-GET         /invoice-number                             controllers.InvoiceNumberController.onPageLoad(mode: Mode = NormalMode)
-POST        /invoice-number                             controllers.InvoiceNumberController.onSubmit(mode: Mode = NormalMode)
-GET         /change-invoice-number                      controllers.InvoiceNumberController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-invoice-number                      controllers.InvoiceNumberController.onSubmit(mode: Mode = CheckMode)
-
-GET         /what-is-the-invoice-date                   controllers.InvoiceDateController.onPageLoad(mode: Mode = NormalMode)
-POST        /what-is-the-invoice-date                   controllers.InvoiceDateController.onSubmit(mode: Mode = NormalMode)
-GET         /change-what-is-the-invoice-date            controllers.InvoiceDateController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-what-is-the-invoice-date            controllers.InvoiceDateController.onSubmit(mode: Mode = CheckMode)
-
-GET         /what-supplier-name                         controllers.SuppliersNameController.onPageLoad(mode: Mode = NormalMode)
-POST        /what-supplier-name                         controllers.SuppliersNameController.onSubmit(mode: Mode = NormalMode)
-GET         /change-what-supplier-name                  controllers.SuppliersNameController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-what-supplier-name                  controllers.SuppliersNameController.onSubmit(mode: Mode = CheckMode)
-
-GET         /what-supplier-address                      controllers.SupplierAddressController.onPageLoad(mode: Mode = NormalMode)
-POST        /what-supplier-address                      controllers.SupplierAddressController.onSubmit(mode: Mode = NormalMode)
-GET         /change-what-supplier-address               controllers.SupplierAddressController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-what-supplier-address               controllers.SupplierAddressController.onSubmit(mode: Mode = CheckMode)
-
-GET         /simplified-invoice-supplier-vat-registration-check          controllers.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode: Mode = NormalMode)
-POST        /simplified-invoice-supplier-vat-registration-check          controllers.SimplifiedInvoiceVatRegCheckController.onSubmit(mode: Mode = NormalMode)
-GET         /change-simplified-invoice-supplier-vat-registration-check   controllers.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-simplified-invoice-supplier-vat-registration-check   controllers.SimplifiedInvoiceVatRegCheckController.onSubmit(mode: Mode = CheckMode)
-
-GET         /supplier-tax-numbers                        controllers.SupplierTaxNumberController.onPageLoad(mode: Mode = NormalMode)
-POST        /supplier-tax-numbers                        controllers.SupplierTaxNumberController.onSubmit(mode: Mode = NormalMode)
-GET         /change-supplier-tax-numbers                 controllers.SupplierTaxNumberController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-supplier-tax-numbers                 controllers.SupplierTaxNumberController.onSubmit(mode: Mode = CheckMode)
-
-GET         /what-supplier-vat-registration-number                       controllers.SupplierVatRegistrationNumberController.onPageLoad(mode: Mode = NormalMode)
-POST        /what-supplier-vat-registration-number                       controllers.SupplierVatRegistrationNumberController.onSubmit(mode: Mode = NormalMode)
-GET         /change-what-supplier-vat-registration-number                controllers.SupplierVatRegistrationNumberController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-what-supplier-vat-registration-number                controllers.SupplierVatRegistrationNumberController.onSubmit(mode: Mode = CheckMode)
-
-GET         /check-supplier-vat-registration-number       controllers.SupplierVrnWarningController.onPageLoad(mode: Mode = NormalMode)
-POST        /check-supplier-vat-registration-number       controllers.SupplierVrnWarningController.onSubmit(mode: Mode = NormalMode)
-GET         /change-check-supplier-vat-registration-number  controllers.SupplierVrnWarningController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-check-supplier-vat-registration-number  controllers.SupplierVrnWarningController.onSubmit(mode: Mode = CheckMode)
-
-GET         /supplier-tax-identifier-number               controllers.SupplierTaxIdentifierNumberController.onPageLoad(mode: Mode = NormalMode)
-POST        /supplier-tax-identifier-number               controllers.SupplierTaxIdentifierNumberController.onSubmit(mode: Mode = NormalMode)
-GET         /change-supplier-tax-identifier-number        controllers.SupplierTaxIdentifierNumberController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-supplier-tax-identifier-number        controllers.SupplierTaxIdentifierNumberController.onSubmit(mode: Mode = CheckMode)
-
-GET         /check-supplier-tax-identifier-number        controllers.SupplierTaxIdentifierWarningController.onPageLoad(mode: Mode = NormalMode)
-POST        /check-supplier-tax-identifier-number        controllers.SupplierTaxIdentifierWarningController.onSubmit(mode: Mode = NormalMode)
-GET         /change-check-supplier-tax-identifier-number controllers.SupplierTaxIdentifierWarningController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-check-supplier-tax-identifier-number controllers.SupplierTaxIdentifierWarningController.onSubmit(mode: Mode = CheckMode)
-
-GET         /total-purchase-amount-before-vat             controllers.TotalPurchaseAmountBeforeVatController.onPageLoad(mode: Mode = NormalMode)
-POST        /total-purchase-amount-before-vat             controllers.TotalPurchaseAmountBeforeVatController.onSubmit(mode: Mode = NormalMode)
-GET         /change-total-purchase-amount-before-vat      controllers.TotalPurchaseAmountBeforeVatController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-total-purchase-amount-before-vat      controllers.TotalPurchaseAmountBeforeVatController.onSubmit(mode: Mode = CheckMode)
-
-GET         /total-vat-paid                               controllers.TotalVatPaidController.onPageLoad(mode: Mode = NormalMode)
-POST        /total-vat-paid                               controllers.TotalVatPaidController.onSubmit(mode: Mode = NormalMode)
-GET         /change-total-vat-paid                        controllers.TotalVatPaidController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-total-vat-paid                        controllers.TotalVatPaidController.onSubmit(mode: Mode = CheckMode)
-
-GET         /total-vat-claim                              controllers.TotalVatClaimController.onPageLoad(mode: Mode = NormalMode)
-POST        /total-vat-claim                              controllers.TotalVatClaimController.onSubmit(mode: Mode = NormalMode)
-GET         /change-total-vat-claim                       controllers.TotalVatClaimController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-total-vat-claim                       controllers.TotalVatClaimController.onSubmit(mode: Mode = CheckMode)
-
-GET         /purchase-type                                controllers.PurchaseTypeController.onPageLoad(mode: Mode = NormalMode)
-POST        /purchase-type                                controllers.PurchaseTypeController.onSubmit(mode: Mode = NormalMode)
-GET         /change-purchase-type                         controllers.PurchaseTypeController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-purchase-type                         controllers.PurchaseTypeController.onSubmit(mode: Mode = CheckMode)
-
-GET         /eu-member-state-details                      controllers.CheckYourStateDetailsController.onPageLoad(mode: Mode = NormalMode)
-POST        /eu-member-state-details                      controllers.CheckYourStateDetailsController.onSubmit(mode: Mode = NormalMode)
-GET         /change-eu-member-state-details               controllers.CheckYourStateDetailsController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-eu-member-state-details               controllers.CheckYourStateDetailsController.onSubmit(mode: Mode = CheckMode)
-
-GET         /describe-items-on-invoice                    controllers.DescribeItemsOnInvoiceController.onPageLoad(mode: Mode = NormalMode)
-POST        /describe-items-on-invoice                    controllers.DescribeItemsOnInvoiceController.onSubmit(mode: Mode = NormalMode)
-GET         /change-describe-items-on-invoice             controllers.DescribeItemsOnInvoiceController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-describe-items-on-invoice             controllers.DescribeItemsOnInvoiceController.onSubmit(mode: Mode = CheckMode)
+GET         /before-you-start                             controllers.BeforeYouStartPurchaseController.onPageLoad()
+POST        /before-you-start                             controllers.BeforeYouStartPurchaseController.onSubmit()
 
 # Warning pages
+GET         /check-refund-period                          controllers.warning.PeriodOverlapWarningController.onPageLoad(mode: Mode = NormalMode)
+POST        /check-refund-period                          controllers.warning.PeriodOverlapWarningController.onSubmit(mode: Mode = NormalMode)
+GET         /change-check-refund-period                   controllers.warning.PeriodOverlapWarningController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-check-refund-period                   controllers.warning.PeriodOverlapWarningController.onSubmit(mode: Mode = CheckMode)
 
-GET         /check-refund-period                         controllers.PeriodOverlapWarningController.onPageLoad(mode: Mode = NormalMode)
-POST        /check-refund-period                         controllers.PeriodOverlapWarningController.onSubmit(mode: Mode = NormalMode)
-GET         /change-check-refund-period                  controllers.PeriodOverlapWarningController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-check-refund-period                  controllers.PeriodOverlapWarningController.onSubmit(mode: Mode = CheckMode)
+GET         /check-purchase-details                       controllers.warning.PurchaseWarningController.onPageLoad(mode: Mode = NormalMode)
+POST        /check-purchase-details                       controllers.warning.PurchaseWarningController.onSubmit(mode: Mode = NormalMode)
+GET         /change-check-purchase-details                controllers.warning.PurchaseWarningController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-check-purchase-details                controllers.warning.PurchaseWarningController.onSubmit(mode: Mode = CheckMode)
 
-GET         /check-purchase-details                      controllers.PurchaseWarningController.onPageLoad(mode: Mode = NormalMode)
-POST        /check-purchase-details                      controllers.PurchaseWarningController.onSubmit(mode: Mode = NormalMode)
-GET         /change-check-purchase-details               controllers.PurchaseWarningController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-check-purchase-details               controllers.PurchaseWarningController.onSubmit(mode: Mode = CheckMode)
+GET         /check-supplier-tax-identifier-number         controllers.warning.SupplierTaxIdentifierWarningController.onPageLoad(mode: Mode = NormalMode)
+POST        /check-supplier-tax-identifier-number         controllers.warning.SupplierTaxIdentifierWarningController.onSubmit(mode: Mode = NormalMode)
+GET         /change-check-supplier-tax-identifier-number  controllers.warning.SupplierTaxIdentifierWarningController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-check-supplier-tax-identifier-number  controllers.warning.SupplierTaxIdentifierWarningController.onSubmit(mode: Mode = CheckMode)
 
-GET         /check-vat-amount                             controllers.VatPaidWarningController.onPageLoad(mode: Mode = NormalMode)
-POST        /check-vat-amount                             controllers.VatPaidWarningController.onSubmit(mode: Mode = NormalMode)
-GET         /change-check-vat-amount                      controllers.VatPaidWarningController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-check-vat-amount                      controllers.VatPaidWarningController.onSubmit(mode: Mode = CheckMode)
+GET         /check-supplier-vat-registration-number         controllers.warning.SupplierVrnWarningController.onPageLoad(mode: Mode = NormalMode)
+POST        /check-supplier-vat-registration-number         controllers.warning.SupplierVrnWarningController.onSubmit(mode: Mode = NormalMode)
+GET         /change-check-supplier-vat-registration-number  controllers.warning.SupplierVrnWarningController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-check-supplier-vat-registration-number  controllers.warning.SupplierVrnWarningController.onSubmit(mode: Mode = CheckMode)
 
-GET         /check-vat-claim                              controllers.VatClaimWarningController.onPageLoad(mode: Mode = NormalMode)
-POST        /check-vat-claim                              controllers.VatClaimWarningController.onSubmit(mode: Mode = NormalMode)
-GET         /change-check-vat-claim                       controllers.VatClaimWarningController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-check-vat-claim                       controllers.VatClaimWarningController.onSubmit(mode: Mode = CheckMode)
+GET         /check-vat-amount                             controllers.warning.VatPaidWarningController.onPageLoad(mode: Mode = NormalMode)
+POST        /check-vat-amount                             controllers.warning.VatPaidWarningController.onSubmit(mode: Mode = NormalMode)
+GET         /change-check-vat-amount                      controllers.warning.VatPaidWarningController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-check-vat-amount                      controllers.warning.VatPaidWarningController.onSubmit(mode: Mode = CheckMode)
+
+GET         /check-vat-claim                              controllers.warning.VatClaimWarningController.onPageLoad(mode: Mode = NormalMode)
+POST        /check-vat-claim                              controllers.warning.VatClaimWarningController.onSubmit(mode: Mode = NormalMode)
+GET         /change-check-vat-claim                       controllers.warning.VatClaimWarningController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-check-vat-claim                       controllers.warning.VatClaimWarningController.onSubmit(mode: Mode = CheckMode)

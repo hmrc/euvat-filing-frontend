@@ -24,7 +24,7 @@ import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.{ConfigPurchaseMapping, CountryCode, CurrencyConfig}
 import viewmodels.checkAnswers.CheckYourPurchaseDetailsSummary
-import views.html.CheckYourPurchaseDetailsView
+import views.html.purchase.CheckYourPurchaseDetailsView
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext

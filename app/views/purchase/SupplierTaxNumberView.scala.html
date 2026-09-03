@@ -1,0 +1,86 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.govukfrontend.views.html.components.*
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+@import views.html.components.MainErrorSummary
+
+@this(
+    layout: templates.Layout,
+    formHelper: FormWithCSRF,
+    govukErrorSummary: GovukErrorSummary,
+    mainErrorSummary: MainErrorSummary,
+    govukRadios: GovukRadios,
+    govukButton: GovukButton
+)
+
+@(form: Form[SupplierTaxNumber], mode: Mode, call: Call, isSimplifiedInvoice: Boolean)(implicit request: Request[_], messages: Messages)
+
+@layout(pageTitle = views.ViewUtils.title(form, messages("supplierTaxNumber.title")), backLinkUrl = Some(call.url)) {
+
+    @formHelper(action = controllers.purchase.routes.SupplierTaxNumberController.onSubmit(mode)) {
+
+        @mainErrorSummary(form, Map("value" -> "value_0"))
+
+        <div class="govuk-form-group @if(form.error("value").isDefined){govuk-form-group--error}">
+            <span class="govuk-caption-l">@messages("purchase.caption")</span>
+
+            @{
+                val baseItems = Seq(
+                    RadioItem(
+                        id = Some("value_0"),
+                        value = Some("vatRegistrationNumber"),
+                        content = Text(messages("supplierTaxNumber.vatRegistrationNumber")),
+                        hint = Some(Hint(content = Text(messages("supplierTaxNumber.vatRegistrationNumber.hint"))))
+                    ),
+                    RadioItem(
+                        id = Some("value_1"),
+                        value = Some("taxIdentifierNumber"),
+                        content = Text(messages("supplierTaxNumber.taxIdentifierNumber")),
+                        hint = Some(Hint(content = Text(messages("supplierTaxNumber.taxIdentifierNumber.hint"))))
+                    )
+                )
+
+                val items = if (isSimplifiedInvoice) {
+                    baseItems ++ Seq(
+                        RadioItem(divider = Some(messages("site.or"))),
+                        RadioItem(
+                            id = Some("value_2"),
+                            value = Some("neither"),
+                            content = Text(messages("supplierTaxNumber.neither"))
+                        )
+                    )
+                }   else baseItems
+
+                govukRadios(
+                    RadiosViewModel(
+                        field = form("value"),
+                        legend = Legend(
+                            content = Text(messages("supplierTaxNumber.heading")),
+                            classes = "govuk-fieldset__legend--l",
+                            isPageHeading = true
+                        ),
+                        items = items
+                    )
+                )
+            }
+        </div>
+
+        @govukButton(
+            ButtonViewModel(messages("site.continue"))
+        )
+    }
+}

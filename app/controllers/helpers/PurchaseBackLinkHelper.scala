@@ -16,10 +16,10 @@
 
 package controllers.helpers
 
-import models.requests.DataRequest
-import models.{Mode, PurchaseType}
-import models.PurchaseSubCategoryType
+import controllers.purchase.routes
 import models.PurchaseSubCategoryType.{defaultSlugFor, purchaseSubCategoryUrlSlugFor}
+import models.requests.DataRequest
+import models.{Mode, PurchaseSubCategoryType, PurchaseType}
 import pages.{PurchaseSubCategoryPage, PurchaseSubTypePage, PurchaseTypePage}
 import play.api.mvc.Call
 import utils.MountPrefix
@@ -42,14 +42,13 @@ object PurchaseBackLinkHelper {
           .orElse(purchaseSubCategoryUrlSlugFor(parentKey, child.split("\\.").head))
           .orElse(defaultSlugFor(parentKey))
           .map(urlSlug => Call("GET", s"${MountPrefix.getFromRequest}/$urlSlug"))
-          .getOrElse(controllers.routes.PurchaseTypeController.onPageLoad(mode))
+          .getOrElse(routes.PurchaseTypeController.onPageLoad(mode))
       case (Some(_), Some(parent), Some(_)) if purchaseType.isDefined =>
         val slugPath = PurchaseSubCategoryType.pathFor(purchaseType.get.toString, parent)
         Call("GET", s"${MountPrefix.getFromRequest}/$slugPath")
       case (Some(slug), Some(_), None) =>
         Call("GET", s"${MountPrefix.getFromRequest}/$slug")
-      case _ =>
-        controllers.routes.PurchaseTypeController.onPageLoad(mode)
+      case _ => routes.PurchaseTypeController.onPageLoad(mode)
     }
   }
 }

@@ -19,9 +19,9 @@ package controllers
 import config.FrontendAppConfig
 import controllers.actions.*
 import forms.DeleteClaimFormProvider
-import models.NormalMode
 import navigation.Navigator
-import pages.{DeleteClaimPage, RefundPeriodPage, RefundingCountryNamePage}
+import pages.{RefundPeriodPage, RefundingCountryNamePage}
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, Lang, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -47,7 +47,7 @@ class DeleteClaimController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  val form = formProvider()
+  val form: Form[Boolean] = formProvider()
 
   private def extractSummaryData(userAnswers: models.UserAnswers)(implicit messages: Messages, lang: Lang): (String, String, String) = {
     val memberState = userAnswers.get(RefundingCountryNamePage).getOrElse("")

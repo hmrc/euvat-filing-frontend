@@ -17,24 +17,25 @@
 package controllers.purchase
 
 import base.SpecBase
+import controllers.purchase.routes
+import forms.purchase.PurchaseSubTypeFormProvider
+import models.Fuel
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
+import pages.*
+import play.api.data.Form
+import play.api.inject.bind
+import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import play.api.inject.bind
 import utils.ConfigPurchaseMapping
-import controllers.routes
-import play.api.mvc.Call
-import org.mockito.ArgumentCaptor
-import forms.PurchaseSubTypeFormProvider
-import models.Fuel
-import pages.*
 
 class PurchaseSubCategoryControllerSpec extends SpecBase with MockitoSugar {
 
   val formProvider = new PurchaseSubTypeFormProvider()
-  val form = formProvider()
+  val form: Form[String] = formProvider()
 
   "PurchaseSubCategory Controller" - {
 
@@ -74,7 +75,6 @@ class PurchaseSubCategoryControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        // Use the CheckMode reverse route (context prefix already included)
         val url = controllers.purchase.routes.PurchaseSubCategoryController.onPageLoad(models.CheckMode).url
         val request = FakeRequest(GET, url)
         val result = route(application, request).value
@@ -422,7 +422,6 @@ class PurchaseSubCategoryControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
 
-        // sessionRepository.set should not be called because parent already present
         verify(mockSessionRepository, times(0)).set(any())
       }
     }

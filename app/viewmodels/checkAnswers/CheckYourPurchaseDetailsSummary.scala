@@ -16,7 +16,7 @@
 
 package viewmodels.checkAnswers
 
-import controllers.routes
+import controllers.purchase.routes
 import utils.ConfigPurchaseMapping
 import models.{CheckMode, UserAnswers}
 import pages.*
@@ -24,6 +24,8 @@ import play.api.i18n.{Lang, Messages}
 import play.api.mvc.RequestHeader
 import utils.MountPrefix
 import viewmodels.govuk.summarylist.*
+
+import scala.annotation.tailrec
 
 object CheckYourPurchaseDetailsSummary {
 
@@ -41,8 +43,6 @@ object CheckYourPurchaseDetailsSummary {
     }
 
   def rowPurchaseSubTypeLabel(answers: UserAnswers, config: ConfigPurchaseMapping)(implicit messages: Messages): Option[Row] = {
-    // If the resolved country + parent has no subcodes configured then there
-    // is no sub-type selection to show and the row must be suppressed.
     answers.get(PurchaseTypePage) match {
       case None => None
       case Some(pt) =>
@@ -62,15 +62,10 @@ object CheckYourPurchaseDetailsSummary {
           }
           .getOrElse(true)
 
-        if (!hasSubcodes) None
-        else
-          // Preserve existing logic for rendering or suppressing the row when
-          // a sentinel 'None' or a bypass case applies.
+        if (!hasSubcodes) { None }
+        else {
           answers.get(PurchaseSubTypePage) match {
             case Some(v) if v == ConfigPurchaseMapping.NoneValue || v.split("\\.").lastOption.contains("99") =>
-              // Need to check whether this was the controller-bypass case for the
-              // country+parent: only hide when the mapping for that country+parent
-              // contained exactly one option whose last segment == "99".
               val singleBypass = countryOpt.flatMap { c =>
                 try {
                   val opts = config.subcodesFor(c, parentKey)
@@ -85,28 +80,23 @@ object CheckYourPurchaseDetailsSummary {
 
             case _ => answers.get(PurchaseTypePage).flatMap(renderSubTypeRow(answers, _))
           }
+        }
     }
   }
 
   private def renderSubTypeRow(answers: UserAnswers, pt: models.PurchaseType)(implicit messages: Messages): Option[Row] = {
     val parentSlug = models.PurchaseType.urlSlugForPurchaseType(pt)
     val msgKey = s"purchase.subType.$parentSlug"
-
     val keyLabel = if (messages.isDefinedAt(msgKey)) messages(msgKey) else parentSlug.replace('-', ' ').capitalize
 
-    // value should come from PurchaseSubTypeLabelPage in session
     val valueOpt: Option[String] = answers.get(PurchaseSubTypeLabelPage)
-    // If the stored label is the None sentinel, display Not provided instead
     val displayValueOpt: Option[String] = valueOpt.map(v => if (v == ConfigPurchaseMapping.NoneValue) messages("site.notProvided") else v)
-
-    val url = controllers.purchase.routes.PurchaseSubTypeController.onPageLoad(parentSlug, CheckMode).url
+    val url = routes.PurchaseSubTypeController.onPageLoad(parentSlug, CheckMode).url
 
     Some((keyLabel, displayValueOpt, Seq((url, "site.change", "purchase.subType.change.hidden"))))
   }
 
   def rowPurchaseSubCategoryLabel(answers: UserAnswers)(implicit messages: Messages, request: RequestHeader): Option[Row] =
-    // Build a humanised heading from the slug mapping in PurchaseSubCategoryType
-    // and show the stored sub-category label as the value.
     for {
       pt    <- answers.get(PurchaseTypePage)
       code  <- answers.get(PurchaseSubCategoryPage)
@@ -126,21 +116,11 @@ object CheckYourPurchaseDetailsSummary {
         loop(c).getOrElse(models.PurchaseSubCategoryType.pathFor(pk, c))
       }
 
-      // If the stored sub-category code is the special NoneValue sentinel,
-      // resolve a slug based on the selected sub-type instead so the CYA
-      // change link points to the appropriate parent-specific edit page.
       val codeToResolve = if (code == ConfigPurchaseMapping.NoneValue) answers.get(PurchaseSubTypePage).getOrElse(code) else code
       val slug = findSlug(parentKey, codeToResolve)
       val msgKey = s"purchase.subCategory.$slug"
       val keyLabel = if (messages.isDefinedAt(msgKey)) messages(msgKey) else slug.replace('-', ' ').capitalize
-
-      // Display "Not provided" when the stored label is the None sentinel.
       val displayValue = if (label == ConfigPurchaseMapping.NoneValue) messages("site.notProvided") else label
-
-      // Build a change-* URL for CheckMode using the resolved slug and
-      // include the configured mount prefix so the link points to the
-      // externally mounted context (e.g. "/file-eu-vat"). Use the implicit
-      // RequestHeader to compute the mount via `MountPrefix.get`.
       val mount = MountPrefix.getFromRequest
       val url = if (mount.isEmpty) s"/change-$slug" else s"$mount/change-$slug"
 
@@ -150,11 +130,6 @@ object CheckYourPurchaseDetailsSummary {
   def rowInvoiceType(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
     answers.get(InvoiceTypePage).map { it =>
       val url = routes.InvoiceTypeController.onPageLoad(CheckMode).url
-
-      // Try to resolve a localized label first. InvoiceType.toString may be
-      // a space-separated name (e.g. "standard invoice"). Message keys use
-      // a camelCase suffix (e.g. "standardInvoice"). Convert to that form
-      // and fallback to a title-cased raw value if no message key exists.
       val parts = it.toString.split("\\s+").toSeq.filter(_.nonEmpty)
       val keySuffix = parts.headOption
         .map { first =>
@@ -189,7 +164,7 @@ object CheckYourPurchaseDetailsSummary {
 
   def rowDescribeItems(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
     answers.get(DescribeItemsOnInvoicePage).map { desc =>
-      val url = controllers.routes.DescribeItemsOnInvoiceController.onPageLoad(CheckMode).url
+      val url = routes.DescribeItemsOnInvoiceController.onPageLoad(CheckMode).url
       val display = if (desc == null || desc.trim.isEmpty) messages("site.notProvided") else desc
       (messages("describeItemsOnInvoice.checkYourAnswersLabel"), Some(display), Seq((url, "site.change", "describeItemsOnInvoice.change.hidden")))
     }
@@ -227,7 +202,7 @@ object CheckYourPurchaseDetailsSummary {
 
   def rowSupplierTaxIdentifierNumber(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
     answers.get(SupplierTaxIdentifierNumberPage).map { num =>
-      val url = controllers.routes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode).url
+      val url = routes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode).url
       (messages("supplierTaxIdentifierNumber.checkYourAnswersLabel"),
        Some(num),
        Seq((url, "site.change", "supplierTaxIdentifierNumber.change.hidden"))
@@ -236,7 +211,7 @@ object CheckYourPurchaseDetailsSummary {
 
   def rowCurrency(displayName: Option[String])(implicit messages: Messages): Option[Row] =
     displayName.map { name =>
-      val url = controllers.routes.RefundingCurrencyController.onPageLoad(CheckMode).url
+      val url = routes.RefundingCurrencyController.onPageLoad(CheckMode).url
       (messages("checkYourPurchaseDetails.refundingCurrency.label"),
        Some(name),
        Seq((url, "site.change", "checkYourPurchaseDetails.refundingCurrency.change.hidden"))
@@ -245,7 +220,7 @@ object CheckYourPurchaseDetailsSummary {
 
   def rowAmountBeforeVat(answers: UserAnswers, maybeSymbol: Option[String])(implicit messages: Messages): Option[Row] =
     answers.get(TotalPurchaseAmountBeforeVatPage).map { amt =>
-      val url = controllers.routes.TotalPurchaseAmountBeforeVatController.onPageLoad(CheckMode).url
+      val url = routes.TotalPurchaseAmountBeforeVatController.onPageLoad(CheckMode).url
       val formattedNumber = f"$amt%,1.2f".replace(".00", "")
       val display = maybeSymbol.map(_ + formattedNumber).getOrElse(formattedNumber)
       (messages("totalPurchaseAmountBeforeVat.checkYourAnswersLabel"),
@@ -256,7 +231,7 @@ object CheckYourPurchaseDetailsSummary {
 
   def rowVatPaid(answers: UserAnswers, maybeSymbol: Option[String])(implicit messages: Messages): Option[Row] =
     answers.get(pages.TotalVatPaidPage).map { amt =>
-      val url = controllers.routes.TotalVatPaidController.onPageLoad(CheckMode).url
+      val url = routes.TotalVatPaidController.onPageLoad(CheckMode).url
       val formattedNumber = f"$amt%,1.2f".replace(".00", "")
       val display = maybeSymbol.map(_ + formattedNumber).getOrElse(formattedNumber)
       (messages("totalVatPaid.checkYourAnswersLabel"), Some(display), Seq((url, "site.change", "totalVatPaid.change.hidden")))
@@ -264,22 +239,17 @@ object CheckYourPurchaseDetailsSummary {
 
   def rowVatClaim(answers: UserAnswers, maybeSymbol: Option[String])(implicit messages: Messages): Option[Row] =
     answers.get(TotalVatClaimPage).map { amt =>
-      val url = controllers.routes.TotalVatClaimController.onPageLoad(CheckMode).url
+      val url = routes.TotalVatClaimController.onPageLoad(CheckMode).url
       val formattedNumber = f"$amt%,1.2f".replace(".00", "")
       val display = maybeSymbol.map(_ + formattedNumber).getOrElse(formattedNumber)
       (messages("totalVatClaim.checkYourAnswersLabel"), Some(display), Seq((url, "site.change", "totalVatClaim.change.hidden")))
     }
 
   def rowSupplierTaxNumbers(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
-    // Prefer explicit stored number pages (VAT reg or tax identifier). If
-    // neither number is stored but the user explicitly selected "Neither",
-    // show the Not provided row. Otherwise return None so the row is hidden.
     answers
       .get(SupplierVatRegistrationNumberPage)
       .map { _num =>
         val url = routes.SupplierTaxNumberController.onPageLoad(CheckMode).url
-        // Show the selected type label rather than the raw number so the
-        // CYA row reads: "Supplier tax numbers  Supplier VAT registration number"
         (messages("supplierTaxNumber.checkYourAnswersLabel"),
          Some(messages("supplierVatRegistrationNumber.checkYourAnswersLabel")),
          Seq((url, "site.change", "supplierVatRegistrationNumber.change.hidden"))
@@ -287,7 +257,7 @@ object CheckYourPurchaseDetailsSummary {
       }
       .orElse(
         answers.get(SupplierTaxIdentifierNumberPage).map { _num =>
-          val url = controllers.routes.SupplierTaxNumberController.onPageLoad(CheckMode).url
+          val url = routes.SupplierTaxNumberController.onPageLoad(CheckMode).url
           (messages("supplierTaxNumber.checkYourAnswersLabel"),
            Some(messages("supplierTaxIdentifierNumber.checkYourAnswersLabel")),
            Seq((url, "site.change", "supplierTaxIdentifierNumber.change.hidden"))
@@ -317,7 +287,6 @@ object CheckYourPurchaseDetailsSummary {
       Seq(rowPurchaseType(answers), rowPurchaseSubTypeLabel(answers, config), rowPurchaseSubCategoryLabel(answers), rowDescribeItems(answers)).flatten
 
     val invoiceRows = Seq(rowInvoiceType(answers), rowInvoiceNumber(answers), rowInvoiceDate(answers)).flatten
-
     val isGermany = answers.get(RefundingCountryPage).contains("DE")
 
     val supplierRows = (

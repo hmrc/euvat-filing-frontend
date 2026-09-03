@@ -16,7 +16,7 @@
 
 package base
 
-import controllers.actions.{FakeIdentifierAction, *}
+import controllers.actions.*
 import models.UserAnswers
 import models.responses.{LatestApplicationResponse, TraderKnownFactsResponse}
 import org.mockito.ArgumentMatchers.any
@@ -51,7 +51,6 @@ trait SpecBase
 
   def emptyUserAnswers: UserAnswers = UserAnswers(userAnswersId)
 
-  // Default mock for controllers that call the EuVatRefundsService
   protected val mockSessionRepository: SessionRepository = mock[SessionRepository]
   protected val mockEuVatRefundsService: EuVatRefundsService = mock[EuVatRefundsService]
 
@@ -59,13 +58,11 @@ trait SpecBase
     super.beforeEach()
     org.mockito.Mockito.reset(mockEuVatRefundsService)
     org.mockito.Mockito.reset(mockSessionRepository)
-    // safe defaults: no duplicate applications, and simple trader known facts
     when(mockEuVatRefundsService.retrieveTraderKnownFacts()(any()))
       .thenReturn(Future.successful(TraderKnownFactsResponse(vatRegNumber = 999900106, traderName = None, tradeClass = None)))
     when(mockEuVatRefundsService.getLatestApplications(any())(any()))
       .thenReturn(Future.successful(LatestApplicationResponse(applications = List.empty, totalApplication = 0)))
     when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-
   }
 
   def messages(app: Application): Messages = app.injector.instanceOf[MessagesApi].preferred(FakeRequest())
@@ -89,9 +86,6 @@ trait SpecBase
         )
     }
 
-  // Normalize dynamic values in rendered HTML to make string comparisons deterministic in tests.
-  // - strips any `nonce="..."` attributes
-  // - removes any CSRF hidden input elements entirely
   def normalizeHtml(html: String): String =
     html
       .replaceAll("nonce=\"[^\"]*\"", "nonce=\"\"")

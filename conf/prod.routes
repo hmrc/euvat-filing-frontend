@@ -1,4 +1,6 @@
 # Add all the application routes to the app.routes file
-->         /file-eu-vat               app.Routes
+
 ->         /                          health.Routes
+->         /file-eu-vat               app.Routes
+->         /file-eu-vat               claim.Routes
 ->         /file-eu-vat               purchase.Routes

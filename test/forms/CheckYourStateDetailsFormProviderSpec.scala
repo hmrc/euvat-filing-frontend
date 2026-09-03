@@ -17,6 +17,7 @@
 package forms
 
 import forms.behaviours.BooleanFieldBehaviours
+import forms.claim.CheckYourStateDetailsFormProvider
 import play.api.data.FormError
 
 class CheckYourStateDetailsFormProviderSpec extends BooleanFieldBehaviours {

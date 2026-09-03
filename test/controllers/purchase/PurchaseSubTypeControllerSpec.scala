@@ -17,28 +17,29 @@
 package controllers.purchase
 
 import base.SpecBase
+import controllers.purchase.routes
+import forms.purchase.PurchaseSubTypeFormProvider
+import models.{Fuel, Other}
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
+import pages.*
+import play.api.data.Form
+import play.api.inject.bind
+import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import play.api.inject.bind
-import utils.ConfigPurchaseMapping
-import controllers.routes
-import play.api.mvc.Call
-import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.govukfrontend.views.Aliases
-import org.mockito.ArgumentCaptor
-import forms.PurchaseSubTypeFormProvider
-import models.{Fuel, Other}
-import pages.*
+import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
+import utils.ConfigPurchaseMapping
 
 class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
 
   val onwardRoute: Call = Call("GET", "/foo")
 
   val formProvider = new PurchaseSubTypeFormProvider()
-  val form = formProvider()
+  val form: Form[String] = formProvider()
 
   "PurchaseSubType Controller" - {
 
@@ -592,7 +593,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.DescribeItemsOnInvoiceController.onPageLoad(models.NormalMode).url
+        redirectLocation(result).value mustEqual routes.DescribeItemsOnInvoiceController.onPageLoad(models.NormalMode).url
 
         val captor = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
@@ -670,13 +671,13 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, controllers.purchase.routes.PurchaseSubTypeController.onSubmit("fuel-use", models.CheckMode).url)
+        val request = FakeRequest(POST, routes.PurchaseSubTypeController.onSubmit("fuel-use", models.CheckMode).url)
           .withFormUrlEncodedBody(("value", ConfigPurchaseMapping.NoneValue))
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.CheckYourPurchaseDetailsController.onPageLoad().url
 
         val captor = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
