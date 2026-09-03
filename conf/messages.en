@@ -16,7 +16,6 @@ site.save.continue = Save and continue
 site.warning = Warning
 site.notProvided = Not provided
 
-
 date.day = Day
 date.month = Month
 date.year = Year
@@ -50,6 +49,7 @@ unauthorised.guidance = You do not have access to this service.
 
 claim.caption = Claim details
 purchase.caption = Purchase details
+purchasesAndImports.caption = Purchases and imports
 
 taskListDashboard.title = Make a claim for an EU VAT refund
 taskListDashboard.heading = Make a claim for an EU VAT refund
@@ -158,7 +158,6 @@ refundPeriod.end.error.required.year = Enter the end year
 refundPeriod.end.error.invalidDateFormat = Enter a valid end date
 refundPeriod.end.error.invalidDateFormat.month = Enter a valid end month
 refundPeriod.end.error.invalidDateFormat.year = Enter a valid end year
-refundPeriod.end.error.inPast = Refund period end date must be in the past
 refundPeriod.end.error.afterVatDeRegDate = Refund period end date must not be after the VAT deregistration date
 refundPeriod.error.startDateNotAfterEndDate = Refund period start date must be earlier than the refund period end date
 refundPeriod.error.startAndEndInSameYear = Refund period start date and end date must be in the same calendar year
@@ -241,10 +240,6 @@ checkYourClaimDetails.refundingCountry.subLabel = EU member state
 checkYourClaimDetails.refundingLanguage.label = Claim language
 checkYourClaimDetails.refundingLanguage.change.hidden = Change language
 checkYourClaimDetails.refundingLanguage.subLabel = Language
-checkYourClaimDetails.refundingCurrency.label = Currency
-refundingCurrency.checkYourAnswersLabel = Currency
-checkYourClaimDetails.refundingCurrency.subLabel = Currency
-checkYourClaimDetails.refundingCurrency.change.hidden = Change currency
 checkYourClaimDetails.refundingPeriod.label = Refund period
 checkYourClaimDetails.refundingStartDate.change.hidden = Change refund period start date
 checkYourClaimDetails.refundingEndDate.change.hidden = Change refund period end date
@@ -266,17 +261,28 @@ checkYourClaimDetails.paragraph = You cannot change the refunding EU member stat
 checkYourClaimDetails.claimDetails.title = Claim details
 checkYourClaimDetails.claimDetails.heading = Claim details
 
-# Check your purchase details page
 checkYourPurchaseDetails.title = Check your purchase details
 checkYourPurchaseDetails.heading = Check your purchase details
+checkYourPurchaseDetails.refundingCurrency.label = Currency
+checkYourPurchaseDetails.refundingCurrency.change.hidden = Change currency
+
+deleteClaim.title = Delete claim
+deleteClaim.heading = Delete claim
+deleteClaim.legend = Are you sure you want to delete this claim?
+deleteClaim.memberState = Refunding EU member state
+deleteClaim.periodStartDate = Refund period start date
+deleteClaim.periodEndDate = Refund period end date
+deleteClaim.error.required = Select yes if you want to delete this claim
 
 beforeYouStart.title = Before you start
 beforeYouStart.heading = Before you start
-beforeYouStart.p1 = To tell HMRC about your purchase, you’ll need the:
-beforeYouStart.bullet1 = invoice details
-beforeYouStart.bullet2 = supplier’s details, for example name and address
-beforeYouStart.bullet3 = purchase type
-beforeYouStart.bullet4 = VAT amounts
+beforeYouStart.p1 = You’ll need the:
+beforeYouStart.bullet1 = VAT amounts
+beforeYouStart.bullet2 = supplier details
+beforeYouStart.bullet3 = invoice details or import document
+beforeYouStart.bullet4 = Single Administrative Document (SAD) reference number for imports
+beforeYouStart.p2 = Find what you can or cannot claim from each member state in
+beforeYouStart.p2.link = Public Notice 723A (opens in a new tab)
 
 invoiceType.title = Invoice type
 invoiceType.heading = Invoice type
@@ -438,7 +444,6 @@ purchase.checkYourPurchase.invoiceDetails = Invoice details
 purchase.checkYourPurchase.supplierDetails = Supplier details
 purchase.checkYourPurchase.purchaseAmounts = Purchase amounts
 
-# Purchase sub-type headings for Check Your Answers
 purchase.subType.fuel-use = Fuel use
 purchase.subType.transport-cost = Transport cost type
 purchase.subType.food-drink-restaurant-cost = Food, drink or restaurant cost type
@@ -446,7 +451,6 @@ purchase.subType.luxury-entertainment-hospitality-cost = Luxury, entertainment o
 purchase.subType.purchase-type-other = Other purchase type
 purchase.subType.change.hidden = Change sub type
 
-# Purchase sub-category headings for Check Your Answers
 purchase.subCategory.fuel-type = Fuel type
 purchase.subCategory.fuel-type-or-vehicle = Fuel or vehicle type
 purchase.subCategory.vehicle-use = Vehicle use
@@ -475,7 +479,6 @@ describeItemsOnInvoice.checkYourAnswersLabel = Purchase description
 describeItemsOnInvoice.change.hidden = Change purchase description
 
 # Warning messages
-
 confirmRefundPeriodStartDate.title = Are you sure the refund period start date is correct?
 confirmRefundPeriodStartDate.heading = Are you sure the refund period start date is correct?
 confirmRefundPeriodStartDate.paragraph = You’ve told us the refund period start date is {0}. The refund period start date cannot be before {1}.
@@ -483,13 +486,12 @@ confirmRefundPeriodStartDate.warning = If you submit a claim with inaccurate inf
 confirmRefundPeriodStartDate.button = Yes, this is correct
 confirmRefundPeriodStartDate.link = No, change the start date
 
-supplierTaxIdentifierWarning.title = Are you sure the supplier’s tax identifier number is correct?
-supplierTaxIdentifierWarning.heading = Are you sure the supplier’s tax identifier number is correct?
-supplierTaxIdentifierWarning.p = You’ve already made a claim with the same supplier’s tax identifier and invoice number. Use a different supplier’s tax identifier or invoice number for this claim.
-supplierTaxIdentifierWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
-supplierTaxIdentifierWarning.changeTax = Change supplier’s tax identifier number
-supplierTaxIdentifierWarning.changeInvoice = Change invoice number
-supplierTaxIdentifierWarning.confirm = Yes, this is correct
+confirmRefundPeriodEndDate.title = Are you sure the refund period end date is correct?
+confirmRefundPeriodEndDate.heading = Are you sure the refund period end date is correct?
+confirmRefundPeriodEndDate.paragraph = You’ve told us the refund period end date is {0}. The refund period end date must be in the past.
+confirmRefundPeriodEndDate.warning = If you submit a claim with inaccurate information, it may be rejected.
+confirmRefundPeriodEndDate.button = Yes, this is correct
+confirmRefundPeriodEndDate.link = No, change the end date
 
 periodOverlapWarning.title = Are you sure the refund period is correct?
 periodOverlapWarning.heading = Are you sure the refund period is correct?
@@ -504,6 +506,14 @@ purchaseWarning.p = You have not described the items on your invoice. List each 
 purchaseWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
 purchaseWarning.correct = Yes, this is correct
 purchaseWarning.backLink = No, change the purchase details
+
+supplierTaxIdentifierWarning.title = Are you sure the supplier’s tax identifier number is correct?
+supplierTaxIdentifierWarning.heading = Are you sure the supplier’s tax identifier number is correct?
+supplierTaxIdentifierWarning.p = You’ve already made a claim with the same supplier’s tax identifier and invoice number. Use a different supplier’s tax identifier or invoice number for this claim.
+supplierTaxIdentifierWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
+supplierTaxIdentifierWarning.changeTax = Change supplier’s tax identifier number
+supplierTaxIdentifierWarning.changeInvoice = Change invoice number
+supplierTaxIdentifierWarning.confirm = Yes, this is correct
 
 vatPaidWarning.title = Are you sure the amount of VAT you paid is correct?
 vatPaidWarning.heading = Are you sure the amount of VAT you paid is correct?

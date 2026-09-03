@@ -46,6 +46,11 @@ POST        /check-refund-period-start-date             controllers.ConfirmRefun
 GET         /change-check-refund-period-start-date      controllers.ConfirmRefundPeriodStartDateController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-check-refund-period-start-date      controllers.ConfirmRefundPeriodStartDateController.onSubmit(mode: Mode = CheckMode)
 
+GET         /check-refund-period-end-date               controllers.ConfirmRefundPeriodEndDateController.onPageLoad(mode: Mode = NormalMode)
+POST        /check-refund-period-end-date               controllers.ConfirmRefundPeriodEndDateController.onSubmit(mode: Mode = NormalMode)
+GET         /change-check-refund-period-end-date        controllers.ConfirmRefundPeriodEndDateController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-check-refund-period-end-date        controllers.ConfirmRefundPeriodEndDateController.onSubmit(mode: Mode = CheckMode)
+
 GET         /how-contact-you-about-claim                controllers.ContactDetailsController.onPageLoad(mode: Mode = NormalMode)
 POST        /how-contact-you-about-claim                controllers.ContactDetailsController.onSubmit(mode: Mode = NormalMode)
 GET         /change-how-contact-you-about-claim         controllers.ContactDetailsController.onPageLoad(mode: Mode = CheckMode)
@@ -85,9 +90,12 @@ POST        /remove-second-SIC-code                     controllers.RemoveSecond
 GET         /remove-third-SIC-code                      controllers.RemoveThirdBusinessActivityController.onPageLoad()
 POST        /remove-third-SIC-code                      controllers.RemoveThirdBusinessActivityController.onSubmit()
 
+GET         /delete-claim                               controllers.DeleteClaimController.onPageLoad()
+POST        /delete-claim                               controllers.DeleteClaimController.onSubmit()
+
 # Purchase details journey
-GET         /before-you-start                           controllers.BeforeYouStartPurchaseController.onPageLoad()
-POST        /before-you-start                           controllers.BeforeYouStartPurchaseController.onSubmit()
+GET         /before-you-start                           controllers.BeforeYouStartController.onPageLoad()
+POST        /before-you-start                           controllers.BeforeYouStartController.onSubmit()
 
 GET         /invoice-type                               controllers.InvoiceTypeController.onPageLoad(mode: Mode = NormalMode)
 POST        /invoice-type                               controllers.InvoiceTypeController.onSubmit(mode: Mode = NormalMode)

@@ -14,17 +14,13 @@
  * limitations under the License.
  */
 
-package models
+package pages
 
-import models.PurchaseType
+import play.api.libs.json.JsPath
 
-object PurchaseTypeCode {
-  private val codes: Map[PurchaseType, String] = Map(
-    PurchaseType.Fuel         -> "1",
-    PurchaseType.Transport    -> "3",
-    PurchaseType.FoodAndDrink -> "7",
-    PurchaseType.Luxuries     -> "9",
-    PurchaseType.Other        -> "10"
-  )
-  def codeFor(pt: PurchaseType): String = codes(pt)
+case object DeleteClaimPage extends QuestionPage[Boolean] {
+
+  override def path: JsPath = JsPath \ toString
+
+  override def toString: String = "deleteClaim"
 }

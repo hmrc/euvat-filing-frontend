@@ -16,13 +16,14 @@
 
 package viewmodels
 
-import com.google.inject.Inject
 import models.UserAnswers
 import pages.ClaimDetailsCompletedPage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.tag.Tag
 import uk.gov.hmrc.govukfrontend.views.viewmodels.tasklist.{TaskList, TaskListItem, TaskListItemStatus, TaskListItemTitle}
+
+import javax.inject.Inject
 
 class TaskListViewModel @Inject() () {
 
@@ -54,7 +55,7 @@ class TaskListViewModel @Inject() () {
     val addPurchaseItem = TaskListItem(
       title  = TaskListItemTitle(content = Text(messages("taskListDashboard.listItem2"))),
       status = if (claimDetailsDone) notStartedStatus else cannotStartStatus,
-      href   = if (claimDetailsDone) Some(controllers.routes.BeforeYouStartPurchaseController.onPageLoad().url) else None
+      href   = if (claimDetailsDone) Some(controllers.routes.BeforeYouStartController.onPageLoad().url) else None
     )
 
     val addImportItem = TaskListItem(

@@ -14,17 +14,32 @@
  * limitations under the License.
  */
 
-package utils
+package forms
 
-import play.api.Configuration
+import forms.behaviours.BooleanFieldBehaviours
+import play.api.data.FormError
 
-object BusinessActivityList {
-  def fromConfig(config: Configuration, key: String = "sic.codes"): Seq[(String, String)] =
-    config.getOptional[Seq[String]](key).getOrElse(Seq.empty).map { s =>
-      s.split("\\|") match {
-        case Array(name, code) => (name.trim, code.trim)
-        case Array(name)       => (name.trim, "")
-        case _                 => (s, "")
-      }
-    }
+class DeleteClaimFormProviderSpec extends BooleanFieldBehaviours {
+
+  val requiredKey = "deleteClaim.error.required"
+  val invalidKey = "error.boolean"
+
+  val form = new DeleteClaimFormProvider()()
+
+  ".value" - {
+
+    val fieldName = "value"
+
+    behave like booleanField(
+      form,
+      fieldName,
+      invalidError = FormError(fieldName, invalidKey)
+    )
+
+    behave like mandatoryField(
+      form,
+      fieldName,
+      requiredError = FormError(fieldName, requiredKey)
+    )
+  }
 }

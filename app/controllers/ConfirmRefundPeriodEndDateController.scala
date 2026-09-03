@@ -17,29 +17,42 @@
 package controllers
 
 import controllers.actions.*
-import models.NormalMode
+import models.requests.DataRequest
+import models.{CheckMode, Mode, NormalMode, RefundPeriod}
+import navigation.Navigator
+import pages.RefundPeriodPage
 
 import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.BeforeYouStartPurchaseView
+import views.html.ConfirmRefundPeriodEndDateView
 
-class BeforeYouStartPurchaseController @Inject() (
+import java.time.format.DateTimeFormatter
+import java.time.{LocalDate, MonthDay, YearMonth}
+
+class ConfirmRefundPeriodEndDateController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   val controllerComponents: MessagesControllerComponents,
-  view: BeforeYouStartPurchaseView
+  navigator: Navigator,
+  view: ConfirmRefundPeriodEndDateView
 ) extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    Ok(view(routes.TaskListDashboardController.onPageLoad()))
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+    request.userAnswers.get(RefundPeriodPage) match {
+      case None => Redirect(routes.JourneyRecoveryController.onPageLoad())
+      case Some(refundPeriod) =>
+        val endDate = refundPeriod.endDate.format(DateTimeFormatter.ofPattern("MM/yyyy"))
+        val call = routes.RefundPeriodController.onPageLoad(mode)
+        Ok(view(endDate, call, mode))
+    }
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    Redirect(controllers.routes.PurchaseTypeController.onPageLoad(NormalMode))
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+    Redirect(navigator.nextPage(RefundPeriodPage, mode, request.userAnswers))
   }
 }
