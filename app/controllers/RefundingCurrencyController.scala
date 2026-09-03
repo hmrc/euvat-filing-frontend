@@ -76,33 +76,22 @@ class RefundingCurrencyController @Inject() (
           }
           .getOrElse(form)
 
-        // Render the page with the prepared form and radio items
         Ok(view(preparedForm, items, backLink(mode), mode))
     }
   }
 
-  // Bind and process the submitted ref currency form. Delegates to
-  // small helpers for error & success branches to keep this method
-  // concise and under ~50 lines.
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form.bindFromRequest().fold(handleFormErrors(_, mode), handleValidSubmission(_, mode))
   }
 
-  // Handle the form-with-errors branch: render the same page with the
-  // validation errors shown. If we cannot determine the refunding
-  // country from session, recover the journey.
   private def handleFormErrors(formWithErrors: Form[?], mode: Mode)(implicit request: DataRequest[?]): Future[Result] =
-    // Use DataRequest to access `userAnswers` stored on the request
     utils.CountryCode.findCountryCode(request.userAnswers) match {
       case None =>
-        // Missing country while rendering form errors is unexpected; log
-        // and redirect to journey recovery.
         logger.warn(
           "RefundingCurrencyController.onSubmit - no refunding country in session while binding form errors; redirecting to JourneyRecovery"
         )
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       case Some(countryCode) =>
-        // Build the radio items again for the page rendering
         val currencies = currencyConfig.currencyConfig(countryCode)
         val msgs = messagesApi.preferred(request)
         val items = buildRadioItems(currencies, msgs)
@@ -119,19 +108,13 @@ class RefundingCurrencyController @Inject() (
 
         currencies.collectFirst { case c if c.name.equalsIgnoreCase(value.toString) => c.code } match {
           case None =>
-            // Unexpected: selected currency not found in configuration
             logger.warn(s"RefundingCurrencyController.onSubmit - could not find currency code for ${value.toString}")
             Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
           case Some(currencyCode) =>
-            // Determine whether the currency actually changed compared to session
             val isChanged = request.userAnswers.get(RefundingCurrencyPage).exists(_ != currencyCode)
 
-            // Prepare the purchase CYA target used for CheckMode continuations
             val purchaseCYA = controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()
 
-            // Use the ControllerHelpers thin wrapper for the non-persisting
-            // CheckMode short-circuit behaviour so we can compose additional
-            // flag updates before persisting once.
             utils.ControllerHelpers.shortCircuit(
               RefundingCurrencyPage,
               currencyCode,
@@ -141,16 +124,11 @@ class RefundingCurrencyController @Inject() (
               purchaseCYA,
               None
             ) { (answersAfterSet: UserAnswers) =>
-              // If the claim was previously marked completed and the
-              // currency changed, set the amended flag so downstream
-              // flows surface correct messaging.
               val maybeAmendedTry =
                 if (isChanged && request.userAnswers.get(ClaimDetailsCompletedPage).contains(true))
                   answersAfterSet.set(ClaimDetailsAmendedPage, true)
                 else Success(answersAfterSet)
 
-              // If the currency changed mark a dedicated flag so other
-              // pages can react to the change. Chain after amended flag.
               val maybeCurrencyChangedTry = maybeAmendedTry.flatMap { ua =>
                 if (isChanged) ua.set(CurrencyChangedPage, true) else Success(ua)
               }

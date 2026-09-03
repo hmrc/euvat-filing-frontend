@@ -56,7 +56,6 @@ class TotalVatClaimController @Inject() (
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(TotalVatClaimPage).fold(form)(form.fill)
 
-    // Resolve the display currency symbol (fallback to Euro)
     val currencySymbol = currencySymbolFromSession(request.userAnswers, currencyConfig.currencyConfig)
 
     okView(preparedForm, mode, currencySymbol)

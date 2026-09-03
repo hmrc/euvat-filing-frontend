@@ -98,21 +98,16 @@ class SupplierTaxNumberController @Inject() (
   private def badRequestView(formWithErrors: Form[SupplierTaxNumber], mode: Mode, isSimplifiedInvoice: Boolean)(implicit request: DataRequest[?]) =
     BadRequest(view(formWithErrors, mode, backLink, isSimplifiedInvoice))
 
-  // Persist the provided Try[UserAnswers], then remove stale identifiers based on `value` and save.
   private def persistWithCleaning(userAnswersTry: scala.util.Try[UserAnswers], value: SupplierTaxNumber)(implicit
     request: DataRequest[?]
   ): Future[UserAnswers] =
     Future.fromTry(userAnswersTry).flatMap { updatedAnswers =>
-      // Clean stale fields based on chosen supplier tax number type
       val cleaned: UserAnswers = value match {
         case SupplierTaxNumber.Vatregistrationnumber =>
-          // If VAT registration selected remove any tax identifier
           updatedAnswers.remove(SupplierTaxIdentifierNumberPage).get
         case SupplierTaxNumber.Taxidentifiernumber =>
-          // If tax identifier selected remove any VAT registration number
           updatedAnswers.remove(SupplierVatRegistrationNumberPage).get
         case SupplierTaxNumber.Neither =>
-          // If neither selected remove both fields
           updatedAnswers
             .remove(SupplierVatRegistrationNumberPage)
             .get

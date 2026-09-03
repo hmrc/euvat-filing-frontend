@@ -143,10 +143,6 @@ class InvoiceNumberController @Inject() (
         Future.successful(Redirect(routes.SupplierTaxIdentifierWarningController.onPageLoad(mode)))
       }
     } else {
-      // Decide which warning flow was active and route accordingly. There are
-      // two warning flags used in the app:
-      // - `SupplierTaxIdentifierWarningShownPage` → route to SupplierTaxIdentifierNumber
-      // - `VrnWarningFlowPage` → route to SupplierVatRegistrationNumber
       if (userAnswers.get(pages.SupplierTaxIdentifierWarningShownPage).contains(true)) {
         val clearedTry = for {
           setVal  <- userAnswers.set(InvoiceNumberPage, value)
@@ -162,9 +158,6 @@ class InvoiceNumberController @Inject() (
 
         persistAndRedirect(clearedTry, routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode))
       } else {
-        // No recognised warning flag set — this indicates an inconsistent
-        // state. Fail-safe to Journey Recovery rather than defaulting to a
-        // specific supplier flow.
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       }
     }
