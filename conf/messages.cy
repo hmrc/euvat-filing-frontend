@@ -282,7 +282,7 @@ beforeYouStart.bullet2 = supplier details
 beforeYouStart.bullet3 = invoice details or import document
 beforeYouStart.bullet4 = Single Administrative Document (SAD) reference number for imports
 beforeYouStart.p2 = Find what you can or cannot claim from each member state in
-beforeYouStart.p2.link = Public Notice 723A (opens in a new tab).
+beforeYouStart.p2.link = Public Notice 723A (opens in a new tab)
 
 invoiceType.title = Invoice type
 invoiceType.heading = Invoice type
