@@ -28,7 +28,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.*
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.CheckModeShortCircuit
+// CheckModeShortCircuit removed; use ControllerHelpers instead when needed
 import utils.ControllerHelpers.*
 import views.html.SupplierTaxNumberView
 

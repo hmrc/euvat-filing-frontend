@@ -35,14 +35,14 @@ class SaveAndRedirectSpec extends SpecBase with MockitoSugar {
 
       val t = scala.util.Success(emptyUserAnswers)
 
-      val f = SaveAndRedirect.saveTryAndRedirect(t, mockRepo, controllers.routes.JourneyRecoveryController.onPageLoad())
+      val f = utils.ControllerHelpers.saveTryAndRedirect(t, mockRepo, controllers.routes.JourneyRecoveryController.onPageLoad())
       status(f) mustEqual SEE_OTHER
     }
 
     "must return InternalServerError when Try is Failure" in {
       val mockRepo = mock[SessionRepository]
       val t = scala.util.Failure(new RuntimeException("boom"))
-      val f = SaveAndRedirect.saveTryAndRedirect(t, mockRepo, controllers.routes.JourneyRecoveryController.onPageLoad())
+      val f = utils.ControllerHelpers.saveTryAndRedirect(t, mockRepo, controllers.routes.JourneyRecoveryController.onPageLoad())
       status(f) mustEqual play.api.http.Status.INTERNAL_SERVER_ERROR
     }
   }

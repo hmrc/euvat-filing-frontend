@@ -70,16 +70,14 @@ class TotalVatPaidController @Inject() (
   }
 
   private def handleSubmit(value: BigDecimal, mode: Mode)(implicit request: DataRequest[?]) = {
-    shortCircuitPersistAndThen(
-      ShortCircuitParams(
-        TotalVatPaidPage,
-        value,
-        mode,
-        request.userAnswers,
-        sessionRepository,
-        navigator.nextPage(TotalVatPaidPage, mode, request.userAnswers),
-        controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()
-      )
+    shortCircuit(
+      TotalVatPaidPage,
+      value,
+      mode,
+      request.userAnswers,
+      navigator.nextPage(TotalVatPaidPage, mode, request.userAnswers),
+      controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad(),
+      Some(sessionRepository)
     ) { updated =>
       if (compareWithPage(value, TotalPurchaseAmountBeforeVatPage, updated)(_ >= _)) {
         Future.successful(Redirect(routes.VatPaidWarningController.onPageLoad(mode)))

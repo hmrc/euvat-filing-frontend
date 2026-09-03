@@ -33,7 +33,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import models.responses.AddPurchaseResponse
-import utils.{CheckModeShortCircuit, ConfigPurchaseMapping, CountryCode, MountPrefix}
+import utils.{ConfigPurchaseMapping, CountryCode, MountPrefix}
 import utils.ControllerHelpers.*
 import views.html.PurchaseTypeView
 

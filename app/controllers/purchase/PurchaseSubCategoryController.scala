@@ -30,7 +30,7 @@ import play.api.mvc.*
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.{CheckModeShortCircuit, ConfigPurchaseMapping, ControllerHelpers, CountryCode, MountPrefix}
+import utils.{ConfigPurchaseMapping, ControllerHelpers, CountryCode, MountPrefix}
 import views.html.PurchaseSubTypeView
 
 import javax.inject.Inject

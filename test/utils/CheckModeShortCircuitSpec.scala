@@ -52,16 +52,16 @@ class CheckModeShortCircuitSpec extends SpecBase with MockitoSugar {
       var called = false
       val onSaved: UserAnswers => Future[play.api.mvc.Result] = (_: UserAnswers) => { called = true; Future.successful(Results.Ok) }
 
-      val f = CheckModeShortCircuit.applyNoPersist(
-        CheckModeShortCircuit.ShortCircuitNoPersistArgs(
-          TotalVatPaidPage,
-          BigDecimal(5),
-          CheckMode,
-          ua,
-          controllers.routes.JourneyRecoveryController.onPageLoad(),
-          onSaved
-        )
+      val args = utils.ControllerHelpers.CheckModeShortCircuitNoPersistArgs(
+        TotalVatPaidPage,
+        BigDecimal(5),
+        CheckMode,
+        ua,
+        controllers.routes.JourneyRecoveryController.onPageLoad(),
+        onSaved
       )
+
+      val f = utils.ControllerHelpers.checkModeShortCircuitNoPersist(args)
       whenReady(f) { r =>
         called mustBe true
         r.header.status mustBe 200

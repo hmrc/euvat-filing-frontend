@@ -115,18 +115,16 @@ class ControllerHelpersSpec extends SpecBase {
       val mockRepo = mock[SessionRepository]
       when(mockRepo.set(any[models.UserAnswers])) thenReturn Future.successful(true)
 
-      val fut = ControllerHelpers.shortCircuitPersistAndThen[
+      val fut = ControllerHelpers.shortCircuit[
         BigDecimal
       ](
-        ShortCircuitParams(
-          pages.TotalVatPaidPage,
-          BigDecimal(10),
-          CheckMode,
-          ua,
-          mockRepo,
-          Call("GET", "/next"),
-          controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()
-        )
+        pages.TotalVatPaidPage,
+        BigDecimal(10),
+        CheckMode,
+        ua,
+        Call("GET", "/next"),
+        controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad(),
+        Some(mockRepo)
       ) { _ =>
         Future.successful(Ok("saved"))
       }
@@ -146,18 +144,16 @@ class ControllerHelpersSpec extends SpecBase {
       val mockRepo = mock[SessionRepository]
       when(mockRepo.set(any[models.UserAnswers])) thenReturn Future.successful(true)
 
-      val fut = ControllerHelpers.shortCircuitPersistAndThen[
+      val fut = ControllerHelpers.shortCircuit[
         BigDecimal
       ](
-        ShortCircuitParams(
-          pages.TotalVatPaidPage,
-          BigDecimal(20),
-          CheckMode,
-          ua,
-          mockRepo,
-          Call("GET", "/next"),
-          controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()
-        )
+        pages.TotalVatPaidPage,
+        BigDecimal(20),
+        CheckMode,
+        ua,
+        Call("GET", "/next"),
+        controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad(),
+        Some(mockRepo)
       ) { _ =>
         Future.successful(Ok("saved"))
       }
@@ -176,18 +172,16 @@ class ControllerHelpersSpec extends SpecBase {
       val mockRepo = mock[SessionRepository]
       when(mockRepo.set(any[models.UserAnswers])) thenReturn Future.successful(true)
 
-      val fut = ControllerHelpers.shortCircuitPersistAndThen[
+      val fut = ControllerHelpers.shortCircuit[
         BigDecimal
       ](
-        ShortCircuitParams(
-          pages.TotalVatPaidPage,
-          BigDecimal(20),
-          NormalMode,
-          ua,
-          mockRepo,
-          Call("GET", "/next"),
-          controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()
-        )
+        pages.TotalVatPaidPage,
+        BigDecimal(20),
+        NormalMode,
+        ua,
+        Call("GET", "/next"),
+        controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad(),
+        Some(mockRepo)
       ) { _ =>
         Future.successful(Ok("saved"))
       }

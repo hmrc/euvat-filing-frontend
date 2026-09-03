@@ -102,16 +102,14 @@ class TotalPurchaseAmountBeforeVatController @Inject() (
   }
 
   private def handleSubmit(value: BigDecimal, mode: Mode)(implicit request: DataRequest[?]) = {
-    shortCircuitPersistAndThen(
-      ShortCircuitParams(
-        TotalPurchaseAmountBeforeVatPage,
-        value,
-        mode,
-        request.userAnswers,
-        sessionRepository,
-        navigator.nextPage(TotalPurchaseAmountBeforeVatPage, mode, request.userAnswers),
-        controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()
-      )
+    shortCircuit(
+      TotalPurchaseAmountBeforeVatPage,
+      value,
+      mode,
+      request.userAnswers,
+      navigator.nextPage(TotalPurchaseAmountBeforeVatPage, mode, request.userAnswers),
+      controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad(),
+      Some(sessionRepository)
     )(updated => Future.successful(Redirect(navigator.nextPage(TotalPurchaseAmountBeforeVatPage, mode, updated))))
   }
 

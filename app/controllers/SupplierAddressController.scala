@@ -28,7 +28,7 @@ import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ControllerHelpers.*
-import utils.{CheckModeShortCircuit, SaveAndRedirect}
+// SaveAndRedirect and CheckModeShortCircuit removed; use ControllerHelpers implementations
 import views.html.SupplierAddressView
 
 import javax.inject.Inject
@@ -64,22 +64,21 @@ class SupplierAddressController @Inject() (
       .fold(
         formWithErrors => Future.successful(badRequestView(formWithErrors, mode)),
         value =>
-          CheckModeShortCircuit.applyNoPersist(
-            CheckModeShortCircuit.ShortCircuitNoPersistArgs(
-              SupplierAddressPage,
-              value,
-              mode,
-              request.userAnswers,
-              controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad(),
-              (answersAfterSet: UserAnswers) => {
-                val userAnswersTry = Success(answersAfterSet)
+          utils.ControllerHelpers.shortCircuit(
+            SupplierAddressPage,
+            value,
+            mode,
+            request.userAnswers,
+            navigator.nextPage(SupplierAddressPage, mode, request.userAnswers),
+            controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad(),
+            None
+          ) { (answersAfterSet: UserAnswers) =>
+            val userAnswersTry = Success(answersAfterSet)
 
-                val redirectCall = computeRedirectAfterSave(answersAfterSet, mode)
+            val redirectCall = computeRedirectAfterSave(answersAfterSet, mode)
 
-                SaveAndRedirect.saveTryAndRedirect(userAnswersTry, sessionRepository, redirectCall)
-              }
-            )
-          )
+            utils.ControllerHelpers.saveTryAndRedirect(userAnswersTry, sessionRepository, redirectCall)
+          }
       )
   }
 

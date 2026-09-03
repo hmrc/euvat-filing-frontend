@@ -26,6 +26,9 @@ import repositories.SessionRepository
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.mvc.Results.*
 import models.{CheckMode, Mode, UserAnswers}
+import scala.util.Try
+import scala.util.Success
+import scala.util.Failure
 
 object ControllerHelpers {
 
@@ -41,29 +44,19 @@ object ControllerHelpers {
       b <- second
     } yield (a, b)
 
-  // Resolve the human-friendly currency name and prefix for views using the
-  // central CurrencyResolver. This helper simply delegates and provides a
-  // consistent signature for controllers to call.
   def currencyNameAndPrefix(userAnswers: models.UserAnswers, configCurrencyMapping: Map[String, Seq[Currency]])(implicit
     request: DataRequest[?]
   ): (String, String) = CurrencyResolver.currencyNameAndPrefix(userAnswers, configCurrencyMapping)
 
-  // Return a display-friendly currency symbol extracted from session/config.
-  // Falls back to the Euro symbol when no symbol can be resolved.
   def currencySymbolFromSession(userAnswers: models.UserAnswers, configCurrencyMapping: Map[String, Seq[Currency]])(implicit
     request: DataRequest[?]
   ): String = {
-    // Reuse the name/prefix resolver and pick the symbol portion
     val (_, symbol) = currencyNameAndPrefix(userAnswers, configCurrencyMapping)
-    // Fallback to Euro if the resolver returned an empty prefix
     if (symbol.isEmpty) "€" else symbol
   }
 
   // Generic helper to compare a submitted `value` against a BigDecimal stored
   // on another page in `UserAnswers` using a provided comparator function.
-  //
-  // Example usage:
-  // `compareWithPage(value, TotalPurchaseAmountBeforeVatPage, updated)(_ >= _)`
   def compareWithPage(value: BigDecimal, page: pages.QuestionPage[BigDecimal], updated: models.UserAnswers)(
     cmp: (BigDecimal, BigDecimal) => Boolean
   ): Boolean =
@@ -84,54 +77,92 @@ object ControllerHelpers {
     }
   }
 
-  /** Shared submit helper that centralises the common CheckMode short-circuit pattern used across monetary input controllers.
-    *
-    * Behaviour:
-    *   - If in CheckMode and a `PurchaseTypePage` is present in `userAnswers` the `purchaseCya` call is used as the unchanged-redirect target.
-    *   - Otherwise `navigatorNext` is used as the unchanged-redirect target.
-    *
-    * The `onSaved` continuation is invoked with the updated `UserAnswers` when the value changes (or when not in CheckMode) so callers can decide the
-    * appropriate redirect (including any warning-page checks).
-    */
-  case class ShortCircuitParams[T](
+  def shortCircuit[T](
     page: QuestionPage[T],
     newValue: T,
-    mode: models.Mode,
-    userAnswers: models.UserAnswers,
-    sessionRepository: SessionRepository,
+    mode: Mode,
+    userAnswers: UserAnswers,
     navigatorNext: Call,
-    purchaseCya: Call
-  )
-
-  def shortCircuitPersistAndThen[T](
-    params: ShortCircuitParams[T]
+    purchaseCya: Call,
+    sessionRepositoryOpt: Option[SessionRepository]
   )(onSaved: UserAnswers => Future[Result])(implicit fmt: Format[T], ec: ExecutionContext): Future[Result] = {
-    // Choose the unchanged-redirect target according to the purchase-journey
-    // short-circuit rule that routes CheckMode purchase flows back to the
-    // purchase CYA without persisting when the value is unchanged.
     val unchangedRedirect: Call =
-      if (params.mode == models.CheckMode && params.userAnswers.get(pages.PurchaseTypePage).isDefined) {
-        params.purchaseCya
-      } else {
-        params.navigatorNext
-      }
+      if (mode == CheckMode && userAnswers.get(pages.PurchaseTypePage).isDefined) purchaseCya
+      else navigatorNext
 
-    CheckModeShortCircuit(
-      CheckModeShortCircuit.ShortCircuitArgs(
-        params.page,
-        params.newValue,
-        params.mode,
-        params.userAnswers,
-        params.sessionRepository,
-        unchangedRedirect,
-        onSaved
-      )
-    )
+    sessionRepositoryOpt match {
+      case Some(sessionRepository) =>
+        val delegate = CheckModeShortCircuitArgs(page, newValue, mode, userAnswers, sessionRepository, unchangedRedirect, onSaved)
+        checkModeShortCircuit(delegate)
+      case None =>
+        val delegate = CheckModeShortCircuitNoPersistArgs(page, newValue, mode, userAnswers, unchangedRedirect, onSaved)
+        checkModeShortCircuitNoPersist(delegate)
+    }
   }
 
-  /** If running in CheckMode and the arrival flag page is not set, set it and persist the updated `UserAnswers`. Otherwise call `render` with the
-    * existing `UserAnswers`.
-    */
+  case class CheckModeShortCircuitArgs[T](
+    page: QuestionPage[T],
+    newValue: T,
+    mode: Mode,
+    userAnswers: UserAnswers,
+    sessionRepository: SessionRepository,
+    unchangedRedirect: Call,
+    onSaved: UserAnswers => Future[Result]
+  )
+
+  case class CheckModeShortCircuitNoPersistArgs[T](
+    page: QuestionPage[T],
+    newValue: T,
+    mode: Mode,
+    userAnswers: UserAnswers,
+    unchangedRedirect: Call,
+    onSaved: UserAnswers => Future[Result]
+  )
+
+  def checkModeShortCircuitNoPersist[T](args: CheckModeShortCircuitNoPersistArgs[T])(implicit fmt: Format[T], ec: ExecutionContext): Future[Result] = {
+    if (args.mode == CheckMode && args.userAnswers.isAnswerUnchanged(args.page, args.newValue)) {
+      Future.successful(Redirect(args.unchangedRedirect))
+    } else {
+      args.userAnswers.set(args.page, args.newValue) match {
+        case Success(updated) =>
+          args.onSaved(updated).recover { case _ => InternalServerError("Failed during onSaved") }
+        case Failure(_) =>
+          Future.successful(InternalServerError("Failed to build UserAnswers"))
+      }
+    }
+  }
+
+  def checkModeShortCircuit[T](args: CheckModeShortCircuitArgs[T])(implicit fmt: Format[T], ec: ExecutionContext): Future[Result] = {
+    if (args.mode == CheckMode && args.userAnswers.isAnswerUnchanged(args.page, args.newValue)) {
+      Future.successful(Redirect(args.unchangedRedirect))
+    } else {
+      args.userAnswers.set(args.page, args.newValue) match {
+        case Success(updated) =>
+          args.sessionRepository
+            .set(updated)
+            .flatMap(_ => args.onSaved(updated))
+            .recover { case _ => InternalServerError("Failed to persist session") }
+        case Failure(_) =>
+          Future.successful(InternalServerError("Failed to build UserAnswers"))
+      }
+    }
+  }
+
+  def saveTryAndRedirect(userAnswersTry: Try[UserAnswers], sessionRepository: SessionRepository, nextPage: Call)(implicit
+    ec: ExecutionContext
+  ): Future[Result] =
+    userAnswersTry match {
+      case Success(userAnswers) =>
+        sessionRepository
+          .set(userAnswers)
+          .map(_ => Redirect(nextPage))
+          .recover { case _ => InternalServerError("Failed to persist session") }
+      case Failure(_) =>
+        Future.successful(InternalServerError("Failed to build UserAnswers"))
+    }
+
+  // If running in CheckMode and the arrival flag page is not set, set it and persist the updated `UserAnswers`. 
+  // Otherwise call `render` with the existing `UserAnswers`.
   def markArrivalAndRender(
     page: QuestionPage[Boolean],
     mode: Mode,

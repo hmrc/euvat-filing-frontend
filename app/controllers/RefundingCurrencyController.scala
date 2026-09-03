@@ -129,40 +129,39 @@ class RefundingCurrencyController @Inject() (
             // Prepare the purchase CYA target used for CheckMode continuations
             val purchaseCYA = controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()
 
-            // We use the non-persisting CheckMode variant so we can compose
-            // additional flags (`ClaimDetailsAmendedPage`, `CurrencyChangedPage`)
-            // into a single Try before persisting once.
-            CheckModeShortCircuit.applyNoPersist(
-              CheckModeShortCircuit.ShortCircuitNoPersistArgs(
-                RefundingCurrencyPage,
-                currencyCode,
-                mode,
-                request.userAnswers,
-                purchaseCYA,
-                (answersAfterSet: UserAnswers) => {
-                  // If the claim was previously marked completed and the
-                  // currency changed, set the amended flag so downstream
-                  // flows surface correct messaging.
-                  val maybeAmendedTry =
-                    if (isChanged && request.userAnswers.get(ClaimDetailsCompletedPage).contains(true))
-                      answersAfterSet.set(ClaimDetailsAmendedPage, true)
-                    else Success(answersAfterSet)
+            // Use the ControllerHelpers thin wrapper for the non-persisting
+            // CheckMode short-circuit behaviour so we can compose additional
+            // flag updates before persisting once.
+            utils.ControllerHelpers.shortCircuit(
+              RefundingCurrencyPage,
+              currencyCode,
+              mode,
+              request.userAnswers,
+              navigator.nextPage(RefundingCurrencyPage, mode, request.userAnswers),
+              purchaseCYA,
+              None
+            ) { (answersAfterSet: UserAnswers) =>
+              // If the claim was previously marked completed and the
+              // currency changed, set the amended flag so downstream
+              // flows surface correct messaging.
+              val maybeAmendedTry =
+                if (isChanged && request.userAnswers.get(ClaimDetailsCompletedPage).contains(true))
+                  answersAfterSet.set(ClaimDetailsAmendedPage, true)
+                else Success(answersAfterSet)
 
-                  // If the currency changed mark a dedicated flag so other
-                  // pages can react to the change. Chain after amended flag.
-                  val maybeCurrencyChangedTry = maybeAmendedTry.flatMap { ua =>
-                    if (isChanged) ua.set(CurrencyChangedPage, true) else Success(ua)
-                  }
+              // If the currency changed mark a dedicated flag so other
+              // pages can react to the change. Chain after amended flag.
+              val maybeCurrencyChangedTry = maybeAmendedTry.flatMap { ua =>
+                if (isChanged) ua.set(CurrencyChangedPage, true) else Success(ua)
+              }
 
-                  Future.fromTry(maybeCurrencyChangedTry)
-                  .flatMap: finalAnswers =>
-                    sessionRepository
-                      .set(finalAnswers)
-                      .map: _ =>
-                        Redirect(navigator.nextPage(RefundingCurrencyPage, mode, finalAnswers))
-                }
-              )
-            )
+              Future.fromTry(maybeCurrencyChangedTry)
+                .flatMap: finalAnswers =>
+                  sessionRepository
+                    .set(finalAnswers)
+                    .map: _ =>
+                      Redirect(navigator.nextPage(RefundingCurrencyPage, mode, finalAnswers))
+            }
         }
     }
 

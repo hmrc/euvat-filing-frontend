@@ -27,7 +27,7 @@ import play.api.mvc.*
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ControllerHelpers.*
-import utils.CheckModeShortCircuit
+// CheckModeShortCircuit removed; use ControllerHelpers implementations instead
 import views.html.InvoiceNumberView
 
 import javax.inject.Inject
@@ -113,17 +113,17 @@ class InvoiceNumberController @Inject() (
   }
 
   private def handleNormalModeWithoutWarning(value: String, mode: Mode, userAnswers: UserAnswers): Future[Result] =
-    CheckModeShortCircuit(
-      CheckModeShortCircuit.ShortCircuitArgs(
-        InvoiceNumberPage,
-        value,
-        mode,
-        userAnswers,
-        sessionRepository,
-        navigator.nextPage(InvoiceNumberPage, mode, userAnswers),
-        updated => Future.successful(Redirect(navigator.nextPage(InvoiceNumberPage, mode, updated)))
-      )
-    )
+    utils.ControllerHelpers.shortCircuit(
+      InvoiceNumberPage,
+      value,
+      mode,
+      userAnswers,
+      navigator.nextPage(InvoiceNumberPage, mode, userAnswers),
+      controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad(),
+      Some(sessionRepository)
+    ) { updated =>
+      Future.successful(Redirect(navigator.nextPage(InvoiceNumberPage, mode, updated)))
+    }
 
   private def handleWithoutWarning(value: String, mode: Mode, userAnswers: UserAnswers): Future[Result] =
     if (mode == CheckMode) {

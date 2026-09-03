@@ -73,16 +73,14 @@ class TotalVatClaimController @Inject() (
   }
 
   private def handleSubmit(value: BigDecimal, mode: Mode)(implicit request: DataRequest[?]) = {
-    shortCircuitPersistAndThen(
-      ShortCircuitParams(
-        TotalVatClaimPage,
-        value,
-        mode,
-        request.userAnswers,
-        sessionRepository,
-        navigator.nextPage(TotalVatClaimPage, mode, request.userAnswers),
-        controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()
-      )
+    shortCircuit(
+      TotalVatClaimPage,
+      value,
+      mode,
+      request.userAnswers,
+      navigator.nextPage(TotalVatClaimPage, mode, request.userAnswers),
+      controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad(),
+      Some(sessionRepository)
     ) { updated =>
       if (compareWithPage(value, TotalVatPaidPage, updated)(_ > _)) {
         Future.successful(Redirect(routes.VatClaimWarningController.onPageLoad(mode)))

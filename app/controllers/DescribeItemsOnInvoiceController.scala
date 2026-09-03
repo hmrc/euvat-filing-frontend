@@ -28,7 +28,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.{CheckModeShortCircuit, ConfigPurchaseMapping, CountryCode}
+import utils.{ConfigPurchaseMapping, CountryCode}
 import utils.ControllerHelpers.*
 import views.html.DescribeItemsOnInvoiceView
 
@@ -120,30 +120,16 @@ class DescribeItemsOnInvoiceController @Inject() (
             Future.successful(BadRequest(view(formWithErrors, mode, computeBackTarget(mode))))
           },
         value =>
-          if (mode == CheckMode) {
-            CheckModeShortCircuit(
-              CheckModeShortCircuit.ShortCircuitArgs(
-                DescribeItemsOnInvoicePage,
-                value,
-                mode,
-                request.userAnswers,
-                sessionRepository,
-                controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad(),
-                updated => Future.successful(Redirect(navigator.nextPage(DescribeItemsOnInvoicePage, mode, updated)))
-              )
-            )
-          } else {
-            CheckModeShortCircuit(
-              CheckModeShortCircuit.ShortCircuitArgs(
-                DescribeItemsOnInvoicePage,
-                value,
-                mode,
-                request.userAnswers,
-                sessionRepository,
-                navigator.nextPage(DescribeItemsOnInvoicePage, mode, request.userAnswers),
-                updated => Future.successful(Redirect(navigator.nextPage(DescribeItemsOnInvoicePage, mode, updated)))
-              )
-            )
+          shortCircuit(
+            DescribeItemsOnInvoicePage,
+            value,
+            mode,
+            request.userAnswers,
+            navigator.nextPage(DescribeItemsOnInvoicePage, mode, request.userAnswers),
+            controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad(),
+            Some(sessionRepository)
+          ) { updated =>
+            Future.successful(Redirect(navigator.nextPage(DescribeItemsOnInvoicePage, mode, updated)))
           }
       )
   }
