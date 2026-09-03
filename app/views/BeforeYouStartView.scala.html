@@ -27,9 +27,9 @@
 @(backLinkCall: Call)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("beforeYouStart.title")), backLinkUrl = Some(backLinkCall.url)) {
-    @formHelper(action = routes.BeforeYouStartPurchaseController.onSubmit()) {
+    @formHelper(action = routes.BeforeYouStartController.onSubmit()) {
         <h1 class="govuk-heading-l">
-            <span class="govuk-caption-l">@messages("purchase.caption")</span>
+            <span class="govuk-caption-l">@messages("purchasesAndImports.caption")</span>
             @messages("beforeYouStart.heading")
         </h1>
         <p class="govuk-body">@messages("beforeYouStart.p1")</p>
@@ -40,6 +40,11 @@
             <li>@messages("beforeYouStart.bullet3")</li>
             <li>@messages("beforeYouStart.bullet4")</li>
         </ul>
+
+        <p class="govuk-body">
+            @messages("beforeYouStart.p2")
+            <a class="govuk-link" href="https://www.gov.uk/guidance/refunds-of-uk-vat-for-non-uk-businesses-or-eu-vat-for-uk-businesses" target="_blank" rel="noreferrer noopener">@messages("beforeYouStart.p2.link")</a>
+        </p>
 
         @govukButton(ButtonViewModel(Text(messages("site.continue"))))
     }

@@ -44,11 +44,11 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
   lazy val purchaseTypeRoute: String = routes.PurchaseTypeController.onPageLoad(NormalMode).url
   lazy val purchaseTypeSubmitRoute: String = routes.PurchaseTypeController.onSubmit(NormalMode).url
-  lazy val backLinkCall: Call = routes.BeforeYouStartPurchaseController.onPageLoad()
+  lazy val backLinkCall: Call = routes.BeforeYouStartController.onPageLoad()
 
   lazy val purchaseTypeRouteCheck: String = routes.PurchaseTypeController.onPageLoad(CheckMode).url
   lazy val purchaseTypeSubmitRouteCheck: String = routes.PurchaseTypeController.onSubmit(CheckMode).url
-  lazy val backLinkCallCheck: Call = routes.BeforeYouStartPurchaseController.onPageLoad()
+  lazy val backLinkCallCheck: Call = routes.BeforeYouStartController.onPageLoad()
 
   "PurchaseType Controller" - {
 
@@ -122,7 +122,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, routes.BeforeYouStartPurchaseController.onPageLoad())(
+          view(form, NormalMode, routes.BeforeYouStartController.onPageLoad())(
             request,
             messages(application)
           ).toString

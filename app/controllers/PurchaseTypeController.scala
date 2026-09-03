@@ -71,8 +71,8 @@ class PurchaseTypeController @Inject() (
   // tiny helper so the controller action remains concise and the
   // link computation can be mocked/tested separately.
   private def backLink(mode: Mode)(implicit request: DataRequest[?]) =
-    // We always return to the 'BeforeYouStartPurchase' page from here
-    routes.BeforeYouStartPurchaseController.onPageLoad()
+    // We always return to the 'BeforeYouStart' page from here
+    routes.BeforeYouStartController.onPageLoad()
   /*
    * Render the Purchase Type selection page.
    *
