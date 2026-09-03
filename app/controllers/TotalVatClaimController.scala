@@ -21,7 +21,7 @@ import forms.TotalVatClaimFormProvider
 import models.Mode
 import models.requests.DataRequest
 import navigation.Navigator
-import pages.{PurchaseTypePage, RefundingCurrencyPage, TotalVatClaimPage, TotalVatPaidPage}
+import pages.{TotalVatClaimPage, TotalVatPaidPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
@@ -54,39 +54,37 @@ class TotalVatClaimController @Inject() (
   private def backLink(mode: Mode): Call = routes.TotalVatPaidController.onPageLoad(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    // Prepare the form pre-filling from session when present
-    val preparedForm = preparedFormFromAnswers(_.get(TotalVatClaimPage), form)
+    val preparedForm = request.userAnswers.get(TotalVatClaimPage).fold(form)(form.fill)
 
-    // Resolve the display currency symbol (fallback to Euro)
     val currencySymbol = currencySymbolFromSession(request.userAnswers, currencyConfig.currencyConfig)
 
-    // Render the OK view using the shared helper
     okView(preparedForm, mode, currencySymbol)
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    // Bind form and handle invalid/valid branches using shared helpers
     form
       .bindFromRequest()
       .fold(
-        // On validation errors render BadRequest with consistent currency symbol
         formWithErrors => Future.successful(badRequestView(formWithErrors, mode)),
         value => handleSubmit(value, mode)
       )
   }
 
   private def handleSubmit(value: BigDecimal, mode: Mode)(implicit request: DataRequest[?]) = {
-    shortCircuitPersistAndThen(
+    shortCircuit(
       TotalVatClaimPage,
       value,
       mode,
       request.userAnswers,
-      sessionRepository,
       navigator.nextPage(TotalVatClaimPage, mode, request.userAnswers),
-      controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()
+      controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad(),
+      Some(sessionRepository)
     ) { updated =>
-      if (compareWithPage(value, TotalVatPaidPage, updated)(_ > _)) Future.successful(Redirect(routes.VatClaimWarningController.onPageLoad(mode)))
-      else Future.successful(Redirect(navigator.nextPage(TotalVatClaimPage, mode, updated)))
+      if (compareWithPage(value, TotalVatPaidPage, updated)(_ > _)) {
+        Future.successful(Redirect(routes.VatClaimWarningController.onPageLoad(mode)))
+      } else {
+        Future.successful(Redirect(navigator.nextPage(TotalVatClaimPage, mode, updated)))
+      }
     }
   }
 
