@@ -24,7 +24,7 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{DescribeItemsOnInvoicePage, PurchaseOrImportPage, PurchaseSubCategoryLabelPage, PurchaseSubCategoryPage, PurchaseSubTypeLabelPage, PurchaseSubTypePage, PurchaseTypePage}
+import pages.*
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -68,7 +68,7 @@ class PurchaseOrImportControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must not pre-populate the view on a GET even when the question has previously been answered" in {
+    "must populate the view correctly on a GET when the question has previously been answered" in {
 
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
@@ -88,7 +88,7 @@ class PurchaseOrImportControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, backLinkCall)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(PurchaseOrImport.values.head), backLinkCall)(request, messages(application)).toString
       }
     }
 
@@ -118,13 +118,25 @@ class PurchaseOrImportControllerSpec extends SpecBase with MockitoSugar {
         verify(mockSessionRepository).set(captor.capture())
 
         val savedAnswers = captor.getValue
-        savedAnswers.get(PurchaseOrImportPage) mustBe None
         savedAnswers.get(PurchaseTypePage) mustBe None
         savedAnswers.get(PurchaseSubTypePage) mustBe None
         savedAnswers.get(PurchaseSubTypeLabelPage) mustBe None
         savedAnswers.get(PurchaseSubCategoryPage) mustBe None
         savedAnswers.get(PurchaseSubCategoryLabelPage) mustBe None
         savedAnswers.get(DescribeItemsOnInvoicePage) mustBe None
+        savedAnswers.get(InvoiceTypePage) mustBe None
+        savedAnswers.get(InvoiceNumberPage) mustBe None
+        savedAnswers.get(InvoiceDatePage) mustBe None
+        savedAnswers.get(RefundingCurrencyPage) mustBe None
+        savedAnswers.get(SimplifiedInvoiceVatRegCheckPage) mustBe None
+        savedAnswers.get(SuppliersNamePage) mustBe None
+        savedAnswers.get(SupplierAddressPage) mustBe None
+        savedAnswers.get(SupplierVatRegistrationNumberPage) mustBe None
+        savedAnswers.get(SupplierTaxIdentifierNumberPage) mustBe None
+        savedAnswers.get(SupplierTaxNumberPage) mustBe None
+        savedAnswers.get(TotalPurchaseAmountBeforeVatPage) mustBe None
+        savedAnswers.get(TotalVatPaidPage) mustBe None
+        savedAnswers.get(TotalVatClaimPage) mustBe None
       }
     }
 

@@ -55,7 +55,10 @@ class PurchaseOrImportController @Inject() (
     for {
       cleared <- Future.fromTry(clearPurchaseJourney(request.userAnswers))
       _       <- sessionRepository.set(cleared)
-    } yield Ok(view(form, backLink))
+    } yield {
+      val preparedForm = cleared.get(PurchaseOrImportPage).fold(form)(form.fill)
+      Ok(view(preparedForm, backLink))
+    }
   }
 
   def onSubmit: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -73,7 +76,6 @@ class PurchaseOrImportController @Inject() (
   }
 
   private val purchaseJourneyPages: List[Settable[_]] = List(
-    PurchaseOrImportPage,
     PurchaseTypePage,
     PurchaseSubTypePage,
     PurchaseSubTypeLabelPage,
