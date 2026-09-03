@@ -41,30 +41,6 @@ import utils.ControllerHelpers.*
 
 class ControllerHelpersSpec extends SpecBase {
 
-  "Form.preparedFromAnswers" - {
-    "returns empty form when no value stored" in {
-      implicit val request: DataRequest[?] = DataRequest(FakeRequest("GET", "/"), userAnswersId, "", "", emptyUserAnswers)
-
-      val form: Form[String] = Form(single("v" -> text))
-
-      val prepared = form.preparedFromAnswers(pages.SuppliersNamePage, request.userAnswers)
-
-      prepared.value mustBe None
-    }
-
-    "returns filled form when value present in UserAnswers" in {
-      // store a value into UserAnswers
-      val updated = emptyUserAnswers.set(SuppliersNamePage, "Acme Ltd").success.value
-      implicit val request: DataRequest[?] = DataRequest(FakeRequest("GET", "/"), userAnswersId, "", "", updated)
-
-      val form: Form[String] = Form(single("v" -> text))
-
-      val prepared = form.preparedFromAnswers(pages.SuppliersNamePage, request.userAnswers)
-
-      prepared.value.value mustBe "Acme Ltd"
-    }
-  }
-
   "currencySymbolFromSession" - {
     "falls back to Euro when no country selected" in {
       implicit val request: DataRequest[?] = DataRequest(FakeRequest("GET", "/"), userAnswersId, "", "", emptyUserAnswers)

@@ -51,7 +51,7 @@ class CheckYourStateDetailsController @Inject() (
   private def backLink: Call = routes.CheckYourClaimDetailsController.onPageLoad()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = form.preparedFromAnswers(CheckYourStateDetailsPage, request.userAnswers)
+    val preparedForm = request.userAnswers.get(CheckYourStateDetailsPage).fold(form)(form.fill)
     Ok(view(preparedForm, mode, backLink))
   }
 

@@ -48,7 +48,7 @@ class ContactDetailsController @Inject() (
   private val form = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = form.preparedFromAnswers(ContactDetailsPage, request.userAnswers)
+    val preparedForm = request.userAnswers.get(ContactDetailsPage).fold(form)(form.fill)
     Ok(view(preparedForm, mode, routes.RefundPeriodController.onPageLoad(mode)))
   }
 

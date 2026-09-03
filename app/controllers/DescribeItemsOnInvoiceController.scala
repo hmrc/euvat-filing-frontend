@@ -91,7 +91,7 @@ class DescribeItemsOnInvoiceController @Inject() (
     }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    val preparedForm = form.preparedFromAnswers(DescribeItemsOnInvoicePage, request.userAnswers)
+    val preparedForm = request.userAnswers.get(DescribeItemsOnInvoicePage).fold(form)(form.fill)
 
     val backTarget = computeBackTarget(mode)
     val arrived = request.userAnswers.get(DescribeItemsArrivedFromCheckYourAnswersPage).contains(true)

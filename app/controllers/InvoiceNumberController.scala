@@ -27,7 +27,6 @@ import play.api.mvc.*
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ControllerHelpers.*
-// CheckModeShortCircuit removed; use ControllerHelpers implementations instead
 import views.html.InvoiceNumberView
 
 import javax.inject.Inject
@@ -186,7 +185,7 @@ class InvoiceNumberController @Inject() (
   }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = form.preparedFromAnswers(InvoiceNumberPage, request.userAnswers)
+    val preparedForm = request.userAnswers.get(InvoiceNumberPage).fold(form)(form.fill)
 
     Ok(view(preparedForm, mode, backLink(NormalMode)))
   }

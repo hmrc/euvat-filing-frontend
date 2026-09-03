@@ -32,11 +32,6 @@ import scala.util.Failure
 
 object ControllerHelpers {
 
-  extension [T](form: Form[T]) {
-    def preparedFromAnswers(page: Gettable[T], userAnswers: UserAnswers)(implicit rds: Reads[T]): Form[T] =
-      userAnswers.get(page).fold(form)(form.fill)
-  }
-
   // Combine two Option values into a tuple when both are defined.
   def bothDefined[A, B](first: Option[A], second: Option[B]): Option[(A, B)] =
     for {

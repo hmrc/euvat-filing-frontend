@@ -54,8 +54,7 @@ class TotalVatClaimController @Inject() (
   private def backLink(mode: Mode): Call = routes.TotalVatPaidController.onPageLoad(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    // Prepare the form pre-filling from session when present
-    val preparedForm = form.preparedFromAnswers(TotalVatClaimPage, request.userAnswers)
+    val preparedForm = request.userAnswers.get(TotalVatClaimPage).fold(form)(form.fill)
 
     // Resolve the display currency symbol (fallback to Euro)
     val currencySymbol = currencySymbolFromSession(request.userAnswers, currencyConfig.currencyConfig)

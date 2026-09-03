@@ -60,7 +60,7 @@ class BusinessActivityCodeTwoController @Inject() (
       _ <- sessionRepository.set(updatedAnswer)
     } yield None
 
-    val preparedForm = form.preparedFromAnswers(BusinessActivityCodeTwoPage, userAnswers)
+    val preparedForm = userAnswers.get(BusinessActivityCodeTwoPage).fold(form)(form.fill)
     Ok(view(preparedForm, Some(routes.BusinessActivityController.onPageLoad(mode).url), mode))
   }
 

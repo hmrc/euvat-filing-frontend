@@ -54,7 +54,7 @@ class SimplifiedInvoiceVatRegCheckController @Inject() (
     request.userAnswers.get(SupplierAddressPage) match {
       case None => Redirect(routes.JourneyRecoveryController.onPageLoad())
       case Some(_) =>
-        val preparedForm = form.preparedFromAnswers(SimplifiedInvoiceVatRegCheckPage, request.userAnswers)
+        val preparedForm = request.userAnswers.get(SimplifiedInvoiceVatRegCheckPage).fold(form)(form.fill)
         okView(preparedForm, mode)
     }
   }

@@ -57,7 +57,7 @@ class BusinessActivityTwoController @Inject() (
     val userAnswers = request.userAnswers
     (userAnswers.get(BusinessActivityCodePage), userAnswers.get(BusinessActivityCodeTwoPage)) match {
       case (Some(baCode1), Some(baCode2)) =>
-        val preparedForm = form.preparedFromAnswers(BusinessActivityTwoPage, userAnswers)
+        val preparedForm = userAnswers.get(BusinessActivityTwoPage).fold(form)(form.fill)
 
         Ok(view(preparedForm, mode, backLink, baCode1, baCode2)).addingToSession("removeOrigin" -> "business-activity-2")(request)
 

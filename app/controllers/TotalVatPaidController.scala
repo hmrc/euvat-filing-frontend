@@ -53,7 +53,7 @@ class TotalVatPaidController @Inject() (
 
   private def backLink(mode: Mode) = routes.TotalPurchaseAmountBeforeVatController.onPageLoad(mode)
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = form.preparedFromAnswers(TotalVatPaidPage, request.userAnswers)
+    val preparedForm = request.userAnswers.get(TotalVatPaidPage).fold(form)(form.fill)
 
     val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)
 

@@ -50,7 +50,7 @@ class SuppliersNameController @Inject() (
   val form: Form[String] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = form.preparedFromAnswers(SuppliersNamePage, request.userAnswers)
+    val preparedForm = request.userAnswers.get(SuppliersNamePage).fold(form)(form.fill)
     renderOk(preparedForm, mode)
   }
 

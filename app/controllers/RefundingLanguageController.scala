@@ -63,7 +63,7 @@ class RefundingLanguageController @Inject() (
         logger.warn("RefundingLanguageController.onPageLoad - no refunding country in session, redirecting to JourneyRecovery")
         Redirect(routes.JourneyRecoveryController.onPageLoad())
       case Some(countryStored) =>
-        val preparedForm = form.preparedFromAnswers(RefundingLanguagePage, request.userAnswers)
+        val preparedForm = request.userAnswers.get(RefundingLanguagePage).fold(form)(form.fill)
         val langs = configLanguageMapping.languagesFor(countryStored)
         val msgs = messagesApi.preferred(request)
         val items = langs.zipWithIndex.flatMap { case (lang, idx) =>

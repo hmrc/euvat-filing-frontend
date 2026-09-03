@@ -56,7 +56,7 @@ class InvoiceDateController @Inject() (
         Redirect(routes.JourneyRecoveryController.onPageLoad())
 
       case Some(_) =>
-        val preparedForm = form.preparedFromAnswers(InvoiceDatePage, request.userAnswers)
+        val preparedForm = request.userAnswers.get(InvoiceDatePage).fold(form)(form.fill)
         Ok(view(preparedForm, mode, routes.InvoiceNumberController.onPageLoad(mode)))
     }
   }

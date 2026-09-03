@@ -85,7 +85,7 @@ class TotalPurchaseAmountBeforeVatController @Inject() (
   }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = form.preparedFromAnswers(TotalPurchaseAmountBeforeVatPage, request.userAnswers)
+    val preparedForm = request.userAnswers.get(TotalPurchaseAmountBeforeVatPage).fold(form)(form.fill)
 
     val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)
 

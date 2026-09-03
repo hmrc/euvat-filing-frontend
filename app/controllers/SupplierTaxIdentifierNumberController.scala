@@ -61,7 +61,7 @@ class SupplierTaxIdentifierNumberController @Inject() (
       updatedAnswers <- Future.fromTry(request.userAnswers.remove(SupplierVatRegistrationNumberPage))
       _              <- sessionRepository.set(updatedAnswers)
     } yield None
-    val preparedForm = form.preparedFromAnswers(SupplierTaxIdentifierNumberPage, request.userAnswers)
+    val preparedForm = request.userAnswers.get(SupplierTaxIdentifierNumberPage).fold(form)(form.fill)
     Ok(view(preparedForm, mode, backLink(mode)))
   }
 

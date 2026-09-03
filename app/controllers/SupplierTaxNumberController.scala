@@ -28,7 +28,6 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.*
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-// CheckModeShortCircuit removed; use ControllerHelpers instead when needed
 import utils.ControllerHelpers.*
 import views.html.SupplierTaxNumberView
 
@@ -64,7 +63,7 @@ class SupplierTaxNumberController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     requireGermany(request.userAnswers).getOrElse {
-      val preparedForm = form.preparedFromAnswers(SupplierTaxNumberPage, request.userAnswers)
+      val preparedForm = request.userAnswers.get(SupplierTaxNumberPage).fold(form)(form.fill)
       val isSimplifiedInvoice: Boolean = request.userAnswers.get(InvoiceTypePage).contains(InvoiceType.SimplifiedInvoice)
       okView(preparedForm, mode, isSimplifiedInvoice)
     }

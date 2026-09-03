@@ -76,7 +76,7 @@ class InvoiceTypeController @Inject() (
   }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    val preparedForm = form.preparedFromAnswers(InvoiceTypePage, request.userAnswers)
+    val preparedForm = request.userAnswers.get(InvoiceTypePage).fold(form)(form.fill)
 
     val back = computeBackTarget(mode)
 

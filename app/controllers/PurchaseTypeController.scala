@@ -81,12 +81,12 @@ class PurchaseTypeController @Inject() (
           sessionRepository
             .set(updated)
             .map(_ => {
-              val preparedForm = form.preparedFromAnswers(PurchaseTypePage, updated)
+              val preparedForm = updated.get(PurchaseTypePage).fold(form)(form.fill)
               Ok(view(preparedForm, mode, backLink(mode)))
             })
         )
     } else {
-      val preparedForm = form.preparedFromAnswers(PurchaseTypePage, request.userAnswers)
+      val preparedForm = request.userAnswers.get(PurchaseTypePage).fold(form)(form.fill)
       Future.successful(Ok(view(preparedForm, mode, backLink(mode))))
     }
   }

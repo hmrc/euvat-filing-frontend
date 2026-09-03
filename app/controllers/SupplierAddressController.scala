@@ -28,7 +28,6 @@ import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ControllerHelpers.*
-// SaveAndRedirect and CheckModeShortCircuit removed; use ControllerHelpers implementations
 import views.html.SupplierAddressView
 
 import javax.inject.Inject
@@ -54,7 +53,7 @@ class SupplierAddressController @Inject() (
   private def backLink: Call = routes.SuppliersNameController.onPageLoad(NormalMode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = form.preparedFromAnswers(SupplierAddressPage, request.userAnswers)
+    val preparedForm = request.userAnswers.get(SupplierAddressPage).fold(form)(form.fill)
     okView(preparedForm, mode)
   }
 

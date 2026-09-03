@@ -76,10 +76,8 @@ class SupplierVatRegistrationNumberController @Inject() (
       _              <- sessionRepository.set(updatedAnswers)
     } yield None
 
-    // Prepare the form pre-filling from session when present
-    val preparedForm = form.preparedFromAnswers(SupplierVatRegistrationNumberPage, request.userAnswers)
+    val preparedForm = request.userAnswers.get(SupplierVatRegistrationNumberPage).fold(form)(form.fill)
 
-    // Detect whether refunding country is Germany to inform the view
     val isGermany = request.userAnswers.get(RefundingCountryPage).exists(_.equalsIgnoreCase("DE"))
     okView(preparedForm, mode, isGermany)
   }
