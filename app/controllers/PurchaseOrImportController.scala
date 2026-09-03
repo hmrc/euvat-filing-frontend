@@ -20,16 +20,18 @@ import controllers.actions.*
 import forms.PurchaseOrImportFormProvider
 
 import javax.inject.Inject
-import models.{Mode, NormalMode}
+import models.{Mode, NormalMode, UserAnswers}
 import navigation.Navigator
-import pages.PurchaseOrImportPage
+import pages.*
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import queries.Settable
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.PurchaseOrImportView
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 class PurchaseOrImportController @Inject() (
   override val messagesApi: MessagesApi,
@@ -49,14 +51,11 @@ class PurchaseOrImportController @Inject() (
 
   private def backLink = routes.BeforeYouStartController.onPageLoad()
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-
-    val preparedForm = request.userAnswers.get(PurchaseOrImportPage) match {
-      case None        => form
-      case Some(value) => form.fill(value)
-    }
-
-    Ok(view(preparedForm, backLink))
+  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+    for {
+      cleared <- Future.fromTry(clearPurchaseJourney(request.userAnswers))
+      _       <- sessionRepository.set(cleared)
+    } yield Ok(view(form, backLink))
   }
 
   def onSubmit: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -72,4 +71,32 @@ class PurchaseOrImportController @Inject() (
           } yield Redirect(navigator.nextPage(PurchaseOrImportPage, NormalMode, updatedAnswers))
       )
   }
+
+  private val purchaseJourneyPages: List[Settable[_]] = List(
+    PurchaseOrImportPage,
+    PurchaseTypePage,
+    PurchaseSubTypePage,
+    PurchaseSubTypeLabelPage,
+    PurchaseSubCategoryPage,
+    PurchaseSubCategoryLabelPage,
+    DescribeItemsOnInvoicePage,
+    InvoiceTypePage,
+    InvoiceNumberPage,
+    InvoiceDatePage,
+    RefundingCurrencyPage,
+    SimplifiedInvoiceVatRegCheckPage,
+    SuppliersNamePage,
+    SupplierAddressPage,
+    SupplierVatRegistrationNumberPage,
+    SupplierTaxIdentifierNumberPage,
+    SupplierTaxNumberPage,
+    TotalPurchaseAmountBeforeVatPage,
+    TotalVatPaidPage,
+    TotalVatClaimPage
+  )
+
+  private def clearPurchaseJourney(userAnswers: UserAnswers): Try[UserAnswers] =
+    purchaseJourneyPages.foldLeft(Try(userAnswers)) { (acc, page) =>
+      acc.flatMap(_.remove(page))
+    }
 }

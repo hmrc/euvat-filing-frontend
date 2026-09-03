@@ -24,15 +24,15 @@
 
 @(form: Form[_], call: Call)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("purchaseOrImport.title"))) {
+@layout(pageTitle = title(form, messages("purchaseOrImport.title")), backLinkUrl = Some(call.url)) {
 
     @formHelper(action = routes.PurchaseOrImportController.onSubmit, Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form,  errorLinkOverrides = Map("value" -> "value_0")))
         }
-
-        <span class="govuk-caption-l">@messages("purchaseAndImport.caption")</span>
+        <div class="govuk-form-group @if(form.error("value").isDefined){govuk-form-group--error}">
+        <span class="govuk-caption-l">@messages("purchasesAndImports.caption")</span>
 
         @govukRadios(
             RadiosViewModel(
@@ -45,6 +45,7 @@
                 items  = PurchaseOrImport.options
             )
         )
+        </div>
 
         @govukButton(
             ButtonViewModel(messages("site.continue"))

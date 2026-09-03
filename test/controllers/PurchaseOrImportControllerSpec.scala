@@ -20,10 +20,11 @@ import base.SpecBase
 import forms.PurchaseOrImportFormProvider
 import models.{PurchaseOrImport, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.PurchaseOrImportPage
+import pages.{DescribeItemsOnInvoicePage, PurchaseOrImportPage, PurchaseSubCategoryLabelPage, PurchaseSubCategoryPage, PurchaseSubTypeLabelPage, PurchaseSubTypePage, PurchaseTypePage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -37,17 +38,23 @@ class PurchaseOrImportControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  lazy val purchaseOrImportRoute = routes.PurchaseOrImportController.onPageLoad.url
+  lazy val purchaseOrImportRoute: String = routes.PurchaseOrImportController.onPageLoad.url
+  lazy val backLinkCall: Call = routes.BeforeYouStartController.onPageLoad()
 
   val formProvider = new PurchaseOrImportFormProvider()
   val form = formProvider()
-  lazy val backLinkCall: Call = routes.BeforeYouStartController.onPageLoad()
 
   "PurchaseOrImport Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+          .build()
 
       running(application) {
         val request = FakeRequest(GET, purchaseOrImportRoute)
@@ -61,11 +68,17 @@ class PurchaseOrImportControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must populate the view correctly on a GET when the question has previously been answered" in {
+    "must not pre-populate the view on a GET even when the question has previously been answered" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val userAnswers = UserAnswers(userAnswersId).set(PurchaseOrImportPage, PurchaseOrImport.values.head).success.value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+          .build()
 
       running(application) {
         val request = FakeRequest(GET, purchaseOrImportRoute)
@@ -75,7 +88,43 @@ class PurchaseOrImportControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(PurchaseOrImport.values.head), backLinkCall)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, backLinkCall)(request, messages(application)).toString
+      }
+    }
+
+    "must clear the purchase journey answers from the session on a GET" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(PurchaseOrImportPage, PurchaseOrImport.values.head)
+        .success
+        .value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+          .build()
+
+      running(application) {
+        val request = FakeRequest(GET, purchaseOrImportRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(mockSessionRepository).set(captor.capture())
+
+        val savedAnswers = captor.getValue
+        savedAnswers.get(PurchaseOrImportPage) mustBe None
+        savedAnswers.get(PurchaseTypePage) mustBe None
+        savedAnswers.get(PurchaseSubTypePage) mustBe None
+        savedAnswers.get(PurchaseSubTypeLabelPage) mustBe None
+        savedAnswers.get(PurchaseSubCategoryPage) mustBe None
+        savedAnswers.get(PurchaseSubCategoryLabelPage) mustBe None
+        savedAnswers.get(DescribeItemsOnInvoicePage) mustBe None
       }
     }
 
