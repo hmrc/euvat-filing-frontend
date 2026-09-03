@@ -313,10 +313,12 @@ class PurchaseTypeController @Inject() (
           clearedAnswers,
           Seq(
             (PurchaseSubTypeArrivedFromCheckYourAnswersPage,
-             (_: UserAnswers) => controllers.purchase.routes.PurchaseSubTypeController.onPageLoad(PurchaseType.urlSlugForPurchaseType(value), CheckMode)
+             (_: UserAnswers) =>
+               controllers.purchase.routes.PurchaseSubTypeController.onPageLoad(PurchaseType.urlSlugForPurchaseType(value), CheckMode)
             ),
             (PurchaseSubCategoryArrivedFromCheckYourAnswersPage,
-             (_: UserAnswers) => controllers.purchase.routes.PurchaseSubTypeController.onPageLoad(PurchaseType.urlSlugForPurchaseType(value), CheckMode)
+             (_: UserAnswers) =>
+               controllers.purchase.routes.PurchaseSubTypeController.onPageLoad(PurchaseType.urlSlugForPurchaseType(value), CheckMode)
             )
           )
         ).flatMap {

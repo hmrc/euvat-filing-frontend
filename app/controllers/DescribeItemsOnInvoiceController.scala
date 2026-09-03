@@ -83,7 +83,7 @@ class DescribeItemsOnInvoiceController @Inject() (
           controllers.purchase.routes.PurchaseSubTypeController.onPageLoad(PurchaseType.urlSlugForPurchaseType(Other), mode)
         else
           controllers.routes.PurchaseTypeController.onPageLoad(mode)
-        }
+      }
     } else if (childIndicatesNone) {
       controllers.routes.PurchaseTypeController.onPageLoad(mode)
     } else {

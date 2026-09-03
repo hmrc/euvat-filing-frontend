@@ -46,21 +46,21 @@ class BeforeYouStartControllerSpec extends SpecBase {
 
     "must render the correct back link" in {
 
-          val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
-          running(application) {
-            val request = FakeRequest(GET, routes.BeforeYouStartController.onPageLoad().url)
+      running(application) {
+        val request = FakeRequest(GET, routes.BeforeYouStartController.onPageLoad().url)
 
-            val result = route(application, request).value
+        val result = route(application, request).value
 
-            val view = application.injector.instanceOf[BeforeYouStartView]
+        val view = application.injector.instanceOf[BeforeYouStartView]
 
-            status(result) mustEqual OK
-            normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-              view(routes.TaskListDashboardController.onPageLoad())(request, messages(application)).toString
-            )
-          }
-        }
+        status(result) mustEqual OK
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
+          view(routes.TaskListDashboardController.onPageLoad())(request, messages(application)).toString
+        )
+      }
+    }
 
     "must redirect to the Purchase Type Page when submit button is clicked" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()

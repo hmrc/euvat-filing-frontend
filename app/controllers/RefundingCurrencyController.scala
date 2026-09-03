@@ -35,7 +35,7 @@ import views.html.RefundingCurrencyView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Success, Failure}
+import scala.util.{Failure, Success}
 
 class RefundingCurrencyController @Inject() (
   override val messagesApi: MessagesApi,
@@ -133,7 +133,8 @@ class RefundingCurrencyController @Inject() (
                 if (isChanged) ua.set(CurrencyChangedPage, true) else Success(ua)
               }
 
-              Future.fromTry(maybeCurrencyChangedTry)
+              Future
+                .fromTry(maybeCurrencyChangedTry)
                 .flatMap: finalAnswers =>
                   sessionRepository
                     .set(finalAnswers)

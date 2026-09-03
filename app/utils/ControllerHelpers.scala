@@ -127,7 +127,7 @@ object ControllerHelpers {
         Future.successful(InternalServerError("Failed to build UserAnswers"))
     }
 
-  // If running in CheckMode and the arrival flag page is not set, set it and persist the updated `UserAnswers`. 
+  // If running in CheckMode and the arrival flag page is not set, set it and persist the updated `UserAnswers`.
   // Otherwise call `render` with the existing `UserAnswers`.
   def markArrivalAndRender(
     page: QuestionPage[Boolean],
