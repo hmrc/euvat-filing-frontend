@@ -90,58 +90,29 @@ object ControllerHelpers {
       if (mode == CheckMode && userAnswers.get(pages.PurchaseTypePage).isDefined) purchaseCya
       else navigatorNext
 
-    sessionRepositoryOpt match {
-      case Some(sessionRepository) =>
-        val delegate = CheckModeShortCircuitArgs(page, newValue, mode, userAnswers, sessionRepository, unchangedRedirect, onSaved)
-        checkModeShortCircuit(delegate)
-      case None =>
-        val delegate = CheckModeShortCircuitNoPersistArgs(page, newValue, mode, userAnswers, unchangedRedirect, onSaved)
-        checkModeShortCircuitNoPersist(delegate)
-    }
+    applyShortCircuit(page, newValue, mode, userAnswers, sessionRepositoryOpt, unchangedRedirect, onSaved)
   }
 
-  case class CheckModeShortCircuitArgs[T](
+  private def applyShortCircuit[T](
     page: QuestionPage[T],
     newValue: T,
     mode: Mode,
     userAnswers: UserAnswers,
-    sessionRepository: SessionRepository,
+    sessionRepositoryOpt: Option[SessionRepository],
     unchangedRedirect: Call,
     onSaved: UserAnswers => Future[Result]
-  )
-
-  case class CheckModeShortCircuitNoPersistArgs[T](
-    page: QuestionPage[T],
-    newValue: T,
-    mode: Mode,
-    userAnswers: UserAnswers,
-    unchangedRedirect: Call,
-    onSaved: UserAnswers => Future[Result]
-  )
-
-  def checkModeShortCircuitNoPersist[T](args: CheckModeShortCircuitNoPersistArgs[T])(implicit fmt: Format[T], ec: ExecutionContext): Future[Result] = {
-    if (args.mode == CheckMode && args.userAnswers.isAnswerUnchanged(args.page, args.newValue)) {
-      Future.successful(Redirect(args.unchangedRedirect))
+  )(implicit fmt: Format[T], ec: ExecutionContext): Future[Result] = {
+    if (mode == CheckMode && userAnswers.isAnswerUnchanged(page, newValue)) {
+      Future.successful(Redirect(unchangedRedirect))
     } else {
-      args.userAnswers.set(args.page, args.newValue) match {
+      userAnswers.set(page, newValue) match {
         case Success(updated) =>
-          args.onSaved(updated).recover { case _ => InternalServerError("Failed during onSaved") }
-        case Failure(_) =>
-          Future.successful(InternalServerError("Failed to build UserAnswers"))
-      }
-    }
-  }
-
-  def checkModeShortCircuit[T](args: CheckModeShortCircuitArgs[T])(implicit fmt: Format[T], ec: ExecutionContext): Future[Result] = {
-    if (args.mode == CheckMode && args.userAnswers.isAnswerUnchanged(args.page, args.newValue)) {
-      Future.successful(Redirect(args.unchangedRedirect))
-    } else {
-      args.userAnswers.set(args.page, args.newValue) match {
-        case Success(updated) =>
-          args.sessionRepository
-            .set(updated)
-            .flatMap(_ => args.onSaved(updated))
-            .recover { case _ => InternalServerError("Failed to persist session") }
+          sessionRepositoryOpt match {
+            case Some(repo) =>
+              repo.set(updated).flatMap(_ => onSaved(updated)).recover { case _ => InternalServerError("Failed to persist session") }
+            case None =>
+              onSaved(updated).recover { case _ => InternalServerError("Failed during onSaved") }
+          }
         case Failure(_) =>
           Future.successful(InternalServerError("Failed to build UserAnswers"))
       }

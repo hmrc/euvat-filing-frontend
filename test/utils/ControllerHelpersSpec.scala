@@ -101,6 +101,42 @@ class ControllerHelpersSpec extends SpecBase {
     }
   }
 
+  "UserAnswers.isAnswerUnchanged" - {
+    "must return true when the stored value is unchanged" in {
+      val ua = emptyUserAnswers.set(pages.TotalVatPaidPage, BigDecimal(12.34)).success.value
+      ua.isAnswerUnchanged(TotalVatPaidPage, BigDecimal(12.34)) mustBe true
+    }
+
+    "must return false when the stored value changed" in {
+      val ua = emptyUserAnswers.set(TotalVatPaidPage, BigDecimal(1)).success.value
+      ua.isAnswerUnchanged(TotalVatPaidPage, BigDecimal(2)) mustBe false
+    }
+
+    "must return false when there is no stored value" in {
+      val ua = emptyUserAnswers
+      ua.isAnswerUnchanged(TotalVatPaidPage, BigDecimal(2)) mustBe false
+    }
+  }
+
+  "saveTryAndRedirect" - {
+    "must persist successful Try and redirect" in {
+      val mockRepo = mock[SessionRepository]
+      when(mockRepo.set(any())).thenReturn(Future.successful(true))
+
+      val t = scala.util.Success(emptyUserAnswers)
+
+      val f = utils.ControllerHelpers.saveTryAndRedirect(t, mockRepo, controllers.routes.JourneyRecoveryController.onPageLoad())
+      status(f) mustEqual SEE_OTHER
+    }
+
+    "must return InternalServerError when Try is Failure" in {
+      val mockRepo = mock[SessionRepository]
+      val t = scala.util.Failure(new RuntimeException("boom"))
+      val f = utils.ControllerHelpers.saveTryAndRedirect(t, mockRepo, controllers.routes.JourneyRecoveryController.onPageLoad())
+      status(f) mustEqual play.api.http.Status.INTERNAL_SERVER_ERROR
+    }
+  }
+
   "shortCircuitPersistAndThen" - {
     "short-circuits to purchase CYA when in CheckMode and value unchanged" in {
       // prepare UserAnswers with a purchase type and stored value
