@@ -60,10 +60,7 @@ class PurchaseTypeController @Inject() (
 
   val form: Form[PurchaseType] = formProvider()
 
-  private def backLink(mode: Mode)(implicit request: DataRequest[?]) =
-    // We always return to the 'BeforeYouStart' page from here
-    routes.BeforeYouStartController.onPageLoad()
-
+  private def backLink(mode: Mode)(implicit request: DataRequest[?]) = routes.PurchaseOrImportController.onPageLoad
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     if (request.userAnswers.get(CountryChangedPage).contains(true)) {
       val clearedTry = for {

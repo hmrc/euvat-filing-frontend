@@ -134,6 +134,11 @@ class NavigatorSpec extends SpecBase {
           routes.BusinessActivityThreeController.onPageLoad()
       }
 
+      "must go from PurchaseOrImportPage to PurchaseTypeController" in {
+        navigator.nextPage(PurchaseOrImportPage, NormalMode, userAnswers) mustBe
+          routes.PurchaseTypeController.onPageLoad(NormalMode)
+      }
+
       "must go from PurchaseTypePage to DescribeItemsOnInvoiceController" in {
         val ua = userAnswers.set(PurchaseTypePage, PurchaseType.values.head).success.value
         navigator.nextPage(PurchaseTypePage, NormalMode, ua) mustBe
