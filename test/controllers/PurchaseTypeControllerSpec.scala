@@ -463,7 +463,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.purchase.routes.PurchaseSubTypeController
-          .onPageLoad(models.PurchaseType.urlSlugForPurchaseType(models.Fuel), models.CheckMode)
+          .onPageLoad(models.PurchaseAndImportType.urlSlugForPurchaseType(models.Fuel), models.CheckMode)
           .url
         verify(mockSessionRepository, times(2)).set(any())
       }

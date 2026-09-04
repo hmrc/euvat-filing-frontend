@@ -19,7 +19,7 @@ package controllers.purchase
 import controllers.actions.*
 import forms.PurchaseSubTypeFormProvider
 import models.requests.DataRequest
-import models.{CheckMode, Mode, PurchaseSubCategoryType, PurchaseType, UserAnswers}
+import models.*
 import navigation.Navigator
 import pages.*
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -34,7 +34,6 @@ import views.html.PurchaseSubTypeView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import models.{Mode, Other, PurchaseSubCategoryType, PurchaseAndImportType, UserAnswers}
 
 class PurchaseSubTypeController @Inject() (
   override val messagesApi: MessagesApi,
@@ -103,7 +102,7 @@ class PurchaseSubTypeController @Inject() (
     currentAnswers.get(PurchaseTypePage) match {
       case Some(_) => scala.util.Success(updatedAnswers)
       case None =>
-        PurchaseType.values.find(_.toString == parentKey) match {
+        PurchaseAndImportType.values.find(_.toString == parentKey) match {
           case Some(pt) => updatedAnswers.set(PurchaseTypePage, pt)
           case None     => scala.util.Success(updatedAnswers)
         }
