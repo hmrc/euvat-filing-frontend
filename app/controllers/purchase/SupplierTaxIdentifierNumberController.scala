@@ -18,8 +18,8 @@ package controllers.purchase
 
 import controllers.actions.*
 import forms.purchase.SupplierTaxIdentifierNumberFormProvider
-import models.Mode
-import models.requests.SupplierTaxIdentifierCountRequest
+import models.{CheckMode, Mode, UserAnswers}
+import models.requests.{DataRequest, SupplierTaxIdentifierCountRequest}
 import models.responses.{AddPurchaseResponse, SupplierTaxIdentifierCountResponse}
 import navigation.Navigator
 import pages.*
@@ -31,9 +31,11 @@ import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.purchase.SupplierTaxIdentifierNumberView
+import utils.ControllerHelpers.*
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 class SupplierTaxIdentifierNumberController @Inject() (
   override val messagesApi: MessagesApi,
@@ -69,10 +71,10 @@ class SupplierTaxIdentifierNumberController @Inject() (
       .fold(
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)))),
         value =>
-          val cameFromInvoicePage: Boolean = request.userAnswers.get(pages.SupplierTaxIdentifierArrivedFromInvoicePage).contains(true)
+          val cameFromInvoicePage: Boolean = request.userAnswers.get(SupplierTaxIdentifierArrivedFromInvoicePage).contains(true)
 
-          if (mode == models.CheckMode && request.userAnswers.get(SupplierTaxIdentifierNumberPage).contains(value) && !cameFromInvoicePage)
-            Future.successful(Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad()))
+          if (mode == CheckMode && request.userAnswers.get(SupplierTaxIdentifierNumberPage).contains(value) && !cameFromInvoicePage)
+            Future.successful(Redirect(controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()))
           else {
             val userAnswersTry = request.userAnswers.set(SupplierTaxIdentifierNumberPage, value)
 
@@ -100,34 +102,30 @@ class SupplierTaxIdentifierNumberController @Inject() (
                         case _ =>
                           val clearedTry = for {
                             cleared <- updatedAnswers.remove(SupplierTaxIdentifierWarningShownPage)
-                            removed <- cleared.remove(pages.SupplierTaxIdentifierArrivedFromInvoicePage)
+                            removed <- cleared.remove(SupplierTaxIdentifierArrivedFromInvoicePage)
                           } yield removed
 
-                          Future.fromTry(clearedTry).flatMap { finalUa =>
-                            sessionRepository.set(finalUa).map { _ =>
-                              if (mode == models.CheckMode && request.userAnswers.get(pages.PurchaseTypePage).isDefined)
-                                Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
-                              else
-                                Redirect(navigator.nextPage(SupplierTaxIdentifierNumberPage, mode, finalUa))
-                            }
-                          }
+                          clearUserAnswersAndRedirectToNextPage(mode, clearedTry)
                       }
                       .recover { case _ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()) }
 
                   case _ =>
-                    val removedTry = updatedAnswers.remove(pages.SupplierTaxIdentifierArrivedFromInvoicePage)
-                    Future.fromTry(removedTry).flatMap { finalUa =>
-                      sessionRepository.set(finalUa).map { _ =>
-                        if (mode == models.CheckMode && request.userAnswers.get(pages.PurchaseTypePage).isDefined)
-                          Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
-                        else
-                          Redirect(navigator.nextPage(SupplierTaxIdentifierNumberPage, mode, finalUa))
-                      }
-                    }
+                    val removedTry = updatedAnswers.remove(SupplierTaxIdentifierArrivedFromInvoicePage)
+                    clearUserAnswersAndRedirectToNextPage(mode, removedTry)
                 }
             }
           }
       )
   }
 
+  private def clearUserAnswersAndRedirectToNextPage(mode: Mode, clearedTry: Try[UserAnswers])(implicit request: DataRequest[?]) = {
+    Future.fromTry(clearedTry).flatMap { finalUa =>
+      sessionRepository.set(finalUa).map { _ =>
+        if (mode == CheckMode && request.userAnswers.get(PurchaseTypePage).isDefined)
+          Redirect(controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad())
+        else
+          Redirect(navigator.nextPage(SupplierTaxIdentifierNumberPage, mode, finalUa))
+      }
+    }
+  }
 }

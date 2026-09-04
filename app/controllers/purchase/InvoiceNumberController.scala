@@ -26,8 +26,8 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.*
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.CheckModeShortCircuit
 import views.html.purchase.InvoiceNumberView
+import utils.ControllerHelpers.*
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -51,103 +51,134 @@ class InvoiceNumberController @Inject() (
   private def backLink(mode: Mode): Call = routes.InvoiceTypeController.onPageLoad(mode)
 
   private def badRequestView(formWithErrors: Form[?], mode: Mode)(implicit request: Request[AnyContent]) = {
-    val html = view(formWithErrors, mode, routes.InvoiceTypeController.onPageLoad(mode))(request, messagesApi.preferred(request))
+    val html = view(formWithErrors, mode, backLink(mode))(request, messagesApi.preferred(request))
     Future.successful(BadRequest(html))
+  }
+
+  private def persistAndRedirect(userAnswersTry: scala.util.Try[UserAnswers], redirectTo: Call): Future[Result] =
+    Future
+      .fromTry(userAnswersTry)
+      .flatMap(ua => sessionRepository.set(ua).map(_ => Redirect(redirectTo)))
+
+  private def redirectForGermanSupplierTax(updated: UserAnswers, mode: Mode): Result =
+    updated.get(pages.SupplierTaxNumberPage) match {
+      case Some(models.SupplierTaxNumber.Vatregistrationnumber) =>
+        Redirect(routes.SupplierVatRegistrationNumberController.onPageLoad(mode))
+      case Some(models.SupplierTaxNumber.Taxidentifiernumber) =>
+        Redirect(routes.SupplierTaxIdentifierNumberController.onPageLoad(mode))
+      case _ =>
+        updated.get(pages.SupplierVatRegistrationNumberPage) match {
+          case Some(_) => Redirect(routes.SupplierVatRegistrationNumberController.onPageLoad(mode))
+          case None =>
+            updated.get(pages.SupplierTaxIdentifierNumberPage) match {
+              case Some(_) => Redirect(routes.SupplierTaxIdentifierNumberController.onPageLoad(mode))
+              case None    => Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
+            }
+        }
+    }
+
+  private def persistCheckModeInvoiceNumber(value: String, mode: Mode, userAnswers: UserAnswers, isGermany: Boolean): Future[Result] = {
+    val userAnswersTry =
+      if (isGermany) {
+        for {
+          setVal  <- userAnswers.set(InvoiceNumberPage, value)
+          marked1 <- setVal.set(pages.SupplierTaxIdentifierArrivedFromInvoicePage, true)
+          marked2 <- marked1.set(pages.SupplierVatRegistrationArrivedFromInvoicePage, true)
+        } yield marked2
+      } else {
+        userAnswers.set(InvoiceNumberPage, value)
+      }
+
+    Future
+      .fromTry(userAnswersTry)
+      .flatMap { updated =>
+        sessionRepository.set(updated).map { _ =>
+          if (isGermany) {
+            redirectForGermanSupplierTax(updated, mode)
+          } else {
+            Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
+          }
+        }
+      }
+  }
+
+  private def handleCheckModeWithoutWarning(value: String, mode: Mode, userAnswers: UserAnswers): Future[Result] = {
+    if (mode == CheckMode && userAnswers.isAnswerUnchanged(InvoiceNumberPage, value)) {
+      Future.successful(Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad()))
+    } else {
+      val isGermany = userAnswers.get(pages.RefundingCountryPage).exists(_.equalsIgnoreCase("DE"))
+      persistCheckModeInvoiceNumber(value, mode, userAnswers, isGermany)
+    }
+  }
+
+  private def handleNormalModeWithoutWarning(value: String, mode: Mode, userAnswers: UserAnswers): Future[Result] =
+    utils.ControllerHelpers.shortCircuit(
+      InvoiceNumberPage,
+      value,
+      mode,
+      userAnswers,
+      navigator.nextPage(InvoiceNumberPage, mode, userAnswers),
+      routes.CheckYourPurchaseDetailsController.onPageLoad(),
+      Some(sessionRepository)
+    ) { updated =>
+      Future.successful(Redirect(navigator.nextPage(InvoiceNumberPage, mode, updated)))
+    }
+
+  private def handleWithoutWarning(value: String, mode: Mode, userAnswers: UserAnswers): Future[Result] =
+    if (mode == CheckMode) {
+      handleCheckModeWithoutWarning(value, mode, userAnswers)
+    } else {
+      handleNormalModeWithoutWarning(value, mode, userAnswers)
+    }
+
+  private def handleWhenWarningAlreadyShown(value: String, mode: Mode, userAnswers: UserAnswers): Future[Result] = {
+    val previousInvoice = userAnswers.get(InvoiceNumberPage)
+
+    if (previousInvoice.contains(value)) {
+      if (userAnswers.get(pages.VrnWarningFlowPage).contains(true)) {
+        Future.successful(Redirect(controllers.warning.routes.SupplierVrnWarningController.onPageLoad(mode)))
+      } else {
+        Future.successful(Redirect(controllers.warning.routes.SupplierTaxIdentifierWarningController.onPageLoad(mode)))
+      }
+    } else {
+      if (userAnswers.get(pages.SupplierTaxIdentifierWarningShownPage).contains(true)) {
+        val clearedTry = for {
+          setVal  <- userAnswers.set(InvoiceNumberPage, value)
+          cleared <- setVal.remove(pages.SupplierTaxIdentifierWarningShownPage)
+        } yield cleared
+
+        persistAndRedirect(clearedTry, routes.SupplierTaxIdentifierNumberController.onPageLoad(mode))
+      } else if (userAnswers.get(pages.VrnWarningFlowPage).contains(true)) {
+        val clearedTry = for {
+          setVal  <- userAnswers.set(InvoiceNumberPage, value)
+          cleared <- setVal.remove(pages.VrnWarningFlowPage)
+        } yield cleared
+
+        persistAndRedirect(clearedTry, routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode))
+      } else {
+        Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+      }
+    }
   }
 
   private def handleInvoiceNumberSave(value: String, mode: Mode, userAnswers: UserAnswers)(implicit
     request: Request[AnyContent]
   ): Future[Result] = {
-
-    val changed = !userAnswers.get(InvoiceNumberPage).contains(value)
-
-    val answersWithVrnFlag =
-      if (userAnswers.get(VrnWarningFlowPage).isDefined && changed) {
-        userAnswers.set(VrnWarningFlowPage, false).getOrElse(userAnswers)
-      } else { userAnswers }
-
-    val wasShown = answersWithVrnFlag.get(pages.SupplierTaxIdentifierWarningShownPage).contains(true)
-
+    val isSupplierTaxIdentifierWarningShownPage = userAnswers.get(pages.SupplierTaxIdentifierWarningShownPage).contains(true)
+    val isVrnWarningFlowPage = userAnswers.get(pages.VrnWarningFlowPage).contains(true)
+    val wasShown =
+      isSupplierTaxIdentifierWarningShownPage || isVrnWarningFlowPage
     if (wasShown) {
-      if (!changed) Future.successful(Redirect(controllers.warning.routes.SupplierTaxIdentifierWarningController.onPageLoad(mode)))
-      else {
-        val clearedTry = for {
-          setVal  <- answersWithVrnFlag.set(InvoiceNumberPage, value)
-          cleared <- setVal.remove(pages.SupplierTaxIdentifierWarningShownPage)
-        } yield cleared
-
-        Future.fromTry(clearedTry).flatMap { ua =>
-          sessionRepository.set(ua).map(_ => Redirect(routes.SupplierTaxIdentifierNumberController.onPageLoad(mode)))
-        }
-      }
+      handleWhenWarningAlreadyShown(value, mode, userAnswers)
     } else {
-      if (mode == CheckMode) {
-        CheckModeShortCircuit.shortCircuitIfUnchanged(
-          InvoiceNumberPage,
-          value,
-          mode,
-          answersWithVrnFlag,
-          routes.CheckYourPurchaseDetailsController.onPageLoad()
-        ) match {
-          case Some(res) => Future.successful(res)
-          case None =>
-            val isGermany = answersWithVrnFlag.get(pages.RefundingCountryPage).exists(_.equalsIgnoreCase("DE"))
-
-            val userAnswersTry = if (isGermany) {
-              for {
-                setVal  <- answersWithVrnFlag.set(InvoiceNumberPage, value)
-                marked1 <- setVal.set(pages.SupplierTaxIdentifierArrivedFromInvoicePage, true)
-                marked2 <- marked1.set(pages.SupplierVatRegistrationArrivedFromInvoicePage, true)
-              } yield marked2
-            } else {
-              answersWithVrnFlag.set(InvoiceNumberPage, value)
-            }
-
-            Future.fromTry(userAnswersTry).flatMap { updated =>
-              sessionRepository.set(updated).flatMap { _ =>
-                if (isGermany) {
-                  updated.get(pages.SupplierVatRegistrationNumberPage) match {
-                    case Some(_) => Future.successful(Redirect(routes.SupplierVatRegistrationNumberController.onPageLoad(mode)))
-                    case None =>
-                      updated.get(pages.SupplierTaxIdentifierNumberPage) match {
-                        case Some(_) => Future.successful(Redirect(routes.SupplierTaxIdentifierNumberController.onPageLoad(mode)))
-                        case None =>
-                          updated.get(pages.SupplierTaxNumberPage) match {
-                            case Some(models.SupplierTaxNumber.Vatregistrationnumber) =>
-                              Future.successful(Redirect(routes.SupplierVatRegistrationNumberController.onPageLoad(mode)))
-                            case Some(models.SupplierTaxNumber.Taxidentifiernumber) =>
-                              Future.successful(Redirect(routes.SupplierTaxIdentifierNumberController.onPageLoad(mode)))
-                            case _ => Future.successful(Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad()))
-                          }
-                      }
-                  }
-                } else {
-                  Future.successful(Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad()))
-                }
-              }
-            }
-        }
-      } else {
-        CheckModeShortCircuit(
-          InvoiceNumberPage,
-          value,
-          mode,
-          answersWithVrnFlag,
-          sessionRepository,
-          navigator.nextPage(InvoiceNumberPage, mode, answersWithVrnFlag),
-          updated => Future.successful(Redirect(navigator.nextPage(InvoiceNumberPage, mode, updated)))
-        )
-      }
+      handleWithoutWarning(value, mode, userAnswers)
     }
   }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = request.userAnswers.get(InvoiceNumberPage) match {
-      case None        => form // no saved value -> blank form
-      case Some(value) => form.fill(value) // existing value -> pre-fill
-    }
+    val preparedForm = request.userAnswers.get(InvoiceNumberPage).fold(form)(form.fill)
 
-    Ok(view(preparedForm, mode, routes.InvoiceTypeController.onPageLoad(NormalMode)))
+    Ok(view(preparedForm, mode, backLink(NormalMode)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>

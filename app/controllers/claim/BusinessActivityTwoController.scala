@@ -28,6 +28,7 @@ import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.claim.BusinessActivityTwoView
+import utils.ControllerHelpers.*
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -55,10 +56,7 @@ class BusinessActivityTwoController @Inject() (
     val userAnswers = request.userAnswers
     (userAnswers.get(BusinessActivityCodePage), userAnswers.get(BusinessActivityCodeTwoPage)) match {
       case (Some(baCode1), Some(baCode2)) =>
-        val preparedForm = userAnswers.get(BusinessActivityTwoPage) match {
-          case None        => form
-          case Some(value) => form.fill(value)
-        }
+        val preparedForm = userAnswers.get(BusinessActivityTwoPage).fold(form)(form.fill)
 
         Ok(view(preparedForm, mode, backLink, baCode1, baCode2)).addingToSession("removeOrigin" -> "business-activity-2")(request)
 

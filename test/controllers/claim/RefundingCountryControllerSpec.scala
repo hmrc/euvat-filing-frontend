@@ -303,6 +303,9 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         .set(pages.PurchaseSubCategoryLabelPage, "Fuel sub label")
         .success
         .value
+        .set(pages.DescribeItemsOnInvoicePage, "Fuel and transport details")
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(starting))
         .overrides(bind[repositories.SessionRepository].toInstance(mockSessionRepository))
@@ -326,6 +329,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         saved.get(pages.PurchaseSubTypeLabelPage).isDefined mustBe false
         saved.get(pages.PurchaseSubCategoryPage).isDefined mustBe false
         saved.get(pages.PurchaseSubCategoryLabelPage).isDefined mustBe false
+        saved.get(pages.DescribeItemsOnInvoicePage).isDefined mustBe false
       }
     }
 

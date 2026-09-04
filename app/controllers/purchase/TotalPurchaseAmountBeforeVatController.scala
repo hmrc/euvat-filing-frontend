@@ -50,40 +50,44 @@ class TotalPurchaseAmountBeforeVatController @Inject() (
     with I18nSupport {
 
   val form: Form[BigDecimal] = formProvider()
+
+  private def supplierTaxNumberBackLink(mode: Mode, userAnswers: UserAnswers): Call =
+    userAnswers.get(SupplierTaxNumberPage) match {
+      case Some(SupplierTaxNumber.Vatregistrationnumber) => routes.SupplierVatRegistrationNumberController.onPageLoad(mode)
+      case Some(SupplierTaxNumber.Taxidentifiernumber)   => routes.SupplierTaxIdentifierNumberController.onPageLoad(mode)
+      case _ =>
+        if (userAnswers.get(SupplierTaxIdentifierNumberPage).isDefined) {
+          routes.SupplierTaxIdentifierNumberController.onPageLoad(mode)
+        } else {
+          routes.SupplierTaxNumberController.onPageLoad(mode)
+        }
+    }
+
+  private def germanyBackLink(mode: Mode, userAnswers: UserAnswers): Call =
+    userAnswers.get(SupplierVatRegistrationNumberPage) match {
+      case Some(_) => routes.SupplierVatRegistrationNumberController.onPageLoad(mode)
+      case None    => supplierTaxNumberBackLink(mode, userAnswers)
+    }
+
+  private def defaultBackLink(mode: Mode, userAnswers: UserAnswers): Call =
+    userAnswers.get(SupplierVatRegistrationNumberPage) match {
+      case Some(_) => routes.SupplierVatRegistrationNumberController.onPageLoad(mode)
+      case None    => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode)
+    }
+
   private def backLink(mode: Mode)(userAnswers: UserAnswers): Call = {
     userAnswers.get(RefundingCountryPage) match {
       case Some(countryCode) if currencyConfig.requiresCurrencySelection(countryCode) =>
         routes.RefundingCurrencyController.onPageLoad(mode)
-
-      case Some("DE") =>
-        userAnswers.get(SupplierVatRegistrationNumberPage) match {
-          case Some(_) => routes.SupplierVatRegistrationNumberController.onPageLoad(mode)
-          case None =>
-            userAnswers.get(SupplierTaxNumberPage) match {
-              case Some(SupplierTaxNumber.Vatregistrationnumber) => routes.SupplierVatRegistrationNumberController.onPageLoad(mode)
-              case Some(SupplierTaxNumber.Taxidentifiernumber)   => routes.SupplierTaxIdentifierNumberController.onPageLoad(mode)
-              case _ =>
-                if (userAnswers.get(SupplierTaxIdentifierNumberPage).isDefined) {
-                  routes.SupplierTaxIdentifierNumberController.onPageLoad(mode)
-                } else {
-                  routes.SupplierTaxNumberController.onPageLoad(mode)
-                }
-            }
-        }
-
-      case _ =>
-        userAnswers.get(SupplierVatRegistrationNumberPage) match {
-          case Some(_) => routes.SupplierVatRegistrationNumberController.onPageLoad(mode)
-          case None    => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode)
-        }
+      case Some("DE") => germanyBackLink(mode, userAnswers)
+      case _          => defaultBackLink(mode, userAnswers)
     }
   }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = preparedFormFromAnswers(_.get(TotalPurchaseAmountBeforeVatPage), form)
+    val preparedForm = request.userAnswers.get(TotalPurchaseAmountBeforeVatPage).fold(form)(form.fill)
     val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)
-
-    okView(preparedForm, mode, prefix, currencyName)
+    Ok(view(preparedForm, mode, backLink(mode)(request.userAnswers), prefix, currencyName))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -96,19 +100,16 @@ class TotalPurchaseAmountBeforeVatController @Inject() (
   }
 
   private def handleSubmit(value: BigDecimal, mode: Mode)(implicit request: DataRequest[?]) = {
-    shortCircuitPersistAndThen(
+    shortCircuit(
       TotalPurchaseAmountBeforeVatPage,
       value,
       mode,
       request.userAnswers,
-      sessionRepository,
       navigator.nextPage(TotalPurchaseAmountBeforeVatPage, mode, request.userAnswers),
-      routes.CheckYourPurchaseDetailsController.onPageLoad()
+      routes.CheckYourPurchaseDetailsController.onPageLoad(),
+      Some(sessionRepository)
     )(updated => Future.successful(Redirect(navigator.nextPage(TotalPurchaseAmountBeforeVatPage, mode, updated))))
   }
-
-  private def okView(preparedForm: Form[BigDecimal], mode: Mode, prefix: String, currencyName: String)(implicit request: DataRequest[?]) =
-    Ok(view(preparedForm, mode, backLink(mode)(request.userAnswers), prefix, currencyName))
 
   private def badRequestView(formWithErrors: Form[?], mode: Mode)(implicit request: DataRequest[?]) = {
     val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)

@@ -27,6 +27,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.ControllerHelpers.*
 import views.html.claim.BusinessActivityCodeThreeView
 
 import javax.inject.Inject
@@ -64,7 +65,6 @@ class BusinessActivityCodeThreeController @Inject() (
         formWithErrors => {
           val typed = request.body.asFormUrlEncoded.flatMap(_.get("valueTyped").flatMap(_.headOption)).getOrElse("")
           val submitted = request.body.asFormUrlEncoded.flatMap(_.get("value").flatMap(_.headOption)).getOrElse("")
-          // if the submitted value is one of the excluded codes, replace the error with a duplicate-specific message
           val duplicateFrom =
             if (baseAnswers.get(BusinessActivityCodeTwoPage).contains(submitted)) Some("Business activity 2")
             else if (baseAnswers.get(BusinessActivityCodePage).contains(submitted)) Some("Business activity 1")
@@ -88,8 +88,6 @@ class BusinessActivityCodeThreeController @Inject() (
           }
         },
         value => {
-
-          // if the submitted value duplicates BA1 or BA2, show duplicate error
           val duplicateFrom =
             if (baseAnswers.get(BusinessActivityCodeTwoPage).contains(value)) Some("Business activity 2")
             else if (baseAnswers.get(BusinessActivityCodePage).contains(value)) Some("Business activity 1")

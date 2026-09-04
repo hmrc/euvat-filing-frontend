@@ -27,8 +27,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.ControllerHelpers.*
-import utils.{CheckModeShortCircuit, SaveAndRedirect}
+import utils.ControllerHelpers
 import views.html.purchase.SupplierAddressView
 
 import javax.inject.Inject
@@ -54,41 +53,37 @@ class SupplierAddressController @Inject() (
   private def backLink: Call = routes.SuppliersNameController.onPageLoad(NormalMode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = preparedFormFromAnswers(_.get(SupplierAddressPage), form)
-    okView(preparedForm, mode)
+    val preparedForm = request.userAnswers.get(SupplierAddressPage).fold(form)(form.fill)
+    Ok(view(preparedForm, mode, backLink))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(badRequestView(formWithErrors, mode)),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink))),
         value =>
-          CheckModeShortCircuit.applyNoPersist(
+          ControllerHelpers.shortCircuit(
             SupplierAddressPage,
             value,
             mode,
             request.userAnswers,
+            navigator.nextPage(SupplierAddressPage, mode, request.userAnswers),
             routes.CheckYourPurchaseDetailsController.onPageLoad(),
-            (answersAfterSet: UserAnswers) => {
-              val userAnswersTry = Success(answersAfterSet)
-              val redirectCall = computeRedirectAfterSave(answersAfterSet, mode)
+            None
+          ) { (answersAfterSet: UserAnswers) =>
+            val userAnswersTry = Success(answersAfterSet)
+            val redirectCall = computeRedirectAfterSave(answersAfterSet, mode)
 
-              SaveAndRedirect.saveTryAndRedirect(userAnswersTry, sessionRepository, redirectCall)
-            }
-          )
+            ControllerHelpers.saveTryAndRedirect(userAnswersTry, sessionRepository, redirectCall)
+          }
       )
   }
 
-  private def okView(preparedForm: Form[?], mode: Mode)(implicit request: DataRequest[?]) =
-    Ok(view(preparedForm, mode, backLink))
-
-  private def badRequestView(formWithErrors: Form[?], mode: Mode)(implicit request: DataRequest[?]) =
-    BadRequest(view(formWithErrors, mode, backLink))
-
   private def computeRedirectAfterSave(answersAfterSet: UserAnswers, mode: Mode)(implicit request: DataRequest[?]) =
-    if (mode == CheckMode && request.userAnswers.get(PurchaseTypePage).isDefined)
-      controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()
-    else
+    if (mode == CheckMode && request.userAnswers.get(PurchaseTypePage).isDefined) {
+      routes.CheckYourPurchaseDetailsController.onPageLoad()
+    } else {
       navigator.nextPage(SupplierAddressPage, mode, answersAfterSet)
+    }
 }

@@ -54,10 +54,9 @@ class TotalVatClaimController @Inject() (
   private def backLink(mode: Mode): Call = routes.TotalVatPaidController.onPageLoad(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = preparedFormFromAnswers(_.get(TotalVatClaimPage), form)
+    val preparedForm = request.userAnswers.get(TotalVatClaimPage).fold(form)(form.fill)
     val currencySymbol = currencySymbolFromSession(request.userAnswers, currencyConfig.currencyConfig)
-
-    okView(preparedForm, mode, currencySymbol)
+    Ok(view(preparedForm, mode, backLink(mode), currencySymbol))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -70,23 +69,22 @@ class TotalVatClaimController @Inject() (
   }
 
   private def handleSubmit(value: BigDecimal, mode: Mode)(implicit request: DataRequest[?]) = {
-    shortCircuitPersistAndThen(
+    shortCircuit(
       TotalVatClaimPage,
       value,
       mode,
       request.userAnswers,
-      sessionRepository,
       navigator.nextPage(TotalVatClaimPage, mode, request.userAnswers),
-      routes.CheckYourPurchaseDetailsController.onPageLoad()
+      routes.CheckYourPurchaseDetailsController.onPageLoad(),
+      Some(sessionRepository)
     ) { updated =>
-      if (compareWithPage(value, TotalVatPaidPage, updated)(_ > _))
+      if (compareWithPage(value, TotalVatPaidPage, updated)(_ > _)) {
         Future.successful(Redirect(controllers.warning.routes.VatClaimWarningController.onPageLoad(mode)))
-      else Future.successful(Redirect(navigator.nextPage(TotalVatClaimPage, mode, updated)))
+      } else {
+        Future.successful(Redirect(navigator.nextPage(TotalVatClaimPage, mode, updated)))
+      }
     }
   }
-
-  private def okView(preparedForm: Form[BigDecimal], mode: Mode, currencySymbol: String)(implicit request: DataRequest[?]) =
-    Ok(view(preparedForm, mode, backLink(mode), currencySymbol))
 
   private def badRequestView(formWithErrors: Form[?], mode: Mode)(implicit request: DataRequest[?]) =
     BadRequest(view(formWithErrors, mode, backLink(mode), currencySymbolFromSession(request.userAnswers, currencyConfig.currencyConfig)))

@@ -19,7 +19,7 @@ package controllers.purchase
 import controllers.actions.*
 import forms.purchase.SupplierTaxNumberFormProvider
 import models.requests.DataRequest
-import models.{InvoiceType, Mode, NormalMode, SupplierTaxNumber, UserAnswers}
+import models.{CheckMode, InvoiceType, Mode, NormalMode, SupplierTaxNumber, UserAnswers}
 import navigation.Navigator
 import pages.{InvoiceTypePage, SupplierTaxIdentifierNumberPage, SupplierTaxNumberPage, SupplierVatRegistrationNumberPage}
 import play.api.Logger
@@ -28,7 +28,6 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.*
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.CheckModeShortCircuit
 import utils.ControllerHelpers.*
 import views.html.purchase.SupplierTaxNumberView
 
@@ -64,9 +63,9 @@ class SupplierTaxNumberController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     requireGermany(request.userAnswers).getOrElse {
-      val preparedForm = preparedFormFromAnswers(_.get(SupplierTaxNumberPage), form)
+      val preparedForm = request.userAnswers.get(SupplierTaxNumberPage).fold(form)(form.fill)
       val isSimplifiedInvoice: Boolean = request.userAnswers.get(InvoiceTypePage).contains(InvoiceType.SimplifiedInvoice)
-      okView(preparedForm, mode, isSimplifiedInvoice)
+      Ok(view(preparedForm, mode, backLink, isSimplifiedInvoice))
     }
   }
 
@@ -78,32 +77,19 @@ class SupplierTaxNumberController @Inject() (
         form
           .bindFromRequest()
           .fold(
-            formWithErrors => Future.successful(badRequestView(formWithErrors, mode, isSimplifiedInvoice)),
+            formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink, isSimplifiedInvoice))),
             value =>
-              CheckModeShortCircuit.shortCircuitIfUnchanged(
-                SupplierTaxNumberPage,
-                value,
-                mode,
-                request.userAnswers,
-                routes.CheckYourPurchaseDetailsController.onPageLoad()
-              ) match {
-                case Some(res) => Future.successful(res)
-                case None =>
-                  val userAnswersTry = request.userAnswers.set(SupplierTaxNumberPage, value)
-
-                  persistWithCleaning(userAnswersTry, value).map { cleaned =>
-                    Redirect(navigator.nextPage(SupplierTaxNumberPage, mode, cleaned))
-                  }
+              if (mode == CheckMode && request.userAnswers.isAnswerUnchanged(SupplierTaxNumberPage, value)) {
+                Future.successful(Redirect(controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()))
+              } else {
+                val userAnswersTry = request.userAnswers.set(SupplierTaxNumberPage, value)
+                persistWithCleaning(userAnswersTry, value).map { cleaned =>
+                  Redirect(navigator.nextPage(SupplierTaxNumberPage, mode, cleaned))
+                }
               }
           )
     }
   }
-
-  private def okView(preparedForm: Form[SupplierTaxNumber], mode: Mode, isSimplifiedInvoice: Boolean)(implicit request: DataRequest[?]) =
-    Ok(view(preparedForm, mode, backLink, isSimplifiedInvoice))
-
-  private def badRequestView(formWithErrors: Form[SupplierTaxNumber], mode: Mode, isSimplifiedInvoice: Boolean)(implicit request: DataRequest[?]) =
-    BadRequest(view(formWithErrors, mode, backLink, isSimplifiedInvoice))
 
   private def persistWithCleaning(userAnswersTry: scala.util.Try[UserAnswers], value: SupplierTaxNumber)(implicit
     request: DataRequest[?]

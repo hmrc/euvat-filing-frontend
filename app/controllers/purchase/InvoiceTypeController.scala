@@ -22,7 +22,7 @@ import forms.purchase.InvoiceTypeFormProvider
 import models.requests.DataRequest
 import models.{CheckMode, InvoiceType, Mode, Other, PurchaseType, UserAnswers}
 import navigation.Navigator
-import pages.{InvoiceTypePage, PurchaseSubCategoryPage, PurchaseSubTypePage, PurchaseTypePage}
+import pages.*
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -31,6 +31,7 @@ import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.{ConfigPurchaseMapping, CountryCode}
 import views.html.purchase.InvoiceTypeView
+import utils.ControllerHelpers.*
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -64,18 +65,21 @@ class InvoiceTypeController @Inject() (
     def childIsNone = request.userAnswers.get(PurchaseSubCategoryPage).exists(v => v.split("\\.").lastOption.contains("99"))
     def isOther = request.userAnswers.get(PurchaseTypePage).contains(Other)
 
-    if (!isOther) { PurchaseBackLinkHelper.computeBackTarget(mode) }
-    else if (parentIsNone || childIsNone) { routes.DescribeItemsOnInvoiceController.onPageLoad(mode) }
-    else { PurchaseBackLinkHelper.computeBackTarget(mode) }
+    if (!isOther) {
+      PurchaseBackLinkHelper.computeBackTarget(mode)
+    } else if (parentIsNone || childIsNone) {
+      routes.DescribeItemsOnInvoiceController.onPageLoad(mode)
+    } else {
+      PurchaseBackLinkHelper.computeBackTarget(mode)
+    }
   }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    val preparedForm = request.userAnswers.get(InvoiceTypePage) match {
-      case None        => form // no stored invoice type
-      case Some(value) => form.fill(value) // pre-fill with stored value
-    }
+    val preparedForm = request.userAnswers.get(InvoiceTypePage).fold(form)(form.fill)
 
-    Future.successful(Ok(view(preparedForm, mode, computeBackTarget(mode))))
+    val back = computeBackTarget(mode)
+
+    Future.successful(Ok(view(preparedForm, mode, back)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -84,15 +88,10 @@ class InvoiceTypeController @Inject() (
       .fold(
         formWithErrors => badRequestView(formWithErrors, mode),
         value => {
-          utils.CheckModeShortCircuit.shortCircuitIfUnchanged(
-            InvoiceTypePage,
-            value,
-            mode,
-            request.userAnswers,
-            routes.CheckYourPurchaseDetailsController.onPageLoad()
-          ) match {
-            case Some(res) => Future.successful(res)
-            case None      => persistAndRedirect(value, mode)
+          if (mode == CheckMode && request.userAnswers.isAnswerUnchanged(InvoiceTypePage, value)) {
+            Future.successful(Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad()))
+          } else {
+            persistAndRedirect(value, mode)
           }
         }
       )
@@ -104,7 +103,7 @@ class InvoiceTypeController @Inject() (
     for {
       builtAnswers <- Future.fromTry(userAnswersTry)
       answersWithChangeFlag <-
-        if (mode == CheckMode) Future.fromTry(builtAnswers.set(pages.InvoiceTypeChangedPage, true)) else Future.successful(builtAnswers)
+        if (mode == CheckMode) Future.fromTry(builtAnswers.set(InvoiceTypeChangedPage, true)) else Future.successful(builtAnswers)
       _ <- sessionRepository.set(answersWithChangeFlag)
     } yield postPersistRedirect(mode, value, builtAnswers)
   }
@@ -113,9 +112,9 @@ class InvoiceTypeController @Inject() (
     request.userAnswers.get(InvoiceTypePage) match {
       case Some(prev) if prev != value =>
         for {
-          a <- request.userAnswers.remove(pages.SupplierTaxNumberPage)
-          b <- a.remove(pages.SimplifiedInvoiceVatRegCheckPage)
-          c <- b.remove(pages.SupplierVatRegistrationNumberPage)
+          a <- request.userAnswers.remove(SupplierTaxNumberPage)
+          b <- a.remove(SimplifiedInvoiceVatRegCheckPage)
+          c <- b.remove(SupplierVatRegistrationNumberPage)
           d <- c.set(InvoiceTypePage, value)
         } yield d
       case _ => request.userAnswers.set(InvoiceTypePage, value)

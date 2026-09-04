@@ -20,15 +20,16 @@ import controllers.actions.*
 import controllers.helpers.PurchaseBackLinkHelper
 import forms.purchase.DescribeItemsOnInvoiceFormProvider
 import models.requests.DataRequest
-import models.{CheckMode, Mode, Other, PurchaseType}
+import models.{CheckMode, Mode, Other, PurchaseType, UserAnswers}
 import navigation.Navigator
-import pages.{DescribeItemsOnInvoicePage, PurchaseSubCategoryPage, PurchaseSubTypePage, PurchaseTypePage}
+import pages.*
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.{CheckModeShortCircuit, ConfigPurchaseMapping}
+import utils.ControllerHelpers.*
+import utils.{ConfigPurchaseMapping, CountryCode}
 import views.html.purchase.DescribeItemsOnInvoiceView
 
 import javax.inject.Inject
@@ -86,17 +87,17 @@ class DescribeItemsOnInvoiceController @Inject() (
     }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    val preparedForm = request.userAnswers.get(DescribeItemsOnInvoicePage) match {
-      case None        => form
-      case Some(value) => form.fill(value)
-    }
+    val preparedForm = request.userAnswers.get(DescribeItemsOnInvoicePage).fold(form)(form.fill)
+    val backTarget = computeBackTarget(mode)
 
     if (mode == CheckMode && !request.userAnswers.get(pages.DescribeItemsArrivedFromCheckYourAnswersPage).contains(true)) {
       val markedTry = request.userAnswers.set(pages.DescribeItemsArrivedFromCheckYourAnswersPage, true)
       Future.fromTry(markedTry).flatMap { updated =>
-        sessionRepository.set(updated).map(_ => Ok(view(preparedForm, mode, computeBackTarget(mode))))
+        sessionRepository.set(updated).map(_ => Ok(view(preparedForm, mode, backTarget)))
       }
-    } else Future.successful(Ok(view(preparedForm, mode, computeBackTarget(mode))))
+    } else {
+      Future.successful(Ok(view(preparedForm, mode, backTarget)))
+    }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -104,34 +105,25 @@ class DescribeItemsOnInvoiceController @Inject() (
       .bindFromRequest()
       .fold(
         formWithErrors =>
-          if (formWithErrors.errors.exists(_.message == "describeItemsOnInvoice.error.required"))
+          if (formWithErrors.errors.exists(_.message == "describeItemsOnInvoice.error.required")) {
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(DescribeItemsOnInvoicePage, ""))
               _              <- sessionRepository.set(updatedAnswers)
             } yield Redirect(controllers.warning.routes.PurchaseWarningController.onPageLoad(mode))
-          else
-            Future.successful(BadRequest(view(formWithErrors, mode, computeBackTarget(mode)))),
-        value =>
-          if (mode == CheckMode) {
-            CheckModeShortCircuit(
-              DescribeItemsOnInvoicePage,
-              value,
-              mode,
-              request.userAnswers,
-              sessionRepository,
-              routes.CheckYourPurchaseDetailsController.onPageLoad(),
-              updated => Future.successful(Redirect(navigator.nextPage(DescribeItemsOnInvoicePage, mode, updated)))
-            )
           } else {
-            CheckModeShortCircuit(
-              DescribeItemsOnInvoicePage,
-              value,
-              mode,
-              request.userAnswers,
-              sessionRepository,
-              navigator.nextPage(DescribeItemsOnInvoicePage, mode, request.userAnswers),
-              updated => Future.successful(Redirect(navigator.nextPage(DescribeItemsOnInvoicePage, mode, updated)))
-            )
+            Future.successful(BadRequest(view(formWithErrors, mode, computeBackTarget(mode))))
+          },
+        value =>
+          shortCircuit(
+            DescribeItemsOnInvoicePage,
+            value,
+            mode,
+            request.userAnswers,
+            navigator.nextPage(DescribeItemsOnInvoicePage, mode, request.userAnswers),
+            routes.CheckYourPurchaseDetailsController.onPageLoad(),
+            Some(sessionRepository)
+          ) { updated =>
+            Future.successful(Redirect(navigator.nextPage(DescribeItemsOnInvoicePage, mode, updated)))
           }
       )
   }

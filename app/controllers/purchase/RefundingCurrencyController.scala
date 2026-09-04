@@ -35,7 +35,7 @@ import views.html.purchase.RefundingCurrencyView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Success
+import scala.util.{Failure, Success}
 
 class RefundingCurrencyController @Inject() (
   override val messagesApi: MessagesApi,
@@ -114,31 +114,32 @@ class RefundingCurrencyController @Inject() (
             val isChanged = request.userAnswers.get(RefundingCurrencyPage).exists(_ != currencyCode)
             val purchaseCYA = routes.CheckYourPurchaseDetailsController.onPageLoad()
 
-            CheckModeShortCircuit.applyNoPersist(
+            utils.ControllerHelpers.shortCircuit(
               RefundingCurrencyPage,
               currencyCode,
               mode,
               request.userAnswers,
+              navigator.nextPage(RefundingCurrencyPage, mode, request.userAnswers),
               purchaseCYA,
-              (answersAfterSet: UserAnswers) => {
-                val maybeAmendedTry =
-                  if (isChanged && request.userAnswers.get(ClaimDetailsCompletedPage).contains(true))
-                    answersAfterSet.set(ClaimDetailsAmendedPage, true)
-                  else Success(answersAfterSet)
+              None
+            ) { (answersAfterSet: UserAnswers) =>
+              val maybeAmendedTry =
+                if (isChanged && request.userAnswers.get(ClaimDetailsCompletedPage).contains(true))
+                  answersAfterSet.set(ClaimDetailsAmendedPage, true)
+                else Success(answersAfterSet)
 
-                val maybeCurrencyChangedTry = maybeAmendedTry.flatMap { ua =>
-                  if (isChanged) ua.set(CurrencyChangedPage, true) else Success(ua)
-                }
-
-                Future
-                  .fromTry(maybeCurrencyChangedTry)
-                  .flatMap: finalAnswers =>
-                    sessionRepository
-                      .set(finalAnswers)
-                      .map: _ =>
-                        Redirect(navigator.nextPage(RefundingCurrencyPage, mode, finalAnswers))
+              val maybeCurrencyChangedTry = maybeAmendedTry.flatMap { ua =>
+                if (isChanged) ua.set(CurrencyChangedPage, true) else Success(ua)
               }
-            )
+
+              Future
+                .fromTry(maybeCurrencyChangedTry)
+                .flatMap: finalAnswers =>
+                  sessionRepository
+                    .set(finalAnswers)
+                    .map: _ =>
+                      Redirect(navigator.nextPage(RefundingCurrencyPage, mode, finalAnswers))
+            }
         }
     }
 

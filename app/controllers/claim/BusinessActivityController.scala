@@ -27,6 +27,7 @@ import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import queries.TraderKnownFactsQuery
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.ControllerHelpers.*
 import views.html.claim.BusinessActivityView
 
 import javax.inject.Inject

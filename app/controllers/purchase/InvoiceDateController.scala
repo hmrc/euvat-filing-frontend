@@ -18,7 +18,7 @@ package controllers.purchase
 
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import forms.purchase.InvoiceDateFormProvider
-import models.Mode
+import models.{CheckMode, Mode}
 import models.requests.DataRequest
 import navigation.Navigator
 import pages.{InvoiceDatePage, PurchaseTypePage}
@@ -28,6 +28,7 @@ import play.api.mvc.*
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.purchase.InvoiceDateView
+import utils.ControllerHelpers.*
 
 import java.time.LocalDate
 import javax.inject.Inject
@@ -51,15 +52,9 @@ class InvoiceDateController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     request.userAnswers.get(pages.RefundPeriodPage) match {
-      case None =>
-        Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-
+      case None => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       case Some(_) =>
-        val preparedForm = request.userAnswers.get(InvoiceDatePage) match {
-          case None        => form // no cached date, use empty form
-          case Some(value) => form.fill(value) // pre-fill with existing date
-        }
-
+        val preparedForm = request.userAnswers.get(InvoiceDatePage).fold(form)(form.fill)
         Ok(view(preparedForm, mode, routes.InvoiceNumberController.onPageLoad(mode)))
     }
   }
@@ -77,20 +72,7 @@ class InvoiceDateController @Inject() (
               if (value.isAfter(today)) {
                 val errorForm = form.bindFromRequest().withError("value", "invoiceDate.error.past")
                 badRequestToInvoiceNumber(errorForm, mode)
-              }
-
-              /*
-            TODO: business rule to prevent users entering a date outside the refund period
-            this is currently commented out as
-            it is not yet clear whether this validation will be possible at this point in the journey.
-            Once the refund period can be calculated, this validation should be added back in
-            and the relevant error message added to the messages file.
-
-            else if (value.isBefore(refundPeriod.startDate) || value.isAfter(refundPeriod.endDate)) {
-              val errorForm = form.withError("value", "invoiceDate.error.outsideRefundPeriod")
-              Future.successful(BadRequest(view(errorForm, mode, routes.InvoiceNumberController.onPageLoad(mode))))
-            } */
-              else {
+              } else {
                 handleSubmission(value, mode)(request)
               }
           }
@@ -115,21 +97,14 @@ class InvoiceDateController @Inject() (
       request.userAnswers.get(InvoiceDatePage) match {
         case Some(prev) if prev == value =>
           Future.successful(Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad()))
-
         case _ =>
-          utils.CheckModeShortCircuit.shortCircuitIfUnchanged(
-            InvoiceDatePage,
-            value,
-            mode,
-            request.userAnswers,
-            routes.CheckYourPurchaseDetailsController.onPageLoad()
-          ) match {
-            case Some(res) => Future.successful(res)
-            case None =>
-              for {
-                persistedAnswers <- Future.fromTry(request.userAnswers.set(InvoiceDatePage, value))
-                _                <- sessionRepository.set(persistedAnswers)
-              } yield Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
+          if (mode == CheckMode && request.userAnswers.isAnswerUnchanged(InvoiceDatePage, value)) {
+            Future.successful(Redirect(controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()))
+          } else {
+            for {
+              persistedAnswers <- Future.fromTry(request.userAnswers.set(InvoiceDatePage, value))
+              _                <- sessionRepository.set(persistedAnswers)
+            } yield Redirect(controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad())
           }
       }
     } else {

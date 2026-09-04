@@ -104,8 +104,6 @@ object CheckYourPurchaseDetailsSummary {
     } yield {
       val parentKey = pt.toString
 
-      // try to resolve an explicit slug; if none, iteratively trim last segment
-      // e.g. 7.1.2 -> try 7.1.2, then 7.1 -> mapping exists for 7.1 -> who-food-drink-for
       def findSlug(pk: String, c: String): String = {
         def loop(curr: String): Option[String] =
           models.PurchaseSubCategoryType.purchaseSubCategoryUrlSlugFor(pk, curr) match {
@@ -296,10 +294,6 @@ object CheckYourPurchaseDetailsSummary {
          else Seq(rowSupplierVatRegCheck(answers), rowSupplierVatRegNumber(answers)))
     ).flatten
 
-    // Include an explicit currency selection row when a display name has
-    // been provided (e.g. for countries that offer multiple currencies).
-    // Display currency symbols on amount rows only when a raw symbol is
-    // available (i.e. the user has actually selected a currency).
     val amountsRows = Seq(
       if (showCurrencyRow) rowCurrency(maybeCurrencyDisplayName) else None,
       rowAmountBeforeVat(answers, maybeCurrencySymbol),

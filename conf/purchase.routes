@@ -1,7 +1,7 @@
-GET         /purchase-type                                controllers.purchase.PurchaseTypeController.onPageLoad(mode: Mode = NormalMode)
-POST        /purchase-type                                controllers.purchase.PurchaseTypeController.onSubmit(mode: Mode = NormalMode)
-GET         /change-purchase-type                         controllers.purchase.PurchaseTypeController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-purchase-type                         controllers.purchase.PurchaseTypeController.onSubmit(mode: Mode = CheckMode)
+GET        /purchase-type                                 controllers.purchase.PurchaseTypeController.onPageLoad(mode: Mode = NormalMode)
+POST       /purchase-type                                 controllers.purchase.PurchaseTypeController.onSubmit(mode: Mode = NormalMode)
+GET        /change-purchase-type                          controllers.purchase.PurchaseTypeController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-purchase-type                          controllers.purchase.PurchaseTypeController.onSubmit(mode: Mode = CheckMode)
 
 GET        /fuel-use                                      controllers.purchase.PurchaseSubTypeController.onPageLoad(purchaseTypeSlug: String = "fuel-use", mode: Mode = NormalMode)
 POST       /fuel-use                                      controllers.purchase.PurchaseSubTypeController.onSubmit(purchaseTypeSlug: String = "fuel-use", mode: Mode = NormalMode)

@@ -54,10 +54,9 @@ class TotalVatPaidController @Inject() (
 
   private def backLink(mode: Mode) = routes.TotalPurchaseAmountBeforeVatController.onPageLoad(mode)
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = preparedFormFromAnswers(_.get(TotalVatPaidPage), form)
+    val preparedForm = request.userAnswers.get(TotalVatPaidPage).fold(form)(form.fill)
     val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)
-
-    okView(preparedForm, mode, prefix, currencyName)
+    Ok(view(preparedForm, mode, backLink(mode), prefix, currencyName))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -70,23 +69,22 @@ class TotalVatPaidController @Inject() (
   }
 
   private def handleSubmit(value: BigDecimal, mode: Mode)(implicit request: DataRequest[?]) = {
-    shortCircuitPersistAndThen(
+    shortCircuit(
       TotalVatPaidPage,
       value,
       mode,
       request.userAnswers,
-      sessionRepository,
       navigator.nextPage(TotalVatPaidPage, mode, request.userAnswers),
-      routes.CheckYourPurchaseDetailsController.onPageLoad()
+      routes.CheckYourPurchaseDetailsController.onPageLoad(),
+      Some(sessionRepository)
     ) { updated =>
-      if (compareWithPage(value, TotalPurchaseAmountBeforeVatPage, updated)(_ >= _))
+      if (compareWithPage(value, TotalPurchaseAmountBeforeVatPage, updated)(_ >= _)) {
         Future.successful(Redirect(controllers.warning.routes.VatPaidWarningController.onPageLoad(mode)))
-      else Future.successful(Redirect(navigator.nextPage(TotalVatPaidPage, mode, updated)))
+      } else {
+        Future.successful(Redirect(navigator.nextPage(TotalVatPaidPage, mode, updated)))
+      }
     }
   }
-
-  private def okView(preparedForm: Form[BigDecimal], mode: Mode, prefix: String, currencyName: String)(implicit request: DataRequest[?]) =
-    Ok(view(preparedForm, mode, backLink(mode), prefix, currencyName))
 
   private def badRequestView(formWithErrors: Form[?], mode: Mode)(implicit request: DataRequest[?]) = {
     val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)

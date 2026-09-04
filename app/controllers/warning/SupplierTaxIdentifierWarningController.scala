@@ -19,6 +19,9 @@ package controllers.warning
 import controllers.actions.*
 import controllers.purchase.routes
 import models.{CheckMode, Mode, NormalMode}
+import pages.*
+
+import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -40,7 +43,7 @@ class SupplierTaxIdentifierWarningController @Inject() (
     with I18nSupport {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    val flagged = request.userAnswers.set(pages.SupplierTaxIdentifierWarningShownPage, true)
+    val flagged = request.userAnswers.set(SupplierTaxIdentifierWarningShownPage, true)
     Future
       .fromTry(flagged)
       .flatMap(ua =>
@@ -60,7 +63,7 @@ class SupplierTaxIdentifierWarningController @Inject() (
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    val cleared = request.userAnswers.remove(pages.SupplierTaxIdentifierWarningShownPage)
+    val cleared = request.userAnswers.remove(SupplierTaxIdentifierWarningShownPage)
     Future
       .fromTry(cleared)
       .flatMap(ua =>

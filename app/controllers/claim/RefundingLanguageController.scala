@@ -30,6 +30,7 @@ import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.*
+import utils.ControllerHelpers.*
 import views.html.claim.RefundingLanguageView
 
 import javax.inject.Inject
@@ -59,10 +60,7 @@ class RefundingLanguageController @Inject() (
         logger.warn("RefundingLanguageController.onPageLoad - no refunding country in session, redirecting to JourneyRecovery")
         Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       case Some(countryStored) =>
-        val preparedForm = request.userAnswers.get(RefundingLanguagePage) match {
-          case None        => form
-          case Some(value) => form.fill(value)
-        }
+        val preparedForm = request.userAnswers.get(RefundingLanguagePage).fold(form)(form.fill)
         val langs = configLanguageMapping.languagesFor(countryStored)
         val msgs = messagesApi.preferred(request)
         val items = langs.zipWithIndex.flatMap { case (lang, idx) =>

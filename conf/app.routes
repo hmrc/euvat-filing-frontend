@@ -17,8 +17,8 @@ GET         /redirect-to-manage-claim                     controllers.TaskListDa
 GET         /delete-claim                                 controllers.DeleteClaimController.onPageLoad()
 POST        /delete-claim                                 controllers.DeleteClaimController.onSubmit()
 
-GET         /before-you-start                             controllers.BeforeYouStartPurchaseController.onPageLoad()
-POST        /before-you-start                             controllers.BeforeYouStartPurchaseController.onSubmit()
+GET         /before-you-start                             controllers.BeforeYouStartController.onPageLoad()
+POST        /before-you-start                             controllers.BeforeYouStartController.onSubmit()
 
 # Warning pages
 GET         /check-refund-period                          controllers.warning.PeriodOverlapWarningController.onPageLoad(mode: Mode = NormalMode)

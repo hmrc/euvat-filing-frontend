@@ -27,7 +27,6 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.CheckModeShortCircuit
 import utils.ControllerHelpers.*
 import views.html.purchase.SuppliersNameView
 
@@ -51,50 +50,42 @@ class SuppliersNameController @Inject() (
   val form: Form[String] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = preparedFormFromAnswers(_.get(SuppliersNamePage), form)
-    renderOk(preparedForm, mode)
+    val preparedForm = request.userAnswers.get(SuppliersNamePage).fold(form)(form.fill)
+    Ok(view(preparedForm, mode, routes.InvoiceDateController.onPageLoad(mode)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(renderBadRequest(formWithErrors, mode)),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, routes.InvoiceDateController.onPageLoad(mode)))),
         value =>
           val inPurchaseFlow = request.userAnswers.get(pages.PurchaseTypePage).isDefined
 
           if (inPurchaseFlow) {
-            CheckModeShortCircuit.shortCircuitIfUnchanged(
-              pages.SuppliersNamePage,
-              value,
-              mode,
-              request.userAnswers,
-              routes.CheckYourPurchaseDetailsController.onPageLoad()
-            ) match {
-              case Some(res) => Future.successful(res)
-              case None =>
-                val userAnswersTry = request.userAnswers.set(SuppliersNamePage, value)
-                if (mode == CheckMode)
-                  persistAndThen(userAnswersTry, sessionRepository)(_ =>
-                    Future.successful(Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad()))
-                  )
-                else
-                  persistAndThen(userAnswersTry, sessionRepository)(ua =>
-                    Future.successful(Redirect(navigator.nextPage(SuppliersNamePage, mode, ua)))
-                  )
+            if (mode == CheckMode && request.userAnswers.isAnswerUnchanged(pages.SuppliersNamePage, value)) {
+              Future.successful(Redirect(controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()))
+            } else {
+              val userAnswersTry = request.userAnswers.set(SuppliersNamePage, value)
+              if (mode == CheckMode)
+                for {
+                  updatedAnswers <- Future.fromTry(userAnswersTry)
+                  _              <- sessionRepository.set(updatedAnswers)
+                } yield Redirect(controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad())
+              else
+                for {
+                  updatedAnswers <- Future.fromTry(userAnswersTry)
+                  _              <- sessionRepository.set(updatedAnswers)
+                } yield Redirect(navigator.nextPage(SuppliersNamePage, mode, updatedAnswers))
             }
           } else {
             val userAnswersTry = request.userAnswers.set(SuppliersNamePage, value)
-            persistAndThen(userAnswersTry, sessionRepository)(ua => Future.successful(Redirect(navigator.nextPage(SuppliersNamePage, mode, ua))))
+            for {
+              updatedAnswers <- Future.fromTry(userAnswersTry)
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(navigator.nextPage(SuppliersNamePage, mode, updatedAnswers))
           }
       )
   }
 
-  private def renderOk(preparedForm: Form[String], mode: Mode)(implicit request: DataRequest[?]) = Ok(
-    view(preparedForm, mode, routes.InvoiceDateController.onPageLoad(mode))
-  )
-
-  private def renderBadRequest(formWithErrors: Form[String], mode: Mode)(implicit request: DataRequest[?]) = BadRequest(
-    view(formWithErrors, mode, routes.InvoiceDateController.onPageLoad(mode))
-  )
 }
