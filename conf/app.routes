@@ -20,6 +20,9 @@ POST        /delete-claim                                 controllers.DeleteClai
 GET         /before-you-start                             controllers.BeforeYouStartController.onPageLoad()
 POST        /before-you-start                             controllers.BeforeYouStartController.onSubmit()
 
+GET         /purchase-or-import                           controllers.PurchaseOrImportController.onPageLoad
+POST        /purchase-or-import                           controllers.PurchaseOrImportController.onSubmit
+
 # Warning pages
 GET         /check-refund-period                          controllers.warning.PeriodOverlapWarningController.onPageLoad(mode: Mode = NormalMode)
 POST        /check-refund-period                          controllers.warning.PeriodOverlapWarningController.onSubmit(mode: Mode = NormalMode)

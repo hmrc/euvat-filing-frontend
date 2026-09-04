@@ -19,6 +19,7 @@ package controllers.purchase
 import controllers.actions.*
 import forms.purchase.PurchaseTypeFormProvider
 import models.requests.{AddPurchaseRequest, DataRequest}
+import models.responses.AddPurchaseResponse
 import models.{CheckMode, Mode, PurchaseType, UserAnswers}
 import navigation.Navigator
 import pages.*
@@ -32,10 +33,8 @@ import services.EuVatRefundsService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import views.html.purchase.PurchaseTypeView
-import models.responses.AddPurchaseResponse
 import utils.{ConfigPurchaseMapping, CountryCode, MountPrefix}
-import utils.ControllerHelpers.*
+import views.html.purchase.PurchaseTypeView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -60,8 +59,7 @@ class PurchaseTypeController @Inject() (
 
   val form: Form[PurchaseType] = formProvider()
 
-  private def backLink(mode: Mode)(implicit request: DataRequest[?]) = controllers.routes.BeforeYouStartController.onPageLoad()
-
+  private def backLink(mode: Mode)(implicit request: DataRequest[?]) = controllers.routes.PurchaseOrImportController.onPageLoad
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     if (request.userAnswers.get(CountryChangedPage).contains(true)) {
       val clearedTry = for {

@@ -284,6 +284,12 @@ beforeYouStart.bullet4 = Single Administrative Document (SAD) reference number f
 beforeYouStart.p2 = Find what you can or cannot claim from each member state in
 beforeYouStart.p2.link = Public Notice 723A (opens in a new tab)
 
+purchaseOrImport.title = What do you want to add to this claim?
+purchaseOrImport.heading = What do you want to add to this claim?
+purchaseOrImport.purchase = Purchase
+purchaseOrImport.import = Import
+purchaseOrImport.error.required = Select an item you want to add to this claim
+
 invoiceType.title = Invoice type
 invoiceType.heading = Invoice type
 invoiceType.lead = You will need a valid VAT invoice or receipt. You cannot use statements, orders, letters, emails or other general correspondence to claim VAT.

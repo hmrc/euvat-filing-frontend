@@ -17,10 +17,18 @@
 package controllers
 
 import base.SpecBase
-import models.NormalMode
+import models.{PurchaseOrImport, UserAnswers}
+import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{verify, when}
+import pages.PurchaseOrImportPage
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import repositories.SessionRepository
 import views.html.BeforeYouStartView
+
+import scala.concurrent.Future
 
 class BeforeYouStartControllerSpec extends SpecBase {
 
@@ -62,7 +70,7 @@ class BeforeYouStartControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to the Purchase Type Page when submit button is clicked" in {
+    "must redirect to the Purchase or Import Page when submit button is clicked (POST)" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -72,7 +80,35 @@ class BeforeYouStartControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
 
-        redirectLocation(result).value mustEqual controllers.purchase.routes.PurchaseTypeController.onPageLoad(NormalMode).url
+        redirectLocation(result).value mustEqual controllers.routes.PurchaseOrImportController.onPageLoad.url
+      }
+    }
+
+    "must clear the answer from PurchaseOrImport from session on submit" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(PurchaseOrImportPage, PurchaseOrImport.values.head)
+        .success
+        .value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+          .build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.BeforeYouStartController.onSubmit().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(mockSessionRepository).set(captor.capture())
+
+        captor.getValue.get(PurchaseOrImportPage) mustBe None
       }
     }
 

@@ -18,28 +18,38 @@ package controllers
 
 import controllers.actions.*
 import models.NormalMode
+import pages.PurchaseOrImportPage
 
 import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
+import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.BeforeYouStartView
 
+import scala.concurrent.Future
+
 class BeforeYouStartController @Inject() (
   override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   val controllerComponents: MessagesControllerComponents,
   view: BeforeYouStartView
-) extends FrontendBaseController
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
     with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     Ok(view(controllers.routes.TaskListDashboardController.onPageLoad()))
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    Redirect(controllers.purchase.routes.PurchaseTypeController.onPageLoad(NormalMode))
+  def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+    for {
+      cleared <- Future.fromTry(request.userAnswers.remove(PurchaseOrImportPage))
+      _       <- sessionRepository.set(cleared)
+    } yield Redirect(controllers.routes.PurchaseOrImportController.onPageLoad)
   }
 }

@@ -40,19 +40,15 @@ import scala.concurrent.Future
 class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
   val onwardRoute: Call = Call("GET", "/foo")
-
   lazy val purchaseTypeRoute: String = routes.PurchaseTypeController.onPageLoad(NormalMode).url
   lazy val purchaseTypeSubmitRoute: String = routes.PurchaseTypeController.onSubmit(NormalMode).url
-  lazy val backLinkCall: Call = controllers.routes.BeforeYouStartController.onPageLoad()
-
+  lazy val backLinkCall: Call = controllers.routes.PurchaseOrImportController.onPageLoad
   lazy val purchaseTypeRouteCheck: String = routes.PurchaseTypeController.onPageLoad(CheckMode).url
   lazy val purchaseTypeSubmitRouteCheck: String = routes.PurchaseTypeController.onSubmit(CheckMode).url
-  lazy val backLinkCallCheck: Call = controllers.routes.BeforeYouStartController.onPageLoad()
 
   "PurchaseType Controller" - {
 
     "must return OK and the correct view for a GET" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -107,7 +103,6 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return OK and the correct view for a GET when simplified invoice check exists with back link to simplified check" in {
-
       val userAnswers = emptyUserAnswers.set(pages.SimplifiedInvoiceVatRegCheckPage, false).success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -121,7 +116,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, controllers.routes.BeforeYouStartController.onPageLoad())(
+          view(form, NormalMode, backLinkCall)(
             request,
             messages(application)
           ).toString
@@ -130,7 +125,6 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return OK and the correct view for a GET when country is Germany with back link to SupplierTaxIdentifierNumber" in {
-
       val userAnswers = emptyUserAnswers.set(pages.RefundingCountryPage, "DE").success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -148,7 +142,6 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return OK and the correct view for a GET when simplified invoice check exists with value Yes and back link to TotalVatPaid" in {
-
       val userAnswers = emptyUserAnswers.set(pages.SimplifiedInvoiceVatRegCheckPage, true).success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -166,7 +159,6 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return OK and the correct view for a GET in CheckMode with correct back link" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -179,13 +171,12 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, CheckMode, backLinkCallCheck)(request, messages(application)).toString
+          view(form, CheckMode, backLinkCall)(request, messages(application)).toString
         )
       }
     }
 
     "must return OK and the correct view for a GET in CheckMode when country is Germany with back link to SupplierTaxIdentifierNumber" in {
-
       val userAnswers = emptyUserAnswers.set(pages.RefundingCountryPage, "DE").success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -198,12 +189,11 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         val form = formProvider()
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, CheckMode, backLinkCallCheck)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, CheckMode, backLinkCall)(request, messages(application)).toString
       }
     }
 
     "must redirect to Journey Recovery when no existing data is found on GET" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
@@ -216,7 +206,6 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must populate the view with the saved value on GET" in {
-
       val userAnswers = emptyUserAnswers.set(PurchaseTypePage, Fuel).success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -262,13 +251,11 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to InvoiceType when no subcodes exist for the selected purchase type" in {
-
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
       when(mockEuVatRefundsService.addPurchase(any())(any()))
         .thenReturn(Future.successful(AddPurchaseResponse(1, 2)))
 
-      // set country to LT which has no 'fuel' mapping in purchase-mapping.conf
       val userAnswers = emptyUserAnswers
         .set(pages.RefundingCountryPage, "LT")
         .success
@@ -361,7 +348,6 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must persist AddPurchaseResponse in session when addPurchase succeeds" in {
-
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
       val addResp = AddPurchaseResponse(itemNumber = 42, updateSequenceNumber = 3)
@@ -852,7 +838,6 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must add the purchase, persist the response, and redirect when valid data is submitted" in {
-
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
       when(mockEuVatRefundsService.addPurchase(any())(any()))
@@ -916,7 +901,6 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to the next page when applicationId is missing on submit" in {
-
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 

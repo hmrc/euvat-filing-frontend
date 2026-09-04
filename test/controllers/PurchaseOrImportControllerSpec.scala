@@ -1,0 +1,220 @@
+/*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package controllers
+
+import base.SpecBase
+import forms.PurchaseOrImportFormProvider
+import models.{PurchaseOrImport, UserAnswers}
+import navigation.{FakeNavigator, Navigator}
+import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{verify, when}
+import org.scalatestplus.mockito.MockitoSugar
+import pages.*
+import play.api.inject.bind
+import play.api.mvc.Call
+import play.api.test.FakeRequest
+import play.api.test.Helpers.*
+import repositories.SessionRepository
+import views.html.PurchaseOrImportView
+
+import scala.concurrent.Future
+
+class PurchaseOrImportControllerSpec extends SpecBase with MockitoSugar {
+
+  def onwardRoute = Call("GET", "/foo")
+
+  lazy val purchaseOrImportRoute: String = routes.PurchaseOrImportController.onPageLoad.url
+  lazy val backLinkCall: Call = routes.BeforeYouStartController.onPageLoad()
+
+  val formProvider = new PurchaseOrImportFormProvider()
+  val form = formProvider()
+
+  "PurchaseOrImport Controller" - {
+
+    "must return OK and the correct view for a GET" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+          .build()
+
+      running(application) {
+        val request = FakeRequest(GET, purchaseOrImportRoute)
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[PurchaseOrImportView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, backLinkCall)(request, messages(application)).toString
+      }
+    }
+
+    "must populate the view correctly on a GET when the question has previously been answered" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val userAnswers = UserAnswers(userAnswersId).set(PurchaseOrImportPage, PurchaseOrImport.values.head).success.value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+          .build()
+
+      running(application) {
+        val request = FakeRequest(GET, purchaseOrImportRoute)
+
+        val view = application.injector.instanceOf[PurchaseOrImportView]
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form.fill(PurchaseOrImport.values.head), backLinkCall)(request, messages(application)).toString
+      }
+    }
+
+    "must clear the purchase journey answers from the session on a GET" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(PurchaseOrImportPage, PurchaseOrImport.values.head)
+        .success
+        .value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+          .build()
+
+      running(application) {
+        val request = FakeRequest(GET, purchaseOrImportRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(mockSessionRepository).set(captor.capture())
+
+        val savedAnswers = captor.getValue
+        savedAnswers.get(PurchaseTypePage) mustBe None
+        savedAnswers.get(PurchaseSubTypePage) mustBe None
+        savedAnswers.get(PurchaseSubTypeLabelPage) mustBe None
+        savedAnswers.get(PurchaseSubCategoryPage) mustBe None
+        savedAnswers.get(PurchaseSubCategoryLabelPage) mustBe None
+        savedAnswers.get(DescribeItemsOnInvoicePage) mustBe None
+        savedAnswers.get(InvoiceTypePage) mustBe None
+        savedAnswers.get(InvoiceNumberPage) mustBe None
+        savedAnswers.get(InvoiceDatePage) mustBe None
+        savedAnswers.get(RefundingCurrencyPage) mustBe None
+        savedAnswers.get(SimplifiedInvoiceVatRegCheckPage) mustBe None
+        savedAnswers.get(SuppliersNamePage) mustBe None
+        savedAnswers.get(SupplierAddressPage) mustBe None
+        savedAnswers.get(SupplierVatRegistrationNumberPage) mustBe None
+        savedAnswers.get(SupplierTaxIdentifierNumberPage) mustBe None
+        savedAnswers.get(SupplierTaxNumberPage) mustBe None
+        savedAnswers.get(TotalPurchaseAmountBeforeVatPage) mustBe None
+        savedAnswers.get(TotalVatPaidPage) mustBe None
+        savedAnswers.get(TotalVatClaimPage) mustBe None
+      }
+    }
+
+    "must redirect to the next page when valid data is submitted" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, purchaseOrImportRoute)
+            .withFormUrlEncodedBody(("value", PurchaseOrImport.values.head.toString))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+      }
+    }
+
+    "must return a Bad Request and errors when invalid data is submitted" in {
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, purchaseOrImportRoute)
+            .withFormUrlEncodedBody(("value", "invalid value"))
+
+        val boundForm = form.bind(Map("value" -> "invalid value"))
+
+        val view = application.injector.instanceOf[PurchaseOrImportView]
+
+        val result = route(application, request).value
+
+        status(result) mustEqual BAD_REQUEST
+        contentAsString(result) mustEqual view(boundForm, backLinkCall)(request, messages(application)).toString
+      }
+    }
+
+    "must redirect to Journey Recovery for a GET if no existing data is found" in {
+
+      val application = applicationBuilder(userAnswers = None).build()
+
+      running(application) {
+        val request = FakeRequest(GET, purchaseOrImportRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "redirect to Journey Recovery for a POST if no existing data is found" in {
+
+      val application = applicationBuilder(userAnswers = None).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, purchaseOrImportRoute)
+            .withFormUrlEncodedBody(("value", PurchaseOrImport.values.head.toString))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+  }
+}

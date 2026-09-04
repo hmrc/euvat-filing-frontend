@@ -136,6 +136,11 @@ class NavigatorSpec extends SpecBase {
           claimRoutes.BusinessActivityThreeController.onPageLoad()
       }
 
+      "must go from PurchaseOrImportPage to PurchaseTypeController" in {
+        navigator.nextPage(PurchaseOrImportPage, NormalMode, userAnswers) mustBe
+          purchaseRoutes.PurchaseTypeController.onPageLoad(NormalMode)
+      }
+
       "must go from PurchaseTypePage to DescribeItemsOnInvoiceController" in {
         val ua = userAnswers.set(PurchaseTypePage, PurchaseType.values.head).success.value
         navigator.nextPage(PurchaseTypePage, NormalMode, ua) mustBe
@@ -148,7 +153,6 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from PurchaseTypePage to PurchaseSubTypeController when mapping exists for country" in {
-        // fake ConfigPurchaseMapping that returns a subcode for AT and parent Fuel
         val fakePurchaseConfig = new utils.ConfigPurchaseMapping() {
           override def subcodesFor(country: String, parentKey: String): Seq[(String, String)] =
             if (country == "AT" && parentKey == Fuel.toString) Seq(("1", "purchase.sub.fuel.1")) else Seq.empty
@@ -194,7 +198,6 @@ class NavigatorSpec extends SpecBase {
           fakePurchaseConfig
         )
 
-        // store country as "Austria,AT" style value
         val ua = userAnswers.set(pages.RefundingCountryNamePage, "Austria,AT").success.value.set(PurchaseTypePage, Fuel).success.value
 
         nav.nextPage(PurchaseTypePage, NormalMode, ua) mustBe
@@ -213,7 +216,6 @@ class NavigatorSpec extends SpecBase {
           fakePurchaseConfig
         )
 
-        // store country as name-only value
         val ua = userAnswers.set(pages.RefundingCountryNamePage, "Austria").success.value.set(PurchaseTypePage, Fuel).success.value
 
         nav.nextPage(PurchaseTypePage, NormalMode, ua) mustBe
