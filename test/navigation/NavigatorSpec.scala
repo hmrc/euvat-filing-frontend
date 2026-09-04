@@ -23,6 +23,7 @@ import pages.*
 import utils.{ConfigLanguageMapping, ConfigPurchaseMapping, CurrencyConfig}
 import play.api.Configuration
 import com.typesafe.config.ConfigFactory
+import models.PurchaseOrImport.{Import, Purchase}
 import play.api.mvc.Call
 
 class NavigatorSpec extends SpecBase {
@@ -134,9 +135,23 @@ class NavigatorSpec extends SpecBase {
           routes.BusinessActivityThreeController.onPageLoad()
       }
 
-      "must go from PurchaseOrImportPage to PurchaseTypeController" in {
-        navigator.nextPage(PurchaseOrImportPage, NormalMode, userAnswers) mustBe
+      "must go from PurchaseOrImportPage to PurchaseTypeController when Purchase is selected" in {
+        val answers = userAnswers.set(PurchaseOrImportPage, Purchase).success.value
+
+        navigator.nextPage(PurchaseOrImportPage, NormalMode, answers) mustBe
           routes.PurchaseTypeController.onPageLoad(NormalMode)
+      }
+
+      "must go from PurchaseOrImportPage to ImportTypeController when Import is selected" in {
+        val answers = userAnswers.set(PurchaseOrImportPage, Import).success.value
+
+        navigator.nextPage(PurchaseOrImportPage, NormalMode, answers) mustBe
+          routes.ImportTypeController.onPageLoad(NormalMode)
+      }
+
+      "must go from ImportTypePage to JourneyRecoveryController" in {
+        navigator.nextPage(ImportTypePage, NormalMode, emptyUserAnswers) mustBe
+          routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from PurchaseTypePage to DescribeItemsOnInvoiceController" in {
@@ -593,6 +608,11 @@ class NavigatorSpec extends SpecBase {
         val ua = userAnswers.set(VrnWarningFlowPage, false).success.value
         navigator.nextPage(InvoiceNumberPage, CheckMode, ua) mustBe
           routes.SupplierVatRegistrationNumberController.onPageLoad(CheckMode)
+      }
+
+      "must go from ImportTypePage to JourneyRecoveryController" in {
+        navigator.nextPage(ImportTypePage, CheckMode, emptyUserAnswers) mustBe
+          routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from PurchaseTypePage to DescribeItemsOnInvoiceController" in {

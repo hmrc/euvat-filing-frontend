@@ -63,7 +63,16 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         val form = formProvider()
 
         status(result) mustEqual OK
-        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(view(form, NormalMode, backLinkCall, "purchaseType", "purchase.caption", legendKey = Some("purchaseType.h2"))(request, messages(application)).toString)
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
+          view(form,
+               NormalMode,
+               backLinkCall,
+               routes.PurchaseTypeController.onSubmit(NormalMode),
+               "purchaseType",
+               "purchase.caption",
+               legendKey = Some("purchaseType.h2")
+              )(request, messages(application)).toString
+        )
       }
     }
 
@@ -120,7 +129,14 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, backLinkCall, "purchaseType", "purchase.caption", legendKey = Some("purchaseType.h2"))(request, messages(application)).toString
+          view(form,
+               NormalMode,
+               backLinkCall,
+               routes.PurchaseTypeController.onSubmit(NormalMode),
+               "purchaseType",
+               "purchase.caption",
+               legendKey = Some("purchaseType.h2")
+              )(request, messages(application)).toString
         )
       }
     }
@@ -139,7 +155,14 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         val form = formProvider()
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, backLinkCall, "purchaseType", "purchase.caption", legendKey = Some("purchaseType.h2"))(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form,
+                                               NormalMode,
+                                               backLinkCall,
+                                               routes.PurchaseTypeController.onSubmit(NormalMode),
+                                               "purchaseType",
+                                               "purchase.caption",
+                                               legendKey = Some("purchaseType.h2")
+                                              )(request, messages(application)).toString
       }
     }
 
@@ -157,7 +180,16 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         val form = formProvider()
 
         status(result) mustEqual OK
-        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(view(form, NormalMode, backLinkCall, "purchaseType", "purchase.caption", legendKey = Some("purchaseType.h2"))(request, messages(application)).toString)
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
+          view(form,
+               NormalMode,
+               backLinkCall,
+               routes.PurchaseTypeController.onSubmit(NormalMode),
+               "purchaseType",
+               "purchase.caption",
+               legendKey = Some("purchaseType.h2")
+              )(request, messages(application)).toString
+        )
       }
     }
 
@@ -175,7 +207,14 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, backLinkCall, "purchaseType", "purchase.caption", legendKey = Some("purchaseType.h2"))(request, messages(application)).toString
+          view(form,
+               CheckMode,
+               backLinkCall,
+               routes.PurchaseTypeController.onSubmit(CheckMode),
+               "purchaseType",
+               "purchase.caption",
+               legendKey = Some("purchaseType.h2")
+              )(request, messages(application)).toString
         )
       }
     }
@@ -194,7 +233,14 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         val form = formProvider()
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, backLinkCall, "purchaseType", "purchase.caption", legendKey = Some("purchaseType.h2"))(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form,
+                                               CheckMode,
+                                               backLinkCall,
+                                               routes.PurchaseTypeController.onSubmit(CheckMode),
+                                               "purchaseType",
+                                               "purchase.caption",
+                                               legendKey = Some("purchaseType.h2")
+                                              )(request, messages(application)).toString
       }
     }
 
@@ -225,7 +271,17 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         val form = formProvider().fill(Fuel)
 
         status(result) mustEqual OK
-        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(view(form, NormalMode, backLinkCall, "purchaseType", "purchase.caption", legendKey = Some("purchaseType.h2"))(request, messages(application)).toString)      }
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
+          view(form,
+               NormalMode,
+               backLinkCall,
+               routes.PurchaseTypeController.onSubmit(NormalMode),
+               "purchaseType",
+               "purchase.caption",
+               legendKey = Some("purchaseType.h2")
+              )(request, messages(application)).toString
+        )
+      }
     }
 
     "must redirect to the next page and persist the answer when valid data is submitted" in {

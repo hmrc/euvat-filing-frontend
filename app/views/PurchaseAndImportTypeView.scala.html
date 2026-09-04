@@ -28,7 +28,7 @@
     govukDetails : GovukDetails
 )
 
-@(form: Form[?], mode: Mode, call: Call, messagePrefix: String, captionKey: String, showIntro: Boolean = true, legendKey: Option[String] = None)(implicit request: Request[?], messages: Messages)
+@(form: Form[?], mode: Mode, call: Call, submitCall: Call, messagePrefix: String, captionKey: String, showIntro: Boolean = true, legendKey: Option[String] = None)(implicit request: Request[?], messages: Messages)
 
 @layout(pageTitle = views.ViewUtils.title(form, s"$messagePrefix.title"), backLinkUrl = Some(call.url)) {
     <h1 class="govuk-heading-l">
@@ -36,7 +36,7 @@
         @messages(s"$messagePrefix.heading")
     </h1>
 
-    @formHelper(action = call) {
+    @formHelper(action = submitCall) {
         @mainErrorSummary(form, Map("value" -> "value_0"))
 
         @if(showIntro) {

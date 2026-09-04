@@ -34,7 +34,6 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import models.responses.AddPurchaseResponse
 import utils.{ConfigPurchaseMapping, CountryCode, MountPrefix}
-import utils.ControllerHelpers.*
 import views.html.PurchaseAndImportTypeView
 
 import javax.inject.Inject
@@ -61,6 +60,7 @@ class PurchaseTypeController @Inject() (
   val form: Form[PurchaseAndImportType] = formProvider()
 
   private def backLink(mode: Mode)(implicit request: DataRequest[?]) = routes.PurchaseOrImportController.onPageLoad
+
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     if (request.userAnswers.get(CountryChangedPage).contains(true)) {
       val clearedTry = for {
@@ -79,12 +79,32 @@ class PurchaseTypeController @Inject() (
             .set(updated)
             .map(_ => {
               val preparedForm = updated.get(PurchaseTypePage).fold(form)(form.fill)
-              Ok(view(preparedForm, mode, backLink(mode), "purchaseType", "purchase.caption", legendKey = Some("purchaseType.h2")))
+              Ok(
+                view(preparedForm,
+                     mode,
+                     backLink(mode),
+                     routes.PurchaseTypeController.onSubmit(mode),
+                     "purchaseType",
+                     "purchase.caption",
+                     legendKey = Some("purchaseType.h2")
+                    )
+              )
             })
         )
     } else {
       val preparedForm = request.userAnswers.get(PurchaseTypePage).fold(form)(form.fill)
-      Future.successful(Ok(view(preparedForm, mode, backLink(mode), "purchaseType", "purchase.caption", legendKey = Some("purchaseType.h2"))))
+      Future.successful(
+        Ok(
+          view(preparedForm,
+               mode,
+               backLink(mode),
+               routes.PurchaseTypeController.onSubmit(mode),
+               "purchaseType",
+               "purchase.caption",
+               legendKey = Some("purchaseType.h2")
+              )
+        )
+      )
     }
   }
 
@@ -92,7 +112,19 @@ class PurchaseTypeController @Inject() (
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode), "purchaseType", "purchase.caption", legendKey = Some("purchaseType.h2")))),
+        formWithErrors =>
+          Future.successful(
+            BadRequest(
+              view(formWithErrors,
+                   mode,
+                   backLink(mode),
+                   routes.PurchaseTypeController.onSubmit(mode),
+                   "purchaseType",
+                   "purchase.caption",
+                   legendKey = Some("purchaseType.h2")
+                  )
+            )
+          ),
         value => {
           val previous = request.userAnswers.get(PurchaseTypePage)
 
