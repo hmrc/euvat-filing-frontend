@@ -219,7 +219,9 @@ class PurchaseTypeController @Inject() (
     val removeTry = answers.remove(flagPage)
     Future.fromTry(removeTry).flatMap { ua =>
       sessionRepository.set(ua).map { _ =>
-        redirectWithPrefix(controllers.purchase.routes.PurchaseSubTypeController.onPageLoad(PurchaseAndImportType.urlSlugForPurchaseType(value), CheckMode))
+        redirectWithPrefix(
+          controllers.purchase.routes.PurchaseSubTypeController.onPageLoad(PurchaseAndImportType.urlSlugForPurchaseType(value), CheckMode)
+        )
       }
     }
   }
@@ -256,11 +258,15 @@ class PurchaseTypeController @Inject() (
     Future.successful(Redirect(Call("GET", changePath)))
   }
 
-  private def handleCheckModePostPersist(updatedAnswers: UserAnswers, value: PurchaseAndImportType)(implicit request: DataRequest[?]): Future[Result] = {
+  private def handleCheckModePostPersist(updatedAnswers: UserAnswers, value: PurchaseAndImportType)(implicit
+    request: DataRequest[?]
+  ): Future[Result] = {
     processCheckModePostPersist(updatedAnswers, value)(request)
   }
 
-  private def processCheckModePostPersist(updatedAnswers: UserAnswers, value: PurchaseAndImportType)(implicit request: DataRequest[?]): Future[Result] = {
+  private def processCheckModePostPersist(updatedAnswers: UserAnswers, value: PurchaseAndImportType)(implicit
+    request: DataRequest[?]
+  ): Future[Result] = {
     if (!hasSubcodesFor(updatedAnswers, value)) {
       handleNoSubcodesCase(updatedAnswers)
     } else if (updatedAnswers.get(DescribeItemsArrivedFromCheckYourAnswersPage).contains(true)) {
@@ -298,7 +304,9 @@ class PurchaseTypeController @Inject() (
     }
   }
 
-  private def handleDescribeArrivedCase(updatedAnswers: UserAnswers, value: PurchaseAndImportType)(implicit request: DataRequest[?]): Future[Result] = {
+  private def handleDescribeArrivedCase(updatedAnswers: UserAnswers, value: PurchaseAndImportType)(implicit
+    request: DataRequest[?]
+  ): Future[Result] = {
     if (shouldReturnToDescribeForAnswers(updatedAnswers, value)) {
       removeFlagAndRedirect(DescribeItemsArrivedFromCheckYourAnswersPage,
                             updatedAnswers,

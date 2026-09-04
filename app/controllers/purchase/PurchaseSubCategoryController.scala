@@ -20,7 +20,7 @@ import controllers.actions.*
 import controllers.routes
 import forms.PurchaseSubTypeFormProvider
 import models.requests.DataRequest
-import models.{CheckMode, Mode, NormalMode, PurchaseSubCategoryType, PurchaseAndImportType, UserAnswers}
+import models.{CheckMode, Mode, NormalMode, PurchaseAndImportType, PurchaseSubCategoryType, UserAnswers}
 import navigation.Navigator
 import pages.*
 import play.api.data.Form
