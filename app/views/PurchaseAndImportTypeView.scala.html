@@ -28,28 +28,32 @@
     govukDetails : GovukDetails
 )
 
-@(form: Form[?], mode: Mode, call: Call)(implicit request: Request[?], messages: Messages)
+@(form: Form[?], mode: Mode, call: Call, messagePrefix: String, captionKey: String, showIntro: Boolean = true, legendKey: Option[String] = None)(implicit request: Request[?], messages: Messages)
 
-@layout(pageTitle = views.ViewUtils.title(form, "purchaseType.title"), backLinkUrl = Some(call.url)) {
+@layout(pageTitle = views.ViewUtils.title(form, s"$messagePrefix.title"), backLinkUrl = Some(call.url)) {
     <h1 class="govuk-heading-l">
-        <span class="govuk-caption-l">@messages("purchase.caption")</span>
-        @messages("purchaseType.heading")
+        <span class="govuk-caption-l">@messages(captionKey)</span>
+        @messages(s"$messagePrefix.heading")
     </h1>
 
-    @formHelper(action = routes.PurchaseTypeController.onSubmit(mode)) {
+    @formHelper(action = call) {
         @mainErrorSummary(form, Map("value" -> "value_0"))
 
-        <p class="govuk-body">@messages("purchaseType.p1")</p>
-        <ul class="govuk-list govuk-list--bullet">
-            <li class="govuk-body">@messages("purchaseType.li1")</li>
-            <li class="govuk-body">@messages("purchaseType.li2")</li>
-        </ul>
+        @if(showIntro) {
+            <p class="govuk-body">@messages(s"$messagePrefix.p1")</p>
+            <ul class="govuk-list govuk-list--bullet">
+                <li class="govuk-body">@messages(s"$messagePrefix.li1")</li>
+                <li class="govuk-body">@messages(s"$messagePrefix.li2")</li>
+            </ul>
+        }
 
         @govukRadios(
             RadiosViewModel(
                 field  = form("value"),
-                legend = LegendViewModel(HtmlContent(messages("purchaseType.h2"))).withCssClass("govuk-fieldset__legend--m"),
-                items  = PurchaseAndImportType.options
+                legend = legendKey.fold(
+                LegendViewModel(HtmlContent(messages(s"$messagePrefix.heading"))).withCssClass("govuk-visually-hidden")
+            )(key => LegendViewModel(HtmlContent(messages(key))).withCssClass("govuk-fieldset__legend--m")),
+            items  = PurchaseAndImportType.options
             )
         )
 

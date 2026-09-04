@@ -97,6 +97,16 @@ POST        /delete-claim                               controllers.DeleteClaimC
 GET         /before-you-start                           controllers.BeforeYouStartController.onPageLoad()
 POST        /before-you-start                           controllers.BeforeYouStartController.onSubmit()
 
+GET         /purchase-type                                controllers.PurchaseTypeController.onPageLoad(mode: Mode = NormalMode)
+POST        /purchase-type                                controllers.PurchaseTypeController.onSubmit(mode: Mode = NormalMode)
+GET         /change-purchase-type                         controllers.PurchaseTypeController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-purchase-type                         controllers.PurchaseTypeController.onSubmit(mode: Mode = CheckMode)
+
+GET         /import-type                                  controllers.ImportTypeController.onPageLoad(mode: Mode = NormalMode)
+POST        /import-type                                  controllers.ImportTypeController.onSubmit(mode: Mode = NormalMode)
+GET         /change-import-type                           controllers.ImportTypeController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-import-type                           controllers.ImportTypeController.onSubmit(mode: Mode = CheckMode)
+
 GET         /invoice-type                               controllers.InvoiceTypeController.onPageLoad(mode: Mode = NormalMode)
 POST        /invoice-type                               controllers.InvoiceTypeController.onSubmit(mode: Mode = NormalMode)
 GET         /change-invoice-type                        controllers.InvoiceTypeController.onPageLoad(mode: Mode = CheckMode)
@@ -166,11 +176,6 @@ GET         /total-vat-claim                              controllers.TotalVatCl
 POST        /total-vat-claim                              controllers.TotalVatClaimController.onSubmit(mode: Mode = NormalMode)
 GET         /change-total-vat-claim                       controllers.TotalVatClaimController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-total-vat-claim                       controllers.TotalVatClaimController.onSubmit(mode: Mode = CheckMode)
-
-GET         /purchase-type                                controllers.PurchaseTypeController.onPageLoad(mode: Mode = NormalMode)
-POST        /purchase-type                                controllers.PurchaseTypeController.onSubmit(mode: Mode = NormalMode)
-GET         /change-purchase-type                         controllers.PurchaseTypeController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-purchase-type                         controllers.PurchaseTypeController.onSubmit(mode: Mode = CheckMode)
 
 GET         /eu-member-state-details                      controllers.CheckYourStateDetailsController.onPageLoad(mode: Mode = NormalMode)
 POST        /eu-member-state-details                      controllers.CheckYourStateDetailsController.onSubmit(mode: Mode = NormalMode)

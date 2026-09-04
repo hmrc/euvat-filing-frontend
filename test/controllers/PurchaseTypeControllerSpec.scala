@@ -33,7 +33,6 @@ import play.api.test.Helpers.*
 import queries.ClaimApplicationResponseQuery
 import repositories.SessionRepository
 import utils.ConfigPurchaseMapping
-import services.EuVatRefundsService
 import views.html.PurchaseTypeView
 
 import scala.concurrent.Future
