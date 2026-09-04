@@ -185,6 +185,17 @@ POST        /change-describe-items-on-invoice             controllers.DescribeIt
 GET         /purchase-or-import                           controllers.PurchaseOrImportController.onPageLoad
 POST        /purchase-or-import                           controllers.PurchaseOrImportController.onSubmit
 
+GET         /import-fuel-use                              controllers.imports.ImportSubCodeController.onPageLoad(importTypeKey: String = "fuel")
+POST        /import-fuel-use                              controllers.imports.ImportSubCodeController.onSubmit(importTypeKey: String = "fuel")
+GET         /import-transport-cost                        controllers.imports.ImportSubCodeController.onPageLoad(importTypeKey: String = "transport")
+POST        /import-transport-cost                        controllers.imports.ImportSubCodeController.onSubmit(importTypeKey: String = "transport")
+GET         /import-food-drink-restaurant-cost            controllers.imports.ImportSubCodeController.onPageLoad(importTypeKey: String = "foodAndDrink")
+POST        /import-food-drink-restaurant-cost            controllers.imports.ImportSubCodeController.onSubmit(importTypeKey: String = "foodAndDrink")
+GET         /import-luxury-entertainment-hospitality-cost controllers.imports.ImportSubCodeController.onPageLoad(importTypeKey: String = "luxuries")
+POST        /import-luxury-entertainment-hospitality-cost controllers.imports.ImportSubCodeController.onSubmit(importTypeKey: String = "luxuries")
+GET         /import-type-other                            controllers.imports.ImportSubCodeController.onPageLoad(importTypeKey: String = "other")
+POST        /import-type-other                            controllers.imports.ImportSubCodeController.onSubmit(importTypeKey: String = "other")
+
 # Warning pages
 GET         /check-refund-period                         controllers.PeriodOverlapWarningController.onPageLoad(mode: Mode = NormalMode)
 POST        /check-refund-period                         controllers.PeriodOverlapWarningController.onSubmit(mode: Mode = NormalMode)
