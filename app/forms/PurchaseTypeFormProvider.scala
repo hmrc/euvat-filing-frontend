@@ -19,14 +19,14 @@ package forms
 import javax.inject.Inject
 
 import forms.mappings.Mappings
-import models.PurchaseType
+import models.PurchaseAndImportType
 import play.api.data.Form
 
 class PurchaseTypeFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[PurchaseType] =
+  def apply(): Form[PurchaseAndImportType] =
     Form(
-      "value" -> enumerable[PurchaseType](
+      "value" -> enumerable[PurchaseAndImportType](
         requiredKey = "purchaseType.error.required",
         invalidKey  = "purchaseType.error.required"
       )

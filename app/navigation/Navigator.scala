@@ -210,7 +210,7 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
           case Some(country) =>
             val subs = configPurchaseMapping.subcodesFor(country, parent.toString)
             if (subs.nonEmpty) {
-              Call("GET", s"/${PurchaseType.urlSlugForPurchaseType(parent)}")
+              Call("GET", s"/${PurchaseAndImportType.urlSlugForPurchaseType(parent)}")
             } else {
               if (mode == CheckMode) {
                 controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()

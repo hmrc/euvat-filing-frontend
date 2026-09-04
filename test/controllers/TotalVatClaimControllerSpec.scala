@@ -18,9 +18,8 @@ package controllers
 
 import base.SpecBase
 import forms.TotalVatClaimFormProvider
-import models.{CheckMode, Fuel, NormalMode, UserAnswers}
+import models.{CheckMode, Fuel, NormalMode, PurchaseAndImportType, UserAnswers}
 import pages.PurchaseTypePage
-import models.PurchaseType
 import org.mockito.Mockito.verify
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any

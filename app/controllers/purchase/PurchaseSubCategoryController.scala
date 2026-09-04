@@ -20,7 +20,7 @@ import controllers.actions.*
 import controllers.routes
 import forms.PurchaseSubTypeFormProvider
 import models.requests.DataRequest
-import models.{CheckMode, Mode, NormalMode, PurchaseSubCategoryType, PurchaseType, UserAnswers}
+import models.{CheckMode, Mode, NormalMode, PurchaseSubCategoryType, PurchaseAndImportType, UserAnswers}
 import navigation.Navigator
 import pages.*
 import play.api.data.Form
@@ -117,7 +117,7 @@ class PurchaseSubCategoryController @Inject() (
   ): Call = {
     // compute mount prefix and session slug candidate
     val prefix = utils.MountPrefix.getFromRequest
-    val maybeSessionSlug = userAnswers.get(PurchaseTypePage).map(models.PurchaseType.urlSlugForPurchaseType)
+    val maybeSessionSlug = userAnswers.get(PurchaseTypePage).map(models.PurchaseAndImportType.urlSlugForPurchaseType)
     // try reversing using candidate codes first; if none succeed fall back
     // to a slug derived from the session PurchaseType or to root
     candidates.iterator
@@ -137,7 +137,7 @@ class PurchaseSubCategoryController @Inject() (
     // compute the back URL that returns to the parent purchase type
     // when in CheckMode the back target should include the change-<prefix>
     val prefix = MountPrefix.getFromRequest
-    userAnswers.get(PurchaseTypePage).map(pt => PurchaseType.urlSlugForPurchaseType(pt)) match {
+    userAnswers.get(PurchaseTypePage).map(pt => PurchaseAndImportType.urlSlugForPurchaseType(pt)) match {
       case Some(slug) =>
         val url = ControllerHelpers.pathForSlug(slug, mode, prefix)
         Call("GET", url).url

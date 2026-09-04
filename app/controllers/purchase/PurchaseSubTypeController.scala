@@ -34,7 +34,7 @@ import views.html.PurchaseSubTypeView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import models.{Mode, Other, PurchaseSubCategoryType, PurchaseType, UserAnswers}
+import models.{Mode, Other, PurchaseSubCategoryType, PurchaseAndImportType, UserAnswers}
 
 class PurchaseSubTypeController @Inject() (
   override val messagesApi: MessagesApi,
@@ -55,7 +55,7 @@ class PurchaseSubTypeController @Inject() (
   private def resolveParentAndCountry(purchaseTypeSlug: String, userAnswers: UserAnswers): Option[(String, String)] =
     // Attempt to determine `parentKey` from the provided slug first
     val parentKey =
-      PurchaseType.valueFromUrlSlug
+      PurchaseAndImportType.valueFromUrlSlug
         .get(purchaseTypeSlug)
         .orElse(
           userAnswers
@@ -166,7 +166,7 @@ class PurchaseSubTypeController @Inject() (
 
   private def resolvedSlugFor(parentKey: String, fallback: String): String =
     // Derive a URL slug for routing from the PurchaseType enum or fallback
-    PurchaseType.values.find(_.toString == parentKey).map(PurchaseType.urlSlugForPurchaseType).getOrElse(fallback)
+    PurchaseAndImportType.values.find(_.toString == parentKey).map(PurchaseAndImportType.urlSlugForPurchaseType).getOrElse(fallback)
 
   private def formActionFor(uri: String, mode: Mode)(implicit request: RequestHeader) = {
     // Compute POST action URL slug respecting mount prefix and CheckMode change- prefix
@@ -324,7 +324,7 @@ class PurchaseSubTypeController @Inject() (
   private def noChildrenRedirect(value: String, resolvedSlug: String, mode: Mode): Result = {
     val lastSeg = value.split("\\.").lastOption.getOrElse(value)
     val isOtherPurchaseType =
-      PurchaseType.values.find(pt => PurchaseType.urlSlugForPurchaseType(pt) == resolvedSlug).contains(models.Other)
+      PurchaseAndImportType.values.find(pt => PurchaseAndImportType.urlSlugForPurchaseType(pt) == resolvedSlug).contains(models.Other)
 
     if (isOtherPurchaseType && lastSeg == "99") {
       Redirect(controllers.routes.DescribeItemsOnInvoiceController.onPageLoad(mode))

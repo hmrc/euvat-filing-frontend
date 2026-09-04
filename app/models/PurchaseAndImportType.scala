@@ -20,18 +20,18 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 
-sealed trait PurchaseType
-case object Fuel         extends WithName("fuel") with PurchaseType
-case object Transport    extends WithName("transport") with PurchaseType
-case object FoodAndDrink extends WithName("foodAndDrink") with PurchaseType
-case object Luxuries     extends WithName("luxuries") with PurchaseType
-case object Other        extends WithName("other") with PurchaseType
+sealed trait PurchaseAndImportType
+case object Fuel         extends WithName("fuel") with PurchaseAndImportType
+case object Transport    extends WithName("transport") with PurchaseAndImportType
+case object FoodAndDrink extends WithName("foodAndDrink") with PurchaseAndImportType
+case object Luxuries     extends WithName("luxuries") with PurchaseAndImportType
+case object Other        extends WithName("other") with PurchaseAndImportType
 
-object PurchaseType extends Enumerable.Implicits:
+object PurchaseAndImportType extends Enumerable.Implicits:
 
-  val values: Seq[PurchaseType] = Seq(Fuel, Transport, FoodAndDrink, Luxuries, Other)
+  val values: Seq[PurchaseAndImportType] = Seq(Fuel, Transport, FoodAndDrink, Luxuries, Other)
 
-  val codes: Map[PurchaseType, String] = Map(
+  val codes: Map[PurchaseAndImportType, String] = Map(
     Fuel         -> "1",
     Transport    -> "3",
     FoodAndDrink -> "7",
@@ -39,7 +39,7 @@ object PurchaseType extends Enumerable.Implicits:
     Other        -> "10"
   )
 
-  val urlSlugForPurchaseType: Map[PurchaseType, String] = Map(
+  val urlSlugForPurchaseType: Map[PurchaseAndImportType, String] = Map(
     Fuel         -> "fuel-use",
     Transport    -> "transport-cost",
     FoodAndDrink -> "food-drink-restaurant-cost",
@@ -57,5 +57,5 @@ object PurchaseType extends Enumerable.Implicits:
     )
   }
 
-  implicit val enumerable: Enumerable[PurchaseType] =
+  implicit val enumerable: Enumerable[PurchaseAndImportType] =
     Enumerable(values.map(v => v.toString -> v)*)

@@ -18,7 +18,7 @@ package viewmodels.checkAnswers
 
 import base.SpecBase
 import controllers.routes
-import models.{CheckMode, FoodAndDrink, Fuel, InvoiceType, Other, PurchaseType, SupplierTaxNumber, UserAnswers}
+import models.{CheckMode, FoodAndDrink, Fuel, InvoiceType, Other, PurchaseAndImportType, SupplierTaxNumber, UserAnswers}
 import pages.*
 import play.api.i18n.Messages
 import play.api.test.Helpers.*

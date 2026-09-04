@@ -18,7 +18,7 @@ package controllers
 
 import base.SpecBase
 import forms.DescribeItemsOnInvoiceFormProvider
-import models.{CheckMode, Fuel, NormalMode, Other, PurchaseType, UserAnswers}
+import models.{CheckMode, Fuel, NormalMode, Other, PurchaseAndImportType, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.mockito.{ArgumentCaptor, Mockito}
@@ -351,7 +351,7 @@ class DescribeItemsOnInvoiceControllerSpec extends SpecBase with MockitoSugar {
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
           view(form,
                NormalMode,
-               controllers.purchase.routes.PurchaseSubTypeController.onPageLoad(PurchaseType.urlSlugForPurchaseType(Other), NormalMode)
+               controllers.purchase.routes.PurchaseSubTypeController.onPageLoad(PurchaseAndImportType.urlSlugForPurchaseType(Other), NormalMode)
               )(request, messages(application)).toString
         )
       }

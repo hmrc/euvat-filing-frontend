@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import models.{Mode, PurchaseType}
+@import models.{Mode, PurchaseAndImportType}
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import views.html.components.MainErrorSummary
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
@@ -49,7 +49,7 @@
             RadiosViewModel(
                 field  = form("value"),
                 legend = LegendViewModel(HtmlContent(messages("purchaseType.h2"))).withCssClass("govuk-fieldset__legend--m"),
-                items  = PurchaseType.options
+                items  = PurchaseAndImportType.options
             )
         )
 

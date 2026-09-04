@@ -18,13 +18,12 @@ package controllers
 
 import base.SpecBase
 import forms.SimplifiedInvoiceVatRegCheckFormProvider
-import models.{Fuel, NormalMode, SupplierAddress, UserAnswers}
+import models.*
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.{PurchaseTypePage, SimplifiedInvoiceVatRegCheckPage, SupplierAddressPage, SupplierVatRegistrationNumberPage}
-import models.PurchaseType
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest

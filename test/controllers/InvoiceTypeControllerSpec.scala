@@ -18,13 +18,12 @@ package controllers
 
 import base.SpecBase
 import forms.InvoiceTypeFormProvider
-import models.{CheckMode, Fuel, InvoiceType, NormalMode, Other, Transport, UserAnswers}
+import models.*
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.*
-import models.PurchaseType
 import play.api.inject.bind
 import utils.ConfigPurchaseMapping
 import play.api.mvc.Call

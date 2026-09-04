@@ -50,6 +50,7 @@ unauthorised.guidance = You do not have access to this service.
 claim.caption = Claim details
 purchase.caption = Purchase details
 purchasesAndImports.caption = Purchases and imports
+import.caption = Import details
 
 taskListDashboard.title = Make a claim for an EU VAT refund
 taskListDashboard.heading = Make a claim for an EU VAT refund
@@ -449,6 +450,15 @@ purchase.checkYourPurchase.purchaseCategory = Purchase category
 purchase.checkYourPurchase.invoiceDetails = Invoice details
 purchase.checkYourPurchase.supplierDetails = Supplier details
 purchase.checkYourPurchase.purchaseAmounts = Purchase amounts
+
+importType.title = Which category best describes the item on your import document?
+importType.heading = Which category best describes the item on your import document?
+importType.fuel = Fuel
+importType.fuel = Transport costs
+importType.fuel = Food, drink and restaurant services
+importType.fuel = Luxuries, entertainment and hospitality
+importType.fuel = Other
+importType.error.required = Select the type of import
 
 purchase.subType.fuel-use = Fuel use
 purchase.subType.transport-cost = Transport cost type

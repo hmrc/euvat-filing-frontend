@@ -17,7 +17,7 @@
 package controllers.helpers
 
 import base.SpecBase
-import models.{Fuel, NormalMode, PurchaseType}
+import models.{Fuel, NormalMode, PurchaseAndImportType}
 import models.requests.DataRequest
 import pages.{PurchaseSubCategoryPage, PurchaseSubTypePage, PurchaseTypePage}
 import play.api.test.FakeRequest

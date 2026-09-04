@@ -32,7 +32,7 @@ import scala.concurrent.Future
 import scala.util.Success
 import scala.concurrent.ExecutionContext.Implicits.global
 import com.typesafe.config.ConfigFactory
-import models.{CheckMode, NormalMode, PurchaseType}
+import models.{CheckMode, NormalMode, PurchaseAndImportType}
 import play.api.mvc.Call
 import org.mockito.Mockito.{never, times, verify}
 import org.mockito.ArgumentMatchers.any as anyA

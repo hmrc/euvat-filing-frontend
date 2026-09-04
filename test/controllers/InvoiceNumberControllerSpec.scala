@@ -18,7 +18,7 @@ package controllers
 
 import base.SpecBase
 import forms.InvoiceNumberFormProvider
-import models.{Fuel, Mode, NormalMode, UserAnswers}
+import models.*
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
@@ -32,10 +32,7 @@ import repositories.SessionRepository
 import views.html.InvoiceNumberView
 
 import scala.concurrent.Future
-import models.CheckMode
-import models.SupplierTaxNumber
 import pages.{PurchaseTypePage, RefundingCountryPage, SupplierTaxNumberPage}
-import models.PurchaseType
 
 class InvoiceNumberControllerSpec extends SpecBase with MockitoSugar {
 

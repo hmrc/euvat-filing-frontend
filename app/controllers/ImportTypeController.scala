@@ -14,14 +14,6 @@
  * limitations under the License.
  */
 
-package pages
+package controllers
 
-import models.PurchaseAndImportType
-import play.api.libs.json.JsPath
-
-case object PurchaseTypePage extends QuestionPage[PurchaseAndImportType] {
-
-  override def path: JsPath = JsPath \ toString
-
-  override def toString: String = "purchaseType"
-}
+class ImportTypeController {}

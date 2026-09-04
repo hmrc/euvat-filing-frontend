@@ -320,7 +320,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.purchase.routes.PurchaseSubTypeController
-          .onPageLoad(PurchaseType.urlSlugForPurchaseType(Fuel), CheckMode)
+          .onPageLoad(PurchaseAndImportType.urlSlugForPurchaseType(Fuel), CheckMode)
           .url
       }
     }
@@ -432,7 +432,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual SEE_OTHER
         // In CheckMode with subcodes present we now redirect to the change-<slug> path
         redirectLocation(result).value mustEqual controllers.purchase.routes.PurchaseSubTypeController
-          .onPageLoad(PurchaseType.urlSlugForPurchaseType(Fuel), CheckMode)
+          .onPageLoad(PurchaseAndImportType.urlSlugForPurchaseType(Fuel), CheckMode)
           .url
         verify(mockSessionRepository, times(1)).set(any())
       }
@@ -706,12 +706,12 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.purchase.routes.PurchaseSubTypeController
-          .onPageLoad(PurchaseType.urlSlugForPurchaseType(Fuel), models.CheckMode)
+          .onPageLoad(PurchaseAndImportType.urlSlugForPurchaseType(Fuel), models.CheckMode)
           .url
 
         verify(mockSessionRepository, times(2)).set(any())
         redirectLocation(result).value mustEqual controllers.purchase.routes.PurchaseSubTypeController
-          .onPageLoad(PurchaseType.urlSlugForPurchaseType(Fuel), CheckMode)
+          .onPageLoad(PurchaseAndImportType.urlSlugForPurchaseType(Fuel), CheckMode)
           .url
       }
     }
@@ -772,7 +772,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.purchase.routes.PurchaseSubTypeController
-          .onPageLoad(PurchaseType.urlSlugForPurchaseType(Fuel), models.CheckMode)
+          .onPageLoad(PurchaseAndImportType.urlSlugForPurchaseType(Fuel), models.CheckMode)
           .url
 
         verify(mockSessionRepository, times(2)).set(any())

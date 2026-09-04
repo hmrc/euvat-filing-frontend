@@ -18,7 +18,7 @@ package controllers
 
 import base.SpecBase
 import forms.SupplierTaxIdentifierNumberFormProvider
-import models.{CheckMode, Fuel, NormalMode, UserAnswers}
+import models.{CheckMode, Fuel, NormalMode, PurchaseAndImportType, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
@@ -30,7 +30,6 @@ import pages.{AddPurchaseResponsePage, InvoiceNumberPage}
 import queries.ClaimApplicationResponseQuery
 import pages.SupplierTaxIdentifierNumberPage
 import pages.PurchaseTypePage
-import models.PurchaseType
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
