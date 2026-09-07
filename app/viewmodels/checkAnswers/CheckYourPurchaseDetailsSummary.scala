@@ -84,8 +84,8 @@ object CheckYourPurchaseDetailsSummary {
     }
   }
 
-  private def renderSubTypeRow(answers: UserAnswers, pt: models.PurchaseType)(implicit messages: Messages): Option[Row] = {
-    val parentSlug = models.PurchaseType.urlSlugForPurchaseType(pt)
+  private def renderSubTypeRow(answers: UserAnswers, pt: models.PurchaseAndImportType)(implicit messages: Messages): Option[Row] = {
+    val parentSlug = models.PurchaseAndImportType.urlSlugForPurchaseType(pt)
     val msgKey = s"purchase.subType.$parentSlug"
     val keyLabel = if (messages.isDefinedAt(msgKey)) messages(msgKey) else parentSlug.replace('-', ' ').capitalize
 

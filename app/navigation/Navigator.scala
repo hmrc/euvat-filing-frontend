@@ -19,8 +19,10 @@ package navigation
 import controllers.claim.routes as claimRoutes
 import controllers.purchase.routes as purchaseRoutes
 import models.*
+import models.PurchaseOrImport.{Import, Purchase}
 import pages.*
 import play.api.mvc.Call
+import play.api.routing.Router.empty.routes
 import utils.{ConfigLanguageMapping, ConfigPurchaseMapping, CountryCode, CurrencyConfig}
 
 import javax.inject.{Inject, Singleton}
@@ -45,7 +47,8 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
     case BusinessActivityTwoPage           => userAnswer => navigateFromBusinessActivity2Page(NormalMode)(userAnswer)
     case BusinessActivityCodeThreePage     => _ => claimRoutes.BusinessActivityThreeController.onPageLoad()
     case CheckYourStateDetailsPage         => userAnswer => navigateFromCheckYourStateDetailsPage(NormalMode)(userAnswer)
-    case PurchaseOrImportPage              => _ => purchaseRoutes.PurchaseTypeController.onPageLoad(NormalMode)
+    case PurchaseOrImportPage              => userAnswers => navigateFromPurchaseOrImportPage(userAnswers)
+    case ImportTypePage                    => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
     case ImportSubCodePage                 => _ => controllers.routes.TaskListDashboardController.onPageLoad()
     case PurchaseTypePage                  => userAnswer => navigateFromPurchaseTypePage(NormalMode)(userAnswer)
     case PurchaseSubCategoryPage           => userAnswers => navigateFromPurchaseSubCategoryPage(NormalMode, userAnswers)
@@ -75,6 +78,7 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
     case BusinessActivityTwoPage           => userAnswer => navigateFromBusinessActivity2Page(CheckMode)(userAnswer)
     case BusinessActivityCodeThreePage     => _ => claimRoutes.BusinessActivityThreeController.onPageLoad()
     case CheckYourStateDetailsPage         => userAnswers => navigateFromCheckYourStateDetailsPage(CheckMode)(userAnswers)
+    case ImportTypePage                    => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
     case PurchaseTypePage                  => userAnswer => navigateFromPurchaseTypePage(CheckMode)(userAnswer)
     case PurchaseSubCategoryPage           => userAnswers => navigateFromPurchaseSubCategoryPage(CheckMode, userAnswers)
     case DescribeItemsOnInvoicePage        => _ => purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
@@ -207,7 +211,7 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
           case Some(country) =>
             val subs = configPurchaseMapping.subcodesFor(country, parent.toString)
             if (subs.nonEmpty) {
-              Call("GET", s"/${PurchaseType.urlSlugForPurchaseType(parent)}")
+              Call("GET", s"/${PurchaseAndImportType.urlSlugForPurchaseType(parent)}")
             } else {
               if (mode == CheckMode) { purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad() }
               else { purchaseRoutes.InvoiceTypeController.onPageLoad(mode) }
@@ -278,6 +282,13 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
       case Some(true)  => controllers.warning.routes.SupplierVrnWarningController.onPageLoad(mode)
       case Some(false) => purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(mode)
       case None        => purchaseRoutes.InvoiceDateController.onPageLoad(mode)
+    }
+
+  private def navigateFromPurchaseOrImportPage(userAnswers: UserAnswers): Call =
+    userAnswers.get(PurchaseOrImportPage) match {
+      case Some(Purchase) => purchaseRoutes.PurchaseTypeController.onPageLoad(NormalMode)
+      case Some(Import)   => controllers.imports.routes.ImportTypeController.onPageLoad(NormalMode)
+      case None           => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
 }

@@ -14,14 +14,21 @@
  * limitations under the License.
  */
 
-package pages
+package forms
 
+import javax.inject.Inject
+
+import forms.mappings.Mappings
 import models.PurchaseAndImportType
-import play.api.libs.json.JsPath
+import play.api.data.Form
 
-case object PurchaseTypePage extends QuestionPage[PurchaseAndImportType] {
+class ImportTypeFormProvider @Inject() extends Mappings {
 
-  override def path: JsPath = JsPath \ toString
-
-  override def toString: String = "purchaseType"
+  def apply(): Form[PurchaseAndImportType] =
+    Form(
+      "value" -> enumerable[PurchaseAndImportType](
+        requiredKey = "importType.error.required",
+        invalidKey  = "importType.error.required"
+      )
+    )
 }

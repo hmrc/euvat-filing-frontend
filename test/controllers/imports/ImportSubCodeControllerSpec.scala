@@ -17,7 +17,7 @@
 package controllers.imports
 
 import base.SpecBase
-import models.{ImportType, UserAnswers}
+import models.{Fuel, Other, PurchaseAndImportType, Transport, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -35,7 +35,7 @@ class ImportSubCodeControllerSpec extends SpecBase with MockitoSugar {
   private def journeyRecoveryUrl = controllers.routes.JourneyRecoveryController.onPageLoad().url
   private def taskListUrl = controllers.routes.TaskListDashboardController.onPageLoad().url
 
-  private def answers(importType: ImportType = ImportType.Fuel, country: String = "AT"): UserAnswers =
+  private def answers(importType: PurchaseAndImportType = Fuel, country: String = "AT"): UserAnswers =
     emptyUserAnswers
       .set(RefundingCountryPage, country)
       .success
@@ -64,7 +64,7 @@ class ImportSubCodeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must render the transport question when the transport category was selected" in {
-      val application = applicationBuilder(userAnswers = Some(answers(ImportType.Transport))).build()
+      val application = applicationBuilder(userAnswers = Some(answers(Transport))).build()
 
       running(application) {
         val transportRoute = controllers.imports.routes.ImportSubCodeController.onPageLoad("transport").url
@@ -88,7 +88,7 @@ class ImportSubCodeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to Journey Recovery for a GET when the member state only offers the 10.99 sub-code" in {
-      val application = applicationBuilder(userAnswers = Some(answers(ImportType.Other))).build()
+      val application = applicationBuilder(userAnswers = Some(answers(Other))).build()
 
       running(application) {
         val otherRoute = controllers.imports.routes.ImportSubCodeController.onPageLoad("other").url
@@ -100,7 +100,7 @@ class ImportSubCodeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to Journey Recovery for a GET when the URL category does not match the import type answer" in {
-      val application = applicationBuilder(userAnswers = Some(answers(ImportType.Transport))).build()
+      val application = applicationBuilder(userAnswers = Some(answers(Transport))).build()
 
       running(application) {
         val result = route(application, FakeRequest(GET, fuelRoute)).value
@@ -123,7 +123,7 @@ class ImportSubCodeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to Journey Recovery for a GET when no member state has been answered" in {
-      val userAnswers = emptyUserAnswers.set(ImportTypePage, ImportType.Fuel).success.value
+      val userAnswers = emptyUserAnswers.set(ImportTypePage, Fuel).success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {

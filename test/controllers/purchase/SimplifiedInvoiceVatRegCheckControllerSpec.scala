@@ -17,9 +17,10 @@
 package controllers.purchase
 
 import base.SpecBase
+import models.*
 import controllers.purchase.routes
 import forms.purchase.SimplifiedInvoiceVatRegCheckFormProvider
-import models.{Fuel, NormalMode, PurchaseType, SupplierAddress, UserAnswers}
+import models.*
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}

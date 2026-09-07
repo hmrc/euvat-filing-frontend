@@ -19,7 +19,7 @@ package controllers.purchase
 import base.SpecBase
 import controllers.purchase.routes
 import forms.purchase.InvoiceTypeFormProvider
-import models.{Fuel, InvoiceType, NormalMode, PurchaseType}
+import models.{Fuel, InvoiceType, NormalMode, PurchaseAndImportType}
 import pages.{InvoiceTypePage, PurchaseSubCategoryPage, PurchaseSubTypePage, PurchaseTypePage}
 import play.api.data.Form
 import play.api.mvc.Call

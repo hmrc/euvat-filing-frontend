@@ -20,7 +20,7 @@ import controllers.actions.*
 import controllers.routes
 import forms.purchase.PurchaseSubTypeFormProvider
 import models.requests.DataRequest
-import models.{ImportType, NormalMode}
+import models.{NormalMode, PurchaseAndImportType}
 import navigation.Navigator
 import pages.{ImportSubCodePage, ImportTypePage}
 import play.api.data.Form
@@ -55,10 +55,10 @@ class ImportSubCodeController @Inject() (
   private def backUrl: String = routes.TaskListDashboardController.onPageLoad().url
 
   private def withPageData(importTypeKey: String)(
-    block: (ImportType, Seq[(String, String)]) => Future[Result]
+    block: (PurchaseAndImportType, Seq[(String, String)]) => Future[Result]
   )(implicit request: DataRequest[AnyContent]): Future[Result] = {
     val resolved = for {
-      importType <- ImportType.fromKey(importTypeKey)
+      importType <- PurchaseAndImportType.values.find(_.toString == importTypeKey)
       answered   <- request.userAnswers.get(ImportTypePage) if answered == importType
       country    <- CountryCode.findCountryCode(request.userAnswers)
     } yield (importType, config.subcodesFor(country, importType.toString).filter(_._1.split("\\.").length == 2))
@@ -85,7 +85,7 @@ class ImportSubCodeController @Inject() (
     if (codes.contains(onlyOtherSubCode)) codes else codes :+ ConfigPurchaseMapping.NoneValue
   }
 
-  private def renderView(importType: ImportType, options: Seq[(String, String)], form: Form[String])(implicit
+  private def renderView(importType: PurchaseAndImportType, options: Seq[(String, String)], form: Form[String])(implicit
     request: DataRequest[AnyContent]
   ) = {
     val messages = request2Messages

@@ -22,6 +22,7 @@ import controllers.claim.routes as claimRoutes
 import controllers.purchase.routes as purchaseRoutes
 import controllers.warning.routes as warningRoutes
 import models.*
+import models.PurchaseOrImport.{Import, Purchase}
 import pages.*
 import play.api.Configuration
 import play.api.mvc.Call
@@ -136,13 +137,27 @@ class NavigatorSpec extends SpecBase {
           claimRoutes.BusinessActivityThreeController.onPageLoad()
       }
 
-      "must go from PurchaseOrImportPage to PurchaseTypeController" in {
-        navigator.nextPage(PurchaseOrImportPage, NormalMode, userAnswers) mustBe
+      "must go from PurchaseOrImportPage to PurchaseTypeController when Purchase is selected" in {
+        val answers = userAnswers.set(PurchaseOrImportPage, Purchase).success.value
+
+        navigator.nextPage(PurchaseOrImportPage, NormalMode, answers) mustBe
           purchaseRoutes.PurchaseTypeController.onPageLoad(NormalMode)
       }
 
+      "must go from PurchaseOrImportPage to ImportTypeController when Import is selected" in {
+        val answers = userAnswers.set(PurchaseOrImportPage, Import).success.value
+
+        navigator.nextPage(PurchaseOrImportPage, NormalMode, answers) mustBe
+          controllers.imports.routes.ImportTypeController.onPageLoad(NormalMode)
+      }
+
+      "must go from ImportTypePage to JourneyRecoveryController" in {
+        navigator.nextPage(ImportTypePage, NormalMode, emptyUserAnswers) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+
       "must go from PurchaseTypePage to DescribeItemsOnInvoiceController" in {
-        val ua = userAnswers.set(PurchaseTypePage, PurchaseType.values.head).success.value
+        val ua = userAnswers.set(PurchaseTypePage, PurchaseAndImportType.values.head).success.value
         navigator.nextPage(PurchaseTypePage, NormalMode, ua) mustBe
           purchaseRoutes.DescribeItemsOnInvoiceController.onPageLoad(NormalMode)
       }
@@ -167,7 +182,7 @@ class NavigatorSpec extends SpecBase {
         val ua = userAnswers.set(pages.RefundingCountryPage, "AT").success.value.set(PurchaseTypePage, Fuel).success.value
 
         nav.nextPage(PurchaseTypePage, NormalMode, ua) mustBe
-          play.api.mvc.Call("GET", s"/${PurchaseType.urlSlugForPurchaseType(Fuel)}")
+          play.api.mvc.Call("GET", s"/${PurchaseAndImportType.urlSlugForPurchaseType(Fuel)}")
       }
 
       "must go from PurchaseTypePage to InvoiceTypeController when mapping is empty for country" in {
@@ -201,7 +216,7 @@ class NavigatorSpec extends SpecBase {
         val ua = userAnswers.set(pages.RefundingCountryNamePage, "Austria,AT").success.value.set(PurchaseTypePage, Fuel).success.value
 
         nav.nextPage(PurchaseTypePage, NormalMode, ua) mustBe
-          play.api.mvc.Call("GET", s"/${PurchaseType.urlSlugForPurchaseType(Fuel)}")
+          play.api.mvc.Call("GET", s"/${PurchaseAndImportType.urlSlugForPurchaseType(Fuel)}")
       }
 
       "must go from PurchaseTypePage to PurchaseSubTypeController when country stored as name-only string is used" in {
@@ -219,7 +234,7 @@ class NavigatorSpec extends SpecBase {
         val ua = userAnswers.set(pages.RefundingCountryNamePage, "Austria").success.value.set(PurchaseTypePage, Fuel).success.value
 
         nav.nextPage(PurchaseTypePage, NormalMode, ua) mustBe
-          play.api.mvc.Call("GET", s"/${PurchaseType.urlSlugForPurchaseType(Fuel)}")
+          play.api.mvc.Call("GET", s"/${PurchaseAndImportType.urlSlugForPurchaseType(Fuel)}")
       }
 
       "must go from PurchaseTypePage to InvoiceTypeController when country stored as name-only and mapping empty" in {
@@ -594,8 +609,13 @@ class NavigatorSpec extends SpecBase {
           purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(CheckMode)
       }
 
+      "must go from ImportTypePage to JourneyRecoveryController" in {
+        navigator.nextPage(ImportTypePage, CheckMode, emptyUserAnswers) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+
       "must go from PurchaseTypePage to DescribeItemsOnInvoiceController" in {
-        val ua = userAnswers.set(PurchaseTypePage, PurchaseType.values.head).success.value
+        val ua = userAnswers.set(PurchaseTypePage, PurchaseAndImportType.values.head).success.value
         navigator.nextPage(PurchaseTypePage, CheckMode, ua) mustBe
           purchaseRoutes.DescribeItemsOnInvoiceController.onPageLoad(CheckMode)
       }

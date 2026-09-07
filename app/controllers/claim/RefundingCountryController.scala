@@ -93,7 +93,9 @@ class RefundingCountryController @Inject() (
               if (latestResponse.totalApplication > 0) {
                 // duplicate application - show error on the form
                 val formWithError = form.fill(value).withError("value", "refundingCountry.error.duplicate")
-                Future.successful(BadRequest(view(formWithError, config.countriesInEU, controllers.routes.TaskListDashboardController.onPageLoad(), mode)))
+                Future.successful(
+                  BadRequest(view(formWithError, config.countriesInEU, controllers.routes.TaskListDashboardController.onPageLoad(), mode))
+                )
               } else {
                 val baseAnswers: UserAnswers = request.userAnswers
                 val countryName = config.countriesInEU(value)

@@ -19,7 +19,7 @@ package controllers.purchase
 import base.SpecBase
 import controllers.purchase.routes
 import forms.purchase.InvoiceNumberFormProvider
-import models.{CheckMode, Fuel, Mode, NormalMode, PurchaseType, SupplierTaxNumber, UserAnswers}
+import models.*
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
@@ -34,6 +34,7 @@ import repositories.SessionRepository
 import views.html.purchase.InvoiceNumberView
 
 import scala.concurrent.Future
+import pages.{PurchaseTypePage, RefundingCountryPage, SupplierTaxNumberPage}
 
 class InvoiceNumberControllerSpec extends SpecBase with MockitoSugar {
 

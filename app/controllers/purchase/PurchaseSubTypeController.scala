@@ -19,7 +19,7 @@ package controllers.purchase
 import controllers.actions.*
 import forms.purchase.PurchaseSubTypeFormProvider
 import models.requests.DataRequest
-import models.{CheckMode, Mode, PurchaseSubCategoryType, PurchaseType, UserAnswers}
+import models.*
 import navigation.Navigator
 import pages.*
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -53,7 +53,7 @@ class PurchaseSubTypeController @Inject() (
 
   private def resolveParentAndCountry(purchaseTypeSlug: String, userAnswers: UserAnswers): Option[(String, String)] =
     val parentKey =
-      PurchaseType.valueFromUrlSlug
+      PurchaseAndImportType.valueFromUrlSlug
         .get(purchaseTypeSlug)
         .orElse(
           userAnswers
@@ -91,7 +91,7 @@ class PurchaseSubTypeController @Inject() (
     currentAnswers.get(PurchaseTypePage) match {
       case Some(_) => scala.util.Success(updatedAnswers)
       case None =>
-        PurchaseType.values.find(_.toString == parentKey) match {
+        PurchaseAndImportType.values.find(_.toString == parentKey) match {
           case Some(pt) => updatedAnswers.set(PurchaseTypePage, pt)
           case None     => scala.util.Success(updatedAnswers)
         }
@@ -151,7 +151,7 @@ class PurchaseSubTypeController @Inject() (
     }
 
   private def resolvedSlugFor(parentKey: String, fallback: String): String =
-    PurchaseType.values.find(_.toString == parentKey).map(PurchaseType.urlSlugForPurchaseType).getOrElse(fallback)
+    PurchaseAndImportType.values.find(_.toString == parentKey).map(PurchaseAndImportType.urlSlugForPurchaseType).getOrElse(fallback)
 
   private def formActionFor(uri: String, mode: Mode)(implicit request: RequestHeader) = {
     val isChangeMode = if (mode == models.CheckMode) "change-" else ""
@@ -308,7 +308,7 @@ class PurchaseSubTypeController @Inject() (
   private def noChildrenRedirect(value: String, resolvedSlug: String, mode: Mode): Result = {
     val lastSeg = value.split("\\.").lastOption.getOrElse(value)
     val isOtherPurchaseType =
-      PurchaseType.values.find(pt => PurchaseType.urlSlugForPurchaseType(pt) == resolvedSlug).contains(models.Other)
+      PurchaseAndImportType.values.find(pt => PurchaseAndImportType.urlSlugForPurchaseType(pt) == resolvedSlug).contains(models.Other)
 
     if (isOtherPurchaseType && lastSeg == "99") {
       Redirect(routes.DescribeItemsOnInvoiceController.onPageLoad(mode))

@@ -33,7 +33,7 @@ import play.api.test.Helpers.*
 import queries.ClaimApplicationResponseQuery
 import repositories.SessionRepository
 import utils.ConfigPurchaseMapping
-import views.html.purchase.PurchaseTypeView
+import views.html.PurchaseAndImportTypeView
 
 import scala.concurrent.Future
 
@@ -55,12 +55,21 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         val request = FakeRequest(GET, purchaseTypeRoute)
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[PurchaseTypeView]
+        val view = application.injector.instanceOf[PurchaseAndImportTypeView]
         val formProvider = application.injector.instanceOf[PurchaseTypeFormProvider]
         val form = formProvider()
 
         status(result) mustEqual OK
-        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(view(form, NormalMode, backLinkCall)(request, messages(application)).toString)
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
+          view(form,
+               NormalMode,
+               backLinkCall,
+               routes.PurchaseTypeController.onSubmit(NormalMode),
+               "purchaseType",
+               "purchase.caption",
+               legendKey = Some("purchaseType.h2")
+              )(request, messages(application)).toString
+        )
       }
     }
 
@@ -110,16 +119,20 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         val request = FakeRequest(GET, purchaseTypeRoute)
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[PurchaseTypeView]
+        val view = application.injector.instanceOf[PurchaseAndImportTypeView]
         val formProvider = application.injector.instanceOf[PurchaseTypeFormProvider]
         val form = formProvider()
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, backLinkCall)(
-            request,
-            messages(application)
-          ).toString
+          view(form,
+               NormalMode,
+               backLinkCall,
+               routes.PurchaseTypeController.onSubmit(NormalMode),
+               "purchaseType",
+               "purchase.caption",
+               legendKey = Some("purchaseType.h2")
+              )(request, messages(application)).toString
         )
       }
     }
@@ -132,12 +145,19 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         val request = FakeRequest(GET, purchaseTypeRoute)
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[PurchaseTypeView]
+        val view = application.injector.instanceOf[PurchaseAndImportTypeView]
         val formProvider = application.injector.instanceOf[PurchaseTypeFormProvider]
         val form = formProvider()
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, backLinkCall)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form,
+                                               NormalMode,
+                                               backLinkCall,
+                                               routes.PurchaseTypeController.onSubmit(NormalMode),
+                                               "purchaseType",
+                                               "purchase.caption",
+                                               legendKey = Some("purchaseType.h2")
+                                              )(request, messages(application)).toString
       }
     }
 
@@ -149,12 +169,21 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         val request = FakeRequest(GET, purchaseTypeRoute)
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[PurchaseTypeView]
+        val view = application.injector.instanceOf[PurchaseAndImportTypeView]
         val formProvider = application.injector.instanceOf[PurchaseTypeFormProvider]
         val form = formProvider()
 
         status(result) mustEqual OK
-        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(view(form, NormalMode, backLinkCall)(request, messages(application)).toString)
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
+          view(form,
+               NormalMode,
+               backLinkCall,
+               routes.PurchaseTypeController.onSubmit(NormalMode),
+               "purchaseType",
+               "purchase.caption",
+               legendKey = Some("purchaseType.h2")
+              )(request, messages(application)).toString
+        )
       }
     }
 
@@ -165,13 +194,20 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         val request = FakeRequest(GET, purchaseTypeRouteCheck)
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[PurchaseTypeView]
+        val view = application.injector.instanceOf[PurchaseAndImportTypeView]
         val formProvider = application.injector.instanceOf[PurchaseTypeFormProvider]
         val form = formProvider()
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, CheckMode, backLinkCall)(request, messages(application)).toString
+          view(form,
+               CheckMode,
+               backLinkCall,
+               routes.PurchaseTypeController.onSubmit(CheckMode),
+               "purchaseType",
+               "purchase.caption",
+               legendKey = Some("purchaseType.h2")
+              )(request, messages(application)).toString
         )
       }
     }
@@ -184,12 +220,19 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         val request = FakeRequest(GET, purchaseTypeRouteCheck)
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[PurchaseTypeView]
+        val view = application.injector.instanceOf[PurchaseAndImportTypeView]
         val formProvider = application.injector.instanceOf[PurchaseTypeFormProvider]
         val form = formProvider()
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, CheckMode, backLinkCall)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form,
+                                               CheckMode,
+                                               backLinkCall,
+                                               routes.PurchaseTypeController.onSubmit(CheckMode),
+                                               "purchaseType",
+                                               "purchase.caption",
+                                               legendKey = Some("purchaseType.h2")
+                                              )(request, messages(application)).toString
       }
     }
 
@@ -213,12 +256,21 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         val request = FakeRequest(GET, purchaseTypeRoute)
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[PurchaseTypeView]
+        val view = application.injector.instanceOf[PurchaseAndImportTypeView]
         val formProvider = application.injector.instanceOf[PurchaseTypeFormProvider]
         val form = formProvider().fill(Fuel)
 
         status(result) mustEqual OK
-        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(view(form, NormalMode, backLinkCall)(request, messages(application)).toString)
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
+          view(form,
+               NormalMode,
+               backLinkCall,
+               routes.PurchaseTypeController.onSubmit(NormalMode),
+               "purchaseType",
+               "purchase.caption",
+               legendKey = Some("purchaseType.h2")
+              )(request, messages(application)).toString
+        )
       }
     }
 
@@ -307,7 +359,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.purchase.routes.PurchaseSubTypeController
-          .onPageLoad(PurchaseType.urlSlugForPurchaseType(Fuel), CheckMode)
+          .onPageLoad(PurchaseAndImportType.urlSlugForPurchaseType(Fuel), CheckMode)
           .url
       }
     }
@@ -417,7 +469,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.purchase.routes.PurchaseSubTypeController
-          .onPageLoad(PurchaseType.urlSlugForPurchaseType(Fuel), CheckMode)
+          .onPageLoad(PurchaseAndImportType.urlSlugForPurchaseType(Fuel), CheckMode)
           .url
         verify(mockSessionRepository, times(1)).set(any())
       }
@@ -448,7 +500,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.purchase.routes.PurchaseSubTypeController
-          .onPageLoad(models.PurchaseType.urlSlugForPurchaseType(models.Fuel), models.CheckMode)
+          .onPageLoad(models.PurchaseAndImportType.urlSlugForPurchaseType(models.Fuel), models.CheckMode)
           .url
         verify(mockSessionRepository, times(2)).set(any())
       }
@@ -689,12 +741,12 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.purchase.routes.PurchaseSubTypeController
-          .onPageLoad(PurchaseType.urlSlugForPurchaseType(Fuel), models.CheckMode)
+          .onPageLoad(PurchaseAndImportType.urlSlugForPurchaseType(Fuel), models.CheckMode)
           .url
 
         verify(mockSessionRepository, times(2)).set(any())
         redirectLocation(result).value mustEqual controllers.purchase.routes.PurchaseSubTypeController
-          .onPageLoad(PurchaseType.urlSlugForPurchaseType(Fuel), CheckMode)
+          .onPageLoad(PurchaseAndImportType.urlSlugForPurchaseType(Fuel), CheckMode)
           .url
       }
     }
@@ -754,7 +806,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.purchase.routes.PurchaseSubTypeController
-          .onPageLoad(PurchaseType.urlSlugForPurchaseType(Fuel), models.CheckMode)
+          .onPageLoad(PurchaseAndImportType.urlSlugForPurchaseType(Fuel), models.CheckMode)
           .url
 
         verify(mockSessionRepository, times(2)).set(any())

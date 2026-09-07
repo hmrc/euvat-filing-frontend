@@ -17,16 +17,15 @@
 package forms
 
 import forms.behaviours.FieldBehaviours
-import forms.purchase.PurchaseTypeFormProvider
 import models.PurchaseAndImportType
 import play.api.data.FormError
 
-class PurchaseTypeFormProviderSpec extends FieldBehaviours {
+class ImportTypeFormProviderSpec extends FieldBehaviours {
 
-  private val form = new PurchaseTypeFormProvider().apply()
+  private val form = new ImportTypeFormProvider().apply()
 
   private val fieldName = "value"
-  private val errorKey = "purchaseType.error.required"
+  private val errorKey = "importType.error.required"
 
   ".value" - {
 
@@ -36,7 +35,7 @@ class PurchaseTypeFormProviderSpec extends FieldBehaviours {
       requiredError = FormError(fieldName, errorKey)
     )
 
-    "bind every defined PurchaseType value" in {
+    "bind every defined ImportType value" in {
       PurchaseAndImportType.values.foreach { value =>
         val result = form.bind(Map(fieldName -> value.toString))
         result.errors mustBe empty
