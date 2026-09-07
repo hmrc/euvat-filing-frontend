@@ -17,27 +17,20 @@
 package utils
 
 import base.SpecBase
-import play.api.test.FakeRequest
-import play.api.data.Form
-import play.api.data.Forms.*
-import models.requests.DataRequest
-import org.mockito.Mockito.when
-import org.mockito.ArgumentMatchers.any
-import repositories.SessionRepository
-import play.api.mvc.Results.*
-import play.api.test.Helpers.*
-import models.Fuel
-import pages.*
-import scala.concurrent.Future
-import scala.util.Success
-import scala.concurrent.ExecutionContext.Implicits.global
 import com.typesafe.config.ConfigFactory
-import models.{CheckMode, NormalMode, PurchaseAndImportType}
-import play.api.mvc.Call
-import org.mockito.Mockito.{never, times, verify}
+import models.requests.DataRequest
+import models.{CheckMode, Fuel, NormalMode, PurchaseType}
 import org.mockito.ArgumentMatchers.any as anyA
-import org.mockito.ArgumentCaptor
-import utils.ControllerHelpers.*
+import org.mockito.Mockito.{never, times, verify, when}
+import pages.*
+import play.api.mvc.Call
+import play.api.mvc.Results.*
+import play.api.test.FakeRequest
+import play.api.test.Helpers.*
+import repositories.SessionRepository
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class ControllerHelpersSpec extends SpecBase {
 
@@ -45,8 +38,6 @@ class ControllerHelpersSpec extends SpecBase {
     "falls back to Euro when no country selected" in {
       implicit val request: DataRequest[?] = DataRequest(FakeRequest("GET", "/"), userAnswersId, "", "", emptyUserAnswers)
 
-      // create a minimal HOCON configuration with a single currency mapping
-      // so the `ConfigCurrencyMapping` constructor can read `currency.mapping`.
       val conf = play.api.Configuration(
         ConfigFactory.parseString(
           """
@@ -80,7 +71,7 @@ class ControllerHelpersSpec extends SpecBase {
   "saveTryAndRedirect" - {
     "must persist successful Try and redirect" in {
       val mockRepo = mock[SessionRepository]
-      when(mockRepo.set(any())).thenReturn(Future.successful(true))
+      when(mockRepo.set(anyA())).thenReturn(Future.successful(true))
 
       val t = scala.util.Success(emptyUserAnswers)
 
@@ -98,7 +89,6 @@ class ControllerHelpersSpec extends SpecBase {
 
   "shortCircuitPersistAndThen" - {
     "short-circuits to purchase CYA when in CheckMode and value unchanged" in {
-      // prepare UserAnswers with a purchase type and stored value
       val ua = emptyUserAnswers
         .set(pages.PurchaseTypePage, Fuel)
         .success
@@ -108,7 +98,7 @@ class ControllerHelpersSpec extends SpecBase {
         .value
 
       val mockRepo = mock[SessionRepository]
-      when(mockRepo.set(any[models.UserAnswers])) thenReturn Future.successful(true)
+      when(mockRepo.set(anyA[models.UserAnswers])) thenReturn Future.successful(true)
 
       val fut = ControllerHelpers.shortCircuit[
         BigDecimal
@@ -129,7 +119,6 @@ class ControllerHelpersSpec extends SpecBase {
       res.header.status mustBe SEE_OTHER
       redirectLocation(fut) mustBe Some(controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad().url)
 
-      // persisted should NOT have been called because we short-circuited
       verify(mockRepo, never()).set(anyA())
     }
 
@@ -137,7 +126,7 @@ class ControllerHelpersSpec extends SpecBase {
       val ua = emptyUserAnswers.set(PurchaseTypePage, Fuel).success.value
 
       val mockRepo = mock[SessionRepository]
-      when(mockRepo.set(any[models.UserAnswers])) thenReturn Future.successful(true)
+      when(mockRepo.set(anyA[models.UserAnswers])) thenReturn Future.successful(true)
 
       val fut = ControllerHelpers.shortCircuit[
         BigDecimal
@@ -157,7 +146,6 @@ class ControllerHelpersSpec extends SpecBase {
 
       res.header.status mustBe OK
 
-      // persisted should have been called once
       verify(mockRepo, times(1)).set(anyA())
     }
 
@@ -165,7 +153,7 @@ class ControllerHelpersSpec extends SpecBase {
       val ua = emptyUserAnswers
 
       val mockRepo = mock[SessionRepository]
-      when(mockRepo.set(any[models.UserAnswers])) thenReturn Future.successful(true)
+      when(mockRepo.set(anyA[models.UserAnswers])) thenReturn Future.successful(true)
 
       val fut = ControllerHelpers.shortCircuit[
         BigDecimal
@@ -195,7 +183,7 @@ class ControllerHelpersSpec extends SpecBase {
       val ua = emptyUserAnswers
 
       val mockRepo = mock[SessionRepository]
-      when(mockRepo.set(any[models.UserAnswers])) thenReturn Future.successful(true)
+      when(mockRepo.set(anyA[models.UserAnswers])) thenReturn Future.successful(true)
 
       implicit val request: DataRequest[?] = DataRequest(FakeRequest("GET", "/"), userAnswersId, "", "", ua)
 
@@ -218,7 +206,7 @@ class ControllerHelpersSpec extends SpecBase {
       val ua = emptyUserAnswers.set(page, true).success.value
 
       val mockRepo = mock[SessionRepository]
-      when(mockRepo.set(any[models.UserAnswers])) thenReturn Future.successful(true)
+      when(mockRepo.set(anyA[models.UserAnswers])) thenReturn Future.successful(true)
 
       implicit val request: DataRequest[?] = DataRequest(FakeRequest("GET", "/"), userAnswersId, "", "", ua)
 
@@ -238,7 +226,7 @@ class ControllerHelpersSpec extends SpecBase {
       val ua = emptyUserAnswers
 
       val mockRepo = mock[SessionRepository]
-      when(mockRepo.set(any[models.UserAnswers])) thenReturn Future.successful(true)
+      when(mockRepo.set(anyA[models.UserAnswers])) thenReturn Future.successful(true)
 
       implicit val request: DataRequest[?] = DataRequest(FakeRequest("GET", "/"), userAnswersId, "", "", ua)
 
@@ -288,7 +276,7 @@ class ControllerHelpersSpec extends SpecBase {
     "redirects to InvoiceType in NormalMode" in {
       val res = ControllerHelpers.redirectToInvoiceTypeOrCYA(NormalMode)
       res.header.status mustBe SEE_OTHER
-      res.header.headers.get("Location") mustBe Some(controllers.routes.InvoiceTypeController.onPageLoad(NormalMode).url)
+      res.header.headers.get("Location") mustBe Some(controllers.purchase.routes.InvoiceTypeController.onPageLoad(NormalMode).url)
     }
   }
 

@@ -34,7 +34,7 @@ class PurchaseBackLinkHelperSpec extends SpecBase {
 
       val result: Call = PurchaseBackLinkHelper.computeBackTarget(NormalMode)
 
-      result mustEqual controllers.routes.PurchaseTypeController.onPageLoad(NormalMode)
+      result mustEqual controllers.purchase.routes.PurchaseTypeController.onPageLoad(NormalMode)
     }
 
     "should return mounted slug when PurchaseType and PurchaseSubType present and no subcategory" in {
@@ -67,7 +67,7 @@ class PurchaseBackLinkHelperSpec extends SpecBase {
 
       val result: Call = PurchaseBackLinkHelper.computeBackTarget(NormalMode)
 
-      result mustEqual controllers.routes.PurchaseTypeController.onPageLoad(NormalMode)
+      result mustEqual controllers.purchase.routes.PurchaseTypeController.onPageLoad(NormalMode)
     }
 
     "should map to first available slug when child contains dot and parent missing" in {

@@ -17,6 +17,7 @@
 package forms
 
 import forms.behaviours.FieldBehaviours
+import forms.purchase.DescribeItemsOnInvoiceFormProvider
 import play.api.data.FormError
 
 class DescribeItemsOnInvoiceFormProviderSpec extends FieldBehaviours {
