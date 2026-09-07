@@ -72,8 +72,8 @@ class ImportTypeController @Inject() (
                    routes.ImportTypeController.onSubmit(mode),
                    "importType",
                    "import.caption",
-                    false,
-                    legendKey = None
+                   false,
+                   legendKey = None
                   )
             )
           ),

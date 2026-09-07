@@ -79,15 +79,16 @@ class PurchaseTypeController @Inject() (
             .map(_ => {
               val preparedForm = updated.get(PurchaseTypePage).fold(form)(form.fill)
               Ok(
-                view(preparedForm,
-                     mode,
-                     backLink(mode),
-                     routes.PurchaseTypeController.onSubmit(mode),
-                     "purchaseType",
-                     "purchase.caption",
-                      true,
-                     legendKey = Some("purchaseType.h2")
-                    )
+                view(
+                  preparedForm,
+                  mode,
+                  backLink(mode),
+                  routes.PurchaseTypeController.onSubmit(mode),
+                  "purchaseType",
+                  "purchase.caption",
+                  true,
+                  legendKey = Some("purchaseType.h2")
+                )
               )
             })
         )
@@ -95,15 +96,16 @@ class PurchaseTypeController @Inject() (
       val preparedForm = request.userAnswers.get(PurchaseTypePage).fold(form)(form.fill)
       Future.successful(
         Ok(
-          view(preparedForm,
-               mode,
-               backLink(mode),
-               routes.PurchaseTypeController.onSubmit(mode),
-               "purchaseType",
-               "purchase.caption",
-                true,
-               legendKey = Some("purchaseType.h2")
-              )
+          view(
+            preparedForm,
+            mode,
+            backLink(mode),
+            routes.PurchaseTypeController.onSubmit(mode),
+            "purchaseType",
+            "purchase.caption",
+            true,
+            legendKey = Some("purchaseType.h2")
+          )
         )
       )
     }
@@ -116,15 +118,16 @@ class PurchaseTypeController @Inject() (
         formWithErrors =>
           Future.successful(
             BadRequest(
-              view(formWithErrors,
-                   mode,
-                   backLink(mode),
-                   routes.PurchaseTypeController.onSubmit(mode),
-                   "purchaseType",
-                   "purchase.caption",
-                    true,
-                   legendKey = Some("purchaseType.h2")
-                  )
+              view(
+                formWithErrors,
+                mode,
+                backLink(mode),
+                routes.PurchaseTypeController.onSubmit(mode),
+                "purchaseType",
+                "purchase.caption",
+                true,
+                legendKey = Some("purchaseType.h2")
+              )
             )
           ),
         value => {
