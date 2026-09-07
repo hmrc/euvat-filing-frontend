@@ -15,6 +15,7 @@ site.govuk = GOV.UK
 site.save.continue = Save and continue
 site.warning = Warning
 site.notProvided = Not provided
+site.none = None
 
 date.day = Day
 date.month = Month
