@@ -18,7 +18,7 @@ package controllers.imports
 
 import controllers.actions.*
 import controllers.routes
-import forms.PurchaseSubTypeFormProvider
+import forms.purchase.PurchaseSubTypeFormProvider
 import models.requests.DataRequest
 import models.{ImportType, NormalMode}
 import navigation.Navigator

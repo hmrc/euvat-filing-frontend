@@ -17,7 +17,7 @@
 package views
 
 import base.SpecBase
-import forms.PurchaseSubTypeFormProvider
+import forms.purchase.PurchaseSubTypeFormProvider
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
