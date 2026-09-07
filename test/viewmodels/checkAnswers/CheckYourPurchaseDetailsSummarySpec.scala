@@ -83,7 +83,7 @@ class CheckYourPurchaseDetailsSummarySpec extends SpecBase {
         implicit val msgs = messages(application)
 
         val rowOpt = CheckYourPurchaseDetailsSummary.rowPurchaseSubTypeLabel(userAnswers, fakeConfig)
-        rowOpt.value._2.value mustBe msgs("site.notProvided")
+        rowOpt.value._2.value mustBe msgs("site.none")
       }
     }
 
@@ -111,7 +111,7 @@ class CheckYourPurchaseDetailsSummarySpec extends SpecBase {
         implicit val req = play.api.test.FakeRequest()
 
         val row = CheckYourPurchaseDetailsSummary.rowPurchaseSubCategoryLabel(userAnswers).value
-        row._2.value mustBe msgs("site.notProvided")
+        row._2.value mustBe msgs("site.none")
         row._3.head._1 must endWith("/change-who-food-drink-for")
       }
     }
