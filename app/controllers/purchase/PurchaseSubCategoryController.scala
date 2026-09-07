@@ -17,21 +17,20 @@
 package controllers.purchase
 
 import controllers.actions.*
-import controllers.routes
-import forms.PurchaseSubTypeFormProvider
+import forms.purchase.PurchaseSubTypeFormProvider
 import models.requests.DataRequest
 import models.{CheckMode, Mode, NormalMode, PurchaseSubCategoryType, PurchaseType, UserAnswers}
 import navigation.Navigator
 import pages.*
+import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.Logging
-import play.api.mvc.*
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents, RequestHeader, Result}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.{ConfigPurchaseMapping, ControllerHelpers, CountryCode, MountPrefix}
-import views.html.PurchaseSubTypeView
+import views.html.purchase.PurchaseSubTypeView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -69,10 +68,7 @@ class PurchaseSubCategoryController @Inject() (
   val form: Form[String] = formProvider()
 
   private def stripLeadingNumeric(key: String): String = {
-    // split the dotted key into parts
     val parts = key.split("\\.")
-    // if the key looks like purchase.sub.X.Y.Z where an extra numeric
-    // prefix was inserted, drop that segment for lookup
     if (parts.length >= 5 && parts.head == "purchase" && parts(1) == "sub") {
       (parts.take(3) ++ parts.drop(4)).mkString(".")
     } else {
@@ -81,25 +77,18 @@ class PurchaseSubCategoryController @Inject() (
   }
 
   private def titleForLabelKey(labelKey: String, msgs: Messages): Option[String] = {
-    // build candidate message keys: the raw label key and a stripped variant
     val original = s"$labelKey.title"
     val stripped = s"${stripLeadingNumeric(labelKey)}.title"
-    // return the first defined message for those candidate keys
     Seq(original, stripped).collectFirst { case k if msgs.isDefinedAt(k) => msgs(k) }
   }
 
   private def parentDerivedTitle(parentKey: String, resolvedParentCode: String, msgs: Messages): Option[String] = {
-    // attempt several keys to derive a parent title based on different
-    // granularity of the resolved code (full, drop leading segment, last segment)
     val asIs = s"purchase.sub.$parentKey.$resolvedParentCode.title"
     val dropLeading = {
-      // if resolved code contains multiple segments, drop the first and try
       val parts = resolvedParentCode.split("\\.")
       if (parts.length > 1) s"purchase.sub.$parentKey.${parts.drop(1).mkString(".")}.title" else asIs
     }
-    // lastSeg is just the final segment, used by some localized keys
     val lastSeg = resolvedParentCode.split("\\.").lastOption.map(s => s"purchase.sub.$parentKey.$s.title").getOrElse(asIs)
-    // return the first key that exists in messages
     Seq(asIs, dropLeading, lastSeg).collectFirst { case k if msgs.isDefinedAt(k) => msgs(k) }
   }
 
@@ -109,17 +98,14 @@ class PurchaseSubCategoryController @Inject() (
       val prefix = utils.MountPrefix.getFromRequest
       val url = ControllerHelpers.pathForSlug(slug, mode, prefix)
       Some(Call("POST", url))
-    } catch { case _: Throwable => None /* return None when slug computation fails */ }
+    } catch { case _: Throwable => None }
   }
 
   private def computeFormAction(parentKey: String, candidates: Seq[String], userAnswers: UserAnswers, mode: Mode)(implicit
     request: RequestHeader
   ): Call = {
-    // compute mount prefix and session slug candidate
     val prefix = utils.MountPrefix.getFromRequest
     val maybeSessionSlug = userAnswers.get(PurchaseTypePage).map(models.PurchaseType.urlSlugForPurchaseType)
-    // try reversing using candidate codes first; if none succeed fall back
-    // to a slug derived from the session PurchaseType or to root
     candidates.iterator
       .flatMap(c => tryReverseParent(parentKey, c, mode))
       .find(_ => true)
@@ -134,16 +120,12 @@ class PurchaseSubCategoryController @Inject() (
   }
 
   private def backUrlFor(userAnswers: UserAnswers, mode: Mode)(implicit request: RequestHeader): String = {
-    // compute the back URL that returns to the parent purchase type
-    // when in CheckMode the back target should include the change-<prefix>
     val prefix = MountPrefix.getFromRequest
     userAnswers.get(PurchaseTypePage).map(pt => PurchaseType.urlSlugForPurchaseType(pt)) match {
       case Some(slug) =>
         val url = ControllerHelpers.pathForSlug(slug, mode, prefix)
         Call("GET", url).url
-      case None =>
-        // fallback to the top-level PurchaseType page in NormalMode
-        controllers.routes.PurchaseTypeController.onPageLoad(NormalMode).url
+      case None => routes.PurchaseTypeController.onPageLoad(models.NormalMode).url
     }
   }
 
@@ -191,18 +173,15 @@ class PurchaseSubCategoryController @Inject() (
                                               parentCode: String,
                                               country: String
                                              ): (String, Seq[(String, String)]) = {
-    // attempt to get options for the provided effective parent code
     val initialOptions = config.subcategoriesFor(country, parentKey, effectiveParentCode)
     if (initialOptions.nonEmpty) {
       (effectiveParentCode, initialOptions)
     } else {
-      // if no options, try dropping the first segment of the effective code
       val alt = effectiveParentCode.split("\\.").drop(1).mkString(".")
       val altOptions = if (alt.nonEmpty) config.subcategoriesFor(country, parentKey, alt) else Seq.empty
       if (altOptions.nonEmpty) {
         (alt, altOptions)
       } else {
-        // as a final fallback try to locate an option by matching the last segment
         findByLastSegment(parentKey, parentCode, country)
           .map(found => (found, config.subcategoriesFor(country, parentKey, found)))
           .getOrElse((parentCode, initialOptions))
@@ -250,7 +229,6 @@ class PurchaseSubCategoryController @Inject() (
 
   private def effectiveParentCodeFor(country: String, parentKey: String, userAnswers: UserAnswers): String =
     userAnswers.get(PurchaseSubTypePage).getOrElse {
-      // fallback to the first configured subcode when session missing
       config.subcodesFor(country, parentKey).headOption.map(_._1).getOrElse("")
     }
 
@@ -285,10 +263,7 @@ class PurchaseSubCategoryController @Inject() (
     for {
       updatedAnswers <- Future.fromTry(saved)
       _              <- sessionRepository.set(updatedAnswers)
-      result         <-
-        // When persisting a default parent in CheckMode, also mark that the user arrived from the sub-category
-        // change flow so PurchaseTypeController can route back here when appropriate. Use the already-persisted `ua`
-        // to avoid overwriting the saved default parent.
+      result <-
         ControllerHelpers.markArrivalAndRender(
           PurchaseSubCategoryArrivedFromCheckYourAnswersPage,
           mode,
@@ -335,7 +310,6 @@ class PurchaseSubCategoryController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async { implicit request =>
-      // If the country has changed, clear dependent subcategory values
       if (request.userAnswers.get(CountryChangedPage).contains(true)) {
         handleCountryChangedOnPageLoad(request)
 
@@ -344,7 +318,6 @@ class PurchaseSubCategoryController @Inject() (
           case Some((parentKey, country)) =>
             handleResolvedSubCategoryPageLoad(parentKey, country, mode, request.userAnswers)
           case None =>
-            // missing parent or country -> recover the journey
             Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
         }
       }
@@ -422,7 +395,6 @@ class PurchaseSubCategoryController @Inject() (
       case Some((parentKey, country)) =>
         handleSubmitWithResolvedContext(parentKey, country, mode, request.userAnswers)
       case None =>
-        // missing context -> recover the journey
         Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
     }
   }

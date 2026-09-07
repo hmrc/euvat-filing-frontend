@@ -17,6 +17,7 @@
 package forms
 
 import forms.behaviours.OptionFieldBehaviours
+import forms.purchase.SupplierTaxNumberFormProvider
 import models.SupplierTaxNumber
 import play.api.data.FormError
 

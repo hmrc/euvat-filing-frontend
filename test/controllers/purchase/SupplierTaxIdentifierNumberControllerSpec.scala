@@ -1,0 +1,502 @@
+/*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package controllers.purchase
+
+import base.SpecBase
+import controllers.purchase.routes
+import forms.purchase.SupplierTaxIdentifierNumberFormProvider
+import models.responses.{AddPurchaseResponse, ApplicationResponse, SupplierTaxIdentifierCountResponse}
+import models.{CheckMode, Fuel, NormalMode, PurchaseType, UserAnswers}
+import navigation.{FakeNavigator, Navigator}
+import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{verify, when}
+import org.scalatestplus.mockito.MockitoSugar
+import pages.{AddPurchaseResponsePage, InvoiceNumberPage, PurchaseTypePage, SupplierTaxIdentifierNumberPage}
+import play.api.data.Form
+import play.api.inject.bind
+import play.api.mvc.Call
+import play.api.test.FakeRequest
+import play.api.test.Helpers.*
+import queries.ClaimApplicationResponseQuery
+import repositories.SessionRepository
+import views.html.purchase.SupplierTaxIdentifierNumberView
+
+import scala.concurrent.Future
+
+class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSugar {
+
+  def onwardRoute: Call = Call("GET", "/foo")
+
+  val formProvider = new SupplierTaxIdentifierNumberFormProvider()
+  val form: Form[String] = formProvider()
+
+  lazy val supplierTaxIdentifierNumberRoute: String = routes.SupplierTaxIdentifierNumberController.onPageLoad(NormalMode).url
+
+  "SupplierTaxIdentifierNumber Controller" - {
+
+    "must return OK and the correct view for a GET" in {
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, supplierTaxIdentifierNumberRoute)
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[SupplierTaxIdentifierNumberView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, NormalMode, routes.SupplierTaxNumberController.onPageLoad(NormalMode))(
+          request,
+          messages(application)
+        ).toString
+      }
+    }
+
+    "must populate the view correctly on a GET when the question has previously been answered" in {
+
+      val userAnswers = UserAnswers(userAnswersId).set(SupplierTaxIdentifierNumberPage, "answer").success.value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, supplierTaxIdentifierNumberRoute)
+
+        val view = application.injector.instanceOf[SupplierTaxIdentifierNumberView]
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode, routes.SupplierTaxNumberController.onPageLoad(NormalMode))(
+          request,
+          messages(application)
+        ).toString
+      }
+    }
+
+    "must redirect to the next page when valid data is submitted" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, supplierTaxIdentifierNumberRoute)
+            .withFormUrlEncodedBody(("value", "1234567890"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+      }
+    }
+
+    "must redirect to JourneyRecovery when duplicate count > 0" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      // userAnswers with applicationId and itemNumber present
+      val ua = emptyUserAnswers
+        .set(ClaimApplicationResponseQuery, ApplicationResponse(123, "GB123456789", 1))
+        .success
+        .value
+        .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber = 1, updateSequenceNumber = 1))
+        .success
+        .value
+        .set(InvoiceNumberPage, "INV123")
+        .success
+        .value
+
+      when(mockEuVatRefundsService.getSupplierTaxIdentifierCount(any())(any()))
+        .thenReturn(Future.successful(SupplierTaxIdentifierCountResponse(duplicateCount = 1)))
+
+      val application =
+        applicationBuilder(userAnswers = Some(ua))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, supplierTaxIdentifierNumberRoute)
+            .withFormUrlEncodedBody(("value", "1234567890"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.warning.routes.SupplierTaxIdentifierWarningController.onPageLoad(NormalMode).url
+
+        val getRequest = FakeRequest(GET, controllers.warning.routes.SupplierTaxIdentifierWarningController.onPageLoad(NormalMode).url)
+        val getResult = route(application, getRequest).value
+        status(getResult) mustEqual OK
+
+        val captor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(mockSessionRepository, org.mockito.Mockito.times(2)).set(captor.capture())
+        captor.getAllValues.get(1).get(pages.SupplierTaxIdentifierWarningShownPage) mustBe Some(true)
+      }
+    }
+
+    "must trigger duplicate-check in CheckMode even if value unchanged when arrived-from-invoice flag set" in {
+
+      val ua = emptyUserAnswers
+        .set(ClaimApplicationResponseQuery, ApplicationResponse(123, "GB123456789", 1))
+        .success
+        .value
+        .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber = 1, updateSequenceNumber = 1))
+        .success
+        .value
+        .set(InvoiceNumberPage, "INV123")
+        .success
+        .value
+        .set(pages.SupplierTaxIdentifierArrivedFromInvoicePage, true)
+        .success
+        .value
+        .set(SupplierTaxIdentifierNumberPage, "1234567890")
+        .success
+        .value
+
+      when(mockEuVatRefundsService.getSupplierTaxIdentifierCount(any())(any()))
+        .thenReturn(Future.successful(SupplierTaxIdentifierCountResponse(duplicateCount = 1)))
+
+      val application =
+        applicationBuilder(userAnswers = Some(ua))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, routes.SupplierTaxIdentifierNumberController.onSubmit(CheckMode).url)
+            .withFormUrlEncodedBody(("value", "1234567890"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.warning.routes.SupplierTaxIdentifierWarningController.onPageLoad(CheckMode).url
+
+        // follow the redirect to the warning page which will set the flag
+        val getRequest = FakeRequest(GET, controllers.warning.routes.SupplierTaxIdentifierWarningController.onPageLoad(CheckMode).url)
+        val getResult = route(application, getRequest).value
+        status(getResult) mustEqual OK
+      }
+    }
+
+    "must redirect to TotalPurchaseAmountBeforeVat when duplicate count == 0" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val ua = emptyUserAnswers
+        .set(ClaimApplicationResponseQuery, ApplicationResponse(123, "GB123456789", 1))
+        .success
+        .value
+        .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber = 1, updateSequenceNumber = 1))
+        .success
+        .value
+        .set(InvoiceNumberPage, "INV123")
+        .success
+        .value
+        .set(pages.SupplierTaxNumberPage, models.SupplierTaxNumber.Taxidentifiernumber)
+        .success
+        .value
+        .set(pages.RefundingCountryPage, "DE")
+        .success
+        .value
+
+      when(mockEuVatRefundsService.getSupplierTaxIdentifierCount(any())(any()))
+        .thenReturn(Future.successful(SupplierTaxIdentifierCountResponse(duplicateCount = 0)))
+
+      val application =
+        applicationBuilder(userAnswers = Some(ua))
+          .overrides(
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, supplierTaxIdentifierNumberRoute)
+            .withFormUrlEncodedBody(("value", "1234567890"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode).url
+        val captor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(mockSessionRepository, org.mockito.Mockito.times(1)).set(captor.capture())
+        captor.getAllValues.get(0).get(pages.SupplierTaxIdentifierWarningShownPage) mustBe None
+      }
+    }
+
+    "must redirect to JourneyRecovery when backend call fails" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val ua = emptyUserAnswers
+        .set(ClaimApplicationResponseQuery, ApplicationResponse(123, "GB123456789", 1))
+        .success
+        .value
+        .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber = 1, updateSequenceNumber = 1))
+        .success
+        .value
+        .set(InvoiceNumberPage, "INV123")
+        .success
+        .value
+
+      when(mockEuVatRefundsService.getSupplierTaxIdentifierCount(any())(any()))
+        .thenReturn(Future.failed(new RuntimeException("boom")))
+
+      val application =
+        applicationBuilder(userAnswers = Some(ua))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, supplierTaxIdentifierNumberRoute)
+            .withFormUrlEncodedBody(("value", "1234567890"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must return a Bad Request and errors when invalid data is submitted" in {
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, supplierTaxIdentifierNumberRoute)
+            .withFormUrlEncodedBody(("value", ""))
+
+        val boundForm = form.bind(Map("value" -> ""))
+
+        val view = application.injector.instanceOf[SupplierTaxIdentifierNumberView]
+
+        val result = route(application, request).value
+
+        status(result) mustEqual BAD_REQUEST
+        contentAsString(result) mustEqual view(boundForm, NormalMode, routes.SupplierTaxNumberController.onPageLoad(NormalMode))(
+          request,
+          messages(application)
+        ).toString
+      }
+    }
+
+    "must return a Bad Request and errors when more than 20 characters are submitted" in {
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, supplierTaxIdentifierNumberRoute)
+            .withFormUrlEncodedBody(("value", "a" * 21))
+
+        val boundForm = form.bind(Map("value" -> "a" * 21))
+
+        val view = application.injector.instanceOf[SupplierTaxIdentifierNumberView]
+
+        val result = route(application, request).value
+
+        status(result) mustEqual BAD_REQUEST
+        contentAsString(result) mustEqual view(boundForm, NormalMode, routes.SupplierTaxNumberController.onPageLoad(NormalMode))(
+          request,
+          messages(application)
+        ).toString
+      }
+    }
+
+    "must return a Bad Request and errors when invalid data is submitted in CheckMode" in {
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, routes.SupplierTaxIdentifierNumberController.onSubmit(CheckMode).url)
+            .withFormUrlEncodedBody(("value", ""))
+
+        val boundForm = form.bind(Map("value" -> ""))
+
+        val view = application.injector.instanceOf[SupplierTaxIdentifierNumberView]
+
+        val result = route(application, request).value
+
+        status(result) mustEqual BAD_REQUEST
+        contentAsString(result) mustEqual view(boundForm, CheckMode, routes.SupplierTaxNumberController.onPageLoad(CheckMode))(
+          request,
+          messages(application)
+        ).toString
+      }
+    }
+
+    "must redirect to the next page when valid data is submitted in CheckMode" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, routes.SupplierTaxIdentifierNumberController.onSubmit(CheckMode).url)
+            .withFormUrlEncodedBody(("value", "1234567890"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+      }
+    }
+
+    "must persist changed value and return to Purchase CYA when submitted in CheckMode for a purchase flow (DE)" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val ua = emptyUserAnswers
+        .set(PurchaseTypePage, Fuel)
+        .success
+        .value
+        .set(pages.SupplierTaxNumberPage, models.SupplierTaxNumber.Taxidentifiernumber)
+        .success
+        .value
+        .set(pages.RefundingCountryPage, "DE")
+        .success
+        .value
+
+      val application =
+        applicationBuilder(userAnswers = Some(ua))
+          .overrides(
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, routes.SupplierTaxIdentifierNumberController.onSubmit(CheckMode).url)
+            .withFormUrlEncodedBody(("value", "NEWVALUE123"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad().url
+      }
+    }
+
+    "must return OK and the correct view for a GET in CheckMode" in {
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode).url)
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[SupplierTaxIdentifierNumberView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, CheckMode, routes.SupplierTaxNumberController.onPageLoad(CheckMode))(
+          request,
+          messages(application)
+        ).toString
+      }
+    }
+
+    "must populate the view correctly on a GET in CheckMode when the question has previously been answered" in {
+
+      val userAnswers = UserAnswers(userAnswersId).set(SupplierTaxIdentifierNumberPage, "answer").success.value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode).url)
+
+        val view = application.injector.instanceOf[SupplierTaxIdentifierNumberView]
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form.fill("answer"), CheckMode, routes.SupplierTaxNumberController.onPageLoad(CheckMode))(
+          request,
+          messages(application)
+        ).toString
+      }
+    }
+
+    "must redirect to Journey Recovery for a GET if no existing data is found" in {
+
+      val application = applicationBuilder(userAnswers = None).build()
+
+      running(application) {
+        val request = FakeRequest(GET, supplierTaxIdentifierNumberRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Journey Recovery for a POST if no existing data is found" in {
+
+      val application = applicationBuilder(userAnswers = None).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, supplierTaxIdentifierNumberRoute)
+            .withFormUrlEncodedBody(("value", "1234567890"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+  }
+}

@@ -32,7 +32,6 @@ import scala.util.Failure
 
 object ControllerHelpers {
 
-  // Combine two Option values into a tuple when both are defined.
   def bothDefined[A, B](first: Option[A], second: Option[B]): Option[(A, B)] =
     for {
       a <- first
@@ -50,8 +49,6 @@ object ControllerHelpers {
     if (symbol.isEmpty) "€" else symbol
   }
 
-  // Generic helper to compare a submitted `value` against a BigDecimal stored
-  // on another page in `UserAnswers` using a provided comparator function.
   def compareWithPage(value: BigDecimal, page: pages.QuestionPage[BigDecimal], updated: models.UserAnswers)(
     cmp: (BigDecimal, BigDecimal) => Boolean
   ): Boolean =
@@ -68,7 +65,7 @@ object ControllerHelpers {
     if (mode == models.CheckMode) {
       Redirect(controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad())
     } else {
-      Redirect(controllers.routes.InvoiceTypeController.onPageLoad(mode))
+      Redirect(controllers.purchase.routes.InvoiceTypeController.onPageLoad(mode))
     }
   }
 
@@ -127,8 +124,6 @@ object ControllerHelpers {
         Future.successful(InternalServerError("Failed to build UserAnswers"))
     }
 
-  // If running in CheckMode and the arrival flag page is not set, set it and persist the updated `UserAnswers`.
-  // Otherwise call `render` with the existing `UserAnswers`.
   def markArrivalAndRender(
     page: QuestionPage[Boolean],
     mode: Mode,

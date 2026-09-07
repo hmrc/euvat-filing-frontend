@@ -16,7 +16,7 @@
 
 package viewmodels.checkAnswers
 
-import controllers.routes
+import controllers.purchase.routes
 import models.{CheckMode, UserAnswers}
 import pages.SupplierTaxNumberPage
 import play.api.i18n.Messages

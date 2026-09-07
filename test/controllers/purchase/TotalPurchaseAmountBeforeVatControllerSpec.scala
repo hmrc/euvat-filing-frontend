@@ -1,0 +1,445 @@
+/*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package controllers.purchase
+
+import base.SpecBase
+import controllers.purchase.routes
+import forms.purchase.TotalPurchaseAmountBeforeVatFormProvider
+import models.{CheckMode, Fuel, NormalMode, PurchaseType, SupplierTaxNumber, UserAnswers}
+import navigation.{FakeNavigator, Navigator}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{verify, when}
+import org.scalatestplus.mockito.MockitoSugar
+import pages.*
+import play.api.data.Form
+import play.api.inject.bind
+import play.api.mvc.Call
+import play.api.test.FakeRequest
+import play.api.test.Helpers.*
+import repositories.SessionRepository
+import views.html.purchase.TotalPurchaseAmountBeforeVatView
+
+import scala.concurrent.Future
+
+class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSugar {
+
+  def onwardRoute: Call = Call("GET", "/foo")
+
+  val formProvider = new TotalPurchaseAmountBeforeVatFormProvider()
+  val form: Form[BigDecimal] = formProvider()
+
+  lazy val totalPurchaseAmountBeforeVatRoute: String = routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode).url
+
+  "TotalPurchaseAmountBeforeVat Controller" - {
+
+    "must return OK and the correct view for a GET" in {
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
+
+        status(result) mustEqual OK
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
+          view(form, NormalMode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode), "€", "Euro")(
+            request,
+            messages(application)
+          ).toString
+        )
+      }
+    }
+
+    "must return OK and the correct back link when country is Germany" in {
+
+      val userAnswers = UserAnswers(userAnswersId).set(RefundingCountryPage, "DE").success.value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, NormalMode, routes.SupplierTaxNumberController.onPageLoad(NormalMode), "€", "Euro")(
+          request,
+          messages(application)
+        ).toString
+      }
+    }
+
+    "must return OK and the correct back link when country is not Germany and VAT registration number was entered" in {
+
+      val userAnswers = UserAnswers(userAnswersId).set(RefundingCountryPage, "FR").success.value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, NormalMode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode), "€", "Euro")(
+          request,
+          messages(application)
+        ).toString
+      }
+    }
+
+    "must return OK and the correct back link when country is not Germany and no VAT registration number was entered" in {
+
+      val userAnswers = UserAnswers(userAnswersId).set(RefundingCountryPage, "FR").success.value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
+
+        status(result) mustEqual OK
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
+          view(form, NormalMode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode), "€", "Euro")(
+            request,
+            messages(application)
+          ).toString
+        )
+      }
+    }
+
+    "must populate the view correctly on a GET when the question has previously been answered" in {
+
+      val userAnswers = UserAnswers(userAnswersId).set(TotalPurchaseAmountBeforeVatPage, BigDecimal("12.34")).success.value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
+
+        val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
+          view(form.fill(BigDecimal("12.34")), NormalMode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode), "€", "Euro")(
+            request,
+            messages(application)
+          ).toString
+        )
+      }
+    }
+
+    "must redirect to the next page when valid data is submitted" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, totalPurchaseAmountBeforeVatRoute)
+            .withFormUrlEncodedBody(("value", "123.45"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+      }
+    }
+
+    "must return a Bad Request and errors when invalid data is submitted" in {
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, totalPurchaseAmountBeforeVatRoute)
+            .withFormUrlEncodedBody(("value", ""))
+
+        val boundForm = form.bind(Map("value" -> ""))
+
+        val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
+
+        val result = route(application, request).value
+
+        status(result) mustEqual BAD_REQUEST
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
+          view(boundForm, NormalMode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode), "€", "Euro")(
+            request,
+            messages(application)
+          ).toString
+        )
+      }
+    }
+
+    "must redirect to the next page when valid data is submitted in CheckMode" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, routes.TotalPurchaseAmountBeforeVatController.onSubmit(CheckMode).url)
+            .withFormUrlEncodedBody(("value", "123.45"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+      }
+    }
+
+    "must redirect to CYA when in CheckMode and amount unchanged for purchase journey" in {
+      val userAnswers = emptyUserAnswers
+        .set(PurchaseTypePage, Fuel)
+        .success
+        .value
+        .set(TotalPurchaseAmountBeforeVatPage, BigDecimal("123.45"))
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.TotalPurchaseAmountBeforeVatController.onSubmit(CheckMode).url)
+          .withFormUrlEncodedBody(("value", "123.45"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad().url
+      }
+    }
+
+    "must persist updated amount and continue journey when in CheckMode and amount changed for purchase journey" in {
+      val userAnswers = emptyUserAnswers.set(PurchaseTypePage, Fuel).success.value
+
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[repositories.SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.TotalPurchaseAmountBeforeVatController.onSubmit(CheckMode).url)
+          .withFormUrlEncodedBody(("value", "200.00"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+        verify(mockSessionRepository).set(any())
+      }
+    }
+
+    "must redirect to Journey Recovery for a GET if no existing data is found" in {
+
+      val application = applicationBuilder(userAnswers = None).build()
+
+      running(application) {
+        val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+      }
+
+    }
+
+    "must redirect to Journey Recovery for a POST if no existing data is found" in {
+
+      val application = applicationBuilder(userAnswers = None).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, totalPurchaseAmountBeforeVatRoute)
+            .withFormUrlEncodedBody(("value", "123.45"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must show euro symbol for a country with a single currency" in {
+
+      val userAnswers = UserAnswers(userAnswersId).set(RefundingCountryPage, "AT").success.value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
+
+        val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
+          view(form, NormalMode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode), "€", "Euro")(
+            request,
+            messages(application)
+          ).toString
+        )
+      }
+    }
+
+    "must show selected currency symbol when a currency is selected for a multi-currency country" in {
+
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(RefundingCountryPage, "BG")
+        .success
+        .value
+        .set(RefundingCurrencyPage, "BGN")
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
+
+        val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
+          view(form, NormalMode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode), "лв", "Bulgarian Lev")(request,
+                                                                                                                              messages(application)
+                                                                                                                             ).toString
+        )
+      }
+    }
+
+    "must fallback to first currency symbol when no currency selected for a multi-currency country" in {
+
+      val userAnswers = UserAnswers(userAnswersId).set(RefundingCountryPage, "EE").success.value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
+
+        val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
+          view(form, NormalMode, routes.RefundingCurrencyController.onPageLoad(NormalMode), "€", "Euro")(
+            request,
+            messages(application)
+          ).toString
+        )
+      }
+    }
+
+    "back link should navigate correctly for implemented supplier-tax cases" - {
+      "Germany + SimplifiedInvoice + taxIdentifier -> supplier tax identifier page" in {
+        val userAnswers = UserAnswers(userAnswersId)
+          .set(pages.RefundingCountryPage, "DE")
+          .success
+          .value
+          .set(pages.InvoiceTypePage, models.InvoiceType.SimplifiedInvoice)
+          .success
+          .value
+          .set(pages.SupplierTaxNumberPage, models.SupplierTaxNumber.Taxidentifiernumber)
+          .success
+          .value
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+        running(application) {
+          val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
+          val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
+          val result = route(application, request).value
+
+          status(result) mustEqual OK
+          contentAsString(result) mustEqual view(form, NormalMode, routes.SupplierTaxIdentifierNumberController.onPageLoad(NormalMode), "€", "Euro")(
+            request,
+            messages(application)
+          ).toString
+        }
+      }
+
+      "Germany + StandardInvoice + taxIdentifier -> supplier tax identifier page" in {
+        val userAnswers = UserAnswers(userAnswersId)
+          .set(pages.RefundingCountryPage, "DE")
+          .success
+          .value
+          .set(pages.InvoiceTypePage, models.InvoiceType.StandardInvoice)
+          .success
+          .value
+          .set(pages.SupplierTaxNumberPage, models.SupplierTaxNumber.Taxidentifiernumber)
+          .success
+          .value
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+        running(application) {
+          val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
+          val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
+          val result = route(application, request).value
+
+          status(result) mustEqual OK
+          contentAsString(result) mustEqual view(form, NormalMode, routes.SupplierTaxIdentifierNumberController.onPageLoad(NormalMode), "€", "Euro")(
+            request,
+            messages(application)
+          ).toString
+        }
+      }
+
+    }
+  }
+}
