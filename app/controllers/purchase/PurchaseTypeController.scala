@@ -34,7 +34,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import utils.{ConfigPurchaseMapping, CountryCode, MountPrefix}
-import views.html.purchase.PurchaseTypeView
+import views.html.PurchaseAndImportTypeView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -85,6 +85,7 @@ class PurchaseTypeController @Inject() (
                      routes.PurchaseTypeController.onSubmit(mode),
                      "purchaseType",
                      "purchase.caption",
+                      true,
                      legendKey = Some("purchaseType.h2")
                     )
               )
@@ -100,6 +101,7 @@ class PurchaseTypeController @Inject() (
                routes.PurchaseTypeController.onSubmit(mode),
                "purchaseType",
                "purchase.caption",
+                true,
                legendKey = Some("purchaseType.h2")
               )
         )
@@ -120,6 +122,7 @@ class PurchaseTypeController @Inject() (
                    routes.PurchaseTypeController.onSubmit(mode),
                    "purchaseType",
                    "purchase.caption",
+                    true,
                    legendKey = Some("purchaseType.h2")
                   )
             )

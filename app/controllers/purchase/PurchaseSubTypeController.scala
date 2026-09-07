@@ -151,7 +151,7 @@ class PurchaseSubTypeController @Inject() (
     }
 
   private def resolvedSlugFor(parentKey: String, fallback: String): String =
-    PurchaseType.values.find(_.toString == parentKey).map(PurchaseAndImportType.urlSlugForPurchaseType).getOrElse(fallback)
+    PurchaseAndImportType.values.find(_.toString == parentKey).map(PurchaseAndImportType.urlSlugForPurchaseType).getOrElse(fallback)
 
   private def formActionFor(uri: String, mode: Mode)(implicit request: RequestHeader) = {
     val isChangeMode = if (mode == models.CheckMode) "change-" else ""

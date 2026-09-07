@@ -451,15 +451,6 @@ purchase.checkYourPurchase.invoiceDetails = Invoice details
 purchase.checkYourPurchase.supplierDetails = Supplier details
 purchase.checkYourPurchase.purchaseAmounts = Purchase amounts
 
-importType.title = Which category best describes the item on your import document?
-importType.heading = Which category best describes the item on your import document?
-importType.fuel = Fuel
-importType.fuel = Transport costs
-importType.fuel = Food, drink and restaurant services
-importType.fuel = Luxuries, entertainment and hospitality
-importType.fuel = Other
-importType.error.required = Select the type of import
-
 purchase.subType.fuel-use = Fuel use
 purchase.subType.transport-cost = Transport cost type
 purchase.subType.food-drink-restaurant-cost = Food, drink or restaurant cost type
@@ -493,6 +484,15 @@ describeItemsOnInvoice.error.required = Enter a description of the items on your
 describeItemsOnInvoice.error.length = Item description must be 255 characters or less
 describeItemsOnInvoice.checkYourAnswersLabel = Purchase description
 describeItemsOnInvoice.change.hidden = Change purchase description
+
+importType.title = Which category best describes the item on your import document?
+importType.heading = Which category best describes the item on your import document?
+importType.fuel = Fuel
+importType.fuel = Transport costs
+importType.fuel = Food, drink and restaurant services
+importType.fuel = Luxuries, entertainment and hospitality
+importType.fuel = Other
+importType.error.required = Select the type of import
 
 # Warning messages
 confirmRefundPeriodStartDate.title = Are you sure the refund period start date is correct?

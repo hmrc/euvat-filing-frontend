@@ -33,7 +33,7 @@ import play.api.test.Helpers.*
 import queries.ClaimApplicationResponseQuery
 import repositories.SessionRepository
 import utils.ConfigPurchaseMapping
-import views.html.purchase.PurchaseTypeView
+import views.html.PurchaseAndImportTypeView
 
 import scala.concurrent.Future
 

@@ -22,6 +22,7 @@ import controllers.claim.routes as claimRoutes
 import controllers.purchase.routes as purchaseRoutes
 import controllers.warning.routes as warningRoutes
 import models.*
+import models.PurchaseOrImport.{Import, Purchase}
 import pages.*
 import play.api.Configuration
 import play.api.mvc.Call
@@ -147,12 +148,12 @@ class NavigatorSpec extends SpecBase {
         val answers = userAnswers.set(PurchaseOrImportPage, Import).success.value
 
         navigator.nextPage(PurchaseOrImportPage, NormalMode, answers) mustBe
-          routes.ImportTypeController.onPageLoad(NormalMode)
+          controllers.imports.routes.ImportTypeController.onPageLoad(NormalMode)
       }
 
       "must go from ImportTypePage to JourneyRecoveryController" in {
         navigator.nextPage(ImportTypePage, NormalMode, emptyUserAnswers) mustBe
-          routes.JourneyRecoveryController.onPageLoad()
+          controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from PurchaseTypePage to DescribeItemsOnInvoiceController" in {
@@ -610,7 +611,7 @@ class NavigatorSpec extends SpecBase {
 
       "must go from ImportTypePage to JourneyRecoveryController" in {
         navigator.nextPage(ImportTypePage, CheckMode, emptyUserAnswers) mustBe
-          routes.JourneyRecoveryController.onPageLoad()
+          controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from PurchaseTypePage to DescribeItemsOnInvoiceController" in {
