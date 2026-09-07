@@ -24,11 +24,10 @@ import navigation.Navigator
 import pages.{PurchaseTypePage, SimplifiedInvoiceVatRegCheckPage, SupplierAddressPage, SupplierVatRegistrationNumberPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents, Result}
+import play.api.mvc.*
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.purchase.SimplifiedInvoiceVatRegCheckView
-import utils.ControllerHelpers.*
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

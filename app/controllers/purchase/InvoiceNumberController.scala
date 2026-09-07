@@ -20,14 +20,13 @@ import controllers.actions.*
 import forms.purchase.InvoiceNumberFormProvider
 import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import navigation.Navigator
-import pages.{InvoiceNumberPage, VrnWarningFlowPage}
+import pages.InvoiceNumberPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.*
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.purchase.InvoiceNumberView
-import utils.ControllerHelpers.*
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

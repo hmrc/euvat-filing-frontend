@@ -51,22 +51,11 @@ class TotalPurchaseAmountBeforeVatController @Inject() (
 
   val form: Form[BigDecimal] = formProvider()
 
-  private def supplierTaxNumberBackLink(mode: Mode, userAnswers: UserAnswers): Call =
+  private def germanyBackLink(mode: Mode, userAnswers: UserAnswers): Call =
     userAnswers.get(SupplierTaxNumberPage) match {
       case Some(SupplierTaxNumber.Vatregistrationnumber) => routes.SupplierVatRegistrationNumberController.onPageLoad(mode)
       case Some(SupplierTaxNumber.Taxidentifiernumber)   => routes.SupplierTaxIdentifierNumberController.onPageLoad(mode)
-      case _ =>
-        if (userAnswers.get(SupplierTaxIdentifierNumberPage).isDefined) {
-          routes.SupplierTaxIdentifierNumberController.onPageLoad(mode)
-        } else {
-          routes.SupplierTaxNumberController.onPageLoad(mode)
-        }
-    }
-
-  private def germanyBackLink(mode: Mode, userAnswers: UserAnswers): Call =
-    userAnswers.get(SupplierVatRegistrationNumberPage) match {
-      case Some(_) => routes.SupplierVatRegistrationNumberController.onPageLoad(mode)
-      case None    => supplierTaxNumberBackLink(mode, userAnswers)
+      case _                                             => routes.SupplierTaxNumberController.onPageLoad(mode)
     }
 
   private def defaultBackLink(mode: Mode, userAnswers: UserAnswers): Call =
@@ -77,8 +66,7 @@ class TotalPurchaseAmountBeforeVatController @Inject() (
 
   private def backLink(mode: Mode)(userAnswers: UserAnswers): Call = {
     userAnswers.get(RefundingCountryPage) match {
-      case Some(countryCode) if currencyConfig.requiresCurrencySelection(countryCode) =>
-        routes.RefundingCurrencyController.onPageLoad(mode)
+      case Some("EE") => routes.RefundingCurrencyController.onPageLoad(mode)
       case Some("DE") => germanyBackLink(mode, userAnswers)
       case _          => defaultBackLink(mode, userAnswers)
     }

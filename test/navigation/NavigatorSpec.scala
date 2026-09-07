@@ -20,7 +20,6 @@ import base.SpecBase
 import com.typesafe.config.ConfigFactory
 import controllers.claim.routes as claimRoutes
 import controllers.purchase.routes as purchaseRoutes
-import controllers.warning.routes as warningRoutes
 import models.*
 import pages.*
 import play.api.Configuration
@@ -113,10 +112,10 @@ class NavigatorSpec extends SpecBase {
           purchaseRoutes.InvoiceDateController.onPageLoad(NormalMode)
       }
 
-      "must go from InvoiceNumberPage back to the warning page when marker is true (came from warning, unchanged)" in {
+      "must go from InvoiceNumberPage to the supplier VRN number page when marker is true (came from warning, unchanged)" in {
         val ua = userAnswers.set(VrnWarningFlowPage, true).success.value
         navigator.nextPage(InvoiceNumberPage, NormalMode, ua) mustBe
-          warningRoutes.SupplierVrnWarningController.onPageLoad(NormalMode)
+          purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode)
       }
 
       "must go from InvoiceNumberPage to SupplierVatRegistrationNumberController when marker is false (came from warning, changed)" in {
@@ -509,7 +508,7 @@ class NavigatorSpec extends SpecBase {
       "must go from RefundingCurrencyPage to RefundPeriodController in CheckMode if CountryChangedPage is true" in {
         val ua = userAnswers.set(pages.CountryChangedPage, true).success.value
         navigator.nextPage(pages.RefundingCurrencyPage, CheckMode, ua) mustBe
-          claimRoutes.RefundPeriodController.onPageLoad(CheckMode)
+          purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
       }
 
       "must go from RefundingCurrencyPage to CheckYourPurchaseDetailsController in CheckMode if CountryChangedPage is not set" in {
@@ -582,10 +581,10 @@ class NavigatorSpec extends SpecBase {
           purchaseRoutes.InvoiceDateController.onPageLoad(CheckMode)
       }
 
-      "must go from InvoiceNumberPage back to the warning page in CheckMode when marker is true" in {
+      "must go from InvoiceNumberPage to the supplier VRN number page in CheckMode when marker is true" in {
         val ua = userAnswers.set(VrnWarningFlowPage, true).success.value
         navigator.nextPage(InvoiceNumberPage, CheckMode, ua) mustBe
-          warningRoutes.SupplierVrnWarningController.onPageLoad(CheckMode)
+          purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(CheckMode)
       }
 
       "must go from InvoiceNumberPage to SupplierVatRegistrationNumberController in CheckMode when marker is false" in {
