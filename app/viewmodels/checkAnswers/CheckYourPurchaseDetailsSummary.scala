@@ -17,15 +17,11 @@
 package viewmodels.checkAnswers
 
 import controllers.purchase.routes
-import utils.ConfigPurchaseMapping
 import models.{CheckMode, UserAnswers}
 import pages.*
 import play.api.i18n.{Lang, Messages}
 import play.api.mvc.RequestHeader
-import utils.MountPrefix
-import viewmodels.govuk.summarylist.*
-
-import scala.annotation.tailrec
+import utils.{ConfigPurchaseMapping, MountPrefix}
 
 object CheckYourPurchaseDetailsSummary {
 
@@ -90,7 +86,7 @@ object CheckYourPurchaseDetailsSummary {
     val keyLabel = if (messages.isDefinedAt(msgKey)) messages(msgKey) else parentSlug.replace('-', ' ').capitalize
 
     val valueOpt: Option[String] = answers.get(PurchaseSubTypeLabelPage)
-    val displayValueOpt: Option[String] = valueOpt.map(v => if (v == ConfigPurchaseMapping.NoneValue) messages("site.notProvided") else v)
+    val displayValueOpt: Option[String] = valueOpt.map(v => if (v == ConfigPurchaseMapping.NoneValue) messages("site.none") else v)
     val url = routes.PurchaseSubTypeController.onPageLoad(parentSlug, CheckMode).url
 
     Some((keyLabel, displayValueOpt, Seq((url, "site.change", "purchase.subType.change.hidden"))))
@@ -117,8 +113,12 @@ object CheckYourPurchaseDetailsSummary {
       val codeToResolve = if (code == ConfigPurchaseMapping.NoneValue) answers.get(PurchaseSubTypePage).getOrElse(code) else code
       val slug = findSlug(parentKey, codeToResolve)
       val msgKey = s"purchase.subCategory.$slug"
-      val keyLabel = if (messages.isDefinedAt(msgKey)) messages(msgKey) else slug.replace('-', ' ').capitalize
-      val displayValue = if (label == ConfigPurchaseMapping.NoneValue) messages("site.notProvided") else label
+      val keyLabel =
+        if (messages.isDefinedAt(msgKey)) messages(msgKey)
+        else
+          slug.replace('-', ' ').capitalize
+
+      val displayValue = if (label == ConfigPurchaseMapping.NoneValue) messages("site.none") else label
       val mount = MountPrefix.getFromRequest
       val url = if (mount.isEmpty) s"/change-$slug" else s"$mount/change-$slug"
 
