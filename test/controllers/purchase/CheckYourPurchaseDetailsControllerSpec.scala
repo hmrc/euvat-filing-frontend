@@ -18,18 +18,17 @@ package controllers.purchase
 
 import base.SpecBase
 import controllers.routes
-import models.{InvoiceType, PurchaseType}
+import models.{InvoiceType, PurchaseType, Fuel}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.{ArgumentCaptor, Mockito}
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import models.requests.UpdatePurchaseRequest
 import play.api.inject.bind
-import java.time.LocalDateTime
-import java.time.LocalDate
 import play.api.Configuration
 import utils.{CurrencyConfig, Currency}
 import models.SupplierAddress
+import java.time.LocalDate
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import repositories.SessionRepository
@@ -52,6 +51,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
       )
 
       val userAnswers = emptyUserAnswers
+        .set(PurchaseTypePage, Fuel).success.value
         .set(PurchaseSubTypePage, "1.2").success.value
         .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber = 1, updateSequenceNumber = 1)).success.value
         .set(queries.ClaimApplicationResponseQuery, models.responses.ApplicationResponse(1, "GB001", 1)).success.value
@@ -108,6 +108,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
       )
 
       val userAnswers = emptyUserAnswers
+        .set(PurchaseTypePage, Fuel).success.value
         .set(PurchaseSubTypePage, "1.2").success.value
         .set(SimplifiedInvoiceVatRegCheckPage, true).success.value
         .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber = 3, updateSequenceNumber = 3)).success.value
@@ -122,7 +123,8 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
         status(result) mustEqual SEE_OTHER
 
         val sent = captor.getValue
-        sent.goodsDescriptionCategory mustEqual "1.2"
+        sent.goodsDescriptionCategory mustEqual "1"
+        sent.goodsDescriptionSubCategory must contain("1.2")
         sent.simplifiedInvoiceIndicator must contain("true")
       }
     }
@@ -136,6 +138,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
       )
 
       val userAnswers = emptyUserAnswers
+        .set(PurchaseTypePage, Fuel).success.value
         .set(PurchaseSubTypePage, "1.2").success.value
         .set(SimplifiedInvoiceVatRegCheckPage, false).success.value
         .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber = 4, updateSequenceNumber = 4)).success.value

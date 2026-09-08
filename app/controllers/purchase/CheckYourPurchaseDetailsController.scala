@@ -88,9 +88,25 @@ class CheckYourPurchaseDetailsController @Inject() (
 
     (maybeAppId, maybeAddResp) match {
       case (Some(appId), Some(addResp)) =>
-        val goodsCategory = request.userAnswers.get(pages.PurchaseSubTypePage).getOrElse("")
-        val goodsDescriptionSubCategory = request.userAnswers.get(pages.PurchaseSubCategoryPage)
-        val goodsText = request.userAnswers.get(pages.DescribeItemsOnInvoicePage)
+        val purchaseSubType = request.userAnswers.get(pages.PurchaseSubTypePage)
+        val purchaseSubCategory = request.userAnswers.get(pages.PurchaseSubCategoryPage)
+
+        val goodsDescriptionSubCategory: Option[String] = {
+          if (purchaseSubType.contains(ConfigPurchaseMapping.NoneValue) && purchaseSubCategory.contains(ConfigPurchaseMapping.NoneValue)) None
+          else if (purchaseSubCategory.exists(v => v != ConfigPurchaseMapping.NoneValue && !v.split("\\.").lastOption.contains("99"))) purchaseSubCategory
+          else if (purchaseSubType.exists(v => v != ConfigPurchaseMapping.NoneValue && !v.split("\\.").lastOption.contains("99"))) purchaseSubType
+          else None
+        }
+
+        val goodsDescriptionCategory: String = request.userAnswers
+          .get(pages.PurchaseTypePage)
+          .map(pt => models.PurchaseType.codes.getOrElse(pt, ""))
+          .getOrElse("")
+
+        val goodsText = request.userAnswers.get(pages.DescribeItemsOnInvoicePage) match {
+          case Some(t) if t.trim.nonEmpty && t != ConfigPurchaseMapping.NoneValue => Some(t)
+          case _                                                                 => None
+        }
         val simplified = request.userAnswers.get(pages.SimplifiedInvoiceVatRegCheckPage) match {
           case Some(b) => Some(if (b) "true" else "false")
           case None => // fall back to invoice type when the explicit flag isn't present
@@ -117,7 +133,7 @@ class CheckYourPurchaseDetailsController @Inject() (
         val updateReq = UpdatePurchaseRequest(
           applicationId = appId,
           itemNumber = addResp.itemNumber,
-          goodsDescriptionCategory = goodsCategory,
+          goodsDescriptionCategory = goodsDescriptionCategory,
           goodsDescriptionSubCategory = goodsDescriptionSubCategory,
           goodsDescriptionText = goodsText,
           simplifiedInvoiceIndicator = simplified,
