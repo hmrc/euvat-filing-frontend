@@ -22,7 +22,6 @@ import models.*
 import models.PurchaseOrImport.{Import, Purchase}
 import pages.*
 import play.api.mvc.Call
-import play.api.routing.Router.empty.routes
 import utils.{ConfigLanguageMapping, ConfigPurchaseMapping, CountryCode, CurrencyConfig}
 
 import javax.inject.{Inject, Singleton}
