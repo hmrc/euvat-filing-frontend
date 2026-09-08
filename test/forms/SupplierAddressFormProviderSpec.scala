@@ -27,6 +27,8 @@ class SupplierAddressFormProviderSpec extends FieldBehaviours {
   private val application = GuiceApplicationBuilder().build()
   private val messagesApi = application.injector.instanceOf[play.api.i18n.MessagesApi]
   private implicit val msgs: play.api.i18n.Messages = play.api.i18n.MessagesImpl(play.api.i18n.Lang("en"), messagesApi)
+  private implicit val fakeRequest: play.api.test.FakeRequest[play.api.mvc.AnyContentAsEmpty.type] =
+    play.api.test.FakeRequest()
 
   private val formProvider = application.injector.instanceOf[SupplierAddressFormProvider]
   private val form = formProvider()
