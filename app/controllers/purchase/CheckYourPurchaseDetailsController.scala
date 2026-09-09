@@ -103,26 +103,26 @@ class CheckYourPurchaseDetailsController @Inject() (
           .map(pt => models.PurchaseType.codes.getOrElse(pt, ""))
           .getOrElse("")
 
-        val goodsText = request.userAnswers.get(pages.DescribeItemsOnInvoicePage) match {
+        val goodsDescriptionText = request.userAnswers.get(pages.DescribeItemsOnInvoicePage) match {
           case Some(t) if t.trim.nonEmpty && t != ConfigPurchaseMapping.NoneValue => Some(t)
           case _                                                                 => None
         }
-        val simplified = request.userAnswers.get(pages.SimplifiedInvoiceVatRegCheckPage) match {
-          case Some(b) => Some(if (b) "true" else "false")
-          case None => // fall back to invoice type when the explicit flag isn't present
-            request.userAnswers.get(pages.InvoiceTypePage) match {
-              case Some(models.InvoiceType.SimplifiedInvoice) => Some("true")
-              case Some(_)                                     => Some("false")
-              case None                                        => None
+        val simplifiedInvoiceIndicator: Option[String] = request.userAnswers
+          .get(pages.SimplifiedInvoiceVatRegCheckPage)
+          .map(_.toString)
+          .orElse {
+            request.userAnswers.get(pages.InvoiceTypePage).map {
+              case models.InvoiceType.SimplifiedInvoice => "true"
+              case _                                     => "false"
             }
-        }
+          }
         val supplierName = request.userAnswers.get(pages.SuppliersNamePage)
         val supplierAddr = request.userAnswers.get(pages.SupplierAddressPage)
         val supplierAddress1 = supplierAddr.map(_.line1)
         val supplierAddress2 = supplierAddr.flatMap(_.line2)
         val supplierAddress3 = supplierAddr.flatMap(_.line3)
         val supplierVatRegNumber = request.userAnswers.get(pages.SupplierVatRegistrationNumberPage)
-        val supplierTaxId = request.userAnswers.get(pages.SupplierTaxIdentifierNumberPage)
+        val supplierTaxIdentifier = request.userAnswers.get(pages.SupplierTaxIdentifierNumberPage)
         val invoiceDate = request.userAnswers.get(pages.InvoiceDatePage).map(_.atStartOfDay())
         val invoiceNumber = request.userAnswers.get(pages.InvoiceNumberPage)
         val currencyCode = request.userAnswers.get(pages.RefundingCurrencyPage)
@@ -135,14 +135,14 @@ class CheckYourPurchaseDetailsController @Inject() (
           itemNumber = addResp.itemNumber,
           goodsDescriptionCategory = goodsDescriptionCategory,
           goodsDescriptionSubCategory = goodsDescriptionSubCategory,
-          goodsDescriptionText = goodsText,
-          simplifiedInvoiceIndicator = simplified,
+          goodsDescriptionText = goodsDescriptionText,
+          simplifiedInvoiceIndicator = simplifiedInvoiceIndicator,
           supplierName = supplierName,
           supplierAddress1 = supplierAddress1,
           supplierAddress2 = supplierAddress2,
           supplierAddress3 = supplierAddress3,
           supplierVatRegNumber = supplierVatRegNumber,
-          supplierTaxIdentifier = supplierTaxId,
+          supplierTaxIdentifier = supplierTaxIdentifier,
           invoiceDate = invoiceDate,
           invoiceNumber = invoiceNumber,
           currencyCode = currencyCode,
