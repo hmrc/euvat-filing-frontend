@@ -50,8 +50,6 @@ class ImportSubCodeController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  private val onlyOtherSubCode = "10.99"
-
   private def backUrl: String = routes.TaskListDashboardController.onPageLoad().url
 
   private def withPageData(importTypeKey: String)(
@@ -61,19 +59,18 @@ class ImportSubCodeController @Inject() (
       importType <- PurchaseAndImportType.values.find(_.toString == importTypeKey)
       answered   <- request.userAnswers.get(ImportTypePage) if answered == importType
       country    <- CountryCode.findCountryCode(request.userAnswers)
-    } yield (importType, config.subcodesFor(country, importType.toString).filter(_._1.split("\\.").length == 2))
+      options    <- config.selectableImportSubcodes(country, importType.toString)
+    } yield (importType, options)
 
     resolved match {
-      case Some((importType, options)) if options.nonEmpty && options.map(_._1) != Seq(onlyOtherSubCode) =>
-        block(importType, options)
-      case _ =>
-        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+      case Some((importType, options)) => block(importType, options)
+      case None                        => Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
     }
   }
 
   private def radioItems(options: Seq[(String, String)])(implicit request: DataRequest[AnyContent]): Seq[RadioItem] = {
     val items = config.buildRadioItems(options, request2Messages)
-    if (options.map(_._1).contains(onlyOtherSubCode)) {
+    if (options.map(_._1).contains(ConfigPurchaseMapping.NoneOfTheseSubCode)) {
       items.filterNot(_.value.contains(ConfigPurchaseMapping.NoneValue))
     } else {
       items
@@ -82,7 +79,7 @@ class ImportSubCodeController @Inject() (
 
   private def allowedValues(options: Seq[(String, String)]): Seq[String] = {
     val codes = options.map(_._1)
-    if (codes.contains(onlyOtherSubCode)) codes else codes :+ ConfigPurchaseMapping.NoneValue
+    if (codes.contains(ConfigPurchaseMapping.NoneOfTheseSubCode)) codes else codes :+ ConfigPurchaseMapping.NoneValue
   }
 
   private def renderView(importType: PurchaseAndImportType, options: Seq[(String, String)], form: Form[String])(implicit

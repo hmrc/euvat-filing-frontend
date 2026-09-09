@@ -41,6 +41,7 @@ case class PurchaseNode(parent: String, code: String, label: String, children: S
 
 object ConfigPurchaseMapping {
   val NoneValue: String = "__none__"
+  val NoneOfTheseSubCode: String = "10.99"
 }
 
 class ConfigPurchaseMapping @Inject() (config: Configuration = Configuration.empty, env: Environment = Environment.simple()) {
@@ -240,6 +241,14 @@ class ConfigPurchaseMapping @Inject() (config: Configuration = Configuration.emp
 
   def subcodesFor(parentKey: String): Seq[(String, String)] =
     mapping.values.toSeq.flatten.filter(_.parent == parentKey).map(n => (n.code, n.label))
+
+  def importSubcodesFor(country: String, parentKey: String): Seq[(String, String)] =
+    subcodesFor(country, parentKey).filter(_._1.split("\\.").length == 2)
+
+  def selectableImportSubcodes(country: String, parentKey: String): Option[Seq[(String, String)]] =
+    Some(importSubcodesFor(country, parentKey)).filter { options =>
+      options.nonEmpty && options.map(_._1) != Seq(ConfigPurchaseMapping.NoneOfTheseSubCode)
+    }
 
   def subcategoriesFor(country: String, parentKey: String, subcode: String): Seq[(String, String)] =
     nodesForCountry(country).toSeq.flatMap(_.filter(n => n.parent == parentKey && n.code == subcode).flatMap(_.children).map(c => (c.code, c.label)))
