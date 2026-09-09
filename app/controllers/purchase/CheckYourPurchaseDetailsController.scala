@@ -21,13 +21,17 @@ import pages.*
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import services.EuVatRefundsService
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
+import models.requests.UpdatePurchaseRequest
+import models.responses.AddPurchaseResponse
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.{ConfigPurchaseMapping, CountryCode, CurrencyConfig}
 import viewmodels.checkAnswers.CheckYourPurchaseDetailsSummary
 import views.html.CheckYourPurchaseDetailsView
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class CheckYourPurchaseDetailsController @Inject() (
   override val messagesApi: MessagesApi,
@@ -38,7 +42,8 @@ class CheckYourPurchaseDetailsController @Inject() (
   view: CheckYourPurchaseDetailsView,
   currencyConfig: CurrencyConfig,
   configPurchaseMapping: ConfigPurchaseMapping,
-  sessionRepository: SessionRepository
+  sessionRepository: SessionRepository,
+  euVatRefundsService: EuVatRefundsService
 )(using ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
@@ -75,7 +80,95 @@ class CheckYourPurchaseDetailsController @Inject() (
     )
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    Redirect(controllers.routes.TaskListDashboardController.onPageLoad())
+  def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+    implicit val hc = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+
+    val maybeAppId = request.userAnswers.get(queries.ClaimApplicationResponseQuery).map(_.applicationId.toLong)
+    val maybeAddResp = request.userAnswers.get(AddPurchaseResponsePage)
+
+    (maybeAppId, maybeAddResp) match {
+      case (Some(appId), Some(addResp)) =>
+        val purchaseSubType = request.userAnswers.get(pages.PurchaseSubTypePage)
+        val purchaseSubCategory = request.userAnswers.get(pages.PurchaseSubCategoryPage)
+
+        val goodsDescriptionSubCategory: Option[String] = {
+          if (purchaseSubType.contains(ConfigPurchaseMapping.NoneValue) && purchaseSubCategory.contains(ConfigPurchaseMapping.NoneValue)) None
+          else if (purchaseSubCategory.exists(v => v != ConfigPurchaseMapping.NoneValue)) purchaseSubCategory
+          else if (purchaseSubType.exists(v => v != ConfigPurchaseMapping.NoneValue)) purchaseSubType
+          else None
+        }
+
+        val goodsDescriptionCategory: String = request.userAnswers
+          .get(pages.PurchaseTypePage)
+          .map(pt => models.PurchaseType.codes.getOrElse(pt, ""))
+          .getOrElse("")
+
+        val goodsDescriptionText = request.userAnswers.get(pages.DescribeItemsOnInvoicePage) match {
+          case Some(t) if t.trim.nonEmpty && t != ConfigPurchaseMapping.NoneValue => Some(t)
+          case _                                                                 => None
+        }
+        val simplifiedInvoiceIndicator: Option[String] = request.userAnswers
+          .get(pages.SimplifiedInvoiceVatRegCheckPage)
+          .map(_.toString)
+          .orElse {
+            request.userAnswers.get(pages.InvoiceTypePage).map {
+              case models.InvoiceType.SimplifiedInvoice => "true"
+              case _                                     => "false"
+            }
+          }
+        val supplierName = request.userAnswers.get(pages.SuppliersNamePage)
+        val supplierAddr = request.userAnswers.get(pages.SupplierAddressPage)
+        val supplierAddress1 = supplierAddr.map(_.line1)
+        val supplierAddress2 = supplierAddr.flatMap(_.line2)
+        val supplierAddress3 = supplierAddr.flatMap(_.line3)
+        val supplierVatRegNumber = request.userAnswers.get(pages.SupplierVatRegistrationNumberPage)
+        val supplierTaxIdentifier = request.userAnswers.get(pages.SupplierTaxIdentifierNumberPage)
+        val invoiceDate = request.userAnswers.get(pages.InvoiceDatePage).map(_.atStartOfDay())
+        val invoiceNumber = request.userAnswers.get(pages.InvoiceNumberPage)
+        val currencyCode = request.userAnswers.get(pages.RefundingCurrencyPage)
+        val taxableAmount = request.userAnswers.get(pages.TotalPurchaseAmountBeforeVatPage)
+        val vatAmount = request.userAnswers.get(pages.TotalVatPaidPage)
+        val deductibleVatAmount = request.userAnswers.get(pages.TotalVatClaimPage)
+
+        val updateReq = UpdatePurchaseRequest(
+          applicationId = appId,
+          itemNumber = addResp.itemNumber,
+          goodsDescriptionCategory = goodsDescriptionCategory,
+          goodsDescriptionSubCategory = goodsDescriptionSubCategory,
+          goodsDescriptionText = goodsDescriptionText,
+          simplifiedInvoiceIndicator = simplifiedInvoiceIndicator,
+          supplierName = supplierName,
+          supplierAddress1 = supplierAddress1,
+          supplierAddress2 = supplierAddress2,
+          supplierAddress3 = supplierAddress3,
+          supplierVatRegNumber = supplierVatRegNumber,
+          supplierTaxIdentifier = supplierTaxIdentifier,
+          invoiceDate = invoiceDate,
+          invoiceNumber = invoiceNumber,
+          currencyCode = currencyCode,
+          taxableAmount = taxableAmount,
+          vatAmount = vatAmount,
+          deductibleVatAmount = deductibleVatAmount,
+          updateSequenceNumber = addResp.updateSequenceNumber
+        )
+
+        euVatRefundsService
+          .updatePurchase(updateReq)
+          .flatMap { resp =>
+            val updatedAddResp = AddPurchaseResponse(itemNumber = addResp.itemNumber, updateSequenceNumber = resp.updateSequenceNumber)
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(AddPurchaseResponsePage, updatedAddResp))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(controllers.routes.TaskListDashboardController.onPageLoad())
+          }
+          .recover { case ex =>
+            play.api.Logger(this.getClass).error("Error updating purchase details", ex)
+            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+          }
+
+      case _ =>
+        play.api.Logger(this.getClass).warn("Missing applicationId or itemNumber for update-purchase-details")
+        Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+    }
   }
 }
