@@ -76,7 +76,7 @@ object CheckYourPurchaseDetailsSummary {
 
               singleBypass match {
                 case Some(singleCode) if singleCode.split("\\.").lastOption.contains("99") => None
-                case _ => renderSubTypeRow(answers, pt)
+                case _                                                                     => renderSubTypeRow(answers, pt)
               }
 
             case _ => answers.get(PurchaseTypePage).flatMap(renderSubTypeRow(answers, _))
@@ -99,8 +99,8 @@ object CheckYourPurchaseDetailsSummary {
 
   def rowPurchaseSubCategoryLabel(answers: UserAnswers)(implicit messages: Messages, request: RequestHeader): Option[Row] =
     for {
-      pt <- answers.get(PurchaseTypePage)
-      code <- answers.get(PurchaseSubCategoryPage)
+      pt    <- answers.get(PurchaseTypePage)
+      code  <- answers.get(PurchaseSubCategoryPage)
       label <- answers.get(PurchaseSubCategoryLabelPage)
     } yield {
       val parentKey = pt.toString
@@ -108,8 +108,8 @@ object CheckYourPurchaseDetailsSummary {
       def findSlug(pk: String, c: String): String = {
         def loop(curr: String): Option[String] =
           models.PurchaseSubCategoryType.purchaseSubCategoryUrlSlugFor(pk, curr) match {
-            case s@Some(_) => s
-            case None => if (curr.contains('.')) loop(curr.substring(0, curr.lastIndexOf('.'))) else None
+            case s @ Some(_) => s
+            case None        => if (curr.contains('.')) loop(curr.substring(0, curr.lastIndexOf('.'))) else None
           }
 
         loop(c).getOrElse(models.PurchaseSubCategoryType.pathFor(pk, c))
@@ -159,8 +159,8 @@ object CheckYourPurchaseDetailsSummary {
       val url = routes.InvoiceDateController.onPageLoad(CheckMode).url
       implicit val lang: Lang = messages.lang
       (messages("invoiceDate.checkYourAnswersLabel"),
-        Some(date.format(utils.DateTimeFormats.dateTimeFormat())),
-        Seq((url, "site.change", "invoiceDate.change.hidden"))
+       Some(date.format(utils.DateTimeFormats.dateTimeFormat())),
+       Seq((url, "site.change", "invoiceDate.change.hidden"))
       )
     }
 
@@ -188,8 +188,8 @@ object CheckYourPurchaseDetailsSummary {
     answers.get(SimplifiedInvoiceVatRegCheckPage).map { v =>
       val url = routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(CheckMode).url
       (messages("simplifiedInvoiceVatRegCheck.checkYourAnswersLabel"),
-        Some(if (v) messages("site.yes") else messages("site.no")),
-        Seq((url, "site.change", "simplifiedInvoiceVatRegCheck.change.hidden"))
+       Some(if (v) messages("site.yes") else messages("site.no")),
+       Seq((url, "site.change", "simplifiedInvoiceVatRegCheck.change.hidden"))
       )
     }
 
@@ -197,8 +197,8 @@ object CheckYourPurchaseDetailsSummary {
     answers.get(SupplierVatRegistrationNumberPage).map { num =>
       val url = routes.SupplierVatRegistrationNumberController.onPageLoad(CheckMode).url
       (messages("supplierVatRegistrationNumber.checkYourAnswersLabel"),
-        Some(num),
-        Seq((url, "site.change", "supplierVatRegistrationNumber.change.hidden"))
+       Some(num),
+       Seq((url, "site.change", "supplierVatRegistrationNumber.change.hidden"))
       )
     }
 
@@ -206,8 +206,8 @@ object CheckYourPurchaseDetailsSummary {
     answers.get(SupplierTaxIdentifierNumberPage).map { num =>
       val url = routes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode).url
       (messages("supplierTaxIdentifierNumber.checkYourAnswersLabel"),
-        Some(num),
-        Seq((url, "site.change", "supplierTaxIdentifierNumber.change.hidden"))
+       Some(num),
+       Seq((url, "site.change", "supplierTaxIdentifierNumber.change.hidden"))
       )
     }
 
@@ -215,8 +215,8 @@ object CheckYourPurchaseDetailsSummary {
     displayName.map { name =>
       val url = routes.RefundingCurrencyController.onPageLoad(CheckMode).url
       (messages("checkYourPurchaseDetails.refundingCurrency.label"),
-        Some(name),
-        Seq((url, "site.change", "checkYourPurchaseDetails.refundingCurrency.change.hidden"))
+       Some(name),
+       Seq((url, "site.change", "checkYourPurchaseDetails.refundingCurrency.change.hidden"))
       )
     }
 
@@ -226,8 +226,8 @@ object CheckYourPurchaseDetailsSummary {
       val formattedNumber = f"$amt%,1.2f".replace(".00", "")
       val display = maybeSymbol.map(_ + formattedNumber).getOrElse(formattedNumber)
       (messages("totalPurchaseAmountBeforeVat.checkYourAnswersLabel"),
-        Some(display),
-        Seq((url, "site.change", "totalPurchaseAmountBeforeVat.change.hidden"))
+       Some(display),
+       Seq((url, "site.change", "totalPurchaseAmountBeforeVat.change.hidden"))
       )
     }
 
@@ -253,16 +253,16 @@ object CheckYourPurchaseDetailsSummary {
       .map { _num =>
         val url = routes.SupplierTaxNumberController.onPageLoad(CheckMode).url
         (messages("supplierTaxNumber.checkYourAnswersLabel"),
-          Some(messages("supplierVatRegistrationNumber.checkYourAnswersLabel")),
-          Seq((url, "site.change", "supplierVatRegistrationNumber.change.hidden"))
+         Some(messages("supplierVatRegistrationNumber.checkYourAnswersLabel")),
+         Seq((url, "site.change", "supplierVatRegistrationNumber.change.hidden"))
         )
       }
       .orElse(
         answers.get(SupplierTaxIdentifierNumberPage).map { _num =>
           val url = routes.SupplierTaxNumberController.onPageLoad(CheckMode).url
           (messages("supplierTaxNumber.checkYourAnswersLabel"),
-            Some(messages("supplierTaxIdentifierNumber.checkYourAnswersLabel")),
-            Seq((url, "site.change", "supplierTaxIdentifierNumber.change.hidden"))
+           Some(messages("supplierTaxIdentifierNumber.checkYourAnswersLabel")),
+           Seq((url, "site.change", "supplierTaxIdentifierNumber.change.hidden"))
           )
         }
       )
@@ -271,8 +271,8 @@ object CheckYourPurchaseDetailsSummary {
           case Some(models.SupplierTaxNumber.Neither) =>
             Some(
               (messages("supplierTaxNumber.checkYourAnswersLabel"),
-                Some(messages("site.notProvided")),
-                Seq((routes.SupplierTaxNumberController.onPageLoad(CheckMode).url, "site.change", "supplierTaxNumber.change.hidden"))
+               Some(messages("site.notProvided")),
+               Seq((routes.SupplierTaxNumberController.onPageLoad(CheckMode).url, "site.change", "supplierTaxNumber.change.hidden"))
               )
             )
           case _ => None
@@ -294,9 +294,9 @@ object CheckYourPurchaseDetailsSummary {
     val supplierRows = (
       Seq(rowSupplierName(answers), rowSupplierAddress(answers)) ++
         (if (isGermany)
-          Seq(rowSupplierTaxNumbers(answers), rowSupplierVatRegNumber(answers), rowSupplierTaxIdentifierNumber(answers))
-        else Seq(rowSupplierVatRegCheck(answers), rowSupplierVatRegNumber(answers)))
-      ).flatten
+           Seq(rowSupplierTaxNumbers(answers), rowSupplierVatRegNumber(answers), rowSupplierTaxIdentifierNumber(answers))
+         else Seq(rowSupplierVatRegCheck(answers), rowSupplierVatRegNumber(answers)))
+    ).flatten
 
     val amountsRows = Seq(
       if (showCurrencyRow) rowCurrency(maybeCurrencyDisplayName) else None,

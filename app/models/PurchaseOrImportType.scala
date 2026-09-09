@@ -49,13 +49,14 @@ object PurchaseOrImportType extends Enumerable.Implicits:
 
   val valueFromUrlSlug: Map[String, String] = urlSlugForPurchaseType.map((k, v) => (v, k.toString))
 
-  def options(implicit messages: Messages): Seq[RadioItem] = values.zipWithIndex.map { case (value, index) =>
-    RadioItem(
-      content = Text(messages(s"purchaseType.${value.toString}")),
-      value   = Some(value.toString),
-      id      = Some(s"value_$index")
-    )
-  }
+  def options(messagePrefix: String = "purchaseType")(implicit messages: Messages): Seq[RadioItem] =
+    values.zipWithIndex.map { case (value, index) =>
+      RadioItem(
+        content = Text(messages(s"$messagePrefix.${value.toString}")),
+        value   = Some(value.toString),
+        id      = Some(s"value_$index")
+      )
+    }
 
   implicit val enumerable: Enumerable[PurchaseOrImportType] =
     Enumerable(values.map(v => v.toString -> v)*)

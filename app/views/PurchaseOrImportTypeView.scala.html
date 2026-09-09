@@ -54,7 +54,7 @@
             legend = legendKey.fold(
                 LegendViewModel(HtmlContent(messages(s"$messagePrefix.heading"))).withCssClass("govuk-visually-hidden")
             )(key => LegendViewModel(HtmlContent(messages(key))).withCssClass("govuk-fieldset__legend--m")),
-            items  = PurchaseOrImportType.options
+            items  = PurchaseOrImportType.options(messagePrefix)
         )
     )
 
