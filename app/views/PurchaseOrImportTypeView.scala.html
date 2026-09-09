@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import models.{Mode, PurchaseAndImportType}
+@import models.{Mode, PurchaseOrImportType}
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import views.html.components.MainErrorSummary
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
@@ -54,7 +54,7 @@
             legend = legendKey.fold(
                 LegendViewModel(HtmlContent(messages(s"$messagePrefix.heading"))).withCssClass("govuk-visually-hidden")
             )(key => LegendViewModel(HtmlContent(messages(key))).withCssClass("govuk-fieldset__legend--m")),
-            items  = PurchaseAndImportType.options
+            items  = PurchaseOrImportType.options(messagePrefix)
         )
     )
 

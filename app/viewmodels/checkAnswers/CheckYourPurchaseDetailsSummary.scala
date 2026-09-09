@@ -23,9 +23,6 @@ import pages.*
 import play.api.i18n.{Lang, Messages}
 import play.api.mvc.RequestHeader
 import utils.MountPrefix
-import viewmodels.govuk.summarylist.*
-
-import scala.annotation.tailrec
 
 object CheckYourPurchaseDetailsSummary {
 
@@ -58,7 +55,9 @@ object CheckYourPurchaseDetailsSummary {
         val hasSubcodes = countryOpt
           .flatMap { c =>
             try Some(config.subcodesFor(c, parentKey).nonEmpty)
-            catch { case _: Throwable => None }
+            catch {
+              case _: Throwable => None
+            }
           }
           .getOrElse(true)
 
@@ -70,7 +69,9 @@ object CheckYourPurchaseDetailsSummary {
                 try {
                   val opts = config.subcodesFor(c, parentKey)
                   if (opts.nonEmpty && opts.size == 1) Some(opts.head._1) else None
-                } catch { case _: Throwable => None }
+                } catch {
+                  case _: Throwable => None
+                }
               }
 
               singleBypass match {
@@ -83,8 +84,8 @@ object CheckYourPurchaseDetailsSummary {
     }
   }
 
-  private def renderSubTypeRow(answers: UserAnswers, pt: models.PurchaseAndImportType)(implicit messages: Messages): Option[Row] = {
-    val parentSlug = models.PurchaseAndImportType.urlSlugForPurchaseType(pt)
+  private def renderSubTypeRow(answers: UserAnswers, pt: models.PurchaseOrImportType)(implicit messages: Messages): Option[Row] = {
+    val parentSlug = models.PurchaseOrImportType.urlSlugForPurchaseType(pt)
     val msgKey = s"purchase.subType.$parentSlug"
     val keyLabel = if (messages.isDefinedAt(msgKey)) messages(msgKey) else parentSlug.replace('-', ' ').capitalize
 
@@ -311,5 +312,4 @@ object CheckYourPurchaseDetailsSummary {
       ("purchase.checkYourPurchase.purchaseAmounts", amountsRows)
     )
   }
-
 }

@@ -507,10 +507,10 @@ describeItemsOnInvoice.change.hidden = Change purchase description
 importType.title = Which category best describes the item on your import document?
 importType.heading = Which category best describes the item on your import document?
 importType.fuel = Fuel
-importType.fuel = Transport costs
-importType.fuel = Food, drink and restaurant services
-importType.fuel = Luxuries, entertainment and hospitality
-importType.fuel = Other
+importType.transport = Transport costs
+importType.foodAndDrink = Food, drink and restaurant services
+importType.luxuries = Luxuries, entertainment and hospitality
+importType.other = Other
 importType.error.required = Select the type of import
 
 # Warning messages

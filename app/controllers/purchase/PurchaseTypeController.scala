@@ -34,7 +34,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import utils.{ConfigPurchaseMapping, CountryCode, MountPrefix}
-import views.html.PurchaseAndImportTypeView
+import views.html.PurchaseOrImportTypeView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -51,13 +51,13 @@ class PurchaseTypeController @Inject() (
   formProvider: PurchaseTypeFormProvider,
   val controllerComponents: MessagesControllerComponents,
   euVatRefundsService: EuVatRefundsService,
-  view: PurchaseAndImportTypeView
+  view: PurchaseOrImportTypeView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
     with Logging {
 
-  val form: Form[PurchaseAndImportType] = formProvider()
+  val form: Form[PurchaseOrImportType] = formProvider()
 
   private def backLink(mode: Mode)(implicit request: DataRequest[?]) = controllers.routes.PurchaseOrImportController.onPageLoad
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -168,10 +168,10 @@ class PurchaseTypeController @Inject() (
   private def isNoneSubTypeSelection(subType: String): Boolean =
     subType == ConfigPurchaseMapping.NoneValue || subType.split("\\.").lastOption.contains("99")
 
-  private def shouldReturnToDescribeForOtherNone(value: PurchaseAndImportType)(implicit request: DataRequest[?]): Boolean =
+  private def shouldReturnToDescribeForOtherNone(value: PurchaseOrImportType)(implicit request: DataRequest[?]): Boolean =
     value == models.Other && request.userAnswers.get(PurchaseSubTypePage).exists(isNoneSubTypeSelection)
 
-  private def hasMeaningfulSubcodes(value: PurchaseAndImportType)(implicit request: DataRequest[?]): Boolean =
+  private def hasMeaningfulSubcodes(value: PurchaseOrImportType)(implicit request: DataRequest[?]): Boolean =
     CountryCode
       .findCountryCode(request.userAnswers)
       .flatMap { c =>
@@ -180,7 +180,7 @@ class PurchaseTypeController @Inject() (
       }
       .getOrElse(true)
 
-  private def handleUnchangedCheckModeSubmission(value: PurchaseAndImportType, mode: Mode)(implicit request: DataRequest[?]): Future[Result] = {
+  private def handleUnchangedCheckModeSubmission(value: PurchaseOrImportType, mode: Mode)(implicit request: DataRequest[?]): Future[Result] = {
     if (arrivedFromDescribe && !arrivedFromSubTypeOrCategory && shouldReturnToDescribeForOtherNone(value)) {
       if (describePresent || hasMeaningfulSubcodes(value)) {
         val removedTry = request.userAnswers.remove(DescribeItemsArrivedFromCheckYourAnswersPage)
@@ -197,14 +197,14 @@ class PurchaseTypeController @Inject() (
     }
   }
 
-  private def shortCircuitOrFailForPurchaseType(value: PurchaseAndImportType, mode: Mode)(implicit request: DataRequest[?]): Future[Result] =
+  private def shortCircuitOrFailForPurchaseType(value: PurchaseOrImportType, mode: Mode)(implicit request: DataRequest[?]): Future[Result] =
     if (mode == CheckMode && request.userAnswers.isAnswerUnchanged(PurchaseTypePage, value)) {
       Future.successful(Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad()))
     } else {
       Future.failed(new IllegalStateException("Expected short-circuit result for unchanged CheckMode submission"))
     }
 
-  private def handleSubmissionWhenChangedOrNormal(value: PurchaseAndImportType, mode: Mode)(implicit request: DataRequest[?]): Future[Result] = {
+  private def handleSubmissionWhenChangedOrNormal(value: PurchaseOrImportType, mode: Mode)(implicit request: DataRequest[?]): Future[Result] = {
     if (mode == CheckMode && request.userAnswers.isAnswerUnchanged(PurchaseTypePage, value)) {
       Future.successful(Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad()))
     } else {
@@ -217,7 +217,7 @@ class PurchaseTypeController @Inject() (
     }
   }
 
-  private def buildUpdatedTryForPurchaseTypeChange(value: PurchaseAndImportType)(implicit request: DataRequest[?]): Try[UserAnswers] =
+  private def buildUpdatedTryForPurchaseTypeChange(value: PurchaseOrImportType)(implicit request: DataRequest[?]): Try[UserAnswers] =
     for {
       afterRemovedSubType        <- request.userAnswers.remove(PurchaseSubTypePage)
       afterRemovedSubTypeLabel   <- afterRemovedSubType.remove(PurchaseSubTypeLabelPage)
@@ -227,7 +227,7 @@ class PurchaseTypeController @Inject() (
       afterSetPurchaseType       <- afterRemovedDescribe.set(PurchaseTypePage, value)
     } yield afterSetPurchaseType
 
-  private def persistAndHandleSaved(userAnswersTry: Try[UserAnswers], value: PurchaseAndImportType, mode: Mode)(implicit
+  private def persistAndHandleSaved(userAnswersTry: Try[UserAnswers], value: PurchaseOrImportType, mode: Mode)(implicit
     request: DataRequest[?]
   ): Future[Result] =
     Future.fromTry(userAnswersTry).flatMap { persistedAnswers =>
@@ -241,7 +241,7 @@ class PurchaseTypeController @Inject() (
         }
       }
     }
-  private def hasSubcodesFor(answers: UserAnswers, value: PurchaseAndImportType): Boolean =
+  private def hasSubcodesFor(answers: UserAnswers, value: PurchaseOrImportType): Boolean =
     CountryCode
       .findCountryCode(answers)
       .flatMap { c =>
@@ -250,14 +250,14 @@ class PurchaseTypeController @Inject() (
       }
       .getOrElse(true)
 
-  private def removeFlagThenRedirectToSubType(flagPage: QuestionPage[Boolean], answers: UserAnswers, value: PurchaseAndImportType)(implicit
+  private def removeFlagThenRedirectToSubType(flagPage: QuestionPage[Boolean], answers: UserAnswers, value: PurchaseOrImportType)(implicit
     req: RequestHeader
   ): Future[Result] = {
     val removeTry = answers.remove(flagPage)
     Future.fromTry(removeTry).flatMap { ua =>
       sessionRepository.set(ua).map { _ =>
         redirectWithPrefix(
-          routes.PurchaseSubTypeController.onPageLoad(PurchaseAndImportType.urlSlugForPurchaseType(value), CheckMode)
+          routes.PurchaseSubTypeController.onPageLoad(PurchaseOrImportType.urlSlugForPurchaseType(value), CheckMode)
         )
       }
     }
@@ -285,23 +285,23 @@ class PurchaseTypeController @Inject() (
       Future.successful(answers)
     }
 
-  private def shouldReturnToDescribeForAnswers(answers: UserAnswers, value: PurchaseAndImportType): Boolean =
+  private def shouldReturnToDescribeForAnswers(answers: UserAnswers, value: PurchaseOrImportType): Boolean =
     value == models.Other && answers.get(PurchaseSubTypePage).exists(isNoneSubTypeSelection)
 
-  private def redirectChangePath(value: PurchaseAndImportType)(implicit request: RequestHeader): Future[Result] = {
-    val slug = PurchaseAndImportType.urlSlugForPurchaseType(value)
+  private def redirectChangePath(value: PurchaseOrImportType)(implicit request: RequestHeader): Future[Result] = {
+    val slug = PurchaseOrImportType.urlSlugForPurchaseType(value)
     val prefix = MountPrefix.getFromRequest
     val changePath = s"${if (prefix.isEmpty) "" else prefix}/change-$slug"
     Future.successful(Redirect(Call("GET", changePath)))
   }
 
-  private def handleCheckModePostPersist(updatedAnswers: UserAnswers, value: PurchaseAndImportType)(implicit
+  private def handleCheckModePostPersist(updatedAnswers: UserAnswers, value: PurchaseOrImportType)(implicit
     request: DataRequest[?]
   ): Future[Result] = {
     processCheckModePostPersist(updatedAnswers, value)(request)
   }
 
-  private def processCheckModePostPersist(updatedAnswers: UserAnswers, value: PurchaseAndImportType)(implicit
+  private def processCheckModePostPersist(updatedAnswers: UserAnswers, value: PurchaseOrImportType)(implicit
     request: DataRequest[?]
   ): Future[Result] = {
     if (!hasSubcodesFor(updatedAnswers, value)) {
@@ -312,13 +312,13 @@ class PurchaseTypeController @Inject() (
       removeFlagAndRedirect(
         PurchaseSubTypeArrivedFromCheckYourAnswersPage,
         updatedAnswers,
-        routes.PurchaseSubTypeController.onPageLoad(PurchaseAndImportType.urlSlugForPurchaseType(value), CheckMode)
+        routes.PurchaseSubTypeController.onPageLoad(PurchaseOrImportType.urlSlugForPurchaseType(value), CheckMode)
       )(request)
     } else if (updatedAnswers.get(PurchaseSubCategoryArrivedFromCheckYourAnswersPage).contains(true)) {
       removeFlagAndRedirect(
         PurchaseSubCategoryArrivedFromCheckYourAnswersPage,
         updatedAnswers,
-        routes.PurchaseSubTypeController.onPageLoad(PurchaseAndImportType.urlSlugForPurchaseType(value), CheckMode)
+        routes.PurchaseSubTypeController.onPageLoad(PurchaseOrImportType.urlSlugForPurchaseType(value), CheckMode)
       )(request)
     } else {
       redirectChangePath(value)
@@ -341,7 +341,7 @@ class PurchaseTypeController @Inject() (
     }
   }
 
-  private def handleDescribeArrivedCase(updatedAnswers: UserAnswers, value: PurchaseAndImportType)(implicit
+  private def handleDescribeArrivedCase(updatedAnswers: UserAnswers, value: PurchaseOrImportType)(implicit
     request: DataRequest[?]
   ): Future[Result] = {
     if (shouldReturnToDescribeForAnswers(updatedAnswers, value)) {
@@ -355,10 +355,10 @@ class PurchaseTypeController @Inject() (
           clearedAnswers,
           Seq(
             (PurchaseSubTypeArrivedFromCheckYourAnswersPage,
-             (_: UserAnswers) => routes.PurchaseSubTypeController.onPageLoad(PurchaseAndImportType.urlSlugForPurchaseType(value), CheckMode)
+             (_: UserAnswers) => routes.PurchaseSubTypeController.onPageLoad(PurchaseOrImportType.urlSlugForPurchaseType(value), CheckMode)
             ),
             (PurchaseSubCategoryArrivedFromCheckYourAnswersPage,
-             (_: UserAnswers) => routes.PurchaseSubTypeController.onPageLoad(PurchaseAndImportType.urlSlugForPurchaseType(value), CheckMode)
+             (_: UserAnswers) => routes.PurchaseSubTypeController.onPageLoad(PurchaseOrImportType.urlSlugForPurchaseType(value), CheckMode)
             )
           )
         ).flatMap {
@@ -390,7 +390,7 @@ class PurchaseTypeController @Inject() (
 
   private def addPurchaseAndPersist(
     answers: UserAnswers,
-    purchaseType: PurchaseAndImportType,
+    purchaseType: PurchaseOrImportType,
     mode: Mode
   )(implicit request: DataRequest[?]): Future[Result] = {
     implicit val hc: HeaderCarrier =
@@ -403,7 +403,7 @@ class PurchaseTypeController @Inject() (
       } { claimResponse =>
         val purchaseRequest = AddPurchaseRequest(
           applicationId            = claimResponse.applicationId,
-          goodsDescriptionCategory = PurchaseAndImportType.codes(purchaseType),
+          goodsDescriptionCategory = PurchaseOrImportType.codes(purchaseType),
           updateSequenceNumber     = claimResponse.updateSeqNumber
         )
 

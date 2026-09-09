@@ -24,12 +24,12 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.libs.json.{JsError, JsString, Json}
 
-class PurchaseAndImportTypeSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChecks with OptionValues {
+class PurchaseOrImportTypeSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChecks with OptionValues {
 
-  "PurchaseAndImportType" - {
+  "PurchaseOrImportType" - {
 
     "must list exactly five values in spec order" in {
-      PurchaseAndImportType.values mustEqual Seq(
+      PurchaseOrImportType.values mustEqual Seq(
         Fuel,
         Transport,
         FoodAndDrink,
@@ -39,23 +39,23 @@ class PurchaseAndImportTypeSpec extends AnyFreeSpec with Matchers with ScalaChec
     }
 
     "must deserialise valid values" in {
-      val gen = Gen.oneOf(PurchaseAndImportType.values)
+      val gen = Gen.oneOf(PurchaseOrImportType.values)
 
       forAll(gen) { value =>
-        JsString(value.toString).validate[PurchaseAndImportType].asOpt.value mustEqual value
+        JsString(value.toString).validate[PurchaseOrImportType].asOpt.value mustEqual value
       }
     }
 
     "must fail to deserialise invalid values" in {
-      val gen = arbitrary[String] suchThat (s => !PurchaseAndImportType.values.map(_.toString).contains(s))
+      val gen = arbitrary[String] suchThat (s => !PurchaseOrImportType.values.map(_.toString).contains(s))
 
       forAll(gen) { invalidValue =>
-        JsString(invalidValue).validate[PurchaseAndImportType] mustEqual JsError("error.invalid")
+        JsString(invalidValue).validate[PurchaseOrImportType] mustEqual JsError("error.invalid")
       }
     }
 
     "must serialise" in {
-      val gen = Gen.oneOf(PurchaseAndImportType.values)
+      val gen = Gen.oneOf(PurchaseOrImportType.values)
 
       forAll(gen) { value =>
         Json.toJson(value) mustEqual JsString(value.toString)

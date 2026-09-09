@@ -19,7 +19,7 @@ package utils
 import base.SpecBase
 import com.typesafe.config.ConfigFactory
 import models.requests.DataRequest
-import models.{CheckMode, Fuel, NormalMode, PurchaseAndImportType}
+import models.{CheckMode, Fuel, NormalMode, PurchaseOrImportType}
 import org.mockito.ArgumentMatchers.any as anyA
 import org.mockito.Mockito.{never, times, verify, when}
 import pages.*

@@ -20,7 +20,7 @@ import controllers.actions.*
 import controllers.helpers.PurchaseBackLinkHelper
 import forms.purchase.DescribeItemsOnInvoiceFormProvider
 import models.requests.DataRequest
-import models.{CheckMode, Mode, Other, PurchaseAndImportType, UserAnswers}
+import models.{CheckMode, Mode, Other, PurchaseOrImportType, UserAnswers}
 import navigation.Navigator
 import pages.*
 import play.api.data.Form
@@ -75,7 +75,7 @@ class DescribeItemsOnInvoiceController @Inject() (
     if (parentIndicatesNone) {
       utils.CountryCode.findCountryCode(request.userAnswers).fold(routes.PurchaseTypeController.onPageLoad(mode)) { country =>
         if (hasMultipleOtherSubcodes(country)) {
-          routes.PurchaseSubTypeController.onPageLoad(PurchaseAndImportType.urlSlugForPurchaseType(Other), mode)
+          routes.PurchaseSubTypeController.onPageLoad(PurchaseOrImportType.urlSlugForPurchaseType(Other), mode)
         } else {
           routes.PurchaseTypeController.onPageLoad(mode)
         }

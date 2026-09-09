@@ -18,7 +18,7 @@ package controllers.helpers
 
 import controllers.purchase.routes
 import models.requests.DataRequest
-import models.{Mode, PurchaseAndImportType, PurchaseSubCategoryType}
+import models.{Mode, PurchaseOrImportType, PurchaseSubCategoryType}
 import models.PurchaseSubCategoryType.{defaultSlugFor, purchaseSubCategoryUrlSlugFor}
 import pages.{PurchaseSubCategoryPage, PurchaseSubTypePage, PurchaseTypePage}
 import play.api.mvc.Call
@@ -27,11 +27,11 @@ import utils.MountPrefix
 object PurchaseBackLinkHelper {
 
   def computeBackTarget(mode: Mode)(implicit request: DataRequest[?]): Call = {
-    val maybePurchaseTypeSlug = request.userAnswers.get(PurchaseTypePage).map(PurchaseAndImportType.urlSlugForPurchaseType)
+    val maybePurchaseTypeSlug = request.userAnswers.get(PurchaseTypePage).map(PurchaseOrImportType.urlSlugForPurchaseType)
     val maybeParentCode = request.userAnswers.get(PurchaseSubTypePage)
     val maybeChildCode = request.userAnswers.get(PurchaseSubCategoryPage)
     lazy val purchaseType = maybePurchaseTypeSlug
-      .flatMap(urlSlug => PurchaseAndImportType.values.find(PurchaseAndImportType.urlSlugForPurchaseType(_) == urlSlug))
+      .flatMap(urlSlug => PurchaseOrImportType.values.find(PurchaseOrImportType.urlSlugForPurchaseType(_) == urlSlug))
 
     (maybePurchaseTypeSlug, maybeParentCode, maybeChildCode) match {
       case (Some(urlSlug), None, Some(child)) if child.contains(".") && purchaseType.isDefined =>

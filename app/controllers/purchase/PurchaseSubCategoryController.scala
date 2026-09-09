@@ -19,7 +19,7 @@ package controllers.purchase
 import controllers.actions.*
 import forms.purchase.PurchaseSubTypeFormProvider
 import models.requests.DataRequest
-import models.{CheckMode, Mode, NormalMode, PurchaseAndImportType, PurchaseSubCategoryType, UserAnswers}
+import models.{CheckMode, Mode, NormalMode, PurchaseOrImportType, PurchaseSubCategoryType, UserAnswers}
 import navigation.Navigator
 import pages.*
 import play.api.Logging
@@ -105,7 +105,7 @@ class PurchaseSubCategoryController @Inject() (
     request: RequestHeader
   ): Call = {
     val prefix = utils.MountPrefix.getFromRequest
-    val maybeSessionSlug = userAnswers.get(PurchaseTypePage).map(models.PurchaseAndImportType.urlSlugForPurchaseType)
+    val maybeSessionSlug = userAnswers.get(PurchaseTypePage).map(models.PurchaseOrImportType.urlSlugForPurchaseType)
     candidates.iterator
       .flatMap(c => tryReverseParent(parentKey, c, mode))
       .find(_ => true)
@@ -121,7 +121,7 @@ class PurchaseSubCategoryController @Inject() (
 
   private def backUrlFor(userAnswers: UserAnswers, mode: Mode)(implicit request: RequestHeader): String = {
     val prefix = MountPrefix.getFromRequest
-    userAnswers.get(PurchaseTypePage).map(pt => PurchaseAndImportType.urlSlugForPurchaseType(pt)) match {
+    userAnswers.get(PurchaseTypePage).map(pt => PurchaseOrImportType.urlSlugForPurchaseType(pt)) match {
       case Some(slug) =>
         val url = ControllerHelpers.pathForSlug(slug, mode, prefix)
         Call("GET", url).url

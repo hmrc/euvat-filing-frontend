@@ -17,7 +17,7 @@
 package controllers.imports
 
 import base.SpecBase
-import models.{Fuel, Other, PurchaseAndImportType, Transport, UserAnswers}
+import models.{Fuel, Other, PurchaseOrImportType, Transport, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -35,7 +35,7 @@ class ImportSubCodeControllerSpec extends SpecBase with MockitoSugar {
   private def journeyRecoveryUrl = controllers.routes.JourneyRecoveryController.onPageLoad().url
   private def taskListUrl = controllers.routes.TaskListDashboardController.onPageLoad().url
 
-  private def answers(importType: PurchaseAndImportType = Fuel, country: String = "AT"): UserAnswers =
+  private def answers(importType: PurchaseOrImportType = Fuel, country: String = "AT"): UserAnswers =
     emptyUserAnswers
       .set(RefundingCountryPage, country)
       .success

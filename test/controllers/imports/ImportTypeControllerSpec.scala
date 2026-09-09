@@ -19,7 +19,7 @@ package controllers.imports
 import base.SpecBase
 import controllers.routes
 import forms.ImportTypeFormProvider
-import models.{Fuel, NormalMode, PurchaseAndImportType, UserAnswers}
+import models.{Fuel, NormalMode, PurchaseOrImportType, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -30,7 +30,7 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.PurchaseAndImportTypeView
+import views.html.PurchaseOrImportTypeView
 
 import scala.concurrent.Future
 
@@ -56,7 +56,7 @@ class ImportTypeControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[PurchaseAndImportTypeView]
+        val view = application.injector.instanceOf[PurchaseOrImportTypeView]
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
@@ -77,7 +77,7 @@ class ImportTypeControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request = FakeRequest(GET, importTypeRoute)
 
-        val view = application.injector.instanceOf[PurchaseAndImportTypeView]
+        val view = application.injector.instanceOf[PurchaseOrImportTypeView]
 
         val result = route(application, request).value
 
@@ -128,7 +128,7 @@ class ImportTypeControllerSpec extends SpecBase with MockitoSugar {
 
         val boundForm = form.bind(Map("value" -> "invalid value"))
 
-        val view = application.injector.instanceOf[PurchaseAndImportTypeView]
+        val view = application.injector.instanceOf[PurchaseOrImportTypeView]
 
         val result = route(application, request).value
 

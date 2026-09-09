@@ -16,10 +16,10 @@
 
 package pages
 
-import models.PurchaseAndImportType
+import models.PurchaseOrImportType
 import play.api.libs.json.JsPath
 
-case object PurchaseTypePage extends QuestionPage[PurchaseAndImportType] {
+case object PurchaseTypePage extends QuestionPage[PurchaseOrImportType] {
 
   override def path: JsPath = JsPath \ toString
 
