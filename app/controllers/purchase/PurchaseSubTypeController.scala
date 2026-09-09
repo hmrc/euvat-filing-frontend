@@ -29,7 +29,7 @@ import repositories.SessionRepository
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.{ConfigPurchaseMapping, ControllerHelpers, CountryCode, MountPrefix}
-import views.html.purchase.PurchaseSubTypeView
+import views.html.PurchaseOrImportSubTypeView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -44,7 +44,7 @@ class PurchaseSubTypeController @Inject() (
   formProvider: PurchaseSubTypeFormProvider,
   config: ConfigPurchaseMapping,
   val controllerComponents: MessagesControllerComponents,
-  view: PurchaseSubTypeView
+  view: PurchaseOrImportSubTypeView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
@@ -185,7 +185,7 @@ class PurchaseSubTypeController @Inject() (
     request: DataRequest[AnyContent]
   ): Future[Result] = {
     val backUrl = backUrlFor(mode)
-    Future.successful(Ok(view(preparedForm, items, heading, heading, formAction, backUrl)))
+    Future.successful(Ok(view(preparedForm, items, heading, heading, "purchase.caption", formAction, backUrl)))
   }
 
   private def markArrivalAndRenderSubType(preparedForm: Form[?],
@@ -271,7 +271,7 @@ class PurchaseSubTypeController @Inject() (
   ): Future[Result] = {
     val formAction = formActionFor(resolvedSlug, mode)
     val backUrl = backUrlFor(mode)
-    Future.successful(BadRequest(view(formWithErrors, items, parentHeading, parentHeading, formAction, backUrl)))
+    Future.successful(BadRequest(view(formWithErrors, items, parentHeading, parentHeading, "purchase.caption", formAction, backUrl)))
   }
 
   private def persistNoneSelection(mode: Mode, userAnswers: UserAnswers)(implicit request: DataRequest[AnyContent]): Future[Result] = {

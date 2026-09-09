@@ -30,7 +30,7 @@ import repositories.SessionRepository
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.{ConfigPurchaseMapping, ControllerHelpers, CountryCode, MountPrefix}
-import views.html.purchase.PurchaseSubTypeView
+import views.html.PurchaseOrImportSubTypeView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -45,7 +45,7 @@ class PurchaseSubCategoryController @Inject() (
   formProvider: PurchaseSubTypeFormProvider,
   config: ConfigPurchaseMapping,
   val controllerComponents: MessagesControllerComponents,
-  view: PurchaseSubTypeView
+  view: PurchaseOrImportSubTypeView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
@@ -239,7 +239,7 @@ class PurchaseSubCategoryController @Inject() (
   }
 
   private def renderSubCategoryView(data: SubCategoryViewData)(implicit request: DataRequest[AnyContent]): Future[Result] =
-    Future.successful(Ok(view(data.preparedForm, data.items, data.pageTitle, data.heading, data.formAction, data.backUrl)))
+    Future.successful(Ok(view(data.preparedForm, data.items, data.pageTitle, data.heading, "purchase.caption", data.formAction, data.backUrl)))
 
   private def markArrivalAndRenderSubCategory(data: SubCategoryViewData, mode: Mode, userAnswers: UserAnswers)(implicit
     request: DataRequest[AnyContent]
@@ -382,7 +382,9 @@ class PurchaseSubCategoryController @Inject() (
         .bindFromRequest()
         .fold(
           formWithErrors =>
-            Future.successful(BadRequest(view(formWithErrors, data.items, data.pageTitle, data.heading, data.formAction, data.backUrl))),
+            Future.successful(
+              BadRequest(view(formWithErrors, data.items, data.pageTitle, data.heading, "purchase.caption", data.formAction, data.backUrl))
+            ),
           value => handleSubmitValue(value, data.options, mode, userAnswers)
         )
     }

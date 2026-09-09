@@ -30,7 +30,7 @@ import repositories.SessionRepository
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.{ConfigPurchaseMapping, CountryCode}
-import views.html.imports.ImportSubCodeView
+import views.html.PurchaseOrImportSubTypeView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -45,7 +45,7 @@ class ImportSubCodeController @Inject() (
   formProvider: PurchaseSubTypeFormProvider,
   config: ConfigPurchaseMapping,
   val controllerComponents: MessagesControllerComponents,
-  view: ImportSubCodeView
+  view: PurchaseOrImportSubTypeView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
@@ -91,6 +91,7 @@ class ImportSubCodeController @Inject() (
       radioItems(options),
       messages(s"importSubCode.$importType.title"),
       messages(s"importSubCode.$importType.heading"),
+      "import.caption",
       controllers.imports.routes.ImportSubCodeController.onSubmit(importType.toString),
       backUrl
     )
