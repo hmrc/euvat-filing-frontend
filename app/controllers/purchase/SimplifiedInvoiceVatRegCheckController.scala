@@ -47,14 +47,18 @@ class SimplifiedInvoiceVatRegCheckController @Inject() (
     with I18nSupport {
 
   val form: Form[Boolean] = formProvider()
-  private def backLink: Call = routes.SupplierAddressController.onPageLoad(NormalMode)
+  private def backLink(mode: Mode): Call = if (mode == CheckMode) {
+    routes.CheckYourPurchaseDetailsController.onPageLoad()
+  } else {
+    routes.SupplierAddressController.onPageLoad(NormalMode)
+  }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     request.userAnswers.get(SupplierAddressPage) match {
       case None => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       case Some(_) =>
         val preparedForm = request.userAnswers.get(SimplifiedInvoiceVatRegCheckPage).fold(form)(form.fill)
-        Ok(view(preparedForm, mode, backLink))
+        Ok(view(preparedForm, mode, backLink(mode)))
     }
   }
 
@@ -104,7 +108,7 @@ class SimplifiedInvoiceVatRegCheckController @Inject() (
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)))),
         value => handleValidSubmit(value, mode)
       )
   }
