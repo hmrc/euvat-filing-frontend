@@ -93,8 +93,8 @@ class CheckYourPurchaseDetailsController @Inject() (
 
         val goodsDescriptionSubCategory: Option[String] = {
           if (purchaseSubType.contains(ConfigPurchaseMapping.NoneValue) && purchaseSubCategory.contains(ConfigPurchaseMapping.NoneValue)) None
-          else if (purchaseSubCategory.exists(v => v != ConfigPurchaseMapping.NoneValue && !v.split("\\.").lastOption.contains("99"))) purchaseSubCategory
-          else if (purchaseSubType.exists(v => v != ConfigPurchaseMapping.NoneValue && !v.split("\\.").lastOption.contains("99"))) purchaseSubType
+          else if (purchaseSubCategory.exists(v => v != ConfigPurchaseMapping.NoneValue)) purchaseSubCategory
+          else if (purchaseSubType.exists(v => v != ConfigPurchaseMapping.NoneValue)) purchaseSubType
           else None
         }
 
