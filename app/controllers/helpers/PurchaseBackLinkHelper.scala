@@ -38,7 +38,6 @@ object PurchaseBackLinkHelper {
         val parentKey = purchaseType.get.toString
 
         purchaseSubCategoryUrlSlugFor(parentKey, child)
-          // fallback to parent head (e.g. "1") then to first available slug
           .orElse(purchaseSubCategoryUrlSlugFor(parentKey, child.split("\\.").head))
           .orElse(defaultSlugFor(parentKey))
           .map(urlSlug => Call("GET", s"${MountPrefix.getFromRequest}/$urlSlug"))

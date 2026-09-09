@@ -20,7 +20,7 @@ import controllers.actions.*
 import controllers.helpers.PurchaseBackLinkHelper
 import forms.purchase.DescribeItemsOnInvoiceFormProvider
 import models.requests.DataRequest
-import models.{CheckMode, Mode, Other, PurchaseType, UserAnswers}
+import models.{CheckMode, Mode, Other, PurchaseType}
 import navigation.Navigator
 import pages.*
 import play.api.data.Form
@@ -28,8 +28,8 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.ControllerHelpers.*
 import utils.{ConfigPurchaseMapping, CountryCode}
+import utils.ControllerHelpers.*
 import views.html.purchase.DescribeItemsOnInvoiceView
 
 import javax.inject.Inject
@@ -73,7 +73,7 @@ class DescribeItemsOnInvoiceController @Inject() (
 
   private def determineBackForOther(mode: Mode)(implicit request: DataRequest[?]): Call =
     if (parentIndicatesNone) {
-      utils.CountryCode.findCountryCode(request.userAnswers).fold(routes.PurchaseTypeController.onPageLoad(mode)) { country =>
+      CountryCode.findCountryCode(request.userAnswers).fold(routes.PurchaseTypeController.onPageLoad(mode)) { country =>
         if (hasMultipleOtherSubcodes(country)) {
           routes.PurchaseSubTypeController.onPageLoad(PurchaseType.urlSlugForPurchaseType(Other), mode)
         } else {

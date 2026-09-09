@@ -17,10 +17,9 @@
 package controllers.purchase
 
 import base.SpecBase
-import controllers.purchase.routes
 import forms.purchase.InvoiceTypeFormProvider
 import models.{Fuel, InvoiceType, NormalMode, PurchaseType}
-import pages.{InvoiceTypePage, PurchaseSubCategoryPage, PurchaseSubTypePage, PurchaseTypePage}
+import pages.{PurchaseSubCategoryPage, PurchaseSubTypePage, PurchaseTypePage}
 import play.api.data.Form
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -40,7 +39,6 @@ class InvoiceTypeBackLinkSpec extends SpecBase {
 
       running(application) {
         val request = FakeRequest(GET, invoiceRoute)
-
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -50,13 +48,11 @@ class InvoiceTypeBackLinkSpec extends SpecBase {
 
     "should link to PurchaseType when only PurchaseTypePage present" in {
       val userAnswers = emptyUserAnswers.set(PurchaseTypePage, Fuel).success.value
-
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, invoiceRoute)
         val view = application.injector.instanceOf[InvoiceTypeView]
-
         val result = play.api.test.Helpers.route(application, request).value
 
         status(result) mustEqual OK
@@ -80,7 +76,6 @@ class InvoiceTypeBackLinkSpec extends SpecBase {
       running(application) {
         val request = FakeRequest(GET, invoiceRoute)
         val view = application.injector.instanceOf[InvoiceTypeView]
-
         val result = play.api.test.Helpers.route(application, request).value
 
         status(result) mustEqual OK
@@ -109,7 +104,6 @@ class InvoiceTypeBackLinkSpec extends SpecBase {
         val view = application.injector.instanceOf[InvoiceTypeView]
         val formProvider = new InvoiceTypeFormProvider()
         val form = formProvider()
-
         val result = route(application, request).value
 
         status(result) mustEqual OK

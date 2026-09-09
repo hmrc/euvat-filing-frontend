@@ -20,7 +20,7 @@ import controllers.actions.*
 import controllers.helpers.PurchaseBackLinkHelper
 import forms.purchase.InvoiceTypeFormProvider
 import models.requests.DataRequest
-import models.{CheckMode, InvoiceType, Mode, Other, PurchaseType, UserAnswers}
+import models.{CheckMode, InvoiceType, Mode, NormalMode, Other, PurchaseType, UserAnswers}
 import navigation.Navigator
 import pages.*
 import play.api.Logging
@@ -65,12 +65,16 @@ class InvoiceTypeController @Inject() (
     def childIsNone = request.userAnswers.get(PurchaseSubCategoryPage).exists(v => v.split("\\.").lastOption.contains("99"))
     def isOther = request.userAnswers.get(PurchaseTypePage).contains(Other)
 
-    if (!isOther) {
-      PurchaseBackLinkHelper.computeBackTarget(mode)
-    } else if (parentIsNone || childIsNone) {
-      routes.DescribeItemsOnInvoiceController.onPageLoad(mode)
+    if (mode == CheckMode) {
+      routes.CheckYourPurchaseDetailsController.onPageLoad()
     } else {
-      PurchaseBackLinkHelper.computeBackTarget(mode)
+      if (!isOther) {
+        PurchaseBackLinkHelper.computeBackTarget(NormalMode)
+      } else if (parentIsNone || childIsNone) {
+        routes.DescribeItemsOnInvoiceController.onPageLoad(NormalMode)
+      } else {
+        PurchaseBackLinkHelper.computeBackTarget(NormalMode)
+      }
     }
   }
 

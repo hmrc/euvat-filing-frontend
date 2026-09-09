@@ -17,9 +17,8 @@
 package controllers.purchase
 
 import base.SpecBase
-import controllers.purchase.routes
 import forms.purchase.TotalVatPaidFormProvider
-import models.{CheckMode, Fuel, NormalMode, PurchaseType, UserAnswers}
+import models.{CheckMode, Fuel, NormalMode, PurchaseType}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
@@ -38,10 +37,8 @@ import scala.concurrent.Future
 class TotalVatPaidControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute: Call = Call("GET", "/foo")
-
   val formProvider = new TotalVatPaidFormProvider()
   val form: Form[BigDecimal] = formProvider()
-
   lazy val url: String = routes.TotalVatPaidController.onPageLoad(NormalMode).url
 
   "TotalVatPaid Controller" - {
@@ -51,9 +48,7 @@ class TotalVatPaidControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(GET, url)
-
         val result = route(application, request).value
-
         val view = application.injector.instanceOf[TotalVatPaidView]
 
         status(result) mustEqual OK
@@ -66,16 +61,31 @@ class TotalVatPaidControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must return OK and the correct view for a GET in CheckMode" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.TotalVatPaidController.onPageLoad(CheckMode).url)
+        val result = route(application, request).value
+        val view = application.injector.instanceOf[TotalVatPaidView]
+
+        status(result) mustEqual OK
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
+          view(form, CheckMode, routes.CheckYourPurchaseDetailsController.onPageLoad(), "€", "Euro")(
+            request,
+            messages(application)
+          ).toString
+        )
+      }
+    }
+
     "must pre-fill the form when saved answers exist" in {
       val answers = emptyUserAnswers.set(TotalVatPaidPage, BigDecimal("12.34")).success.value
-
       val application = applicationBuilder(userAnswers = Some(answers)).build()
 
       running(application) {
         val request = FakeRequest(GET, url)
-
         val result = route(application, request).value
-
         val view = application.injector.instanceOf[TotalVatPaidView]
 
         status(result) mustEqual OK
@@ -104,9 +114,7 @@ class TotalVatPaidControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(POST, url).withFormUrlEncodedBody(("value", "123.45"))
-
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
       }
@@ -128,9 +136,7 @@ class TotalVatPaidControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(POST, url).withFormUrlEncodedBody(("value", "200.45"))
-
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.warning.routes.VatPaidWarningController.onPageLoad(NormalMode).url
       }
@@ -145,9 +151,7 @@ class TotalVatPaidControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("value", ""))
 
         val boundForm = form.bind(Map("value" -> ""))
-
         val view = application.injector.instanceOf[TotalVatPaidView]
-
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
@@ -165,9 +169,7 @@ class TotalVatPaidControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(GET, url)
-
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
@@ -182,7 +184,6 @@ class TotalVatPaidControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("value", "123.45"))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
@@ -202,7 +203,6 @@ class TotalVatPaidControllerSpec extends SpecBase with MockitoSugar {
           .withFormUrlEncodedBody(("value", "50.00"))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad().url
       }
@@ -224,12 +224,10 @@ class TotalVatPaidControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(POST, routes.TotalVatPaidController.onSubmit(CheckMode).url)
-          // arrived from prior amount page
           .withHeaders("Referer" -> "/total-purchase-amount-before-vat")
           .withFormUrlEncodedBody(("value", "60.00"))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad().url
       }
@@ -257,12 +255,10 @@ class TotalVatPaidControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(POST, routes.TotalVatPaidController.onSubmit(CheckMode).url)
-          // Emulate that we were redirected from the prior page after editing it by setting the session marker
           .withSession("arrival" -> "total-purchase-before-vat")
           .withFormUrlEncodedBody(("value", "60.00"))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
         verify(mockSessionRepository).set(any())
@@ -290,9 +286,7 @@ class TotalVatPaidControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(POST, routes.TotalVatPaidController.onSubmit(CheckMode).url).withFormUrlEncodedBody(("value", "60.00"))
-
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.warning.routes.VatPaidWarningController.onPageLoad(CheckMode).url
         verify(mockSessionRepository).set(any())

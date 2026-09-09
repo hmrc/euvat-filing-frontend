@@ -19,7 +19,7 @@ package controllers.purchase
 import controllers.actions.*
 import forms.purchase.TotalPurchaseAmountBeforeVatFormProvider
 import models.requests.DataRequest
-import models.{Mode, SupplierTaxNumber, UserAnswers}
+import models.{CheckMode, Mode, NormalMode, SupplierTaxNumber, UserAnswers}
 import navigation.Navigator
 import pages.*
 import play.api.data.Form
@@ -51,24 +51,28 @@ class TotalPurchaseAmountBeforeVatController @Inject() (
 
   val form: Form[BigDecimal] = formProvider()
 
-  private def germanyBackLink(mode: Mode, userAnswers: UserAnswers): Call =
+  private def germanyBackLink(userAnswers: UserAnswers): Call =
     userAnswers.get(SupplierTaxNumberPage) match {
-      case Some(SupplierTaxNumber.Vatregistrationnumber) => routes.SupplierVatRegistrationNumberController.onPageLoad(mode)
-      case Some(SupplierTaxNumber.Taxidentifiernumber)   => routes.SupplierTaxIdentifierNumberController.onPageLoad(mode)
-      case _                                             => routes.SupplierTaxNumberController.onPageLoad(mode)
+      case Some(SupplierTaxNumber.Vatregistrationnumber) => routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode)
+      case Some(SupplierTaxNumber.Taxidentifiernumber)   => routes.SupplierTaxIdentifierNumberController.onPageLoad(NormalMode)
+      case _                                             => routes.SupplierTaxNumberController.onPageLoad(NormalMode)
     }
 
-  private def defaultBackLink(mode: Mode, userAnswers: UserAnswers): Call =
+  private def defaultBackLink(userAnswers: UserAnswers): Call =
     userAnswers.get(SupplierVatRegistrationNumberPage) match {
-      case Some(_) => routes.SupplierVatRegistrationNumberController.onPageLoad(mode)
-      case None    => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode)
+      case Some(_) => routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode)
+      case None    => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode)
     }
 
   private def backLink(mode: Mode)(userAnswers: UserAnswers): Call = {
-    userAnswers.get(RefundingCountryPage) match {
-      case Some("EE") => routes.RefundingCurrencyController.onPageLoad(mode)
-      case Some("DE") => germanyBackLink(mode, userAnswers)
-      case _          => defaultBackLink(mode, userAnswers)
+    if (mode == CheckMode) {
+      routes.CheckYourPurchaseDetailsController.onPageLoad()
+    } else {
+      userAnswers.get(RefundingCountryPage) match {
+        case Some("EE") => routes.RefundingCurrencyController.onPageLoad(NormalMode)
+        case Some("DE") => germanyBackLink(userAnswers)
+        case _          => defaultBackLink(userAnswers)
+      }
     }
   }
 

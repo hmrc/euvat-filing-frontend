@@ -107,19 +107,19 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from InvoiceNumberPage to InvoiceDateController in normal flow (no warning marker)" in {
-        val ua = userAnswers.remove(VrnWarningFlowPage).success.value
+        val ua = userAnswers.remove(SupplierVatRegistrationWarningShownPage).success.value
         navigator.nextPage(InvoiceNumberPage, NormalMode, ua) mustBe
           purchaseRoutes.InvoiceDateController.onPageLoad(NormalMode)
       }
 
       "must go from InvoiceNumberPage to the supplier VRN number page when marker is true (came from warning, unchanged)" in {
-        val ua = userAnswers.set(VrnWarningFlowPage, true).success.value
+        val ua = userAnswers.set(SupplierVatRegistrationWarningShownPage, true).success.value
         navigator.nextPage(InvoiceNumberPage, NormalMode, ua) mustBe
           purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode)
       }
 
       "must go from InvoiceNumberPage to SupplierVatRegistrationNumberController when marker is false (came from warning, changed)" in {
-        val ua = userAnswers.set(VrnWarningFlowPage, false).success.value
+        val ua = userAnswers.set(SupplierVatRegistrationWarningShownPage, false).success.value
         navigator.nextPage(InvoiceNumberPage, NormalMode, ua) mustBe
           purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode)
       }
@@ -576,19 +576,19 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from InvoiceNumberPage to InvoiceDateController in CheckMode normal flow (no marker)" in {
-        val ua = userAnswers.remove(VrnWarningFlowPage).success.value
+        val ua = userAnswers.remove(SupplierVatRegistrationWarningShownPage).success.value
         navigator.nextPage(InvoiceNumberPage, CheckMode, ua) mustBe
           purchaseRoutes.InvoiceDateController.onPageLoad(CheckMode)
       }
 
       "must go from InvoiceNumberPage to the supplier VRN number page in CheckMode when marker is true" in {
-        val ua = userAnswers.set(VrnWarningFlowPage, true).success.value
+        val ua = userAnswers.set(SupplierVatRegistrationWarningShownPage, true).success.value
         navigator.nextPage(InvoiceNumberPage, CheckMode, ua) mustBe
           purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(CheckMode)
       }
 
       "must go from InvoiceNumberPage to SupplierVatRegistrationNumberController in CheckMode when marker is false" in {
-        val ua = userAnswers.set(VrnWarningFlowPage, false).success.value
+        val ua = userAnswers.set(SupplierVatRegistrationWarningShownPage, false).success.value
         navigator.nextPage(InvoiceNumberPage, CheckMode, ua) mustBe
           purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(CheckMode)
       }

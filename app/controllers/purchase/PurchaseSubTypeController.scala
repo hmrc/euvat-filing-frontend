@@ -19,15 +19,14 @@ package controllers.purchase
 import controllers.actions.*
 import forms.purchase.PurchaseSubTypeFormProvider
 import models.requests.DataRequest
-import models.{CheckMode, Mode, PurchaseSubCategoryType, PurchaseType, UserAnswers}
+import models.{CheckMode, Mode, NormalMode, PurchaseSubCategoryType, PurchaseType, UserAnswers}
 import navigation.Navigator
 import pages.*
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.Logging
-import play.api.mvc.*
 import play.api.data.Form
-import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
+import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.mvc.*
 import repositories.SessionRepository
+import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.{ConfigPurchaseMapping, ControllerHelpers, CountryCode, MountPrefix}
 import views.html.purchase.PurchaseSubTypeView
@@ -158,7 +157,11 @@ class PurchaseSubTypeController @Inject() (
     Call("POST", s"${MountPrefix.getFromRequest}/$isChangeMode$uri")
   }
 
-  private def backUrlFor(mode: Mode) = routes.PurchaseTypeController.onPageLoad(mode).url
+  private def backUrlFor(mode: Mode) = if (mode == CheckMode) {
+    routes.CheckYourPurchaseDetailsController.onPageLoad().url
+  } else {
+    routes.PurchaseTypeController.onPageLoad(NormalMode).url
+  }
 
   private def handleCountryChanged(purchaseTypeSlug: String, userAnswers: UserAnswers)(implicit request: RequestHeader) = {
     val clearedAnswers = for {

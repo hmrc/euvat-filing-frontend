@@ -260,8 +260,10 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
     }
 
   private def navigateFromInvoiceNumberPage(mode: Mode)(answers: UserAnswers): Call =
-    if (answers.get(VrnWarningFlowPage).isDefined) {
+    if (answers.get(SupplierVatRegistrationWarningShownPage).isDefined) {
       purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(mode)
+    } else if (answers.get(SupplierTaxIdentifierWarningShownPage).isDefined) {
+      purchaseRoutes.SupplierTaxIdentifierNumberController.onPageLoad(mode)
     } else {
       purchaseRoutes.InvoiceDateController.onPageLoad(mode)
     }

@@ -17,10 +17,8 @@
 package controllers.purchase
 
 import base.SpecBase
-import controllers.purchase.routes
 import forms.purchase.InvoiceTypeFormProvider
 import models.{CheckMode, Fuel, InvoiceType, NormalMode, Other, PurchaseType, Transport, UserAnswers}
-import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
@@ -39,28 +37,38 @@ import scala.concurrent.Future
 class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute: Call = Call("GET", "/foo")
-
   lazy val invoiceTypeRoute: String = routes.InvoiceTypeController.onPageLoad(NormalMode).url
-
   val formProvider = new InvoiceTypeFormProvider()
   val form: Form[InvoiceType] = formProvider()
 
   "InvoiceType Controller" - {
 
-    "must return OK and the correct view for a GET" in {
-
+    "must return OK and the correct view for a GET in NormalMode" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, invoiceTypeRoute)
-
         val result = route(application, request).value
-
         val view = application.injector.instanceOf[InvoiceTypeView]
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
           view(form, NormalMode, routes.PurchaseTypeController.onPageLoad(NormalMode))(request, messages(application)).toString
+        )
+      }
+    }
+
+    "must return OK and the correct view for a GET in CheckMode" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.InvoiceTypeController.onPageLoad(CheckMode).url)
+        val result = route(application, request).value
+        val view = application.injector.instanceOf[InvoiceTypeView]
+
+        status(result) mustEqual OK
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
+          view(form, CheckMode, routes.CheckYourPurchaseDetailsController.onPageLoad())(request, messages(application)).toString
         )
       }
     }

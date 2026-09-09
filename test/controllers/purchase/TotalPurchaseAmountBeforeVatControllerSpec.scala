@@ -17,7 +17,6 @@
 package controllers.purchase
 
 import base.SpecBase
-import controllers.purchase.routes
 import forms.purchase.TotalPurchaseAmountBeforeVatFormProvider
 import models.{CheckMode, Fuel, NormalMode, PurchaseType, SupplierTaxNumber, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
@@ -38,23 +37,18 @@ import scala.concurrent.Future
 class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute: Call = Call("GET", "/foo")
-
   val formProvider = new TotalPurchaseAmountBeforeVatFormProvider()
   val form: Form[BigDecimal] = formProvider()
-
   lazy val totalPurchaseAmountBeforeVatRoute: String = routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode).url
 
   "TotalPurchaseAmountBeforeVat Controller" - {
 
     "must return OK and the correct view for a GET" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
-
         val result = route(application, request).value
-
         val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
 
         status(result) mustEqual OK
@@ -67,17 +61,31 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
       }
     }
 
+    "must return OK and the correct view for a GET in CheckMode" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.TotalPurchaseAmountBeforeVatController.onPageLoad(CheckMode).url)
+        val result = route(application, request).value
+        val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
+
+        status(result) mustEqual OK
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
+          view(form, CheckMode, routes.CheckYourPurchaseDetailsController.onPageLoad(), "€", "Euro")(
+            request,
+            messages(application)
+          ).toString
+        )
+      }
+    }
+
     "must return OK and the correct back link when country is Germany" in {
-
       val userAnswers = UserAnswers(userAnswersId).set(RefundingCountryPage, "DE").success.value
-
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
-
         val result = route(application, request).value
-
         val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
 
         status(result) mustEqual OK
@@ -89,16 +97,12 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
     }
 
     "must return OK and the correct back link when country is not Germany and VAT registration number was entered" in {
-
       val userAnswers = UserAnswers(userAnswersId).set(RefundingCountryPage, "FR").success.value
-
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
-
         val result = route(application, request).value
-
         val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
 
         status(result) mustEqual OK
@@ -110,16 +114,12 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
     }
 
     "must return OK and the correct back link when country is not Germany and no VAT registration number was entered" in {
-
       val userAnswers = UserAnswers(userAnswersId).set(RefundingCountryPage, "FR").success.value
-
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
-
         val result = route(application, request).value
-
         val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
 
         status(result) mustEqual OK
@@ -133,16 +133,12 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
-
       val userAnswers = UserAnswers(userAnswersId).set(TotalPurchaseAmountBeforeVatPage, BigDecimal("12.34")).success.value
-
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
-
         val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -156,9 +152,7 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
     }
 
     "must redirect to the next page when valid data is submitted" in {
-
       val mockSessionRepository = mock[SessionRepository]
-
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val application =
@@ -175,14 +169,12 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
             .withFormUrlEncodedBody(("value", "123.45"))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
       }
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -191,9 +183,7 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
             .withFormUrlEncodedBody(("value", ""))
 
         val boundForm = form.bind(Map("value" -> ""))
-
         val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
-
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
@@ -207,9 +197,7 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
     }
 
     "must redirect to the next page when valid data is submitted in CheckMode" in {
-
       val mockSessionRepository = mock[SessionRepository]
-
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val application =
@@ -226,7 +214,6 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
             .withFormUrlEncodedBody(("value", "123.45"))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
       }
@@ -246,9 +233,7 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
       running(application) {
         val request = FakeRequest(POST, routes.TotalPurchaseAmountBeforeVatController.onSubmit(CheckMode).url)
           .withFormUrlEncodedBody(("value", "123.45"))
-
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad().url
       }
@@ -256,7 +241,6 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
 
     "must persist updated amount and continue journey when in CheckMode and amount changed for purchase journey" in {
       val userAnswers = emptyUserAnswers.set(PurchaseTypePage, Fuel).success.value
-
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
@@ -271,7 +255,6 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
       running(application) {
         val request = FakeRequest(POST, routes.TotalPurchaseAmountBeforeVatController.onSubmit(CheckMode).url)
           .withFormUrlEncodedBody(("value", "200.00"))
-
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -281,14 +264,11 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
         val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
-
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
@@ -296,7 +276,6 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
     }
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
@@ -305,23 +284,18 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
             .withFormUrlEncodedBody(("value", "123.45"))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 
     "must show euro symbol for a country with a single currency" in {
-
       val userAnswers = UserAnswers(userAnswersId).set(RefundingCountryPage, "AT").success.value
-
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
-
         val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -335,7 +309,6 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
     }
 
     "must show selected currency symbol when a currency is selected for a multi-currency country" in {
-
       val userAnswers = UserAnswers(userAnswersId)
         .set(RefundingCountryPage, "BG")
         .success
@@ -348,9 +321,7 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
 
       running(application) {
         val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
-
         val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -363,16 +334,12 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
     }
 
     "must fallback to first currency symbol when no currency selected for a multi-currency country" in {
-
       val userAnswers = UserAnswers(userAnswersId).set(RefundingCountryPage, "EE").success.value
-
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
-
         val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
-
         val result = route(application, request).value
 
         status(result) mustEqual OK

@@ -17,9 +17,8 @@
 package controllers.purchase
 
 import controllers.actions.*
-import controllers.purchase.routes
 import forms.purchase.TotalVatPaidFormProvider
-import models.Mode
+import models.{CheckMode, Mode, NormalMode}
 import models.requests.DataRequest
 import navigation.Navigator
 import pages.{TotalPurchaseAmountBeforeVatPage, TotalVatPaidPage}
@@ -52,7 +51,12 @@ class TotalVatPaidController @Inject() (
 
   val form: Form[BigDecimal] = formProvider()
 
-  private def backLink(mode: Mode) = routes.TotalPurchaseAmountBeforeVatController.onPageLoad(mode)
+  private def backLink(mode: Mode) = if (mode == CheckMode) {
+    routes.CheckYourPurchaseDetailsController.onPageLoad()
+  } else {
+    routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
+  }
+
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(TotalVatPaidPage).fold(form)(form.fill)
     val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)

@@ -19,15 +19,15 @@ package controllers.purchase
 import controllers.actions.*
 import forms.purchase.PurchaseSubTypeFormProvider
 import models.requests.DataRequest
-import models.{CheckMode, Mode, NormalMode, PurchaseSubCategoryType, PurchaseType, UserAnswers}
+import models.{CheckMode, Mode, PurchaseSubCategoryType, PurchaseType, UserAnswers}
 import navigation.Navigator
 import pages.*
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
-import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents, RequestHeader, Result}
+import play.api.mvc.*
 import repositories.SessionRepository
+import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.{ConfigPurchaseMapping, ControllerHelpers, CountryCode, MountPrefix}
 import views.html.purchase.PurchaseSubTypeView
@@ -312,7 +312,6 @@ class PurchaseSubCategoryController @Inject() (
     (identify andThen getData andThen requireData).async { implicit request =>
       if (request.userAnswers.get(CountryChangedPage).contains(true)) {
         handleCountryChangedOnPageLoad(request)
-
       } else {
         resolveParentAndCountry(request.userAnswers) match {
           case Some((parentKey, country)) =>
@@ -323,8 +322,7 @@ class PurchaseSubCategoryController @Inject() (
       }
     }
 
-  private def redirectAfterSubmit(mode: Mode): Result =
-    ControllerHelpers.redirectToInvoiceTypeOrCYA(mode)
+  private def redirectAfterSubmit(mode: Mode): Result = ControllerHelpers.redirectToInvoiceTypeOrCYA(mode)
 
   private def persistNoneSubCategorySelection(mode: Mode, userAnswers: UserAnswers)(implicit
     request: DataRequest[AnyContent]
@@ -362,7 +360,7 @@ class PurchaseSubCategoryController @Inject() (
     request: DataRequest[AnyContent]
   ): Future[Result] =
     if (mode == CheckMode && userAnswers.isAnswerUnchanged(PurchaseSubCategoryPage, value)) {
-      Future.successful(Redirect(controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()))
+      Future.successful(Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad()))
     } else {
       if (value == ConfigPurchaseMapping.NoneValue) {
         persistNoneSubCategorySelection(mode, userAnswers)
