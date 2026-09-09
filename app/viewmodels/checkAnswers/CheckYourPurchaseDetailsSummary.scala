@@ -17,12 +17,11 @@
 package viewmodels.checkAnswers
 
 import controllers.purchase.routes
-import utils.ConfigPurchaseMapping
 import models.{CheckMode, UserAnswers}
 import pages.*
 import play.api.i18n.{Lang, Messages}
 import play.api.mvc.RequestHeader
-import utils.MountPrefix
+import utils.{ConfigPurchaseMapping, MountPrefix}
 
 object CheckYourPurchaseDetailsSummary {
 

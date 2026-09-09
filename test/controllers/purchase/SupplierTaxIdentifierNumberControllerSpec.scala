@@ -17,7 +17,6 @@
 package controllers.purchase
 
 import base.SpecBase
-import controllers.purchase.routes
 import forms.purchase.SupplierTaxIdentifierNumberFormProvider
 import models.responses.{AddPurchaseResponse, ApplicationResponse, SupplierTaxIdentifierCountResponse}
 import models.{CheckMode, Fuel, NormalMode, PurchaseOrImportType, UserAnswers}
@@ -41,23 +40,18 @@ import scala.concurrent.Future
 class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute: Call = Call("GET", "/foo")
-
   val formProvider = new SupplierTaxIdentifierNumberFormProvider()
   val form: Form[String] = formProvider()
-
   lazy val supplierTaxIdentifierNumberRoute: String = routes.SupplierTaxIdentifierNumberController.onPageLoad(NormalMode).url
 
   "SupplierTaxIdentifierNumber Controller" - {
 
     "must return OK and the correct view for a GET" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, supplierTaxIdentifierNumberRoute)
-
         val result = route(application, request).value
-
         val view = application.injector.instanceOf[SupplierTaxIdentifierNumberView]
 
         status(result) mustEqual OK
@@ -68,17 +62,29 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
       }
     }
 
+    "must return OK and the correct view for a GET in CheckMode" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode).url)
+        val result = route(application, request).value
+        val view = application.injector.instanceOf[SupplierTaxIdentifierNumberView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, CheckMode, routes.CheckYourPurchaseDetailsController.onPageLoad())(
+          request,
+          messages(application)
+        ).toString
+      }
+    }
+
     "must populate the view correctly on a GET when the question has previously been answered" in {
-
       val userAnswers = UserAnswers(userAnswersId).set(SupplierTaxIdentifierNumberPage, "answer").success.value
-
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, supplierTaxIdentifierNumberRoute)
-
         val view = application.injector.instanceOf[SupplierTaxIdentifierNumberView]
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -90,9 +96,7 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
     }
 
     "must redirect to the next page when valid data is submitted" in {
-
       val mockSessionRepository = mock[SessionRepository]
-
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val application =
@@ -109,19 +113,15 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
             .withFormUrlEncodedBody(("value", "1234567890"))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
       }
     }
 
     "must redirect to JourneyRecovery when duplicate count > 0" in {
-
       val mockSessionRepository = mock[SessionRepository]
-
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
-      // userAnswers with applicationId and itemNumber present
       val ua = emptyUserAnswers
         .set(ClaimApplicationResponseQuery, ApplicationResponse(123, "GB123456789", 1))
         .success
@@ -150,7 +150,6 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
             .withFormUrlEncodedBody(("value", "1234567890"))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.warning.routes.SupplierTaxIdentifierWarningController.onPageLoad(NormalMode).url
 
@@ -165,7 +164,6 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
     }
 
     "must trigger duplicate-check in CheckMode even if value unchanged when arrived-from-invoice flag set" in {
-
       val ua = emptyUserAnswers
         .set(ClaimApplicationResponseQuery, ApplicationResponse(123, "GB123456789", 1))
         .success
@@ -199,11 +197,9 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
             .withFormUrlEncodedBody(("value", "1234567890"))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.warning.routes.SupplierTaxIdentifierWarningController.onPageLoad(CheckMode).url
 
-        // follow the redirect to the warning page which will set the flag
         val getRequest = FakeRequest(GET, controllers.warning.routes.SupplierTaxIdentifierWarningController.onPageLoad(CheckMode).url)
         val getResult = route(application, getRequest).value
         status(getResult) mustEqual OK
@@ -211,9 +207,7 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
     }
 
     "must redirect to TotalPurchaseAmountBeforeVat when duplicate count == 0" in {
-
       val mockSessionRepository = mock[SessionRepository]
-
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val ua = emptyUserAnswers
@@ -249,7 +243,6 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
             .withFormUrlEncodedBody(("value", "1234567890"))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode).url
         val captor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
@@ -259,9 +252,7 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
     }
 
     "must redirect to JourneyRecovery when backend call fails" in {
-
       val mockSessionRepository = mock[SessionRepository]
-
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val ua = emptyUserAnswers
@@ -292,14 +283,12 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
             .withFormUrlEncodedBody(("value", "1234567890"))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -308,9 +297,7 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
             .withFormUrlEncodedBody(("value", ""))
 
         val boundForm = form.bind(Map("value" -> ""))
-
         val view = application.injector.instanceOf[SupplierTaxIdentifierNumberView]
-
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
@@ -322,7 +309,6 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
     }
 
     "must return a Bad Request and errors when more than 20 characters are submitted" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -331,9 +317,7 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
             .withFormUrlEncodedBody(("value", "a" * 21))
 
         val boundForm = form.bind(Map("value" -> "a" * 21))
-
         val view = application.injector.instanceOf[SupplierTaxIdentifierNumberView]
-
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
@@ -345,7 +329,6 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
     }
 
     "must return a Bad Request and errors when invalid data is submitted in CheckMode" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -354,13 +337,11 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
             .withFormUrlEncodedBody(("value", ""))
 
         val boundForm = form.bind(Map("value" -> ""))
-
         val view = application.injector.instanceOf[SupplierTaxIdentifierNumberView]
-
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, CheckMode, routes.SupplierTaxNumberController.onPageLoad(CheckMode))(
+        contentAsString(result) mustEqual view(boundForm, CheckMode, routes.CheckYourPurchaseDetailsController.onPageLoad())(
           request,
           messages(application)
         ).toString
@@ -368,9 +349,7 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
     }
 
     "must redirect to the next page when valid data is submitted in CheckMode" in {
-
       val mockSessionRepository = mock[SessionRepository]
-
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val application =
@@ -387,16 +366,13 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
             .withFormUrlEncodedBody(("value", "1234567890"))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
       }
     }
 
     "must persist changed value and return to Purchase CYA when submitted in CheckMode for a purchase flow (DE)" in {
-
       val mockSessionRepository = mock[SessionRepository]
-
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val ua = emptyUserAnswers
@@ -423,46 +399,22 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
             .withFormUrlEncodedBody(("value", "NEWVALUE123"))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad().url
       }
     }
 
-    "must return OK and the correct view for a GET in CheckMode" in {
-
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-
-      running(application) {
-        val request = FakeRequest(GET, routes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode).url)
-
-        val result = route(application, request).value
-
-        val view = application.injector.instanceOf[SupplierTaxIdentifierNumberView]
-
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, CheckMode, routes.SupplierTaxNumberController.onPageLoad(CheckMode))(
-          request,
-          messages(application)
-        ).toString
-      }
-    }
-
     "must populate the view correctly on a GET in CheckMode when the question has previously been answered" in {
-
       val userAnswers = UserAnswers(userAnswersId).set(SupplierTaxIdentifierNumberPage, "answer").success.value
-
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, routes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode).url)
-
         val view = application.injector.instanceOf[SupplierTaxIdentifierNumberView]
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill("answer"), CheckMode, routes.SupplierTaxNumberController.onPageLoad(CheckMode))(
+        contentAsString(result) mustEqual view(form.fill("answer"), CheckMode, routes.CheckYourPurchaseDetailsController.onPageLoad())(
           request,
           messages(application)
         ).toString
@@ -470,21 +422,17 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
         val request = FakeRequest(GET, supplierTaxIdentifierNumberRoute)
-
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
@@ -493,7 +441,6 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
             .withFormUrlEncodedBody(("value", "1234567890"))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }

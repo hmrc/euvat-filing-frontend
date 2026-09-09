@@ -18,9 +18,9 @@ package controllers.purchase
 
 import controllers.actions.*
 import forms.purchase.SupplierTaxIdentifierNumberFormProvider
-import models.{CheckMode, Mode, UserAnswers}
 import models.requests.{DataRequest, SupplierTaxIdentifierCountRequest}
 import models.responses.{AddPurchaseResponse, SupplierTaxIdentifierCountResponse}
+import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import navigation.Navigator
 import pages.*
 import play.api.data.Form
@@ -31,11 +31,10 @@ import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.purchase.SupplierTaxIdentifierNumberView
-import utils.ControllerHelpers.*
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 class SupplierTaxIdentifierNumberController @Inject() (
   override val messagesApi: MessagesApi,
@@ -54,7 +53,11 @@ class SupplierTaxIdentifierNumberController @Inject() (
 
   val form: Form[String] = formProvider()
 
-  private def backLink(mode: Mode) = routes.SupplierTaxNumberController.onPageLoad(mode)
+  private def backLink(mode: Mode) = if (mode == CheckMode) {
+    routes.CheckYourPurchaseDetailsController.onPageLoad()
+  } else {
+    routes.SupplierTaxNumberController.onPageLoad(NormalMode)
+  }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     for {
@@ -79,8 +82,8 @@ class SupplierTaxIdentifierNumberController @Inject() (
             val userAnswersTry = request.userAnswers.set(SupplierTaxIdentifierNumberPage, value)
 
             userAnswersTry match {
-              case scala.util.Failure(_) => Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-              case scala.util.Success(updatedAnswers) =>
+              case Failure(_) => Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+              case Success(updatedAnswers) =>
                 val maybeAppId = updatedAnswers.get(ClaimApplicationResponseQuery).map(_.applicationId)
                 val maybeItem = updatedAnswers.get(AddPurchaseResponsePage).map(_.itemNumber)
                 val invoiceNum = updatedAnswers.get(InvoiceNumberPage).getOrElse("")

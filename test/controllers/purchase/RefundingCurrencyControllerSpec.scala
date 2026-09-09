@@ -17,39 +17,33 @@
 package controllers.purchase
 
 import base.SpecBase
-import controllers.purchase.routes
 import forms.purchase.RefundingCurrencyFormProvider
-import models.{NormalMode, RefundingCurrency, UserAnswers}
+import models.{CheckMode, NormalMode, RefundingCurrency, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.{RefundingCountryPage, RefundingCurrencyPage}
+import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.purchase.RefundingCurrencyView
 
 import scala.concurrent.Future
 
 class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRoute = Call("GET", "/foo")
-
-  lazy val refundingCurrencyRoute = routes.RefundingCurrencyController.onPageLoad(NormalMode).url
-
+  def onwardRoute: Call = Call("GET", "/foo")
+  lazy val refundingCurrencyRoute: String = routes.RefundingCurrencyController.onPageLoad(NormalMode).url
   val formProvider = new RefundingCurrencyFormProvider()
-  val form = formProvider()
-
-  val userAnswersWithEstonia = emptyUserAnswers.set(RefundingCountryPage, "EE").success.value
-  val userAnswersWithCzech = emptyUserAnswers.set(RefundingCountryPage, "CZ").success.value
+  val form: Form[RefundingCurrency] = formProvider()
+  val userAnswersWithEstonia: UserAnswers = emptyUserAnswers.set(RefundingCountryPage, "EE").success.value
+  val userAnswersWithCzech: UserAnswers = emptyUserAnswers.set(RefundingCountryPage, "CZ").success.value
 
   "RefundingCurrency Controller" - {
-
-    "must show back link to the supplier VAT registration number page" in {
-
+    "must show back link to the supplier VAT registration number page in NormalMode" in {
       val application = applicationBuilder(userAnswers = Some(userAnswersWithCzech)).build()
 
       running(application) {
@@ -61,8 +55,19 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must return OK and the correct view for a GET when country is Estonia" in {
+    "must show back link to the check your purchase details page in CheckMode" in {
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithCzech)).build()
 
+      running(application) {
+        val request = FakeRequest(GET, routes.RefundingCurrencyController.onPageLoad(CheckMode).url)
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) must include(routes.CheckYourPurchaseDetailsController.onPageLoad().url)
+      }
+    }
+
+    "must return OK and the correct view for a GET when country is Estonia" in {
       val application = applicationBuilder(userAnswers = Some(userAnswersWithEstonia)).build()
 
       running(application) {
@@ -77,7 +82,6 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to Journey Recovery for a GET if no country is in session" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -102,7 +106,6 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to the next page when valid data is submitted" in {
-
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
@@ -127,7 +130,6 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
-
       val application = applicationBuilder(userAnswers = Some(userAnswersWithEstonia)).build()
 
       running(application) {
@@ -142,7 +144,6 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
@@ -155,7 +156,6 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {

@@ -17,7 +17,6 @@
 package controllers.purchase
 
 import base.SpecBase
-import controllers.purchase.routes
 import forms.purchase.TotalVatClaimFormProvider
 import models.{CheckMode, Fuel, NormalMode, PurchaseOrImportType, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
@@ -39,12 +38,9 @@ import scala.concurrent.Future
 class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
   val formProvider = new TotalVatClaimFormProvider()
   val form: Form[BigDecimal] = formProvider()
-
   def onwardRoute: Call = Call("GET", "/foo")
   val validAnswer: BigDecimal = BigDecimal("123.45")
-
   lazy val totalVatClaimRoute: String = routes.TotalVatClaimController.onPageLoad(NormalMode).url
-
   def backLink: Call = routes.TotalVatPaidController.onPageLoad(NormalMode)
 
   "TotalVatClaim Controller" - {
@@ -54,9 +50,7 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(GET, totalVatClaimRoute)
-
         val result = route(application, request).value
-
         val view = application.injector.instanceOf[TotalVatClaimView]
 
         status(result) mustEqual OK
@@ -64,16 +58,28 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must return OK and the correct view for a GET in CheckMode" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.TotalVatClaimController.onPageLoad(CheckMode).url)
+        val result = route(application, request).value
+        val view = application.injector.instanceOf[TotalVatClaimView]
+
+        status(result) mustEqual OK
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
+          view(form, CheckMode, routes.CheckYourPurchaseDetailsController.onPageLoad(), "€")(request, messages(application)).toString
+        )
+      }
+    }
+
     "must populate the view correctly on a GET when the question has previously been answered" in {
       val userAnswers = UserAnswers(userAnswersId).set(TotalVatClaimPage, validAnswer).success.value
-
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, totalVatClaimRoute)
-
         val view = application.injector.instanceOf[TotalVatClaimView]
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -98,12 +104,9 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
           .build()
 
       running(application) {
-        val request =
-          FakeRequest(POST, totalVatClaimRoute)
-            .withFormUrlEncodedBody(("value", validAnswer.toString))
+        val request = FakeRequest(POST, totalVatClaimRoute).withFormUrlEncodedBody(("value", validAnswer.toString))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
       }
@@ -129,7 +132,6 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("value", validAnswer.toString))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.warning.routes.VatClaimWarningController.onPageLoad(NormalMode).url
       }
@@ -161,14 +163,12 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("value", validAnswer.toString))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.warning.routes.VatClaimWarningController.onPageLoad(NormalMode).url
       }
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -177,11 +177,8 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("value", "invalid value"))
 
         val boundForm = form.bind(Map("value" -> "invalid value"))
-
         val view = application.injector.instanceOf[TotalVatClaimView]
-
         val result = route(application, request).value
-
         status(result) mustEqual BAD_REQUEST
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
           view(boundForm, NormalMode, backLink, "€")(request, messages(application)).toString
@@ -194,30 +191,24 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(GET, totalVatClaimRoute)
-
         val result = route(application, request).value
-
         status(result) mustEqual OK
         contentAsString(result) must include(routes.TotalVatPaidController.onPageLoad(NormalMode).url)
       }
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
         val request = FakeRequest(GET, totalVatClaimRoute)
-
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
@@ -226,9 +217,7 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("value", validAnswer.toString))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
-
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
@@ -247,9 +236,7 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request = FakeRequest(POST, routes.TotalVatClaimController.onSubmit(CheckMode).url)
           .withFormUrlEncodedBody(("value", validAnswer.toString))
-
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad().url
       }
@@ -275,7 +262,6 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
           .withFormUrlEncodedBody(("value", "150.00"))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad().url
       }
@@ -303,12 +289,10 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(POST, routes.TotalVatClaimController.onSubmit(CheckMode).url)
-          // Emulate that we were redirected from the prior page after editing it by setting the session marker
           .withSession("arrival" -> "total-purchase-before-vat")
           .withFormUrlEncodedBody(("value", validAnswer.toString))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
         verify(mockSessionRepository).set(any())
@@ -329,9 +313,7 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
 
       val application =
         applicationBuilder(userAnswers = Some(userAnswers))
-          .overrides(
-            bind[repositories.SessionRepository].toInstance(mockSessionRepository)
-          )
+          .overrides(bind[repositories.SessionRepository].toInstance(mockSessionRepository))
           .build()
 
       running(application) {
@@ -339,7 +321,6 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
           FakeRequest(POST, routes.TotalVatClaimController.onSubmit(CheckMode).url).withFormUrlEncodedBody(("value", validAnswer.toString))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.warning.routes.VatClaimWarningController.onPageLoad(CheckMode).url
         verify(mockSessionRepository).set(any())
@@ -348,7 +329,6 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
   }
 
   "must display the kr symbol when the chosen currency is Estonian Kroon" in {
-
     val userAnswers = UserAnswers(userAnswersId)
       .set(RefundingCountryPage, "EE")
       .success
@@ -361,11 +341,8 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
 
     running(application) {
       val request = FakeRequest(GET, totalVatClaimRoute)
-
       val view = application.injector.instanceOf[TotalVatClaimView]
-
       val result = route(application, request).value
-
       status(result) mustEqual OK
       normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
         view(form, NormalMode, backLink, "kr")(request, messages(application)).toString
@@ -374,7 +351,6 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
   }
 
   "must display the € symbol when the chosen currency is Euro for a multi-currency country" in {
-
     val userAnswers = UserAnswers(userAnswersId)
       .set(RefundingCountryPage, "EE")
       .success
@@ -387,18 +363,14 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
 
     running(application) {
       val request = FakeRequest(GET, totalVatClaimRoute)
-
       val view = application.injector.instanceOf[TotalVatClaimView]
-
       val result = route(application, request).value
-
       status(result) mustEqual OK
       normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(view(form, NormalMode, backLink, "€")(request, messages(application)).toString)
     }
   }
 
   "must display the kr symbol on the error page when invalid data is submitted" in {
-
     val userAnswers = UserAnswers(userAnswersId)
       .set(RefundingCountryPage, "EE")
       .success
@@ -411,13 +383,9 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
 
     running(application) {
       val request = FakeRequest(POST, totalVatClaimRoute).withFormUrlEncodedBody(("value", "invalid value"))
-
       val boundForm = form.bind(Map("value" -> "invalid value"))
-
       val view = application.injector.instanceOf[TotalVatClaimView]
-
       val result = route(application, request).value
-
       status(result) mustEqual BAD_REQUEST
       normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
         view(boundForm, NormalMode, backLink, "kr")(request, messages(application)).toString

@@ -16,19 +16,17 @@
 
 package utils
 
+import controllers.purchase.routes
 import models.requests.DataRequest
-import play.api.data.Form
-import play.api.libs.json.{Format, Reads}
-import play.api.mvc.{Call, Result}
-import queries.Gettable
-import pages.QuestionPage
-import repositories.SessionRepository
-import scala.concurrent.{ExecutionContext, Future}
-import play.api.mvc.Results.*
 import models.{CheckMode, Mode, UserAnswers}
-import scala.util.Try
-import scala.util.Success
-import scala.util.Failure
+import pages.QuestionPage
+import play.api.libs.json.{Format, Reads}
+import play.api.mvc.Results.*
+import play.api.mvc.{Call, Result}
+import repositories.SessionRepository
+
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success, Try}
 
 object ControllerHelpers {
 
@@ -38,34 +36,34 @@ object ControllerHelpers {
       b <- second
     } yield (a, b)
 
-  def currencyNameAndPrefix(userAnswers: models.UserAnswers, configCurrencyMapping: Map[String, Seq[Currency]])(implicit
+  def currencyNameAndPrefix(userAnswers: UserAnswers, configCurrencyMapping: Map[String, Seq[Currency]])(implicit
     request: DataRequest[?]
   ): (String, String) = CurrencyResolver.currencyNameAndPrefix(userAnswers, configCurrencyMapping)
 
-  def currencySymbolFromSession(userAnswers: models.UserAnswers, configCurrencyMapping: Map[String, Seq[Currency]])(implicit
+  def currencySymbolFromSession(userAnswers: UserAnswers, configCurrencyMapping: Map[String, Seq[Currency]])(implicit
     request: DataRequest[?]
   ): String = {
     val (_, symbol) = currencyNameAndPrefix(userAnswers, configCurrencyMapping)
     if (symbol.isEmpty) "€" else symbol
   }
 
-  def compareWithPage(value: BigDecimal, page: pages.QuestionPage[BigDecimal], updated: models.UserAnswers)(
+  def compareWithPage(value: BigDecimal, page: pages.QuestionPage[BigDecimal], updated: UserAnswers)(
     cmp: (BigDecimal, BigDecimal) => Boolean
   ): Boolean =
     updated.get(page).exists(stored => cmp(value, stored))
 
   def pathForSlug(slug: String, mode: Mode, prefix: String): String =
-    if (mode == models.CheckMode) {
-      if (prefix.isEmpty) s"/change-$slug" else s"$prefix/change-$slug"
+    if (mode == CheckMode) {
+      routes.CheckYourPurchaseDetailsController.onPageLoad().url
     } else {
       if (prefix.isEmpty) s"/$slug" else s"$prefix/$slug"
     }
 
   def redirectToInvoiceTypeOrCYA(mode: Mode): Result = {
-    if (mode == models.CheckMode) {
-      Redirect(controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad())
+    if (mode == CheckMode) {
+      Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
     } else {
-      Redirect(controllers.purchase.routes.InvoiceTypeController.onPageLoad(mode))
+      Redirect(routes.InvoiceTypeController.onPageLoad(mode))
     }
   }
 

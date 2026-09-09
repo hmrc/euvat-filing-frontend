@@ -18,8 +18,7 @@ package controllers.purchase
 
 import controllers.actions.*
 import forms.purchase.SuppliersNameFormProvider
-import models.requests.DataRequest
-import models.{CheckMode, Mode}
+import models.{CheckMode, Mode, NormalMode}
 import navigation.Navigator
 import pages.SuppliersNamePage
 import play.api.data.Form
@@ -27,7 +26,6 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.ControllerHelpers.*
 import views.html.purchase.SuppliersNameView
 
 import javax.inject.Inject
@@ -48,42 +46,36 @@ class SuppliersNameController @Inject() (
     with I18nSupport {
 
   val form: Form[String] = formProvider()
+  private def backLink(mode: Mode) = if (mode == CheckMode) {
+    routes.CheckYourPurchaseDetailsController.onPageLoad()
+  } else {
+    routes.InvoiceDateController.onPageLoad(NormalMode)
+  }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(SuppliersNamePage).fold(form)(form.fill)
-    Ok(view(preparedForm, mode, routes.InvoiceDateController.onPageLoad(mode)))
+    Ok(view(preparedForm, mode, backLink(mode)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, routes.InvoiceDateController.onPageLoad(mode)))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)))),
         value =>
-          val inPurchaseFlow = request.userAnswers.get(pages.PurchaseTypePage).isDefined
-
-          if (inPurchaseFlow) {
-            if (mode == CheckMode && request.userAnswers.isAnswerUnchanged(pages.SuppliersNamePage, value)) {
-              Future.successful(Redirect(controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()))
-            } else {
-              val userAnswersTry = request.userAnswers.set(SuppliersNamePage, value)
-              if (mode == CheckMode)
-                for {
-                  updatedAnswers <- Future.fromTry(userAnswersTry)
-                  _              <- sessionRepository.set(updatedAnswers)
-                } yield Redirect(controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad())
-              else
-                for {
-                  updatedAnswers <- Future.fromTry(userAnswersTry)
-                  _              <- sessionRepository.set(updatedAnswers)
-                } yield Redirect(navigator.nextPage(SuppliersNamePage, mode, updatedAnswers))
-            }
+          if (mode == CheckMode && request.userAnswers.isAnswerUnchanged(SuppliersNamePage, value)) {
+            Future.successful(Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad()))
           } else {
-            val userAnswersTry = request.userAnswers.set(SuppliersNamePage, value)
             for {
-              updatedAnswers <- Future.fromTry(userAnswersTry)
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(SuppliersNamePage, value))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(SuppliersNamePage, mode, updatedAnswers))
+            } yield {
+              if (mode == CheckMode) {
+                Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
+              } else {
+                Redirect(navigator.nextPage(SuppliersNamePage, mode, updatedAnswers))
+              }
+            }
           }
       )
   }

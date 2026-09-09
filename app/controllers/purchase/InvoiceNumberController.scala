@@ -20,14 +20,13 @@ import controllers.actions.*
 import forms.purchase.InvoiceNumberFormProvider
 import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import navigation.Navigator
-import pages.{InvoiceNumberPage, VrnWarningFlowPage}
+import pages.*
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.*
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.purchase.InvoiceNumberView
-import utils.ControllerHelpers.*
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -48,7 +47,11 @@ class InvoiceNumberController @Inject() (
 
   val form: Form[String] = formProvider()
 
-  private def backLink(mode: Mode): Call = routes.InvoiceTypeController.onPageLoad(mode)
+  private def backLink(mode: Mode): Call = if (mode == CheckMode) {
+    routes.CheckYourPurchaseDetailsController.onPageLoad()
+  } else {
+    routes.InvoiceTypeController.onPageLoad(NormalMode)
+  }
 
   private def badRequestView(formWithErrors: Form[?], mode: Mode)(implicit request: Request[AnyContent]) = {
     val html = view(formWithErrors, mode, backLink(mode))(request, messagesApi.preferred(request))
@@ -61,16 +64,16 @@ class InvoiceNumberController @Inject() (
       .flatMap(ua => sessionRepository.set(ua).map(_ => Redirect(redirectTo)))
 
   private def redirectForGermanSupplierTax(updated: UserAnswers, mode: Mode): Result =
-    updated.get(pages.SupplierTaxNumberPage) match {
+    updated.get(SupplierTaxNumberPage) match {
       case Some(models.SupplierTaxNumber.Vatregistrationnumber) =>
         Redirect(routes.SupplierVatRegistrationNumberController.onPageLoad(mode))
       case Some(models.SupplierTaxNumber.Taxidentifiernumber) =>
         Redirect(routes.SupplierTaxIdentifierNumberController.onPageLoad(mode))
       case _ =>
-        updated.get(pages.SupplierVatRegistrationNumberPage) match {
+        updated.get(SupplierVatRegistrationNumberPage) match {
           case Some(_) => Redirect(routes.SupplierVatRegistrationNumberController.onPageLoad(mode))
           case None =>
-            updated.get(pages.SupplierTaxIdentifierNumberPage) match {
+            updated.get(SupplierTaxIdentifierNumberPage) match {
               case Some(_) => Redirect(routes.SupplierTaxIdentifierNumberController.onPageLoad(mode))
               case None    => Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
             }
@@ -82,8 +85,8 @@ class InvoiceNumberController @Inject() (
       if (isGermany) {
         for {
           setVal  <- userAnswers.set(InvoiceNumberPage, value)
-          marked1 <- setVal.set(pages.SupplierTaxIdentifierArrivedFromInvoicePage, true)
-          marked2 <- marked1.set(pages.SupplierVatRegistrationArrivedFromInvoicePage, true)
+          marked1 <- setVal.set(SupplierTaxIdentifierArrivedFromInvoicePage, true)
+          marked2 <- marked1.set(SupplierVatRegistrationArrivedFromInvoicePage, true)
         } yield marked2
       } else {
         userAnswers.set(InvoiceNumberPage, value)
@@ -106,7 +109,7 @@ class InvoiceNumberController @Inject() (
     if (mode == CheckMode && userAnswers.isAnswerUnchanged(InvoiceNumberPage, value)) {
       Future.successful(Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad()))
     } else {
-      val isGermany = userAnswers.get(pages.RefundingCountryPage).exists(_.equalsIgnoreCase("DE"))
+      val isGermany = userAnswers.get(RefundingCountryPage).exists(_.equalsIgnoreCase("DE"))
       persistCheckModeInvoiceNumber(value, mode, userAnswers, isGermany)
     }
   }
@@ -135,23 +138,23 @@ class InvoiceNumberController @Inject() (
     val previousInvoice = userAnswers.get(InvoiceNumberPage)
 
     if (previousInvoice.contains(value)) {
-      if (userAnswers.get(pages.VrnWarningFlowPage).contains(true)) {
+      if (userAnswers.get(SupplierVatRegistrationWarningShownPage).contains(true)) {
         Future.successful(Redirect(controllers.warning.routes.SupplierVrnWarningController.onPageLoad(mode)))
       } else {
         Future.successful(Redirect(controllers.warning.routes.SupplierTaxIdentifierWarningController.onPageLoad(mode)))
       }
     } else {
-      if (userAnswers.get(pages.SupplierTaxIdentifierWarningShownPage).contains(true)) {
+      if (userAnswers.get(SupplierTaxIdentifierWarningShownPage).contains(true)) {
         val clearedTry = for {
           setVal  <- userAnswers.set(InvoiceNumberPage, value)
-          cleared <- setVal.remove(pages.SupplierTaxIdentifierWarningShownPage)
+          cleared <- setVal.remove(SupplierTaxIdentifierWarningShownPage)
         } yield cleared
 
         persistAndRedirect(clearedTry, routes.SupplierTaxIdentifierNumberController.onPageLoad(mode))
-      } else if (userAnswers.get(pages.VrnWarningFlowPage).contains(true)) {
+      } else if (userAnswers.get(SupplierVatRegistrationWarningShownPage).contains(true)) {
         val clearedTry = for {
           setVal  <- userAnswers.set(InvoiceNumberPage, value)
-          cleared <- setVal.remove(pages.VrnWarningFlowPage)
+          cleared <- setVal.remove(SupplierVatRegistrationWarningShownPage)
         } yield cleared
 
         persistAndRedirect(clearedTry, routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode))
@@ -164,10 +167,9 @@ class InvoiceNumberController @Inject() (
   private def handleInvoiceNumberSave(value: String, mode: Mode, userAnswers: UserAnswers)(implicit
     request: Request[AnyContent]
   ): Future[Result] = {
-    val isSupplierTaxIdentifierWarningShownPage = userAnswers.get(pages.SupplierTaxIdentifierWarningShownPage).contains(true)
-    val isVrnWarningFlowPage = userAnswers.get(pages.VrnWarningFlowPage).contains(true)
-    val wasShown =
-      isSupplierTaxIdentifierWarningShownPage || isVrnWarningFlowPage
+    val isSupplierTaxIdentifierWarningShownPage = userAnswers.get(SupplierTaxIdentifierWarningShownPage).contains(true)
+    val isVrnWarningFlowPage = userAnswers.get(SupplierVatRegistrationWarningShownPage).contains(true)
+    val wasShown = isSupplierTaxIdentifierWarningShownPage || isVrnWarningFlowPage
     if (wasShown) {
       handleWhenWarningAlreadyShown(value, mode, userAnswers)
     } else {
@@ -178,7 +180,7 @@ class InvoiceNumberController @Inject() (
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(InvoiceNumberPage).fold(form)(form.fill)
 
-    Ok(view(preparedForm, mode, backLink(NormalMode)))
+    Ok(view(preparedForm, mode, backLink(mode)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>

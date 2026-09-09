@@ -18,7 +18,7 @@ package controllers.purchase
 
 import controllers.actions.*
 import forms.purchase.TotalVatClaimFormProvider
-import models.Mode
+import models.{CheckMode, Mode, NormalMode}
 import models.requests.DataRequest
 import navigation.Navigator
 import pages.{TotalVatClaimPage, TotalVatPaidPage}
@@ -51,7 +51,11 @@ class TotalVatClaimController @Inject() (
 
   val form: Form[BigDecimal] = formProvider()
 
-  private def backLink(mode: Mode): Call = routes.TotalVatPaidController.onPageLoad(mode)
+  private def backLink(mode: Mode): Call = if (mode == CheckMode) {
+    routes.CheckYourPurchaseDetailsController.onPageLoad()
+  } else {
+    routes.TotalVatPaidController.onPageLoad(NormalMode)
+  }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(TotalVatClaimPage).fold(form)(form.fill)

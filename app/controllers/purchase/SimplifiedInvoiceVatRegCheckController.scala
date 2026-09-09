@@ -24,11 +24,10 @@ import navigation.Navigator
 import pages.{PurchaseTypePage, SimplifiedInvoiceVatRegCheckPage, SupplierAddressPage, SupplierVatRegistrationNumberPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents, Result}
+import play.api.mvc.*
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.purchase.SimplifiedInvoiceVatRegCheckView
-import utils.ControllerHelpers.*
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -48,14 +47,18 @@ class SimplifiedInvoiceVatRegCheckController @Inject() (
     with I18nSupport {
 
   val form: Form[Boolean] = formProvider()
-  private def backLink: Call = routes.SupplierAddressController.onPageLoad(NormalMode)
+  private def backLink(mode: Mode): Call = if (mode == CheckMode) {
+    routes.CheckYourPurchaseDetailsController.onPageLoad()
+  } else {
+    routes.SupplierAddressController.onPageLoad(NormalMode)
+  }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     request.userAnswers.get(SupplierAddressPage) match {
       case None => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       case Some(_) =>
         val preparedForm = request.userAnswers.get(SimplifiedInvoiceVatRegCheckPage).fold(form)(form.fill)
-        Ok(view(preparedForm, mode, backLink))
+        Ok(view(preparedForm, mode, backLink(mode)))
     }
   }
 
@@ -66,21 +69,21 @@ class SimplifiedInvoiceVatRegCheckController @Inject() (
       _            <- sessionRepository.set(afterCleared)
     } yield Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
 
-  private def handleCheckModePurchaseWithVat(userAnswersTry: scala.util.Try[UserAnswers], mode: Mode): Future[Result] =
+  private def handleCheckModePurchaseWithVat(userAnswersTry: scala.util.Try[UserAnswers]): Future[Result] =
     for {
       afterSet <- Future.fromTry(userAnswersTry)
       _        <- sessionRepository.set(afterSet)
-    } yield Redirect(routes.SupplierVatRegistrationNumberController.onPageLoad(mode))
+    } yield Redirect(routes.SupplierVatRegistrationNumberController.onPageLoad(CheckMode))
 
-  private def handleDefaultFlow(userAnswersTry: scala.util.Try[UserAnswers], value: Boolean, mode: Mode): Future[Result] =
+  private def handleDefaultFlow(userAnswersTry: scala.util.Try[UserAnswers], value: Boolean): Future[Result] =
     for {
       persistedAnswers <- Future.fromTry(userAnswersTry)
       _                <- sessionRepository.set(persistedAnswers)
     } yield {
       if (value) {
-        Redirect(routes.SupplierVatRegistrationNumberController.onPageLoad(mode))
+        Redirect(routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode))
       } else {
-        Redirect(routes.TotalPurchaseAmountBeforeVatController.onPageLoad(mode))
+        Redirect(routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode))
       }
     }
 
@@ -89,14 +92,14 @@ class SimplifiedInvoiceVatRegCheckController @Inject() (
 
     (mode, request.userAnswers.get(PurchaseTypePage)) match {
       case (CheckMode, Some(_)) if !value => handleCheckModePurchaseNoVat(userAnswersTry)
-      case (CheckMode, Some(_)) if value  => handleCheckModePurchaseWithVat(userAnswersTry, mode)
-      case _                              => handleDefaultFlow(userAnswersTry, value, mode)
+      case (CheckMode, Some(_)) if value  => handleCheckModePurchaseWithVat(userAnswersTry)
+      case _                              => handleDefaultFlow(userAnswersTry, value)
     }
   }
 
   private def handleValidSubmit(value: Boolean, mode: Mode)(implicit request: DataRequest[AnyContent]): Future[Result] =
     if (mode == CheckMode && request.userAnswers.isAnswerUnchanged(SimplifiedInvoiceVatRegCheckPage, value)) {
-      Future.successful(Redirect(controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()))
+      Future.successful(Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad()))
     } else {
       handleChangedAnswer(value, mode)
     }
@@ -105,7 +108,7 @@ class SimplifiedInvoiceVatRegCheckController @Inject() (
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)))),
         value => handleValidSubmit(value, mode)
       )
   }

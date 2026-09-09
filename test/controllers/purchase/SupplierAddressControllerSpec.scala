@@ -17,9 +17,8 @@
 package controllers.purchase
 
 import base.SpecBase
-import controllers.purchase.routes
 import forms.purchase.SupplierAddressFormProvider
-import models.{Fuel, NormalMode, SupplierAddress}
+import models.{CheckMode, Fuel, NormalMode, SupplierAddress}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
@@ -69,6 +68,24 @@ class SupplierAddressControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(view(form, NormalMode, backLink)(request, messages(application)).toString)
+      }
+    }
+
+    "must return OK and the correct view for a GET in CheckMode" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.SupplierAddressController.onPageLoad(CheckMode).url)
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[SupplierAddressView]
+        val formProvider = application.injector.instanceOf[SupplierAddressFormProvider]
+        val form = formProvider()
+
+        status(result) mustEqual OK
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
+          view(form, CheckMode, routes.CheckYourPurchaseDetailsController.onPageLoad())(request, messages(application)).toString
+        )
       }
     }
 
