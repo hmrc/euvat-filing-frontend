@@ -20,7 +20,7 @@ import controllers.actions.*
 import controllers.helpers.PurchaseBackLinkHelper
 import forms.purchase.InvoiceTypeFormProvider
 import models.requests.DataRequest
-import models.{CheckMode, InvoiceType, Mode, Other, PurchaseAndImportType, UserAnswers}
+import models.{CheckMode, InvoiceType, Mode, Other, PurchaseOrImportType, UserAnswers}
 import navigation.Navigator
 import pages.*
 import play.api.Logging

@@ -20,18 +20,18 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 
-sealed trait PurchaseAndImportType
-case object Fuel         extends WithName("fuel") with PurchaseAndImportType
-case object Transport    extends WithName("transport") with PurchaseAndImportType
-case object FoodAndDrink extends WithName("foodAndDrink") with PurchaseAndImportType
-case object Luxuries     extends WithName("luxuries") with PurchaseAndImportType
-case object Other        extends WithName("other") with PurchaseAndImportType
+sealed trait PurchaseOrImportType
+case object Fuel         extends WithName("fuel") with PurchaseOrImportType
+case object Transport    extends WithName("transport") with PurchaseOrImportType
+case object FoodAndDrink extends WithName("foodAndDrink") with PurchaseOrImportType
+case object Luxuries     extends WithName("luxuries") with PurchaseOrImportType
+case object Other        extends WithName("other") with PurchaseOrImportType
 
-object PurchaseAndImportType extends Enumerable.Implicits:
+object PurchaseOrImportType extends Enumerable.Implicits:
 
-  val values: Seq[PurchaseAndImportType] = Seq(Fuel, Transport, FoodAndDrink, Luxuries, Other)
+  val values: Seq[PurchaseOrImportType] = Seq(Fuel, Transport, FoodAndDrink, Luxuries, Other)
 
-  val codes: Map[PurchaseAndImportType, String] = Map(
+  val codes: Map[PurchaseOrImportType, String] = Map(
     Fuel         -> "1",
     Transport    -> "3",
     FoodAndDrink -> "7",
@@ -39,7 +39,7 @@ object PurchaseAndImportType extends Enumerable.Implicits:
     Other        -> "10"
   )
 
-  val urlSlugForPurchaseType: Map[PurchaseAndImportType, String] = Map(
+  val urlSlugForPurchaseType: Map[PurchaseOrImportType, String] = Map(
     Fuel         -> "fuel-use",
     Transport    -> "transport-cost",
     FoodAndDrink -> "food-drink-restaurant-cost",
@@ -57,5 +57,5 @@ object PurchaseAndImportType extends Enumerable.Implicits:
     )
   }
 
-  implicit val enumerable: Enumerable[PurchaseAndImportType] =
+  implicit val enumerable: Enumerable[PurchaseOrImportType] =
     Enumerable(values.map(v => v.toString -> v)*)

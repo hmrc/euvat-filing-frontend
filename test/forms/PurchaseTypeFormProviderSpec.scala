@@ -18,7 +18,7 @@ package forms
 
 import forms.behaviours.FieldBehaviours
 import forms.purchase.PurchaseTypeFormProvider
-import models.PurchaseAndImportType
+import models.PurchaseOrImportType
 import play.api.data.FormError
 
 class PurchaseTypeFormProviderSpec extends FieldBehaviours {
@@ -37,7 +37,7 @@ class PurchaseTypeFormProviderSpec extends FieldBehaviours {
     )
 
     "bind every defined PurchaseType value" in {
-      PurchaseAndImportType.values.foreach { value =>
+      PurchaseOrImportType.values.foreach { value =>
         val result = form.bind(Map(fieldName -> value.toString))
         result.errors mustBe empty
         result.value.value mustEqual value
