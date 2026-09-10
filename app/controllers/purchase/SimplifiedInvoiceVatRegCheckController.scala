@@ -21,7 +21,7 @@ import forms.purchase.SimplifiedInvoiceVatRegCheckFormProvider
 import models.requests.DataRequest
 import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import navigation.Navigator
-import pages.{PurchaseTypePage, SimplifiedInvoiceVatRegCheckPage, SupplierAddressPage, SupplierVatRegistrationNumberPage}
+import pages.{PurchaseTypePage, RefundingCountryPage, SimplifiedInvoiceVatRegCheckPage, SupplierAddressPage, SupplierVatRegistrationNumberPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.*
@@ -83,17 +83,20 @@ class SimplifiedInvoiceVatRegCheckController @Inject() (
       if (value) {
         Redirect(routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode))
       } else {
-        Redirect(routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode))
+        persistedAnswers.get(RefundingCountryPage) match {
+          case Some("EE") => Redirect(routes.RefundingCurrencyController.onPageLoad(NormalMode))
+          case _          => Redirect(routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode))
+        }
       }
     }
 
   private def handleChangedAnswer(value: Boolean, mode: Mode)(implicit request: DataRequest[AnyContent]): Future[Result] = {
-    val userAnswersTry = request.userAnswers.set(SimplifiedInvoiceVatRegCheckPage, value)
+    val userAnswers = request.userAnswers.set(SimplifiedInvoiceVatRegCheckPage, value)
 
     (mode, request.userAnswers.get(PurchaseTypePage)) match {
-      case (CheckMode, Some(_)) if !value => handleCheckModePurchaseNoVat(userAnswersTry)
-      case (CheckMode, Some(_)) if value  => handleCheckModePurchaseWithVat(userAnswersTry)
-      case _                              => handleDefaultFlow(userAnswersTry, value)
+      case (CheckMode, Some(_)) if !value => handleCheckModePurchaseNoVat(userAnswers)
+      case (CheckMode, Some(_)) if value  => handleCheckModePurchaseWithVat(userAnswers)
+      case _                              => handleDefaultFlow(userAnswers, value)
     }
   }
 
