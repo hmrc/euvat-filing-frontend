@@ -17,7 +17,7 @@
 package controllers.imports
 
 import base.SpecBase
-import models.{Fuel, Other, PurchaseOrImportType, Transport, UserAnswers}
+import models.{Fuel, NormalMode, Other, PurchaseOrImportType, Transport, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -60,6 +60,19 @@ class ImportSubCodeControllerSpec extends SpecBase with MockitoSugar {
         content must include("value=\"__none__\"")
         """>\s*None\s*<""".r.findFirstIn(content) mustBe defined
         content must not include "value=\"1.2.6\""
+      }
+    }
+
+    "must render the back link to the Import type page" in {
+      val application = applicationBuilder(userAnswers = Some(answers())).build()
+
+      running(application) {
+        val result = route(application, FakeRequest(GET, fuelRoute)).value
+        val importTypeUrl = controllers.imports.routes.ImportTypeController.onPageLoad(NormalMode).url
+
+        status(result) mustEqual OK
+        contentAsString(result) must include(s"""href="$importTypeUrl"""")
+        contentAsString(result) must not include s"""href="$taskListUrl""""
       }
     }
 

@@ -50,7 +50,7 @@ class ImportSubCodeController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  private def backUrl: String = routes.TaskListDashboardController.onPageLoad().url
+  private def backUrl: String = controllers.imports.routes.ImportTypeController.onPageLoad(NormalMode).url
 
   private def withPageData(importTypeKey: String)(
     block: (PurchaseOrImportType, Seq[(String, String)]) => Future[Result]
