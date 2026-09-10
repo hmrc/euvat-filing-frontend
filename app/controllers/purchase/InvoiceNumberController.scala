@@ -30,6 +30,7 @@ import views.html.purchase.InvoiceNumberView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 class InvoiceNumberController @Inject() (
   override val messagesApi: MessagesApi,
@@ -135,9 +136,16 @@ class InvoiceNumberController @Inject() (
     }
 
   private def handleWhenWarningAlreadyShown(value: String, mode: Mode, userAnswers: UserAnswers): Future[Result] = {
-    val previousInvoice = userAnswers.get(InvoiceNumberPage)
+    val invoiceUnchanged = userAnswers.get(InvoiceNumberPage)
 
-    if (previousInvoice.contains(value)) {
+    def resetWarning(userAnswers: UserAnswers, warningPage: QuestionPage[Boolean]): Try[UserAnswers] = {
+      for {
+        setUserAnswers    <- userAnswers.set(InvoiceNumberPage, value)
+        updateUserAnswers <- setUserAnswers.remove(warningPage)
+      } yield updateUserAnswers
+    }
+
+    if (invoiceUnchanged.contains(value)) {
       if (userAnswers.get(SupplierVatRegistrationWarningShownPage).contains(true)) {
         Future.successful(Redirect(controllers.warning.routes.SupplierVrnWarningController.onPageLoad(mode)))
       } else {
@@ -145,19 +153,13 @@ class InvoiceNumberController @Inject() (
       }
     } else {
       if (userAnswers.get(SupplierTaxIdentifierWarningShownPage).contains(true)) {
-        val clearedTry = for {
-          setVal  <- userAnswers.set(InvoiceNumberPage, value)
-          cleared <- setVal.remove(SupplierTaxIdentifierWarningShownPage)
-        } yield cleared
-
-        persistAndRedirect(clearedTry, routes.SupplierTaxIdentifierNumberController.onPageLoad(mode))
+        persistAndRedirect(resetWarning(userAnswers, SupplierTaxIdentifierWarningShownPage),
+                           routes.SupplierTaxIdentifierNumberController.onPageLoad(mode)
+                          )
       } else if (userAnswers.get(SupplierVatRegistrationWarningShownPage).contains(true)) {
-        val clearedTry = for {
-          setVal  <- userAnswers.set(InvoiceNumberPage, value)
-          cleared <- setVal.remove(SupplierVatRegistrationWarningShownPage)
-        } yield cleared
-
-        persistAndRedirect(clearedTry, routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode))
+        persistAndRedirect(resetWarning(userAnswers, SupplierVatRegistrationWarningShownPage),
+                           routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode)
+                          )
       } else {
         Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
       }
