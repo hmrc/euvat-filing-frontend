@@ -254,11 +254,11 @@ class ControllerHelpersSpec extends SpecBase {
 
   "pathForSlug" - {
     "builds change path in CheckMode without prefix" in {
-      ControllerHelpers.pathForSlug("foo", CheckMode, "") mustBe "/file-eu-vat/check-your-purchase-details"
+      ControllerHelpers.pathForSlug("foo", CheckMode, "") mustBe "/file-eu-vat/purchase/check-your-purchase-details"
     }
 
     "builds change path in CheckMode with prefix" in {
-      ControllerHelpers.pathForSlug("bar", CheckMode, "/prefix") mustBe "/file-eu-vat/check-your-purchase-details"
+      ControllerHelpers.pathForSlug("bar", CheckMode, "/prefix") mustBe "/file-eu-vat/purchase/check-your-purchase-details"
     }
 
     "builds normal path in NormalMode without prefix" in {

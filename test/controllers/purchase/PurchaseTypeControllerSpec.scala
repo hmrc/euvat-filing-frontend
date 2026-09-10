@@ -230,7 +230,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
           .withFormUrlEncodedBody("value" -> Fuel.toString)
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual ("/file-eu-vat" + onwardRoute.url)
+        redirectLocation(result).value mustEqual ("/file-eu-vat/purchase" + onwardRoute.url)
         verify(mockSessionRepository, times(2)).set(any())
       }
     }
@@ -262,7 +262,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual "/file-eu-vat/invoice-type"
+        redirectLocation(result).value mustEqual "/file-eu-vat/purchase/invoice-type"
         verify(mockSessionRepository, times(2)).set(any())
       }
     }
@@ -327,7 +327,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual ("/file-eu-vat" + onwardRoute.url)
+        redirectLocation(result).value mustEqual ("/file-eu-vat/purchase" + onwardRoute.url)
         verify(mockEuVatRefundsService, times(1)).addPurchase(any())(any())
       }
     }
@@ -846,7 +846,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual ("/file-eu-vat" + onwardRoute.url)
+        redirectLocation(result).value mustEqual ("/file-eu-vat/purchase" + onwardRoute.url)
         verify(mockEuVatRefundsService, times(1)).addPurchase(any())(any())
       }
     }
@@ -903,7 +903,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual ("/file-eu-vat" + onwardRoute.url)
+        redirectLocation(result).value mustEqual ("/file-eu-vat/purchase" + onwardRoute.url)
         verify(mockEuVatRefundsService, never).addPurchase(any())(any())
       }
     }
