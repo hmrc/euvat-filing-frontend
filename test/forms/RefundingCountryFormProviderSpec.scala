@@ -18,6 +18,7 @@ package forms
 
 import config.FrontendAppConfig
 import forms.behaviours.{FieldBehaviours, StringFieldBehaviours}
+import forms.claim.RefundingCountryFormProvider
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock

@@ -16,12 +16,14 @@
 
 package navigation
 
-import javax.inject.{Inject, Singleton}
-import play.api.mvc.Call
-import controllers.routes
-import pages.*
+import controllers.claim.routes as claimRoutes
+import controllers.purchase.routes as purchaseRoutes
 import models.*
+import pages.*
+import play.api.mvc.Call
 import utils.{ConfigLanguageMapping, ConfigPurchaseMapping, CountryCode, CurrencyConfig}
+
+import javax.inject.{Inject, Singleton}
 
 @Singleton
 class Navigator @Inject() (currencyConfig: CurrencyConfig,
@@ -37,68 +39,68 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
   private val normalRoutes: Page => UserAnswers => Call = {
     case RefundingCountryPage              => userAnswers => navigateFromRefundingCountryPage(NormalMode, userAnswers)
     case RefundingLanguagePage             => userAnswers => navigateFromRefundingLanguagePage(NormalMode)(userAnswers)
-    case RefundPeriodPage                  => _ => routes.ContactDetailsController.onPageLoad(NormalMode)
-    case ContactDetailsPage                => _ => routes.BusinessActivityController.onPageLoad(NormalMode)
+    case RefundPeriodPage                  => _ => claimRoutes.ContactDetailsController.onPageLoad(NormalMode)
+    case ContactDetailsPage                => _ => claimRoutes.BusinessActivityController.onPageLoad(NormalMode)
     case BusinessActivityPage              => userAnswer => navigateFromBusinessActivityPage(NormalMode)(userAnswer)
     case BusinessActivityTwoPage           => userAnswer => navigateFromBusinessActivity2Page(NormalMode)(userAnswer)
-    case BusinessActivityCodeThreePage     => _ => routes.BusinessActivityThreeController.onPageLoad()
+    case BusinessActivityCodeThreePage     => _ => claimRoutes.BusinessActivityThreeController.onPageLoad()
     case CheckYourStateDetailsPage         => userAnswer => navigateFromCheckYourStateDetailsPage(NormalMode)(userAnswer)
-    case PurchaseOrImportPage              => _ => routes.PurchaseTypeController.onPageLoad(NormalMode)
+    case PurchaseOrImportPage              => _ => purchaseRoutes.PurchaseTypeController.onPageLoad(NormalMode)
     case PurchaseTypePage                  => userAnswer => navigateFromPurchaseTypePage(NormalMode)(userAnswer)
     case PurchaseSubCategoryPage           => userAnswers => navigateFromPurchaseSubCategoryPage(NormalMode, userAnswers)
-    case DescribeItemsOnInvoicePage        => _ => routes.InvoiceTypeController.onPageLoad(NormalMode)
-    case InvoiceTypePage                   => userAnswer => navigateFromInvoiceTypePage(NormalMode)(userAnswer)
+    case DescribeItemsOnInvoicePage        => _ => purchaseRoutes.InvoiceTypeController.onPageLoad(NormalMode)
+    case InvoiceTypePage                   => userAnswer => purchaseRoutes.InvoiceNumberController.onPageLoad(NormalMode)
     case InvoiceNumberPage                 => userAnswers => navigateFromInvoiceNumberPage(NormalMode)(userAnswers)
-    case InvoiceDatePage                   => _ => routes.SuppliersNameController.onPageLoad(NormalMode)
-    case SuppliersNamePage                 => _ => routes.SupplierAddressController.onPageLoad(NormalMode)
+    case InvoiceDatePage                   => _ => purchaseRoutes.SuppliersNameController.onPageLoad(NormalMode)
+    case SuppliersNamePage                 => _ => purchaseRoutes.SupplierAddressController.onPageLoad(NormalMode)
     case SupplierAddressPage               => userAnswers => navigateFromSupplierAddressPage(NormalMode)(userAnswers)
     case SupplierTaxNumberPage             => userAnswers => navigateFromSupplierTaxNumberPage(NormalMode)(userAnswers)
     case SimplifiedInvoiceVatRegCheckPage  => userAnswers => navigateFromSimplifiedInvoiceVatRegCheckPage(NormalMode)(userAnswers)
     case SupplierVatRegistrationNumberPage => userAnswers => navigateToCurrencyOrPurchaseAmount(NormalMode)(userAnswers)
     case SupplierTaxIdentifierNumberPage   => userAnswers => navigateFromSupplierTaxIdentifierNumberPage(NormalMode)(userAnswers)
     case RefundingCurrencyPage             => userAnswers => navigateFromRefundingCurrencyPage(NormalMode)(userAnswers)
-    case TotalPurchaseAmountBeforeVatPage  => _ => routes.TotalVatPaidController.onPageLoad(NormalMode)
-    case TotalVatPaidPage                  => _ => routes.TotalVatClaimController.onPageLoad(NormalMode)
-    case TotalVatClaimPage                 => _ => controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()
-    case _                                 => _ => routes.IndexController.onPageLoad()
+    case TotalPurchaseAmountBeforeVatPage  => _ => purchaseRoutes.TotalVatPaidController.onPageLoad(NormalMode)
+    case TotalVatPaidPage                  => _ => purchaseRoutes.TotalVatClaimController.onPageLoad(NormalMode)
+    case TotalVatClaimPage                 => _ => purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
+    case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 
   private val checkRoutes: Page => UserAnswers => Call = {
     case RefundingCountryPage              => userAnswers => navigateFromRefundingCountryPage(CheckMode, userAnswers)
     case RefundingLanguagePage             => userAnswers => navigateFromRefundingLanguagePage(CheckMode)(userAnswers)
-    case RefundPeriodPage                  => _ => routes.CheckYourClaimDetailsController.onPageLoad()
-    case ContactDetailsPage                => _ => routes.CheckYourClaimDetailsController.onPageLoad()
+    case RefundPeriodPage                  => _ => claimRoutes.CheckYourClaimDetailsController.onPageLoad()
+    case ContactDetailsPage                => _ => claimRoutes.CheckYourClaimDetailsController.onPageLoad()
     case BusinessActivityPage              => userAnswer => navigateFromBusinessActivityPage(CheckMode)(userAnswer)
     case BusinessActivityTwoPage           => userAnswer => navigateFromBusinessActivity2Page(CheckMode)(userAnswer)
-    case BusinessActivityCodeThreePage     => _ => routes.BusinessActivityThreeController.onPageLoad()
+    case BusinessActivityCodeThreePage     => _ => claimRoutes.BusinessActivityThreeController.onPageLoad()
     case CheckYourStateDetailsPage         => userAnswers => navigateFromCheckYourStateDetailsPage(CheckMode)(userAnswers)
     case PurchaseTypePage                  => userAnswer => navigateFromPurchaseTypePage(CheckMode)(userAnswer)
     case PurchaseSubCategoryPage           => userAnswers => navigateFromPurchaseSubCategoryPage(CheckMode, userAnswers)
-    case DescribeItemsOnInvoicePage        => _ => controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()
-    case InvoiceTypePage                   => userAnswer => navigateFromInvoiceTypePage(CheckMode)(userAnswer)
+    case DescribeItemsOnInvoicePage        => _ => purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
+    case InvoiceTypePage                   => userAnswer => purchaseRoutes.InvoiceNumberController.onPageLoad(CheckMode)
     case InvoiceNumberPage                 => userAnswers => navigateFromInvoiceNumberPage(CheckMode)(userAnswers)
-    case InvoiceDatePage                   => _ => routes.SuppliersNameController.onPageLoad(CheckMode)
-    case SuppliersNamePage                 => _ => routes.SupplierAddressController.onPageLoad(CheckMode)
+    case InvoiceDatePage                   => _ => purchaseRoutes.SuppliersNameController.onPageLoad(CheckMode)
+    case SuppliersNamePage                 => _ => purchaseRoutes.SupplierAddressController.onPageLoad(CheckMode)
     case SupplierAddressPage               => userAnswers => navigateFromSupplierAddressPage(CheckMode)(userAnswers)
     case SupplierTaxNumberPage             => userAnswers => navigateFromSupplierTaxNumberPage(CheckMode)(userAnswers)
     case SimplifiedInvoiceVatRegCheckPage  => userAnswers => navigateFromSimplifiedInvoiceVatRegCheckPage(CheckMode)(userAnswers)
     case SupplierVatRegistrationNumberPage => userAnswers => navigateToCurrencyOrPurchaseAmount(CheckMode)(userAnswers)
     case SupplierTaxIdentifierNumberPage   => userAnswers => navigateFromSupplierTaxIdentifierNumberPage(CheckMode)(userAnswers)
     case RefundingCurrencyPage             => userAnswers => navigateFromRefundingCurrencyPage(CheckMode)(userAnswers)
-    case TotalPurchaseAmountBeforeVatPage  => _ => routes.TotalVatPaidController.onPageLoad(CheckMode)
-    case TotalVatPaidPage                  => _ => routes.TotalVatClaimController.onPageLoad(CheckMode)
-    case TotalVatClaimPage                 => _ => controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()
-    case _                                 => _ => routes.IndexController.onPageLoad()
+    case TotalPurchaseAmountBeforeVatPage  => _ => purchaseRoutes.TotalVatPaidController.onPageLoad(CheckMode)
+    case TotalVatPaidPage                  => _ => purchaseRoutes.TotalVatClaimController.onPageLoad(CheckMode)
+    case TotalVatClaimPage                 => _ => purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
+    case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 
   private def navigateFromRefundingCountryPage(mode: Mode, userAnswers: UserAnswers) = {
     CountryCode.findCountryCode(userAnswers) match {
       case Some(code) if configLanguageMapping.languagesFor(code).size <= 1 =>
         mode match {
-          case NormalMode => routes.RefundPeriodController.onPageLoad(NormalMode)
-          case CheckMode  => routes.CheckYourClaimDetailsController.onPageLoad()
+          case NormalMode => claimRoutes.RefundPeriodController.onPageLoad(NormalMode)
+          case CheckMode  => claimRoutes.CheckYourClaimDetailsController.onPageLoad()
         }
-      case _ => routes.RefundingLanguageController.onPageLoad(mode)
+      case _ => claimRoutes.RefundingLanguageController.onPageLoad(mode)
     }
   }
 
@@ -106,203 +108,150 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
     CountryCode.findCountryCode(userAnswers) match {
       case Some(_) =>
         mode match {
-          case NormalMode => routes.RefundPeriodController.onPageLoad(NormalMode)
+          case NormalMode => claimRoutes.RefundPeriodController.onPageLoad(NormalMode)
           case CheckMode =>
             if (userAnswers.get(CountryChangedPage).contains(true)) {
-              routes.RefundPeriodController.onPageLoad(CheckMode)
+              claimRoutes.RefundPeriodController.onPageLoad(CheckMode)
             } else {
-              routes.CheckYourClaimDetailsController.onPageLoad()
+              claimRoutes.CheckYourClaimDetailsController.onPageLoad()
             }
         }
-      case None => routes.JourneyRecoveryController.onPageLoad()
+      case None => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
   }
 
   private def navigateFromRefundingCurrencyPage(mode: Mode)(userAnswers: UserAnswers): Call =
     mode match {
-      case NormalMode => routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
+      case NormalMode => purchaseRoutes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
       case CheckMode =>
-        if (userAnswers.get(pages.CountryChangedPage).contains(true)) {
-          routes.RefundPeriodController.onPageLoad(CheckMode)
+        if (CountryCode.findCountryCode(userAnswers).contains("EE") && userAnswers.get(pages.CurrencyChangedPage).contains(true)) {
+          purchaseRoutes.TotalPurchaseAmountBeforeVatController.onPageLoad(CheckMode)
         } else {
-          if (CountryCode.findCountryCode(userAnswers).contains("EE") && userAnswers.get(pages.CurrencyChangedPage).contains(true)) {
-            routes.TotalPurchaseAmountBeforeVatController.onPageLoad(CheckMode)
-          } else {
-            controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()
-          }
+          purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
         }
     }
 
   private def navigateFromBusinessActivityPage(mode: Mode)(userAnswers: UserAnswers): Call =
     userAnswers.get(BusinessActivityPage) match {
-      case Some(true)  => routes.BusinessActivityCodeTwoController.onPageLoad(mode)
-      case Some(false) => routes.CheckYourClaimDetailsController.onPageLoad()
-      case _           => routes.JourneyRecoveryController.onPageLoad()
+      case Some(true)  => claimRoutes.BusinessActivityCodeTwoController.onPageLoad(mode)
+      case Some(false) => claimRoutes.CheckYourClaimDetailsController.onPageLoad()
+      case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
   private def navigateFromBusinessActivity2Page(mode: Mode)(userAnswers: UserAnswers): Call =
     userAnswers.get(BusinessActivityTwoPage) match {
-      case Some(true)  => routes.BusinessActivityCodeThreeController.onPageLoad(mode)
-      case Some(false) => routes.CheckYourClaimDetailsController.onPageLoad()
-      case _           => routes.JourneyRecoveryController.onPageLoad()
+      case Some(true)  => claimRoutes.BusinessActivityCodeThreeController.onPageLoad(mode)
+      case Some(false) => claimRoutes.CheckYourClaimDetailsController.onPageLoad()
+      case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
-
-  private def navigateFromInvoiceTypePage(mode: Mode)(userAnswers: UserAnswers): Call = {
-    userAnswers.get(InvoiceTypePage) match {
-      case Some(InvoiceType.StandardInvoice)   => routes.InvoiceNumberController.onPageLoad(mode)
-      case Some(InvoiceType.SimplifiedInvoice) => routes.InvoiceNumberController.onPageLoad(mode)
-      case _                                   => routes.JourneyRecoveryController.onPageLoad()
-    }
-  }
 
   private def navigateToCurrencyOrPurchaseAmount(mode: Mode)(userAnswers: UserAnswers): Call = {
     CountryCode.findCountryCode(userAnswers) match {
       case Some(countryCode) if currencyConfig.requiresCurrencySelection(countryCode) =>
-        routes.RefundingCurrencyController.onPageLoad(mode)
-      case Some(_) => routes.TotalPurchaseAmountBeforeVatController.onPageLoad(mode)
-      case None    => routes.JourneyRecoveryController.onPageLoad()
+        purchaseRoutes.RefundingCurrencyController.onPageLoad(mode)
+      case Some(_) => purchaseRoutes.TotalPurchaseAmountBeforeVatController.onPageLoad(mode)
+      case None    => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
   }
 
   private def navigateFromSimplifiedInvoiceVatRegCheckPage(mode: Mode)(userAnswers: UserAnswers): Call =
     userAnswers.get(SimplifiedInvoiceVatRegCheckPage) match {
-      case Some(true) =>
-        userAnswers.get(InvoiceTypePage) match {
-          case Some(InvoiceType.SimplifiedInvoice) => routes.SupplierVatRegistrationNumberController.onPageLoad(mode)
-          case _                                   => navigateAfterVatRegCheck(mode)(userAnswers)
+      case Some(true) => purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(mode)
+      case _ =>
+        CountryCode.findCountryCode(userAnswers) match {
+          case Some(country) if currencyConfig.requiresCurrencySelection(country) =>
+            purchaseRoutes.RefundingCurrencyController.onPageLoad(mode)
+          case _ => purchaseRoutes.TotalPurchaseAmountBeforeVatController.onPageLoad(mode)
         }
-      case Some(false) => navigateAfterVatRegCheck(mode)(userAnswers)
-      case _           => routes.JourneyRecoveryController.onPageLoad()
     }
-
-  private def navigateAfterVatRegCheck(mode: Mode)(userAnswers: UserAnswers): Call = {
-    val invoiceTypeChanged =
-      userAnswers.get(pages.InvoiceTypeChangedPage).contains(true)
-
-    if (mode == CheckMode && invoiceTypeChanged) {
-      controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()
-    } else {
-      CountryCode.findCountryCode(userAnswers) match {
-        case Some(country) if currencyConfig.requiresCurrencySelection(country) =>
-          routes.RefundingCurrencyController.onPageLoad(mode)
-
-        case _ =>
-          routes.TotalPurchaseAmountBeforeVatController.onPageLoad(mode)
-      }
-    }
-  }
 
   private def navigateFromSupplierVatRegistrationPage(mode: Mode)(userAnswers: UserAnswers): Call = {
-    val invoiceTypeChanged =
-      userAnswers.get(pages.InvoiceTypeChangedPage).contains(true)
-
-    if (mode == CheckMode && invoiceTypeChanged) {
-      controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()
+    if (mode == CheckMode && userAnswers.get(pages.InvoiceTypeChangedPage).contains(true)) {
+      purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
     } else {
-      routes.TotalPurchaseAmountBeforeVatController.onPageLoad(mode)
+      purchaseRoutes.TotalPurchaseAmountBeforeVatController.onPageLoad(mode)
     }
   }
 
   private def navigateFromPurchaseTypePage(mode: Mode)(userAnswers: UserAnswers): Call =
     userAnswers.get(PurchaseTypePage) match {
-      case Some(parent) =>
+      case Some(purchaseTypeCode) =>
         CountryCode.findCountryCode(userAnswers) match {
           case Some(country) =>
-            val subs = configPurchaseMapping.subcodesFor(country, parent.toString)
+            val subs = configPurchaseMapping.subcodesFor(country, purchaseTypeCode.toString)
             if (subs.nonEmpty) {
-              Call("GET", s"/${PurchaseType.urlSlugForPurchaseType(parent)}")
+              Call("GET", s"/${PurchaseType.urlSlugForPurchaseType(purchaseTypeCode)}")
             } else {
-              if (mode == CheckMode) {
-                controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()
-              } else {
-                routes.InvoiceTypeController.onPageLoad(mode)
-              }
+              if (mode == CheckMode) { purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad() }
+              else { purchaseRoutes.InvoiceTypeController.onPageLoad(mode) }
             }
-          case _ => routes.DescribeItemsOnInvoiceController.onPageLoad(mode)
+          case _ => purchaseRoutes.DescribeItemsOnInvoiceController.onPageLoad(mode)
         }
 
-      case _ => routes.JourneyRecoveryController.onPageLoad()
+      case _ => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
+
+  private def navigateFromPurchaseSubCategoryPage(mode: Mode, userAnswers: UserAnswers): Call = {
+    userAnswers.get(PurchaseTypePage) match {
+      case Some(_) =>
+        if (mode == CheckMode) { purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad() }
+        else { purchaseRoutes.InvoiceTypeController.onPageLoad(mode) }
+      case _ => controllers.routes.JourneyRecoveryController.onPageLoad()
+    }
+  }
 
   private def navigateFromSupplierAddressPage(mode: Mode)(userAnswers: UserAnswers): Call = {
     val maybeInvoiceType = userAnswers.get(InvoiceTypePage)
 
     CountryCode.findCountryCode(userAnswers) match {
-      case Some("DE") => routes.SupplierTaxNumberController.onPageLoad(mode)
+      case Some("DE") => purchaseRoutes.SupplierTaxNumberController.onPageLoad(mode)
       case Some(_) =>
         maybeInvoiceType match {
-          case Some(InvoiceType.StandardInvoice)   => routes.SupplierVatRegistrationNumberController.onPageLoad(mode)
-          case Some(InvoiceType.SimplifiedInvoice) => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode)
-          case None                                => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode)
+          case Some(InvoiceType.StandardInvoice) => purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(mode)
+          case _                                 => purchaseRoutes.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode)
         }
-      case None => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode)
-    }
-  }
-
-  private def navigateFromPurchaseSubCategoryPage(mode: Mode, userAnswers: UserAnswers): Call = {
-    userAnswers.get(PurchaseTypePage) match {
-      case Some(_) =>
-        if (mode == CheckMode) {
-          controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()
-        } else {
-          routes.InvoiceTypeController.onPageLoad(mode)
-        }
-      case _ => routes.JourneyRecoveryController.onPageLoad()
+      case None => purchaseRoutes.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode)
     }
   }
 
   private def navigateFromSupplierTaxNumberPage(mode: Mode)(userAnswers: UserAnswers): Call =
     userAnswers.get(SupplierTaxNumberPage) match {
       case Some(SupplierTaxNumber.Vatregistrationnumber) =>
-        routes.SupplierVatRegistrationNumberController.onPageLoad(mode)
+        purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(mode)
       case Some(SupplierTaxNumber.Taxidentifiernumber) =>
-        routes.SupplierTaxIdentifierNumberController.onPageLoad(mode)
+        purchaseRoutes.SupplierTaxIdentifierNumberController.onPageLoad(mode)
       case Some(SupplierTaxNumber.Neither) =>
         if (mode == CheckMode) {
-          controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()
+          purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
         } else {
           navigateToCurrencyOrPurchaseAmount(mode)(userAnswers)
         }
-      case _ => routes.JourneyRecoveryController.onPageLoad()
+      case _ => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
   private def navigateFromSupplierTaxIdentifierNumberPage(mode: Mode)(userAnswers: UserAnswers): Call = {
     CountryCode.findCountryCode(userAnswers) match {
-      case Some(code) if currencyConfig.requiresCurrencySelection(code) =>
-        routes.RefundingCurrencyController.onPageLoad(mode)
-
-      case Some(code) if shouldNavigateToTotalPurchaseAmount(mode, code) =>
-        routes.TotalPurchaseAmountBeforeVatController.onPageLoad(mode)
-
-      case _ =>
-        routes.JourneyRecoveryController.onPageLoad()
+      case Some(code) if currencyConfig.requiresCurrencySelection(code) => purchaseRoutes.RefundingCurrencyController.onPageLoad(mode)
+      case Some(code) if code == "DE" || (mode == CheckMode && currencyConfig.currencyConfig.get(code).exists(_.nonEmpty)) =>
+        purchaseRoutes.TotalPurchaseAmountBeforeVatController.onPageLoad(mode)
+      case _ => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
   }
 
-  private def shouldNavigateToTotalPurchaseAmount(mode: Mode, countryCode: String): Boolean =
-    mode match {
-      case NormalMode =>
-        countryCode == "DE"
-
-      case CheckMode =>
-        countryCode == "DE" || hasCurrencyMapping(countryCode)
-    }
-
-  private def hasCurrencyMapping(countryCode: String): Boolean =
-    currencyConfig.currencyConfig.get(countryCode).exists(_.nonEmpty)
-
   private def navigateFromCheckYourStateDetailsPage(mode: Mode)(userAnswers: UserAnswers): Call =
     userAnswers.get(CheckYourStateDetailsPage) match {
-      case Some(true)  => routes.JourneyRecoveryController.onPageLoad() // TODO: replace when F8 delete application is in place
-      case Some(false) => routes.CheckYourClaimDetailsController.onPageLoad()
-      case _           => routes.JourneyRecoveryController.onPageLoad()
+      case Some(true)  => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: replace when F8 delete application is in place
+      case Some(false) => claimRoutes.CheckYourClaimDetailsController.onPageLoad()
+      case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
   private def navigateFromInvoiceNumberPage(mode: Mode)(answers: UserAnswers): Call =
-    answers.get(VrnWarningFlowPage) match {
-      case Some(true)  => routes.SupplierVrnWarningController.onPageLoad(mode)
-      case Some(false) => routes.SupplierVatRegistrationNumberController.onPageLoad(mode)
-      case None        => routes.InvoiceDateController.onPageLoad(mode)
+    if (answers.get(SupplierVatRegistrationWarningShownPage).isDefined) {
+      purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(mode)
+    } else if (answers.get(SupplierTaxIdentifierWarningShownPage).isDefined) {
+      purchaseRoutes.SupplierTaxIdentifierNumberController.onPageLoad(mode)
+    } else {
+      purchaseRoutes.InvoiceDateController.onPageLoad(mode)
     }
 
 }

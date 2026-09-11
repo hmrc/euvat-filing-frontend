@@ -17,6 +17,7 @@
 package forms
 
 import forms.behaviours.OptionFieldBehaviours
+import forms.purchase.RefundingCurrencyFormProvider
 import models.RefundingCurrency
 import play.api.data.FormError
 

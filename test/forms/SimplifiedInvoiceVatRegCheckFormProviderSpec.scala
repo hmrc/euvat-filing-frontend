@@ -17,6 +17,7 @@
 package forms
 
 import forms.behaviours.BooleanFieldBehaviours
+import forms.purchase.SimplifiedInvoiceVatRegCheckFormProvider
 import play.api.data.FormError
 
 class SimplifiedInvoiceVatRegCheckFormProviderSpec extends BooleanFieldBehaviours {
