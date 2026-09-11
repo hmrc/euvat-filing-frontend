@@ -19,6 +19,7 @@ package navigation
 import controllers.claim.routes as claimRoutes
 import controllers.imports.routes as importsRoutes
 import controllers.purchase.routes as purchaseRoutes
+import controllers.imports.routes as importRoutes
 import models.*
 import models.PurchaseOrImport.{Import, Purchase}
 import pages.*
@@ -69,16 +70,57 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
     case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 
+  private def importsOrPurchaseStart(mode: Mode)(userAnswers: UserAnswers): Call =
+    userAnswers.get(PurchaseOrImportPage) match {
+      case Some(PurchaseOrImport.Import) => importRoutes.SadReferenceController.onPageLoad
+      case _                            => purchaseRoutes.PurchaseTypeController.onPageLoad(mode)
+    }
+
   private val checkRoutes: Page => UserAnswers => Call = {
-    case RefundingCountryPage              => userAnswers => navigateFromRefundingCountryPage(CheckMode, userAnswers)
-    case RefundingLanguagePage             => userAnswers => navigateFromRefundingLanguagePage(CheckMode)(userAnswers)
-    case RefundPeriodPage                  => _ => claimRoutes.CheckYourClaimDetailsController.onPageLoad()
-    case ContactDetailsPage                => _ => claimRoutes.CheckYourClaimDetailsController.onPageLoad()
-    case BusinessActivityPage              => userAnswer => navigateFromBusinessActivityPage(CheckMode)(userAnswer)
-    case BusinessActivityTwoPage           => userAnswer => navigateFromBusinessActivity2Page(CheckMode)(userAnswer)
-    case BusinessActivityCodeThreePage     => _ => claimRoutes.BusinessActivityThreeController.onPageLoad()
-    case CheckYourStateDetailsPage         => userAnswers => navigateFromCheckYourStateDetailsPage(CheckMode)(userAnswers)
-    case ImportTypePage                    => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
+    case p if Set(RefundingCountryPage,
+                 RefundingLanguagePage,
+                 RefundPeriodPage,
+                 ContactDetailsPage,
+                 BusinessActivityPage,
+                 BusinessActivityTwoPage,
+                 BusinessActivityCodeThreePage,
+                 CheckYourStateDetailsPage).contains(p) => claimJourneyNavigationCheck(p)
+
+    case PurchaseOrImportPage => userAnswers => importsOrPurchaseStart(CheckMode)(userAnswers)
+
+    case p if Set(PurchaseTypePage,
+                 PurchaseSubCategoryPage,
+                 DescribeItemsOnInvoicePage,
+                 InvoiceTypePage,
+                 InvoiceNumberPage,
+                 InvoiceDatePage,
+                 SuppliersNamePage,
+                 SupplierAddressPage,
+                 SupplierTaxNumberPage,
+                 SimplifiedInvoiceVatRegCheckPage,
+                 SupplierVatRegistrationNumberPage,
+                 SupplierTaxIdentifierNumberPage,
+                 RefundingCurrencyPage,
+                 TotalPurchaseAmountBeforeVatPage,
+                 TotalVatPaidPage,
+                 TotalVatClaimPage).contains(p) => purchaseJourneyNavigationCheck(p)
+
+    case _ => _ => controllers.routes.IndexController.onPageLoad()
+  }
+
+  private def claimJourneyNavigationCheck(page: Page): UserAnswers => Call = page match {
+    case RefundingCountryPage    => userAnswers => navigateFromRefundingCountryPage(CheckMode, userAnswers)
+    case RefundingLanguagePage   => userAnswers => navigateFromRefundingLanguagePage(CheckMode)(userAnswers)
+    case RefundPeriodPage        => _ => claimRoutes.CheckYourClaimDetailsController.onPageLoad()
+    case ContactDetailsPage      => _ => claimRoutes.CheckYourClaimDetailsController.onPageLoad()
+    case BusinessActivityPage    => userAnswer => navigateFromBusinessActivityPage(CheckMode)(userAnswer)
+    case BusinessActivityTwoPage => userAnswer => navigateFromBusinessActivity2Page(CheckMode)(userAnswer)
+    case BusinessActivityCodeThreePage => _ => claimRoutes.BusinessActivityThreeController.onPageLoad()
+    case CheckYourStateDetailsPage => userAnswers => navigateFromCheckYourStateDetailsPage(CheckMode)(userAnswers)
+    case _ => _ => controllers.routes.IndexController.onPageLoad()
+  }
+
+  private def purchaseJourneyNavigationCheck(page: Page): UserAnswers => Call = page match {
     case PurchaseTypePage                  => userAnswer => navigateFromPurchaseTypePage(CheckMode)(userAnswer)
     case PurchaseSubCategoryPage           => userAnswers => navigateFromPurchaseSubCategoryPage(CheckMode, userAnswers)
     case DescribeItemsOnInvoicePage        => _ => purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
