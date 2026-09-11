@@ -17,6 +17,7 @@
 package forms
 
 import forms.behaviours.{FieldBehaviours, StringFieldBehaviours}
+import forms.claim.BusinessActivityCodeThreeFormProvider
 import play.api.data.FormError
 
 class BusinessActivityCodeThreeFormProviderSpec extends StringFieldBehaviours with FieldBehaviours {

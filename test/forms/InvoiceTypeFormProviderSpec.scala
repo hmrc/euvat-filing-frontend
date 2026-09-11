@@ -17,6 +17,7 @@
 package forms
 
 import forms.behaviours.OptionFieldBehaviours
+import forms.purchase.InvoiceTypeFormProvider
 import models.InvoiceType
 import play.api.data.FormError
 

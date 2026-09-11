@@ -17,6 +17,7 @@
 package forms
 
 import forms.behaviours.BooleanFieldBehaviours
+import forms.claim.BusinessActivityTwoFormProvider
 import play.api.data.FormError
 
 class BusinessActivityTwoFormProviderSpec extends BooleanFieldBehaviours {

@@ -1,0 +1,196 @@
+/*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package controllers.purchase
+
+import controllers.actions.*
+import forms.purchase.InvoiceNumberFormProvider
+import models.{CheckMode, Mode, NormalMode, UserAnswers}
+import navigation.Navigator
+import pages.*
+import play.api.data.Form
+import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.mvc.*
+import repositories.SessionRepository
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import views.html.purchase.InvoiceNumberView
+
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
+
+class InvoiceNumberController @Inject() (
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  navigator: Navigator,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: InvoiceNumberFormProvider,
+  val controllerComponents: MessagesControllerComponents,
+  view: InvoiceNumberView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
+
+  val form: Form[String] = formProvider()
+
+  private def backLink(mode: Mode): Call = if (mode == CheckMode) {
+    routes.CheckYourPurchaseDetailsController.onPageLoad()
+  } else {
+    routes.InvoiceTypeController.onPageLoad(NormalMode)
+  }
+
+  private def badRequestView(formWithErrors: Form[?], mode: Mode)(implicit request: Request[AnyContent]) = {
+    val html = view(formWithErrors, mode, backLink(mode))(request, messagesApi.preferred(request))
+    Future.successful(BadRequest(html))
+  }
+
+  private def persistAndRedirect(userAnswersTry: scala.util.Try[UserAnswers], redirectTo: Call): Future[Result] =
+    Future
+      .fromTry(userAnswersTry)
+      .flatMap(ua => sessionRepository.set(ua).map(_ => Redirect(redirectTo)))
+
+  private def redirectForGermanSupplierTax(updated: UserAnswers, mode: Mode): Result =
+    updated.get(SupplierTaxNumberPage) match {
+      case Some(models.SupplierTaxNumber.Vatregistrationnumber) =>
+        Redirect(routes.SupplierVatRegistrationNumberController.onPageLoad(mode))
+      case Some(models.SupplierTaxNumber.Taxidentifiernumber) =>
+        Redirect(routes.SupplierTaxIdentifierNumberController.onPageLoad(mode))
+      case _ =>
+        updated.get(SupplierVatRegistrationNumberPage) match {
+          case Some(_) => Redirect(routes.SupplierVatRegistrationNumberController.onPageLoad(mode))
+          case None =>
+            updated.get(SupplierTaxIdentifierNumberPage) match {
+              case Some(_) => Redirect(routes.SupplierTaxIdentifierNumberController.onPageLoad(mode))
+              case None    => Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
+            }
+        }
+    }
+
+  private def persistCheckModeInvoiceNumber(value: String, mode: Mode, userAnswers: UserAnswers, isGermany: Boolean): Future[Result] = {
+    val userAnswersTry =
+      if (isGermany) {
+        for {
+          setVal  <- userAnswers.set(InvoiceNumberPage, value)
+          marked1 <- setVal.set(SupplierTaxIdentifierArrivedFromInvoicePage, true)
+          marked2 <- marked1.set(SupplierVatRegistrationArrivedFromInvoicePage, true)
+        } yield marked2
+      } else {
+        userAnswers.set(InvoiceNumberPage, value)
+      }
+
+    Future
+      .fromTry(userAnswersTry)
+      .flatMap { updated =>
+        sessionRepository.set(updated).map { _ =>
+          if (isGermany) {
+            redirectForGermanSupplierTax(updated, mode)
+          } else {
+            Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
+          }
+        }
+      }
+  }
+
+  private def handleCheckModeWithoutWarning(value: String, mode: Mode, userAnswers: UserAnswers): Future[Result] = {
+    if (mode == CheckMode && userAnswers.isAnswerUnchanged(InvoiceNumberPage, value)) {
+      Future.successful(Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad()))
+    } else {
+      val isGermany = userAnswers.get(RefundingCountryPage).exists(_.equalsIgnoreCase("DE"))
+      persistCheckModeInvoiceNumber(value, mode, userAnswers, isGermany)
+    }
+  }
+
+  private def handleNormalModeWithoutWarning(value: String, mode: Mode, userAnswers: UserAnswers): Future[Result] =
+    utils.ControllerHelpers.shortCircuit(
+      InvoiceNumberPage,
+      value,
+      mode,
+      userAnswers,
+      navigator.nextPage(InvoiceNumberPage, mode, userAnswers),
+      routes.CheckYourPurchaseDetailsController.onPageLoad(),
+      Some(sessionRepository)
+    ) { updated =>
+      Future.successful(Redirect(navigator.nextPage(InvoiceNumberPage, mode, updated)))
+    }
+
+  private def handleWithoutWarning(value: String, mode: Mode, userAnswers: UserAnswers): Future[Result] =
+    if (mode == CheckMode) {
+      handleCheckModeWithoutWarning(value, mode, userAnswers)
+    } else {
+      handleNormalModeWithoutWarning(value, mode, userAnswers)
+    }
+
+  private def handleWhenWarningAlreadyShown(value: String, mode: Mode, userAnswers: UserAnswers): Future[Result] = {
+    val invoiceUnchanged = userAnswers.get(InvoiceNumberPage)
+
+    def resetWarning(userAnswers: UserAnswers, warningPage: QuestionPage[Boolean]): Try[UserAnswers] = {
+      for {
+        setUserAnswers    <- userAnswers.set(InvoiceNumberPage, value)
+        updateUserAnswers <- setUserAnswers.remove(warningPage)
+      } yield updateUserAnswers
+    }
+
+    if (invoiceUnchanged.contains(value)) {
+      if (userAnswers.get(SupplierVatRegistrationWarningShownPage).contains(true)) {
+        Future.successful(Redirect(controllers.warning.routes.SupplierVrnWarningController.onPageLoad(mode)))
+      } else {
+        Future.successful(Redirect(controllers.warning.routes.SupplierTaxIdentifierWarningController.onPageLoad(mode)))
+      }
+    } else {
+      if (userAnswers.get(SupplierTaxIdentifierWarningShownPage).contains(true)) {
+        persistAndRedirect(resetWarning(userAnswers, SupplierTaxIdentifierWarningShownPage),
+                           routes.SupplierTaxIdentifierNumberController.onPageLoad(mode)
+                          )
+      } else if (userAnswers.get(SupplierVatRegistrationWarningShownPage).contains(true)) {
+        persistAndRedirect(resetWarning(userAnswers, SupplierVatRegistrationWarningShownPage),
+                           routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode)
+                          )
+      } else {
+        Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+      }
+    }
+  }
+
+  private def handleInvoiceNumberSave(value: String, mode: Mode, userAnswers: UserAnswers)(implicit
+    request: Request[AnyContent]
+  ): Future[Result] = {
+    val isSupplierTaxIdentifierWarningShownPage = userAnswers.get(SupplierTaxIdentifierWarningShownPage).contains(true)
+    val isVrnWarningFlowPage = userAnswers.get(SupplierVatRegistrationWarningShownPage).contains(true)
+    val wasShown = isSupplierTaxIdentifierWarningShownPage || isVrnWarningFlowPage
+    if (wasShown) {
+      handleWhenWarningAlreadyShown(value, mode, userAnswers)
+    } else {
+      handleWithoutWarning(value, mode, userAnswers)
+    }
+  }
+
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+    val preparedForm = request.userAnswers.get(InvoiceNumberPage).fold(form)(form.fill)
+
+    Ok(view(preparedForm, mode, backLink(mode)))
+  }
+
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+    form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => badRequestView(formWithErrors, mode),
+        value => handleInvoiceNumberSave(value, mode, request.userAnswers)
+      )
+  }
+}
