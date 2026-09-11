@@ -232,18 +232,10 @@ class SimplifiedInvoiceVatRegCheckControllerSpec extends SpecBase with MockitoSu
     }
 
     "must clear supplier VAT reg number and redirect to purchase CYA when No selected in CheckMode for purchase journey" in {
-      val userAnswers = userAnswersWithAddress
-        .set(SimplifiedInvoiceVatRegCheckPage, false)
-        .success
-        .value
-        .set(SupplierVatRegistrationNumberPage, "FR123")
-        .success
-        .value
-
       val mockSessionRepository = mock[repositories.SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
         .overrides(bind[repositories.SessionRepository].toInstance(mockSessionRepository))
         .build()
 
@@ -256,6 +248,10 @@ class SimplifiedInvoiceVatRegCheckControllerSpec extends SpecBase with MockitoSu
         redirectLocation(result).value mustEqual controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad().url
 
         val captor = org.mockito.ArgumentCaptor.forClass(classOf[UserAnswers])
+        org.mockito.Mockito.verify(mockSessionRepository).set(captor.capture())
+        val saved = captor.getValue
+        saved.get(SupplierVatRegistrationNumberPage) mustBe None
+        saved.get(SimplifiedInvoiceVatRegCheckPage) mustBe Some(false)
       }
     }
 
