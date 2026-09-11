@@ -71,7 +71,7 @@ class SimplifiedInvoiceVatRegCheckController @Inject() (
         for {
           answers        <- Future.fromTry(userAnswers)
           clearedAnswers <- Future.fromTry(answers.remove(SupplierVatRegistrationNumberPage))
-          _              <- sessionRepository.set(answers)
+          _              <- sessionRepository.set(clearedAnswers)
         } yield Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
       } else {
         for {
