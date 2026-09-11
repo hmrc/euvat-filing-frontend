@@ -23,7 +23,7 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{RefundingCountryPage, RefundingCurrencyPage}
+import pages.{RefundingCountryPage, RefundingCurrencyPage, SimplifiedInvoiceVatRegCheckPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -34,7 +34,6 @@ import repositories.SessionRepository
 import scala.concurrent.Future
 
 class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
-
   def onwardRoute: Call = Call("GET", "/foo")
   lazy val refundingCurrencyRoute: String = routes.RefundingCurrencyController.onPageLoad(NormalMode).url
   val formProvider = new RefundingCurrencyFormProvider()
@@ -43,8 +42,9 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
   val userAnswersWithCzech: UserAnswers = emptyUserAnswers.set(RefundingCountryPage, "CZ").success.value
 
   "RefundingCurrency Controller" - {
-    "must show back link to the supplier VAT registration number page in NormalMode" in {
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithCzech)).build()
+    "must show back link to the supplier VAT registration number page in NormalMode if vat reg check is selected Yes" in {
+      val userAnswers = userAnswersWithEstonia.set(SimplifiedInvoiceVatRegCheckPage, true).success.value
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, refundingCurrencyRoute)
@@ -52,6 +52,19 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) must include(routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode).url)
+      }
+    }
+
+    "must show back link to the Simplified invoice vat reg check page in NormalMode if it was selected No" in {
+      val userAnswers = userAnswersWithEstonia.set(SimplifiedInvoiceVatRegCheckPage, false).success.value
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, refundingCurrencyRoute)
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) must include(routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode).url)
       }
     }
 
