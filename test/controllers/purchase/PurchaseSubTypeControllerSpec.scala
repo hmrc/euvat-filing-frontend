@@ -190,7 +190,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value must include("check-your-purchase-details")
+        redirectLocation(result).value must include("file-eu-vat/change-fuel-type")
         val captor = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
         captor.getValue.get(PurchaseSubTypePage) mustBe Some("1")
