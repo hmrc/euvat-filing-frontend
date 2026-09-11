@@ -123,8 +123,12 @@ class PurchaseSubCategoryController @Inject() (
     val prefix = MountPrefix.getFromRequest
     userAnswers.get(PurchaseTypePage).map(pt => PurchaseType.urlSlugForPurchaseType(pt)) match {
       case Some(slug) =>
-        val url = ControllerHelpers.pathForSlug(slug, mode, prefix)
-        Call("GET", url).url
+        if (mode == CheckMode) {
+          routes.CheckYourPurchaseDetailsController.onPageLoad().url
+        } else {
+          val url = ControllerHelpers.pathForSlug(slug, mode, prefix)
+          Call("GET", url).url
+        }
       case None => routes.PurchaseTypeController.onPageLoad(models.NormalMode).url
     }
   }

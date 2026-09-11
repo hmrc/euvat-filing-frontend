@@ -49,12 +49,11 @@ object ControllerHelpers {
 
   def compareWithPage(value: BigDecimal, page: pages.QuestionPage[BigDecimal], updated: UserAnswers)(
     cmp: (BigDecimal, BigDecimal) => Boolean
-  ): Boolean =
-    updated.get(page).exists(stored => cmp(value, stored))
+  ): Boolean = updated.get(page).exists(stored => cmp(value, stored))
 
   def pathForSlug(slug: String, mode: Mode, prefix: String): String =
     if (mode == CheckMode) {
-      routes.CheckYourPurchaseDetailsController.onPageLoad().url
+      if (prefix.isEmpty) s"/change-$slug" else s"$prefix/change-$slug"
     } else {
       if (prefix.isEmpty) s"/$slug" else s"$prefix/$slug"
     }

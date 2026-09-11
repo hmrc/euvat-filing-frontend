@@ -19,9 +19,9 @@ package controllers.purchase
 import controllers.actions.*
 import forms.purchase.SimplifiedInvoiceVatRegCheckFormProvider
 import models.requests.DataRequest
-import models.{CheckMode, Mode, NormalMode, UserAnswers}
+import models.{CheckMode, Mode, NormalMode}
 import navigation.Navigator
-import pages.{PurchaseTypePage, RefundingCountryPage, SimplifiedInvoiceVatRegCheckPage, SupplierAddressPage, SupplierVatRegistrationNumberPage}
+import pages.{SimplifiedInvoiceVatRegCheckPage, SupplierAddressPage, SupplierVatRegistrationNumberPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.*
@@ -62,49 +62,23 @@ class SimplifiedInvoiceVatRegCheckController @Inject() (
     }
   }
 
-  private def handleCheckModePurchaseNoVat(userAnswersTry: scala.util.Try[UserAnswers]): Future[Result] =
-    for {
-      afterSet     <- Future.fromTry(userAnswersTry)
-      afterCleared <- Future.fromTry(afterSet.remove(SupplierVatRegistrationNumberPage))
-      _            <- sessionRepository.set(afterCleared)
-    } yield Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
-
-  private def handleCheckModePurchaseWithVat(userAnswersTry: scala.util.Try[UserAnswers]): Future[Result] =
-    for {
-      afterSet <- Future.fromTry(userAnswersTry)
-      _        <- sessionRepository.set(afterSet)
-    } yield Redirect(routes.SupplierVatRegistrationNumberController.onPageLoad(CheckMode))
-
-  private def handleDefaultFlow(userAnswersTry: scala.util.Try[UserAnswers], value: Boolean): Future[Result] =
-    for {
-      persistedAnswers <- Future.fromTry(userAnswersTry)
-      _                <- sessionRepository.set(persistedAnswers)
-    } yield {
-      if (value) {
-        Redirect(routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode))
-      } else {
-        persistedAnswers.get(RefundingCountryPage) match {
-          case Some("EE") => Redirect(routes.RefundingCurrencyController.onPageLoad(NormalMode))
-          case _          => Redirect(routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode))
-        }
-      }
-    }
-
-  private def handleChangedAnswer(value: Boolean, mode: Mode)(implicit request: DataRequest[AnyContent]): Future[Result] = {
-    val userAnswers = request.userAnswers.set(SimplifiedInvoiceVatRegCheckPage, value)
-
-    (mode, request.userAnswers.get(PurchaseTypePage)) match {
-      case (CheckMode, Some(_)) if !value => handleCheckModePurchaseNoVat(userAnswers)
-      case (CheckMode, Some(_)) if value  => handleCheckModePurchaseWithVat(userAnswers)
-      case _                              => handleDefaultFlow(userAnswers, value)
-    }
-  }
-
   private def handleValidSubmit(value: Boolean, mode: Mode)(implicit request: DataRequest[AnyContent]): Future[Result] =
     if (mode == CheckMode && request.userAnswers.isAnswerUnchanged(SimplifiedInvoiceVatRegCheckPage, value)) {
       Future.successful(Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad()))
     } else {
-      handleChangedAnswer(value, mode)
+      val userAnswers = request.userAnswers.set(SimplifiedInvoiceVatRegCheckPage, value)
+      if (mode == CheckMode && !value) {
+        for {
+          answers        <- Future.fromTry(userAnswers)
+          clearedAnswers <- Future.fromTry(answers.remove(SupplierVatRegistrationNumberPage))
+          _              <- sessionRepository.set(clearedAnswers)
+        } yield Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
+      } else {
+        for {
+          answers <- Future.fromTry(userAnswers)
+          _       <- sessionRepository.set(answers)
+        } yield Redirect(navigator.nextPage(SimplifiedInvoiceVatRegCheckPage, mode, answers))
+      }
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
