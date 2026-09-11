@@ -1,2 +1,2 @@
-GET        /single-administrative-document-reference-number-available    controllers.imports.SadReferenceController.onPageLoad
-POST       /single-administrative-document-reference-number-available    controllers.imports.SadReferenceController.onSubmit
+GET        /import/single-administrative-document-reference-number-available    controllers.imports.SadReferenceController.onPageLoad
+POST       /import/single-administrative-document-reference-number-available    controllers.imports.SadReferenceController.onSubmit
