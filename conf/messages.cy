@@ -535,3 +535,11 @@ vatClaimWarning.p = You''ve told us the amount of VAT you''re claiming is {0}. T
 vatClaimWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
 vatClaimWarning.yes = Yes, this is correct
 vatClaimWarning.no = No, change the VAT claim amount
+
+import.caption = Import details
+
+singleAdministrativeDocumentReferenceNumberAvailable.title = Do you have a Single Administrative Document (SAD) reference? - EU VAT - GOV.UK
+singleAdministrativeDocumentReferenceNumberAvailable.heading = Do you have a Single Administrative Document (SAD) reference number?
+singleAdministrativeDocumentReferenceNumberAvailable.hint = You can usually find this at the top of the import document
+sadReference.error.required = Select yes if you have the Single Administrative Document (SAD) reference number
+singleAdministrativeDocumentReferenceNumberAvailable.error.required = Select yes if you have the Single Administrative Document (SAD) reference number
