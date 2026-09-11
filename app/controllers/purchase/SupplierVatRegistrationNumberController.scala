@@ -19,7 +19,7 @@ package controllers.purchase
 import controllers.actions.*
 import forms.purchase.SupplierVatRegistrationNumberFormProvider
 import models.requests.{DataRequest, SupplierVrnCountRequest}
-import models.{CheckMode, InvoiceType, Mode, UserAnswers}
+import models.{CheckMode, InvoiceType, Mode, NormalMode, UserAnswers}
 import navigation.Navigator
 import pages.*
 import play.api.data.Form
@@ -32,7 +32,6 @@ import services.EuVatRefundsService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import utils.ControllerHelpers.*
 import views.html.purchase.SupplierVatRegistrationNumberView
 
 import javax.inject.Inject
@@ -57,15 +56,19 @@ class SupplierVatRegistrationNumberController @Inject() (
   val form: Form[String] = formProvider()
 
   private def backLink(mode: Mode)(implicit request: DataRequest[?]): Call = {
-    val warningActive = request.userAnswers.get(VrnWarningFlowPage).isDefined
+    val warningActive = request.userAnswers.get(SupplierVatRegistrationWarningShownPage).isDefined
     val isGermany = request.userAnswers.get(RefundingCountryPage).exists(_.equalsIgnoreCase("DE"))
     val isSimplified = request.userAnswers.get(InvoiceTypePage).contains(InvoiceType.SimplifiedInvoice)
 
-    (warningActive, isGermany, isSimplified) match {
-      case (true, _, _)     => routes.InvoiceNumberController.onPageLoad(mode)
-      case (_, true, _)     => routes.SupplierTaxNumberController.onPageLoad(mode)
-      case (_, false, true) => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode)
-      case _                => routes.SupplierAddressController.onPageLoad(mode)
+    if (mode == CheckMode) {
+      routes.CheckYourPurchaseDetailsController.onPageLoad()
+    } else {
+      (warningActive, isGermany, isSimplified) match {
+        case (true, _, _)         => controllers.warning.routes.SupplierVrnWarningController.onPageLoad(NormalMode)
+        case (false, true, _)     => routes.SupplierTaxNumberController.onPageLoad(NormalMode)
+        case (false, false, true) => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode)
+        case _                    => routes.SupplierAddressController.onPageLoad(NormalMode)
+      }
     }
   }
 
@@ -114,8 +117,10 @@ class SupplierVatRegistrationNumberController @Inject() (
     val changed = !answers.get(SupplierVatRegistrationNumberPage).contains(value)
 
     for {
-      updated      <- answers.set(SupplierVatRegistrationNumberPage, value)
-      withFlag     <- if (answers.get(VrnWarningFlowPage).isDefined && changed) updated.set(VrnWarningFlowPage, false) else Success(updated)
+      updated <- answers.set(SupplierVatRegistrationNumberPage, value)
+      withFlag <- if (answers.get(SupplierVatRegistrationWarningShownPage).isDefined && changed) {
+                    updated.set(SupplierVatRegistrationWarningShownPage, false)
+                  } else { Success(updated) }
       finalAnswers <- withFlag.remove(pages.SupplierVatRegistrationArrivedFromInvoicePage)
     } yield finalAnswers
   }
@@ -157,7 +162,7 @@ class SupplierVatRegistrationNumberController @Inject() (
               }
             } else {
               val clearedTry = for {
-                cleared <- answers.remove(VrnWarningFlowPage)
+                cleared <- answers.remove(SupplierVatRegistrationWarningShownPage)
                 removed <- cleared.remove(SupplierVatRegistrationArrivedFromInvoicePage)
               } yield removed
 

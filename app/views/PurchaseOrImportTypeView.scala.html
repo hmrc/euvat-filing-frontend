@@ -28,9 +28,9 @@
     govukDetails : GovukDetails
 )
 
-@(form: Form[?], mode: Mode, call: Call, submitCall: Call, messagePrefix: String, captionKey: String, showPurchaseIntro: Boolean = true, legendKey: Option[String] = None)(implicit request: Request[?], messages: Messages)
+@(form: Form[?], mode: Mode, backLink: Call, submitCall: Call, messagePrefix: String, captionKey: String, showPurchaseIntro: Boolean = true, legendKey: Option[String] = None)(implicit request: Request[?], messages: Messages)
 
-@layout(pageTitle = views.ViewUtils.title(form, s"$messagePrefix.title"), backLinkUrl = Some(call.url)) {
+@layout(pageTitle = views.ViewUtils.title(form, s"$messagePrefix.title"), backLinkUrl = Some(backLink.url)) {
     <h1 class="govuk-heading-l">
         <span class="govuk-caption-l">@messages(captionKey)</span>
         @messages(s"$messagePrefix.heading")

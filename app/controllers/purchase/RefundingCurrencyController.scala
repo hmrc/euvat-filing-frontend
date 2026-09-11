@@ -19,9 +19,9 @@ package controllers.purchase
 import controllers.actions.*
 import forms.purchase.RefundingCurrencyFormProvider
 import models.requests.DataRequest
-import models.{Mode, RefundingCurrency, UserAnswers}
+import models.{CheckMode, Mode, NormalMode, RefundingCurrency, UserAnswers}
 import navigation.Navigator
-import pages.{ClaimDetailsAmendedPage, ClaimDetailsCompletedPage, CurrencyChangedPage, RefundingCurrencyPage}
+import pages.{ClaimDetailsAmendedPage, ClaimDetailsCompletedPage, CurrencyChangedPage, RefundingCurrencyPage, SimplifiedInvoiceVatRegCheckPage}
 import play.api.Logger
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -35,7 +35,7 @@ import views.html.purchase.RefundingCurrencyView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
+import scala.util.Success
 
 class RefundingCurrencyController @Inject() (
   override val messagesApi: MessagesApi,
@@ -56,7 +56,16 @@ class RefundingCurrencyController @Inject() (
   val form: Form[RefundingCurrency] = formProvider()
   private val logger = Logger(getClass)
 
-  private def backLink(mode: Mode): Call = routes.SupplierVatRegistrationNumberController.onPageLoad(mode)
+  private def backLink(userAnswers: UserAnswers, mode: Mode): Call =
+    if (mode == CheckMode) {
+      routes.CheckYourPurchaseDetailsController.onPageLoad()
+    } else {
+      if (userAnswers.get(SimplifiedInvoiceVatRegCheckPage).getOrElse(false)) {
+        routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode)
+      } else {
+        routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode)
+      }
+    }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     CountryCode.findCountryCode(request.userAnswers) match {
@@ -76,7 +85,7 @@ class RefundingCurrencyController @Inject() (
           }
           .getOrElse(form)
 
-        Ok(view(preparedForm, items, backLink(mode), mode))
+        Ok(view(preparedForm, items, backLink(request.userAnswers, mode), mode))
     }
   }
 
@@ -95,7 +104,7 @@ class RefundingCurrencyController @Inject() (
         val currencies = currencyConfig.currencyConfig(countryCode)
         val msgs = messagesApi.preferred(request)
         val items = buildRadioItems(currencies, msgs)
-        Future.successful(BadRequest(view(formWithErrors, items, backLink(mode), mode)))
+        Future.successful(BadRequest(view(formWithErrors, items, backLink(request.userAnswers, mode), mode)))
     }
 
   private def handleValidSubmission(value: RefundingCurrency, mode: Mode)(implicit request: DataRequest[?]): Future[Result] =

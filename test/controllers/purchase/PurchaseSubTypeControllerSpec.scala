@@ -17,7 +17,6 @@
 package controllers.purchase
 
 import base.SpecBase
-import controllers.purchase.routes
 import forms.purchase.PurchaseSubTypeFormProvider
 import models.{Fuel, Other}
 import org.mockito.ArgumentCaptor
@@ -35,9 +34,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import utils.ConfigPurchaseMapping
 
 class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
-
   val onwardRoute: Call = Call("GET", "/foo")
-
   val formProvider = new PurchaseSubTypeFormProvider()
   val form: Form[String] = formProvider()
 
@@ -193,7 +190,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value must include("change-fuel-type")
+        redirectLocation(result).value must include("file-eu-vat/change-fuel-type")
         val captor = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
         captor.getValue.get(PurchaseSubTypePage) mustBe Some("1")
@@ -300,8 +297,6 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         val loc = redirectLocation(result).value
-        // The controller should route to the friendly subcategory path defined
-        // by PurchaseSubCategoryType for dotted parent codes (e.g. "1.1").
         loc must include("/file-eu-vat/fuel-type")
         loc mustNot include("parentCode=")
 
@@ -472,7 +467,6 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual BAD_REQUEST
         contentAsString(result) must include("There is a problem")
-        // inline error summary should show the required message
         contentAsString(result) must include(messages(application)("purchase.sub.fuel.error.required"))
       }
     }

@@ -25,7 +25,7 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{never, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.PurchaseTypePage
+import pages.{PurchaseTypePage, RefundingCountryPage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -111,9 +111,8 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must return OK and the correct view for a GET when simplified invoice check exists with back link to simplified check" in {
-      val userAnswers = emptyUserAnswers.set(pages.SimplifiedInvoiceVatRegCheckPage, false).success.value
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+    "must return OK and the correct view for a GET with back link to purchase or import page in NormalMode" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, purchaseTypeRoute)
@@ -133,6 +132,35 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
                "purchase.caption",
                legendKey = Some("purchaseType.h2")
               )(request, messages(application)).toString
+        )
+      }
+    }
+
+    "must return OK and the correct view for a GET with back link to check your purchase details page in CheckMode" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, purchaseTypeRouteCheck)
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[PurchaseOrImportTypeView]
+        val formProvider = application.injector.instanceOf[PurchaseTypeFormProvider]
+        val form = formProvider()
+
+        status(result) mustEqual OK
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
+          view(
+            form,
+            CheckMode,
+            routes.CheckYourPurchaseDetailsController.onPageLoad(),
+            routes.PurchaseTypeController.onSubmit(CheckMode),
+            "purchaseType",
+            "purchase.caption",
+            legendKey = Some("purchaseType.h2")
+          )(
+            request,
+            messages(application)
+          ).toString
         )
       }
     }
@@ -200,20 +228,21 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form,
-               CheckMode,
-               backLinkCall,
-               routes.PurchaseTypeController.onSubmit(CheckMode),
-               "purchaseType",
-               "purchase.caption",
-               legendKey = Some("purchaseType.h2")
-              )(request, messages(application)).toString
+          view(
+            form,
+            CheckMode,
+            routes.CheckYourPurchaseDetailsController.onPageLoad(),
+            routes.PurchaseTypeController.onSubmit(CheckMode),
+            "purchaseType",
+            "purchase.caption",
+            legendKey = Some("purchaseType.h2")
+          )(request, messages(application)).toString
         )
       }
     }
 
     "must return OK and the correct view for a GET in CheckMode when country is Germany with back link to SupplierTaxIdentifierNumber" in {
-      val userAnswers = emptyUserAnswers.set(pages.RefundingCountryPage, "DE").success.value
+      val userAnswers = emptyUserAnswers.set(RefundingCountryPage, "DE").success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -225,14 +254,15 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         val form = formProvider()
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form,
-                                               CheckMode,
-                                               backLinkCall,
-                                               routes.PurchaseTypeController.onSubmit(CheckMode),
-                                               "purchaseType",
-                                               "purchase.caption",
-                                               legendKey = Some("purchaseType.h2")
-                                              )(request, messages(application)).toString
+        contentAsString(result) mustEqual view(
+          form,
+          CheckMode,
+          routes.CheckYourPurchaseDetailsController.onPageLoad(),
+          routes.PurchaseTypeController.onSubmit(CheckMode),
+          "purchaseType",
+          "purchase.caption",
+          legendKey = Some("purchaseType.h2")
+        )(request, messages(application)).toString
       }
     }
 

@@ -51,7 +51,11 @@ class SupplierTaxNumberController @Inject() (
   val form: Form[SupplierTaxNumber] = formProvider()
   private val logger = Logger(getClass)
 
-  private def backLink: Call = routes.SupplierAddressController.onPageLoad(NormalMode)
+  private def backLink(mode: Mode): Call = if (mode == CheckMode) {
+    routes.CheckYourPurchaseDetailsController.onPageLoad()
+  } else {
+    routes.SupplierAddressController.onPageLoad(NormalMode)
+  }
 
   private def requireGermany(userAnswers: UserAnswers): Option[Result] =
     utils.CountryCode.findCountryCode(userAnswers) match {
@@ -65,7 +69,7 @@ class SupplierTaxNumberController @Inject() (
     requireGermany(request.userAnswers).getOrElse {
       val preparedForm = request.userAnswers.get(SupplierTaxNumberPage).fold(form)(form.fill)
       val isSimplifiedInvoice: Boolean = request.userAnswers.get(InvoiceTypePage).contains(InvoiceType.SimplifiedInvoice)
-      Ok(view(preparedForm, mode, backLink, isSimplifiedInvoice))
+      Ok(view(preparedForm, mode, backLink(mode), isSimplifiedInvoice))
     }
   }
 
@@ -77,7 +81,7 @@ class SupplierTaxNumberController @Inject() (
         form
           .bindFromRequest()
           .fold(
-            formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink, isSimplifiedInvoice))),
+            formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode), isSimplifiedInvoice))),
             value =>
               if (mode == CheckMode && request.userAnswers.isAnswerUnchanged(SupplierTaxNumberPage, value)) {
                 Future.successful(Redirect(controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()))

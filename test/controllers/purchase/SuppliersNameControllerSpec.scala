@@ -17,9 +17,8 @@
 package controllers.purchase
 
 import base.SpecBase
-import controllers.purchase.routes
 import forms.purchase.SuppliersNameFormProvider
-import models.{Fuel, NormalMode, UserAnswers}
+import models.{CheckMode, Fuel, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -38,23 +37,18 @@ import scala.concurrent.Future
 class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute: Call = Call("GET", "/foo")
-
   val formProvider = new SuppliersNameFormProvider()
   val form: Form[String] = formProvider()
-
   lazy val suppliersNameRoute: String = routes.SuppliersNameController.onPageLoad(NormalMode).url
 
   "SuppliersName Controller" - {
 
     "must return OK and the correct view for a GET" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, suppliersNameRoute)
-
         val result = route(application, request).value
-
         val view = application.injector.instanceOf[SuppliersNameView]
 
         status(result) mustEqual OK
@@ -64,17 +58,28 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must return OK and the correct view for a GET in CheckMode" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.SuppliersNameController.onPageLoad(CheckMode).url)
+        val result = route(application, request).value
+        val view = application.injector.instanceOf[SuppliersNameView]
+
+        status(result) mustEqual OK
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
+          view(form, CheckMode, routes.CheckYourPurchaseDetailsController.onPageLoad())(request, messages(application)).toString
+        )
+      }
+    }
+
     "must populate the view correctly on a GET when the question has previously been answered" in {
-
       val userAnswers = UserAnswers(userAnswersId).set(SuppliersNamePage, "answer").success.value
-
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, suppliersNameRoute)
-
         val view = application.injector.instanceOf[SuppliersNameView]
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -88,9 +93,7 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to the next page when valid data is submitted" in {
-
       val mockSessionRepository = mock[SessionRepository]
-
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val application =
@@ -107,7 +110,6 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("value", "answer"))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
       }
@@ -129,7 +131,6 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
           .withFormUrlEncodedBody(("value", "same"))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad().url
       }
@@ -158,7 +159,6 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
           .withFormUrlEncodedBody(("value", "new"))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad().url
         org.mockito.Mockito.verify(mockSessionRepository).set(any())
@@ -166,7 +166,6 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -175,9 +174,7 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("value", ""))
 
         val boundForm = form.bind(Map("value" -> ""))
-
         val view = application.injector.instanceOf[SuppliersNameView]
-
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
@@ -188,7 +185,6 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return a Bad Request and errors when more than 35 characters are submitted" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -197,9 +193,7 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("value", "a" * 36))
 
         val boundForm = form.bind(Map("value" -> "a" * 36))
-
         val view = application.injector.instanceOf[SuppliersNameView]
-
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
@@ -210,21 +204,17 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
         val request = FakeRequest(GET, suppliersNameRoute)
-
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
@@ -233,7 +223,6 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("value", "answer"))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }

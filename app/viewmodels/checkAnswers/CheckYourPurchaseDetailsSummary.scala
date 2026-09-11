@@ -17,12 +17,11 @@
 package viewmodels.checkAnswers
 
 import controllers.purchase.routes
-import utils.ConfigPurchaseMapping
-import models.{CheckMode, UserAnswers}
+import models.{CheckMode, PurchaseOrImportType, UserAnswers}
 import pages.*
 import play.api.i18n.{Lang, Messages}
 import play.api.mvc.RequestHeader
-import utils.MountPrefix
+import utils.{ConfigPurchaseMapping, MountPrefix}
 
 object CheckYourPurchaseDetailsSummary {
 
@@ -45,12 +44,14 @@ object CheckYourPurchaseDetailsSummary {
       case Some(pt) =>
         val parentKey = pt.toString
 
-        val countryOpt = answers.get(RefundingCountryPage).orElse {
-          answers.get(RefundingCountryNamePage).map { stored =>
-            val parts = stored.split(",", 2).map(_.trim)
-            if (parts.length > 1) parts.last else stored
-          }
-        }
+        val countryOpt =
+          answers
+            .get(RefundingCountryPage)
+            .orElse {
+              answers
+                .get(RefundingCountryNamePage)
+                .map(_.split(",", 2).last.trim)
+            }
 
         val hasSubcodes = countryOpt
           .flatMap { c =>
@@ -61,8 +62,9 @@ object CheckYourPurchaseDetailsSummary {
           }
           .getOrElse(true)
 
-        if (!hasSubcodes) None
-        else
+        if (!hasSubcodes) {
+          None
+        } else {
           answers.get(PurchaseSubTypePage) match {
             case Some(v) if v == ConfigPurchaseMapping.NoneValue || v.split("\\.").lastOption.contains("99") =>
               val singleBypass = countryOpt.flatMap { c =>
@@ -81,20 +83,25 @@ object CheckYourPurchaseDetailsSummary {
 
             case _ => answers.get(PurchaseTypePage).flatMap(renderSubTypeRow(answers, _))
           }
+        }
     }
   }
 
   private def renderSubTypeRow(answers: UserAnswers, pt: models.PurchaseOrImportType)(implicit messages: Messages): Option[Row] = {
-    val parentSlug = models.PurchaseOrImportType.urlSlugForPurchaseType(pt)
+    val parentSlug = PurchaseOrImportType.urlSlugForPurchaseType(pt)
     val msgKey = s"purchase.subType.$parentSlug"
     val keyLabel = if (messages.isDefinedAt(msgKey)) messages(msgKey) else parentSlug.replace('-', ' ').capitalize
 
     val valueOpt: Option[String] = answers.get(PurchaseSubTypeLabelPage)
-    val displayValueOpt: Option[String] = valueOpt.map(v => if (v == ConfigPurchaseMapping.NoneValue) messages("site.none") else v)
+    val displayValueOpt: Option[String] = answers
+      .get(PurchaseSubTypeLabelPage)
+      .map {
+        case ConfigPurchaseMapping.NoneValue => messages("site.none")
+        case value                           => value
+      }
+    val changeUrl = routes.PurchaseSubTypeController.onPageLoad(parentSlug, CheckMode).url
 
-    val url = controllers.purchase.routes.PurchaseSubTypeController.onPageLoad(parentSlug, CheckMode).url
-
-    Some((keyLabel, displayValueOpt, Seq((url, "site.change", "purchase.subType.change.hidden"))))
+    Some((keyLabel, displayValueOpt, Seq((changeUrl, "site.change", "purchase.subType.change.hidden"))))
   }
 
   def rowPurchaseSubCategoryLabel(answers: UserAnswers)(implicit messages: Messages, request: RequestHeader): Option[Row] =
@@ -119,9 +126,7 @@ object CheckYourPurchaseDetailsSummary {
       val slug = findSlug(parentKey, codeToResolve)
       val msgKey = s"purchase.subCategory.$slug"
       val keyLabel = if (messages.isDefinedAt(msgKey)) messages(msgKey) else slug.replace('-', ' ').capitalize
-
       val displayValue = if (label == ConfigPurchaseMapping.NoneValue) messages("site.none") else label
-
       val mount = MountPrefix.getFromRequest
       val url = if (mount.isEmpty) s"/change-$slug" else s"$mount/change-$slug"
 
@@ -131,7 +136,6 @@ object CheckYourPurchaseDetailsSummary {
   def rowInvoiceType(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
     answers.get(InvoiceTypePage).map { it =>
       val url = routes.InvoiceTypeController.onPageLoad(CheckMode).url
-
       val parts = it.toString.split("\\s+").toSeq.filter(_.nonEmpty)
       val keySuffix = parts.headOption
         .map { first =>
@@ -312,4 +316,5 @@ object CheckYourPurchaseDetailsSummary {
       ("purchase.checkYourPurchase.purchaseAmounts", amountsRows)
     )
   }
+
 }
