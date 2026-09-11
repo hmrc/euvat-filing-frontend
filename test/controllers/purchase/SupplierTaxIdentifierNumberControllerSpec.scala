@@ -19,7 +19,7 @@ package controllers.purchase
 import base.SpecBase
 import forms.purchase.SupplierTaxIdentifierNumberFormProvider
 import models.responses.{AddPurchaseResponse, ApplicationResponse, SupplierTaxIdentifierCountResponse}
-import models.{CheckMode, Fuel, NormalMode, PurchaseType, UserAnswers}
+import models.{CheckMode, Fuel, NormalMode, PurchaseOrImportType, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any

@@ -14,21 +14,25 @@
  * limitations under the License.
  */
 
-package forms.purchase
+package pages
 
-import forms.mappings.Mappings
-import models.PurchaseOrImportType
-import play.api.data.Form
+import models.UserAnswers
+import play.api.libs.json.JsPath
+import queries.Gettable
+import queries.Settable
 
-import javax.inject.Inject
+import scala.util.Try
 
-class PurchaseTypeFormProvider @Inject() extends Mappings {
+case object ImportSubCategoryPage extends Gettable[String] with Settable[String] {
 
-  def apply(): Form[PurchaseOrImportType] =
-    Form(
-      "value" -> enumerable[PurchaseOrImportType](
-        requiredKey = "purchaseType.error.required",
-        invalidKey  = "purchaseType.error.required"
-      )
-    )
+  override def path: JsPath = JsPath \ "importSubCategory"
+
+  override def cleanup(value: Option[String], userAnswers: UserAnswers): Try[UserAnswers] =
+    value match {
+      case None =>
+        for {
+          clearedLabel <- userAnswers.remove(queries.ImportSubCategoryLabelQuery)
+        } yield clearedLabel
+      case Some(_) => scala.util.Success(userAnswers)
+    }
 }

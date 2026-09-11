@@ -14,23 +14,21 @@
  * limitations under the License.
  */
 
-package models
+package forms
 
-import base.SpecBase
+import javax.inject.Inject
 
-class PurchaseSubCategoryTypeSpec extends SpecBase {
+import forms.mappings.Mappings
+import models.PurchaseOrImportType
+import play.api.data.Form
 
-  "PurchaseSubCategoryType" - {
-    "slugFor should return configured slug when present" in {
-      PurchaseSubCategoryType.purchaseSubCategoryUrlSlugFor("fuel", "1.1") mustBe Some("fuel-type")
-    }
+class ImportTypeFormProvider @Inject() extends Mappings {
 
-    "pathFor should return configured slug when present" in {
-      PurchaseSubCategoryType.pathFor("fuel", "1.1") mustBe "fuel-type"
-    }
-
-    "pathFor should fall back to parentKey-parentCode when no mapping" in {
-      PurchaseSubCategoryType.pathFor("unknownKey", "2.4") mustBe "unknownKey-2-4"
-    }
-  }
+  def apply(): Form[PurchaseOrImportType] =
+    Form(
+      "value" -> enumerable[PurchaseOrImportType](
+        requiredKey = "importType.error.required",
+        invalidKey  = "importType.error.required"
+      )
+    )
 }
