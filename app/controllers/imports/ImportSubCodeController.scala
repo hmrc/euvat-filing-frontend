@@ -18,7 +18,7 @@ package controllers.imports
 
 import controllers.actions.*
 import controllers.routes
-import forms.purchase.PurchaseSubTypeFormProvider
+import forms.PurchaseOrImportSubTypeFormProvider
 import models.requests.DataRequest
 import models.{NormalMode, PurchaseOrImportType}
 import navigation.Navigator
@@ -42,7 +42,7 @@ class ImportSubCodeController @Inject() (
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  formProvider: PurchaseSubTypeFormProvider,
+  formProvider: PurchaseOrImportSubTypeFormProvider,
   config: ConfigPurchaseMapping,
   val controllerComponents: MessagesControllerComponents,
   view: PurchaseOrImportSubTypeView
