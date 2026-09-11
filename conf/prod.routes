@@ -4,3 +4,4 @@
 ->         /file-eu-vat               app.Routes
 ->         /file-eu-vat               claim.Routes
 ->         /file-eu-vat               purchase.Routes
+->         /file-eu-vat/import        imports.Routes
