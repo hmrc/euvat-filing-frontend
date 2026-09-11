@@ -1,0 +1,68 @@
+GET         /which-eu-member-state                      controllers.claim.RefundingCountryController.onPageLoad(mode: Mode = NormalMode)
+POST        /which-eu-member-state                      controllers.claim.RefundingCountryController.onSubmit(mode: Mode = NormalMode)
+GET         /change-which-eu-member-state               controllers.claim.RefundingCountryController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-which-eu-member-state               controllers.claim.RefundingCountryController.onSubmit(mode: Mode = CheckMode)
+
+GET         /eu-member-state-details                    controllers.claim.CheckYourStateDetailsController.onPageLoad(mode: Mode = NormalMode)
+POST        /eu-member-state-details                    controllers.claim.CheckYourStateDetailsController.onSubmit(mode: Mode = NormalMode)
+GET         /change-eu-member-state-details             controllers.claim.CheckYourStateDetailsController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-eu-member-state-details             controllers.claim.CheckYourStateDetailsController.onSubmit(mode: Mode = CheckMode)
+
+GET         /which-language                             controllers.claim.RefundingLanguageController.onPageLoad(mode: Mode = NormalMode)
+POST        /which-language                             controllers.claim.RefundingLanguageController.onSubmit(mode: Mode = NormalMode)
+GET         /change-which-language                      controllers.claim.RefundingLanguageController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-which-language                      controllers.claim.RefundingLanguageController.onSubmit(mode: Mode = CheckMode)
+
+GET         /refund-period                              controllers.claim.RefundPeriodController.onPageLoad(mode: Mode = NormalMode)
+POST        /refund-period                              controllers.claim.RefundPeriodController.onSubmit(mode: Mode = NormalMode)
+GET         /change-refund-period                       controllers.claim.RefundPeriodController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-refund-period                       controllers.claim.RefundPeriodController.onSubmit(mode: Mode = CheckMode)
+
+GET         /check-refund-period-start-date             controllers.claim.ConfirmRefundPeriodStartDateController.onPageLoad(mode: Mode = NormalMode)
+POST        /check-refund-period-start-date             controllers.claim.ConfirmRefundPeriodStartDateController.onSubmit(mode: Mode = NormalMode)
+GET         /change-check-refund-period-start-date      controllers.claim.ConfirmRefundPeriodStartDateController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-check-refund-period-start-date      controllers.claim.ConfirmRefundPeriodStartDateController.onSubmit(mode: Mode = CheckMode)
+
+GET         /check-refund-period-end-date               controllers.claim.ConfirmRefundPeriodEndDateController.onPageLoad(mode: Mode = NormalMode)
+POST        /check-refund-period-end-date               controllers.claim.ConfirmRefundPeriodEndDateController.onSubmit(mode: Mode = NormalMode)
+GET         /change-check-refund-period-end-date        controllers.claim.ConfirmRefundPeriodEndDateController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-check-refund-period-end-date        controllers.claim.ConfirmRefundPeriodEndDateController.onSubmit(mode: Mode = CheckMode)
+
+GET         /how-contact-you-about-claim                controllers.claim.ContactDetailsController.onPageLoad(mode: Mode = NormalMode)
+POST        /how-contact-you-about-claim                controllers.claim.ContactDetailsController.onSubmit(mode: Mode = NormalMode)
+GET         /change-how-contact-you-about-claim         controllers.claim.ContactDetailsController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-how-contact-you-about-claim         controllers.claim.ContactDetailsController.onSubmit(mode: Mode = CheckMode)
+
+GET         /business-activity                          controllers.claim.BusinessActivityController.onPageLoad(mode: Mode = NormalMode)
+POST        /business-activity                          controllers.claim.BusinessActivityController.onSubmit(mode: Mode = NormalMode)
+GET         /change-business-activity                   controllers.claim.BusinessActivityController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-business-activity                   controllers.claim.BusinessActivityController.onSubmit(mode: Mode = CheckMode)
+
+GET         /what-is-the-second-SIC-code                controllers.claim.BusinessActivityCodeTwoController.onPageLoad(mode: Mode = NormalMode)
+POST        /what-is-the-second-SIC-code                controllers.claim.BusinessActivityCodeTwoController.onSubmit(mode: Mode = NormalMode)
+GET         /change-what-is-the-second-SIC-code         controllers.claim.BusinessActivityCodeTwoController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-what-is-the-second-SIC-code         controllers.claim.BusinessActivityCodeTwoController.onSubmit(mode: Mode = CheckMode)
+
+GET         /business-activity-2                        controllers.claim.BusinessActivityTwoController.onPageLoad(mode: Mode = NormalMode)
+POST        /business-activity-2                        controllers.claim.BusinessActivityTwoController.onSubmit(mode: Mode = NormalMode)
+GET         /change-business-activity-2                 controllers.claim.BusinessActivityTwoController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-business-activity-2                 controllers.claim.BusinessActivityTwoController.onSubmit(mode: Mode = CheckMode)
+
+GET         /what-is-the-third-SIC-code                 controllers.claim.BusinessActivityCodeThreeController.onPageLoad(mode: Mode = NormalMode)
+POST        /what-is-the-third-SIC-code                 controllers.claim.BusinessActivityCodeThreeController.onSubmit(mode: Mode = NormalMode)
+GET         /change-what-is-the-third-SIC-code          controllers.claim.BusinessActivityCodeThreeController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-what-is-the-third-SIC-code          controllers.claim.BusinessActivityCodeThreeController.onSubmit(mode: Mode = CheckMode)
+
+GET         /business-activity-3                        controllers.claim.BusinessActivityThreeController.onPageLoad()
+POST        /business-activity-3                        controllers.claim.BusinessActivityThreeController.onSubmit()
+
+GET         /check-your-claim-details                   controllers.claim.CheckYourClaimDetailsController.onPageLoad()
+POST        /check-your-claim-details                   controllers.claim.CheckYourClaimDetailsController.onSubmit()
+GET         /claim-details                              controllers.claim.CheckYourClaimDetailsController.onPageLoad()
+POST        /claim-details                              controllers.claim.CheckYourClaimDetailsController.onSubmit()
+
+GET         /remove-second-SIC-code                     controllers.claim.RemoveSecondBusinessActivityController.onPageLoad()
+POST        /remove-second-SIC-code                     controllers.claim.RemoveSecondBusinessActivityController.onSubmit()
+
+GET         /remove-third-SIC-code                      controllers.claim.RemoveThirdBusinessActivityController.onPageLoad()
+POST        /remove-third-SIC-code                      controllers.claim.RemoveThirdBusinessActivityController.onSubmit()

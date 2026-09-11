@@ -16,59 +16,53 @@
 
 package utils
 
+import controllers.purchase.routes
 import models.requests.DataRequest
-import play.api.data.Form
-import play.api.libs.json.{Format, Reads}
-import play.api.mvc.{Call, Result}
-import queries.Gettable
-import pages.QuestionPage
-import repositories.SessionRepository
-import scala.concurrent.{ExecutionContext, Future}
-import play.api.mvc.Results.*
 import models.{CheckMode, Mode, UserAnswers}
-import scala.util.Try
-import scala.util.Success
-import scala.util.Failure
+import pages.QuestionPage
+import play.api.libs.json.{Format, Reads}
+import play.api.mvc.Results.*
+import play.api.mvc.{Call, Result}
+import repositories.SessionRepository
+
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success, Try}
 
 object ControllerHelpers {
 
-  // Combine two Option values into a tuple when both are defined.
   def bothDefined[A, B](first: Option[A], second: Option[B]): Option[(A, B)] =
     for {
       a <- first
       b <- second
     } yield (a, b)
 
-  def currencyNameAndPrefix(userAnswers: models.UserAnswers, configCurrencyMapping: Map[String, Seq[Currency]])(implicit
+  def currencyNameAndPrefix(userAnswers: UserAnswers, configCurrencyMapping: Map[String, Seq[Currency]])(implicit
     request: DataRequest[?]
   ): (String, String) = CurrencyResolver.currencyNameAndPrefix(userAnswers, configCurrencyMapping)
 
-  def currencySymbolFromSession(userAnswers: models.UserAnswers, configCurrencyMapping: Map[String, Seq[Currency]])(implicit
+  def currencySymbolFromSession(userAnswers: UserAnswers, configCurrencyMapping: Map[String, Seq[Currency]])(implicit
     request: DataRequest[?]
   ): String = {
     val (_, symbol) = currencyNameAndPrefix(userAnswers, configCurrencyMapping)
     if (symbol.isEmpty) "€" else symbol
   }
 
-  // Generic helper to compare a submitted `value` against a BigDecimal stored
-  // on another page in `UserAnswers` using a provided comparator function.
-  def compareWithPage(value: BigDecimal, page: pages.QuestionPage[BigDecimal], updated: models.UserAnswers)(
+  def compareWithPage(value: BigDecimal, page: pages.QuestionPage[BigDecimal], updated: UserAnswers)(
     cmp: (BigDecimal, BigDecimal) => Boolean
-  ): Boolean =
-    updated.get(page).exists(stored => cmp(value, stored))
+  ): Boolean = updated.get(page).exists(stored => cmp(value, stored))
 
   def pathForSlug(slug: String, mode: Mode, prefix: String): String =
-    if (mode == models.CheckMode) {
+    if (mode == CheckMode) {
       if (prefix.isEmpty) s"/change-$slug" else s"$prefix/change-$slug"
     } else {
       if (prefix.isEmpty) s"/$slug" else s"$prefix/$slug"
     }
 
   def redirectToInvoiceTypeOrCYA(mode: Mode): Result = {
-    if (mode == models.CheckMode) {
-      Redirect(controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad())
+    if (mode == CheckMode) {
+      Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
     } else {
-      Redirect(controllers.routes.InvoiceTypeController.onPageLoad(mode))
+      Redirect(routes.InvoiceTypeController.onPageLoad(mode))
     }
   }
 
@@ -127,8 +121,6 @@ object ControllerHelpers {
         Future.successful(InternalServerError("Failed to build UserAnswers"))
     }
 
-  // If running in CheckMode and the arrival flag page is not set, set it and persist the updated `UserAnswers`.
-  // Otherwise call `render` with the existing `UserAnswers`.
   def markArrivalAndRender(
     page: QuestionPage[Boolean],
     mode: Mode,
