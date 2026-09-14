@@ -18,8 +18,8 @@ package controllers.purchase
 
 import base.SpecBase
 import forms.purchase.InvoiceTypeFormProvider
-import models.{Fuel, InvoiceType, NormalMode, PurchaseType}
-import pages.{PurchaseSubCategoryPage, PurchaseSubTypePage, PurchaseTypePage}
+import models.{Fuel, InvoiceType, NormalMode, PurchaseOrImportType}
+import pages.{InvoiceTypePage, PurchaseSubCategoryPage, PurchaseSubTypePage, PurchaseTypePage}
 import play.api.data.Form
 import play.api.mvc.Call
 import play.api.test.FakeRequest

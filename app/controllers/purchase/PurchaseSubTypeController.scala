@@ -19,7 +19,7 @@ package controllers.purchase
 import controllers.actions.*
 import forms.purchase.PurchaseSubTypeFormProvider
 import models.requests.DataRequest
-import models.{CheckMode, Mode, NormalMode, PurchaseSubCategoryType, PurchaseType, UserAnswers}
+import models.*
 import navigation.Navigator
 import pages.*
 import play.api.data.Form
@@ -29,7 +29,7 @@ import repositories.SessionRepository
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.{ConfigPurchaseMapping, ControllerHelpers, CountryCode, MountPrefix}
-import views.html.purchase.PurchaseSubTypeView
+import views.html.PurchaseOrImportSubTypeView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -44,7 +44,7 @@ class PurchaseSubTypeController @Inject() (
   formProvider: PurchaseSubTypeFormProvider,
   config: ConfigPurchaseMapping,
   val controllerComponents: MessagesControllerComponents,
-  view: PurchaseSubTypeView
+  view: PurchaseOrImportSubTypeView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
@@ -52,7 +52,7 @@ class PurchaseSubTypeController @Inject() (
 
   private def resolveParentAndCountry(purchaseTypeSlug: String, userAnswers: UserAnswers): Option[(String, String)] =
     val parentKey =
-      PurchaseType.valueFromUrlSlug
+      PurchaseOrImportType.valueFromUrlSlug
         .get(purchaseTypeSlug)
         .orElse(
           userAnswers
@@ -90,7 +90,7 @@ class PurchaseSubTypeController @Inject() (
     currentAnswers.get(PurchaseTypePage) match {
       case Some(_) => scala.util.Success(updatedAnswers)
       case None =>
-        PurchaseType.values.find(_.toString == parentKey) match {
+        PurchaseOrImportType.values.find(_.toString == parentKey) match {
           case Some(pt) => updatedAnswers.set(PurchaseTypePage, pt)
           case None     => scala.util.Success(updatedAnswers)
         }
@@ -150,7 +150,7 @@ class PurchaseSubTypeController @Inject() (
     }
 
   private def resolvedSlugFor(parentKey: String, fallback: String): String =
-    PurchaseType.values.find(_.toString == parentKey).map(PurchaseType.urlSlugForPurchaseType).getOrElse(fallback)
+    PurchaseOrImportType.values.find(_.toString == parentKey).map(PurchaseOrImportType.urlSlugForPurchaseType).getOrElse(fallback)
 
   private def formActionFor(uri: String, mode: Mode)(implicit request: RequestHeader) = {
     val isChangeMode = if (mode == models.CheckMode) "change-" else ""
@@ -185,7 +185,7 @@ class PurchaseSubTypeController @Inject() (
     request: DataRequest[AnyContent]
   ): Future[Result] = {
     val backUrl = backUrlFor(mode)
-    Future.successful(Ok(view(preparedForm, items, heading, heading, formAction, backUrl)))
+    Future.successful(Ok(view(preparedForm, items, heading, heading, "purchase.caption", formAction, backUrl)))
   }
 
   private def markArrivalAndRenderSubType(preparedForm: Form[?],
@@ -271,7 +271,7 @@ class PurchaseSubTypeController @Inject() (
   ): Future[Result] = {
     val formAction = formActionFor(resolvedSlug, mode)
     val backUrl = backUrlFor(mode)
-    Future.successful(BadRequest(view(formWithErrors, items, parentHeading, parentHeading, formAction, backUrl)))
+    Future.successful(BadRequest(view(formWithErrors, items, parentHeading, parentHeading, "purchase.caption", formAction, backUrl)))
   }
 
   private def persistNoneSelection(mode: Mode, userAnswers: UserAnswers)(implicit request: DataRequest[AnyContent]): Future[Result] = {
@@ -311,7 +311,7 @@ class PurchaseSubTypeController @Inject() (
   private def noChildrenRedirect(value: String, resolvedSlug: String, mode: Mode): Result = {
     val lastSeg = value.split("\\.").lastOption.getOrElse(value)
     val isOtherPurchaseType =
-      PurchaseType.values.find(pt => PurchaseType.urlSlugForPurchaseType(pt) == resolvedSlug).contains(models.Other)
+      PurchaseOrImportType.values.find(pt => PurchaseOrImportType.urlSlugForPurchaseType(pt) == resolvedSlug).contains(models.Other)
 
     if (isOtherPurchaseType && lastSeg == "99") {
       Redirect(routes.DescribeItemsOnInvoiceController.onPageLoad(mode))
