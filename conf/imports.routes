@@ -1,2 +1,8 @@
-GET        /single-administrative-document-reference-number-available    controllers.imports.SadReferenceController.onPageLoad
-POST       /single-administrative-document-reference-number-available    controllers.imports.SadReferenceController.onSubmit
+GET        /single-administrative-document-reference-number-available           controllers.imports.SadReferenceController.onPageLoad(mode: Mode = NormalMode)
+POST       /single-administrative-document-reference-number-available           controllers.imports.SadReferenceController.onSubmit(mode: Mode = NormalMode)
+GET        /change-single-administrative-document-reference-number-available    controllers.imports.SadReferenceController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-single-administrative-document-reference-number-available    controllers.imports.SadReferenceController.onSubmit(mode: Mode = CheckMode)
+GET        /single-administrative-document-reference-number                     controllers.imports.SadReferenceNumberController.onPageLoad(mode: Mode = NormalMode)
+POST       /single-administrative-document-reference-number                     controllers.imports.SadReferenceNumberController.onSubmit(mode: Mode = NormalMode)
+GET        /change-single-administrative-document-reference-number              controllers.imports.SadReferenceNumberController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-single-administrative-document-reference-number              controllers.imports.SadReferenceNumberController.onSubmit(mode: Mode = CheckMode)

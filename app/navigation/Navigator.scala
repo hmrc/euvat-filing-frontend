@@ -38,6 +38,7 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
   }
 
   private val normalRoutes: Page => UserAnswers => Call = {
+    case p if Set(SadReferencePage, SadReferenceNumberPage).contains(p) => importJourneyNavigation(NormalMode)(p)
     case p if Set(RefundingCountryPage,
                  RefundingLanguagePage,
                  RefundPeriodPage,
@@ -101,13 +102,27 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
     case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 
+  private def importJourneyNavigation(mode: Mode)(page: Page): UserAnswers => Call = page match {
+    case SadReferencePage => userAnswers =>
+      userAnswers.get(SadReferencePage) match {
+        case Some(true)  => importRoutes.SadReferenceNumberController.onPageLoad(mode)
+        case Some(false) => controllers.routes.JourneyRecoveryController.onPageLoad()
+        case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+
+    case SadReferenceNumberPage => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
+
+    case _ => _ => controllers.routes.IndexController.onPageLoad()
+  }
+
   private def importsOrPurchaseStart(mode: Mode)(userAnswers: UserAnswers): Call =
     userAnswers.get(PurchaseOrImportPage) match {
-      case Some(PurchaseOrImport.Import) => importRoutes.SadReferenceController.onPageLoad
+      case Some(PurchaseOrImport.Import) => importRoutes.SadReferenceController.onPageLoad(mode)
       case _                            => purchaseRoutes.PurchaseTypeController.onPageLoad(mode)
     }
 
   private val checkRoutes: Page => UserAnswers => Call = {
+    case p if Set(SadReferencePage, SadReferenceNumberPage).contains(p) => importJourneyNavigation(CheckMode)(p)
     case p if Set(RefundingCountryPage,
                  RefundingLanguagePage,
                  RefundPeriodPage,
