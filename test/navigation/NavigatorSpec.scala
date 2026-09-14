@@ -131,16 +131,15 @@ class NavigatorSpec extends SpecBase {
           purchaseRoutes.PurchaseTypeController.onPageLoad(NormalMode)
       }
 
-      "must go from PurchaseOrImportPage to ImportTypeController when Import is selected" in {
-        val answers = userAnswers.set(PurchaseOrImportPage, Import).success.value
-
-        navigator.nextPage(PurchaseOrImportPage, NormalMode, answers) mustBe
-          controllers.imports.routes.ImportTypeController.onPageLoad(NormalMode)
-      }
-
       "must go from ImportTypePage to SadReferenceController" in {
         navigator.nextPage(ImportTypePage, NormalMode, emptyUserAnswers) mustBe
-          controllers.imports.routes.SadReferenceController.onPageLoad
+          controllers.imports.routes.SadReferenceController.onPageLoad(NormalMode)
+      }
+
+      "must go from PurchaseOrImportPage to SAD reference page when Import selected" in {
+        val ua = userAnswers.set(PurchaseOrImportPage, PurchaseOrImport.Import).success.value
+        navigator.nextPage(PurchaseOrImportPage, NormalMode, ua) mustBe
+          controllers.imports.routes.SadReferenceController.onPageLoad(NormalMode)
       }
 
       "must go from PurchaseOrImportPage to ImportTypeController when Import selected" in {
@@ -530,7 +529,7 @@ class NavigatorSpec extends SpecBase {
 
       "must go from ImportTypePage to SadReferenceController" in {
         navigator.nextPage(ImportTypePage, CheckMode, emptyUserAnswers) mustBe
-          controllers.imports.routes.SadReferenceController.onPageLoad
+          controllers.imports.routes.SadReferenceController.onPageLoad(CheckMode)
       }
 
       "must go from PurchaseTypePage to DescribeItemsOnInvoiceController" in {
