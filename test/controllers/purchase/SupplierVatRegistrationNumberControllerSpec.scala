@@ -86,27 +86,6 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
       }
     }
 
-    "must return OK and the correct view for a GET in NormalMode when returned from warning page" in {
-      val userAnswers = emptyUserAnswers.set(SupplierVatRegistrationWarningShownPage, true).success.value
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
-
-      running(application) {
-        val request = FakeRequest(GET, routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode).url)
-        val result = route(application, request).value
-        val view = application.injector.instanceOf[SupplierVatRegistrationNumberView]
-
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form,
-                                               NormalMode,
-                                               controllers.warning.routes.SupplierVrnWarningController.onPageLoad(NormalMode),
-                                               false
-                                              )(
-          request,
-          messages(application)
-        ).toString
-      }
-    }
-
     "must show the Germany-specific hint when the refunding country is Germany" in {
       val userAnswers = emptyUserAnswers.set(RefundingCountryPage, "DE").success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()

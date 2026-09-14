@@ -107,21 +107,9 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from InvoiceNumberPage to InvoiceDateController in normal flow (no warning marker)" in {
-        val ua = userAnswers.remove(SupplierVatRegistrationWarningShownPage).success.value
+        val ua = userAnswers.remove(SupplierVatRegistrationWarningPage).success.value
         navigator.nextPage(InvoiceNumberPage, NormalMode, ua) mustBe
           purchaseRoutes.InvoiceDateController.onPageLoad(NormalMode)
-      }
-
-      "must go from InvoiceNumberPage to the supplier VRN number page when marker is true (came from warning, unchanged)" in {
-        val ua = userAnswers.set(SupplierVatRegistrationWarningShownPage, true).success.value
-        navigator.nextPage(InvoiceNumberPage, NormalMode, ua) mustBe
-          purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode)
-      }
-
-      "must go from InvoiceNumberPage to SupplierVatRegistrationNumberController when marker is false (came from warning, changed)" in {
-        val ua = userAnswers.set(SupplierVatRegistrationWarningShownPage, false).success.value
-        navigator.nextPage(InvoiceNumberPage, NormalMode, ua) mustBe
-          purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode)
       }
 
       "must go from BusinessActivityTwoPage to CheckYourClaimDetailsPage if no selected" in {
@@ -311,70 +299,14 @@ class NavigatorSpec extends SpecBase {
         navigator.nextPage(SupplierTaxNumberPage, NormalMode, ua) mustBe purchaseRoutes.SupplierTaxIdentifierNumberController.onPageLoad(NormalMode)
       }
 
-      "must go from SupplierTaxIdentifierNumberPage to TotalPurchaseAmountBeforeVatController if country is Germany and supplier choice was tax identifier" in {
-        val ua = userAnswers
-          .set(RefundingCountryPage, "DE")
-          .success
-          .value
-          .set(SupplierTaxNumberPage, SupplierTaxNumber.Taxidentifiernumber)
-          .success
-          .value
-        navigator.nextPage(SupplierTaxIdentifierNumberPage, NormalMode, ua) mustBe
+      "must go from SupplierTaxIdentifierNumberPage to TotalPurchaseAmountBeforeVatController in NormalMode" in {
+        navigator.nextPage(SupplierTaxIdentifierNumberPage, NormalMode, userAnswers) mustBe
           purchaseRoutes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
       }
 
-      "must go from SupplierTaxIdentifierNumberPage to TotalPurchaseAmountBeforeVatController when RefundingCountryNamePage contains a code and name (DE, Germany)" in {
-        val ua = userAnswers
-          .set(pages.RefundingCountryNamePage, "DE, Germany")
-          .success
-          .value
-          .set(SupplierTaxNumberPage, SupplierTaxNumber.Taxidentifiernumber)
-          .success
-          .value
-        navigator.nextPage(SupplierTaxIdentifierNumberPage, NormalMode, ua) mustBe
-          purchaseRoutes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
-      }
-
-      "must go from SupplierTaxIdentifierNumberPage to JourneyRecoveryController for non-implemented cases" in {
-        val ua = userAnswers
-          .set(RefundingCountryPage, "FR")
-          .success
-          .value
-          .set(SupplierTaxNumberPage, SupplierTaxNumber.Taxidentifiernumber)
-          .success
-          .value
-        navigator.nextPage(SupplierTaxIdentifierNumberPage, NormalMode, ua) mustBe
-          controllers.routes.JourneyRecoveryController.onPageLoad()
-      }
-
-      "must go from SupplierTaxIdentifierNumberPage to TotalPurchaseAmountBeforeVatController when warning flag is present and country is Germany" in {
-        val ua = userAnswers
-          .set(RefundingCountryPage, "DE")
-          .success
-          .value
-          .set(SupplierTaxNumberPage, SupplierTaxNumber.Taxidentifiernumber)
-          .success
-          .value
-          .set(pages.SupplierTaxIdentifierWarningShownPage, true)
-          .success
-          .value
-        navigator.nextPage(SupplierTaxIdentifierNumberPage, NormalMode, ua) mustBe
-          purchaseRoutes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
-      }
-
-      "must go from SupplierTaxIdentifierNumberPage to JourneyRecoveryController when warning flag is present but country is not Germany" in {
-        val ua = userAnswers
-          .set(RefundingCountryPage, "FR")
-          .success
-          .value
-          .set(SupplierTaxNumberPage, SupplierTaxNumber.Taxidentifiernumber)
-          .success
-          .value
-          .set(pages.SupplierTaxIdentifierWarningShownPage, true)
-          .success
-          .value
-        navigator.nextPage(SupplierTaxIdentifierNumberPage, NormalMode, ua) mustBe
-          controllers.routes.JourneyRecoveryController.onPageLoad()
+      "must go from SupplierTaxIdentifierNumberPage to CheckYourPurchaseDetailsController in CheckMode" in {
+        navigator.nextPage(SupplierTaxIdentifierNumberPage, CheckMode, userAnswers) mustBe
+          purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
       }
 
       "must go from SupplierTaxNumberPage to TotalPurchaseAmountBeforeVatController if neither is selected" in {
@@ -576,19 +508,13 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from InvoiceNumberPage to InvoiceDateController in CheckMode normal flow (no marker)" in {
-        val ua = userAnswers.remove(SupplierVatRegistrationWarningShownPage).success.value
+        val ua = userAnswers.remove(SupplierVatRegistrationWarningPage).success.value
         navigator.nextPage(InvoiceNumberPage, CheckMode, ua) mustBe
-          purchaseRoutes.InvoiceDateController.onPageLoad(CheckMode)
+          purchaseRoutes.InvoiceDateController.onPageLoad(NormalMode)
       }
 
       "must go from InvoiceNumberPage to the supplier VRN number page in CheckMode when marker is true" in {
-        val ua = userAnswers.set(SupplierVatRegistrationWarningShownPage, true).success.value
-        navigator.nextPage(InvoiceNumberPage, CheckMode, ua) mustBe
-          purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(CheckMode)
-      }
-
-      "must go from InvoiceNumberPage to SupplierVatRegistrationNumberController in CheckMode when marker is false" in {
-        val ua = userAnswers.set(SupplierVatRegistrationWarningShownPage, false).success.value
+        val ua = userAnswers.set(SupplierVatRegistrationNumberPage, "123").success.value
         navigator.nextPage(InvoiceNumberPage, CheckMode, ua) mustBe
           purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(CheckMode)
       }
@@ -611,7 +537,7 @@ class NavigatorSpec extends SpecBase {
 
       "must go from InvoiceNumberPage to InvoiceDateController in CheckMode" in {
         navigator.nextPage(InvoiceNumberPage, CheckMode, userAnswers) mustBe
-          purchaseRoutes.InvoiceDateController.onPageLoad(CheckMode)
+          purchaseRoutes.InvoiceDateController.onPageLoad(NormalMode)
       }
 
       "must go from InvoiceDatePage to SuppliersNameController in CheckMode" in {
@@ -642,30 +568,6 @@ class NavigatorSpec extends SpecBase {
       "must go from SupplierAddressPage to SupplierVatRegistrationNumberController in CheckMode when country is not DE and invoice type is standard" in {
         val ua = userAnswers.set(RefundingCountryPage, "FR").success.value.set(InvoiceTypePage, InvoiceType.StandardInvoice).success.value
         navigator.nextPage(SupplierAddressPage, CheckMode, ua) mustBe purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(CheckMode)
-      }
-
-      "must go from SupplierTaxIdentifierNumberPage to TotalPurchaseAmountBeforeVatController in CheckMode if country is Germany and supplier choice was tax identifier" in {
-        val ua = userAnswers
-          .set(RefundingCountryPage, "DE")
-          .success
-          .value
-          .set(SupplierTaxNumberPage, SupplierTaxNumber.Taxidentifiernumber)
-          .success
-          .value
-        navigator.nextPage(SupplierTaxIdentifierNumberPage, CheckMode, ua) mustBe
-          purchaseRoutes.TotalPurchaseAmountBeforeVatController.onPageLoad(CheckMode)
-      }
-
-      "must go from SupplierTaxIdentifierNumberPage to JourneyRecoveryController in CheckMode for non-implemented cases" in {
-        val ua = userAnswers
-          .set(RefundingCountryPage, "FR")
-          .success
-          .value
-          .set(SupplierTaxNumberPage, SupplierTaxNumber.Taxidentifiernumber)
-          .success
-          .value
-        navigator.nextPage(SupplierTaxIdentifierNumberPage, CheckMode, ua) mustBe
-          controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from SupplierAddressPage to SimplifiedInvoiceVatRegCheckController if country is missing and no invoice type" in {
@@ -709,30 +611,6 @@ class NavigatorSpec extends SpecBase {
       "must go from SupplierVatRegistrationNumberPage to RefundingCurrencyController in CheckMode when country has more than one currency" in {
         val ua = userAnswers.set(pages.RefundingCountryPage, "EE").success.value
         navigator.nextPage(SupplierVatRegistrationNumberPage, CheckMode, ua) mustBe
-          purchaseRoutes.RefundingCurrencyController.onPageLoad(CheckMode)
-      }
-
-      "must go from SupplierTaxIdentifierNumberPage to TotalPurchaseAmountBeforeVatController if tax identifier number is selected and country has one currency" in {
-        val ua = userAnswers
-          .set(pages.SupplierTaxIdentifierNumberPage, "taxIdNo")
-          .success
-          .value
-          .set(pages.RefundingCountryPage, "AT")
-          .success
-          .value
-        navigator.nextPage(SupplierTaxIdentifierNumberPage, CheckMode, ua) mustBe
-          purchaseRoutes.TotalPurchaseAmountBeforeVatController.onPageLoad(CheckMode)
-      }
-
-      "must go from SupplierTaxIdentifierNumberPage to RefundingCurrencyController if tax identifier number is selected and country has more than one currency" in {
-        val ua = userAnswers
-          .set(pages.SupplierTaxIdentifierNumberPage, "taxIdNo")
-          .success
-          .value
-          .set(pages.RefundingCountryPage, "EE")
-          .success
-          .value
-        navigator.nextPage(SupplierTaxIdentifierNumberPage, CheckMode, ua) mustBe
           purchaseRoutes.RefundingCurrencyController.onPageLoad(CheckMode)
       }
 

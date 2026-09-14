@@ -20,7 +20,7 @@ import controllers.actions.*
 import controllers.purchase.routes
 import models.{CheckMode, Mode, NormalMode}
 import navigation.Navigator
-import pages.{SupplierVatRegistrationNumberPage, SupplierVatRegistrationWarningShownPage}
+import pages.{SupplierVatRegistrationNumberPage, SupplierVatRegistrationWarningPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -45,14 +45,14 @@ class SupplierVrnWarningController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     for {
-      updated <- Future.fromTry(request.userAnswers.set(SupplierVatRegistrationWarningShownPage, true))
+      updated <- Future.fromTry(request.userAnswers.set(SupplierVatRegistrationWarningPage, true))
       _       <- sessionRepository.set(updated)
     } yield Ok(view(routes.SupplierVatRegistrationNumberController.onPageLoad(mode), mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     for {
-      cleared <- Future.fromTry(request.userAnswers.remove(SupplierVatRegistrationWarningShownPage))
+      cleared <- Future.fromTry(request.userAnswers.remove(SupplierVatRegistrationWarningPage))
       _       <- sessionRepository.set(cleared)
     } yield {
       if (mode == CheckMode) {

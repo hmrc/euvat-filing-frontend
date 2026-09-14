@@ -43,7 +43,7 @@ class SupplierTaxIdentifierWarningController @Inject() (
     with I18nSupport {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    val flagged = request.userAnswers.set(SupplierTaxIdentifierWarningShownPage, true)
+    val flagged = request.userAnswers.set(SupplierTaxIdentifierWarningPage, true)
     Future
       .fromTry(flagged)
       .flatMap(ua =>
@@ -63,7 +63,7 @@ class SupplierTaxIdentifierWarningController @Inject() (
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    val cleared = request.userAnswers.remove(SupplierTaxIdentifierWarningShownPage)
+    val cleared = request.userAnswers.remove(SupplierTaxIdentifierWarningPage)
     Future
       .fromTry(cleared)
       .flatMap(ua =>
