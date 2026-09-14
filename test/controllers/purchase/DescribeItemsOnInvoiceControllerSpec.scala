@@ -211,7 +211,7 @@ class DescribeItemsOnInvoiceControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, Call("GET", "/file-eu-vat/fuel-type-or-vehicle"))(request, messages(application)).toString
+          view(form, NormalMode, Call("GET", "/file-eu-vat/purchase/fuel-type-or-vehicle"))(request, messages(application)).toString
         )
       }
     }
