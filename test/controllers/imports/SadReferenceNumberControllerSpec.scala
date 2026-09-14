@@ -22,17 +22,17 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import models.NormalMode
 
-class SadReferenceControllerSpec extends SpecBase with MockitoSugar {
+class SadReferenceNumberControllerSpec extends SpecBase with MockitoSugar {
 
-  val formProvider = new forms.imports.SadReferenceFormProvider()
+  val formProvider = new forms.imports.SadReferenceNumberFormProvider()
 
-  "SadReference Controller" - {
+  "SadReferenceNumber Controller" - {
 
     "must return OK and the correct view for a GET" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.imports.routes.SadReferenceController.onPageLoad(NormalMode).url)
+        val request = FakeRequest(GET, controllers.imports.routes.SadReferenceNumberController.onPageLoad(NormalMode).url)
         val result  = route(application, request).value
 
         status(result) mustBe OK
@@ -44,8 +44,8 @@ class SadReferenceControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(POST, controllers.imports.routes.SadReferenceController.onSubmit(NormalMode).url)
-          .withFormUrlEncodedBody("value" -> "true")
+        val request = FakeRequest(POST, controllers.imports.routes.SadReferenceNumberController.onSubmit(NormalMode).url)
+          .withFormUrlEncodedBody("value" -> "ABC123")
 
         val result = route(application, request).value
 
@@ -58,7 +58,7 @@ class SadReferenceControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(POST, controllers.imports.routes.SadReferenceController.onSubmit(NormalMode).url)
+        val request = FakeRequest(POST, controllers.imports.routes.SadReferenceNumberController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody("value" -> "")
 
         val result = route(application, request).value
@@ -67,5 +67,4 @@ class SadReferenceControllerSpec extends SpecBase with MockitoSugar {
       }
     }
   }
-
 }
