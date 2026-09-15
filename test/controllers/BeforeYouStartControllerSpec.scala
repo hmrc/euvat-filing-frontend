@@ -80,7 +80,7 @@ class BeforeYouStartControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
 
-        redirectLocation(result).value mustEqual routes.PurchaseOrImportController.onPageLoad.url
+        redirectLocation(result).value mustEqual controllers.routes.PurchaseOrImportController.onPageLoad.url
       }
     }
 

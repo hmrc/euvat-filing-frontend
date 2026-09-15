@@ -1,0 +1,87 @@
+/*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package controllers.warning
+
+import base.SpecBase
+import models.{CheckMode, NormalMode}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import pages.{InvoiceNumberPage, SupplierVatRegistrationNumberPage, TotalPurchaseAmountBeforeVatPage}
+import play.api.inject.bind
+import play.api.test.FakeRequest
+import play.api.test.Helpers.*
+import repositories.SessionRepository
+import views.html.warning.SupplierTaxIdentifierWarningView
+
+import scala.concurrent.Future
+
+class SupplierTaxIdentifierWarningControllerSpec extends SpecBase {
+
+  "SupplierTaxIdentifierWarning Controller" - {
+
+    "must return OK and the correct view for a GET in NormalMode" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.SupplierTaxIdentifierWarningController.onPageLoad(NormalMode).url)
+        val result = route(application, request).value
+        val view = application.injector.instanceOf[SupplierTaxIdentifierWarningView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(
+          controllers.purchase.routes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode),
+          controllers.purchase.routes.InvoiceNumberController.onPageLoad(CheckMode),
+          controllers.purchase.routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode),
+          NormalMode
+        )(request, messages(application)).toString
+      }
+    }
+
+    "must redirect to TotalPurchaseAmountBeforeVat on submit in NormalMode" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.SupplierTaxIdentifierWarningController.onSubmit(NormalMode).url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.purchase.routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode).url
+      }
+    }
+
+    "must redirect to Check Your Purchase Details on submit in CheckMode" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val userAnswers = emptyUserAnswers
+        .set(TotalPurchaseAmountBeforeVatPage, 123)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.SupplierTaxIdentifierWarningController.onSubmit(CheckMode).url)
+        val result = route(application, request).value
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad().url
+      }
+    }
+  }
+}

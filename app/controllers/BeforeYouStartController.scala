@@ -43,7 +43,7 @@ class BeforeYouStartController @Inject() (
     with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    Ok(view(routes.TaskListDashboardController.onPageLoad()))
+    Ok(view(controllers.routes.TaskListDashboardController.onPageLoad()))
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>

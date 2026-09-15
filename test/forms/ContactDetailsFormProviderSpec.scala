@@ -17,6 +17,7 @@
 package forms
 
 import forms.behaviours.{FieldBehaviours, StringFieldBehaviours}
+import forms.claim.ContactDetailsFormProvider
 import models.ContactDetails
 import play.api.data.FormError
 

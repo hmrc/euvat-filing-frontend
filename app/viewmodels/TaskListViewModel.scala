@@ -32,7 +32,6 @@ class TaskListViewModel @Inject() () {
 
   def buildTaskList(answers: UserAnswers)(implicit messages: Messages): TaskList = {
     val claimDetailsDone = answers.get(ClaimDetailsCompletedPage).contains(true)
-
     def notStartedStatus = TaskListItemStatus(tag = Some(Tag(content = Text(messages("taskListDashboard.status1")))))
     def cannotStartStatus = TaskListItemStatus(tag = Some(Tag(content = Text(messages("taskListDashboard.status2")), classes = "govuk-tag--grey")))
 
@@ -48,7 +47,7 @@ class TaskListViewModel @Inject() () {
         else notStartedStatus,
       href = Some(
         if (claimDetailsDone) "/file-eu-vat/claim-details"
-        else controllers.routes.RefundingCountryController.onPageLoad(models.NormalMode).url
+        else controllers.claim.routes.RefundingCountryController.onPageLoad(models.NormalMode).url
       )
     )
 

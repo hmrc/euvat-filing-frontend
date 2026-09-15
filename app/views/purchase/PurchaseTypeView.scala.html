@@ -1,0 +1,58 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import models.{Mode, PurchaseType}
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+@import views.html.components.MainErrorSummary
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+
+@this(
+    layout: templates.Layout,
+    formHelper: FormWithCSRF,
+    govukRadios: GovukRadios,
+    govukButton: GovukButton,
+    mainErrorSummary: MainErrorSummary,
+    govukDetails : GovukDetails
+)
+
+@(form: Form[?], mode: Mode, call: Call)(implicit request: Request[?], messages: Messages)
+
+@layout(pageTitle = views.ViewUtils.title(form, "purchaseType.title"), backLinkUrl = Some(call.url)) {
+    <h1 class="govuk-heading-l">
+        <span class="govuk-caption-l">@messages("purchase.caption")</span>
+        @messages("purchaseType.heading")
+    </h1>
+
+    @formHelper(action = controllers.purchase.routes.PurchaseTypeController.onSubmit(mode)) {
+        @mainErrorSummary(form, Map("value" -> "value_0"))
+
+        <p class="govuk-body">@messages("purchaseType.p1")</p>
+        <ul class="govuk-list govuk-list--bullet">
+            <li class="govuk-body">@messages("purchaseType.li1")</li>
+            <li class="govuk-body">@messages("purchaseType.li2")</li>
+        </ul>
+
+        @govukRadios(
+            RadiosViewModel(
+                field  = form("value"),
+                legend = LegendViewModel(HtmlContent(messages("purchaseType.h2"))).withCssClass("govuk-fieldset__legend--m"),
+                items  = PurchaseType.options
+            )
+        )
+
+        @govukButton(ButtonViewModel(messages("site.continue")))
+    }
+}

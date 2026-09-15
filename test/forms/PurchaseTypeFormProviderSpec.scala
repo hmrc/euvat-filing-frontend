@@ -17,6 +17,7 @@
 package forms
 
 import forms.behaviours.FieldBehaviours
+import forms.purchase.PurchaseTypeFormProvider
 import models.PurchaseType
 import play.api.data.FormError
 

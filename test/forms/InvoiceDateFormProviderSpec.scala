@@ -16,8 +16,9 @@
 
 package forms
 
-import java.time.LocalDate
+import forms.purchase.InvoiceDateFormProvider
 
+import java.time.LocalDate
 import generators.Generators
 import org.scalacheck.Gen
 import org.scalatest.OptionValues

@@ -17,6 +17,7 @@
 package forms
 
 import forms.behaviours.FieldBehaviours
+import forms.purchase.SupplierAddressFormProvider
 import models.SupplierAddress
 import play.api.data.FormError
 import play.api.inject.guice.GuiceApplicationBuilder

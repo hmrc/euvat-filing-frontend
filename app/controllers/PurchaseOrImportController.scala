@@ -20,9 +20,10 @@ import controllers.actions.*
 import forms.PurchaseOrImportFormProvider
 
 import javax.inject.Inject
-import models.{Mode, NormalMode, UserAnswers}
+import models.{Mode, NormalMode, PurchaseOrImport, UserAnswers}
 import navigation.Navigator
 import pages.*
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import queries.Settable
@@ -47,7 +48,7 @@ class PurchaseOrImportController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  val form = formProvider()
+  val form: Form[PurchaseOrImport] = formProvider()
 
   private def backLink = routes.BeforeYouStartController.onPageLoad()
 

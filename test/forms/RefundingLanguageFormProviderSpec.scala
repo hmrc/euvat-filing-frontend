@@ -16,6 +16,7 @@
 
 package forms
 
+import forms.claim.RefundingLanguageFormProvider
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.data.FormError
