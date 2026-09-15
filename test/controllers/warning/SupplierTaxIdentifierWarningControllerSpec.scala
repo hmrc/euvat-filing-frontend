@@ -17,7 +17,6 @@
 package controllers.warning
 
 import base.SpecBase
-import controllers.warning.routes
 import models.{CheckMode, NormalMode}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -32,15 +31,13 @@ class SupplierTaxIdentifierWarningControllerSpec extends SpecBase {
 
       running(application) {
         val request = FakeRequest(GET, routes.SupplierTaxIdentifierWarningController.onPageLoad(NormalMode).url)
-
         val result = route(application, request).value
-
         val view = application.injector.instanceOf[SupplierTaxIdentifierWarningView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(
-          controllers.purchase.routes.SupplierTaxIdentifierNumberController.onPageLoad(NormalMode),
-          controllers.purchase.routes.InvoiceNumberController.onPageLoad(NormalMode),
+          controllers.purchase.routes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode),
+          controllers.purchase.routes.InvoiceNumberController.onPageLoad(CheckMode),
           controllers.purchase.routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode),
           NormalMode
         )(request, messages(application)).toString

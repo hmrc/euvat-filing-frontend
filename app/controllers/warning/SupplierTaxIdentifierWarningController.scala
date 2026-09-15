@@ -20,8 +20,6 @@ import controllers.actions.*
 import controllers.purchase.routes
 import models.{CheckMode, Mode, NormalMode}
 import pages.*
-
-import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -52,8 +50,8 @@ class SupplierTaxIdentifierWarningController @Inject() (
           .map(_ =>
             Ok(
               view(
-                routes.SupplierTaxIdentifierNumberController.onPageLoad(mode),
-                routes.InvoiceNumberController.onPageLoad(mode),
+                routes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode),
+                routes.InvoiceNumberController.onPageLoad(CheckMode),
                 routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode),
                 mode
               )
