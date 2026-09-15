@@ -18,7 +18,7 @@ package controllers.purchase
 
 import base.SpecBase
 import forms.purchase.InvoiceTypeFormProvider
-import models.{Fuel, InvoiceType, NormalMode, PurchaseType}
+import models.{Fuel, InvoiceType, NormalMode, PurchaseOrImportType}
 import pages.{PurchaseSubCategoryPage, PurchaseSubTypePage, PurchaseTypePage}
 import play.api.data.Form
 import play.api.mvc.Call
