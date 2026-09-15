@@ -241,6 +241,8 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
       purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(CheckMode)
     } else if (answers.get(SupplierTaxIdentifierNumberPage).isDefined && mode == CheckMode) {
       purchaseRoutes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode)
+    } else if (mode == CheckMode) {
+      purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
     } else {
       purchaseRoutes.InvoiceDateController.onPageLoad(NormalMode)
     }

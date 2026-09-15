@@ -507,18 +507,6 @@ class NavigatorSpec extends SpecBase {
           claimRoutes.BusinessActivityThreeController.onPageLoad()
       }
 
-      "must go from InvoiceNumberPage to InvoiceDateController in CheckMode normal flow (no marker)" in {
-        val ua = userAnswers.remove(SupplierVatRegistrationWarningPage).success.value
-        navigator.nextPage(InvoiceNumberPage, CheckMode, ua) mustBe
-          purchaseRoutes.InvoiceDateController.onPageLoad(NormalMode)
-      }
-
-      "must go from InvoiceNumberPage to the supplier VRN number page in CheckMode when marker is true" in {
-        val ua = userAnswers.set(SupplierVatRegistrationNumberPage, "123").success.value
-        navigator.nextPage(InvoiceNumberPage, CheckMode, ua) mustBe
-          purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(CheckMode)
-      }
-
       "must go from PurchaseTypePage to DescribeItemsOnInvoiceController" in {
         val ua = userAnswers.set(PurchaseTypePage, PurchaseType.values.head).success.value
         navigator.nextPage(PurchaseTypePage, CheckMode, ua) mustBe
@@ -535,9 +523,21 @@ class NavigatorSpec extends SpecBase {
           purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
       }
 
-      "must go from InvoiceNumberPage to InvoiceDateController in CheckMode" in {
+      "must go from InvoiceNumberPage to CYA Purchase details in CheckMode" in {
+        val ua = userAnswers.remove(SupplierVatRegistrationWarningPage).success.value
+        navigator.nextPage(InvoiceNumberPage, CheckMode, ua) mustBe
+          purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
+      }
+
+      "must go from InvoiceNumberPage to the supplier VRN number page in CheckMode when marker is true" in {
+        val ua = userAnswers.set(SupplierVatRegistrationNumberPage, "123").success.value
+        navigator.nextPage(InvoiceNumberPage, CheckMode, ua) mustBe
+          purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(CheckMode)
+      }
+
+      "must go from InvoiceNumberPage to CYA purchase page in CheckMode" in {
         navigator.nextPage(InvoiceNumberPage, CheckMode, userAnswers) mustBe
-          purchaseRoutes.InvoiceDateController.onPageLoad(NormalMode)
+          purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
       }
 
       "must go from InvoiceDatePage to SuppliersNameController in CheckMode" in {
