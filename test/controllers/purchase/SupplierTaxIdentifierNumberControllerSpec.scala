@@ -19,13 +19,13 @@ package controllers.purchase
 import base.SpecBase
 import forms.purchase.SupplierTaxIdentifierNumberFormProvider
 import models.responses.{AddPurchaseResponse, ApplicationResponse, SupplierTaxIdentifierCountResponse}
-import models.{CheckMode, Fuel, NormalMode, PurchaseOrImportType, UserAnswers}
+import models.{CheckMode, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{AddPurchaseResponsePage, InvoiceNumberPage, PurchaseTypePage, SupplierTaxIdentifierNumberPage}
+import pages.{AddPurchaseResponsePage, InvoiceNumberPage, SupplierTaxIdentifierNumberPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -98,9 +98,21 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
     "must redirect to the next page when valid data is submitted" in {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val ua = emptyUserAnswers
+        .set(ClaimApplicationResponseQuery, ApplicationResponse(123, "GB123456789", 1))
+        .success
+        .value
+        .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber = 1, updateSequenceNumber = 1))
+        .success
+        .value
+        .set(InvoiceNumberPage, "INV123")
+        .success
+        .value
+      when(mockEuVatRefundsService.getSupplierTaxIdentifierCount(any())(any()))
+        .thenReturn(Future.successful(SupplierTaxIdentifierCountResponse(duplicateCount = 0)))
 
       val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        applicationBuilder(userAnswers = Some(ua))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
             bind[SessionRepository].toInstance(mockSessionRepository)
@@ -118,7 +130,7 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
       }
     }
 
-    "must redirect to JourneyRecovery when duplicate count > 0" in {
+    "must redirect to Warning page when duplicate count > 0" in {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
@@ -159,7 +171,7 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
 
         val captor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository, org.mockito.Mockito.times(2)).set(captor.capture())
-        captor.getAllValues.get(1).get(pages.SupplierTaxIdentifierWarningShownPage) mustBe Some(true)
+        captor.getAllValues.get(1).get(pages.SupplierTaxIdentifierWarningPage) mustBe Some(true)
       }
     }
 
@@ -172,9 +184,6 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
         .success
         .value
         .set(InvoiceNumberPage, "INV123")
-        .success
-        .value
-        .set(pages.SupplierTaxIdentifierArrivedFromInvoicePage, true)
         .success
         .value
         .set(SupplierTaxIdentifierNumberPage, "1234567890")
@@ -247,7 +256,7 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
         redirectLocation(result).value mustEqual routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode).url
         val captor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository, org.mockito.Mockito.times(1)).set(captor.capture())
-        captor.getAllValues.get(0).get(pages.SupplierTaxIdentifierWarningShownPage) mustBe None
+        captor.getAllValues.get(0).get(pages.SupplierTaxIdentifierWarningPage) mustBe None
       }
     }
 
@@ -351,9 +360,22 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
     "must redirect to the next page when valid data is submitted in CheckMode" in {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val ua = emptyUserAnswers
+        .set(ClaimApplicationResponseQuery, ApplicationResponse(123, "GB123456789", 1))
+        .success
+        .value
+        .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber = 1, updateSequenceNumber = 1))
+        .success
+        .value
+        .set(InvoiceNumberPage, "INV123")
+        .success
+        .value
+
+      when(mockEuVatRefundsService.getSupplierTaxIdentifierCount(any())(any()))
+        .thenReturn(Future.successful(SupplierTaxIdentifierCountResponse(duplicateCount = 0)))
 
       val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        applicationBuilder(userAnswers = Some(ua))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
             bind[SessionRepository].toInstance(mockSessionRepository)
@@ -376,15 +398,18 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val ua = emptyUserAnswers
-        .set(PurchaseTypePage, Fuel)
+        .set(ClaimApplicationResponseQuery, ApplicationResponse(123, "GB123456789", 1))
         .success
         .value
-        .set(pages.SupplierTaxNumberPage, models.SupplierTaxNumber.Taxidentifiernumber)
+        .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber = 1, updateSequenceNumber = 1))
         .success
         .value
-        .set(pages.RefundingCountryPage, "DE")
+        .set(InvoiceNumberPage, "INV123")
         .success
         .value
+
+      when(mockEuVatRefundsService.getSupplierTaxIdentifierCount(any())(any()))
+        .thenReturn(Future.successful(SupplierTaxIdentifierCountResponse(duplicateCount = 0)))
 
       val application =
         applicationBuilder(userAnswers = Some(ua))

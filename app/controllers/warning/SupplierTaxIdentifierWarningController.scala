@@ -20,8 +20,6 @@ import controllers.actions.*
 import controllers.purchase.routes
 import models.{CheckMode, Mode, NormalMode}
 import pages.*
-
-import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -43,7 +41,7 @@ class SupplierTaxIdentifierWarningController @Inject() (
     with I18nSupport {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    val flagged = request.userAnswers.set(SupplierTaxIdentifierWarningShownPage, true)
+    val flagged = request.userAnswers.set(SupplierTaxIdentifierWarningPage, true)
     Future
       .fromTry(flagged)
       .flatMap(ua =>
@@ -52,8 +50,8 @@ class SupplierTaxIdentifierWarningController @Inject() (
           .map(_ =>
             Ok(
               view(
-                routes.SupplierTaxIdentifierNumberController.onPageLoad(mode),
-                routes.InvoiceNumberController.onPageLoad(mode),
+                routes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode),
+                routes.InvoiceNumberController.onPageLoad(CheckMode),
                 routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode),
                 mode
               )
@@ -63,16 +61,17 @@ class SupplierTaxIdentifierWarningController @Inject() (
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    val cleared = request.userAnswers.remove(SupplierTaxIdentifierWarningShownPage)
+    val cleared = request.userAnswers.remove(SupplierTaxIdentifierWarningPage)
     Future
       .fromTry(cleared)
       .flatMap(ua =>
         sessionRepository
           .set(ua)
           .map(_ =>
-            mode match {
-              case CheckMode => Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
-              case _         => Redirect(routes.TotalPurchaseAmountBeforeVatController.onPageLoad(mode))
+            if (request.userAnswers.get(TotalPurchaseAmountBeforeVatPage).isDefined) {
+              Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
+            } else {
+              Redirect(routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode))
             }
           )
       )
