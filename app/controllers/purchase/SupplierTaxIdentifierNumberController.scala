@@ -18,11 +18,12 @@ package controllers.purchase
 
 import controllers.actions.*
 import forms.purchase.SupplierTaxIdentifierNumberFormProvider
-import models.requests.{DataRequest, SupplierTaxIdentifierCountRequest}
+import models.requests.SupplierTaxIdentifierCountRequest
 import models.responses.{AddPurchaseResponse, SupplierTaxIdentifierCountResponse}
-import models.{CheckMode, Mode, NormalMode, UserAnswers}
+import models.{CheckMode, Mode, NormalMode}
 import navigation.Navigator
 import pages.*
+import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -34,7 +35,6 @@ import views.html.purchase.SupplierTaxIdentifierNumberView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success, Try}
 
 class SupplierTaxIdentifierNumberController @Inject() (
   override val messagesApi: MessagesApi,
@@ -49,6 +49,7 @@ class SupplierTaxIdentifierNumberController @Inject() (
   view: SupplierTaxIdentifierNumberView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
+    with Logging
     with I18nSupport {
 
   val form: Form[String] = formProvider()
@@ -74,61 +75,36 @@ class SupplierTaxIdentifierNumberController @Inject() (
       .fold(
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)))),
         value =>
-          val cameFromInvoicePage: Boolean = request.userAnswers.get(SupplierTaxIdentifierArrivedFromInvoicePage).contains(true)
+          val invoiceNumber = request.userAnswers.get(InvoiceNumberPage).getOrElse("")
+          val maybeAppId = request.userAnswers.get(ClaimApplicationResponseQuery).map(_.applicationId)
+          val mayBeItemNumber = request.userAnswers.get(AddPurchaseResponsePage).map(_.itemNumber)
 
-          if (mode == CheckMode && request.userAnswers.get(SupplierTaxIdentifierNumberPage).contains(value) && !cameFromInvoicePage)
-            Future.successful(Redirect(controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()))
-          else {
-            val userAnswersTry = request.userAnswers.set(SupplierTaxIdentifierNumberPage, value)
-
-            userAnswersTry match {
-              case Failure(_) => Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-              case Success(updatedAnswers) =>
-                val maybeAppId = updatedAnswers.get(ClaimApplicationResponseQuery).map(_.applicationId)
-                val maybeItem = updatedAnswers.get(AddPurchaseResponsePage).map(_.itemNumber)
-                val invoiceNum = updatedAnswers.get(InvoiceNumberPage).getOrElse("")
-
-                (maybeAppId, maybeItem) match {
-                  case (Some(appId), Some(itemNumber)) =>
-                    val countF =
-                      euVatRefundsService.getSupplierTaxIdentifierCount(SupplierTaxIdentifierCountRequest(appId, itemNumber, value, invoiceNum))
-                    countF
-                      .flatMap {
-                        case SupplierTaxIdentifierCountResponse(count) if count > 0 =>
-                          val removeArrivedTry = updatedAnswers.remove(pages.SupplierTaxIdentifierArrivedFromInvoicePage)
-                          Future.fromTry(removeArrivedTry).flatMap { ua =>
-                            sessionRepository
-                              .set(ua)
-                              .map(_ => Redirect(controllers.warning.routes.SupplierTaxIdentifierWarningController.onPageLoad(mode)))
-                          }
-
-                        case _ =>
-                          val clearedTry = for {
-                            cleared <- updatedAnswers.remove(SupplierTaxIdentifierWarningShownPage)
-                            removed <- cleared.remove(SupplierTaxIdentifierArrivedFromInvoicePage)
-                          } yield removed
-
-                          clearUserAnswersAndRedirectToNextPage(mode, clearedTry)
-                      }
-                      .recover { case _ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()) }
-
-                  case _ =>
-                    val removedTry = updatedAnswers.remove(SupplierTaxIdentifierArrivedFromInvoicePage)
-                    clearUserAnswersAndRedirectToNextPage(mode, removedTry)
+          (maybeAppId, mayBeItemNumber) match {
+            case (Some(maybeAppId), Some(mayBeItemNumber)) =>
+              euVatRefundsService
+                .getSupplierTaxIdentifierCount(SupplierTaxIdentifierCountRequest(maybeAppId, mayBeItemNumber, value, invoiceNumber))
+                .flatMap { case SupplierTaxIdentifierCountResponse(dupCount) =>
+                  for {
+                    userAnswers    <- Future.fromTry(request.userAnswers.set(SupplierTaxIdentifierNumberPage, value))
+                    updatedAnswers <- Future.fromTry(userAnswers.remove(SupplierTaxIdentifierWarningPage))
+                    _              <- sessionRepository.set(updatedAnswers)
+                  } yield {
+                    if (dupCount > 0) {
+                      Redirect(controllers.warning.routes.SupplierTaxIdentifierWarningController.onPageLoad(mode))
+                    } else {
+                      Redirect(navigator.nextPage(SupplierTaxIdentifierNumberPage, mode, updatedAnswers))
+                    }
+                  }
                 }
-            }
+                .recover { case ex =>
+                  logger.error("Error while retrieving supplier tax identifier count", ex)
+                  Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+                }
+            case _ =>
+              logger.warn("Missing session data")
+              Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
           }
       )
   }
 
-  private def clearUserAnswersAndRedirectToNextPage(mode: Mode, clearedTry: Try[UserAnswers])(implicit request: DataRequest[?]) = {
-    Future.fromTry(clearedTry).flatMap { finalUa =>
-      sessionRepository.set(finalUa).map { _ =>
-        if (mode == CheckMode && request.userAnswers.get(PurchaseTypePage).isDefined)
-          Redirect(controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad())
-        else
-          Redirect(navigator.nextPage(SupplierTaxIdentifierNumberPage, mode, finalUa))
-      }
-    }
-  }
 }

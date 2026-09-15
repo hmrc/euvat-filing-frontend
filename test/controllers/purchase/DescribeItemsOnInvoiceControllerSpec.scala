@@ -17,8 +17,6 @@
 package controllers.purchase
 
 import base.SpecBase
-import controllers.purchase.DescribeItemsOnInvoiceController
-import controllers.purchase.routes
 import forms.purchase.DescribeItemsOnInvoiceFormProvider
 import models.{CheckMode, Fuel, NormalMode, Other, PurchaseType, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
