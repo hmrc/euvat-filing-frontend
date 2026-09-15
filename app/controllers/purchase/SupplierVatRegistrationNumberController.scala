@@ -29,14 +29,11 @@ import play.api.mvc.*
 import queries.ClaimApplicationResponseQuery
 import repositories.SessionRepository
 import services.EuVatRefundsService
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.purchase.SupplierVatRegistrationNumberView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success, Try}
 
 class SupplierVatRegistrationNumberController @Inject() (
   override val messagesApi: MessagesApi,
@@ -87,55 +84,34 @@ class SupplierVatRegistrationNumberController @Inject() (
       .bindFromRequest()
       .fold(
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode), isGermany))),
-        value => {
-          if (shouldShortCircuit(value, mode, request.userAnswers)) {
-            Future.successful(Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad()))
-          } else {
-            buildFinalAnswersTry(request.userAnswers, value) match {
-              case Failure(_) => Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-              case Success(finalAnswers) =>
-                checkDuplicate(value, finalAnswers, mode).flatMap {
-                  case Left(res)      => Future.successful(res)
-                  case Right(cleaned) => persistAndRedirect(Success(cleaned), mode)
+        value =>
+          buildSupplierVrnCountRequest(request.userAnswers, value) match {
+            case Some(vrnCountRequest) =>
+              euVatRefundsService
+                .getSupplierVrnCount(vrnCountRequest)
+                .flatMap { response =>
+                  for {
+                    userAnswers    <- Future.fromTry(request.userAnswers.set(SupplierVatRegistrationNumberPage, value))
+                    updatedAnswers <- Future.fromTry(userAnswers.remove(SupplierVatRegistrationWarningPage))
+                    _              <- sessionRepository.set(updatedAnswers)
+                  } yield {
+                    if (response.duplicateCount > 0) {
+                      Redirect(controllers.warning.routes.SupplierVrnWarningController.onPageLoad(mode))
+                    } else {
+                      Redirect(navigator.nextPage(SupplierVatRegistrationNumberPage, mode, updatedAnswers))
+                    }
+                  }
                 }
-            }
+                .recover { case ex =>
+                  logger.error("Error while retrieving supplier VRN count", ex)
+                  Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+                }
+            case _ =>
+              logger.warn("Missing session data")
+              Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
           }
-        }
       )
   }
-
-  private def shouldShortCircuit(value: String, mode: Mode, answers: UserAnswers): Boolean = {
-    val isCheckMode = mode == CheckMode
-    val isSupplierVatRegistrationNumber = answers.get(SupplierVatRegistrationNumberPage).contains(value)
-    val isSupplierVatRegistrationArrivedFromInvoicePage = answers.get(SupplierVatRegistrationArrivedFromInvoicePage).contains(true)
-    isCheckMode && isSupplierVatRegistrationNumber && !isSupplierVatRegistrationArrivedFromInvoicePage
-  }
-
-  private def buildFinalAnswersTry(answers: UserAnswers, value: String): Try[UserAnswers] = {
-    val changed = !answers.get(SupplierVatRegistrationNumberPage).contains(value)
-
-    for {
-      updated <- answers.set(SupplierVatRegistrationNumberPage, value)
-      withFlag <- if (answers.get(SupplierVatRegistrationWarningPage).isDefined && changed) {
-                    updated.set(SupplierVatRegistrationWarningPage, false)
-                  } else { Success(updated) }
-      finalAnswers <- withFlag.remove(pages.SupplierVatRegistrationArrivedFromInvoicePage)
-    } yield finalAnswers
-  }
-
-  private def persistAndRedirect(userAnswersTry: Try[UserAnswers], mode: Mode)(implicit
-    request: DataRequest[?]
-  ): Future[Result] =
-    for {
-      persisted <- Future.fromTry(userAnswersTry)
-      _         <- sessionRepository.set(persisted)
-    } yield {
-      if (mode == CheckMode) {
-        Redirect(controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad())
-      } else {
-        Redirect(navigator.nextPage(SupplierVatRegistrationNumberPage, mode, persisted))
-      }
-    }
 
   private def buildSupplierVrnCountRequest(answers: UserAnswers, vatNumber: String): Option[SupplierVrnCountRequest] =
     for {
@@ -144,39 +120,4 @@ class SupplierVatRegistrationNumberController @Inject() (
       invoiceNumber <- answers.get(InvoiceNumberPage)
     } yield SupplierVrnCountRequest(applicationId, itemNumber, vatNumber, invoiceNumber)
 
-  private def checkDuplicate(vatNumber: String, answers: UserAnswers, mode: Mode)(implicit
-    request: DataRequest[?]
-  ): Future[Either[Result, UserAnswers]] = {
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    buildSupplierVrnCountRequest(answers, vatNumber) match {
-      case Some(req) =>
-        euVatRefundsService
-          .getSupplierVrnCount(req)
-          .flatMap { response =>
-            if (response.duplicateCount > 0) {
-              val removeArrivedTry = answers.remove(SupplierVatRegistrationArrivedFromInvoicePage)
-              Future.fromTry(removeArrivedTry).flatMap { ua =>
-                sessionRepository.set(ua).map(_ => Left(Redirect(controllers.warning.routes.SupplierVrnWarningController.onPageLoad(mode))))
-              }
-            } else {
-              val clearedTry = for {
-                cleared <- answers.remove(SupplierVatRegistrationWarningPage)
-                removed <- cleared.remove(SupplierVatRegistrationArrivedFromInvoicePage)
-              } yield removed
-
-              clearedTry match {
-                case Success(cleaned) => Future.successful(Right(cleaned))
-                case Failure(_)       => Future.successful(Left(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())))
-              }
-            }
-          }
-          .recover { case ex: Exception =>
-            logger.error("Error retrieving supplier VRN count", ex)
-            Left(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-          }
-      case None =>
-        logger.warn("Missing data for duplicate VRN check; skipping external check and persisting answers")
-        Future.successful(Right(answers))
-    }
-  }
 }

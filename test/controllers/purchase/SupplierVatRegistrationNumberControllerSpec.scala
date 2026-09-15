@@ -19,7 +19,7 @@ package controllers.purchase
 import base.SpecBase
 import forms.purchase.SupplierVatRegistrationNumberFormProvider
 import models.responses.{AddPurchaseResponse, ApplicationResponse, SupplierVrnCountResponse}
-import models.{CheckMode, Fuel, NormalMode, UserAnswers}
+import models.{CheckMode, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -315,13 +315,9 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
       when(mockEuVatRefundsService.getSupplierVrnCount(any())(any()))
         .thenReturn(Future.successful(SupplierVrnCountResponse(0)))
 
-      val application =
-        applicationBuilder(userAnswers = Some(seededAnswers))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
-          .build()
+      val application = applicationBuilder(userAnswers = Some(seededAnswers))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
 
       running(application) {
         val request =
@@ -438,14 +434,12 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
     "must persist and redirect to purchase CYA when in CheckMode and part of purchase journey" in {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-      val userAnswers = emptyUserAnswers.set(PurchaseTypePage, Fuel).success.value
+      when(mockEuVatRefundsService.getSupplierVrnCount(any())(any()))
+        .thenReturn(Future.successful(SupplierVrnCountResponse(0)))
 
-      val application =
-        applicationBuilder(userAnswers = Some(userAnswers))
-          .overrides(
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
-          .build()
+      val application = applicationBuilder(userAnswers = Some(seededAnswers))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
 
       running(application) {
         val request =

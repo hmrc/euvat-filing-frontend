@@ -602,16 +602,9 @@ class NavigatorSpec extends SpecBase {
         navigator.nextPage(SupplierTaxNumberPage, CheckMode, userAnswers) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from SupplierVatRegistrationNumberPage to TotalPurchaseAmountBeforeVatController in CheckMode" in {
-        val ua = userAnswers.set(pages.RefundingCountryPage, "AT").success.value
-        navigator.nextPage(SupplierVatRegistrationNumberPage, CheckMode, ua) mustBe
-          purchaseRoutes.TotalPurchaseAmountBeforeVatController.onPageLoad(CheckMode)
-      }
-
-      "must go from SupplierVatRegistrationNumberPage to RefundingCurrencyController in CheckMode when country has more than one currency" in {
-        val ua = userAnswers.set(pages.RefundingCountryPage, "EE").success.value
-        navigator.nextPage(SupplierVatRegistrationNumberPage, CheckMode, ua) mustBe
-          purchaseRoutes.RefundingCurrencyController.onPageLoad(CheckMode)
+      "must go from SupplierVatRegistrationNumberPage to Check you purchase details page in CheckMode" in {
+        navigator.nextPage(SupplierVatRegistrationNumberPage, CheckMode, userAnswers) mustBe
+          purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
       }
 
       "must go from SimplifiedInvoiceVatRegCheckPage to RefundingCurrencyController in CheckMode if no selected and the country has more than one currency" in {
