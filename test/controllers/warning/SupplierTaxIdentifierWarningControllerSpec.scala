@@ -18,9 +18,16 @@ package controllers.warning
 
 import base.SpecBase
 import models.{CheckMode, NormalMode}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import pages.{InvoiceNumberPage, SupplierVatRegistrationNumberPage, TotalPurchaseAmountBeforeVatPage}
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import repositories.SessionRepository
 import views.html.warning.SupplierTaxIdentifierWarningView
+
+import scala.concurrent.Future
 
 class SupplierTaxIdentifierWarningControllerSpec extends SpecBase {
 
@@ -58,13 +65,20 @@ class SupplierTaxIdentifierWarningControllerSpec extends SpecBase {
     }
 
     "must redirect to Check Your Purchase Details on submit in CheckMode" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val userAnswers = emptyUserAnswers
+        .set(TotalPurchaseAmountBeforeVatPage, 123)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
 
       running(application) {
         val request = FakeRequest(POST, routes.SupplierTaxIdentifierWarningController.onSubmit(CheckMode).url)
-
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad().url
       }

@@ -68,9 +68,10 @@ class SupplierTaxIdentifierWarningController @Inject() (
         sessionRepository
           .set(ua)
           .map(_ =>
-            mode match {
-              case CheckMode => Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
-              case _         => Redirect(routes.TotalPurchaseAmountBeforeVatController.onPageLoad(mode))
+            if (request.userAnswers.get(TotalPurchaseAmountBeforeVatPage).isDefined) {
+              Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
+            } else {
+              Redirect(routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode))
             }
           )
       )
