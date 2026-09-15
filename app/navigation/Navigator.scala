@@ -238,9 +238,9 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
 
   private def navigateFromInvoiceNumberPage(mode: Mode)(answers: UserAnswers): Call =
     if (answers.get(SupplierVatRegistrationNumberPage).isDefined && mode == CheckMode) {
-      purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(mode)
+      purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(CheckMode)
     } else if (answers.get(SupplierTaxIdentifierNumberPage).isDefined && mode == CheckMode) {
-      purchaseRoutes.SupplierTaxIdentifierNumberController.onPageLoad(mode)
+      purchaseRoutes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode)
     } else {
       purchaseRoutes.InvoiceDateController.onPageLoad(NormalMode)
     }
