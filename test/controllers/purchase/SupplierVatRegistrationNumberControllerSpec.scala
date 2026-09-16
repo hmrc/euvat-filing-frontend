@@ -17,7 +17,6 @@
 package controllers.purchase
 
 import base.SpecBase
-import controllers.purchase.routes
 import forms.purchase.SupplierVatRegistrationNumberFormProvider
 import models.responses.{AddPurchaseResponse, ApplicationResponse, SupplierVrnCountResponse}
 import models.{CheckMode, Fuel, NormalMode, UserAnswers}
@@ -38,12 +37,9 @@ import views.html.purchase.SupplierVatRegistrationNumberView
 import scala.concurrent.Future
 
 class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoSugar {
-
   def onwardRoute: Call = Call("GET", "/foo")
-
   val formProvider = new SupplierVatRegistrationNumberFormProvider()
   val form: Form[String] = formProvider()
-
   lazy val supplierVatRegistrationNumberRoute: String = routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode).url
 
   val seededAnswers: UserAnswers = emptyUserAnswers
@@ -68,6 +64,22 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode, routes.SupplierAddressController.onPageLoad(NormalMode), false)(
+          request,
+          messages(application)
+        ).toString
+      }
+    }
+
+    "must return OK and the correct view for a GET in CheckMode" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.SupplierVatRegistrationNumberController.onPageLoad(CheckMode).url)
+        val result = route(application, request).value
+        val view = application.injector.instanceOf[SupplierVatRegistrationNumberView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, CheckMode, routes.CheckYourPurchaseDetailsController.onPageLoad(), false)(
           request,
           messages(application)
         ).toString
@@ -168,14 +180,12 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
             .withFormUrlEncodedBody(("value", "FR123456789"))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
       }
     }
 
     "must redirect to the warning page when a duplicate is found" in {
-
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       when(mockEuVatRefundsService.getSupplierVrnCount(any())(any()))
@@ -192,14 +202,12 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
             .withFormUrlEncodedBody(("value", "FR123456789"))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.warning.routes.SupplierVrnWarningController.onPageLoad(NormalMode).url
       }
     }
 
     "must redirect to Journey Recovery when the duplicate check fails" in {
-
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       when(mockEuVatRefundsService.getSupplierVrnCount(any())(any()))
@@ -216,14 +224,12 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
             .withFormUrlEncodedBody(("value", "FR123456789"))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 
     "must redirect to Journey Recovery when required cache data is missing" in {
-
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
@@ -238,7 +244,6 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
             .withFormUrlEncodedBody(("value", "FR123456789"))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
@@ -297,7 +302,7 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, CheckMode, routes.SupplierAddressController.onPageLoad(CheckMode), false)(
+        contentAsString(result) mustEqual view(boundForm, CheckMode, routes.CheckYourPurchaseDetailsController.onPageLoad(), false)(
           request,
           messages(application)
         ).toString
@@ -324,7 +329,6 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
             .withFormUrlEncodedBody(("value", "FR123456789"))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad().url
       }
@@ -350,7 +354,6 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
             .withFormUrlEncodedBody(("value", "FR123456789"))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
       }
@@ -376,7 +379,6 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
             .withFormUrlEncodedBody(("value", "FR123456789"))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.warning.routes.SupplierVrnWarningController.onPageLoad(NormalMode).url
       }
@@ -434,11 +436,8 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
     }
 
     "must persist and redirect to purchase CYA when in CheckMode and part of purchase journey" in {
-
       val mockSessionRepository = mock[SessionRepository]
-
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-
       val userAnswers = emptyUserAnswers.set(PurchaseTypePage, Fuel).success.value
 
       val application =
@@ -454,7 +453,6 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
             .withFormUrlEncodedBody(("value", "FR123456789"))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad().url
 

@@ -53,11 +53,8 @@ class DescribeItemsOnInvoiceController @Inject() (
   val form: Form[String] = formProvider()
 
   private def computeBackTarget(mode: Mode)(implicit request: DataRequest[?]): Call =
-    if (isPurchaseTypeOther(request)) { determineBackForOther(mode) }
+    if (request.userAnswers.get(PurchaseTypePage).contains(Other)) { determineBackForOther(mode) }
     else { PurchaseBackLinkHelper.computeBackTarget(mode) }
-
-  private def isPurchaseTypeOther(implicit request: DataRequest[?]): Boolean =
-    request.userAnswers.get(PurchaseTypePage).contains(Other)
 
   private def parentIndicatesNone(implicit request: DataRequest[?]): Boolean =
     request.userAnswers.get(PurchaseSubTypePage).exists(v => v.split("\\.").lastOption.contains("99"))
