@@ -16,6 +16,4 @@
 
 package controllers.imports
 
-class ImportSubCategoryControllerSpec {
-
-}
+class ImportSubCategoryControllerSpec {}
