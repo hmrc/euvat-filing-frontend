@@ -92,7 +92,7 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, Call("GET", "/file-eu-vat/fuel-use"))(
+          view(form, NormalMode, Call("GET", "/file-eu-vat/purchase/fuel-use"))(
             request,
             messages(application)
           ).toString
@@ -120,7 +120,7 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, Call("GET", "/file-eu-vat/fuel-type"))(
+          view(form, NormalMode, Call("GET", "/file-eu-vat/purchase/fuel-type"))(
             request,
             messages(application)
           ).toString
@@ -205,7 +205,7 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual OK
         val expectedParent = child.split("\\.").headOption.getOrElse(child)
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, Call("GET", "/file-eu-vat/what-transport-cost"))(
+          view(form, NormalMode, Call("GET", "/file-eu-vat/purchase/what-transport-cost"))(
             request,
             messages(application)
           ).toString

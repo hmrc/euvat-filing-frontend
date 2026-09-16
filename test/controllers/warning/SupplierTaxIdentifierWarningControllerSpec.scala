@@ -17,11 +17,17 @@
 package controllers.warning
 
 import base.SpecBase
-import controllers.warning.routes
 import models.{CheckMode, NormalMode}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import pages.{InvoiceNumberPage, SupplierVatRegistrationNumberPage, TotalPurchaseAmountBeforeVatPage}
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import repositories.SessionRepository
 import views.html.warning.SupplierTaxIdentifierWarningView
+
+import scala.concurrent.Future
 
 class SupplierTaxIdentifierWarningControllerSpec extends SpecBase {
 
@@ -32,15 +38,13 @@ class SupplierTaxIdentifierWarningControllerSpec extends SpecBase {
 
       running(application) {
         val request = FakeRequest(GET, routes.SupplierTaxIdentifierWarningController.onPageLoad(NormalMode).url)
-
         val result = route(application, request).value
-
         val view = application.injector.instanceOf[SupplierTaxIdentifierWarningView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(
-          controllers.purchase.routes.SupplierTaxIdentifierNumberController.onPageLoad(NormalMode),
-          controllers.purchase.routes.InvoiceNumberController.onPageLoad(NormalMode),
+          controllers.purchase.routes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode),
+          controllers.purchase.routes.InvoiceNumberController.onPageLoad(CheckMode),
           controllers.purchase.routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode),
           NormalMode
         )(request, messages(application)).toString
@@ -61,13 +65,20 @@ class SupplierTaxIdentifierWarningControllerSpec extends SpecBase {
     }
 
     "must redirect to Check Your Purchase Details on submit in CheckMode" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val userAnswers = emptyUserAnswers
+        .set(TotalPurchaseAmountBeforeVatPage, 123)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
 
       running(application) {
         val request = FakeRequest(POST, routes.SupplierTaxIdentifierWarningController.onSubmit(CheckMode).url)
-
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad().url
       }

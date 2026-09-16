@@ -18,10 +18,10 @@ package pages
 
 import play.api.libs.json.JsPath
 
-case object SupplierTaxIdentifierArrivedFromInvoicePage extends QuestionPage[Boolean] {
+case object SupplierVatRegistrationWarningPage extends QuestionPage[Boolean] {
 
   override def path: JsPath = JsPath \ toString
 
-  override def toString: String = "supplierTaxIdentifierArrivedFromInvoice"
+  override def toString: String = "supplierVatRegistrationWarningShown"
 
 }
