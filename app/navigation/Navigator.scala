@@ -63,6 +63,7 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case ImportTypePage                    => userAnswers => importNavigator.navigateFromImportTypePage(NormalMode)(userAnswers)
     case ImportSubCodePage                 => userAnswers => importNavigator.navigateFromImportSubCodePage(NormalMode)(userAnswers)
     case ImportSubCategoryPage             => userAnswers => importNavigator.navigateFromImportSubCategoryPage(NormalMode)(userAnswers)
+    case ImportDetailsInfoPage             => userAnswers => navigateFromImportDetailsInfoPage(NormalMode)(userAnswers)
     case SadReferencePage =>
       userAnswers =>
         userAnswers.get(SadReferencePage) match {
@@ -102,6 +103,7 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case ImportTypePage                    => userAnswers => importNavigator.navigateFromImportTypePage(CheckMode)(userAnswers)
     case ImportSubCodePage                 => _ => importRoutes.SadReferenceController.onPageLoad(CheckMode)
     case ImportSubCategoryPage             => userAnswers => importNavigator.navigateFromImportSubCategoryPage(CheckMode)(userAnswers)
+    case ImportDetailsInfoPage             => userAnswers => navigateFromImportDetailsInfoPage(CheckMode)(userAnswers)
     case SadReferencePage =>
       userAnswers =>
         userAnswers.get(SadReferencePage) match {
