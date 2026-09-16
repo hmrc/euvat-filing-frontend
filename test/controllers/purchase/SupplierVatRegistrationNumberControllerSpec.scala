@@ -19,7 +19,7 @@ package controllers.purchase
 import base.SpecBase
 import forms.purchase.SupplierVatRegistrationNumberFormProvider
 import models.responses.{AddPurchaseResponse, ApplicationResponse, SupplierVrnCountResponse}
-import models.{CheckMode, NormalMode, UserAnswers}
+import models.{CheckMode, InvoiceType, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -30,7 +30,7 @@ import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import queries.ClaimApplicationResponseQuery
+import queries.{ClaimApplicationResponseQuery, InvoiceNumberFlagQuery}
 import repositories.SessionRepository
 import views.html.purchase.SupplierVatRegistrationNumberView
 
@@ -103,8 +103,15 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
       }
     }
 
-    "must show the default hint when the refunding country is not Germany" in {
-      val userAnswers = emptyUserAnswers.set(RefundingCountryPage, "FR").success.value
+    "must return ok if invoice type is simplified" in {
+      val userAnswers = emptyUserAnswers
+        .set(RefundingCountryPage, "FR")
+        .success
+        .value
+        .set(InvoiceTypePage, InvoiceType.SimplifiedInvoice)
+        .success
+        .value
+
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -113,7 +120,28 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
         val view = application.injector.instanceOf[SupplierVatRegistrationNumberView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, routes.SupplierAddressController.onPageLoad(NormalMode), false)(
+        contentAsString(result) mustEqual view(form, NormalMode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode), false)(
+          request,
+          messages(application)
+        ).toString
+      }
+    }
+
+    "must return ok in checkmode if returned from invoice number" in {
+      val userAnswers = emptyUserAnswers
+        .set(InvoiceNumberFlagQuery, true)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.SupplierVatRegistrationNumberController.onPageLoad(CheckMode).url)
+        val result = route(application, request).value
+        val view = application.injector.instanceOf[SupplierVatRegistrationNumberView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, CheckMode, routes.InvoiceNumberController.onPageLoad(CheckMode), false)(
           request,
           messages(application)
         ).toString

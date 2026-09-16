@@ -31,7 +31,7 @@ import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import queries.ClaimApplicationResponseQuery
+import queries.{ClaimApplicationResponseQuery, InvoiceNumberFlagQuery}
 import repositories.SessionRepository
 import views.html.purchase.SupplierTaxIdentifierNumberView
 
@@ -72,6 +72,29 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, CheckMode, routes.CheckYourPurchaseDetailsController.onPageLoad())(
+          request,
+          messages(application)
+        ).toString
+      }
+    }
+
+    "must populate the view correctly on a GET when returned from invoice number page" in {
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(SupplierTaxIdentifierNumberPage, "answer")
+        .success
+        .value
+        .set(InvoiceNumberFlagQuery, true)
+        .success
+        .value
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode).url)
+        val view = application.injector.instanceOf[SupplierTaxIdentifierNumberView]
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form.fill("answer"), CheckMode, routes.InvoiceNumberController.onPageLoad(CheckMode))(
           request,
           messages(application)
         ).toString

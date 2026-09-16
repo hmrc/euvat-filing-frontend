@@ -18,7 +18,7 @@ package controllers.purchase
 
 import controllers.actions.*
 import forms.purchase.SupplierTaxIdentifierNumberFormProvider
-import models.requests.SupplierTaxIdentifierCountRequest
+import models.requests.{DataRequest, SupplierTaxIdentifierCountRequest}
 import models.responses.{AddPurchaseResponse, SupplierTaxIdentifierCountResponse}
 import models.{CheckMode, Mode, NormalMode}
 import navigation.Navigator
@@ -27,7 +27,7 @@ import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import queries.ClaimApplicationResponseQuery
+import queries.{ClaimApplicationResponseQuery, InvoiceNumberFlagQuery}
 import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -54,10 +54,14 @@ class SupplierTaxIdentifierNumberController @Inject() (
 
   val form: Form[String] = formProvider()
 
-  private def backLink(mode: Mode) = if (mode == CheckMode) {
-    routes.CheckYourPurchaseDetailsController.onPageLoad()
-  } else {
-    routes.SupplierTaxNumberController.onPageLoad(NormalMode)
+  private def backLink(request: DataRequest[?], mode: Mode) = {
+    val hasInvoiceNumber = request.userAnswers.get(InvoiceNumberFlagQuery).contains(true)
+
+    mode match {
+      case CheckMode if hasInvoiceNumber => routes.InvoiceNumberController.onPageLoad(CheckMode)
+      case CheckMode                     => routes.CheckYourPurchaseDetailsController.onPageLoad()
+      case _                             => routes.SupplierTaxNumberController.onPageLoad(NormalMode)
+    }
   }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
@@ -66,14 +70,14 @@ class SupplierTaxIdentifierNumberController @Inject() (
       _              <- sessionRepository.set(updatedAnswers)
     } yield None
     val preparedForm = request.userAnswers.get(SupplierTaxIdentifierNumberPage).fold(form)(form.fill)
-    Ok(view(preparedForm, mode, backLink(mode)))
+    Ok(view(preparedForm, mode, backLink(request, mode)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(request, mode)))),
         value =>
           val invoiceNumber = request.userAnswers.get(InvoiceNumberPage).getOrElse("")
           val maybeAppId = request.userAnswers.get(ClaimApplicationResponseQuery).map(_.applicationId)
