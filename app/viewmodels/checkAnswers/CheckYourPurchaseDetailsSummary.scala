@@ -289,9 +289,9 @@ object CheckYourPurchaseDetailsSummary {
 
     val supplierRows = (
       Seq(rowSupplierName(answers), rowSupplierAddress(answers)) ++
-        (if (isGermany)
+        (if (isGermany) {
            Seq(rowSupplierTaxNumbers(answers), rowSupplierVatRegNumber(answers), rowSupplierTaxIdentifierNumber(answers))
-         else Seq(rowSupplierVatRegCheck(answers), rowSupplierVatRegNumber(answers)))
+         } else { Seq(rowSupplierVatRegCheck(answers), rowSupplierVatRegNumber(answers)) })
     ).flatten
 
     val amountsRows = Seq(

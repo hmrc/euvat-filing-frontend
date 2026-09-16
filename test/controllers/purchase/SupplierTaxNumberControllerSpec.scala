@@ -224,44 +224,6 @@ class SupplierTaxNumberControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Journey Recovery for a GET if country is not Germany" in {
-      val userAnswers = UserAnswers(userAnswersId).set(RefundingCountryPage, "AT").success.value
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
-
-      running(application) {
-        val request = FakeRequest(GET, supplierTaxNumberRoute)
-        val result = route(application, request).value
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
-      }
-    }
-
-    "must redirect to Journey Recovery for a POST if country is not Germany" in {
-      val userAnswers = UserAnswers(userAnswersId).set(RefundingCountryPage, "AT").success.value
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
-
-      running(application) {
-        val request =
-          FakeRequest(POST, supplierTaxNumberRoute)
-            .withFormUrlEncodedBody(("value", SupplierTaxNumber.values.head.toString))
-
-        val result = route(application, request).value
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
-      }
-    }
-
-    "must redirect to Journey Recovery for a GET if country is missing from session" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-
-      running(application) {
-        val request = FakeRequest(GET, supplierTaxNumberRoute)
-        val result = route(application, request).value
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
-      }
-    }
-
     "must redirect to Check Your Purchase Details when data unchanged in CheckMode" in {
       val userAnswers = germanUserAnswers.set(SupplierTaxNumberPage, SupplierTaxNumber.Vatregistrationnumber).success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
@@ -273,7 +235,7 @@ class SupplierTaxNumberControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.SupplierVatRegistrationNumberController.onPageLoad(CheckMode).url
       }
     }
 

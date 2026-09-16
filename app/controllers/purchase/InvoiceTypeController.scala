@@ -31,7 +31,6 @@ import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.{ConfigPurchaseMapping, CountryCode}
 import views.html.purchase.InvoiceTypeView
-import utils.ControllerHelpers.*
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -55,11 +54,6 @@ class InvoiceTypeController @Inject() (
 
   val form: Form[InvoiceType] = formProvider()
 
-  private def badRequestView(formWithErrors: play.api.data.Form[?], mode: Mode)(implicit request: DataRequest[?]): Future[play.api.mvc.Result] = {
-    val html = view(formWithErrors, mode, computeBackTarget(mode))(request, messagesApi.preferred(request))
-    Future.successful(BadRequest(html))
-  }
-
   private def computeBackTarget(mode: Mode)(implicit request: DataRequest[?]): Call = {
     def parentIsNone = request.userAnswers.get(PurchaseSubTypePage).exists(v => v.split("\\.").lastOption.contains("99"))
     def childIsNone = request.userAnswers.get(PurchaseSubCategoryPage).exists(v => v.split("\\.").lastOption.contains("99"))
@@ -80,9 +74,7 @@ class InvoiceTypeController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     val preparedForm = request.userAnswers.get(InvoiceTypePage).fold(form)(form.fill)
-
     val back = computeBackTarget(mode)
-
     Future.successful(Ok(view(preparedForm, mode, back)))
   }
 
@@ -90,7 +82,7 @@ class InvoiceTypeController @Inject() (
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => badRequestView(formWithErrors, mode),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, computeBackTarget(mode))(request, messagesApi.preferred(request)))),
         value => {
           if (mode == CheckMode && request.userAnswers.isAnswerUnchanged(InvoiceTypePage, value)) {
             Future.successful(Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad()))
@@ -119,8 +111,9 @@ class InvoiceTypeController @Inject() (
           a <- request.userAnswers.remove(SupplierTaxNumberPage)
           b <- a.remove(SimplifiedInvoiceVatRegCheckPage)
           c <- b.remove(SupplierVatRegistrationNumberPage)
-          d <- c.set(InvoiceTypePage, value)
-        } yield d
+          d <- c.remove(SupplierTaxIdentifierNumberPage)
+          e <- d.set(InvoiceTypePage, value)
+        } yield e
       case _ => request.userAnswers.set(InvoiceTypePage, value)
     }
 

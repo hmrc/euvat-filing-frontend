@@ -314,25 +314,9 @@ class NavigatorSpec extends SpecBase {
           .set(SupplierTaxNumberPage, SupplierTaxNumber.Neither)
           .success
           .value
-          .set(pages.RefundingCountryPage, "AT")
-          .success
-          .value
 
         navigator.nextPage(SupplierTaxNumberPage, NormalMode, ua) mustBe
           purchaseRoutes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
-      }
-
-      "must go from SupplierTaxNumberPage to RefundingCurrencyController if neither is selected and the country has more than one currency" in {
-        val ua = userAnswers
-          .set(SupplierTaxNumberPage, SupplierTaxNumber.Neither)
-          .success
-          .value
-          .set(pages.RefundingCountryPage, "EE")
-          .success
-          .value
-
-        navigator.nextPage(SupplierTaxNumberPage, NormalMode, ua) mustBe
-          purchaseRoutes.RefundingCurrencyController.onPageLoad(NormalMode)
       }
 
       "must go from SupplierTaxNumberPage to JourneyRecoveryController if no answer is present" in {

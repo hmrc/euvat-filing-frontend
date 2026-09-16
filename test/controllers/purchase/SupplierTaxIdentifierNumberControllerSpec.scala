@@ -163,55 +163,15 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.warning.routes.SupplierTaxIdentifierWarningController.onPageLoad(NormalMode).url
+        redirectLocation(result).value mustEqual controllers.warning.routes.SupplierTaxIdentifierWarningController.onPageLoad().url
 
-        val getRequest = FakeRequest(GET, controllers.warning.routes.SupplierTaxIdentifierWarningController.onPageLoad(NormalMode).url)
+        val getRequest = FakeRequest(GET, controllers.warning.routes.SupplierTaxIdentifierWarningController.onPageLoad().url)
         val getResult = route(application, getRequest).value
         status(getResult) mustEqual OK
 
         val captor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository, org.mockito.Mockito.times(2)).set(captor.capture())
         captor.getAllValues.get(1).get(pages.SupplierTaxIdentifierWarningPage) mustBe Some(true)
-      }
-    }
-
-    "must trigger duplicate-check in CheckMode even if value unchanged when arrived-from-invoice flag set" in {
-      val ua = emptyUserAnswers
-        .set(ClaimApplicationResponseQuery, ApplicationResponse(123, "GB123456789", 1))
-        .success
-        .value
-        .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber = 1, updateSequenceNumber = 1))
-        .success
-        .value
-        .set(InvoiceNumberPage, "INV123")
-        .success
-        .value
-        .set(SupplierTaxIdentifierNumberPage, "1234567890")
-        .success
-        .value
-
-      when(mockEuVatRefundsService.getSupplierTaxIdentifierCount(any())(any()))
-        .thenReturn(Future.successful(SupplierTaxIdentifierCountResponse(duplicateCount = 1)))
-
-      val application =
-        applicationBuilder(userAnswers = Some(ua))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
-          )
-          .build()
-
-      running(application) {
-        val request =
-          FakeRequest(POST, routes.SupplierTaxIdentifierNumberController.onSubmit(CheckMode).url)
-            .withFormUrlEncodedBody(("value", "1234567890"))
-
-        val result = route(application, request).value
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.warning.routes.SupplierTaxIdentifierWarningController.onPageLoad(CheckMode).url
-
-        val getRequest = FakeRequest(GET, controllers.warning.routes.SupplierTaxIdentifierWarningController.onPageLoad(CheckMode).url)
-        val getResult = route(application, getRequest).value
-        status(getResult) mustEqual OK
       }
     }
 

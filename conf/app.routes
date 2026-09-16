@@ -34,10 +34,8 @@ POST        /check-purchase-details                       controllers.warning.Pu
 GET         /change-check-purchase-details                controllers.warning.PurchaseWarningController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-check-purchase-details                controllers.warning.PurchaseWarningController.onSubmit(mode: Mode = CheckMode)
 
-GET         /check-supplier-tax-identifier-number         controllers.warning.SupplierTaxIdentifierWarningController.onPageLoad(mode: Mode = NormalMode)
-POST        /check-supplier-tax-identifier-number         controllers.warning.SupplierTaxIdentifierWarningController.onSubmit(mode: Mode = NormalMode)
-GET         /change-check-supplier-tax-identifier-number  controllers.warning.SupplierTaxIdentifierWarningController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-check-supplier-tax-identifier-number  controllers.warning.SupplierTaxIdentifierWarningController.onSubmit(mode: Mode = CheckMode)
+GET         /check-supplier-tax-identifier-number         controllers.warning.SupplierTaxIdentifierWarningController.onPageLoad()
+POST        /check-supplier-tax-identifier-number         controllers.warning.SupplierTaxIdentifierWarningController.onSubmit()
 
 GET         /check-supplier-vat-registration-number         controllers.warning.SupplierVrnWarningController.onPageLoad(mode: Mode = NormalMode)
 POST        /check-supplier-vat-registration-number         controllers.warning.SupplierVrnWarningController.onSubmit(mode: Mode = NormalMode)

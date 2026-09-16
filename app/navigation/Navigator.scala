@@ -211,15 +211,13 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
 
   private def navigateFromSupplierTaxNumberPage(mode: Mode)(userAnswers: UserAnswers): Call =
     userAnswers.get(SupplierTaxNumberPage) match {
-      case Some(SupplierTaxNumber.Vatregistrationnumber) =>
-        purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(mode)
-      case Some(SupplierTaxNumber.Taxidentifiernumber) =>
-        purchaseRoutes.SupplierTaxIdentifierNumberController.onPageLoad(mode)
+      case Some(SupplierTaxNumber.Vatregistrationnumber) => purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(mode)
+      case Some(SupplierTaxNumber.Taxidentifiernumber)   => purchaseRoutes.SupplierTaxIdentifierNumberController.onPageLoad(mode)
       case Some(SupplierTaxNumber.Neither) =>
         if (mode == CheckMode) {
           purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
         } else {
-          navigateFromSupplierVatRegistrationPage(mode)(userAnswers)
+          purchaseRoutes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
         }
       case _ => controllers.routes.JourneyRecoveryController.onPageLoad()
     }

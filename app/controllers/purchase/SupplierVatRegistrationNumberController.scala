@@ -22,8 +22,8 @@ import models.requests.{DataRequest, SupplierVrnCountRequest}
 import models.{CheckMode, InvoiceType, Mode, NormalMode, UserAnswers}
 import navigation.Navigator
 import pages.*
+import play.api.Logging
 import play.api.data.Form
-import play.api.i18n.Lang.logger
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.*
 import queries.ClaimApplicationResponseQuery
@@ -48,6 +48,7 @@ class SupplierVatRegistrationNumberController @Inject() (
   view: SupplierVatRegistrationNumberView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
+    with Logging
     with I18nSupport {
 
   val form: Form[String] = formProvider()
