@@ -26,7 +26,7 @@ import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.*
-import queries.{ClaimApplicationResponseQuery, InvoiceNumberFlagQuery}
+import queries.ClaimApplicationResponseQuery
 import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -56,7 +56,7 @@ class SupplierVatRegistrationNumberController @Inject() (
   private def backLink(mode: Mode)(implicit request: DataRequest[?]): Call = {
     val isGermany = request.userAnswers.get(RefundingCountryPage).exists(_.equalsIgnoreCase("DE"))
     val isSimplified = request.userAnswers.get(InvoiceTypePage).contains(InvoiceType.SimplifiedInvoice)
-    val hasInvoiceNumber = request.userAnswers.get(InvoiceNumberFlagQuery).contains(true)
+    val hasInvoiceNumber = request.userAnswers.get(InvoiceNumberPage).isDefined
 
     mode match {
       case CheckMode if hasInvoiceNumber => routes.InvoiceNumberController.onPageLoad(CheckMode)

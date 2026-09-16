@@ -24,7 +24,6 @@ import pages.*
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.*
-import queries.InvoiceNumberFlagQuery
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.purchase.InvoiceNumberView
@@ -66,10 +65,9 @@ class InvoiceNumberController @Inject() (
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode))(request, messagesApi.preferred(request)))),
         value =>
           for {
-            answers        <- Future.fromTry(request.userAnswers.set(InvoiceNumberPage, value))
-            updatedAnswers <- Future.fromTry(answers.set(InvoiceNumberFlagQuery, true))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(InvoiceNumberPage, mode, updatedAnswers))
+            answers <- Future.fromTry(request.userAnswers.set(InvoiceNumberPage, value))
+            _       <- sessionRepository.set(answers)
+          } yield Redirect(navigator.nextPage(InvoiceNumberPage, mode, answers))
       )
   }
 }

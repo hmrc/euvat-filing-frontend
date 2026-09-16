@@ -27,7 +27,7 @@ import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import queries.{ClaimApplicationResponseQuery, InvoiceNumberFlagQuery}
+import queries.ClaimApplicationResponseQuery
 import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -55,7 +55,7 @@ class SupplierTaxIdentifierNumberController @Inject() (
   val form: Form[String] = formProvider()
 
   private def backLink(request: DataRequest[?], mode: Mode) = {
-    val hasInvoiceNumber = request.userAnswers.get(InvoiceNumberFlagQuery).contains(true)
+    val hasInvoiceNumber = request.userAnswers.get(InvoiceNumberPage).isDefined
 
     mode match {
       case CheckMode if hasInvoiceNumber => routes.InvoiceNumberController.onPageLoad(CheckMode)

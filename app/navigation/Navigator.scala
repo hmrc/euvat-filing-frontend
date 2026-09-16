@@ -56,7 +56,7 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
     case SupplierAddressPage               => userAnswers => navigateFromSupplierAddressPage(NormalMode)(userAnswers)
     case SupplierTaxNumberPage             => userAnswers => navigateFromSupplierTaxNumberPage(NormalMode)(userAnswers)
     case SimplifiedInvoiceVatRegCheckPage  => userAnswers => navigateFromSimplifiedInvoiceVatRegCheckPage(NormalMode)(userAnswers)
-    case SupplierVatRegistrationNumberPage => userAnswers => navigateFromSupplierVatRegistrationPage(NormalMode)(userAnswers)
+    case SupplierVatRegistrationNumberPage => userAnswers => navigateFromSupplierVatRegistrationPage()(userAnswers)
     case SupplierTaxIdentifierNumberPage   => _ => purchaseRoutes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
     case RefundingCurrencyPage             => userAnswers => navigateFromRefundingCurrencyPage(NormalMode)(userAnswers)
     case TotalPurchaseAmountBeforeVatPage  => _ => purchaseRoutes.TotalVatPaidController.onPageLoad(NormalMode)
@@ -84,7 +84,7 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
     case SupplierAddressPage               => userAnswers => navigateFromSupplierAddressPage(CheckMode)(userAnswers)
     case SupplierTaxNumberPage             => userAnswers => navigateFromSupplierTaxNumberPage(CheckMode)(userAnswers)
     case SimplifiedInvoiceVatRegCheckPage  => userAnswers => navigateFromSimplifiedInvoiceVatRegCheckPage(CheckMode)(userAnswers)
-    case SupplierVatRegistrationNumberPage => userAnswers => navigateFromSupplierVatRegistrationPage(CheckMode)(userAnswers)
+    case SupplierVatRegistrationNumberPage => userAnswers => purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
     case SupplierTaxIdentifierNumberPage   => _ => purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
     case RefundingCurrencyPage             => userAnswers => navigateFromRefundingCurrencyPage(CheckMode)(userAnswers)
     case TotalPurchaseAmountBeforeVatPage  => _ => purchaseRoutes.TotalVatPaidController.onPageLoad(CheckMode)
@@ -145,15 +145,11 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
       case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
-  private def navigateFromSupplierVatRegistrationPage(mode: Mode)(userAnswers: UserAnswers): Call = {
-    if (mode == CheckMode) {
-      purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
-    } else {
-      CountryCode.findCountryCode(userAnswers) match {
-        case Some(countryCode) if currencyConfig.requiresCurrencySelection(countryCode) =>
-          purchaseRoutes.RefundingCurrencyController.onPageLoad(NormalMode)
-        case _ => purchaseRoutes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
-      }
+  private def navigateFromSupplierVatRegistrationPage()(userAnswers: UserAnswers): Call = {
+    CountryCode.findCountryCode(userAnswers) match {
+      case Some(countryCode) if currencyConfig.requiresCurrencySelection(countryCode) =>
+        purchaseRoutes.RefundingCurrencyController.onPageLoad(NormalMode)
+      case _ => purchaseRoutes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
     }
   }
 

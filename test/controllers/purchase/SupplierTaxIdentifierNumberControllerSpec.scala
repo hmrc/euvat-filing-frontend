@@ -31,7 +31,7 @@ import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import queries.{ClaimApplicationResponseQuery, InvoiceNumberFlagQuery}
+import queries.ClaimApplicationResponseQuery
 import repositories.SessionRepository
 import views.html.purchase.SupplierTaxIdentifierNumberView
 
@@ -83,7 +83,7 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
         .set(SupplierTaxIdentifierNumberPage, "answer")
         .success
         .value
-        .set(InvoiceNumberFlagQuery, true)
+        .set(InvoiceNumberPage, "123")
         .success
         .value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
