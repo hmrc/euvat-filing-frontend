@@ -574,3 +574,12 @@ sadReferenceNumber.hint = Enter your SAD reference number in the correct format
 sadReferenceNumber.error.required = Enter your SAD reference number
 sadReferenceNumber.error.invalid = Enter your SAD reference number in the correct format
 sadReferenceNumber.error.length = SAD reference number must be 18 characters or less
+
+importDetailsInfo.title = Import document information
+importDetailsInfo.heading = Import document information
+importDetailsInfo.p1 = You must provide the:
+importDetailsInfo.bullet1 = port of import
+importDetailsInfo.bullet2 = document reference number
+importDetailsInfo.label = Enter import document details
+importDetailsInfo.error.required = Enter import document details
+importDetailsInfo.error.length = Import document details must be 255 characters or less
