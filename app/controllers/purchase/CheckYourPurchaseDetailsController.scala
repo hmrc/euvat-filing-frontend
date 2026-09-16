@@ -19,6 +19,7 @@ package controllers.purchase
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import pages.*
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.EuVatRefundsService
@@ -46,7 +47,8 @@ class CheckYourPurchaseDetailsController @Inject() (
   euVatRefundsService: EuVatRefundsService
 )(using ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     implicit val msgs: Messages = messagesApi.preferred(request)
@@ -162,12 +164,12 @@ class CheckYourPurchaseDetailsController @Inject() (
             } yield Redirect(controllers.routes.TaskListDashboardController.onPageLoad())
           }
           .recover { case ex =>
-            play.api.Logger(this.getClass).error("Error updating purchase details", ex)
+            logger.error("Error updating purchase details", ex)
             Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
           }
 
       case _ =>
-        play.api.Logger(this.getClass).warn("Missing applicationId or itemNumber for update-purchase-details")
+        logger.warn("Missing applicationId or itemNumber for update-purchase-details")
         Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
     }
   }
