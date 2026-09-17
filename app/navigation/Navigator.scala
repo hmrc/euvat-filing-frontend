@@ -192,16 +192,13 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
   }
 
   private def navigateFromSupplierAddressPage(mode: Mode)(userAnswers: UserAnswers): Call = {
-    val maybeInvoiceType = userAnswers.get(InvoiceTypePage)
-
     CountryCode.findCountryCode(userAnswers) match {
       case Some("DE") => purchaseRoutes.SupplierTaxNumberController.onPageLoad(mode)
-      case Some(_) =>
-        maybeInvoiceType match {
+      case _ =>
+        userAnswers.get(InvoiceTypePage) match {
           case Some(InvoiceType.StandardInvoice) => purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(mode)
           case _                                 => purchaseRoutes.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode)
         }
-      case None => purchaseRoutes.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode)
     }
   }
 

@@ -18,7 +18,7 @@ package controllers.purchase
 
 import controllers.actions.*
 import forms.purchase.InvoiceNumberFormProvider
-import models.{CheckMode, Mode, NormalMode}
+import models.{Mode, NormalMode, UserAnswers}
 import navigation.Navigator
 import pages.*
 import play.api.data.Form
@@ -48,22 +48,24 @@ class InvoiceNumberController @Inject() (
 
   val form: Form[String] = formProvider()
 
-  private def backLink(mode: Mode): Call = if (mode == CheckMode) {
-    routes.CheckYourPurchaseDetailsController.onPageLoad()
-  } else {
-    routes.InvoiceTypeController.onPageLoad(NormalMode)
+  private def backLink(mode: Mode, userAnswers: UserAnswers): Call = {
+    if (userAnswers.get(TotalPurchaseAmountBeforeVatPage).isDefined) {
+      routes.CheckYourPurchaseDetailsController.onPageLoad()
+    } else {
+      routes.InvoiceTypeController.onPageLoad(NormalMode)
+    }
   }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(InvoiceNumberPage).fold(form)(form.fill)
-    Ok(view(preparedForm, mode, backLink(mode)))
+    Ok(view(preparedForm, mode, backLink(mode, request.userAnswers)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode))(request, messagesApi.preferred(request)))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode, request.userAnswers)))),
         value =>
           for {
             answers        <- Future.fromTry(request.userAnswers.set(InvoiceNumberPage, value))
