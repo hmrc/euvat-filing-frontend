@@ -25,7 +25,7 @@ import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.SupplierAddressPage
 import play.api.inject.bind
-import play.api.mvc.Call
+import play.api.mvc.{AnyContentAsEmpty, Call}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
@@ -59,7 +59,7 @@ class SupplierAddressControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, pageLoadRoute)
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, pageLoadRoute)
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[SupplierAddressView]
@@ -80,7 +80,7 @@ class SupplierAddressControllerSpec extends SpecBase with MockitoSugar {
 
         val view = application.injector.instanceOf[SupplierAddressView]
         val formProvider = application.injector.instanceOf[SupplierAddressFormProvider]
-        val form = formProvider()
+        val form = formProvider()(request)
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
@@ -106,7 +106,7 @@ class SupplierAddressControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, pageLoadRoute)
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, pageLoadRoute)
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[SupplierAddressView]

@@ -48,8 +48,6 @@ class SupplierAddressController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  val form: Form[SupplierAddress] = formProvider()
-
   private def backLink(mode: Mode): Call = if (mode == CheckMode) {
     routes.CheckYourPurchaseDetailsController.onPageLoad()
   } else {
@@ -57,11 +55,13 @@ class SupplierAddressController @Inject() (
   }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+    val form: Form[SupplierAddress] = formProvider()
     val preparedForm = request.userAnswers.get(SupplierAddressPage).fold(form)(form.fill)
     Ok(view(preparedForm, mode, backLink(mode)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+    val form: Form[SupplierAddress] = formProvider()
     form
       .bindFromRequest()
       .fold(
