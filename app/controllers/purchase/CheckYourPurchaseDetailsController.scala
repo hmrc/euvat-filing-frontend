@@ -20,6 +20,7 @@ import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierA
 import pages.*
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import queries.InvoiceNumberFlagQuery
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.{ConfigPurchaseMapping, CountryCode, CurrencyConfig}
@@ -27,7 +28,7 @@ import viewmodels.checkAnswers.CheckYourPurchaseDetailsSummary
 import views.html.purchase.CheckYourPurchaseDetailsView
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class CheckYourPurchaseDetailsController @Inject() (
   override val messagesApi: MessagesApi,
@@ -45,6 +46,11 @@ class CheckYourPurchaseDetailsController @Inject() (
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     implicit val msgs: Messages = messagesApi.preferred(request)
+    for {
+      answers <- Future.fromTry(request.userAnswers.set(InvoiceNumberFlagQuery, false))
+      _       <- sessionRepository.set(answers)
+    } yield None
+
     lazy val currencyList =
       CountryCode
         .findCountryCode(request.userAnswers)

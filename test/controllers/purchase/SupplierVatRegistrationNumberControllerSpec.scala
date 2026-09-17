@@ -30,7 +30,7 @@ import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import queries.ClaimApplicationResponseQuery
+import queries.{ClaimApplicationResponseQuery, InvoiceNumberFlagQuery}
 import repositories.SessionRepository
 import views.html.purchase.SupplierVatRegistrationNumberView
 
@@ -129,7 +129,7 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
 
     "must return ok in checkmode if returned from invoice number" in {
       val userAnswers = emptyUserAnswers
-        .set(InvoiceNumberPage, "456")
+        .set(InvoiceNumberFlagQuery, true)
         .success
         .value
 

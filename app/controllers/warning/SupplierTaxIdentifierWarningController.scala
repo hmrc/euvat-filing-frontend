@@ -41,21 +41,12 @@ class SupplierTaxIdentifierWarningController @Inject() (
     with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    val flagged = request.userAnswers.set(SupplierTaxIdentifierWarningPage, true)
-    Future
-      .fromTry(flagged)
-      .flatMap(ua =>
-        sessionRepository
-          .set(ua)
-          .map(_ =>
-            Ok(
-              view(
-                routes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode),
-                routes.InvoiceNumberController.onPageLoad(CheckMode)
-              )
-            )
-          )
-      )
+    for {
+      answers <- Future.fromTry(request.userAnswers.set(SupplierTaxIdentifierWarningPage, true))
+      _       <- sessionRepository.set(answers)
+    } yield {
+      Ok(view(routes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode), routes.InvoiceNumberController.onPageLoad(CheckMode)))
+    }
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
