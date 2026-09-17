@@ -149,6 +149,18 @@ class NavigatorSpec extends SpecBase {
           controllers.imports.routes.ImportTypeController.onPageLoad(NormalMode)
       }
 
+        //TODO: replace with "When is the import date?" page controller once built
+       "must go from ImportDetailsInfoPage to Journey Recovery in Normal Mode" in {
+         navigator.nextPage(ImportDetailsInfoPage, NormalMode, emptyUserAnswers) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
+       }
+
+        //TODO: replace with imports CYA controller once built
+       "must go from ImportDetailsInfoPage to Journey Recovery in Check Mode" in {
+         navigator.nextPage(ImportDetailsInfoPage, CheckMode, emptyUserAnswers) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
+       }
+
       "must go from PurchaseTypePage to DescribeItemsOnInvoiceController" in {
         val ua = userAnswers.set(PurchaseTypePage, PurchaseOrImportType.values.head).success.value
         navigator.nextPage(PurchaseTypePage, NormalMode, ua) mustBe
