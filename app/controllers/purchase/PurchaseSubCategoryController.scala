@@ -129,7 +129,7 @@ class PurchaseSubCategoryController @Inject() (
           val url = ControllerHelpers.pathForSlug(slug, mode, prefix)
           Call("GET", url).url
         }
-      case None => routes.PurchaseTypeController.onPageLoad(models.NormalMode).url
+      case None => routes.PurchaseTypeController.onPageLoad(NormalMode).url
     }
   }
 
