@@ -80,7 +80,7 @@ class SupplierAddressControllerSpec extends SpecBase with MockitoSugar {
 
         val view = application.injector.instanceOf[SupplierAddressView]
         val formProvider = application.injector.instanceOf[SupplierAddressFormProvider]
-        val form = formProvider()
+        val form = formProvider()(request)
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
