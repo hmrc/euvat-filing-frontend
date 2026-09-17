@@ -49,7 +49,8 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
     case CheckYourStateDetailsPage         => userAnswer => navigateFromCheckYourStateDetailsPage(NormalMode)(userAnswer)
     case PurchaseOrImportPage              => userAnswers => navigateFromPurchaseOrImportPage(userAnswers)
     case ImportTypePage                    => userAnswers => navigateFromImportTypePage(userAnswers)
-    case ImportSubCodePage                 => _ => controllers.routes.TaskListDashboardController.onPageLoad()
+    case ImportSubCodePage                 => userAnswers => navigateFromImportSubCodePage(userAnswers)
+    case ImportSubCategoryPage             => _ => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: sad check
     case PurchaseTypePage                  => userAnswer => navigateFromPurchaseTypePage(NormalMode)(userAnswer)
     case PurchaseSubCategoryPage           => userAnswers => navigateFromPurchaseSubCategoryPage(NormalMode, userAnswers)
     case DescribeItemsOnInvoicePage        => _ => purchaseRoutes.InvoiceTypeController.onPageLoad(NormalMode)
@@ -268,6 +269,15 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
           controllers.routes.TaskListDashboardController.onPageLoad()
         }
       case _ => controllers.routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateFromImportSubCodePage(userAnswers: UserAnswers): Call =
+    (userAnswers.get(ImportTypePage), userAnswers.get(ImportSubCodePage), CountryCode.findCountryCode(userAnswers)) match {
+      case (Some(importType), Some(subCode), Some(country))
+          if configPurchaseMapping.subcategoriesFor(country, importType.toString, subCode).nonEmpty =>
+        importsRoutes.ImportSubCategoryController.onPageLoad(NormalMode)
+      case _ =>
+        controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: sad check or item on import doc when no sub categories
     }
 
 }
