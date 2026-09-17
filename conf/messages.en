@@ -548,7 +548,7 @@ vatClaimWarning.no = No, change the VAT claim amount
 
 import.caption = Import details
 
-singleAdministrativeDocumentReferenceNumberAvailable.title = Do you have a Single Administrative Document (SAD) reference?
+singleAdministrativeDocumentReferenceNumberAvailable.title = Do you have a Single Administrative Document (SAD) reference number?
 singleAdministrativeDocumentReferenceNumberAvailable.heading = Do you have a Single Administrative Document (SAD) reference number?
 singleAdministrativeDocumentReferenceNumberAvailable.hint = You can usually find this at the top of the import document
 sadReference.error.required = Select yes if you have the Single Administrative Document (SAD) reference number

@@ -22,7 +22,7 @@ import play.api.data.FormError
 class SadReferenceFormProviderSpec extends BooleanFieldBehaviours {
 
   val requiredKey = "sadReference.error.required"
-  val invalidKey  = "error.boolean"
+  val invalidKey = "error.boolean"
 
   val form = new SadReferenceFormProvider()()
 
