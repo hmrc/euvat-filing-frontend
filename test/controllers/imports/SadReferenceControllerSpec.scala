@@ -19,7 +19,7 @@ package controllers.imports
 import base.SpecBase
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 
 class SadReferenceControllerSpec extends SpecBase with MockitoSugar {
 
@@ -32,7 +32,7 @@ class SadReferenceControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(GET, controllers.imports.routes.SadReferenceController.onPageLoad.url)
-        val result  = route(application, request).value
+        val result = route(application, request).value
 
         status(result) mustBe OK
         contentType(result) mustBe Some("text/html")
