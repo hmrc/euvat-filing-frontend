@@ -51,6 +51,7 @@ unauthorised.guidance = You do not have access to this service.
 claim.caption = Claim details
 purchase.caption = Purchase details
 purchasesAndImports.caption = Purchases and imports
+import.caption = Import details
 
 taskListDashboard.title = Make a claim for an EU VAT refund
 taskListDashboard.heading = Make a claim for an EU VAT refund
@@ -484,6 +485,15 @@ describeItemsOnInvoice.error.required = Enter a description of the items on your
 describeItemsOnInvoice.error.length = Item description must be 255 characters or less
 describeItemsOnInvoice.checkYourAnswersLabel = Purchase description
 describeItemsOnInvoice.change.hidden = Change purchase description
+
+importType.title = Which category best describes the item on your import document?
+importType.heading = Which category best describes the item on your import document?
+importType.fuel = Fuel
+importType.transport = Transport costs
+importType.foodAndDrink = Food, drink and restaurant services
+importType.luxuries = Luxuries, entertainment and hospitality
+importType.other = Other
+importType.error.required = Select the type of import
 
 # Warning messages
 confirmRefundPeriodStartDate.title = Are you sure the refund period start date is correct?
