@@ -1,4 +1,6 @@
-GET         /import-type                                  controllers.imports.ImportTypeController.onPageLoad(mode: Mode = NormalMode)
-POST        /import-type                                  controllers.imports.ImportTypeController.onSubmit(mode: Mode = NormalMode)
-GET         /change-import-type                           controllers.imports.ImportTypeController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-import-type                           controllers.imports.ImportTypeController.onSubmit(mode: Mode = CheckMode)
+GET         /import-type                                                  controllers.imports.ImportTypeController.onPageLoad(mode: Mode = NormalMode)
+POST        /import-type                                                  controllers.imports.ImportTypeController.onSubmit(mode: Mode = NormalMode)
+GET         /change-import-type                                           controllers.imports.ImportTypeController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-import-type                                           controllers.imports.ImportTypeController.onSubmit(mode: Mode = CheckMode)
+GET         /single-administrative-document-reference-number-available    controllers.imports.SadReferenceController.onPageLoad
+POST        /single-administrative-document-reference-number-available    controllers.imports.SadReferenceController.onSubmit

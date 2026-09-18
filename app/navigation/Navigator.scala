@@ -18,6 +18,7 @@ package navigation
 
 import controllers.claim.routes as claimRoutes
 import controllers.purchase.routes as purchaseRoutes
+import controllers.imports.routes as importRoutes
 import models.*
 import models.PurchaseOrImport.{Import, Purchase}
 import pages.*
@@ -47,7 +48,7 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
     case BusinessActivityCodeThreePage     => _ => claimRoutes.BusinessActivityThreeController.onPageLoad()
     case CheckYourStateDetailsPage         => userAnswer => navigateFromCheckYourStateDetailsPage(NormalMode)(userAnswer)
     case PurchaseOrImportPage              => userAnswers => navigateFromPurchaseOrImportPage(userAnswers)
-    case ImportTypePage                    => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
+    case ImportTypePage                    => _ => importRoutes.SadReferenceController.onPageLoad
     case PurchaseTypePage                  => userAnswer => navigateFromPurchaseTypePage(NormalMode)(userAnswer)
     case PurchaseSubCategoryPage           => userAnswers => navigateFromPurchaseSubCategoryPage(NormalMode, userAnswers)
     case DescribeItemsOnInvoicePage        => _ => purchaseRoutes.InvoiceTypeController.onPageLoad(NormalMode)
@@ -76,7 +77,7 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
     case BusinessActivityTwoPage           => userAnswer => navigateFromBusinessActivity2Page(CheckMode)(userAnswer)
     case BusinessActivityCodeThreePage     => _ => claimRoutes.BusinessActivityThreeController.onPageLoad()
     case CheckYourStateDetailsPage         => userAnswers => navigateFromCheckYourStateDetailsPage(CheckMode)(userAnswers)
-    case ImportTypePage                    => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
+    case ImportTypePage                    => _ => importRoutes.SadReferenceController.onPageLoad
     case PurchaseTypePage                  => userAnswer => navigateFromPurchaseTypePage(CheckMode)(userAnswer)
     case PurchaseSubCategoryPage           => userAnswers => navigateFromPurchaseSubCategoryPage(CheckMode, userAnswers)
     case DescribeItemsOnInvoicePage        => _ => purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()

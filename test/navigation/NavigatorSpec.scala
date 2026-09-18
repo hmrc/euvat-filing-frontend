@@ -138,9 +138,15 @@ class NavigatorSpec extends SpecBase {
           controllers.imports.routes.ImportTypeController.onPageLoad(NormalMode)
       }
 
-      "must go from ImportTypePage to JourneyRecoveryController" in {
+      "must go from ImportTypePage to SadReferenceController" in {
         navigator.nextPage(ImportTypePage, NormalMode, emptyUserAnswers) mustBe
-          controllers.routes.JourneyRecoveryController.onPageLoad()
+          controllers.imports.routes.SadReferenceController.onPageLoad
+      }
+
+      "must go from PurchaseOrImportPage to ImportTypeController when Import selected" in {
+        val ua = userAnswers.set(PurchaseOrImportPage, PurchaseOrImport.Import).success.value
+        navigator.nextPage(PurchaseOrImportPage, NormalMode, ua) mustBe
+          controllers.imports.routes.ImportTypeController.onPageLoad(NormalMode)
       }
 
       "must go from PurchaseTypePage to DescribeItemsOnInvoiceController" in {
@@ -522,9 +528,9 @@ class NavigatorSpec extends SpecBase {
           claimRoutes.BusinessActivityThreeController.onPageLoad()
       }
 
-      "must go from ImportTypePage to JourneyRecoveryController" in {
+      "must go from ImportTypePage to SadReferenceController" in {
         navigator.nextPage(ImportTypePage, CheckMode, emptyUserAnswers) mustBe
-          controllers.routes.JourneyRecoveryController.onPageLoad()
+          controllers.imports.routes.SadReferenceController.onPageLoad
       }
 
       "must go from PurchaseTypePage to DescribeItemsOnInvoiceController" in {
