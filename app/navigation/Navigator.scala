@@ -39,16 +39,24 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
   }
 
   private val normalRoutes: Page => UserAnswers => Call = {
-    case RefundingCountryPage              => userAnswers => navigateFromRefundingCountryPage(NormalMode, userAnswers)
-    case RefundingLanguagePage             => userAnswers => navigateFromRefundingLanguagePage(NormalMode)(userAnswers)
-    case RefundPeriodPage                  => _ => claimRoutes.ContactDetailsController.onPageLoad(NormalMode)
-    case ContactDetailsPage                => _ => claimRoutes.BusinessActivityController.onPageLoad(NormalMode)
-    case BusinessActivityPage              => userAnswer => navigateFromBusinessActivityPage(NormalMode)(userAnswer)
-    case BusinessActivityTwoPage           => userAnswer => navigateFromBusinessActivity2Page(NormalMode)(userAnswer)
-    case BusinessActivityCodeThreePage     => _ => claimRoutes.BusinessActivityThreeController.onPageLoad()
-    case CheckYourStateDetailsPage         => userAnswer => navigateFromCheckYourStateDetailsPage(NormalMode)(userAnswer)
-    case PurchaseOrImportPage              => userAnswers => navigateFromPurchaseOrImportPage(userAnswers)
-    case ImportTypePage                    => _ => importRoutes.SadReferenceController.onPageLoad
+    case RefundingCountryPage          => userAnswers => navigateFromRefundingCountryPage(NormalMode, userAnswers)
+    case RefundingLanguagePage         => userAnswers => navigateFromRefundingLanguagePage(NormalMode)(userAnswers)
+    case RefundPeriodPage              => _ => claimRoutes.ContactDetailsController.onPageLoad(NormalMode)
+    case ContactDetailsPage            => _ => claimRoutes.BusinessActivityController.onPageLoad(NormalMode)
+    case BusinessActivityPage          => userAnswer => navigateFromBusinessActivityPage(NormalMode)(userAnswer)
+    case BusinessActivityTwoPage       => userAnswer => navigateFromBusinessActivity2Page(NormalMode)(userAnswer)
+    case BusinessActivityCodeThreePage => _ => claimRoutes.BusinessActivityThreeController.onPageLoad()
+    case CheckYourStateDetailsPage     => userAnswer => navigateFromCheckYourStateDetailsPage(NormalMode)(userAnswer)
+    case PurchaseOrImportPage          => userAnswers => navigateFromPurchaseOrImportPage(userAnswers)
+    case ImportTypePage                => _ => importRoutes.SadReferenceController.onPageLoad(NormalMode)
+    case SadReferencePage =>
+      userAnswers =>
+        userAnswers.get(SadReferencePage) match {
+          case Some(true)  => importRoutes.SadReferenceNumberController.onPageLoad(NormalMode)
+          case Some(false) => controllers.routes.JourneyRecoveryController.onPageLoad()
+          case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
+        }
+    case SadReferenceNumberPage            => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
     case PurchaseTypePage                  => userAnswer => navigateFromPurchaseTypePage(NormalMode)(userAnswer)
     case PurchaseSubCategoryPage           => userAnswers => navigateFromPurchaseSubCategoryPage(NormalMode, userAnswers)
     case DescribeItemsOnInvoicePage        => _ => purchaseRoutes.InvoiceTypeController.onPageLoad(NormalMode)
@@ -69,15 +77,23 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
   }
 
   private val checkRoutes: Page => UserAnswers => Call = {
-    case RefundingCountryPage              => userAnswers => navigateFromRefundingCountryPage(CheckMode, userAnswers)
-    case RefundingLanguagePage             => userAnswers => navigateFromRefundingLanguagePage(CheckMode)(userAnswers)
-    case RefundPeriodPage                  => _ => claimRoutes.CheckYourClaimDetailsController.onPageLoad()
-    case ContactDetailsPage                => _ => claimRoutes.CheckYourClaimDetailsController.onPageLoad()
-    case BusinessActivityPage              => userAnswer => navigateFromBusinessActivityPage(CheckMode)(userAnswer)
-    case BusinessActivityTwoPage           => userAnswer => navigateFromBusinessActivity2Page(CheckMode)(userAnswer)
-    case BusinessActivityCodeThreePage     => _ => claimRoutes.BusinessActivityThreeController.onPageLoad()
-    case CheckYourStateDetailsPage         => userAnswers => navigateFromCheckYourStateDetailsPage(CheckMode)(userAnswers)
-    case ImportTypePage                    => _ => importRoutes.SadReferenceController.onPageLoad
+    case RefundingCountryPage          => userAnswers => navigateFromRefundingCountryPage(CheckMode, userAnswers)
+    case RefundingLanguagePage         => userAnswers => navigateFromRefundingLanguagePage(CheckMode)(userAnswers)
+    case RefundPeriodPage              => _ => claimRoutes.CheckYourClaimDetailsController.onPageLoad()
+    case ContactDetailsPage            => _ => claimRoutes.CheckYourClaimDetailsController.onPageLoad()
+    case BusinessActivityPage          => userAnswer => navigateFromBusinessActivityPage(CheckMode)(userAnswer)
+    case BusinessActivityTwoPage       => userAnswer => navigateFromBusinessActivity2Page(CheckMode)(userAnswer)
+    case BusinessActivityCodeThreePage => _ => claimRoutes.BusinessActivityThreeController.onPageLoad()
+    case CheckYourStateDetailsPage     => userAnswers => navigateFromCheckYourStateDetailsPage(CheckMode)(userAnswers)
+    case ImportTypePage                => _ => importRoutes.SadReferenceController.onPageLoad(CheckMode)
+    case SadReferencePage =>
+      userAnswers =>
+        userAnswers.get(SadReferencePage) match {
+          case Some(true)  => importRoutes.SadReferenceNumberController.onPageLoad(CheckMode)
+          case Some(false) => controllers.routes.JourneyRecoveryController.onPageLoad()
+          case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
+        }
+    case SadReferenceNumberPage            => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
     case PurchaseTypePage                  => userAnswer => navigateFromPurchaseTypePage(CheckMode)(userAnswer)
     case PurchaseSubCategoryPage           => userAnswers => navigateFromPurchaseSubCategoryPage(CheckMode, userAnswers)
     case DescribeItemsOnInvoicePage        => _ => purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
