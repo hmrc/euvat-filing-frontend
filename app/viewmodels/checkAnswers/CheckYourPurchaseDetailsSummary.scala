@@ -21,7 +21,7 @@ import models.{CheckMode, PurchaseOrImportType, UserAnswers}
 import pages.*
 import play.api.i18n.{Lang, Messages}
 import play.api.mvc.RequestHeader
-import utils.{ConfigPurchaseMapping, MountPrefix}
+import utils.{ConfigPurchaseOrImportMapping, MountPrefix}
 
 object CheckYourPurchaseDetailsSummary {
 
@@ -38,7 +38,7 @@ object CheckYourPurchaseDetailsSummary {
       )
     }
 
-  def rowPurchaseSubTypeLabel(answers: UserAnswers, config: ConfigPurchaseMapping)(implicit messages: Messages): Option[Row] = {
+  def rowPurchaseSubTypeLabel(answers: UserAnswers, config: ConfigPurchaseOrImportMapping)(implicit messages: Messages): Option[Row] = {
     answers.get(PurchaseTypePage) match {
       case None => None
       case Some(pt) =>
@@ -66,7 +66,7 @@ object CheckYourPurchaseDetailsSummary {
           None
         } else {
           answers.get(PurchaseSubTypePage) match {
-            case Some(v) if v == ConfigPurchaseMapping.NoneValue || v.split("\\.").lastOption.contains("99") =>
+            case Some(v) if v == ConfigPurchaseOrImportMapping.NoneValue || v.split("\\.").lastOption.contains("99") =>
               val singleBypass = countryOpt.flatMap { c =>
                 try {
                   val opts = config.subcodesFor(c, parentKey)
@@ -96,7 +96,7 @@ object CheckYourPurchaseDetailsSummary {
     val displayValueOpt: Option[String] = answers
       .get(PurchaseSubTypeLabelPage)
       .map {
-        case ConfigPurchaseMapping.NoneValue => messages("site.none")
+        case ConfigPurchaseOrImportMapping.NoneValue => messages("site.none")
         case value                           => value
       }
     val changeUrl = routes.PurchaseSubTypeController.onPageLoad(parentSlug, CheckMode).url
@@ -122,11 +122,11 @@ object CheckYourPurchaseDetailsSummary {
         loop(c).getOrElse(models.PurchaseSubCategoryType.pathFor(pk, c))
       }
 
-      val codeToResolve = if (code == ConfigPurchaseMapping.NoneValue) answers.get(PurchaseSubTypePage).getOrElse(code) else code
+      val codeToResolve = if (code == ConfigPurchaseOrImportMapping.NoneValue) answers.get(PurchaseSubTypePage).getOrElse(code) else code
       val slug = findSlug(parentKey, codeToResolve)
       val msgKey = s"purchase.subCategory.$slug"
       val keyLabel = if (messages.isDefinedAt(msgKey)) messages(msgKey) else slug.replace('-', ' ').capitalize
-      val displayValue = if (label == ConfigPurchaseMapping.NoneValue) messages("site.none") else label
+      val displayValue = if (label == ConfigPurchaseOrImportMapping.NoneValue) messages("site.none") else label
       val mount = MountPrefix.getFromRequest
       val url = if (mount.isEmpty) s"/change-$slug" else s"$mount/change-$slug"
 
@@ -286,7 +286,7 @@ object CheckYourPurchaseDetailsSummary {
   def sections(answers: UserAnswers,
                maybeCurrencyDisplayName: Option[String],
                maybeCurrencySymbol: Option[String],
-               config: ConfigPurchaseMapping,
+               config: ConfigPurchaseOrImportMapping,
                showCurrencyRow: Boolean
               )(implicit messages: Messages, request: RequestHeader): Seq[(String, Seq[Row])] = {
     val purchaseCategoryRows =

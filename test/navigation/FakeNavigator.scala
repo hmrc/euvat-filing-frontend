@@ -19,7 +19,7 @@ package navigation
 import play.api.mvc.Call
 import pages.*
 import models.{Mode, UserAnswers}
-import utils.{ConfigLanguageMapping, ConfigPurchaseMapping, CurrencyConfig}
+import utils.{ConfigLanguageMapping, ConfigPurchaseOrImportMapping, CurrencyConfig}
 import play.api.Configuration
 import com.typesafe.config.ConfigFactory
 
@@ -47,7 +47,7 @@ class FakeNavigator(desiredRoute: Call)
       """)
         )
       ),
-      new ConfigPurchaseMapping(
+      new ConfigPurchaseOrImportMapping(
         Configuration(
           ConfigFactory.parseString("""
         purchase.mapping {

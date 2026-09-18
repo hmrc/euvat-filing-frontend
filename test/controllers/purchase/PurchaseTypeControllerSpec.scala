@@ -32,7 +32,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import queries.ClaimApplicationResponseQuery
 import repositories.SessionRepository
-import utils.ConfigPurchaseMapping
+import utils.ConfigPurchaseOrImportMapping
 import views.html.PurchaseOrImportTypeView
 
 import scala.concurrent.Future
@@ -77,7 +77,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
-      val fakeConfig = new ConfigPurchaseMapping() {
+      val fakeConfig = new ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String) = Seq(("1.99", "purchase.sub.other.1.99"))
       }
 
@@ -94,7 +94,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
-          bind[ConfigPurchaseMapping].toInstance(fakeConfig),
+          bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig),
           bind[SessionRepository].toInstance(mockSessionRepository)
         )
         .build()
@@ -368,7 +368,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
-      val fakeConfig = new utils.ConfigPurchaseMapping() {
+      val fakeConfig = new utils.ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String) = Seq(("1", "purchase.sub.fuel.1"))
       }
 
@@ -376,7 +376,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
-          bind[ConfigPurchaseMapping].toInstance(fakeConfig),
+          bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig),
           bind[SessionRepository].toInstance(mockSessionRepository)
         )
         .build()
@@ -509,7 +509,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
-      val fakeConfig = new utils.ConfigPurchaseMapping() {
+      val fakeConfig = new utils.ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String) = Seq(("1", "purchase.sub.fuel.1"))
       }
 
@@ -517,7 +517,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
-          bind[ConfigPurchaseMapping].toInstance(fakeConfig),
+          bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig),
           bind[SessionRepository].toInstance(mockSessionRepository)
         )
         .build()
@@ -698,7 +698,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
-      val fakeConfig = new ConfigPurchaseMapping() {
+      val fakeConfig = new ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String): Seq[(String, String)] =
           if (country == "LT" && parentKey == models.Fuel.toString) Seq.empty
           else super.subcodesFor(country, parentKey)
@@ -723,7 +723,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
-          bind[ConfigPurchaseMapping].toInstance(fakeConfig),
+          bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig),
           bind[SessionRepository].toInstance(mockSessionRepository)
         )
         .build()
@@ -750,7 +750,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
-      val fakeConfig = new utils.ConfigPurchaseMapping() {
+      val fakeConfig = new utils.ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String) = Seq(("1", "purchase.sub.fuel.1"))
       }
 
@@ -758,7 +758,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
-          bind[ConfigPurchaseMapping].toInstance(fakeConfig),
+          bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig),
           bind[SessionRepository].toInstance(mockSessionRepository)
         )
         .build()
@@ -815,7 +815,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
-      val fakeConfig = new utils.ConfigPurchaseMapping() {
+      val fakeConfig = new utils.ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String) = Seq(("1", "purchase.sub.fuel.1"))
       }
 
@@ -823,7 +823,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
-          bind[ConfigPurchaseMapping].toInstance(fakeConfig),
+          bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig),
           bind[SessionRepository].toInstance(mockSessionRepository)
         )
         .build()

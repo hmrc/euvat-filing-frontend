@@ -18,7 +18,7 @@
 @import play.api.mvc.Call
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+@import viewmodels.LegendSize
 @import views.html.components.MainErrorSummary
 
 @this(
@@ -29,24 +29,28 @@
     mainErrorSummary: MainErrorSummary
 )
 
-@(form: play.api.data.Form[?], items: Seq[RadioItem], pageTitle: String, heading: String, formAction: play.api.mvc.Call, backUrl: String)(implicit request: play.api.mvc.Request[?], messages: Messages)
+@(form: play.api.data.Form[?], items: Seq[RadioItem], pageTitle: String, heading: String, captionKey: String, formAction: Call, backUrl: String)(implicit request: play.api.mvc.Request[?], messages: Messages)
+
+@isError = @{form.error("value").isDefined}
 
 @layout(pageTitle = views.ViewUtils.title(form, pageTitle), backLinkUrl = Some(backUrl)) {
 
-        <span class="govuk-caption-l">@messages("purchase.caption")</span>
+    @formHelper(action = formAction, Symbol("autoComplete") -> "off") {
+        @mainErrorSummary(form, Map("value" -> "value_0"))
 
-        @formHelper(action = formAction) {
-            @mainErrorSummary(form, Map("value" -> "value_0"))
+        <div class="govuk-form-group @if(isError){govuk-form-group--error}">
+            <span class="govuk-caption-l">@messages(captionKey)</span>
 
             @govukRadios(
                 RadiosViewModel(
                     field  = form("value"),
-                    legend = LegendViewModel(HtmlContent(heading)).asPageHeading().withCssClass("govuk-fieldset__legend--l"),
+                    legend = LegendViewModel(Text(heading)).asPageHeading(LegendSize.Large),
                     items  = items
                 )
             )
+        </div>
 
-            @govukButton(ButtonViewModel(messages("site.continue")))
-        }
+        @govukButton(ButtonViewModel(messages("site.continue")))
+    }
 
 }
