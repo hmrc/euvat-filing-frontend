@@ -184,11 +184,8 @@ class ConfigPurchaseOrImportMapping @Inject() (config: Configuration = Configura
   def subcodesFor(parentKey: String): Seq[(String, String)] =
     mapping.values.toSeq.flatten.filter(_.parent == parentKey).map(n => (n.code, n.label))
 
-  def importSubcodesFor(country: String, parentKey: String): Seq[(String, String)] =
-    subcodesFor(country, parentKey).filter(_._1.split("\\.").length == 2)
-
-  def selectableImportSubcodes(country: String, parentKey: String): Option[Seq[(String, String)]] =
-    Some(importSubcodesFor(country, parentKey)).filter { options =>
+  def selectableSubcodes(country: String, parentKey: String): Option[Seq[(String, String)]] =
+    Some(subcodesFor(country, parentKey)).filter { options =>
       options.nonEmpty && options.map(_._1) != Seq(ConfigPurchaseOrImportMapping.NoneOfTheseSubCode)
     }
 

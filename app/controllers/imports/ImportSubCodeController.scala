@@ -58,7 +58,7 @@ class ImportSubCodeController @Inject() (
       importType <- PurchaseOrImportType.values.find(_.toString == importTypeKey)
       answered   <- request.userAnswers.get(ImportTypePage) if answered == importType
       country    <- CountryCode.findCountryCode(request.userAnswers)
-      options    <- config.selectableImportSubcodes(country, importType.toString)
+      options    <- config.selectableSubcodes(country, importType.toString)
     } yield (importType, options)
 
     resolved match {

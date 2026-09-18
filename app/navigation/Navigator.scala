@@ -262,7 +262,7 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
   private def navigateFromImportTypePage(userAnswers: UserAnswers): Call =
     (userAnswers.get(ImportTypePage), CountryCode.findCountryCode(userAnswers)) match {
       case (Some(importType), Some(country)) =>
-        if (configPurchaseMapping.selectableImportSubcodes(country, importType.toString).isDefined) {
+        if (configPurchaseMapping.selectableSubcodes(country, importType.toString).isDefined) {
           importsRoutes.ImportSubCodeController.onPageLoad(importType.toString)
         } else {
           controllers.routes.TaskListDashboardController.onPageLoad()
