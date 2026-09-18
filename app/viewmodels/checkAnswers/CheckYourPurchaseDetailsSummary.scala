@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers
 
 import controllers.purchase.routes
-import models.{CheckMode, PurchaseOrImportType, UserAnswers}
+import models.{CheckMode, PurchaseOrImportSubCategoryType, PurchaseOrImportType, UserAnswers}
 import pages.*
 import play.api.i18n.{Lang, Messages}
 import play.api.mvc.RequestHeader
@@ -114,12 +114,12 @@ object CheckYourPurchaseDetailsSummary {
 
       def findSlug(pk: String, c: String): String = {
         def loop(curr: String): Option[String] =
-          models.PurchaseSubCategoryType.purchaseSubCategoryUrlSlugFor(pk, curr) match {
+          models.PurchaseOrImportSubCategoryType.purchaseOrImportSubCategoryUrlSlugFor(pk, curr) match {
             case s @ Some(_) => s
             case None        => if (curr.contains('.')) loop(curr.substring(0, curr.lastIndexOf('.'))) else None
           }
 
-        loop(c).getOrElse(models.PurchaseSubCategoryType.pathFor(pk, c))
+        loop(c).getOrElse(models.PurchaseOrImportSubCategoryType.pathFor(pk, c))
       }
 
       val codeToResolve = if (code == ConfigPurchaseMapping.NoneValue) answers.get(PurchaseSubTypePage).getOrElse(code) else code

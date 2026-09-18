@@ -41,11 +41,12 @@ case class PurchaseNode(parent: String, code: String, label: String, children: S
 
 object ConfigPurchaseMapping {
   val NoneValue: String = "__none__"
+  val NoneOfTheseSubCode: String = "10.99"
 }
 
 class ConfigPurchaseMapping @Inject() (config: Configuration = Configuration.empty, env: Environment = Environment.simple()) {
 
-  val prefix = "purchase.sub."
+  val prefix = "sub."
 
   private def normalizeLabel(label: String, code: String): String = {
     if !label.startsWith(prefix) || code.isEmpty then label
@@ -58,7 +59,7 @@ class ConfigPurchaseMapping @Inject() (config: Configuration = Configuration.emp
 
   private val mapping: Map[String, Seq[PurchaseNode]] =
     try {
-      val rootConfig = config.underlying.getConfig("purchase.mapping")
+      val rootConfig = config.underlying.getConfig("purchase-or-import-mapping")
 
       def parseEntry(entry: Any): PurchaseNode = entry match {
         case s: String =>
@@ -151,7 +152,7 @@ class ConfigPurchaseMapping @Inject() (config: Configuration = Configuration.emp
             val derivedLabel = explicitLabelOpt.orElse {
               nodesForParent.find(n => n.code.startsWith(base + ".")).flatMap { child =>
                 val l = child.label
-                if (l.startsWith("purchase.sub.")) {
+                if (l.startsWith("sub.")) {
                   val parts = l.split("\\.")
                   if (parts.length > 3) Some(parts.dropRight(1).mkString(".")) else None
                 } else None
@@ -182,6 +183,14 @@ class ConfigPurchaseMapping @Inject() (config: Configuration = Configuration.emp
 
   def subcodesFor(parentKey: String): Seq[(String, String)] =
     mapping.values.toSeq.flatten.filter(_.parent == parentKey).map(n => (n.code, n.label))
+
+  def importSubcodesFor(country: String, parentKey: String): Seq[(String, String)] =
+    subcodesFor(country, parentKey).filter(_._1.split("\\.").length == 2)
+
+  def selectableImportSubcodes(country: String, parentKey: String): Option[Seq[(String, String)]] =
+    Some(importSubcodesFor(country, parentKey)).filter { options =>
+      options.nonEmpty && options.map(_._1) != Seq(ConfigPurchaseMapping.NoneOfTheseSubCode)
+    }
 
   def subcategoriesFor(country: String, parentKey: String, subcode: String): Seq[(String, String)] =
     nodesForCountry(country).toSeq.flatMap(_.filter(n => n.parent == parentKey && n.code == subcode).flatMap(_.children).map(c => (c.code, c.label)))
@@ -235,7 +244,7 @@ class ConfigPurchaseMapping @Inject() (config: Configuration = Configuration.emp
       val lang = Option(msgs.lang.code).getOrElse("en")
 
       def loadPurchaseMessages(langCode: String): Map[String, String] = {
-        val fileName: String = s"messages.purchase.$langCode"
+        val fileName: String = s"messages.purchaseOrImport.$langCode"
 
         try {
           env

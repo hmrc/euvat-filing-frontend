@@ -17,7 +17,7 @@
 package controllers.purchase
 
 import controllers.actions.*
-import forms.purchase.PurchaseSubTypeFormProvider
+import forms.PurchaseOrImportSubTypeFormProvider
 import models.requests.DataRequest
 import models.*
 import navigation.Navigator
@@ -29,7 +29,7 @@ import repositories.SessionRepository
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.{ConfigPurchaseMapping, ControllerHelpers, CountryCode, MountPrefix}
-import views.html.purchase.PurchaseSubTypeView
+import views.html.PurchaseOrImportSubTypeView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -41,10 +41,10 @@ class PurchaseSubTypeController @Inject() (
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  formProvider: PurchaseSubTypeFormProvider,
+  formProvider: PurchaseOrImportSubTypeFormProvider,
   config: ConfigPurchaseMapping,
   val controllerComponents: MessagesControllerComponents,
-  view: PurchaseSubTypeView
+  view: PurchaseOrImportSubTypeView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
@@ -74,7 +74,7 @@ class PurchaseSubTypeController @Inject() (
     val items = if (parentKey == "other") rawItems.filterNot(_.value.contains(ConfigPurchaseMapping.NoneValue)) else rawItems
     val parentHeading = parentHeadingFor(parentKey)
     val msgs = messagesApi.preferred(request)
-    val requiredKeyCandidates = Seq(s"purchase.sub.$parentKey.error.required")
+    val requiredKeyCandidates = Seq(s"sub.$parentKey.error.required")
     val requiredKey = requiredKeyCandidates.find(k => msgs.isDefinedAt(k)).getOrElse("error.required")
     val preparedForm = userAnswers.get(PurchaseSubTypePage).fold(formProvider(requiredKey))(formProvider(requiredKey).fill)
     val resolvedSlug = resolvedSlugFor(parentKey, purchaseTypeSlug)
@@ -141,11 +141,11 @@ class PurchaseSubTypeController @Inject() (
 
   private def parentHeadingFor(parentKey: String)(implicit request: RequestHeader): String =
     parentKey match {
-      case "fuel"         => messagesApi.preferred(request)("purchase.sub.fuel.heading")
-      case "transport"    => messagesApi.preferred(request)("purchase.sub.transport.heading")
-      case "foodAndDrink" => messagesApi.preferred(request)("purchase.sub.foodAndDrink.heading")
-      case "luxuries"     => messagesApi.preferred(request)("purchase.sub.luxuries.heading")
-      case "other"        => messagesApi.preferred(request)("purchase.sub.other.heading")
+      case "fuel"         => messagesApi.preferred(request)("sub.fuel.heading")
+      case "transport"    => messagesApi.preferred(request)("sub.transport.heading")
+      case "foodAndDrink" => messagesApi.preferred(request)("sub.foodAndDrink.heading")
+      case "luxuries"     => messagesApi.preferred(request)("sub.luxuries.heading")
+      case "other"        => messagesApi.preferred(request)("sub.other.heading")
       case _              => parentKey
     }
 
@@ -185,7 +185,7 @@ class PurchaseSubTypeController @Inject() (
     request: DataRequest[AnyContent]
   ): Future[Result] = {
     val backUrl = backUrlFor(mode)
-    Future.successful(Ok(view(preparedForm, items, heading, heading, formAction, backUrl)))
+    Future.successful(Ok(view(preparedForm, items, heading, heading, "purchase.caption", formAction, backUrl)))
   }
 
   private def markArrivalAndRenderSubType(preparedForm: Form[?],
@@ -271,7 +271,7 @@ class PurchaseSubTypeController @Inject() (
   ): Future[Result] = {
     val formAction = formActionFor(resolvedSlug, mode)
     val backUrl = backUrlFor(mode)
-    Future.successful(BadRequest(view(formWithErrors, items, parentHeading, parentHeading, formAction, backUrl)))
+    Future.successful(BadRequest(view(formWithErrors, items, parentHeading, parentHeading, "purchase.caption", formAction, backUrl)))
   }
 
   private def persistNoneSelection(mode: Mode, userAnswers: UserAnswers)(implicit request: DataRequest[AnyContent]): Future[Result] = {
@@ -297,7 +297,7 @@ class PurchaseSubTypeController @Inject() (
     candidates.iterator
       .map { c =>
         try {
-          val slug = PurchaseSubCategoryType.pathFor(parentKey, c)
+          val slug = PurchaseOrImportSubCategoryType.pathFor(parentKey, c)
           val prefix = MountPrefix.getFromRequest
           val path = ControllerHelpers.pathForSlug(slug, mode, prefix)
           Some(Call("GET", path))

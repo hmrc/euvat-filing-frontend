@@ -17,6 +17,7 @@
 package navigation
 
 import controllers.claim.routes as claimRoutes
+import controllers.imports.routes as importsRoutes
 import controllers.purchase.routes as purchaseRoutes
 import models.*
 import models.PurchaseOrImport.{Import, Purchase}
@@ -47,7 +48,9 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
     case BusinessActivityCodeThreePage     => _ => claimRoutes.BusinessActivityThreeController.onPageLoad()
     case CheckYourStateDetailsPage         => userAnswer => navigateFromCheckYourStateDetailsPage(NormalMode)(userAnswer)
     case PurchaseOrImportPage              => userAnswers => navigateFromPurchaseOrImportPage(userAnswers)
-    case ImportTypePage                    => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
+    case ImportTypePage                    => userAnswers => navigateFromImportTypePage(userAnswers)
+    case ImportSubCodePage                 => userAnswers => navigateFromImportSubCodePage(userAnswers)
+    case ImportSubCategoryPage             => _ => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: sad check
     case PurchaseTypePage                  => userAnswer => navigateFromPurchaseTypePage(NormalMode)(userAnswer)
     case PurchaseSubCategoryPage           => userAnswers => navigateFromPurchaseSubCategoryPage(NormalMode, userAnswers)
     case DescribeItemsOnInvoicePage        => _ => purchaseRoutes.InvoiceTypeController.onPageLoad(NormalMode)
@@ -253,8 +256,28 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
   private def navigateFromPurchaseOrImportPage(userAnswers: UserAnswers): Call =
     userAnswers.get(PurchaseOrImportPage) match {
       case Some(Purchase) => purchaseRoutes.PurchaseTypeController.onPageLoad(NormalMode)
-      case Some(Import)   => controllers.imports.routes.ImportTypeController.onPageLoad(NormalMode)
+      case Some(Import)   => importsRoutes.ImportTypeController.onPageLoad(NormalMode)
       case None           => controllers.routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateFromImportTypePage(userAnswers: UserAnswers): Call =
+    (userAnswers.get(ImportTypePage), CountryCode.findCountryCode(userAnswers)) match {
+      case (Some(importType), Some(country)) =>
+        if (configPurchaseMapping.selectableImportSubcodes(country, importType.toString).isDefined) {
+          importsRoutes.ImportSubCodeController.onPageLoad(importType.toString)
+        } else {
+          controllers.routes.TaskListDashboardController.onPageLoad()
+        }
+      case _ => controllers.routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateFromImportSubCodePage(userAnswers: UserAnswers): Call =
+    (userAnswers.get(ImportTypePage), userAnswers.get(ImportSubCodePage), CountryCode.findCountryCode(userAnswers)) match {
+      case (Some(importType), Some(subCode), Some(country))
+          if configPurchaseMapping.subcategoriesFor(country, importType.toString, subCode).nonEmpty =>
+        importsRoutes.ImportSubCategoryController.onPageLoad(NormalMode)
+      case _ =>
+        controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: sad check or item on import doc when no sub categories
     }
 
 }
