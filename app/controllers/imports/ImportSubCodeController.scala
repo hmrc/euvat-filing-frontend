@@ -17,7 +17,6 @@
 package controllers.imports
 
 import controllers.actions.*
-import controllers.routes
 import forms.purchase.PurchaseSubTypeFormProvider
 import models.requests.DataRequest
 import models.{NormalMode, PurchaseOrImportType}
@@ -50,7 +49,7 @@ class ImportSubCodeController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  private def backUrl: String = controllers.imports.routes.ImportTypeController.onPageLoad(NormalMode).url
+  private def backUrl: String = routes.ImportTypeController.onPageLoad(NormalMode).url
 
   private def withPageData(importTypeKey: String)(
     block: (PurchaseOrImportType, Seq[(String, String)]) => Future[Result]
@@ -64,7 +63,7 @@ class ImportSubCodeController @Inject() (
 
     resolved match {
       case Some((importType, options)) => block(importType, options)
-      case None                        => Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+      case None                        => Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
     }
   }
 
@@ -92,7 +91,7 @@ class ImportSubCodeController @Inject() (
       messages(s"importSubCode.$importType.title"),
       messages(s"importSubCode.$importType.heading"),
       "import.caption",
-      controllers.imports.routes.ImportSubCodeController.onSubmit(importType.toString),
+      routes.ImportSubCodeController.onSubmit(importType.toString),
       backUrl
     )
   }
@@ -122,7 +121,7 @@ class ImportSubCodeController @Inject() (
                 _              <- sessionRepository.set(updatedAnswers)
               } yield Redirect(navigator.nextPage(ImportSubCodePage, NormalMode, updatedAnswers))
             } else {
-              Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+              Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
             }
         )
     }

@@ -171,7 +171,7 @@ class ImportSubCodeControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual taskListUrl
+        redirectLocation(result).value mustEqual journeyRecoveryUrl
       }
     }
 
@@ -188,7 +188,7 @@ class ImportSubCodeControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual taskListUrl
+        redirectLocation(result).value mustEqual journeyRecoveryUrl
       }
     }
 

@@ -49,7 +49,7 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
     case CheckYourStateDetailsPage         => userAnswer => navigateFromCheckYourStateDetailsPage(NormalMode)(userAnswer)
     case PurchaseOrImportPage              => userAnswers => navigateFromPurchaseOrImportPage(userAnswers)
     case ImportTypePage                    => userAnswers => navigateFromImportTypePage(userAnswers)
-    case ImportSubCodePage                 => _ => controllers.routes.TaskListDashboardController.onPageLoad()
+    case ImportSubCodePage                 => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
     case PurchaseTypePage                  => userAnswer => navigateFromPurchaseTypePage(NormalMode)(userAnswer)
     case PurchaseSubCategoryPage           => userAnswers => navigateFromPurchaseSubCategoryPage(NormalMode, userAnswers)
     case DescribeItemsOnInvoicePage        => _ => purchaseRoutes.InvoiceTypeController.onPageLoad(NormalMode)
