@@ -107,7 +107,7 @@ class CheckYourPurchaseDetailsController @Inject() (
 
         val goodsDescriptionText = request.userAnswers.get(pages.DescribeItemsOnInvoicePage) match {
           case Some(t) if t.trim.nonEmpty && t != ConfigPurchaseMapping.NoneValue => Some(t)
-          case _                                                                 => None
+          case _                                                                  => None
         }
         val simplifiedInvoiceIndicator: Option[String] = request.userAnswers
           .get(pages.SimplifiedInvoiceVatRegCheckPage)
@@ -115,7 +115,7 @@ class CheckYourPurchaseDetailsController @Inject() (
           .orElse {
             request.userAnswers.get(pages.InvoiceTypePage).map {
               case models.InvoiceType.SimplifiedInvoice => "true"
-              case _                                     => "false"
+              case _                                    => "false"
             }
           }
         val supplierName = request.userAnswers.get(pages.SuppliersNamePage)
@@ -133,25 +133,25 @@ class CheckYourPurchaseDetailsController @Inject() (
         val deductibleVatAmount = request.userAnswers.get(pages.TotalVatClaimPage)
 
         val updateReq = UpdatePurchaseRequest(
-          applicationId = appId,
-          itemNumber = addResp.itemNumber,
-          goodsDescriptionCategory = goodsDescriptionCategory,
+          applicationId               = appId,
+          itemNumber                  = addResp.itemNumber,
+          goodsDescriptionCategory    = goodsDescriptionCategory,
           goodsDescriptionSubCategory = goodsDescriptionSubCategory,
-          goodsDescriptionText = goodsDescriptionText,
-          simplifiedInvoiceIndicator = simplifiedInvoiceIndicator,
-          supplierName = supplierName,
-          supplierAddress1 = supplierAddress1,
-          supplierAddress2 = supplierAddress2,
-          supplierAddress3 = supplierAddress3,
-          supplierVatRegNumber = supplierVatRegNumber,
-          supplierTaxIdentifier = supplierTaxIdentifier,
-          invoiceDate = invoiceDate,
-          invoiceNumber = invoiceNumber,
-          currencyCode = currencyCode,
-          taxableAmount = taxableAmount,
-          vatAmount = vatAmount,
-          deductibleVatAmount = deductibleVatAmount,
-          updateSequenceNumber = addResp.updateSequenceNumber
+          goodsDescriptionText        = goodsDescriptionText,
+          simplifiedInvoiceIndicator  = simplifiedInvoiceIndicator,
+          supplierName                = supplierName,
+          supplierAddress1            = supplierAddress1,
+          supplierAddress2            = supplierAddress2,
+          supplierAddress3            = supplierAddress3,
+          supplierVatRegNumber        = supplierVatRegNumber,
+          supplierTaxIdentifier       = supplierTaxIdentifier,
+          invoiceDate                 = invoiceDate,
+          invoiceNumber               = invoiceNumber,
+          currencyCode                = currencyCode,
+          taxableAmount               = taxableAmount,
+          vatAmount                   = vatAmount,
+          deductibleVatAmount         = deductibleVatAmount,
+          updateSequenceNumber        = addResp.updateSequenceNumber
         )
 
         euVatRefundsService
