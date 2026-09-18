@@ -28,7 +28,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.{ConfigPurchaseMapping, CountryCode}
+import utils.{ConfigPurchaseOrImportMapping, CountryCode}
 import utils.ControllerHelpers.*
 import views.html.purchase.DescribeItemsOnInvoiceView
 
@@ -38,7 +38,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class DescribeItemsOnInvoiceController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
-  configPurchaseMapping: ConfigPurchaseMapping,
+  configPurchaseMapping: ConfigPurchaseOrImportMapping,
   navigator: Navigator,
   identify: IdentifierAction,
   getData: DataRetrievalAction,

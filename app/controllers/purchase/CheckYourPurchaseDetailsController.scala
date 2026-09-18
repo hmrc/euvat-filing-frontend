@@ -22,7 +22,7 @@ import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.{ConfigPurchaseMapping, CountryCode, CurrencyConfig}
+import utils.{ConfigPurchaseOrImportMapping, CountryCode, CurrencyConfig}
 import viewmodels.checkAnswers.CheckYourPurchaseDetailsSummary
 import views.html.purchase.CheckYourPurchaseDetailsView
 
@@ -37,7 +37,7 @@ class CheckYourPurchaseDetailsController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   view: CheckYourPurchaseDetailsView,
   currencyConfig: CurrencyConfig,
-  configPurchaseMapping: ConfigPurchaseMapping,
+  configPurchaseMapping: ConfigPurchaseOrImportMapping,
   sessionRepository: SessionRepository
 )(using ec: ExecutionContext)
     extends FrontendBaseController

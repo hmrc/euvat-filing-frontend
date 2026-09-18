@@ -28,7 +28,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.{ConfigPurchaseMapping, CountryCode}
+import utils.{ConfigPurchaseOrImportMapping, CountryCode}
 import views.html.PurchaseOrImportSubTypeView
 
 import javax.inject.Inject
@@ -42,7 +42,7 @@ class ImportSubCodeController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: PurchaseSubTypeFormProvider,
-  config: ConfigPurchaseMapping,
+  config: ConfigPurchaseOrImportMapping,
   val controllerComponents: MessagesControllerComponents,
   view: PurchaseOrImportSubTypeView
 )(implicit ec: ExecutionContext)
@@ -69,8 +69,8 @@ class ImportSubCodeController @Inject() (
 
   private def radioItems(options: Seq[(String, String)])(implicit request: DataRequest[AnyContent]): Seq[RadioItem] = {
     val items = config.buildRadioItems(options, request2Messages)
-    if (options.map(_._1).contains(ConfigPurchaseMapping.NoneOfTheseSubCode)) {
-      items.filterNot(_.value.contains(ConfigPurchaseMapping.NoneValue))
+    if (options.map(_._1).contains(ConfigPurchaseOrImportMapping.NoneOfTheseSubCode)) {
+      items.filterNot(_.value.contains(ConfigPurchaseOrImportMapping.NoneValue))
     } else {
       items
     }
@@ -78,7 +78,7 @@ class ImportSubCodeController @Inject() (
 
   private def allowedValues(options: Seq[(String, String)]): Seq[String] = {
     val codes = options.map(_._1)
-    if (codes.contains(ConfigPurchaseMapping.NoneOfTheseSubCode)) codes else codes :+ ConfigPurchaseMapping.NoneValue
+    if (codes.contains(ConfigPurchaseOrImportMapping.NoneOfTheseSubCode)) codes else codes :+ ConfigPurchaseOrImportMapping.NoneValue
   }
 
   private def renderView(importType: PurchaseOrImportType, options: Seq[(String, String)], form: Form[String])(implicit

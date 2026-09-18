@@ -23,14 +23,14 @@ import models.*
 import models.PurchaseOrImport.{Import, Purchase}
 import pages.*
 import play.api.mvc.Call
-import utils.{ConfigLanguageMapping, ConfigPurchaseMapping, CountryCode, CurrencyConfig}
+import utils.{ConfigLanguageMapping, ConfigPurchaseOrImportMapping, CountryCode, CurrencyConfig}
 
 import javax.inject.{Inject, Singleton}
 
 @Singleton
 class Navigator @Inject() (currencyConfig: CurrencyConfig,
                            configLanguageMapping: ConfigLanguageMapping,
-                           configPurchaseMapping: ConfigPurchaseMapping
+                           configPurchaseMapping: ConfigPurchaseOrImportMapping
                           ) {
 
   def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call = mode match {

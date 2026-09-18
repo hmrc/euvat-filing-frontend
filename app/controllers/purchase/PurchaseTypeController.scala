@@ -33,7 +33,7 @@ import services.EuVatRefundsService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import utils.{ConfigPurchaseMapping, CountryCode, MountPrefix}
+import utils.{ConfigPurchaseOrImportMapping, CountryCode, MountPrefix}
 import views.html.PurchaseOrImportTypeView
 
 import javax.inject.Inject
@@ -44,7 +44,7 @@ class PurchaseTypeController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
   navigator: Navigator,
-  config: ConfigPurchaseMapping,
+  config: ConfigPurchaseOrImportMapping,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
@@ -173,7 +173,7 @@ class PurchaseTypeController @Inject() (
   private def describePresent(implicit request: DataRequest[?]): Boolean = request.userAnswers.get(DescribeItemsOnInvoicePage).exists(_.trim.nonEmpty)
 
   private def isNoneSubTypeSelection(subType: String): Boolean =
-    subType == ConfigPurchaseMapping.NoneValue || subType.split("\\.").lastOption.contains("99")
+    subType == ConfigPurchaseOrImportMapping.NoneValue || subType.split("\\.").lastOption.contains("99")
 
   private def shouldReturnToDescribeForOtherNone(value: PurchaseOrImportType)(implicit request: DataRequest[?]): Boolean =
     value == models.Other && request.userAnswers.get(PurchaseSubTypePage).exists(isNoneSubTypeSelection)

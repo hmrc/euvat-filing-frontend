@@ -31,7 +31,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.govukfrontend.views.Aliases
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
-import utils.ConfigPurchaseMapping
+import utils.ConfigPurchaseOrImportMapping
 
 class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
   val onwardRoute: Call = Call("GET", "/foo")
@@ -41,7 +41,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
   "PurchaseSubType Controller" - {
 
     "must return OK and the correct view when options exist" in {
-      val fakeConfig = new ConfigPurchaseMapping() {
+      val fakeConfig = new ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String) = Seq(("1", "purchase.sub.test.1"))
         override def buildRadioItems(options: Seq[(String, String)], msgs: play.api.i18n.Messages) = Seq.empty
       }
@@ -49,7 +49,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
       val userAnswers = emptyUserAnswers.set(RefundingCountryPage, "DE").success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(bind[ConfigPurchaseMapping].toInstance(fakeConfig))
+        .overrides(bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig))
         .build()
 
       running(application) {
@@ -61,13 +61,13 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to JourneyRecovery when country is missing" in {
-      val fakeConfig = new ConfigPurchaseMapping() {
+      val fakeConfig = new ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String) = Seq(("1", "purchase.sub.test.1"))
         override def buildRadioItems(options: Seq[(String, String)], msgs: play.api.i18n.Messages) = Seq.empty
       }
 
       val application = applicationBuilder(userAnswers = None)
-        .overrides(bind[ConfigPurchaseMapping].toInstance(fakeConfig))
+        .overrides(bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig))
         .build()
 
       running(application) {
@@ -80,7 +80,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to InvoiceType when no options exist" in {
-      val fakeConfig = new ConfigPurchaseMapping() {
+      val fakeConfig = new ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String) = Seq.empty
         override def buildRadioItems(options: Seq[(String, String)], msgs: play.api.i18n.Messages) = Seq.empty
       }
@@ -88,7 +88,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
       val userAnswers = emptyUserAnswers.set(RefundingCountryPage, "DE").success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(bind[ConfigPurchaseMapping].toInstance(fakeConfig))
+        .overrides(bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig))
         .build()
 
       running(application) {
@@ -101,7 +101,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must save selection and redirect to PurchaseSubCategory when children exist" in {
-      val fakeConfig = new ConfigPurchaseMapping() {
+      val fakeConfig = new ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String) = Seq(("1", "purchase.sub.fuel.1"), ("1.1", "purchase.sub.fuel.1.1"))
         override def subcategoriesFor(country: String, parentKey: String, subcode: String) = Seq(("1.1", "purchase.sub.fuel.1.1"))
         override def buildRadioItems(options: Seq[(String, String)], msgs: play.api.i18n.Messages) = Seq.empty
@@ -114,7 +114,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
-          bind[ConfigPurchaseMapping].toInstance(fakeConfig),
+          bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig),
           bind[repositories.SessionRepository].toInstance(mockSessionRepository)
         )
         .build()
@@ -136,7 +136,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must short-circuit to purchase CYA in CheckMode when value unchanged" in {
-      val fakeConfig = new ConfigPurchaseMapping() {
+      val fakeConfig = new ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String) = Seq(("1", "purchase.sub.fuel.1"))
         override def buildRadioItems(options: Seq[(String, String)], msgs: play.api.i18n.Messages) = Seq.empty
       }
@@ -150,7 +150,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
         .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(bind[ConfigPurchaseMapping].toInstance(fakeConfig))
+        .overrides(bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig))
         .build()
 
       running(application) {
@@ -165,7 +165,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must persist and continue in CheckMode when value changed" in {
-      val fakeConfig = new ConfigPurchaseMapping() {
+      val fakeConfig = new ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String) = Seq(("1", "purchase.sub.fuel.1"), ("1.1", "purchase.sub.fuel.1.1"))
         override def subcategoriesFor(country: String, parentKey: String, subcode: String) = Seq(("1.1", "purchase.sub.fuel.1.1"))
         override def buildRadioItems(options: Seq[(String, String)], msgs: play.api.i18n.Messages) = Seq.empty
@@ -178,7 +178,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
-          bind[ConfigPurchaseMapping].toInstance(fakeConfig),
+          bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig),
           bind[repositories.SessionRepository].toInstance(mockSessionRepository)
         )
         .build()
@@ -198,7 +198,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must persist and redirect to CYA in CheckMode when no children exist" in {
-      val fakeConfig = new ConfigPurchaseMapping() {
+      val fakeConfig = new ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String) = Seq(("1", "purchase.sub.fuel.1"))
         override def subcategoriesFor(country: String, parentKey: String, subcode: String) = Seq.empty
         override def buildRadioItems(options: Seq[(String, String)], msgs: play.api.i18n.Messages) = Seq.empty
@@ -211,7 +211,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
-          bind[ConfigPurchaseMapping].toInstance(fakeConfig),
+          bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig),
           bind[repositories.SessionRepository].toInstance(mockSessionRepository)
         )
         .build()
@@ -231,7 +231,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must persist and redirect to CYA in CheckMode when PurchaseType changed to Other and selected sub-type has no subcategories" in {
-      val fakeConfig = new ConfigPurchaseMapping() {
+      val fakeConfig = new ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String) = Seq(("1", "purchase.sub.other.1"))
         override def subcategoriesFor(country: String, parentKey: String, subcode: String) = Seq.empty
         override def buildRadioItems(options: Seq[(String, String)], msgs: play.api.i18n.Messages) = Seq.empty
@@ -250,7 +250,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
-          bind[ConfigPurchaseMapping].toInstance(fakeConfig),
+          bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig),
           bind[repositories.SessionRepository].toInstance(mockSessionRepository)
         )
         .build()
@@ -270,7 +270,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must handle RefundingCountryNamePage stored as 'Austria,AT' and show children" in {
-      val fakeConfig = new ConfigPurchaseMapping() {
+      val fakeConfig = new ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String) = Seq(("1.1", "purchase.sub.fuel.1"), ("1.3", "purchase.sub.fuel.3"))
         override def subcategoriesFor(country: String, parentKey: String, subcode: String) =
           if (subcode == "1.1") Seq(("1.1.1", "purchase.sub.fuel.1.1"), ("1.1.2", "purchase.sub.fuel.1.2")) else Seq.empty
@@ -284,7 +284,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
-          bind[ConfigPurchaseMapping].toInstance(fakeConfig),
+          bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig),
           bind[repositories.SessionRepository].toInstance(mockSessionRepository)
         )
         .build()
@@ -308,7 +308,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must clear PurchaseSubCategory and its label when PurchaseSubType is changed on POST" in {
-      val fakeConfig = new ConfigPurchaseMapping() {
+      val fakeConfig = new ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String) = Seq(("1", "purchase.sub.fuel.1"), ("2", "purchase.sub.fuel.2"))
         override def subcategoriesFor(country: String, parentKey: String, subcode: String) = Seq.empty
         override def buildRadioItems(options: Seq[(String, String)], msgs: play.api.i18n.Messages) = Seq.empty
@@ -333,7 +333,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
-          bind[ConfigPurchaseMapping].toInstance(fakeConfig),
+          bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig),
           bind[repositories.SessionRepository].toInstance(mockSessionRepository)
         )
         .build()
@@ -357,7 +357,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must clear describe items data when changing Other subtype away from none option" in {
-      val fakeConfig = new ConfigPurchaseMapping() {
+      val fakeConfig = new ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String) =
           Seq(("10.99", "purchase.sub.other.99"), ("10.6", "purchase.sub.other.6"))
         override def subcategoriesFor(country: String, parentKey: String, subcode: String) = Seq.empty
@@ -386,7 +386,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
-          bind[ConfigPurchaseMapping].toInstance(fakeConfig),
+          bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig),
           bind[repositories.SessionRepository].toInstance(mockSessionRepository)
         )
         .build()
@@ -411,7 +411,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must save selection and redirect to InvoiceType when no children exist" in {
-      val fakeConfig = new ConfigPurchaseMapping() {
+      val fakeConfig = new ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String) = Seq(("1", "purchase.sub.fuel.1"))
         override def subcategoriesFor(country: String, parentKey: String, subcode: String) = Seq.empty
         override def buildRadioItems(options: Seq[(String, String)], msgs: play.api.i18n.Messages) = Seq.empty
@@ -424,7 +424,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
-          bind[ConfigPurchaseMapping].toInstance(fakeConfig),
+          bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig),
           bind[repositories.SessionRepository].toInstance(mockSessionRepository)
         )
         .build()
@@ -447,7 +447,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
-      val fakeConfig = new ConfigPurchaseMapping() {
+      val fakeConfig = new ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String) = Seq(("1", "purchase.sub.test.1"))
         override def buildRadioItems(options: Seq[(String, String)], msgs: play.api.i18n.Messages) = Seq.empty
       }
@@ -455,7 +455,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
       val userAnswers = emptyUserAnswers.set(RefundingCountryPage, "DE").success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(bind[ConfigPurchaseMapping].toInstance(fakeConfig))
+        .overrides(bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig))
         .build()
 
       running(application) {
@@ -471,7 +471,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return OK when PurchaseTypePage present and slug unknown" in {
-      val fakeConfig = new ConfigPurchaseMapping() {
+      val fakeConfig = new ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String) = Seq(("1", "purchase.sub.test.1"))
         override def buildRadioItems(options: Seq[(String, String)], msgs: play.api.i18n.Messages) = Seq.empty
       }
@@ -485,7 +485,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
         .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(bind[ConfigPurchaseMapping].toInstance(fakeConfig))
+        .overrides(bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig))
         .build()
 
       running(application) {
@@ -497,7 +497,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must not show None option when PurchaseType is Other" in {
-      val fakeConfig = new ConfigPurchaseMapping() {
+      val fakeConfig = new ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String) = Seq(("1", "purchase.sub.test.1"))
         override def buildRadioItems(options: Seq[(String, String)], msgs: play.api.i18n.Messages) = Seq(
           RadioItem(
@@ -506,8 +506,8 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
             id      = Some("value_0")
           ),
           RadioItem(
-            content = Aliases.Text(ConfigPurchaseMapping.NoneValue),
-            value   = Some(ConfigPurchaseMapping.NoneValue),
+            content = Aliases.Text(ConfigPurchaseOrImportMapping.NoneValue),
+            value   = Some(ConfigPurchaseOrImportMapping.NoneValue),
             id      = Some("value_none")
           )
         )
@@ -522,7 +522,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
         .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(bind[ConfigPurchaseMapping].toInstance(fakeConfig))
+        .overrides(bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig))
         .build()
 
       running(application) {
@@ -531,12 +531,12 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         val body = contentAsString(result)
-        body mustNot include(ConfigPurchaseMapping.NoneValue)
+        body mustNot include(ConfigPurchaseOrImportMapping.NoneValue)
       }
     }
 
     "must clear stored subtype and label when CountryChangedPage is true" in {
-      val fakeConfig = new ConfigPurchaseMapping() {
+      val fakeConfig = new ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String) = Seq(("1", "purchase.sub.test.1"))
         override def buildRadioItems(options: Seq[(String, String)], msgs: play.api.i18n.Messages) = Seq.empty
       }
@@ -560,7 +560,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
-          bind[ConfigPurchaseMapping].toInstance(fakeConfig),
+          bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig),
           bind[repositories.SessionRepository].toInstance(mockSessionRepository)
         )
         .build()
@@ -582,7 +582,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must save and redirect when parent comes from user answers (children exist)" in {
-      val fakeConfig = new ConfigPurchaseMapping() {
+      val fakeConfig = new ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String) = Seq(("1", "purchase.sub.fuel.1"), ("1.1", "purchase.sub.fuel.1.1"))
         override def subcategoriesFor(country: String, parentKey: String, subcode: String) = Seq(("1.1", "purchase.sub.fuel.1.1"))
         override def buildRadioItems(options: Seq[(String, String)], msgs: play.api.i18n.Messages) = Seq.empty
@@ -601,7 +601,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
-          bind[ConfigPurchaseMapping].toInstance(fakeConfig),
+          bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig),
           bind[repositories.SessionRepository].toInstance(mockSessionRepository)
         )
         .build()
@@ -618,7 +618,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must skip sub-type and go to describe page when Other has single None option" in {
-      val fakeConfig = new ConfigPurchaseMapping() {
+      val fakeConfig = new ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String) = Seq(("10.99", "purchase.sub.other.99"))
         override def buildRadioItems(options: Seq[(String, String)], msgs: play.api.i18n.Messages) = Seq.empty
       }
@@ -630,7 +630,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
-          bind[ConfigPurchaseMapping].toInstance(fakeConfig),
+          bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig),
           bind[repositories.SessionRepository].toInstance(mockSessionRepository)
         )
         .build()
@@ -650,7 +650,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must remove subtype and redirect to InvoiceType when None selected" in {
-      val fakeConfig = new ConfigPurchaseMapping() {
+      val fakeConfig = new ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String) = Seq(("1", "purchase.sub.fuel.1"))
         override def subcategoriesFor(country: String, parentKey: String, subcode: String) = Seq.empty
         override def buildRadioItems(options: Seq[(String, String)], msgs: play.api.i18n.Messages) = Seq.empty
@@ -669,14 +669,14 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
-          bind[ConfigPurchaseMapping].toInstance(fakeConfig),
+          bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig),
           bind[repositories.SessionRepository].toInstance(mockSessionRepository)
         )
         .build()
 
       running(application) {
         val request = FakeRequest(POST, "/file-eu-vat/purchase/fuel-use")
-          .withFormUrlEncodedBody(("value", ConfigPurchaseMapping.NoneValue))
+          .withFormUrlEncodedBody(("value", ConfigPurchaseOrImportMapping.NoneValue))
 
         val result = route(application, request).value
 
@@ -686,14 +686,14 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
         val captor = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
         val saved = captor.getValue
-        saved.get(PurchaseSubTypePage) mustBe Some(ConfigPurchaseMapping.NoneValue)
-        saved.get(PurchaseSubTypeLabelPage) mustBe Some(ConfigPurchaseMapping.NoneValue)
+        saved.get(PurchaseSubTypePage) mustBe Some(ConfigPurchaseOrImportMapping.NoneValue)
+        saved.get(PurchaseSubTypeLabelPage) mustBe Some(ConfigPurchaseOrImportMapping.NoneValue)
         saved.get(PurchaseSubCategoryPage) mustBe None
       }
     }
 
     "must remove subtype and redirect to CYA in CheckMode when None selected" in {
-      val fakeConfig = new ConfigPurchaseMapping() {
+      val fakeConfig = new ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String) = Seq(("1", "purchase.sub.fuel.1"))
         override def subcategoriesFor(country: String, parentKey: String, subcode: String) = Seq.empty
         override def buildRadioItems(options: Seq[(String, String)], msgs: play.api.i18n.Messages) = Seq.empty
@@ -712,14 +712,14 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
-          bind[ConfigPurchaseMapping].toInstance(fakeConfig),
+          bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig),
           bind[repositories.SessionRepository].toInstance(mockSessionRepository)
         )
         .build()
 
       running(application) {
         val request = FakeRequest(POST, routes.PurchaseSubTypeController.onSubmit("fuel-use", models.CheckMode).url)
-          .withFormUrlEncodedBody(("value", ConfigPurchaseMapping.NoneValue))
+          .withFormUrlEncodedBody(("value", ConfigPurchaseOrImportMapping.NoneValue))
 
         val result = route(application, request).value
 
@@ -729,14 +729,14 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
         val captor = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
         val saved = captor.getValue
-        saved.get(PurchaseSubTypePage) mustBe Some(ConfigPurchaseMapping.NoneValue)
-        saved.get(PurchaseSubTypeLabelPage) mustBe Some(ConfigPurchaseMapping.NoneValue)
+        saved.get(PurchaseSubTypePage) mustBe Some(ConfigPurchaseOrImportMapping.NoneValue)
+        saved.get(PurchaseSubTypeLabelPage) mustBe Some(ConfigPurchaseOrImportMapping.NoneValue)
         saved.get(PurchaseSubCategoryPage) mustBe None
       }
     }
 
     "must display inline error message above radio buttons when no radio button is selected" in {
-      val fakeConfig = new ConfigPurchaseMapping() {
+      val fakeConfig = new ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String) = Seq(("1", "purchase.sub.test.1"))
         override def buildRadioItems(options: Seq[(String, String)], msgs: play.api.i18n.Messages) = Seq.empty
       }
@@ -744,7 +744,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
       val userAnswers = emptyUserAnswers.set(RefundingCountryPage, "DE").success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(bind[ConfigPurchaseMapping].toInstance(fakeConfig))
+        .overrides(bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig))
         .build()
 
       running(application) {
