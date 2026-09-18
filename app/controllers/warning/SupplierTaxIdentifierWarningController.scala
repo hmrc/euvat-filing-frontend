@@ -18,7 +18,7 @@ package controllers.warning
 
 import controllers.actions.*
 import controllers.purchase.routes
-import models.{CheckMode, Mode, NormalMode}
+import models.{CheckMode, NormalMode}
 import pages.*
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -40,27 +40,16 @@ class SupplierTaxIdentifierWarningController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    val flagged = request.userAnswers.set(SupplierTaxIdentifierWarningPage, true)
-    Future
-      .fromTry(flagged)
-      .flatMap(ua =>
-        sessionRepository
-          .set(ua)
-          .map(_ =>
-            Ok(
-              view(
-                routes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode),
-                routes.InvoiceNumberController.onPageLoad(CheckMode),
-                routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode),
-                mode
-              )
-            )
-          )
-      )
+  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+    for {
+      answers <- Future.fromTry(request.userAnswers.set(SupplierTaxIdentifierWarningPage, true))
+      _       <- sessionRepository.set(answers)
+    } yield {
+      Ok(view(routes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode), routes.InvoiceNumberController.onPageLoad(CheckMode)))
+    }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+  def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     val cleared = request.userAnswers.remove(SupplierTaxIdentifierWarningPage)
     Future
       .fromTry(cleared)

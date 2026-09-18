@@ -18,10 +18,9 @@ package controllers.purchase
 
 import controllers.actions.*
 import forms.purchase.SimplifiedInvoiceVatRegCheckFormProvider
-import models.requests.DataRequest
 import models.{CheckMode, Mode, NormalMode}
 import navigation.Navigator
-import pages.{SimplifiedInvoiceVatRegCheckPage, SupplierAddressPage, SupplierVatRegistrationNumberPage}
+import pages.{SimplifiedInvoiceVatRegCheckPage, SupplierVatRegistrationNumberPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.*
@@ -54,39 +53,35 @@ class SimplifiedInvoiceVatRegCheckController @Inject() (
   }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    request.userAnswers.get(SupplierAddressPage) match {
-      case None => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-      case Some(_) =>
-        val preparedForm = request.userAnswers.get(SimplifiedInvoiceVatRegCheckPage).fold(form)(form.fill)
-        Ok(view(preparedForm, mode, backLink(mode)))
-    }
+    val preparedForm = request.userAnswers.get(SimplifiedInvoiceVatRegCheckPage).fold(form)(form.fill)
+    Ok(view(preparedForm, mode, backLink(mode)))
   }
-
-  private def handleValidSubmit(value: Boolean, mode: Mode)(implicit request: DataRequest[AnyContent]): Future[Result] =
-    if (mode == CheckMode && request.userAnswers.isAnswerUnchanged(SimplifiedInvoiceVatRegCheckPage, value)) {
-      Future.successful(Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad()))
-    } else {
-      val userAnswers = request.userAnswers.set(SimplifiedInvoiceVatRegCheckPage, value)
-      if (mode == CheckMode && !value) {
-        for {
-          answers        <- Future.fromTry(userAnswers)
-          clearedAnswers <- Future.fromTry(answers.remove(SupplierVatRegistrationNumberPage))
-          _              <- sessionRepository.set(clearedAnswers)
-        } yield Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
-      } else {
-        for {
-          answers <- Future.fromTry(userAnswers)
-          _       <- sessionRepository.set(answers)
-        } yield Redirect(navigator.nextPage(SimplifiedInvoiceVatRegCheckPage, mode, answers))
-      }
-    }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)))),
-        value => handleValidSubmit(value, mode)
+        value =>
+          if (mode == CheckMode && request.userAnswers.isAnswerUnchanged(SimplifiedInvoiceVatRegCheckPage, value)) {
+            Future.successful(Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad()))
+          } else {
+            for {
+              answers <- Future.fromTry(request.userAnswers.set(SimplifiedInvoiceVatRegCheckPage, value))
+              updatedAnswers <- if (value) {
+                                  Future.successful(answers)
+                                } else {
+                                  Future.fromTry(answers.remove(SupplierVatRegistrationNumberPage))
+                                }
+              _ <- sessionRepository.set(updatedAnswers)
+            } yield {
+              if (mode == CheckMode && !value) {
+                Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
+              } else {
+                Redirect(navigator.nextPage(SimplifiedInvoiceVatRegCheckPage, mode, answers))
+              }
+            }
+          }
       )
   }
 

@@ -21,6 +21,7 @@ import pages.*
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import queries.InvoiceNumberFlagQuery
 import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -52,6 +53,11 @@ class CheckYourPurchaseDetailsController @Inject() (
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     implicit val msgs: Messages = messagesApi.preferred(request)
+    for {
+      answers <- Future.fromTry(request.userAnswers.set(InvoiceNumberFlagQuery, false))
+      _       <- sessionRepository.set(answers)
+    } yield None
+
     lazy val currencyList =
       CountryCode
         .findCountryCode(request.userAnswers)

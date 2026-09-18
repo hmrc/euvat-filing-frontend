@@ -18,8 +18,7 @@ package controllers.purchase
 
 import controllers.actions.*
 import forms.purchase.SupplierTaxNumberFormProvider
-import models.requests.DataRequest
-import models.{CheckMode, InvoiceType, Mode, NormalMode, SupplierTaxNumber, UserAnswers}
+import models.{CheckMode, InvoiceType, Mode, NormalMode, SupplierTaxNumber}
 import navigation.Navigator
 import pages.{InvoiceTypePage, SupplierTaxIdentifierNumberPage, SupplierTaxNumberPage, SupplierVatRegistrationNumberPage}
 import play.api.Logger
@@ -57,61 +56,33 @@ class SupplierTaxNumberController @Inject() (
     routes.SupplierAddressController.onPageLoad(NormalMode)
   }
 
-  private def requireGermany(userAnswers: UserAnswers): Option[Result] =
-    utils.CountryCode.findCountryCode(userAnswers) match {
-      case Some("DE") => None
-      case _ =>
-        logger.warn("SupplierTaxNumberController - country is not Germany or missing from session, redirecting to JourneyRecovery")
-        Some(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-    }
-
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    requireGermany(request.userAnswers).getOrElse {
-      val preparedForm = request.userAnswers.get(SupplierTaxNumberPage).fold(form)(form.fill)
-      val isSimplifiedInvoice: Boolean = request.userAnswers.get(InvoiceTypePage).contains(InvoiceType.SimplifiedInvoice)
-      Ok(view(preparedForm, mode, backLink(mode), isSimplifiedInvoice))
-    }
+    val preparedForm = request.userAnswers.get(SupplierTaxNumberPage).fold(form)(form.fill)
+    val isSimplifiedInvoice: Boolean = request.userAnswers.get(InvoiceTypePage).contains(InvoiceType.SimplifiedInvoice)
+    Ok(view(preparedForm, mode, backLink(mode), isSimplifiedInvoice))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    requireGermany(request.userAnswers) match {
-      case Some(result) => Future.successful(result)
-      case None =>
-        val isSimplifiedInvoice: Boolean = request.userAnswers.get(InvoiceTypePage).contains(InvoiceType.SimplifiedInvoice)
-        form
-          .bindFromRequest()
-          .fold(
-            formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode), isSimplifiedInvoice))),
-            value =>
-              if (mode == CheckMode && request.userAnswers.isAnswerUnchanged(SupplierTaxNumberPage, value)) {
-                Future.successful(Redirect(controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()))
-              } else {
-                val userAnswersTry = request.userAnswers.set(SupplierTaxNumberPage, value)
-                persistWithCleaning(userAnswersTry, value).map { cleaned =>
-                  Redirect(navigator.nextPage(SupplierTaxNumberPage, mode, cleaned))
-                }
-              }
-          )
-    }
+    val isSimplifiedInvoice: Boolean = request.userAnswers.get(InvoiceTypePage).contains(InvoiceType.SimplifiedInvoice)
+    form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode), isSimplifiedInvoice))),
+        value =>
+          for {
+            userAnswers <- Future.fromTry(request.userAnswers.set(SupplierTaxNumberPage, value))
+            updatedAnswers <- value match {
+                                case SupplierTaxNumber.Vatregistrationnumber => Future.fromTry(userAnswers.remove(SupplierTaxIdentifierNumberPage))
+                                case SupplierTaxNumber.Taxidentifiernumber   => Future.fromTry(userAnswers.remove(SupplierVatRegistrationNumberPage))
+                                case SupplierTaxNumber.Neither =>
+                                  for {
+                                    vatAnswers <- Future.fromTry(userAnswers.remove(SupplierVatRegistrationNumberPage))
+                                    tidAnswers <- Future.fromTry(vatAnswers.remove(SupplierTaxIdentifierNumberPage))
+                                  } yield tidAnswers
+                              }
+            _ <- sessionRepository.set(updatedAnswers)
+          } yield Redirect(navigator.nextPage(SupplierTaxNumberPage, mode, updatedAnswers))
+      )
   }
 
-  private def persistWithCleaning(userAnswersTry: scala.util.Try[UserAnswers], value: SupplierTaxNumber)(implicit
-    request: DataRequest[?]
-  ): Future[UserAnswers] =
-    Future.fromTry(userAnswersTry).flatMap { updatedAnswers =>
-      val cleaned: UserAnswers = value match {
-        case SupplierTaxNumber.Vatregistrationnumber =>
-          updatedAnswers.remove(SupplierTaxIdentifierNumberPage).get
-        case SupplierTaxNumber.Taxidentifiernumber =>
-          updatedAnswers.remove(SupplierVatRegistrationNumberPage).get
-        case SupplierTaxNumber.Neither =>
-          updatedAnswers
-            .remove(SupplierVatRegistrationNumberPage)
-            .get
-            .remove(SupplierTaxIdentifierNumberPage)
-            .get
-      }
-
-      sessionRepository.set(cleaned).map(_ => cleaned)
-    }
 }

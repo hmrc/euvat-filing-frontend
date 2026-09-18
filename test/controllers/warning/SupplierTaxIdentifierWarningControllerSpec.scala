@@ -37,16 +37,14 @@ class SupplierTaxIdentifierWarningControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.SupplierTaxIdentifierWarningController.onPageLoad(NormalMode).url)
+        val request = FakeRequest(GET, routes.SupplierTaxIdentifierWarningController.onPageLoad().url)
         val result = route(application, request).value
         val view = application.injector.instanceOf[SupplierTaxIdentifierWarningView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(
           controllers.purchase.routes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode),
-          controllers.purchase.routes.InvoiceNumberController.onPageLoad(CheckMode),
-          controllers.purchase.routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode),
-          NormalMode
+          controllers.purchase.routes.InvoiceNumberController.onPageLoad(CheckMode)
         )(request, messages(application)).toString
       }
     }
@@ -55,7 +53,7 @@ class SupplierTaxIdentifierWarningControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.SupplierTaxIdentifierWarningController.onSubmit(NormalMode).url)
+        val request = FakeRequest(POST, routes.SupplierTaxIdentifierWarningController.onSubmit().url)
 
         val result = route(application, request).value
 
@@ -77,7 +75,7 @@ class SupplierTaxIdentifierWarningControllerSpec extends SpecBase {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.SupplierTaxIdentifierWarningController.onSubmit(CheckMode).url)
+        val request = FakeRequest(POST, routes.SupplierTaxIdentifierWarningController.onSubmit().url)
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad().url

@@ -60,10 +60,10 @@ class RefundingCurrencyController @Inject() (
     if (mode == CheckMode) {
       routes.CheckYourPurchaseDetailsController.onPageLoad()
     } else {
-      if (userAnswers.get(SimplifiedInvoiceVatRegCheckPage).getOrElse(false)) {
-        routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode)
-      } else {
+      if (userAnswers.get(SimplifiedInvoiceVatRegCheckPage).contains(false)) {
         routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode)
+      } else {
+        routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode)
       }
     }
 

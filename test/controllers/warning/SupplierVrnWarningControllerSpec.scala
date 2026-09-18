@@ -17,7 +17,6 @@
 package controllers.warning
 
 import base.SpecBase
-import controllers.warning.routes
 import models.{CheckMode, NormalMode}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
@@ -34,7 +33,6 @@ class SupplierVrnWarningControllerSpec extends SpecBase {
   "SupplierVrnWarning Controller" - {
 
     "must return OK and the correct view for a GET" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -44,9 +42,14 @@ class SupplierVrnWarningControllerSpec extends SpecBase {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual
-          view(controllers.purchase.routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode), NormalMode)(request,
-                                                                                                                       messages(application)
-                                                                                                                      ).toString
+          view(
+            NormalMode,
+            controllers.purchase.routes.SupplierVatRegistrationNumberController.onPageLoad(CheckMode),
+            controllers.purchase.routes.InvoiceNumberController.onPageLoad(CheckMode)
+          )(
+            request,
+            messages(application)
+          ).toString
       }
     }
 
@@ -60,7 +63,8 @@ class SupplierVrnWarningControllerSpec extends SpecBase {
 
       running(application) {
         val request = FakeRequest(GET, routes.SupplierVrnWarningController.onPageLoad(NormalMode).url)
-        status(route(application, request).value) mustEqual OK
+        val result = route(application, request).value
+        status(result) mustEqual OK
         verify(mockSessionRepository).set(any())
       }
     }
