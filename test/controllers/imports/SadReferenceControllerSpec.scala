@@ -20,6 +20,7 @@ import base.SpecBase
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import models.NormalMode
 
 class SadReferenceControllerSpec extends SpecBase with MockitoSugar {
 
@@ -35,7 +36,11 @@ class SadReferenceControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustBe OK
-        contentType(result) mustBe Some("text/html")
+        val view = application.injector.instanceOf[views.html.imports.SadReferenceView]
+
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
+          view(formProvider(), controllers.imports.routes.ImportTypeController.onPageLoad(NormalMode))(request, messages(application)).toString
+        )
       }
     }
 

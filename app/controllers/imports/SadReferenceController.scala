@@ -45,7 +45,7 @@ class SadReferenceController @Inject() (
 
   val form: Form[Boolean] = formProvider()
 
-  private def backLink: Call = controllers.routes.PurchaseOrImportController.onPageLoad
+  private def backLink: Call = controllers.imports.routes.ImportTypeController.onPageLoad(models.NormalMode)
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(SadReferencePage).fold(form)(form.fill)
