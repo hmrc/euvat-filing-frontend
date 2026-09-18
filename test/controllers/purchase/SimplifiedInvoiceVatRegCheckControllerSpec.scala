@@ -17,8 +17,8 @@
 package controllers.purchase
 
 import base.SpecBase
+import models.*
 import forms.purchase.SimplifiedInvoiceVatRegCheckFormProvider
-import models.{CheckMode, Fuel, NormalMode, PurchaseType, SupplierAddress, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar

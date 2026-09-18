@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-package forms.purchase
+package forms
 
-import forms.mappings.Mappings
-import models.PurchaseOrImportType
-import play.api.data.Form
-
+import forms.ImportDetailsInfoFormProvider
 import javax.inject.Inject
 
-class PurchaseTypeFormProvider @Inject() extends Mappings {
+import forms.mappings.Mappings
+import play.api.data.Form
 
-  def apply(): Form[PurchaseOrImportType] =
+class ImportDetailsInfoFormProvider @Inject() extends Mappings {
+
+  def apply(): Form[String] =
     Form(
-      "value" -> enumerable[PurchaseOrImportType](
-        requiredKey = "purchaseType.error.required",
-        invalidKey  = "purchaseType.error.required"
-      )
+      "value" -> text("importDetailsInfo.error.required")
+        .verifying(maxLength(255, "importDetailsInfo.error.length"))
     )
 }

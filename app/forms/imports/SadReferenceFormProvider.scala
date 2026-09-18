@@ -14,21 +14,18 @@
  * limitations under the License.
  */
 
-package forms.purchase
+package forms.imports
 
 import forms.mappings.Mappings
-import models.PurchaseOrImportType
 import play.api.data.Form
 
 import javax.inject.Inject
 
-class PurchaseTypeFormProvider @Inject() extends Mappings {
+class SadReferenceFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[PurchaseOrImportType] =
+  def apply(): Form[Boolean] =
     Form(
-      "value" -> enumerable[PurchaseOrImportType](
-        requiredKey = "purchaseType.error.required",
-        invalidKey  = "purchaseType.error.required"
-      )
+      "value" -> boolean("sadReference.error.required")
     )
+
 }
