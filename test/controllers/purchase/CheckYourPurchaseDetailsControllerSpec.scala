@@ -18,7 +18,7 @@ package controllers.purchase
 
 import base.SpecBase
 import controllers.routes
-import models.{InvoiceType, PurchaseType, Fuel}
+import models.{Fuel, InvoiceType}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.{ArgumentCaptor, Mockito}
 import org.mockito.Mockito._

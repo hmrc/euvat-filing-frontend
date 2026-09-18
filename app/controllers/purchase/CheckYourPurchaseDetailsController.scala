@@ -102,7 +102,7 @@ class CheckYourPurchaseDetailsController @Inject() (
 
         val goodsDescriptionCategory: String = request.userAnswers
           .get(pages.PurchaseTypePage)
-          .map(pt => models.PurchaseType.codes.getOrElse(pt, ""))
+          .map(pt => models.PurchaseOrImportType.codes.getOrElse(pt, ""))
           .getOrElse("")
 
         val goodsDescriptionText = request.userAnswers.get(pages.DescribeItemsOnInvoicePage) match {
