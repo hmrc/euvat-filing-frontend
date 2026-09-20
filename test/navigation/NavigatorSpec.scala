@@ -94,6 +94,11 @@ class NavigatorSpec extends SpecBase {
           claimRoutes.BusinessActivityThreeController.onPageLoad()
       }
 
+      "must go from PurchaseOrImportPage to PurchaseTypeController" in {
+        navigator.nextPage(PurchaseOrImportPage, NormalMode, userAnswers) mustBe
+          purchaseRoutes.PurchaseTypeController.onPageLoad(NormalMode)
+      }
+
       "must go from DescribeItemsOnInvoicePage to InvoiceTypeController" in {
         navigator.nextPage(DescribeItemsOnInvoicePage, NormalMode, userAnswers) mustBe
           purchaseRoutes.InvoiceTypeController.onPageLoad(NormalMode)

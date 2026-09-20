@@ -41,6 +41,7 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case BusinessActivityTwoPage           => userAnswers => claimNavigator.navigateFromBusinessActivity2Page(NormalMode)(userAnswers)
     case BusinessActivityCodeThreePage     => _ => claimRoutes.BusinessActivityThreeController.onPageLoad()
     case CheckYourStateDetailsPage         => userAnswers => claimNavigator.navigateFromCheckYourStateDetailsPage(NormalMode)(userAnswers)
+    case PurchaseOrImportPage              => _ => purchaseRoutes.PurchaseTypeController.onPageLoad(NormalMode)
     case PurchaseTypePage                  => userAnswers => purchaseNavigator.navigateFromPurchaseTypePage(NormalMode)(userAnswers)
     case PurchaseSubCategoryPage           => userAnswers => purchaseNavigator.navigateFromPurchaseSubCategoryPage(NormalMode, userAnswers)
     case DescribeItemsOnInvoicePage        => _ => purchaseRoutes.InvoiceTypeController.onPageLoad(NormalMode)
