@@ -138,21 +138,16 @@ class NavigatorSpec extends SpecBase {
           controllers.imports.routes.ImportTypeController.onPageLoad(NormalMode)
       }
 
-      "must go from ImportTypePage to SadReferenceController" in {
-        navigator.nextPage(ImportTypePage, NormalMode, emptyUserAnswers) mustBe
-          controllers.imports.routes.SadReferenceController.onPageLoad
+      "must go from ImportTypePage to JourneyRecovery when ImportType present but no country" in {
+        val ua = userAnswers.set(ImportTypePage, Fuel).success.value
+        navigator.nextPage(ImportTypePage, NormalMode, ua) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from PurchaseOrImportPage to ImportTypeController when Import selected" in {
         val ua = userAnswers.set(PurchaseOrImportPage, PurchaseOrImport.Import).success.value
         navigator.nextPage(PurchaseOrImportPage, NormalMode, ua) mustBe
           controllers.imports.routes.ImportTypeController.onPageLoad(NormalMode)
-      }
-
-      "must go from ImportTypePage to JourneyRecoveryController when no country is known" in {
-        val ua = userAnswers.set(ImportTypePage, Fuel).success.value
-        navigator.nextPage(ImportTypePage, NormalMode, ua) mustBe
-          controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from ImportTypePage to the import sub code page for that type when the country has sub codes" in {
@@ -184,7 +179,7 @@ class NavigatorSpec extends SpecBase {
         val ua = userAnswers.set(pages.RefundingCountryPage, "AT").success.value.set(ImportTypePage, Transport).success.value
 
         nav.nextPage(ImportTypePage, NormalMode, ua) mustBe
-          controllers.routes.TaskListDashboardController.onPageLoad()
+          controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from ImportTypePage to TaskListDashboardController when the only sub code is 10.99" in {
@@ -200,7 +195,7 @@ class NavigatorSpec extends SpecBase {
         val ua = userAnswers.set(pages.RefundingCountryPage, "AT").success.value.set(ImportTypePage, Other).success.value
 
         nav.nextPage(ImportTypePage, NormalMode, ua) mustBe
-          controllers.routes.TaskListDashboardController.onPageLoad()
+          controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from PurchaseTypePage to DescribeItemsOnInvoiceController" in {
@@ -582,9 +577,10 @@ class NavigatorSpec extends SpecBase {
           claimRoutes.BusinessActivityThreeController.onPageLoad()
       }
 
-      "must go from ImportTypePage to SadReferenceController" in {
-        navigator.nextPage(ImportTypePage, CheckMode, emptyUserAnswers) mustBe
-          controllers.imports.routes.SadReferenceController.onPageLoad
+      "must go from ImportTypePage to JourneyRecovery in CheckMode when ImportType present but no country" in {
+        val ua = userAnswers.set(ImportTypePage, Fuel).success.value
+        navigator.nextPage(ImportTypePage, CheckMode, ua) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from PurchaseTypePage to DescribeItemsOnInvoiceController" in {

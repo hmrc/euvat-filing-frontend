@@ -49,8 +49,8 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
     case BusinessActivityCodeThreePage     => _ => claimRoutes.BusinessActivityThreeController.onPageLoad()
     case CheckYourStateDetailsPage         => userAnswer => navigateFromCheckYourStateDetailsPage(NormalMode)(userAnswer)
     case PurchaseOrImportPage              => userAnswers => navigateFromPurchaseOrImportPage(userAnswers)
-    case ImportTypePage                    => userAnswers => navigateFromImportTypePage(userAnswers)
-    case ImportSubCodePage                 => _ => importRoutes.SadReferenceController.onPageLoad
+    case ImportTypePage                    => userAnswers => navigateFromImportTypePage(NormalMode)(userAnswers)
+    case ImportSubCodePage                 => userAnswers => navigateFromImportSubCodePage(NormalMode)(userAnswers)
     case PurchaseTypePage                  => userAnswer => navigateFromPurchaseTypePage(NormalMode)(userAnswer)
     case PurchaseSubCategoryPage           => userAnswers => navigateFromPurchaseSubCategoryPage(NormalMode, userAnswers)
     case DescribeItemsOnInvoicePage        => _ => purchaseRoutes.InvoiceTypeController.onPageLoad(NormalMode)
@@ -99,6 +99,14 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
     case TotalVatClaimPage                 => _ => purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
     case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
+
+  private def navigateFromImportSubCodePage(mode: Mode)(userAnswers: UserAnswers): Call =
+    userAnswers.get(ImportSubCodePage) match {
+      case Some(value) if value == ConfigPurchaseOrImportMapping.NoneValue =>
+        controllers.routes.JourneyRecoveryController.onPageLoad()
+      case Some(_) => importRoutes.SadReferenceController.onPageLoad
+      case None    => controllers.routes.JourneyRecoveryController.onPageLoad()
+    }
 
   private def navigateFromRefundingCountryPage(mode: Mode, userAnswers: UserAnswers) = {
     CountryCode.findCountryCode(userAnswers) match {
@@ -261,14 +269,14 @@ class Navigator @Inject() (currencyConfig: CurrencyConfig,
       case None           => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
-  private def navigateFromImportTypePage(mode: Mode)(userAnswers: UserAnswers): Call =
-    (userAnswers.get(ImportTypePage), CountryCode.findCountryCode(userAnswers)) match {
-      case (Some(importType), Some(country)) =>
-        if (configPurchaseMapping.selectableSubcodes(country, importType.toString).isDefined) {
-          importsRoutes.ImportSubCodeController.onPageLoad(importType.toString)
-        } else {
-          controllers.routes.TaskListDashboardController.onPageLoad()
-        }
-      case _ => importsRoutes.SadReferenceController.onPageLoad(mode)
+  private def navigateFromImportTypePage(mode: Mode)(userAnswers: UserAnswers): Call = {
+    val importType = userAnswers.get(ImportTypePage).get
+
+    CountryCode.findCountryCode(userAnswers) match {
+      case Some(country) if configPurchaseMapping.selectableSubcodes(country, importType.toString).isDefined =>
+        importsRoutes.ImportSubCodeController.onPageLoad(importType.toString)
+      case _ =>
+        controllers.routes.JourneyRecoveryController.onPageLoad()
     }
+  }
 }

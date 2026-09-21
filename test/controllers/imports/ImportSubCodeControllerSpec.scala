@@ -33,6 +33,7 @@ class ImportSubCodeControllerSpec extends SpecBase with MockitoSugar {
 
   private def fuelRoute = controllers.imports.routes.ImportSubCodeController.onPageLoad("fuel").url
   private def journeyRecoveryUrl = controllers.routes.JourneyRecoveryController.onPageLoad().url
+  private def sadReferenceUrl = controllers.imports.routes.SadReferenceController.onPageLoad.url
   private def taskListUrl = controllers.routes.TaskListDashboardController.onPageLoad().url
 
   private def answers(importType: PurchaseOrImportType = Fuel, country: String = "AT"): UserAnswers =
@@ -100,50 +101,26 @@ class ImportSubCodeControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Journey Recovery for a GET when the member state only offers the 10.99 sub-code" in {
+    "must return OK with SAD question when the member state only offers the 10.99 sub-code" in {
       val application = applicationBuilder(userAnswers = Some(answers(Other))).build()
 
       running(application) {
         val otherRoute = controllers.imports.routes.ImportSubCodeController.onPageLoad("other").url
         val result = route(application, FakeRequest(GET, otherRoute)).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual journeyRecoveryUrl
+        status(result) mustEqual OK
+        contentAsString(result) must include(messages(application)("singleAdministrativeDocumentReferenceNumberAvailable.heading"))
       }
     }
 
-    "must redirect to Journey Recovery for a GET when the URL category does not match the import type answer" in {
+    "must return OK with SAD question when the URL category does not match the import type answer" in {
       val application = applicationBuilder(userAnswers = Some(answers(Transport))).build()
 
       running(application) {
         val result = route(application, FakeRequest(GET, fuelRoute)).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual journeyRecoveryUrl
-      }
-    }
-
-    "must redirect to Journey Recovery for a GET when no import type has been answered" in {
-      val userAnswers = emptyUserAnswers.set(RefundingCountryPage, "AT").success.value
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
-
-      running(application) {
-        val result = route(application, FakeRequest(GET, fuelRoute)).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual journeyRecoveryUrl
-      }
-    }
-
-    "must redirect to Journey Recovery for a GET when no member state has been answered" in {
-      val userAnswers = emptyUserAnswers.set(ImportTypePage, Fuel).success.value
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
-
-      running(application) {
-        val result = route(application, FakeRequest(GET, fuelRoute)).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual journeyRecoveryUrl
+        status(result) mustEqual OK
+        contentAsString(result) must include(messages(application)("singleAdministrativeDocumentReferenceNumberAvailable.heading"))
       }
     }
 
@@ -171,7 +148,7 @@ class ImportSubCodeControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual journeyRecoveryUrl
+        redirectLocation(result).value mustEqual sadReferenceUrl
       }
     }
 

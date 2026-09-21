@@ -44,6 +44,26 @@ class SadReferenceControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must show back link to ImportSubCode when ImportSubCodePage present" in {
+      val userAnswers = emptyUserAnswers
+        .set(pages.ImportTypePage, models.Fuel)
+        .success
+        .value
+        .set(pages.ImportSubCodePage, "1.3")
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.imports.routes.SadReferenceController.onPageLoad.url)
+        val result = route(application, request).value
+
+        status(result) mustBe OK
+        contentAsString(result) must include(controllers.imports.routes.ImportSubCodeController.onPageLoad(models.Fuel.toString).url)
+      }
+    }
+
     "must redirect to the next page when valid data is submitted" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
