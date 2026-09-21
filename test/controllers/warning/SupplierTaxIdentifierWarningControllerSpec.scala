@@ -17,7 +17,7 @@
 package controllers.warning
 
 import base.SpecBase
-import models.NormalMode
+import models.{CheckMode, NormalMode}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import pages.TotalPurchaseAmountBeforeVatPage
@@ -43,8 +43,8 @@ class SupplierTaxIdentifierWarningControllerSpec extends SpecBase {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(
-          controllers.purchase.routes.SupplierTaxIdentifierNumberController.onPageLoad(NormalMode),
-          controllers.purchase.routes.InvoiceNumberController.onPageLoad(NormalMode)
+          controllers.purchase.routes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode),
+          controllers.purchase.routes.InvoiceNumberController.onPageLoad(CheckMode)
         )(request, messages(application)).toString
       }
     }
@@ -54,7 +54,6 @@ class SupplierTaxIdentifierWarningControllerSpec extends SpecBase {
 
       running(application) {
         val request = FakeRequest(POST, routes.SupplierTaxIdentifierWarningController.onSubmit().url)
-
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER

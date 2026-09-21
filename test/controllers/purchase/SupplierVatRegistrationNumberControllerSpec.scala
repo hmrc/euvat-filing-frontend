@@ -342,19 +342,19 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       when(mockEuVatRefundsService.getSupplierVrnCount(any())(any()))
         .thenReturn(Future.successful(SupplierVrnCountResponse(0)))
+      val ua = seededAnswers.set(TotalPurchaseAmountBeforeVatPage, 123).success.value
 
-      val application = applicationBuilder(userAnswers = Some(seededAnswers))
+      val application = applicationBuilder(userAnswers = Some(ua))
         .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
         .build()
 
       running(application) {
-        val request =
-          FakeRequest(POST, routes.SupplierVatRegistrationNumberController.onSubmit(CheckMode).url)
-            .withFormUrlEncodedBody(("value", "FR123456789"))
+        val request = FakeRequest(POST, routes.SupplierVatRegistrationNumberController.onSubmit(CheckMode).url)
+          .withFormUrlEncodedBody(("value", "FR123456789"))
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.CheckYourPurchaseDetailsController.onPageLoad().url
       }
     }
 
@@ -464,8 +464,9 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       when(mockEuVatRefundsService.getSupplierVrnCount(any())(any()))
         .thenReturn(Future.successful(SupplierVrnCountResponse(0)))
+      val ua = seededAnswers.set(TotalPurchaseAmountBeforeVatPage, 123).success.value
 
-      val application = applicationBuilder(userAnswers = Some(seededAnswers))
+      val application = applicationBuilder(userAnswers = Some(ua))
         .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
         .build()
 

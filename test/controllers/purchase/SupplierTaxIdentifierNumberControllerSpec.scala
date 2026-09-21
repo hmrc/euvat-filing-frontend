@@ -25,7 +25,7 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{AddPurchaseResponsePage, InvoiceNumberPage, SupplierTaxIdentifierNumberPage}
+import pages.{AddPurchaseResponsePage, InvoiceNumberPage, SupplierTaxIdentifierNumberPage, TotalPurchaseAmountBeforeVatPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -387,7 +387,7 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
         .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber = 1, updateSequenceNumber = 1))
         .success
         .value
-        .set(InvoiceNumberPage, "INV123")
+        .set(TotalPurchaseAmountBeforeVatPage, 12345)
         .success
         .value
 
@@ -396,9 +396,7 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
 
       val application =
         applicationBuilder(userAnswers = Some(ua))
-          .overrides(
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
           .build()
 
       running(application) {
@@ -408,7 +406,7 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.CheckYourPurchaseDetailsController.onPageLoad().url
       }
     }
 

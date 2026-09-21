@@ -20,6 +20,7 @@ import base.SpecBase
 import models.{CheckMode, NormalMode}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
+import pages.TotalPurchaseAmountBeforeVatPage
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -44,8 +45,8 @@ class SupplierVrnWarningControllerSpec extends SpecBase {
         contentAsString(result) mustEqual
           view(
             NormalMode,
-            controllers.purchase.routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode),
-            controllers.purchase.routes.InvoiceNumberController.onPageLoad(NormalMode)
+            controllers.purchase.routes.SupplierVatRegistrationNumberController.onPageLoad(CheckMode),
+            controllers.purchase.routes.InvoiceNumberController.onPageLoad(CheckMode)
           )(
             request,
             messages(application)
@@ -132,7 +133,13 @@ class SupplierVrnWarningControllerSpec extends SpecBase {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
-      val userAnswers = emptyUserAnswers.set(pages.RefundingCountryPage, "FR").success.value
+      val userAnswers = emptyUserAnswers
+        .set(pages.RefundingCountryPage, "FR")
+        .success
+        .value
+        .set(TotalPurchaseAmountBeforeVatPage, 123)
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(bind[SessionRepository].toInstance(mockSessionRepository))

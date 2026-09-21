@@ -102,10 +102,22 @@ class PurchaseNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchas
     }
 
   def navigateFromSupplierVatRegistrationPage()(userAnswers: UserAnswers): Call = {
-    CountryCode.findCountryCode(userAnswers) match {
-      case Some(countryCode) if currencyConfig.requiresCurrencySelection(countryCode) =>
-        purchaseRoutes.RefundingCurrencyController.onPageLoad(NormalMode)
-      case _ => purchaseRoutes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
+    if (userAnswers.get(TotalPurchaseAmountBeforeVatPage).isDefined) {
+      purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
+    } else {
+      CountryCode.findCountryCode(userAnswers) match {
+        case Some(countryCode) if currencyConfig.requiresCurrencySelection(countryCode) =>
+          purchaseRoutes.RefundingCurrencyController.onPageLoad(NormalMode)
+        case _ => purchaseRoutes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
+      }
+    }
+  }
+
+  def navigateFromSupplierTaxIdentifierNumberPage()(userAnswers: UserAnswers): Call = {
+    if (userAnswers.get(TotalPurchaseAmountBeforeVatPage).isDefined) {
+      purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
+    } else {
+      purchaseRoutes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
     }
   }
 

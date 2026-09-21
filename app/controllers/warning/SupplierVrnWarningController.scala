@@ -20,7 +20,7 @@ import controllers.actions.*
 import controllers.purchase.routes
 import models.{CheckMode, Mode, NormalMode}
 import navigation.Navigator
-import pages.SupplierVatRegistrationWarningPage
+import pages.{SupplierVatRegistrationWarningPage, TotalPurchaseAmountBeforeVatPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -49,7 +49,7 @@ class SupplierVrnWarningController @Inject() (
     for {
       updatedAnswers <- Future.fromTry(request.userAnswers.set(SupplierVatRegistrationWarningPage, true))
       _              <- sessionRepository.set(updatedAnswers)
-    } yield Ok(view(mode, routes.SupplierVatRegistrationNumberController.onPageLoad(mode), routes.InvoiceNumberController.onPageLoad(mode)))
+    } yield Ok(view(mode, routes.SupplierVatRegistrationNumberController.onPageLoad(CheckMode), routes.InvoiceNumberController.onPageLoad(CheckMode)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -57,7 +57,7 @@ class SupplierVrnWarningController @Inject() (
       userAnswers <- Future.fromTry(request.userAnswers.set(SupplierVatRegistrationWarningPage, true))
       _           <- sessionRepository.set(userAnswers)
     } yield {
-      if (mode == CheckMode) {
+      if (userAnswers.get(TotalPurchaseAmountBeforeVatPage).isDefined) {
         Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
       } else {
         CountryCode.findCountryCode(userAnswers) match {

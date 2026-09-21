@@ -18,7 +18,7 @@ package controllers.warning
 
 import controllers.actions.*
 import controllers.purchase.routes
-import models.{Mode, NormalMode}
+import models.{CheckMode, Mode, NormalMode}
 import pages.*
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -45,19 +45,19 @@ class SupplierTaxIdentifierWarningController @Inject() (
       answers <- Future.fromTry(request.userAnswers.set(SupplierTaxIdentifierWarningPage, true))
       _       <- sessionRepository.set(answers)
     } yield {
-      Ok(view(routes.SupplierTaxIdentifierNumberController.onPageLoad(mode), routes.InvoiceNumberController.onPageLoad(mode)))
+      Ok(view(routes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode), routes.InvoiceNumberController.onPageLoad(CheckMode)))
     }
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    val cleared = request.userAnswers.set(SupplierTaxIdentifierWarningPage, true)
+    val userAnswers = request.userAnswers.set(SupplierTaxIdentifierWarningPage, true)
     Future
-      .fromTry(cleared)
+      .fromTry(userAnswers)
       .flatMap(ua =>
         sessionRepository
           .set(ua)
           .map(_ =>
-            if (request.userAnswers.get(TotalPurchaseAmountBeforeVatPage).isDefined) {
+            if (ua.get(TotalPurchaseAmountBeforeVatPage).isDefined) {
               Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
             } else {
               Redirect(routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode))

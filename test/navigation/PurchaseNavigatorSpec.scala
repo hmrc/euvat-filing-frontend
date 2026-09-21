@@ -224,6 +224,12 @@ class PurchaseNavigatorSpec extends SpecBase {
           purchaseRoutes.RefundingCurrencyController.onPageLoad(NormalMode)
       }
 
+      "must go from navigateFromSupplierTaxIdentifierNumberPage to TotalPurchaseAmountBeforeVatController" in {
+        val ua = userAnswers.set(RefundingCountryPage, "AT").success.value
+        navigator.navigateFromSupplierTaxIdentifierNumberPage()(ua) mustBe
+          purchaseRoutes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
+      }
+
       "must go from RefundingCurrencyPage to TotalPurchaseAmountBeforeVatController" in {
         navigator.navigateFromRefundingCurrencyPage(NormalMode)(userAnswers) mustBe
           purchaseRoutes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
@@ -366,6 +372,18 @@ class PurchaseNavigatorSpec extends SpecBase {
       "must go from SupplierTaxNumberPage to JourneyRecoveryController in CheckMode when no answer present" in {
         navigator.navigateFromSupplierTaxNumberPage(CheckMode)(userAnswers) mustBe
           controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from SupplierVatRegistrationNumberPage to CheckYourPurchaseDetailsController" in {
+        val ua = userAnswers.set(TotalPurchaseAmountBeforeVatPage, 123).success.value
+        navigator.navigateFromSupplierVatRegistrationPage()(ua) mustBe
+          purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
+      }
+
+      "must go from navigateFromSupplierTaxIdentifierNumberPage to CheckYourPurchaseDetailsController" in {
+        val ua = userAnswers.set(TotalPurchaseAmountBeforeVatPage, 123).success.value
+        navigator.navigateFromSupplierTaxIdentifierNumberPage()(ua) mustBe
+          purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
       }
 
       "must go from RefundingCurrencyPage to RefundPeriodController in CheckMode if CountryChangedPage is true" in {

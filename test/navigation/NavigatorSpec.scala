@@ -180,16 +180,6 @@ class NavigatorSpec extends SpecBase {
         navigator.nextPage(SuppliersNamePage, CheckMode, userAnswers) mustBe purchaseRoutes.SupplierAddressController.onPageLoad(CheckMode)
       }
 
-      "must go from SupplierVatRegistrationNumberPage to CheckYourPurchaseDetailsController" in {
-        navigator.nextPage(SupplierVatRegistrationNumberPage, CheckMode, userAnswers) mustBe
-          purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
-      }
-
-      "must go from SupplierTaxIdentifierNumberPage to CheckYourPurchaseDetailsController" in {
-        navigator.nextPage(SupplierTaxIdentifierNumberPage, CheckMode, userAnswers) mustBe
-          purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
-      }
-
       "must go from TotalPurchaseAmountBeforeVatPage to TotalVatPaidController" in {
         navigator.nextPage(TotalPurchaseAmountBeforeVatPage, CheckMode, userAnswers) mustBe
           purchaseRoutes.TotalVatPaidController.onPageLoad(CheckMode)
