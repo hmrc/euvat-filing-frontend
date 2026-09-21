@@ -28,8 +28,8 @@ import play.api.mvc.*
 import repositories.SessionRepository
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.{ConfigPurchaseMapping, ControllerHelpers, CountryCode, MountPrefix}
-import views.html.purchase.PurchaseSubTypeView
+import utils.{ConfigPurchaseOrImportMapping, ControllerHelpers, CountryCode, MountPrefix}
+import views.html.PurchaseOrImportSubTypeView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -42,9 +42,9 @@ class PurchaseSubTypeController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: PurchaseSubTypeFormProvider,
-  config: ConfigPurchaseMapping,
+  config: ConfigPurchaseOrImportMapping,
   val controllerComponents: MessagesControllerComponents,
-  view: PurchaseSubTypeView
+  view: PurchaseOrImportSubTypeView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
@@ -71,7 +71,7 @@ class PurchaseSubTypeController @Inject() (
   ) = {
     val options = config.subcodesFor(country, parentKey)
     val rawItems = config.buildRadioItems(options, messagesApi.preferred(request))
-    val items = if (parentKey == "other") rawItems.filterNot(_.value.contains(ConfigPurchaseMapping.NoneValue)) else rawItems
+    val items = if (parentKey == "other") rawItems.filterNot(_.value.contains(ConfigPurchaseOrImportMapping.NoneValue)) else rawItems
     val parentHeading = parentHeadingFor(parentKey)
     val msgs = messagesApi.preferred(request)
     val requiredKeyCandidates = Seq(s"purchase.sub.$parentKey.error.required")
@@ -97,7 +97,7 @@ class PurchaseSubTypeController @Inject() (
     }
 
   private def isNoneOfTheseSelection(selection: String): Boolean =
-    selection == ConfigPurchaseMapping.NoneValue || selection.split("\\.").lastOption.contains("99")
+    selection == ConfigPurchaseOrImportMapping.NoneValue || selection.split("\\.").lastOption.contains("99")
 
   private def isTransitionAwayFromNoneForOther(parentKey: String, previousSelection: String, newSelection: String): Boolean =
     parentKey == models.Other.toString && isNoneOfTheseSelection(previousSelection) && !isNoneOfTheseSelection(newSelection)
@@ -185,7 +185,7 @@ class PurchaseSubTypeController @Inject() (
     request: DataRequest[AnyContent]
   ): Future[Result] = {
     val backUrl = backUrlFor(mode)
-    Future.successful(Ok(view(preparedForm, items, heading, heading, formAction, backUrl)))
+    Future.successful(Ok(view(preparedForm, items, heading, heading, "purchase.caption", formAction, backUrl)))
   }
 
   private def markArrivalAndRenderSubType(preparedForm: Form[?],
@@ -271,13 +271,13 @@ class PurchaseSubTypeController @Inject() (
   ): Future[Result] = {
     val formAction = formActionFor(resolvedSlug, mode)
     val backUrl = backUrlFor(mode)
-    Future.successful(BadRequest(view(formWithErrors, items, parentHeading, parentHeading, formAction, backUrl)))
+    Future.successful(BadRequest(view(formWithErrors, items, parentHeading, parentHeading, "purchase.caption", formAction, backUrl)))
   }
 
   private def persistNoneSelection(mode: Mode, userAnswers: UserAnswers)(implicit request: DataRequest[AnyContent]): Future[Result] = {
-    val noneLabel = ConfigPurchaseMapping.NoneValue
+    val noneLabel = ConfigPurchaseOrImportMapping.NoneValue
     val savedTry = for {
-      a1 <- userAnswers.set(PurchaseSubTypePage, ConfigPurchaseMapping.NoneValue)
+      a1 <- userAnswers.set(PurchaseSubTypePage, ConfigPurchaseOrImportMapping.NoneValue)
       a2 <- a1.set(PurchaseSubTypeLabelPage, noneLabel)
       a3 <- a2.remove(PurchaseSubCategoryPage)
       a4 <- a3.remove(PurchaseSubCategoryLabelPage)
@@ -352,7 +352,7 @@ class PurchaseSubTypeController @Inject() (
     if (mode == CheckMode && userAnswers.isAnswerUnchanged(PurchaseSubTypePage, value)) {
       Future.successful(Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad()))
     } else {
-      if (value == ConfigPurchaseMapping.NoneValue) {
+      if (value == ConfigPurchaseOrImportMapping.NoneValue) {
         persistNoneSelection(mode, userAnswers)
       } else {
         persistNormalSelection(parentKey, country, value, resolvedSlug, mode, userAnswers)

@@ -21,9 +21,9 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.Configuration
 
-class ConfigPurchaseMappingSpec extends AnyWordSpec with Matchers {
+class ConfigPurchaseOrImportMappingSpec extends AnyWordSpec with Matchers {
 
-  "ConfigPurchaseMapping parsing and helpers" should {
+  "ConfigPurchaseOrImportMapping parsing and helpers" should {
     "parse simple HOCON mapping and expose subcodes and subcategories" in {
       val confString = """
         |purchase.mapping = {
@@ -38,7 +38,7 @@ class ConfigPurchaseMappingSpec extends AnyWordSpec with Matchers {
       """.stripMargin
 
       val cfg = Configuration(ConfigFactory.parseString(confString))
-      val svc = new ConfigPurchaseMapping(cfg)
+      val svc = new ConfigPurchaseOrImportMapping(cfg)
 
       val fuelCodes = svc.subcodesFor("AT", "fuel").map(_._1)
       fuelCodes should contain allElementsOf Seq("1", "1.1", "10")
@@ -54,7 +54,7 @@ class ConfigPurchaseMappingSpec extends AnyWordSpec with Matchers {
         |other.mapping = { }
       """.stripMargin))
 
-      val svc = new ConfigPurchaseMapping(cfg)
+      val svc = new ConfigPurchaseOrImportMapping(cfg)
 
       svc.subcodesFor("DE", "fuel") shouldBe empty
       svc.subcodesFor("fuel")       shouldBe empty
@@ -68,7 +68,7 @@ class ConfigPurchaseMappingSpec extends AnyWordSpec with Matchers {
       """.stripMargin
 
       val cfg = Configuration(ConfigFactory.parseString(confString))
-      val svc = new ConfigPurchaseMapping(cfg)
+      val svc = new ConfigPurchaseOrImportMapping(cfg)
 
       val subs = svc.subcodesFor("IT", "fuel").map(_._1)
       subs should contain("1")
@@ -86,7 +86,7 @@ class ConfigPurchaseMappingSpec extends AnyWordSpec with Matchers {
       """.stripMargin
 
       val cfg = Configuration(ConfigFactory.parseString(confString))
-      val svc = new ConfigPurchaseMapping(cfg)
+      val svc = new ConfigPurchaseOrImportMapping(cfg)
 
       val subs = svc.subcodesFor("GB", "fuel").map(_._1)
       subs should contain allElementsOf Seq("1", "1.1")
@@ -104,7 +104,7 @@ class ConfigPurchaseMappingSpec extends AnyWordSpec with Matchers {
       """.stripMargin
 
       val cfg = Configuration(ConfigFactory.parseString(confString))
-      val svc = new ConfigPurchaseMapping(cfg)
+      val svc = new ConfigPurchaseOrImportMapping(cfg)
 
       val subs = svc.subcodesFor("IE", "fuel").map(_._1)
       subs should contain allElementsOf Seq("1", "1.1", "1.10")
@@ -124,7 +124,7 @@ class ConfigPurchaseMappingSpec extends AnyWordSpec with Matchers {
       """.stripMargin
 
       val cfg = Configuration(ConfigFactory.parseString(confString))
-      val svc = new ConfigPurchaseMapping(cfg)
+      val svc = new ConfigPurchaseOrImportMapping(cfg)
 
       val subs = svc.subcodesFor("DE", "fuel").map(_._1)
       subs should contain("1")
@@ -142,7 +142,7 @@ class ConfigPurchaseMappingSpec extends AnyWordSpec with Matchers {
       """.stripMargin
 
       val cfg = Configuration(ConfigFactory.parseString(confString))
-      val svc = new ConfigPurchaseMapping(cfg)
+      val svc = new ConfigPurchaseOrImportMapping(cfg)
 
       val all = svc.subcodesFor("fuel").map(_._1)
       all should contain("1")
@@ -158,7 +158,7 @@ class ConfigPurchaseMappingSpec extends AnyWordSpec with Matchers {
       val msgsApi = app.injector.instanceOf[MessagesApi]
       val msgs = MessagesImpl(Lang("en"), msgsApi)
 
-      val svc = new ConfigPurchaseMapping()
+      val svc = new ConfigPurchaseOrImportMapping()
 
       val options = Seq(("1.10.1", "purchase.sub.fuel.1.10.1"))
 
@@ -176,7 +176,7 @@ class ConfigPurchaseMappingSpec extends AnyWordSpec with Matchers {
       val msgsApi = app.injector.instanceOf[MessagesApi]
       val msgs = MessagesImpl(Lang("en"), msgsApi)
 
-      val svc = new ConfigPurchaseMapping()
+      val svc = new ConfigPurchaseOrImportMapping()
 
       val options = Seq(("X", "Custom label here"))
 
@@ -193,7 +193,7 @@ class ConfigPurchaseMappingSpec extends AnyWordSpec with Matchers {
       val msgsApi = app.injector.instanceOf[MessagesApi]
       val msgs = MessagesImpl(Lang("en"), msgsApi)
 
-      val svc = new ConfigPurchaseMapping()
+      val svc = new ConfigPurchaseOrImportMapping()
 
       // labelKey contains an extra numeric segment that should be removed by normalizeLabel
       val options = Seq(("1.10.1", "purchase.sub.fuel.1.10.1"))
@@ -212,7 +212,7 @@ class ConfigPurchaseMappingSpec extends AnyWordSpec with Matchers {
       val msgsApi = app.injector.instanceOf[MessagesApi]
       val msgs = MessagesImpl(Lang("en"), msgsApi)
 
-      val svc = new ConfigPurchaseMapping()
+      val svc = new ConfigPurchaseOrImportMapping()
 
       val options = Seq(("1.1", "purchase.sub.fuel.1.1"))
 
@@ -229,7 +229,7 @@ class ConfigPurchaseMappingSpec extends AnyWordSpec with Matchers {
       val msgsApi = app.injector.instanceOf[MessagesApi]
       val msgs = MessagesImpl(Lang("en"), msgsApi)
 
-      val svc = new ConfigPurchaseMapping()
+      val svc = new ConfigPurchaseOrImportMapping()
 
       val options = Seq(("1.10.5", "purchase.sub.fuel.1.10.5"))
 
@@ -247,7 +247,7 @@ class ConfigPurchaseMappingSpec extends AnyWordSpec with Matchers {
       val msgsApi = app.injector.instanceOf[MessagesApi]
       val msgs = MessagesImpl(Lang("en"), msgsApi)
 
-      val svc = new ConfigPurchaseMapping()
+      val svc = new ConfigPurchaseOrImportMapping()
 
       val options = Seq(("1.10.1", "purchase.sub.fuel.1.10.1"))
 
@@ -264,7 +264,7 @@ class ConfigPurchaseMappingSpec extends AnyWordSpec with Matchers {
       val msgsApi = app.injector.instanceOf[MessagesApi]
       val msgs = MessagesImpl(Lang("en"), msgsApi)
 
-      val svc = new ConfigPurchaseMapping()
+      val svc = new ConfigPurchaseOrImportMapping()
 
       // labelKey without extra numeric segments; none of the normalization helpers will change it
       val options = Seq(("X", "purchase.sub.simple.key"))
@@ -283,7 +283,7 @@ class ConfigPurchaseMappingSpec extends AnyWordSpec with Matchers {
       val msgsApi = app.injector.instanceOf[MessagesApi]
       val msgs = MessagesImpl(Lang("en"), msgsApi)
 
-      val svc = new ConfigPurchaseMapping()
+      val svc = new ConfigPurchaseOrImportMapping()
 
       // exact key exists in messages: purchase.sub.fuel.10.5
       val options = Seq(("1.10.5", "purchase.sub.fuel.10.5"))
@@ -301,7 +301,7 @@ class ConfigPurchaseMappingSpec extends AnyWordSpec with Matchers {
       val msgsApi = app.injector.instanceOf[MessagesApi]
       val msgs = MessagesImpl(Lang("en"), msgsApi)
 
-      val svc = new ConfigPurchaseMapping()
+      val svc = new ConfigPurchaseOrImportMapping()
 
       // labelKey has a numeric second segment that doesn't match the code first segment
       // normalizeLabel will not change it, but normalizeLabelKey should strip the numeric segment
@@ -323,7 +323,7 @@ class ConfigPurchaseMappingSpec extends AnyWordSpec with Matchers {
       """.stripMargin
 
       val cfg = Configuration(ConfigFactory.parseString(confString))
-      val svc = new ConfigPurchaseMapping(cfg)
+      val svc = new ConfigPurchaseOrImportMapping(cfg)
 
       val subs = svc.subcodesFor("FR", "fuel").map(_._1)
       subs should contain("2")
@@ -342,7 +342,7 @@ class ConfigPurchaseMappingSpec extends AnyWordSpec with Matchers {
       """.stripMargin
 
       val cfg = Configuration(ConfigFactory.parseString(confString))
-      val svc = new ConfigPurchaseMapping(cfg)
+      val svc = new ConfigPurchaseOrImportMapping(cfg)
 
       val subs = svc.subcodesFor("DE", "fuel").map(_._1)
       subs should contain("1")
@@ -362,7 +362,7 @@ class ConfigPurchaseMappingSpec extends AnyWordSpec with Matchers {
       """.stripMargin
 
       val cfg = Configuration(ConfigFactory.parseString(confString))
-      val svc = new ConfigPurchaseMapping(cfg)
+      val svc = new ConfigPurchaseOrImportMapping(cfg)
 
       val subs = svc.subcodesFor("fuel").map(_._1)
       subs should contain("3")

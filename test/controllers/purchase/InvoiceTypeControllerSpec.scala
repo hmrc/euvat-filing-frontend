@@ -30,7 +30,7 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import utils.ConfigPurchaseMapping
+import utils.ConfigPurchaseOrImportMapping
 import views.html.purchase.InvoiceTypeView
 
 import scala.concurrent.Future
@@ -269,7 +269,7 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must show backlink to DescribeItemsOnInvoice when PurchaseType is Other, parent ends with 99, and country has multiple other options" in {
-      val fakeConfig = new ConfigPurchaseMapping() {
+      val fakeConfig = new ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String): Seq[(String, String)] =
           if (country == "BE" && parentKey == "other") Seq(("10.6", "purchase.sub.other.6"), ("10.99", "purchase.sub.other.99"))
           else super.subcodesFor(country, parentKey)
@@ -287,7 +287,7 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
         .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(bind[ConfigPurchaseMapping].toInstance(fakeConfig))
+        .overrides(bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig))
         .build()
 
       running(application) {
