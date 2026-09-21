@@ -34,7 +34,7 @@ object CurrencyResolver {
         .map(s => s.head.toUpper.toString + s.tail)
         .mkString(" ")
 
-    utils.CountryCode
+    CountryCode
       .findCountryCode(userAnswers)
       .flatMap { countryCode =>
         val currencies = config(countryCode)

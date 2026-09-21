@@ -186,9 +186,9 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.warning.routes.SupplierTaxIdentifierWarningController.onPageLoad().url
+        redirectLocation(result).value mustEqual controllers.warning.routes.SupplierTaxIdentifierWarningController.onPageLoad(NormalMode).url
 
-        val getRequest = FakeRequest(GET, controllers.warning.routes.SupplierTaxIdentifierWarningController.onPageLoad().url)
+        val getRequest = FakeRequest(GET, controllers.warning.routes.SupplierTaxIdentifierWarningController.onPageLoad(NormalMode).url)
         val getResult = route(application, getRequest).value
         status(getResult) mustEqual OK
 

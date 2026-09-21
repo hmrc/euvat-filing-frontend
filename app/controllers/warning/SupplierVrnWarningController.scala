@@ -25,7 +25,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.CountryCode
+import utils.{CountryCode, CurrencyConfig}
 import views.html.warning.SupplierVrnWarningView
 
 import javax.inject.Inject
@@ -39,7 +39,8 @@ class SupplierVrnWarningController @Inject() (
   requireData: DataRequiredAction,
   navigator: Navigator,
   val controllerComponents: MessagesControllerComponents,
-  view: SupplierVrnWarningView
+  view: SupplierVrnWarningView,
+  currencyConfig: CurrencyConfig
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
@@ -48,20 +49,21 @@ class SupplierVrnWarningController @Inject() (
     for {
       updatedAnswers <- Future.fromTry(request.userAnswers.set(SupplierVatRegistrationWarningPage, true))
       _              <- sessionRepository.set(updatedAnswers)
-    } yield Ok(view(mode, routes.SupplierVatRegistrationNumberController.onPageLoad(CheckMode), routes.InvoiceNumberController.onPageLoad(CheckMode)))
+    } yield Ok(view(mode, routes.SupplierVatRegistrationNumberController.onPageLoad(mode), routes.InvoiceNumberController.onPageLoad(mode)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     for {
-      userAnswers <- Future.fromTry(request.userAnswers.remove(SupplierVatRegistrationWarningPage))
+      userAnswers <- Future.fromTry(request.userAnswers.set(SupplierVatRegistrationWarningPage, true))
       _           <- sessionRepository.set(userAnswers)
     } yield {
       if (mode == CheckMode) {
         Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
       } else {
         CountryCode.findCountryCode(userAnswers) match {
-          case Some("EE") => Redirect(routes.RefundingCurrencyController.onPageLoad(NormalMode))
-          case _          => Redirect(routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode))
+          case Some(countryCode) if currencyConfig.requiresCurrencySelection(countryCode) =>
+            Redirect(routes.RefundingCurrencyController.onPageLoad(NormalMode))
+          case _ => Redirect(routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode))
         }
       }
     }

@@ -27,6 +27,7 @@ import services.EuVatRefundsService
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import models.requests.UpdatePurchaseRequest
 import models.responses.AddPurchaseResponse
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.{ConfigPurchaseMapping, CountryCode, CurrencyConfig}
 import viewmodels.checkAnswers.CheckYourPurchaseDetailsSummary
@@ -51,47 +52,47 @@ class CheckYourPurchaseDetailsController @Inject() (
     with I18nSupport
     with Logging {
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     implicit val msgs: Messages = messagesApi.preferred(request)
     for {
       answers <- Future.fromTry(request.userAnswers.set(InvoiceNumberFlagQuery, false))
       _       <- sessionRepository.set(answers)
-    } yield None
+    } yield {
+      lazy val currencyList =
+        CountryCode
+          .findCountryCode(request.userAnswers)
+          .map(currencyConfig.currencyConfig(_))
+          .getOrElse(currencyConfig.default)
 
-    lazy val currencyList =
-      CountryCode
-        .findCountryCode(request.userAnswers)
-        .map(currencyConfig.currencyConfig(_))
-        .getOrElse(currencyConfig.default)
+      val (maybeCurrencyDisplayName, maybeCurrencySymbol): (Option[String], Option[String]) =
+        request.userAnswers
+          .get(RefundingCurrencyPage)
+          .flatMap(code => currencyList.find(_.code == code))
+          .map(currency => Some(msgs(s"refundingCurrency.${currency.name}", currency.symbol)) -> Some(currency.symbol))
+          .orElse(Option.when(currencyList.lengthCompare(1) > 0)(Some(msgs("site.notProvided")) -> None))
+          .getOrElse(None -> None)
 
-    val (maybeCurrencyDisplayName, maybeCurrencySymbol): (Option[String], Option[String]) =
-      request.userAnswers
-        .get(RefundingCurrencyPage)
-        .flatMap(code => currencyList.find(_.code == code))
-        .map(currency => Some(msgs(s"refundingCurrency.${currency.name}", currency.symbol)) -> Some(currency.symbol))
-        .orElse(Option.when(currencyList.lengthCompare(1) > 0)(Some(msgs("site.notProvided")) -> None))
-        .getOrElse(None -> None)
-
-    Ok(
-      view(
-        CheckYourPurchaseDetailsSummary
-          .sections(
-            request.userAnswers,
-            maybeCurrencyDisplayName,
-            maybeCurrencySymbol,
-            configPurchaseMapping,
-            currencyList.size > 1
-          ),
-        isPostSubmission = false,
-        isAmended        = false
+      Ok(
+        view(
+          CheckYourPurchaseDetailsSummary
+            .sections(
+              request.userAnswers,
+              maybeCurrencyDisplayName,
+              maybeCurrencySymbol,
+              configPurchaseMapping,
+              currencyList.size > 1
+            ),
+          isPostSubmission = false,
+          isAmended        = false
+        )
       )
-    )
+    }
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    implicit val hc = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-    val maybeAppId = request.userAnswers.get(queries.ClaimApplicationResponseQuery).map(_.applicationId.toLong)
+    val maybeAppId = request.userAnswers.get(queries.ClaimApplicationResponseQuery).map(_.applicationId)
     val maybeAddResp = request.userAnswers.get(AddPurchaseResponsePage)
 
     (maybeAppId, maybeAddResp) match {
@@ -113,7 +114,7 @@ class CheckYourPurchaseDetailsController @Inject() (
 
         val goodsDescriptionText = request.userAnswers.get(pages.DescribeItemsOnInvoicePage) match {
           case Some(t) if t.trim.nonEmpty && t != ConfigPurchaseMapping.NoneValue => Some(t)
-          case _                                                                 => None
+          case _                                                                  => None
         }
         val simplifiedInvoiceIndicator: Option[String] = request.userAnswers
           .get(pages.SimplifiedInvoiceVatRegCheckPage)
@@ -121,7 +122,7 @@ class CheckYourPurchaseDetailsController @Inject() (
           .orElse {
             request.userAnswers.get(pages.InvoiceTypePage).map {
               case models.InvoiceType.SimplifiedInvoice => "true"
-              case _                                     => "false"
+              case _                                    => "false"
             }
           }
         val supplierName = request.userAnswers.get(pages.SuppliersNamePage)
@@ -139,25 +140,25 @@ class CheckYourPurchaseDetailsController @Inject() (
         val deductibleVatAmount = request.userAnswers.get(pages.TotalVatClaimPage)
 
         val updateReq = UpdatePurchaseRequest(
-          applicationId = appId,
-          itemNumber = addResp.itemNumber,
-          goodsDescriptionCategory = goodsDescriptionCategory,
+          applicationId               = appId,
+          itemNumber                  = addResp.itemNumber,
+          goodsDescriptionCategory    = goodsDescriptionCategory,
           goodsDescriptionSubCategory = goodsDescriptionSubCategory,
-          goodsDescriptionText = goodsDescriptionText,
-          simplifiedInvoiceIndicator = simplifiedInvoiceIndicator,
-          supplierName = supplierName,
-          supplierAddress1 = supplierAddress1,
-          supplierAddress2 = supplierAddress2,
-          supplierAddress3 = supplierAddress3,
-          supplierVatRegNumber = supplierVatRegNumber,
-          supplierTaxIdentifier = supplierTaxIdentifier,
-          invoiceDate = invoiceDate,
-          invoiceNumber = invoiceNumber,
-          currencyCode = currencyCode,
-          taxableAmount = taxableAmount,
-          vatAmount = vatAmount,
-          deductibleVatAmount = deductibleVatAmount,
-          updateSequenceNumber = addResp.updateSequenceNumber
+          goodsDescriptionText        = goodsDescriptionText,
+          simplifiedInvoiceIndicator  = simplifiedInvoiceIndicator,
+          supplierName                = supplierName,
+          supplierAddress1            = supplierAddress1,
+          supplierAddress2            = supplierAddress2,
+          supplierAddress3            = supplierAddress3,
+          supplierVatRegNumber        = supplierVatRegNumber,
+          supplierTaxIdentifier       = supplierTaxIdentifier,
+          invoiceDate                 = invoiceDate,
+          invoiceNumber               = invoiceNumber,
+          currencyCode                = currencyCode,
+          taxableAmount               = taxableAmount,
+          vatAmount                   = vatAmount,
+          deductibleVatAmount         = deductibleVatAmount,
+          updateSequenceNumber        = addResp.updateSequenceNumber
         )
 
         euVatRefundsService

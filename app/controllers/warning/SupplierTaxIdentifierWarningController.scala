@@ -18,7 +18,7 @@ package controllers.warning
 
 import controllers.actions.*
 import controllers.purchase.routes
-import models.{CheckMode, NormalMode}
+import models.{Mode, NormalMode}
 import pages.*
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -40,17 +40,17 @@ class SupplierTaxIdentifierWarningController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     for {
       answers <- Future.fromTry(request.userAnswers.set(SupplierTaxIdentifierWarningPage, true))
       _       <- sessionRepository.set(answers)
     } yield {
-      Ok(view(routes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode), routes.InvoiceNumberController.onPageLoad(CheckMode)))
+      Ok(view(routes.SupplierTaxIdentifierNumberController.onPageLoad(mode), routes.InvoiceNumberController.onPageLoad(mode)))
     }
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    val cleared = request.userAnswers.remove(SupplierTaxIdentifierWarningPage)
+    val cleared = request.userAnswers.set(SupplierTaxIdentifierWarningPage, true)
     Future
       .fromTry(cleared)
       .flatMap(ua =>

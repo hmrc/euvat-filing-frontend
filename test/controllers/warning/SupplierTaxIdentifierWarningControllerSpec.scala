@@ -17,10 +17,10 @@
 package controllers.warning
 
 import base.SpecBase
-import models.{CheckMode, NormalMode}
+import models.NormalMode
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import pages.{InvoiceNumberPage, SupplierVatRegistrationNumberPage, TotalPurchaseAmountBeforeVatPage}
+import pages.TotalPurchaseAmountBeforeVatPage
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -37,14 +37,14 @@ class SupplierTaxIdentifierWarningControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.SupplierTaxIdentifierWarningController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.SupplierTaxIdentifierWarningController.onPageLoad(NormalMode).url)
         val result = route(application, request).value
         val view = application.injector.instanceOf[SupplierTaxIdentifierWarningView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(
-          controllers.purchase.routes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode),
-          controllers.purchase.routes.InvoiceNumberController.onPageLoad(CheckMode)
+          controllers.purchase.routes.SupplierTaxIdentifierNumberController.onPageLoad(NormalMode),
+          controllers.purchase.routes.InvoiceNumberController.onPageLoad(NormalMode)
         )(request, messages(application)).toString
       }
     }

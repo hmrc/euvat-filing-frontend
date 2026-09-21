@@ -20,7 +20,7 @@ import controllers.actions.*
 import controllers.helpers.PurchaseBackLinkHelper
 import forms.purchase.DescribeItemsOnInvoiceFormProvider
 import models.requests.DataRequest
-import models.{CheckMode, Mode, Other, PurchaseType}
+import models.{CheckMode, Mode, Other, PurchaseType, UserAnswers}
 import navigation.Navigator
 import pages.*
 import play.api.data.Form
@@ -29,7 +29,6 @@ import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.{ConfigPurchaseMapping, CountryCode}
-import utils.ControllerHelpers.*
 import views.html.purchase.DescribeItemsOnInvoiceView
 
 import javax.inject.Inject
@@ -85,15 +84,14 @@ class DescribeItemsOnInvoiceController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     val preparedForm = request.userAnswers.get(DescribeItemsOnInvoicePage).fold(form)(form.fill)
-    val backTarget = computeBackTarget(mode)
 
     if (mode == CheckMode && !request.userAnswers.get(pages.DescribeItemsArrivedFromCheckYourAnswersPage).contains(true)) {
       val markedTry = request.userAnswers.set(pages.DescribeItemsArrivedFromCheckYourAnswersPage, true)
       Future.fromTry(markedTry).flatMap { updated =>
-        sessionRepository.set(updated).map(_ => Ok(view(preparedForm, mode, backTarget)))
+        sessionRepository.set(updated).map(_ => Ok(view(preparedForm, mode, computeBackTarget(mode))))
       }
     } else {
-      Future.successful(Ok(view(preparedForm, mode, backTarget)))
+      Future.successful(Ok(view(preparedForm, mode, computeBackTarget(mode))))
     }
   }
 
@@ -103,25 +101,18 @@ class DescribeItemsOnInvoiceController @Inject() (
       .fold(
         formWithErrors =>
           if (formWithErrors.errors.exists(_.message == "describeItemsOnInvoice.error.required")) {
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(DescribeItemsOnInvoicePage, ""))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(controllers.warning.routes.PurchaseWarningController.onPageLoad(mode))
+            saveToSession("").map(_ => Redirect(controllers.warning.routes.PurchaseWarningController.onPageLoad(mode)))
           } else {
             Future.successful(BadRequest(view(formWithErrors, mode, computeBackTarget(mode))))
           },
-        value =>
-          shortCircuit(
-            DescribeItemsOnInvoicePage,
-            value,
-            mode,
-            request.userAnswers,
-            navigator.nextPage(DescribeItemsOnInvoicePage, mode, request.userAnswers),
-            routes.CheckYourPurchaseDetailsController.onPageLoad(),
-            Some(sessionRepository)
-          ) { updated =>
-            Future.successful(Redirect(navigator.nextPage(DescribeItemsOnInvoicePage, mode, updated)))
-          }
+        value => saveToSession(value).map(userAnswers => Redirect(navigator.nextPage(DescribeItemsOnInvoicePage, mode, userAnswers)))
       )
   }
+
+  private def saveToSession(value: String)(implicit request: DataRequest[?]): Future[UserAnswers] =
+    for {
+      userAnswers <- Future.fromTry(request.userAnswers.set(DescribeItemsOnInvoicePage, value))
+      _           <- sessionRepository.set(userAnswers)
+    } yield userAnswers
+
 }

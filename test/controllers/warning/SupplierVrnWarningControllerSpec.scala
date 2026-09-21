@@ -44,6 +44,27 @@ class SupplierVrnWarningControllerSpec extends SpecBase {
         contentAsString(result) mustEqual
           view(
             NormalMode,
+            controllers.purchase.routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode),
+            controllers.purchase.routes.InvoiceNumberController.onPageLoad(NormalMode)
+          )(
+            request,
+            messages(application)
+          ).toString
+      }
+    }
+
+    "must return OK and the correct view for a GET in CheckMode" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.SupplierVrnWarningController.onPageLoad(CheckMode).url)
+        val result = route(application, request).value
+        val view = application.injector.instanceOf[SupplierVrnWarningView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual
+          view(
+            CheckMode,
             controllers.purchase.routes.SupplierVatRegistrationNumberController.onPageLoad(CheckMode),
             controllers.purchase.routes.InvoiceNumberController.onPageLoad(CheckMode)
           )(

@@ -94,7 +94,7 @@ class SupplierTaxIdentifierNumberController @Inject() (
                     _              <- sessionRepository.set(updatedAnswers)
                   } yield {
                     if (dupCount > 0) {
-                      Redirect(controllers.warning.routes.SupplierTaxIdentifierWarningController.onPageLoad())
+                      Redirect(controllers.warning.routes.SupplierTaxIdentifierWarningController.onPageLoad(mode))
                     } else {
                       Redirect(navigator.nextPage(SupplierTaxIdentifierNumberPage, mode, updatedAnswers))
                     }

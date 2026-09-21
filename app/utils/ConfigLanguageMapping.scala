@@ -25,7 +25,6 @@ class ConfigLanguageMapping @Inject() (config: Configuration) {
   private val mapping: Map[String, Seq[String]] = {
     val cfg = config.get[Configuration]("language.mapping")
     cfg.entrySet.map { case (key, sub) =>
-      // play Configuration represents lists as ConfigValue; read as Seq[String]
       val seq = cfg.get[Seq[String]](key)
       key -> seq
     }.toMap
