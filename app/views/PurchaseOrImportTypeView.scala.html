@@ -30,31 +30,43 @@
 )
 
 @(form: Form[?], mode: Mode, backLink: Call, submitCall: Call, messagePrefix: String, captionKey: String, showPurchaseIntro: Boolean = true, legendKey: Option[String] = None)(implicit request: Request[?], messages: Messages)
-@isError = @{form.error("value").isDefined}
 
 @layout(pageTitle = views.ViewUtils.title(form, s"$messagePrefix.title"), backLinkUrl = Some(backLink.url)) {
     @formHelper(action = submitCall) {
         @mainErrorSummary(form, Map("value" -> "value_0"))
 
-        <div class="govuk-form-group @if(isError){govuk-form-group--error}">
-            <span class="govuk-caption-l">@messages(captionKey)</span>
+        <span class="govuk-caption-l">@messages(captionKey)</span>
 
-            @if(showPurchaseIntro) {
-                <p class="govuk-body">@messages(s"$messagePrefix.p1")</p>
-                <ul class="govuk-list govuk-list--bullet">
-                    <li class="govuk-body">@messages(s"$messagePrefix.li1")</li>
-                    <li class="govuk-body">@messages(s"$messagePrefix.li2")</li>
-                </ul>
-            }
+        @legendKey match {
+            case Some(key) => {
+                <h1 class="govuk-heading-l">@messages(s"$messagePrefix.heading")</h1>
 
-            @govukRadios(
-                RadiosViewModel(
-                    field  = form("value"),
-                    legend = LegendViewModel(messages(s"$messagePrefix.heading")).asPageHeading(LegendSize.Large),
-                    items  = PurchaseOrImportType.options(messagePrefix)
+                @if(showPurchaseIntro) {
+                    <p class="govuk-body">@messages(s"$messagePrefix.p1")</p>
+                    <ul class="govuk-list govuk-list--bullet">
+                        <li>@messages(s"$messagePrefix.li1")</li>
+                        <li>@messages(s"$messagePrefix.li2")</li>
+                    </ul>
+                }
+
+                @govukRadios(
+                    RadiosViewModel(
+                        field  = form("value"),
+                        legend = LegendViewModel(messages(key)).withCssClass(LegendSize.Medium.toString),
+                        items  = PurchaseOrImportType.options(messagePrefix)
+                    )
                 )
-            )
-        </div>
+            }
+            case None => {
+                @govukRadios(
+                    RadiosViewModel(
+                        field  = form("value"),
+                        legend = LegendViewModel(messages(s"$messagePrefix.heading")).asPageHeading(LegendSize.Large),
+                        items  = PurchaseOrImportType.options(messagePrefix)
+                    )
+                )
+            }
+        }
 
         @govukButton(ButtonViewModel(messages("site.continue")))
     }
