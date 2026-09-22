@@ -19,7 +19,6 @@ package controllers.purchase
 import controllers.actions.*
 import forms.purchase.TotalVatPaidFormProvider
 import models.{CheckMode, Mode, NormalMode}
-import models.requests.DataRequest
 import navigation.Navigator
 import pages.{TotalPurchaseAmountBeforeVatPage, TotalVatPaidPage}
 import play.api.data.Form
@@ -64,34 +63,24 @@ class TotalVatPaidController @Inject() (
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+    val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(badRequestView(formWithErrors, mode)),
-        value => handleSubmit(value, mode)
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode), prefix, currencyName))),
+        value =>
+          for {
+            userAnswers <- Future.fromTry(request.userAnswers.set(TotalVatPaidPage, value))
+            _           <- sessionRepository.set(userAnswers)
+          } yield {
+            val amountBeforeVat: BigDecimal = userAnswers.get(TotalPurchaseAmountBeforeVatPage).getOrElse(BigDecimal(0))
+            if (value > amountBeforeVat) {
+              Redirect(controllers.warning.routes.VatPaidWarningController.onPageLoad(mode))
+            } else {
+              Redirect(navigator.nextPage(TotalVatPaidPage, mode, userAnswers))
+            }
+          }
       )
   }
 
-  private def handleSubmit(value: BigDecimal, mode: Mode)(implicit request: DataRequest[?]) = {
-    shortCircuit(
-      TotalVatPaidPage,
-      value,
-      mode,
-      request.userAnswers,
-      navigator.nextPage(TotalVatPaidPage, mode, request.userAnswers),
-      routes.CheckYourPurchaseDetailsController.onPageLoad(),
-      Some(sessionRepository)
-    ) { updated =>
-      if (compareWithPage(value, TotalPurchaseAmountBeforeVatPage, updated)(_ >= _)) {
-        Future.successful(Redirect(controllers.warning.routes.VatPaidWarningController.onPageLoad(mode)))
-      } else {
-        Future.successful(Redirect(navigator.nextPage(TotalVatPaidPage, mode, updated)))
-      }
-    }
-  }
-
-  private def badRequestView(formWithErrors: Form[?], mode: Mode)(implicit request: DataRequest[?]) = {
-    val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)
-    BadRequest(view(formWithErrors, mode, backLink(mode), prefix, currencyName))
-  }
 }

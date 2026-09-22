@@ -51,10 +51,6 @@ class DescribeItemsOnInvoiceController @Inject() (
 
   val form: Form[String] = formProvider()
 
-  private def computeBackTarget(mode: Mode)(implicit request: DataRequest[?]): Call =
-    if (request.userAnswers.get(PurchaseTypePage).contains(Other)) { determineBackForOther(mode) }
-    else { PurchaseBackLinkHelper.computeBackTarget(mode) }
-
   private def parentIndicatesNone(implicit request: DataRequest[?]): Boolean =
     request.userAnswers.get(PurchaseSubTypePage).exists(v => v.split("\\.").lastOption.contains("99"))
 
@@ -88,10 +84,10 @@ class DescribeItemsOnInvoiceController @Inject() (
     if (mode == CheckMode && !request.userAnswers.get(pages.DescribeItemsArrivedFromCheckYourAnswersPage).contains(true)) {
       val markedTry = request.userAnswers.set(pages.DescribeItemsArrivedFromCheckYourAnswersPage, true)
       Future.fromTry(markedTry).flatMap { updated =>
-        sessionRepository.set(updated).map(_ => Ok(view(preparedForm, mode, computeBackTarget(mode))))
+        sessionRepository.set(updated).map(_ => Ok(view(preparedForm, mode)))
       }
     } else {
-      Future.successful(Ok(view(preparedForm, mode, computeBackTarget(mode))))
+      Future.successful(Ok(view(preparedForm, mode)))
     }
   }
 
@@ -103,7 +99,7 @@ class DescribeItemsOnInvoiceController @Inject() (
           if (formWithErrors.errors.exists(_.message == "describeItemsOnInvoice.error.required")) {
             saveToSession("").map(_ => Redirect(controllers.warning.routes.PurchaseWarningController.onPageLoad(mode)))
           } else {
-            Future.successful(BadRequest(view(formWithErrors, mode, computeBackTarget(mode))))
+            Future.successful(BadRequest(view(formWithErrors, mode)))
           },
         value => saveToSession(value).map(userAnswers => Redirect(navigator.nextPage(DescribeItemsOnInvoicePage, mode, userAnswers)))
       )

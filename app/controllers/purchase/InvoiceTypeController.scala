@@ -87,12 +87,13 @@ class InvoiceTypeController @Inject() (
             for {
               answers <- Future.fromTry(request.userAnswers.set(InvoiceTypePage, value))
               _       <- sessionRepository.set(answers)
-            } yield
+            } yield {
               if (mode == CheckMode) {
                 Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
               } else {
                 Redirect(routes.InvoiceNumberController.onPageLoad(NormalMode))
               }
+            }
           } else {
             for {
               answers  <- Future.fromTry(request.userAnswers.set(InvoiceTypePage, value))
