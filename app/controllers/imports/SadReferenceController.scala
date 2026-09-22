@@ -49,11 +49,14 @@ class SadReferenceController @Inject() (
 
   val form: Form[Boolean] = formProvider()
 
-  private def computeBackLink(implicit request: DataRequest[AnyContent]): Call =
-    (request.userAnswers.get(pages.ImportTypePage), request.userAnswers.get(pages.ImportSubCodePage)) match {
-      case (Some(importType), Some(_)) => controllers.imports.routes.ImportSubCodeController.onPageLoad(importType.toString)
-      case _                           => controllers.imports.routes.ImportTypeController.onPageLoad(models.NormalMode)
+  private def computeBackLink(implicit request: DataRequest[AnyContent]): Call = {
+    val answers = request.userAnswers
+    (answers.get(pages.ImportTypePage), answers.get(pages.ImportSubCodePage), answers.get(pages.ImportSubCategoryPage)) match {
+      case (Some(_), Some(_), Some(_))       => controllers.imports.routes.ImportSubCategoryController.onPageLoad(models.NormalMode)
+      case (Some(importType), Some(_), None) => controllers.imports.routes.ImportSubCodeController.onPageLoad(importType.toString)
+      case _                                 => controllers.imports.routes.ImportTypeController.onPageLoad(models.NormalMode)
     }
+  }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(SadReferencePage).fold(form)(form.fill)
