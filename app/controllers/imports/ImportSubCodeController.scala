@@ -18,6 +18,7 @@ package controllers.imports
 
 import controllers.actions.*
 import forms.purchase.PurchaseSubTypeFormProvider
+import forms.imports.SadReferenceFormProvider
 import models.requests.DataRequest
 import models.{NormalMode, PurchaseOrImportType}
 import navigation.Navigator
@@ -43,6 +44,8 @@ class ImportSubCodeController @Inject() (
   requireData: DataRequiredAction,
   formProvider: PurchaseSubTypeFormProvider,
   config: ConfigPurchaseOrImportMapping,
+  sadFormProvider: SadReferenceFormProvider,
+  sadView: views.html.imports.SadReferenceView,
   val controllerComponents: MessagesControllerComponents,
   view: PurchaseOrImportSubTypeView
 )(implicit ec: ExecutionContext)
@@ -54,16 +57,24 @@ class ImportSubCodeController @Inject() (
   private def withPageData(importTypeKey: String)(
     block: (PurchaseOrImportType, Seq[(String, String)]) => Future[Result]
   )(implicit request: DataRequest[AnyContent]): Future[Result] = {
+    val importTypeOpt = PurchaseOrImportType.values.find(_.toString == importTypeKey)
+    val answeredImportOpt = request.userAnswers.get(ImportTypePage)
+    val countryOpt = CountryCode.findCountryCode(request.userAnswers)
+
     val resolved = for {
-      importType <- PurchaseOrImportType.values.find(_.toString == importTypeKey)
-      answered   <- request.userAnswers.get(ImportTypePage) if answered == importType
-      country    <- CountryCode.findCountryCode(request.userAnswers)
+      importType <- importTypeOpt
+      answered   <- answeredImportOpt if answered == importType
+      country    <- countryOpt
       options    <- config.selectableSubcodes(country, importType.toString)
     } yield (importType, options)
 
     resolved match {
       case Some((importType, options)) => block(importType, options)
-      case None                        => Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+      case None                        =>
+        // Render SAD question directly so GET returns OK with SAD content
+        // TODO: perhaps to change again after level 3 is done
+        val preparedForm = sadFormProvider()
+        Future.successful(Ok(sadView(preparedForm, controllers.imports.routes.ImportTypeController.onPageLoad(models.NormalMode))))
     }
   }
 

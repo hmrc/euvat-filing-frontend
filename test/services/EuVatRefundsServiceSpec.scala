@@ -175,25 +175,25 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
   "EuVatRefundsService.updatePurchase" - {
 
     val updateRequest = models.requests.UpdatePurchaseRequest(
-      applicationId = 123L,
-      itemNumber = 1,
-      goodsDescriptionCategory = "1.2",
+      applicationId               = 123L,
+      itemNumber                  = 1,
+      goodsDescriptionCategory    = "1.2",
       goodsDescriptionSubCategory = None,
-      goodsDescriptionText = Some("Fuel"),
-      simplifiedInvoiceIndicator = Some("Y"),
-      supplierName = Some("Supplier"),
-      supplierAddress1 = None,
-      supplierAddress2 = None,
-      supplierAddress3 = None,
-      supplierVatRegNumber = None,
-      supplierTaxIdentifier = None,
-      invoiceDate = None,
-      invoiceNumber = None,
-      currencyCode = None,
-      taxableAmount = None,
-      vatAmount = None,
-      deductibleVatAmount = None,
-      updateSequenceNumber = 1
+      goodsDescriptionText        = Some("Fuel"),
+      simplifiedInvoiceIndicator  = Some("Y"),
+      supplierName                = Some("Supplier"),
+      supplierAddress1            = None,
+      supplierAddress2            = None,
+      supplierAddress3            = None,
+      supplierVatRegNumber        = None,
+      supplierTaxIdentifier       = None,
+      invoiceDate                 = None,
+      invoiceNumber               = None,
+      currencyCode                = None,
+      taxableAmount               = None,
+      vatAmount                   = None,
+      deductibleVatAmount         = None,
+      updateSequenceNumber        = 1
     )
 
     val expectedResponse = models.responses.UpdatePurchaseResponse(updateSequenceNumber = 42)

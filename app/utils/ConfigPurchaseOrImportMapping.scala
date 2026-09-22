@@ -31,8 +31,8 @@ import com.typesafe.config.{ConfigObject, ConfigValueType}
 
 case class PurchaseNode(parent: String, code: String, label: String, children: Seq[PurchaseNode] = Seq.empty)
 
-/** `ConfigPurchaseOrImportMapping` loads a declarative purchase mapping from `application.conf` (under `purchase.mapping`) and exposes helpers used by
-  * controllers and views to build radio items and lookup subcodes/subcategories.
+/** `ConfigPurchaseOrImportMapping` loads a declarative purchase mapping from `application.conf` (under `purchase.mapping`) and exposes helpers used
+  * by controllers and views to build radio items and lookup subcodes/subcategories.
   *
   * The mapping supports mixed arrays (plain strings and nested objects) and contains logic to normalise label keys that include numeric ordering
   * segments. The class is intentionally defensive: most parsing errors are swallowed and an empty mapping is returned so the application can fall

@@ -97,7 +97,7 @@ object CheckYourPurchaseDetailsSummary {
       .get(PurchaseSubTypeLabelPage)
       .map {
         case ConfigPurchaseOrImportMapping.NoneValue => messages("site.none")
-        case value                           => value
+        case value                                   => value
       }
     val changeUrl = routes.PurchaseSubTypeController.onPageLoad(parentSlug, CheckMode).url
 

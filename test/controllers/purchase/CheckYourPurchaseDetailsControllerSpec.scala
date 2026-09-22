@@ -21,20 +21,20 @@ import controllers.routes
 import models.{Fuel, InvoiceType}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.{ArgumentCaptor, Mockito}
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar
 import models.requests.UpdatePurchaseRequest
 import play.api.inject.bind
 import play.api.Configuration
-import utils.{CurrencyConfig, Currency}
+import utils.{Currency, CurrencyConfig}
 import models.SupplierAddress
 import java.time.LocalDate
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import repositories.SessionRepository
 import services.EuVatRefundsService
 import scala.concurrent.Future
-import pages._
+import pages.*
 import models.responses.AddPurchaseResponse
 import play.api.libs.json.Json
 import models.responses.UpdatePurchaseResponse
@@ -51,10 +51,18 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
       )
 
       val userAnswers = emptyUserAnswers
-        .set(PurchaseTypePage, Fuel).success.value
-        .set(PurchaseSubTypePage, "1.2").success.value
-        .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber = 1, updateSequenceNumber = 1)).success.value
-        .set(queries.ClaimApplicationResponseQuery, models.responses.ApplicationResponse(1, "GB001", 1)).success.value
+        .set(PurchaseTypePage, Fuel)
+        .success
+        .value
+        .set(PurchaseSubTypePage, "1.2")
+        .success
+        .value
+        .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber = 1, updateSequenceNumber = 1))
+        .success
+        .value
+        .set(queries.ClaimApplicationResponseQuery, models.responses.ApplicationResponse(1, "GB001", 1))
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
@@ -80,9 +88,15 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
       )
 
       val userAnswers = emptyUserAnswers
-        .set(InvoiceTypePage, InvoiceType.SimplifiedInvoice).success.value
-        .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber = 2, updateSequenceNumber = 2)).success.value
-        .set(queries.ClaimApplicationResponseQuery, models.responses.ApplicationResponse(2, "GB002", 2)).success.value
+        .set(InvoiceTypePage, InvoiceType.SimplifiedInvoice)
+        .success
+        .value
+        .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber = 2, updateSequenceNumber = 2))
+        .success
+        .value
+        .set(queries.ClaimApplicationResponseQuery, models.responses.ApplicationResponse(2, "GB002", 2))
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
@@ -108,11 +122,21 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
       )
 
       val userAnswers = emptyUserAnswers
-        .set(PurchaseTypePage, Fuel).success.value
-        .set(PurchaseSubTypePage, "1.2").success.value
-        .set(SimplifiedInvoiceVatRegCheckPage, true).success.value
-        .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber = 3, updateSequenceNumber = 3)).success.value
-        .set(queries.ClaimApplicationResponseQuery, models.responses.ApplicationResponse(3, "GB003", 3)).success.value
+        .set(PurchaseTypePage, Fuel)
+        .success
+        .value
+        .set(PurchaseSubTypePage, "1.2")
+        .success
+        .value
+        .set(SimplifiedInvoiceVatRegCheckPage, true)
+        .success
+        .value
+        .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber = 3, updateSequenceNumber = 3))
+        .success
+        .value
+        .set(queries.ClaimApplicationResponseQuery, models.responses.ApplicationResponse(3, "GB003", 3))
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -125,7 +149,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
         val sent = captor.getValue
         sent.goodsDescriptionCategory mustEqual "1"
         sent.goodsDescriptionSubCategory must contain("1.2")
-        sent.simplifiedInvoiceIndicator must contain("true")
+        sent.simplifiedInvoiceIndicator  must contain("true")
       }
     }
 
@@ -138,11 +162,21 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
       )
 
       val userAnswers = emptyUserAnswers
-        .set(PurchaseTypePage, Fuel).success.value
-        .set(PurchaseSubTypePage, "1.2").success.value
-        .set(SimplifiedInvoiceVatRegCheckPage, false).success.value
-        .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber = 4, updateSequenceNumber = 4)).success.value
-        .set(queries.ClaimApplicationResponseQuery, models.responses.ApplicationResponse(4, "GB004", 4)).success.value
+        .set(PurchaseTypePage, Fuel)
+        .success
+        .value
+        .set(PurchaseSubTypePage, "1.2")
+        .success
+        .value
+        .set(SimplifiedInvoiceVatRegCheckPage, false)
+        .success
+        .value
+        .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber = 4, updateSequenceNumber = 4))
+        .success
+        .value
+        .set(queries.ClaimApplicationResponseQuery, models.responses.ApplicationResponse(4, "GB004", 4))
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -161,9 +195,15 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
       when(mockEuVatRefundsService.updatePurchase(any())(any())).thenReturn(Future.failed(new RuntimeException("boom")))
 
       val userAnswers = emptyUserAnswers
-        .set(PurchaseSubTypePage, "1.2").success.value
-        .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber = 5, updateSequenceNumber = 5)).success.value
-        .set(queries.ClaimApplicationResponseQuery, models.responses.ApplicationResponse(5, "GB005", 5)).success.value
+        .set(PurchaseSubTypePage, "1.2")
+        .success
+        .value
+        .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber = 5, updateSequenceNumber = 5))
+        .success
+        .value
+        .set(queries.ClaimApplicationResponseQuery, models.responses.ApplicationResponse(5, "GB005", 5))
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -177,11 +217,17 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
     }
 
     "should redirect to JourneyRecovery when ClaimApplicationResponseQuery missing" in {
-      when(mockEuVatRefundsService.updatePurchase(any())(any())) thenReturn Future.successful(models.responses.UpdatePurchaseResponse(updateSequenceNumber = 11))
+      when(mockEuVatRefundsService.updatePurchase(any())(any())) thenReturn Future.successful(
+        models.responses.UpdatePurchaseResponse(updateSequenceNumber = 11)
+      )
 
       val userAnswers = emptyUserAnswers
-        .set(PurchaseSubTypePage, "1.2").success.value
-        .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber = 6, updateSequenceNumber = 6)).success.value
+        .set(PurchaseSubTypePage, "1.2")
+        .success
+        .value
+        .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber = 6, updateSequenceNumber = 6))
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -223,7 +269,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
         val msgs = messages(application)
 
         status(result) mustEqual OK
-        body must not include ("Currency")
+        body must not include "Currency"
       }
     }
 
@@ -239,14 +285,30 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
       val supplierAddr = SupplierAddress(line1 = "L1", line2 = Some("L2"), line3 = Some("L3"))
 
       val userAnswers = emptyUserAnswers
-        .set(PurchaseSubTypePage, "1.2").success.value
-        .set(PurchaseSubCategoryPage, "7.1").success.value
-        .set(InvoiceDatePage, invoiceDate).success.value
-        .set(SupplierAddressPage, supplierAddr).success.value
-        .set(SupplierVatRegistrationNumberPage, "VAT123").success.value
-        .set(SupplierTaxIdentifierNumberPage, "TAX456").success.value
-        .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber = 7, updateSequenceNumber = 7)).success.value
-        .set(queries.ClaimApplicationResponseQuery, models.responses.ApplicationResponse(7, "GB007", 7)).success.value
+        .set(PurchaseSubTypePage, "1.2")
+        .success
+        .value
+        .set(PurchaseSubCategoryPage, "7.1")
+        .success
+        .value
+        .set(InvoiceDatePage, invoiceDate)
+        .success
+        .value
+        .set(SupplierAddressPage, supplierAddr)
+        .success
+        .value
+        .set(SupplierVatRegistrationNumberPage, "VAT123")
+        .success
+        .value
+        .set(SupplierTaxIdentifierNumberPage, "TAX456")
+        .success
+        .value
+        .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber = 7, updateSequenceNumber = 7))
+        .success
+        .value
+        .set(queries.ClaimApplicationResponseQuery, models.responses.ApplicationResponse(7, "GB007", 7))
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -258,12 +320,12 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
 
         val sent = captor.getValue
         sent.goodsDescriptionSubCategory must contain("7.1")
-        sent.invoiceDate must contain(invoiceDate.atStartOfDay())
-        sent.supplierAddress1 must contain("L1")
-        sent.supplierAddress2 must contain("L2")
-        sent.supplierAddress3 must contain("L3")
-        sent.supplierVatRegNumber must contain("VAT123")
-        sent.supplierTaxIdentifier must contain("TAX456")
+        sent.invoiceDate                 must contain(invoiceDate.atStartOfDay())
+        sent.supplierAddress1            must contain("L1")
+        sent.supplierAddress2            must contain("L2")
+        sent.supplierAddress3            must contain("L3")
+        sent.supplierVatRegNumber        must contain("VAT123")
+        sent.supplierTaxIdentifier       must contain("TAX456")
       }
     }
 
@@ -277,9 +339,15 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
       )
 
       val userAnswers = emptyUserAnswers
-        .set(PurchaseSubTypePage, "1.2").success.value
-        .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber = 8, updateSequenceNumber = 8)).success.value
-        .set(queries.ClaimApplicationResponseQuery, models.responses.ApplicationResponse(8, "GB008", 8)).success.value
+        .set(PurchaseSubTypePage, "1.2")
+        .success
+        .value
+        .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber = 8, updateSequenceNumber = 8))
+        .success
+        .value
+        .set(queries.ClaimApplicationResponseQuery, models.responses.ApplicationResponse(8, "GB008", 8))
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(

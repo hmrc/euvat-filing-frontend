@@ -52,7 +52,8 @@ class DescribeItemsOnInvoiceControllerSpec extends SpecBase with MockitoSugar {
         override def subcodesFor(country: String, parentKey: String) = Seq(("10.6", "purchase.sub.other.6"), ("10.99", "purchase.sub.other.99"))
         override def buildRadioItems(options: Seq[(String, String)], msgs: play.api.i18n.Messages) = Seq.empty
       }
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).overrides(bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig)).build()
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers)).overrides(bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig)).build()
 
       running(application) {
         val request = FakeRequest(GET, describeItemsOnInvoiceRoute)
@@ -339,7 +340,8 @@ class DescribeItemsOnInvoiceControllerSpec extends SpecBase with MockitoSugar {
         .success
         .value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).overrides(bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig)).build()
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers)).overrides(bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig)).build()
 
       running(application) {
         val request = FakeRequest(GET, describeItemsOnInvoiceRoute)
