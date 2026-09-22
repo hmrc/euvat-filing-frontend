@@ -118,20 +118,6 @@ class PurchaseSubCategoryController @Inject() (
       )
   }
 
-//  private def backUrlFor(userAnswers: UserAnswers, mode: Mode)(implicit request: RequestHeader): String = {
-//    val prefix = MountPrefix.getFromRequest
-//    userAnswers.get(PurchaseTypePage).map(pt => PurchaseType.urlSlugForPurchaseType(pt)) match {
-//      case Some(slug) =>
-//        if (mode == CheckMode) {
-//          routes.CheckYourPurchaseDetailsController.onPageLoad().url
-//        } else {
-//          val url = ControllerHelpers.pathForSlug(slug, mode, prefix)
-//          Call("GET", url).url
-//        }
-//      case None => routes.PurchaseTypeController.onPageLoad(models.NormalMode).url
-//    }
-//  }
-
   private def selectTitle(parentKey: String, resolvedParentCode: String, options: Seq[(String, String)], msgs: Messages): String = {
     val lastSeg = resolvedParentCode.split("\\.").lastOption.getOrElse(resolvedParentCode)
     val headSeg = resolvedParentCode.split("\\.").headOption.getOrElse(resolvedParentCode)

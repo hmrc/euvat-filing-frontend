@@ -17,18 +17,17 @@
 package controllers.purchase
 
 import controllers.actions.*
-import controllers.helpers.PurchaseBackLinkHelper
 import forms.purchase.DescribeItemsOnInvoiceFormProvider
 import models.requests.DataRequest
-import models.{CheckMode, Mode, Other, PurchaseType, UserAnswers}
+import models.{CheckMode, Mode, UserAnswers}
 import navigation.Navigator
 import pages.*
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.{ConfigPurchaseMapping, CountryCode}
+import utils.ConfigPurchaseMapping
 import views.html.purchase.DescribeItemsOnInvoiceView
 
 import javax.inject.Inject
@@ -50,33 +49,6 @@ class DescribeItemsOnInvoiceController @Inject() (
     with I18nSupport {
 
   val form: Form[String] = formProvider()
-
-  private def parentIndicatesNone(implicit request: DataRequest[?]): Boolean =
-    request.userAnswers.get(PurchaseSubTypePage).exists(v => v.split("\\.").lastOption.contains("99"))
-
-  private def childIndicatesNone(implicit request: DataRequest[?]): Boolean =
-    request.userAnswers.get(PurchaseSubCategoryPage).exists(v => v.split("\\.").lastOption.contains("99"))
-
-  private def hasMultipleOtherSubcodes(country: String): Boolean =
-    try {
-      val opts = configPurchaseMapping.subcodesFor(country, "other")
-      opts.nonEmpty && opts.size > 1
-    } catch { case _: Throwable => false }
-
-  private def determineBackForOther(mode: Mode)(implicit request: DataRequest[?]): Call =
-    if (parentIndicatesNone) {
-      CountryCode.findCountryCode(request.userAnswers).fold(routes.PurchaseTypeController.onPageLoad(mode)) { country =>
-        if (hasMultipleOtherSubcodes(country)) {
-          routes.PurchaseSubTypeController.onPageLoad(PurchaseType.urlSlugForPurchaseType(Other), mode)
-        } else {
-          routes.PurchaseTypeController.onPageLoad(mode)
-        }
-      }
-    } else if (childIndicatesNone) {
-      routes.PurchaseTypeController.onPageLoad(mode)
-    } else {
-      PurchaseBackLinkHelper.computeBackTarget(mode)
-    }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     val preparedForm = request.userAnswers.get(DescribeItemsOnInvoicePage).fold(form)(form.fill)
