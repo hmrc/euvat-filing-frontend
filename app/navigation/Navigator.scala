@@ -262,10 +262,8 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
 
   private def navigateFromImportSubCodePage(mode: Mode)(userAnswers: UserAnswers): Call =
     (userAnswers.get(ImportTypePage), userAnswers.get(ImportSubCodePage), CountryCode.findCountryCode(userAnswers)) match {
-      case (_, Some(ConfigPurchaseOrImportMapping.NoneValue), _) =>
-        controllers.routes.JourneyRecoveryController.onPageLoad()
       case (Some(importType), Some(subCode), Some(country))
-          if configPurchaseMapping.subcategoriesFor(country, importType.toString, subCode).nonEmpty =>
+        if configPurchaseMapping.subcategoriesFor(country, importType.toString, subCode).nonEmpty =>
         importsRoutes.ImportSubCategoryController.onPageLoad(mode)
       case (_, Some(_), _) =>
         importsRoutes.SadReferenceController.onPageLoad
@@ -275,8 +273,8 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
 
   private def navigateFromImportSubCategoryPage(userAnswers: UserAnswers): Call =
     userAnswers.get(ImportSubCategoryPage) match {
-      case Some(ConfigPurchaseOrImportMapping.NoneValue) | None => controllers.routes.JourneyRecoveryController.onPageLoad()
-      case Some(_)                                              => importsRoutes.SadReferenceController.onPageLoad
+      case Some(_) => importsRoutes.SadReferenceController.onPageLoad
+      case None => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
   private def navigateFromImportTypePage(mode: Mode)(userAnswers: UserAnswers): Call = {
