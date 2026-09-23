@@ -128,6 +128,29 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
     }
   }
 
+  "EuVatRefundsService.deleteApplication" - {
+
+    "should delegate to connector and return Unit" in {
+      val req = models.requests.DeleteApplicationRequest(123L, 1)
+      when(mockConnector.deleteApplication(any())(any())).thenReturn(Future.successful(()))
+
+      service.deleteApplication(req)(hc).futureValue mustEqual ()
+      verify(mockConnector).deleteApplication(req)(hc)
+    }
+
+    "should propagate connector failures" in {
+      val req = models.requests.DeleteApplicationRequest(123L, 1)
+      val failure = new RuntimeException("boom")
+      when(mockConnector.deleteApplication(any())(any())).thenReturn(Future.failed(failure))
+
+      val result = service.deleteApplication(req)
+      whenReady(result.failed) { ex =>
+        ex mustEqual failure
+      }
+    }
+
+  }
+
   "EuVatRefundsService.addPurchase" - {
 
     val request = AddPurchaseRequest(
@@ -175,25 +198,25 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
   "EuVatRefundsService.updatePurchase" - {
 
     val updateRequest = models.requests.UpdatePurchaseRequest(
-      applicationId = 123L,
-      itemNumber = 1,
-      goodsDescriptionCategory = "1.2",
+      applicationId               = 123L,
+      itemNumber                  = 1,
+      goodsDescriptionCategory    = "1.2",
       goodsDescriptionSubCategory = None,
-      goodsDescriptionText = Some("Fuel"),
-      simplifiedInvoiceIndicator = Some("Y"),
-      supplierName = Some("Supplier"),
-      supplierAddress1 = None,
-      supplierAddress2 = None,
-      supplierAddress3 = None,
-      supplierVatRegNumber = None,
-      supplierTaxIdentifier = None,
-      invoiceDate = None,
-      invoiceNumber = None,
-      currencyCode = None,
-      taxableAmount = None,
-      vatAmount = None,
-      deductibleVatAmount = None,
-      updateSequenceNumber = 1
+      goodsDescriptionText        = Some("Fuel"),
+      simplifiedInvoiceIndicator  = Some("Y"),
+      supplierName                = Some("Supplier"),
+      supplierAddress1            = None,
+      supplierAddress2            = None,
+      supplierAddress3            = None,
+      supplierVatRegNumber        = None,
+      supplierTaxIdentifier       = None,
+      invoiceDate                 = None,
+      invoiceNumber               = None,
+      currencyCode                = None,
+      taxableAmount               = None,
+      vatAmount                   = None,
+      deductibleVatAmount         = None,
+      updateSequenceNumber        = 1
     )
 
     val expectedResponse = models.responses.UpdatePurchaseResponse(updateSequenceNumber = 42)

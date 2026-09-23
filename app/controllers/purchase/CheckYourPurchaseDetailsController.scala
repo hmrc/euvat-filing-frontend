@@ -121,9 +121,9 @@ class CheckYourPurchaseDetailsController @Inject() (
           .get(SimplifiedInvoiceVatRegCheckPage)
           .map(_.toString)
           .orElse {
-            request.userAnswers.get(InvoiceTypePage).map {
-              case InvoiceType.SimplifiedInvoice => "true"
-              case _                             => "false"
+            request.userAnswers.get(pages.InvoiceTypePage).map {
+              case models.InvoiceType.SimplifiedInvoice => "true"
+              case _                                    => "false"
             }
           }
         val supplierName = request.userAnswers.get(SuppliersNamePage)

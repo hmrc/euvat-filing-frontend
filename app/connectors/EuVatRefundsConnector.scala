@@ -21,7 +21,6 @@ import models.responses.*
 import play.api.Logging
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
-import play.api.libs.json.Json
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReadsInstances, StringContextOps}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -80,6 +79,12 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
       .put(url"$euVatRefundsBaseUrl/update-purchase-details")
       .withBody(Json.toJson(request))
       .execute[UpdatePurchaseResponse]
+
+  def deleteApplication(request: DeleteApplicationRequest)(implicit hc: HeaderCarrier): Future[Unit] =
+    http
+      .delete(url"$euVatRefundsBaseUrl/delete-application")
+      .withBody(Json.toJson(request))
+      .execute[Unit]
 
   def getSupplierTaxIdentifierCount(
     request: SupplierTaxIdentifierCountRequest
