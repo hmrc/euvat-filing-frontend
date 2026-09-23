@@ -68,6 +68,7 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case SadReferenceNumberPage =>
       userAnswers => importNavigator.navigateFromSadReferenceNumberPage(NormalMode)(userAnswers) // TODO: import date page goes here
     case ImportDetailsInfoPage     => _ => importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode)
+    case ImportDatePage                    => _ => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: replace with SupplierNameController NormalMode once built
     case ImportSuppliersNamePage   => userAnswers => importNavigator.navigateToCurrencyOrNextPage(NormalMode)(userAnswers)
     case ImportCurrencyPage        => _ => importRoutes.TotalAmountWithoutVatController.onPageLoad(NormalMode)
     case TotalAmountWithoutVatPage => userAnswers => importNavigator.navigateFromTotalAmountWithoutVatPage(NormalMode)(userAnswers)
@@ -108,11 +109,15 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case SadReferenceNumberPage =>
       userAnswers => importNavigator.navigateFromSadReferenceNumberPage(CheckMode)(userAnswers) // TODO: import date page goes here
     case ImportDetailsInfoPage     => _ => importRoutes.ImportSuppliersNameController.onPageLoad(CheckMode)
+    case ImportDatePage                    => _ => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: replace with SupplierNameController CheckMode once built
     case ImportSuppliersNamePage   => userAnswers => importNavigator.navigateToCurrencyOrNextPage(CheckMode)(userAnswers)
     case ImportCurrencyPage        => _ => importRoutes.TotalAmountWithoutVatController.onPageLoad(CheckMode)
     case TotalAmountWithoutVatPage => userAnswers => importNavigator.navigateFromTotalAmountWithoutVatPage(CheckMode)(userAnswers)
     case TotalVatPaidImportPage            => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
     case _                                 => _ => controllers.routes.IndexController.onPageLoad()
+
+
+
   }
 
   private def navigateFromPurchaseOrImportPage(userAnswers: UserAnswers): Call =
