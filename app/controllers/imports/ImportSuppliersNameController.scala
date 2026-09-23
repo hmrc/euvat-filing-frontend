@@ -18,7 +18,7 @@ package controllers.imports
 
 import controllers.actions.*
 import forms.SuppliersNameFormProvider
-import models.NormalMode
+import models.{Mode, NormalMode}
 import navigation.Navigator
 import pages.ImportSuppliersNamePage
 import play.api.data.Form
@@ -32,40 +32,41 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class ImportSuppliersNameController @Inject() (
-                                          override val messagesApi: MessagesApi,
-                                          sessionRepository: SessionRepository,
-                                          navigator: Navigator,
-                                          identify: IdentifierAction,
-                                          getData: DataRetrievalAction,
-                                          requireData: DataRequiredAction,
-                                          formProvider: SuppliersNameFormProvider,
-                                          val controllerComponents: MessagesControllerComponents,
-                                          view: SuppliersNameView
-                                        )(implicit ec: ExecutionContext)
-  extends FrontendBaseController
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  navigator: Navigator,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: SuppliersNameFormProvider,
+  val controllerComponents: MessagesControllerComponents,
+  view: SuppliersNameView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
     with I18nSupport {
 
   val form: Form[String] = formProvider()
 
-  private def submitCall: Call = controllers.imports.routes.SuppliersNameController.onSubmit
+  private def submitCall(mode: Mode): Call = controllers.imports.routes.ImportSuppliersNameController.onSubmit(mode)
+
   private def backLink: Call = controllers.imports.routes.SadReferenceController.onPageLoad
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(ImportSuppliersNamePage).fold(form)(form.fill)
-    Ok(view(preparedForm, submitCall, backLink, "import.caption", "suppliersName.import.hint"))
+    Ok(view(preparedForm, submitCall(mode), backLink, "import.caption", "suppliersName.import.hint"))
   }
 
-  def onSubmit: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
         formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, submitCall, backLink, "import.caption", "suppliersName.import.hint"))),
+          Future.successful(BadRequest(view(formWithErrors, submitCall(mode), backLink, "import.caption", "suppliersName.import.hint"))),
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(ImportSuppliersNamePage, value))
             _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(ImportSuppliersNamePage, NormalMode, updatedAnswers))
+          } yield Redirect(navigator.nextPage(ImportSuppliersNamePage, mode, updatedAnswers))
       )
   }
 }

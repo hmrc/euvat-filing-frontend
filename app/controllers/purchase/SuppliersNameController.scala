@@ -26,7 +26,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.purchase.SuppliersNameView
+import views.html.SuppliersNameView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -54,14 +54,17 @@ class SuppliersNameController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(SuppliersNamePage).fold(form)(form.fill)
-    Ok(view(preparedForm, mode, backLink(mode)))
+    Ok(view(preparedForm, routes.SuppliersNameController.onSubmit(mode), backLink(mode), "purchase.caption", "suppliersName.hint"))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)))),
+        formWithErrors =>
+          Future.successful(
+            BadRequest(view(formWithErrors, routes.SuppliersNameController.onSubmit(mode), backLink(mode), "purchase.caption", "suppliersName.hint"))
+          ),
         value =>
           if (mode == CheckMode && request.userAnswers.isAnswerUnchanged(SuppliersNamePage, value)) {
             Future.successful(Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad()))
