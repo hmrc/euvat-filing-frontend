@@ -98,11 +98,9 @@ class InvoiceTypeController @Inject() (
             for {
               answers  <- Future.fromTry(request.userAnswers.set(InvoiceTypePage, value))
               answers1 <- Future.fromTry(answers.remove(SimplifiedInvoiceVatRegCheckPage))
-              answers2 <- Future.fromTry(answers1.remove(SupplierVatRegistrationNumberPage))
-              answers3 <- Future.fromTry(answers2.remove(SupplierTaxNumberPage))
-              answers4 <- Future.fromTry(answers3.remove(SupplierTaxIdentifierNumberPage))
-              _        <- sessionRepository.set(answers4)
-            } yield postRedirect(mode, value, answers4)
+              answers2 <- Future.fromTry(answers1.remove(SupplierTaxNumberPage))
+              _        <- sessionRepository.set(answers2)
+            } yield postRedirect(mode, value, answers2)
           }
         }
       )
