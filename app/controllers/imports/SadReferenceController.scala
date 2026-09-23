@@ -18,6 +18,7 @@ package controllers.imports
 
 import controllers.actions.*
 import forms.imports.SadReferenceFormProvider
+import models.NormalMode
 import pages.SadReferencePage
 import models.requests.DataRequest
 import navigation.Navigator
@@ -41,6 +42,7 @@ class SadReferenceController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: SadReferenceFormProvider,
+  navigator: Navigator,
   val controllerComponents: MessagesControllerComponents,
   view: SadReferenceView
 )(implicit ec: ExecutionContext)
