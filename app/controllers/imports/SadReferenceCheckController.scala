@@ -18,6 +18,7 @@ package controllers.imports
 
 import controllers.actions.*
 import forms.imports.SadReferenceCheckFormProvider
+import models.NormalMode
 import pages.SadReferenceCheckPage
 import models.requests.DataRequest
 import navigation.Navigator
@@ -42,6 +43,7 @@ class SadReferenceCheckController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: SadReferenceCheckFormProvider,
+  navigator: Navigator,
   val controllerComponents: MessagesControllerComponents,
   view: SadReferenceCheckView
 )(implicit ec: ExecutionContext)

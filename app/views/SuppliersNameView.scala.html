@@ -29,14 +29,14 @@
 
 @isError = @{form.error("value").isDefined}
 
-@layout(pageTitle = title(form, messages("suppliersName.title")), backLinkUrl = Some(call.url)) {
+@layout(pageTitle = title(form, messages("suppliersName.title")), backLinkUrl = Some(backLink.url)) {
 
-    @formHelper(action = controllers.purchase.routes.SuppliersNameController.onSubmit(mode), Symbol("autocomplete") -> "off") {
+    @formHelper(action = submitCall, Symbol("autocomplete") -> "off") {
 
         @mainErrorSummary(form, Map.empty)
 
         <div class="govuk-form-group @if(isError){govuk-form-group--error}">
-            <span class="govuk-caption-l">@messages("purchase.caption")</span>
+            <span class="govuk-caption-l">@messages(captionKey)</span>
 
             @govukInput(
                 InputViewModel(
@@ -49,7 +49,7 @@
                 )
                 .withWidth(Full)
                 .withAutocomplete("off")
-                .withHint(HintViewModel(Text(messages("suppliersName.hint"))))
+                .withHint(HintViewModel(Text(messages(hintKey))))
             )
         </div>
 
