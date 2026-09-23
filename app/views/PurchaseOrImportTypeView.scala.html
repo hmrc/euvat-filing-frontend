@@ -31,14 +31,15 @@
 
 @(form: Form[?], mode: Mode, backLink: Call, submitCall: Call, messagePrefix: String, captionKey: String, showPurchaseIntro: Boolean = true, legendKey: Option[String] = None)(implicit request: Request[?], messages: Messages)
 
+@isError = @{form.error("value").isDefined}
+
 @layout(pageTitle = views.ViewUtils.title(form, s"$messagePrefix.title"), backLinkUrl = Some(backLink.url)) {
     @formHelper(action = submitCall) {
         @mainErrorSummary(form, Map("value" -> "value_0"))
 
-        <span class="govuk-caption-l">@messages(captionKey)</span>
-
         @legendKey match {
             case Some(key) => {
+                <span class="govuk-caption-l">@messages(captionKey)</span>
                 <h1 class="govuk-heading-l">@messages(s"$messagePrefix.heading")</h1>
 
                 @if(showPurchaseIntro) {
@@ -58,6 +59,9 @@
                 )
             }
             case None => {
+                <div class="govuk-form-group @if(isError){govuk-form-group--error}">
+                <span class="govuk-caption-l">@messages(captionKey)</span>
+
                 @govukRadios(
                     RadiosViewModel(
                         field  = form("value"),
@@ -65,6 +69,7 @@
                         items  = PurchaseOrImportType.options(messagePrefix)
                     )
                 )
+                </div>
             }
         }
 
