@@ -330,6 +330,8 @@ suppliersName.error.length = The supplier’s name must be 35 characters or less
 suppliersName.checkYourAnswersLabel = Supplier name
 suppliersName.change.hidden = Change supplier name
 
+suppliersName.import.hint = Find the supplier’s name on the import document
+
 supplierTaxNumber.title = Select the supplier tax numbers shown on the invoice
 supplierTaxNumber.heading = Select the supplier tax numbers shown on the invoice
 supplierTaxNumber.vatRegistrationNumber = VAT registration number (also known as Umsatzsteuer-Identifikationsnummer)
@@ -563,8 +565,6 @@ vatClaimWarning.p = You''ve told us the amount of VAT you''re claiming is {0}. T
 vatClaimWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
 vatClaimWarning.yes = Yes, this is correct
 vatClaimWarning.no = No, change the VAT claim amount
-
-import.caption = Import details
 
 singleAdministrativeDocumentReferenceNumberAvailable.title = Do you have a Single Administrative Document (SAD) reference number?
 singleAdministrativeDocumentReferenceNumberAvailable.heading = Do you have a Single Administrative Document (SAD) reference number?
