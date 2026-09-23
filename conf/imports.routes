@@ -72,3 +72,9 @@ GET         /import-document-details                                     control
 POST        /import-document-details                                     controllers.imports.ImportDetailsInfoController.onSubmit(mode: Mode = NormalMode)
 GET         /change-import-document-details                              controllers.imports.ImportDetailsInfoController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-import-document-details                              controllers.imports.ImportDetailsInfoController.onSubmit(mode: Mode = CheckMode)
+
+GET         /import-date                                                 controllers.imports.ImportDateController.onPageLoad(mode: Mode = NormalMode)
+POST        /import-date                                                 controllers.imports.ImportDateController.onSubmit(mode: Mode = NormalMode)
+GET         /change-import-date                                          controllers.imports.ImportDateController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-import-date                                          controllers.imports.ImportDateController.onSubmit(mode: Mode = CheckMode)
+

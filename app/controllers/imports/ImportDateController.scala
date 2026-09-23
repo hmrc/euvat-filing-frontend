@@ -26,33 +26,55 @@ class ImportDateController @Inject()(
                                         view: ImportDateView
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) {
-    implicit request =>
+   private def form(implicit messages: Messages) = formProvider()
+   private def backLink(mode: Mode) = if (mode == CheckMode) {
+     routes.CheckYourPurchaseDetailsController.onPageLoad()
+   } else {
+     routes.ImportDetailsInfoController.onPageLoad(NormalMode)
+   }
 
-      val form = formProvider()
+   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+     val preparedForm = request.userAnswers.get(ImportDatePage).fold(form)(form.fill)
+     Ok(view(preparedForm, mode, backLink(mode)))
+   }
 
-      val preparedForm = request.userAnswers.get(ImportDatePage) match {
-        case None => form
-        case Some(value) => form.fill(value)
-      }
+   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+     form
+       .bindFromRequest()
+       .fold(
+         formWithErrors => badRequestToImportDate(formWithErrors, mode),
+         value =>
+           val today = java.time.LocalDate.now()
+           if (value.isAfter(today)) {
+             val errorForm = form.bindFromRequest().withError("value", "importDate.error.past")
+             badRequestToImportDate(errorForm, mode)
+           } else {
+             handleSubmission(value, mode)(request)
+           }
+       )
+   }
 
-      Ok(view(preparedForm, mode))
-  }
+   private def badRequestToImportDate(formWithErrors: Form[?], mode: Mode)(implicit
+     request: Request[AnyContent]
+   ): Future[play.api.mvc.Result] = {
+     val html = view(formWithErrors, mode, backLink(mode))(request, messagesApi.preferred(request))
+     Future.successful(BadRequest(html))
+   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
-    implicit request =>
-
-      val form = formProvider()
-
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode))),
-
-        value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(ImportDatePage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(ImportDatePage, mode, updatedAnswers))
-      )
-  }
-}
+   private def handleSubmission(value: LocalDate, mode: Mode)(implicit request: DataRequest[?]): Future[Result] = {
+     if (mode == CheckMode && request.userAnswers.isAnswerUnchanged(ImportDatePage, value)) {
+       Future.successful(Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad()))
+     } else {
+       for {
+         updatedAnswers <- Future.fromTry(request.userAnswers.set(ImportDatePage, value))
+         _              <- sessionRepository.set(updatedAnswers)
+       } yield {
+         if (mode == CheckMode) {
+           Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
+         } else {
+           Redirect(navigator.nextPage(ImportDatePage, mode, updatedAnswers))
+         }
+       }
+     }
+   }
+ }

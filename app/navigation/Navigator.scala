@@ -64,6 +64,7 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case ImportSubCodePage                 => userAnswers => importNavigator.navigateFromImportSubCodePage(NormalMode)(userAnswers)
     case ImportSubCategoryPage             => userAnswers => importNavigator.navigateFromImportSubCategoryPage(NormalMode)(userAnswers)
     case ImportDetailsInfoPage             => userAnswers => importNavigator.navigateFromImportDetailsInfoPage(NormalMode)(userAnswers)
+    case ImportDatePage                    => _ => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: replace with SupplierNameController NormalMode once built
     case SadReferencePage =>
       userAnswers =>
         userAnswers.get(SadReferencePage) match {
@@ -104,6 +105,7 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case ImportSubCodePage                 => _ => importRoutes.SadReferenceController.onPageLoad(CheckMode)
     case ImportSubCategoryPage             => userAnswers => importNavigator.navigateFromImportSubCategoryPage(CheckMode)(userAnswers)
     case ImportDetailsInfoPage             => userAnswers => importNavigator.navigateFromImportDetailsInfoPage(CheckMode)(userAnswers)
+    case ImportDatePage                    => _ => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: replace with SupplierNameController CheckMode once built
     case SadReferencePage =>
       userAnswers =>
         userAnswers.get(SadReferencePage) match {
