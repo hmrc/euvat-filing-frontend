@@ -33,7 +33,7 @@
 
     @formHelper(action = controllers.imports.routes.SadReferenceController.onSubmit, Symbol("autoComplete") -> "off") {
 
-        @mainErrorSummary(form, errorLinkOverrides = Map("value" -> "hasSadNumber"))
+        @mainErrorSummary(form, errorLinkOverrides = Map("value" -> "value"))
         
         <div class="govuk-form-group @if(isError){govuk-form-group--error}">
             <span class="govuk-caption-l">@messages("import.caption")</span>
@@ -48,17 +48,17 @@
                     ),
                     items = Seq(
                         RadioItem(
-                            id = Some("hasSadNumber"),
+                            id = Some("value"),
                             value = Some("true"),
                             content = Text(messages("site.yes"))
                         ),
                         RadioItem(
-                            id = Some("hasSadNumber-2"),
+                            id = Some("value-2"),
                             value = Some("false"),
                             content = Text(messages("site.no"))
                         )
                     )
-                ).withHint(HintViewModel(messages("singleAdministrativeDocumentReferenceNumberAvailable.hint")).withId("hasSadNumber-hint"))
+                ).withHint(HintViewModel(messages("singleAdministrativeDocumentReferenceNumberAvailable.hint")).withId("value-hint"))
             )
         </div>
 
