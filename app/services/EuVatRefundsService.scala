@@ -46,6 +46,9 @@ class EuVatRefundsService @Inject() (euVatRefundsConnector: EuVatRefundsConnecto
   def updatePurchase(request: UpdatePurchaseRequest)(implicit hc: HeaderCarrier): Future[UpdatePurchaseResponse] =
     euVatRefundsConnector.updatePurchase(request)
 
+  def deleteApplication(request: models.requests.DeleteApplicationRequest)(implicit hc: HeaderCarrier): Future[Unit] =
+    euVatRefundsConnector.deleteApplication(request)
+
   def getSupplierTaxIdentifierCount(request: SupplierTaxIdentifierCountRequest)(implicit
     hc: HeaderCarrier
   ): Future[SupplierTaxIdentifierCountResponse] =
