@@ -72,3 +72,6 @@ GET         /import-document-details                                     control
 POST        /import-document-details                                     controllers.imports.ImportDetailsInfoController.onSubmit(mode: Mode = NormalMode)
 GET         /change-import-document-details                              controllers.imports.ImportDetailsInfoController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-import-document-details                              controllers.imports.ImportDetailsInfoController.onSubmit(mode: Mode = CheckMode)
+
+GET         /suppliers-name                                               controllers.imports.SuppliersNameController.onPageLoad
+POST        /suppliers-name                                               controllers.imports.SuppliersNameController.onSubmit

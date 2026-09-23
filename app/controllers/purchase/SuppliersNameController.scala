@@ -17,7 +17,7 @@
 package controllers.purchase
 
 import controllers.actions.*
-import forms.purchase.SuppliersNameFormProvider
+import forms.SuppliersNameFormProvider
 import models.{CheckMode, Mode, NormalMode}
 import navigation.Navigator
 import pages.SuppliersNamePage
