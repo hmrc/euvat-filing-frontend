@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package controllers.purchase
+package controllers.imports
 
 import base.SpecBase
 import forms.SuppliersNameFormProvider
-import models.{CheckMode, Fuel, NormalMode, UserAnswers}
+import models.{CheckMode, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.SuppliersNamePage
+import pages.ImportSuppliersNamePage
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -34,14 +34,17 @@ import views.html.SuppliersNameView
 
 import scala.concurrent.Future
 
-class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
+class ImportSuppliersNameControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute: Call = Call("GET", "/foo")
   val formProvider = new SuppliersNameFormProvider()
   val form: Form[String] = formProvider()
-  lazy val suppliersNameRoute: String = routes.SuppliersNameController.onPageLoad(NormalMode).url
 
-  "SuppliersName Controller" - {
+  lazy val suppliersNameRoute: String = routes.ImportSuppliersNameController.onPageLoad(NormalMode).url
+  private def backLink: Call = routes.SadReferenceController.onPageLoad
+  private def submitCall(mode: models.Mode): Call = routes.ImportSuppliersNameController.onSubmit(mode)
+
+  "ImportSuppliersName Controller" - {
 
     "must return OK and the correct view for a GET" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
@@ -53,12 +56,7 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form,
-               routes.SuppliersNameController.onSubmit(NormalMode),
-               routes.InvoiceDateController.onPageLoad(NormalMode),
-               "purchase.caption",
-               "suppliersName.hint"
-              )(
+          view(form, submitCall(NormalMode), backLink, "import.caption", "suppliersName.import.hint")(
             request,
             messages(application)
           ).toString
@@ -70,18 +68,13 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.SuppliersNameController.onPageLoad(CheckMode).url)
+        val request = FakeRequest(GET, routes.ImportSuppliersNameController.onPageLoad(CheckMode).url)
         val result = route(application, request).value
         val view = application.injector.instanceOf[SuppliersNameView]
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form,
-            routes.SuppliersNameController.onSubmit(CheckMode),
-            routes.CheckYourPurchaseDetailsController.onPageLoad(),
-            "purchase.caption",
-            "suppliersName.hint"
-          )(
+          view(form, submitCall(CheckMode), backLink, "import.caption", "suppliersName.import.hint")(
             request,
             messages(application)
           ).toString
@@ -89,8 +82,23 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must show the import caption and hint" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, suppliersNameRoute)
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        val content = contentAsString(result)
+        content must include(messages(application)("import.caption"))
+        content must include(messages(application)("suppliersName.import.hint"))
+        content must not include messages(application)("suppliersName.hint")
+      }
+    }
+
     "must populate the view correctly on a GET when the question has previously been answered" in {
-      val userAnswers = UserAnswers(userAnswersId).set(SuppliersNamePage, "answer").success.value
+      val userAnswers = UserAnswers(userAnswersId).set(ImportSuppliersNamePage, "answer").success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -100,13 +108,7 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(
-            form.fill("answer"),
-            routes.SuppliersNameController.onSubmit(NormalMode),
-            routes.InvoiceDateController.onPageLoad(NormalMode),
-            "purchase.caption",
-            "suppliersName.hint"
-          )(
+          view(form.fill("answer"), submitCall(NormalMode), backLink, "import.caption", "suppliersName.import.hint")(
             request,
             messages(application)
           ).toString
@@ -114,7 +116,7 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to the next page when valid data is submitted" in {
+    "must save the answer and redirect to the next page when valid data is submitted" in {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
@@ -127,62 +129,11 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
           .build()
 
       running(application) {
-        val request =
-          FakeRequest(POST, suppliersNameRoute)
-            .withFormUrlEncodedBody(("value", "answer"))
-
+        val request = FakeRequest(POST, suppliersNameRoute).withFormUrlEncodedBody(("value", "answer"))
         val result = route(application, request).value
+
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
-      }
-    }
-
-    "must short-circuit to purchase CYA in CheckMode when value unchanged" in {
-      val userAnswers = UserAnswers(userAnswersId)
-        .set(pages.PurchaseTypePage, Fuel)
-        .success
-        .value
-        .set(SuppliersNamePage, "same")
-        .success
-        .value
-
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
-
-      running(application) {
-        val request = FakeRequest(POST, routes.SuppliersNameController.onSubmit(models.CheckMode).url)
-          .withFormUrlEncodedBody(("value", "same"))
-
-        val result = route(application, request).value
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad().url
-      }
-    }
-
-    "must persist and redirect to CYA in CheckMode when value changed" in {
-      val userAnswers = UserAnswers(userAnswersId)
-        .set(pages.PurchaseTypePage, Fuel)
-        .success
-        .value
-        .set(SuppliersNamePage, "old")
-        .success
-        .value
-
-      val mockSessionRepository = mock[SessionRepository]
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(
-          bind[SessionRepository].toInstance(mockSessionRepository)
-        )
-        .build()
-
-      running(application) {
-        val request = FakeRequest(POST, routes.SuppliersNameController.onSubmit(models.CheckMode).url)
-          .withFormUrlEncodedBody(("value", "new"))
-
-        val result = route(application, request).value
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad().url
         org.mockito.Mockito.verify(mockSessionRepository).set(any())
       }
     }
@@ -191,9 +142,7 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request =
-          FakeRequest(POST, suppliersNameRoute)
-            .withFormUrlEncodedBody(("value", ""))
+        val request = FakeRequest(POST, suppliersNameRoute).withFormUrlEncodedBody(("value", ""))
 
         val boundForm = form.bind(Map("value" -> ""))
         val view = application.injector.instanceOf[SuppliersNameView]
@@ -201,13 +150,7 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual BAD_REQUEST
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(
-            boundForm,
-            routes.SuppliersNameController.onSubmit(NormalMode),
-            routes.InvoiceDateController.onPageLoad(NormalMode),
-            "purchase.caption",
-            "suppliersName.hint"
-          )(
+          view(boundForm, submitCall(NormalMode), backLink, "import.caption", "suppliersName.import.hint")(
             request,
             messages(application)
           ).toString
@@ -219,9 +162,7 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request =
-          FakeRequest(POST, suppliersNameRoute)
-            .withFormUrlEncodedBody(("value", "a" * 36))
+        val request = FakeRequest(POST, suppliersNameRoute).withFormUrlEncodedBody(("value", "a" * 36))
 
         val boundForm = form.bind(Map("value" -> "a" * 36))
         val view = application.injector.instanceOf[SuppliersNameView]
@@ -229,13 +170,7 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual BAD_REQUEST
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(
-            boundForm,
-            routes.SuppliersNameController.onSubmit(NormalMode),
-            routes.InvoiceDateController.onPageLoad(NormalMode),
-            "purchase.caption",
-            "suppliersName.hint"
-          )(
+          view(boundForm, submitCall(NormalMode), backLink, "import.caption", "suppliersName.import.hint")(
             request,
             messages(application)
           ).toString
@@ -249,6 +184,7 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request = FakeRequest(GET, suppliersNameRoute)
         val result = route(application, request).value
+
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
@@ -258,11 +194,9 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request =
-          FakeRequest(POST, suppliersNameRoute)
-            .withFormUrlEncodedBody(("value", "answer"))
-
+        val request = FakeRequest(POST, suppliersNameRoute).withFormUrlEncodedBody(("value", "answer"))
         val result = route(application, request).value
+
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
