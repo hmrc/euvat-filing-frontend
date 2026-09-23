@@ -485,6 +485,9 @@ describeItemsOnInvoice.error.length = Item description must be 255 characters or
 describeItemsOnInvoice.checkYourAnswersLabel = Purchase description
 describeItemsOnInvoice.change.hidden = Change purchase description
 
+summary.purchase.import.title =
+summary.purchase.import.heading
+
 # Warning messages
 confirmRefundPeriodStartDate.title = Are you sure the refund period start date is correct?
 confirmRefundPeriodStartDate.heading = Are you sure the refund period start date is correct?
