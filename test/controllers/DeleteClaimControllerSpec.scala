@@ -19,16 +19,18 @@ package controllers
 import base.SpecBase
 import config.FrontendAppConfig
 import forms.DeleteClaimFormProvider
-import models.{NormalMode, RefundPeriod, UserAnswers}
-import navigation.{FakeNavigator, Navigator}
+import models.responses.ApplicationResponse
+import models.{RefundPeriod, UserAnswers}
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{DeleteClaimPage, RefundPeriodPage, RefundingCountryNamePage}
+import pages.{RefundPeriodPage, RefundingCountryNamePage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import queries.ClaimApplicationResponseQuery
 import repositories.SessionRepository
 import utils.DateTimeFormats.shortMonthYearFormat
 import views.html.DeleteClaimView
@@ -55,6 +57,9 @@ class DeleteClaimControllerSpec extends SpecBase with MockitoSugar {
     .success
     .value
     .set(RefundPeriodPage, testRefundPeriod)
+    .success
+    .value
+    .set(ClaimApplicationResponseQuery, ApplicationResponse(123, "APP123", 1))
     .success
     .value
 
@@ -84,7 +89,17 @@ class DeleteClaimControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to the management frontend when 'Yes' is submitted" in {
 
-      val application = applicationBuilder(userAnswers = Some(populatedAnswers)).build()
+      val mockSessionRepository = mock[SessionRepository]
+
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      when(mockEuVatRefundsService.deleteApplication(any())(any())) thenReturn Future.successful(())
+
+      val application =
+        applicationBuilder(userAnswers = Some(populatedAnswers))
+          .overrides(
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
 
       running(application) {
         val request =
@@ -97,12 +112,21 @@ class DeleteClaimControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual appConfig.claimDashboardUrl
+
+        verify(mockEuVatRefundsService).deleteApplication(any())(any())
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(mockSessionRepository).set(captor.capture())
+        import play.api.libs.json.Json
+        captor.getValue.data mustBe Json.obj()
       }
     }
 
     "must redirect to the task list dashboard when 'No' is submitted" in {
 
       val application = applicationBuilder(userAnswers = Some(populatedAnswers)).build()
+
+      val mockSessionRepository = mock[SessionRepository]
+      val mockEuVatRefundsService = mock[services.EuVatRefundsService]
 
       running(application) {
         val request =
