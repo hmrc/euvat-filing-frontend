@@ -73,8 +73,7 @@ class InvoiceTypeController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     val preparedForm = request.userAnswers.get(InvoiceTypePage).fold(form)(form.fill)
-    val back = computeBackTarget(mode)
-    Future.successful(Ok(view(preparedForm, mode, back)))
+    Future.successful(Ok(view(preparedForm, mode, computeBackTarget(mode))))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -82,27 +81,21 @@ class InvoiceTypeController @Inject() (
       .bindFromRequest()
       .fold(
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, computeBackTarget(mode))(request, messagesApi.preferred(request)))),
-        value => {
-          if (request.userAnswers.isAnswerUnchanged(InvoiceTypePage, value)) {
-            for {
-              answers <- Future.fromTry(request.userAnswers.set(InvoiceTypePage, value))
-              _       <- sessionRepository.set(answers)
-            } yield {
+        value =>
+          for {
+            answers <- Future.fromTry(request.userAnswers.set(InvoiceTypePage, value))
+            _       <- sessionRepository.set(answers)
+          } yield {
+            if (request.userAnswers.isAnswerUnchanged(InvoiceTypePage, value)) {
               if (mode == CheckMode) {
                 Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
               } else {
                 Redirect(routes.InvoiceNumberController.onPageLoad(NormalMode))
               }
+            } else {
+              postRedirect(mode, value, answers)
             }
-          } else {
-            for {
-              answers  <- Future.fromTry(request.userAnswers.set(InvoiceTypePage, value))
-              answers1 <- Future.fromTry(answers.remove(SimplifiedInvoiceVatRegCheckPage))
-              answers2 <- Future.fromTry(answers1.remove(SupplierTaxNumberPage))
-              _        <- sessionRepository.set(answers2)
-            } yield postRedirect(mode, value, answers2)
           }
-        }
       )
   }
 
