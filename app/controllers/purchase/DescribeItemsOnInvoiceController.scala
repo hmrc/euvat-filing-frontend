@@ -19,7 +19,7 @@ package controllers.purchase
 import controllers.actions.*
 import forms.purchase.DescribeItemsOnInvoiceFormProvider
 import models.requests.DataRequest
-import models.{CheckMode, Mode, UserAnswers}
+import models.{CheckMode, Mode, Other, PurchaseOrImportType, UserAnswers}
 import navigation.Navigator
 import pages.*
 import play.api.data.Form
@@ -27,7 +27,8 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.ConfigPurchaseMapping
+import utils.{ConfigPurchaseOrImportMapping, CountryCode}
+import utils.ControllerHelpers.*
 import views.html.purchase.DescribeItemsOnInvoiceView
 
 import javax.inject.Inject
@@ -36,7 +37,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class DescribeItemsOnInvoiceController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
-  configPurchaseMapping: ConfigPurchaseMapping,
+  configPurchaseMapping: ConfigPurchaseOrImportMapping,
   navigator: Navigator,
   identify: IdentifierAction,
   getData: DataRetrievalAction,

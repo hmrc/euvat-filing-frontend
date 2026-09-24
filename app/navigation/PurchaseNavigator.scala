@@ -17,20 +17,20 @@
 package navigation
 
 import controllers.purchase.routes as purchaseRoutes
-import models.{CheckMode, InvoiceType, Mode, NormalMode, PurchaseType, SupplierTaxNumber, UserAnswers}
+import models.{CheckMode, InvoiceType, Mode, NormalMode, PurchaseOrImportType, SupplierTaxNumber, UserAnswers}
 import pages.*
 import play.api.mvc.Call
-import utils.{ConfigPurchaseMapping, CountryCode, CurrencyConfig}
+import utils.{ConfigPurchaseOrImportMapping, CountryCode, CurrencyConfig}
 
 import javax.inject.{Inject, Singleton}
 
 @Singleton
-class PurchaseNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseMapping: ConfigPurchaseMapping) {
+class PurchaseNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseOrImportMapping: ConfigPurchaseOrImportMapping) {
   def navigateFromPurchaseTypePage(mode: Mode)(userAnswers: UserAnswers): Call =
     (userAnswers.get(PurchaseTypePage), CountryCode.findCountryCode(userAnswers)) match {
       case (Some(purchaseTypeCode), Some(country)) =>
-        if (configPurchaseMapping.subcodesFor(country, purchaseTypeCode.toString).nonEmpty) {
-          Call("GET", s"/${PurchaseType.urlSlugForPurchaseType(purchaseTypeCode)}")
+        if (configPurchaseOrImportMapping.subcodesFor(country, purchaseTypeCode.toString).nonEmpty) {
+          Call("GET", s"/${PurchaseOrImportType.urlSlugForPurchaseType(purchaseTypeCode)}")
         } else {
           mode match {
             case CheckMode => purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()

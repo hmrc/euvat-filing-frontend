@@ -14,21 +14,26 @@
  * limitations under the License.
  */
 
-package forms.purchase
+package forms.imports
 
-import forms.mappings.Mappings
-import models.PurchaseOrImportType
-import play.api.data.Form
+import forms.behaviours.BooleanFieldBehaviours
+import play.api.data.FormError
 
-import javax.inject.Inject
+class SadReferenceFormProviderSpec extends BooleanFieldBehaviours {
 
-class PurchaseTypeFormProvider @Inject() extends Mappings {
+  val requiredKey = "sadReference.error.required"
+  val invalidKey = "error.boolean"
 
-  def apply(): Form[PurchaseOrImportType] =
-    Form(
-      "value" -> enumerable[PurchaseOrImportType](
-        requiredKey = "purchaseType.error.required",
-        invalidKey  = "purchaseType.error.required"
-      )
+  val form = new SadReferenceFormProvider()()
+
+  ".value" - {
+    val fieldName = "value"
+
+    behave like booleanField(
+      form,
+      fieldName,
+      FormError(fieldName, invalidKey)
     )
+  }
+
 }

@@ -18,7 +18,7 @@ package controllers.purchase
 
 import base.SpecBase
 import forms.purchase.DescribeItemsOnInvoiceFormProvider
-import models.{CheckMode, Fuel, NormalMode, Other, PurchaseType, UserAnswers}
+import models.{CheckMode, Fuel, NormalMode, Other, PurchaseOrImportType, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -31,7 +31,7 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import utils.ConfigPurchaseMapping
+import utils.ConfigPurchaseOrImportMapping
 import views.html.purchase.DescribeItemsOnInvoiceView
 
 import scala.concurrent.Future
@@ -49,11 +49,12 @@ class DescribeItemsOnInvoiceControllerSpec extends SpecBase with MockitoSugar {
   "DescribeItemsOnInvoice Controller" - {
 
     "must return OK and the correct view for a GET" in {
-      val fakeConfig: ConfigPurchaseMapping = new ConfigPurchaseMapping() {
+      val fakeConfig: ConfigPurchaseOrImportMapping = new ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String) = Seq(("10.6", "purchase.sub.other.6"), ("10.99", "purchase.sub.other.99"))
         override def buildRadioItems(options: Seq[(String, String)], msgs: play.api.i18n.Messages) = Seq.empty
       }
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).overrides(bind[ConfigPurchaseMapping].toInstance(fakeConfig)).build()
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers)).overrides(bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig)).build()
 
       running(application) {
         val request = FakeRequest(GET, describeItemsOnInvoiceRoute)
@@ -313,7 +314,7 @@ class DescribeItemsOnInvoiceControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must show backlink to PurchaseSubType when Other + subtype .99 and country has multiple other options" in {
-      val fakeConfig: ConfigPurchaseMapping = new ConfigPurchaseMapping() {
+      val fakeConfig: ConfigPurchaseOrImportMapping = new ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String) = Seq(("10.6", "purchase.sub.other.6"), ("10.99", "purchase.sub.other.99"))
         override def buildRadioItems(options: Seq[(String, String)], msgs: play.api.i18n.Messages) = Seq.empty
       }
@@ -329,7 +330,8 @@ class DescribeItemsOnInvoiceControllerSpec extends SpecBase with MockitoSugar {
         .success
         .value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).overrides(bind[ConfigPurchaseMapping].toInstance(fakeConfig)).build()
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers)).overrides(bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig)).build()
 
       running(application) {
         val request = FakeRequest(GET, describeItemsOnInvoiceRoute)

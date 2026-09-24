@@ -21,10 +21,11 @@ import com.typesafe.config.ConfigFactory
 import controllers.claim.routes as claimRoutes
 import controllers.purchase.routes as purchaseRoutes
 import models.*
+import models.PurchaseOrImport.{Import, Purchase}
 import pages.*
 import play.api.Configuration
 import play.api.mvc.Call
-import utils.{ConfigLanguageMapping, ConfigPurchaseMapping, CurrencyConfig}
+import utils.{ConfigLanguageMapping, ConfigPurchaseOrImportMapping, CurrencyConfig}
 
 class NavigatorSpec extends SpecBase {
 
@@ -37,15 +38,6 @@ class NavigatorSpec extends SpecBase {
                 AT = ["german", "english"]
                 BE = ["english", "german", "french", "dutch"]
                 CZ = ["czech"]
-              }
-            """)
-        )
-      ),
-      new ConfigPurchaseMapping(
-        Configuration(
-          ConfigFactory.parseString("""
-              purchase.mapping {
-                DE = ["parent|sub1|purchase.sub.parent.sub1"]
               }
             """)
         )
@@ -63,7 +55,29 @@ class NavigatorSpec extends SpecBase {
             """)
         )
       ),
-      new ConfigPurchaseMapping(
+      new ConfigPurchaseOrImportMapping(
+        Configuration(
+          ConfigFactory.parseString("""
+              purchase.mapping {
+                DE = ["parent|sub1|purchase.sub.parent.sub1"]
+              }
+            """)
+        )
+      )
+    ),
+    new ImportNavigator(
+      new CurrencyConfig(
+        Configuration(
+          ConfigFactory.parseString("""
+              currency.mapping {
+                BG = ["euro|EUR|€", "bulgarianLev|BGN|лв"]
+                EE = ["euro|EUR|€", "estonianKroon|EEK|kr"]
+                AT = ["euro|EUR|€"]
+              }
+            """)
+        )
+      ),
+      new ConfigPurchaseOrImportMapping(
         Configuration(
           ConfigFactory.parseString("""
               purchase.mapping {
@@ -94,8 +108,10 @@ class NavigatorSpec extends SpecBase {
           claimRoutes.BusinessActivityThreeController.onPageLoad()
       }
 
-      "must go from PurchaseOrImportPage to PurchaseTypeController" in {
-        navigator.nextPage(PurchaseOrImportPage, NormalMode, userAnswers) mustBe
+      "must go from PurchaseOrImportPage to PurchaseTypeController when Purchase is selected" in {
+        val answers = userAnswers.set(PurchaseOrImportPage, Purchase).success.value
+
+        navigator.nextPage(PurchaseOrImportPage, NormalMode, answers) mustBe
           purchaseRoutes.PurchaseTypeController.onPageLoad(NormalMode)
       }
 

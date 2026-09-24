@@ -22,7 +22,7 @@ import controllers.purchase.routes as purchaseRoutes
 import models.*
 import pages.*
 import play.api.Configuration
-import utils.{ConfigPurchaseMapping, CurrencyConfig}
+import utils.{ConfigPurchaseOrImportMapping, CurrencyConfig}
 
 class PurchaseNavigatorSpec extends SpecBase {
 
@@ -38,7 +38,7 @@ class PurchaseNavigatorSpec extends SpecBase {
         """)
       )
     ),
-    new ConfigPurchaseMapping(
+    new ConfigPurchaseOrImportMapping(
       Configuration(
         ConfigFactory.parseString("""
               purchase.mapping {
@@ -54,7 +54,7 @@ class PurchaseNavigatorSpec extends SpecBase {
 
     "in Normal mode" - {
       "must go from PurchaseTypePage to DescribeItemsOnInvoiceController" in {
-        val ua = userAnswers.set(PurchaseTypePage, PurchaseType.values.head).success.value
+        val ua = userAnswers.set(PurchaseTypePage, PurchaseOrImportType.values.head).success.value
         navigator.navigateFromPurchaseTypePage(NormalMode)(ua) mustBe
           purchaseRoutes.DescribeItemsOnInvoiceController.onPageLoad(NormalMode)
       }
@@ -65,7 +65,7 @@ class PurchaseNavigatorSpec extends SpecBase {
       }
 
       "must go from PurchaseTypePage to PurchaseSubTypeController when mapping exists for country" in {
-        val fakePurchaseConfig = new ConfigPurchaseMapping() {
+        val fakePurchaseConfig = new ConfigPurchaseOrImportMapping() {
           override def subcodesFor(country: String, parentKey: String): Seq[(String, String)] =
             if (country == "AT" && parentKey == Fuel.toString) Seq(("1", "purchase.sub.fuel.1")) else Seq.empty
         }
@@ -77,11 +77,11 @@ class PurchaseNavigatorSpec extends SpecBase {
 
         val ua = userAnswers.set(RefundingCountryPage, "AT").success.value.set(PurchaseTypePage, Fuel).success.value
         nav.navigateFromPurchaseTypePage(NormalMode)(ua) mustBe
-          play.api.mvc.Call("GET", s"/${PurchaseType.urlSlugForPurchaseType(Fuel)}")
+          play.api.mvc.Call("GET", s"/${PurchaseOrImportType.urlSlugForPurchaseType(Fuel)}")
       }
 
       "must go from PurchaseTypePage to InvoiceTypeController when mapping is empty for country" in {
-        val fakePurchaseConfig: ConfigPurchaseMapping = new ConfigPurchaseMapping() {
+        val fakePurchaseConfig: ConfigPurchaseOrImportMapping = new ConfigPurchaseOrImportMapping() {
           override def subcodesFor(country: String, parentKey: String): Seq[Nothing] = Seq.empty
         }
 
@@ -96,7 +96,7 @@ class PurchaseNavigatorSpec extends SpecBase {
       }
 
       "must go from PurchaseTypePage to PurchaseSubTypeController when country stored as name-only string is used" in {
-        val fakePurchaseConfig = new ConfigPurchaseMapping() {
+        val fakePurchaseConfig = new ConfigPurchaseOrImportMapping() {
           override def subcodesFor(country: String, parentKey: String): Seq[(String, String)] =
             if (country == "Austria" && parentKey == Fuel.toString) Seq(("1", "purchase.sub.fuel.1")) else Seq.empty
         }
@@ -108,11 +108,11 @@ class PurchaseNavigatorSpec extends SpecBase {
 
         val ua = userAnswers.set(RefundingCountryNamePage, "Austria").success.value.set(PurchaseTypePage, Fuel).success.value
         nav.navigateFromPurchaseTypePage(NormalMode)(ua) mustBe
-          play.api.mvc.Call("GET", s"/${PurchaseType.urlSlugForPurchaseType(Fuel)}")
+          play.api.mvc.Call("GET", s"/${PurchaseOrImportType.urlSlugForPurchaseType(Fuel)}")
       }
 
       "must go from PurchaseTypePage to InvoiceTypeController when country stored as name-only and mapping empty" in {
-        val fakePurchaseConfig: ConfigPurchaseMapping = new ConfigPurchaseMapping() {
+        val fakePurchaseConfig: ConfigPurchaseOrImportMapping = new ConfigPurchaseOrImportMapping() {
           override def subcodesFor(country: String, parentKey: String): Seq[Nothing] = Seq.empty
         }
 
@@ -238,7 +238,7 @@ class PurchaseNavigatorSpec extends SpecBase {
 
     "in Check mode" - {
       "must go from PurchaseTypePage to DescribeItemsOnInvoiceController" in {
-        val ua = userAnswers.set(PurchaseTypePage, PurchaseType.values.head).success.value
+        val ua = userAnswers.set(PurchaseTypePage, PurchaseOrImportType.values.head).success.value
         navigator.navigateFromPurchaseTypePage(CheckMode)(ua) mustBe
           purchaseRoutes.DescribeItemsOnInvoiceController.onPageLoad(CheckMode)
       }
@@ -249,7 +249,7 @@ class PurchaseNavigatorSpec extends SpecBase {
       }
 
       "must go from PurchaseTypePage to PurchaseSubTypeController when mapping exists for country" in {
-        val fakePurchaseConfig = new ConfigPurchaseMapping() {
+        val fakePurchaseConfig = new ConfigPurchaseOrImportMapping() {
           override def subcodesFor(country: String, parentKey: String): Seq[(String, String)] =
             if (country == "AT" && parentKey == Fuel.toString) Seq(("1", "purchase.sub.fuel.1")) else Seq.empty
         }
@@ -261,11 +261,11 @@ class PurchaseNavigatorSpec extends SpecBase {
 
         val ua = userAnswers.set(RefundingCountryPage, "AT").success.value.set(PurchaseTypePage, Fuel).success.value
         nav.navigateFromPurchaseTypePage(CheckMode)(ua) mustBe
-          play.api.mvc.Call("GET", s"/${PurchaseType.urlSlugForPurchaseType(Fuel)}")
+          play.api.mvc.Call("GET", s"/${PurchaseOrImportType.urlSlugForPurchaseType(Fuel)}")
       }
 
       "must go from PurchaseTypePage to CheckYourPurchaseDetailsController when mapping is empty for country" in {
-        val fakePurchaseConfig: ConfigPurchaseMapping = new ConfigPurchaseMapping() {
+        val fakePurchaseConfig: ConfigPurchaseOrImportMapping = new ConfigPurchaseOrImportMapping() {
           override def subcodesFor(country: String, parentKey: String): Seq[Nothing] = Seq.empty
         }
 

@@ -19,7 +19,7 @@ package controllers.purchase
 import controllers.actions.*
 import forms.purchase.PurchaseSubTypeFormProvider
 import models.requests.DataRequest
-import models.{CheckMode, Mode, PurchaseSubCategoryType, PurchaseType, UserAnswers}
+import models.{CheckMode, Mode, NormalMode, PurchaseOrImportType, PurchaseSubCategoryType, UserAnswers}
 import navigation.Navigator
 import pages.*
 import play.api.Logging
@@ -29,8 +29,8 @@ import play.api.mvc.*
 import repositories.SessionRepository
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.{ConfigPurchaseMapping, ControllerHelpers, CountryCode}
-import views.html.purchase.PurchaseSubTypeView
+import utils.{ConfigPurchaseOrImportMapping, ControllerHelpers, CountryCode, MountPrefix}
+import views.html.PurchaseOrImportSubTypeView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -43,9 +43,9 @@ class PurchaseSubCategoryController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: PurchaseSubTypeFormProvider,
-  config: ConfigPurchaseMapping,
+  config: ConfigPurchaseOrImportMapping,
   val controllerComponents: MessagesControllerComponents,
-  view: PurchaseSubTypeView
+  view: PurchaseOrImportSubTypeView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
@@ -104,7 +104,7 @@ class PurchaseSubCategoryController @Inject() (
     request: RequestHeader
   ): Call = {
     val prefix = utils.MountPrefix.getFromRequest
-    val maybeSessionSlug = userAnswers.get(PurchaseTypePage).map(models.PurchaseType.urlSlugForPurchaseType)
+    val maybeSessionSlug = userAnswers.get(PurchaseTypePage).map(models.PurchaseOrImportType.urlSlugForPurchaseType)
     candidates.iterator
       .flatMap(c => tryReverseParent(parentKey, c, mode))
       .find(_ => true)
@@ -226,7 +226,7 @@ class PurchaseSubCategoryController @Inject() (
   }
 
   private def renderSubCategoryView(data: SubCategoryViewData)(implicit request: DataRequest[AnyContent]): Future[Result] =
-    Future.successful(Ok(view(data.preparedForm, data.items, data.pageTitle, data.heading, data.formAction)))
+    Future.successful(Ok(view(data.preparedForm, data.items, data.pageTitle, data.heading, "purchase.caption", data.formAction)))
 
   private def markArrivalAndRenderSubCategory(data: SubCategoryViewData, mode: Mode, userAnswers: UserAnswers)(implicit
     request: DataRequest[AnyContent]
@@ -314,9 +314,9 @@ class PurchaseSubCategoryController @Inject() (
   private def persistNoneSubCategorySelection(mode: Mode, userAnswers: UserAnswers)(implicit
     request: DataRequest[AnyContent]
   ): Future[Result] = {
-    val noneLabel = ConfigPurchaseMapping.NoneValue
+    val noneLabel = ConfigPurchaseOrImportMapping.NoneValue
     val savedTry = for {
-      a1 <- userAnswers.set(PurchaseSubCategoryPage, ConfigPurchaseMapping.NoneValue)
+      a1 <- userAnswers.set(PurchaseSubCategoryPage, ConfigPurchaseOrImportMapping.NoneValue)
       a2 <- a1.set(PurchaseSubCategoryLabelPage, noneLabel)
     } yield a2
 
@@ -349,7 +349,7 @@ class PurchaseSubCategoryController @Inject() (
     if (mode == CheckMode && userAnswers.isAnswerUnchanged(PurchaseSubCategoryPage, value)) {
       Future.successful(Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad()))
     } else {
-      if (value == ConfigPurchaseMapping.NoneValue) {
+      if (value == ConfigPurchaseOrImportMapping.NoneValue) {
         persistNoneSubCategorySelection(mode, userAnswers)
       } else {
         persistSelectedSubCategory(value, options, mode, userAnswers)
@@ -368,7 +368,10 @@ class PurchaseSubCategoryController @Inject() (
       data.preparedForm
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, data.items, data.pageTitle, data.heading, data.formAction))),
+          formWithErrors =>
+            Future.successful(
+              BadRequest(view(formWithErrors, data.items, data.pageTitle, data.heading, "purchase.caption", data.formAction))
+            ),
           value => handleSubmitValue(value, data.options, mode, userAnswers)
         )
     }

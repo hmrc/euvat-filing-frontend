@@ -20,18 +20,18 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 
-sealed trait PurchaseType
-case object Fuel         extends WithName("fuel") with PurchaseType
-case object Transport    extends WithName("transport") with PurchaseType
-case object FoodAndDrink extends WithName("foodAndDrink") with PurchaseType
-case object Luxuries     extends WithName("luxuries") with PurchaseType
-case object Other        extends WithName("other") with PurchaseType
+sealed trait PurchaseOrImportType
+case object Fuel         extends WithName("fuel") with PurchaseOrImportType
+case object Transport    extends WithName("transport") with PurchaseOrImportType
+case object FoodAndDrink extends WithName("foodAndDrink") with PurchaseOrImportType
+case object Luxuries     extends WithName("luxuries") with PurchaseOrImportType
+case object Other        extends WithName("other") with PurchaseOrImportType
 
-object PurchaseType extends Enumerable.Implicits:
+object PurchaseOrImportType extends Enumerable.Implicits:
 
-  val values: Seq[PurchaseType] = Seq(Fuel, Transport, FoodAndDrink, Luxuries, Other)
+  val values: Seq[PurchaseOrImportType] = Seq(Fuel, Transport, FoodAndDrink, Luxuries, Other)
 
-  val codes: Map[PurchaseType, String] = Map(
+  val codes: Map[PurchaseOrImportType, String] = Map(
     Fuel         -> "1",
     Transport    -> "3",
     FoodAndDrink -> "7",
@@ -39,7 +39,7 @@ object PurchaseType extends Enumerable.Implicits:
     Other        -> "10"
   )
 
-  val urlSlugForPurchaseType: Map[PurchaseType, String] = Map(
+  val urlSlugForPurchaseType: Map[PurchaseOrImportType, String] = Map(
     Fuel         -> "fuel-use",
     Transport    -> "transport-cost",
     FoodAndDrink -> "food-drink-restaurant-cost",
@@ -49,13 +49,14 @@ object PurchaseType extends Enumerable.Implicits:
 
   val valueFromUrlSlug: Map[String, String] = urlSlugForPurchaseType.map((k, v) => (v, k.toString))
 
-  def options(implicit messages: Messages): Seq[RadioItem] = values.zipWithIndex.map { case (value, index) =>
-    RadioItem(
-      content = Text(messages(s"purchaseType.${value.toString}")),
-      value   = Some(value.toString),
-      id      = Some(s"value_$index")
-    )
-  }
+  def options(messagePrefix: String = "purchaseType")(implicit messages: Messages): Seq[RadioItem] =
+    values.zipWithIndex.map { case (value, index) =>
+      RadioItem(
+        content = Text(messages(s"$messagePrefix.${value.toString}")),
+        value   = Some(value.toString),
+        id      = Some(s"value_$index")
+      )
+    }
 
-  implicit val enumerable: Enumerable[PurchaseType] =
+  implicit val enumerable: Enumerable[PurchaseOrImportType] =
     Enumerable(values.map(v => v.toString -> v)*)
