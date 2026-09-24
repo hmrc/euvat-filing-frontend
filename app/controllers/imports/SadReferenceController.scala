@@ -19,12 +19,11 @@ package controllers.imports
 import controllers.actions.*
 import forms.imports.SadReferenceFormProvider
 import pages.SadReferencePage
-import models.requests.DataRequest
 
 import javax.inject.Inject
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.imports.SadReferenceView
@@ -46,26 +45,16 @@ class SadReferenceController @Inject() (
 
   val form: Form[Boolean] = formProvider()
 
-  private def computeBackLink(implicit request: DataRequest[AnyContent]): Call = {
-    val answers = request.userAnswers
-    (answers.get(pages.ImportTypePage), answers.get(pages.ImportSubCodePage), answers.get(pages.ImportSubCategoryPage)) match {
-      case (Some(_), Some(_), Some(_))       => controllers.imports.routes.ImportSubCategoryController.onPageLoad(models.NormalMode)
-      case (Some(importType), Some(_), None) => controllers.imports.routes.ImportSubCodeController.onPageLoad(importType.toString)
-      case _                                 => controllers.imports.routes.ImportTypeController.onPageLoad(models.NormalMode)
-    }
-  }
-
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(SadReferencePage).fold(form)(form.fill)
-    Ok(view(preparedForm, computeBackLink))
+    Ok(view(preparedForm))
   }
 
   def onSubmit: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    val back = computeBackLink
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, back))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors))),
         value =>
           for {
             updated <- Future.fromTry(request.userAnswers.set(SadReferencePage, value))

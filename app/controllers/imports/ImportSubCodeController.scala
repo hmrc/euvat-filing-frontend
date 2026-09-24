@@ -17,7 +17,7 @@
 package controllers.imports
 
 import controllers.actions.*
-import controllers.routes
+import controllers.imports.routes
 import forms.PurchaseOrImportSubTypeFormProvider
 import forms.imports.SadReferenceFormProvider
 import models.requests.DataRequest
@@ -71,8 +71,7 @@ class ImportSubCodeController @Inject() (
     resolved match {
       case Some((importType, options)) => block(importType, options)
       case None                        =>
-        // TODO: perhaps to change again after level 3 is done
-        Future.successful(Ok(sadView(sadFormProvider(), routes.ImportTypeController.onPageLoad(NormalMode))))
+        Future.successful(Ok(sadView(sadFormProvider())))
     }
   }
 
@@ -86,7 +85,7 @@ class ImportSubCodeController @Inject() (
       messages(s"importSubCode.$importType.title"),
       messages(s"importSubCode.$importType.heading"),
       "import.caption",
-      controllers.imports.routes.ImportSubCodeController.onSubmit(importType.toString)
+      routes.ImportSubCodeController.onSubmit(importType.toString)
     )
   }
 
@@ -116,7 +115,7 @@ class ImportSubCodeController @Inject() (
                 _              <- sessionRepository.set(updatedAnswers)
               } yield Redirect(navigator.nextPage(ImportSubCodePage, NormalMode, updatedAnswers))
             } else {
-              Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+              Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
             }
         )
     }
