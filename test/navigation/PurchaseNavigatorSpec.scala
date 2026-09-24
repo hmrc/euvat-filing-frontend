@@ -189,25 +189,25 @@ class PurchaseNavigatorSpec extends SpecBase {
           purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode)
       }
 
-      "must go from SupplierTaxNumberPage to SupplierVatRegistrationController if VAT registration number is selected" in {
-        val ua = userAnswers.set(SupplierTaxNumberPage, SupplierTaxNumber.Vatregistrationnumber).success.value
+      "must go from SupplierTaxNumberCheckPage to SupplierVatRegistrationController if VAT registration number is selected" in {
+        val ua = userAnswers.set(SupplierTaxNumberCheckPage, SupplierTaxNumber.Vatregistrationnumber).success.value
         navigator.navigateFromSupplierTaxNumberPage(NormalMode)(ua) mustBe
           purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode)
       }
 
-      "must go from SupplierTaxNumberPage to SupplierTaxIdentifierNumberController if tax identifier number is selected" in {
-        val ua = userAnswers.set(SupplierTaxNumberPage, SupplierTaxNumber.Taxidentifiernumber).success.value
+      "must go from SupplierTaxNumberCheckPage to SupplierTaxIdentifierNumberController if tax identifier number is selected" in {
+        val ua = userAnswers.set(SupplierTaxNumberCheckPage, SupplierTaxNumber.Taxidentifiernumber).success.value
         navigator.navigateFromSupplierTaxNumberPage(NormalMode)(ua) mustBe
           purchaseRoutes.SupplierTaxIdentifierNumberController.onPageLoad(NormalMode)
       }
 
-      "must go from SupplierTaxNumberPage to TotalPurchaseAmountBeforeVatController if neither is selected" in {
-        val ua = userAnswers.set(SupplierTaxNumberPage, SupplierTaxNumber.Neither).success.value
+      "must go from SupplierTaxNumberCheckPage to TotalPurchaseAmountBeforeVatController if neither is selected" in {
+        val ua = userAnswers.set(SupplierTaxNumberCheckPage, SupplierTaxNumber.Neither).success.value
         navigator.navigateFromSupplierTaxNumberPage(NormalMode)(ua) mustBe
           purchaseRoutes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
       }
 
-      "must go from SupplierTaxNumberPage to JourneyRecoveryController if no answer is present" in {
+      "must go from SupplierTaxNumberCheckPage to JourneyRecoveryController if no answer is present" in {
         navigator.navigateFromSupplierTaxNumberPage(NormalMode)(userAnswers) mustBe
           controllers.routes.JourneyRecoveryController.onPageLoad()
       }
@@ -357,19 +357,19 @@ class PurchaseNavigatorSpec extends SpecBase {
           purchaseRoutes.TotalPurchaseAmountBeforeVatController.onPageLoad(CheckMode)
       }
 
-      "must go from SupplierTaxNumberPage to SupplierVatRegistrationNumberController if VAT registration number is selected" in {
-        val ua = userAnswers.set(SupplierTaxNumberPage, SupplierTaxNumber.Vatregistrationnumber).success.value
+      "must go from SupplierTaxNumberCheckPage to SupplierVatRegistrationNumberController if VAT registration number is selected" in {
+        val ua = userAnswers.set(SupplierTaxNumberCheckPage, SupplierTaxNumber.Vatregistrationnumber).success.value
         navigator.navigateFromSupplierTaxNumberPage(CheckMode)(ua) mustBe
           purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(CheckMode)
       }
 
-      "must go from SupplierTaxNumberPage to SupplierTaxIdentifierNumberController if tax identifier number is selected" in {
-        val ua = userAnswers.set(SupplierTaxNumberPage, SupplierTaxNumber.Taxidentifiernumber).success.value
+      "must go from SupplierTaxNumberCheckPage to SupplierTaxIdentifierNumberController if tax identifier number is selected" in {
+        val ua = userAnswers.set(SupplierTaxNumberCheckPage, SupplierTaxNumber.Taxidentifiernumber).success.value
         navigator.navigateFromSupplierTaxNumberPage(CheckMode)(ua) mustBe
           purchaseRoutes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode)
       }
 
-      "must go from SupplierTaxNumberPage to JourneyRecoveryController in CheckMode when no answer present" in {
+      "must go from SupplierTaxNumberCheckPage to JourneyRecoveryController in CheckMode when no answer present" in {
         navigator.navigateFromSupplierTaxNumberPage(CheckMode)(userAnswers) mustBe
           controllers.routes.JourneyRecoveryController.onPageLoad()
       }

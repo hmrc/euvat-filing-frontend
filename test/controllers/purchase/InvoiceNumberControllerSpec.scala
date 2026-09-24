@@ -235,7 +235,7 @@ class InvoiceNumberControllerSpec extends SpecBase with MockitoSugar {
         .set(SupplierVatRegistrationNumberPage, "123")
         .success
         .value
-        .set(SupplierTaxNumberPage, SupplierTaxNumber.Vatregistrationnumber)
+        .set(SupplierTaxNumberCheckPage, SupplierTaxNumber.Vatregistrationnumber)
         .success
         .value
 
@@ -275,7 +275,7 @@ class InvoiceNumberControllerSpec extends SpecBase with MockitoSugar {
         .set(SupplierTaxIdentifierNumberPage, "123")
         .success
         .value
-        .set(SupplierTaxNumberPage, SupplierTaxNumber.Taxidentifiernumber)
+        .set(SupplierTaxNumberCheckPage, SupplierTaxNumber.Taxidentifiernumber)
         .success
         .value
 

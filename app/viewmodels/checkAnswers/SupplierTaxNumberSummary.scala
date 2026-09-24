@@ -18,7 +18,7 @@ package viewmodels.checkAnswers
 
 import controllers.purchase.routes
 import models.{CheckMode, UserAnswers}
-import pages.SupplierTaxNumberPage
+import pages.SupplierTaxNumberCheckPage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -29,7 +29,7 @@ import viewmodels.implicits.*
 object SupplierTaxNumberSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(SupplierTaxNumberPage).map { answer =>
+    answers.get(SupplierTaxNumberCheckPage).map { answer =>
 
       val value = ValueViewModel(
         HtmlContent(

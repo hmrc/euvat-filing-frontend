@@ -353,7 +353,7 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
         .set(InvoiceTypePage, InvoiceType.StandardInvoice)
         .success
         .value
-        .set(pages.SupplierTaxNumberPage, models.SupplierTaxNumber.Vatregistrationnumber)
+        .set(pages.SupplierTaxNumberCheckPage, models.SupplierTaxNumber.Vatregistrationnumber)
         .success
         .value
         .set(SimplifiedInvoiceVatRegCheckPage, true)
@@ -380,7 +380,7 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
         verify(mockSessionRepository).set(captor.capture())
         val saved = captor.getValue
 
-        saved.get(pages.SupplierTaxNumberPage) mustBe None
+        saved.get(pages.SupplierTaxNumberCheckPage) mustBe None
         saved.get(SimplifiedInvoiceVatRegCheckPage) mustBe None
         saved.get(InvoiceTypePage) mustBe Some(InvoiceType.SimplifiedInvoice)
       }

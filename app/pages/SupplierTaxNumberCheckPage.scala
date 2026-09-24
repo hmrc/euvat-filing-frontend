@@ -19,7 +19,7 @@ package pages
 import models.SupplierTaxNumber
 import play.api.libs.json.JsPath
 
-case object SupplierTaxNumberPage extends QuestionPage[SupplierTaxNumber] {
+case object SupplierTaxNumberCheckPage extends QuestionPage[SupplierTaxNumber] {
 
   override def path: JsPath = JsPath \ toString
 

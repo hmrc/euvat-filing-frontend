@@ -52,7 +52,7 @@ class TotalPurchaseAmountBeforeVatController @Inject() (
   val form: Form[BigDecimal] = formProvider()
 
   private def germanyBackLink(userAnswers: UserAnswers): Call =
-    userAnswers.get(SupplierTaxNumberPage) match {
+    userAnswers.get(SupplierTaxNumberCheckPage) match {
       case Some(SupplierTaxNumber.Vatregistrationnumber) => routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode)
       case Some(SupplierTaxNumber.Taxidentifiernumber)   => routes.SupplierTaxIdentifierNumberController.onPageLoad(NormalMode)
       case _                                             => routes.SupplierTaxNumberController.onPageLoad(NormalMode)

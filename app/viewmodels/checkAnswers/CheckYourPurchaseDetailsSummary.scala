@@ -263,7 +263,7 @@ object CheckYourPurchaseDetailsSummary {
         }
       )
       .orElse(
-        answers.get(SupplierTaxNumberPage) match {
+        answers.get(SupplierTaxNumberCheckPage) match {
           case Some(models.SupplierTaxNumber.Neither) =>
             Some(
               (messages("supplierTaxNumber.checkYourAnswersLabel"),

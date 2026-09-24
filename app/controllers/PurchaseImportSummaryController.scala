@@ -18,55 +18,31 @@ package controllers
 
 import controllers.actions.*
 import forms.PurchaseOrImportFormProvider
-import models.{NormalMode, PurchaseOrImport, UserAnswers}
-import navigation.Navigator
-import pages.*
+import models.PurchaseOrImport
+import pages.PurchaseOrImportPage
 import play.api.data.Form
+
+import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import queries.Settable
-import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.PurchaseImportSummaryView
 
-import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
-
 class PurchaseImportSummaryController @Inject() (
   override val messagesApi: MessagesApi,
-  sessionRepository: SessionRepository,
-  navigator: Navigator,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  formProvider: PurchaseOrImportFormProvider,
   val controllerComponents: MessagesControllerComponents,
+  formProvider: PurchaseOrImportFormProvider,
   view: PurchaseImportSummaryView
-)(implicit ec: ExecutionContext)
-    extends FrontendBaseController
+) extends FrontendBaseController
     with I18nSupport {
 
-//  val form: Form[PurchaseOrImport] = formProvider()
-//  private def backLink = routes.BeforeYouStartController.onPageLoad()
+  val form: Form[PurchaseOrImport] = formProvider()
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-//    val preparedForm = cleared.get(PurchaseOrImportPage).fold(form)(form.fill)
-    Ok(view())
+  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+    val preparedForm = request.userAnswers.get(PurchaseOrImportPage).fold(form)(form.fill)
+    Ok(view(preparedForm))
   }
-
-  def onSubmit: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-//    form
-//      .bindFromRequest()
-//      .fold(
-//        formWithErrors => Future.successful(BadRequest(view(formWithErrors, backLink))),
-//        value =>
-//          for {
-//            updatedAnswers <- Future.fromTry(request.userAnswers.set(PurchaseOrImportPage, value))
-//            _              <- sessionRepository.set(updatedAnswers)
-//          } yield
-    Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-//      )
-  }
-
 }
