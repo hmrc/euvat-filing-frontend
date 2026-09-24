@@ -27,10 +27,9 @@ class ImportDateController @Inject()(
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
    private def form(implicit messages: Messages) = formProvider()
-   private def backLink(mode: Mode) = if (mode == CheckMode) {
-     routes.CheckYourPurchaseDetailsController.onPageLoad()
-   } else {
-     routes.ImportDetailsInfoController.onPageLoad(NormalMode)
+   private def backLink(mode: Mode)(implicit request: DataRequest[?]) mode match ){
+     case CheckMode => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: replace with CheckYourImportController once built
+     case NormalMode => navigator.nextPage(SadReferencePage, mode, request.userAnswers)
    }
 
    def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
@@ -63,14 +62,14 @@ class ImportDateController @Inject()(
 
    private def handleSubmission(value: LocalDate, mode: Mode)(implicit request: DataRequest[?]): Future[Result] = {
      if (mode == CheckMode && request.userAnswers.isAnswerUnchanged(ImportDatePage, value)) {
-       Future.successful(Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad()))
+       Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())) // TODO: replace with CheckYourImportController once built
      } else {
        for {
          updatedAnswers <- Future.fromTry(request.userAnswers.set(ImportDatePage, value))
          _              <- sessionRepository.set(updatedAnswers)
        } yield {
          if (mode == CheckMode) {
-           Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
+           Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()) // TODO: replace with CheckYourImportController once built
          } else {
            Redirect(navigator.nextPage(ImportDatePage, mode, updatedAnswers))
          }
