@@ -17,15 +17,18 @@
 package controllers.purchase
 
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
+import models.{InvoiceType, PurchaseOrImportType}
 import pages.*
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import queries.{ClaimApplicationResponseQuery, InvoiceNumberFlagQuery}
 import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import models.requests.UpdatePurchaseRequest
 import models.responses.AddPurchaseResponse
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.{ConfigPurchaseOrImportMapping, CountryCode, CurrencyConfig}
 import viewmodels.checkAnswers.CheckYourPurchaseDetailsSummary
@@ -50,48 +53,53 @@ class CheckYourPurchaseDetailsController @Inject() (
     with I18nSupport
     with Logging {
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     implicit val msgs: Messages = messagesApi.preferred(request)
-    lazy val currencyList =
-      CountryCode
-        .findCountryCode(request.userAnswers)
-        .map(currencyConfig.currencyConfig(_))
-        .getOrElse(currencyConfig.default)
+    for {
+      answers <- Future.fromTry(request.userAnswers.set(InvoiceNumberFlagQuery, false))
+      _       <- sessionRepository.set(answers)
+    } yield {
+      lazy val currencyList =
+        CountryCode
+          .findCountryCode(request.userAnswers)
+          .map(currencyConfig.currencyConfig(_))
+          .getOrElse(currencyConfig.default)
 
-    val (maybeCurrencyDisplayName, maybeCurrencySymbol): (Option[String], Option[String]) =
-      request.userAnswers
-        .get(RefundingCurrencyPage)
-        .flatMap(code => currencyList.find(_.code == code))
-        .map(currency => Some(msgs(s"refundingCurrency.${currency.name}", currency.symbol)) -> Some(currency.symbol))
-        .orElse(Option.when(currencyList.lengthCompare(1) > 0)(Some(msgs("site.notProvided")) -> None))
-        .getOrElse(None -> None)
+      val (maybeCurrencyDisplayName, maybeCurrencySymbol): (Option[String], Option[String]) =
+        request.userAnswers
+          .get(RefundingCurrencyPage)
+          .flatMap(code => currencyList.find(_.code == code))
+          .map(currency => Some(msgs(s"refundingCurrency.${currency.name}", currency.symbol)) -> Some(currency.symbol))
+          .orElse(Option.when(currencyList.lengthCompare(1) > 0)(Some(msgs("site.notProvided")) -> None))
+          .getOrElse(None -> None)
 
-    Ok(
-      view(
-        CheckYourPurchaseDetailsSummary
-          .sections(
-            request.userAnswers,
-            maybeCurrencyDisplayName,
-            maybeCurrencySymbol,
-            configPurchaseMapping,
-            currencyList.size > 1
-          ),
-        isPostSubmission = false,
-        isAmended        = false
+      Ok(
+        view(
+          CheckYourPurchaseDetailsSummary
+            .sections(
+              request.userAnswers,
+              maybeCurrencyDisplayName,
+              maybeCurrencySymbol,
+              configPurchaseMapping,
+              currencyList.size > 1
+            ),
+          isPostSubmission = false,
+          isAmended        = false
+        )
       )
-    )
+    }
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    implicit val hc = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-    val maybeAppId = request.userAnswers.get(queries.ClaimApplicationResponseQuery).map(_.applicationId.toLong)
+    val maybeAppId = request.userAnswers.get(ClaimApplicationResponseQuery).map(_.applicationId)
     val maybeAddResp = request.userAnswers.get(AddPurchaseResponsePage)
 
     (maybeAppId, maybeAddResp) match {
       case (Some(appId), Some(addResp)) =>
-        val purchaseSubType = request.userAnswers.get(pages.PurchaseSubTypePage)
-        val purchaseSubCategory = request.userAnswers.get(pages.PurchaseSubCategoryPage)
+        val purchaseSubType = request.userAnswers.get(PurchaseSubTypePage)
+        val purchaseSubCategory = request.userAnswers.get(PurchaseSubCategoryPage)
 
         val goodsDescriptionSubCategory: Option[String] = {
           if (
@@ -103,36 +111,36 @@ class CheckYourPurchaseDetailsController @Inject() (
         }
 
         val goodsDescriptionCategory: String = request.userAnswers
-          .get(pages.PurchaseTypePage)
-          .map(pt => models.PurchaseOrImportType.codes.getOrElse(pt, ""))
+          .get(PurchaseTypePage)
+          .map(pt => PurchaseOrImportType.codes.getOrElse(pt, ""))
           .getOrElse("")
 
-        val goodsDescriptionText = request.userAnswers.get(pages.DescribeItemsOnInvoicePage) match {
+        val goodsDescriptionText = request.userAnswers.get(DescribeItemsOnInvoicePage) match {
           case Some(t) if t.trim.nonEmpty && t != ConfigPurchaseOrImportMapping.NoneValue => Some(t)
           case _                                                                          => None
         }
         val simplifiedInvoiceIndicator: Option[String] = request.userAnswers
-          .get(pages.SimplifiedInvoiceVatRegCheckPage)
+          .get(SimplifiedInvoiceVatRegCheckPage)
           .map(_.toString)
           .orElse {
-            request.userAnswers.get(pages.InvoiceTypePage).map {
-              case models.InvoiceType.SimplifiedInvoice => "true"
-              case _                                    => "false"
+            request.userAnswers.get(InvoiceTypePage).map {
+              case InvoiceType.SimplifiedInvoice => "true"
+              case _                             => "false"
             }
           }
-        val supplierName = request.userAnswers.get(pages.SuppliersNamePage)
-        val supplierAddr = request.userAnswers.get(pages.SupplierAddressPage)
+        val supplierName = request.userAnswers.get(SuppliersNamePage)
+        val supplierAddr = request.userAnswers.get(SupplierAddressPage)
         val supplierAddress1 = supplierAddr.map(_.line1)
         val supplierAddress2 = supplierAddr.flatMap(_.line2)
         val supplierAddress3 = supplierAddr.flatMap(_.line3)
-        val supplierVatRegNumber = request.userAnswers.get(pages.SupplierVatRegistrationNumberPage)
-        val supplierTaxIdentifier = request.userAnswers.get(pages.SupplierTaxIdentifierNumberPage)
-        val invoiceDate = request.userAnswers.get(pages.InvoiceDatePage).map(_.atStartOfDay())
-        val invoiceNumber = request.userAnswers.get(pages.InvoiceNumberPage)
-        val currencyCode = request.userAnswers.get(pages.RefundingCurrencyPage)
-        val taxableAmount = request.userAnswers.get(pages.TotalPurchaseAmountBeforeVatPage)
-        val vatAmount = request.userAnswers.get(pages.TotalVatPaidPage)
-        val deductibleVatAmount = request.userAnswers.get(pages.TotalVatClaimPage)
+        val supplierVatRegNumber = request.userAnswers.get(SupplierVatRegistrationNumberPage)
+        val supplierTaxIdentifier = request.userAnswers.get(SupplierTaxIdentifierNumberPage)
+        val invoiceDate = request.userAnswers.get(InvoiceDatePage).map(_.atStartOfDay())
+        val invoiceNumber = request.userAnswers.get(InvoiceNumberPage)
+        val currencyCode = request.userAnswers.get(RefundingCurrencyPage)
+        val taxableAmount = request.userAnswers.get(TotalPurchaseAmountBeforeVatPage)
+        val vatAmount = request.userAnswers.get(TotalVatPaidPage)
+        val deductibleVatAmount = request.userAnswers.get(TotalVatClaimPage)
 
         val updateReq = UpdatePurchaseRequest(
           applicationId               = appId,

@@ -45,7 +45,6 @@ object ConfigPurchaseOrImportMapping {
 }
 
 class ConfigPurchaseOrImportMapping @Inject() (config: Configuration = Configuration.empty, env: Environment = Environment.simple()) {
-
   val prefix = "purchase.sub."
 
   private def normalizeLabel(label: String, code: String): String = {

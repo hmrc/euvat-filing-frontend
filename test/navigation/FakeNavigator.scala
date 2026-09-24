@@ -25,35 +25,61 @@ import com.typesafe.config.ConfigFactory
 
 class FakeNavigator(desiredRoute: Call)
     extends Navigator(
-      new CurrencyConfig(
-        Configuration(
-          ConfigFactory.parseString("""
-      currency.mapping {
-        BG = ["euro|EUR|€", "bulgarianLev|BGN|лв"]
-        EE = ["euro|EUR|€", "estonianKroon|EEK|kr"]
-        AT = ["euro|EUR|€"]
-      }
-    """)
+      new ClaimNavigator(
+        new ConfigLanguageMapping(
+          Configuration(
+            ConfigFactory.parseString("""
+              language.mapping {
+                AT = ["german", "english"]
+                BE = ["english", "german", "french", "dutch"]
+                CZ = ["czech"]
+              }
+            """)
+          )
         )
       ),
-      new ConfigLanguageMapping(
-        Configuration(
-          ConfigFactory.parseString("""
-        language.mapping {
-          AT = ["german", "english"]
-          BE = ["english", "german", "french", "dutch"]
-          CZ = ["czech"]
-        }
-      """)
+      new PurchaseNavigator(
+        new CurrencyConfig(
+          Configuration(
+            ConfigFactory.parseString("""
+              currency.mapping {
+                BG = ["euro|EUR|€", "bulgarianLev|BGN|лв"]
+                EE = ["euro|EUR|€", "estonianKroon|EEK|kr"]
+                AT = ["euro|EUR|€"]
+              }
+            """)
+          )
+        ),
+        new ConfigPurchaseOrImportMapping(
+          Configuration(
+            ConfigFactory.parseString("""
+              purchase.mapping {
+                DE = ["parent|sub1|purchase.sub.parent.sub1"]
+              }
+            """)
+          )
         )
       ),
-      new ConfigPurchaseOrImportMapping(
-        Configuration(
-          ConfigFactory.parseString("""
-        purchase.mapping {
-          DE = ["parent|sub1|purchase.sub.parent.sub1"]
-        }
-      """)
+      new ImportNavigator(
+        new CurrencyConfig(
+          Configuration(
+            ConfigFactory.parseString("""
+              currency.mapping {
+                BG = ["euro|EUR|€", "bulgarianLev|BGN|лв"]
+                EE = ["euro|EUR|€", "estonianKroon|EEK|kr"]
+                AT = ["euro|EUR|€"]
+              }
+            """)
+          )
+        ),
+        new ConfigPurchaseOrImportMapping(
+          Configuration(
+            ConfigFactory.parseString("""
+              purchase.mapping {
+                DE = ["parent|sub1|purchase.sub.parent.sub1"]
+              }
+            """)
+          )
         )
       )
     ) {

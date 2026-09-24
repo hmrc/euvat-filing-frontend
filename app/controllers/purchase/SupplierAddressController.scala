@@ -18,8 +18,7 @@ package controllers.purchase
 
 import controllers.actions.*
 import forms.purchase.SupplierAddressFormProvider
-import models.requests.DataRequest
-import models.{CheckMode, Mode, NormalMode, SupplierAddress, UserAnswers}
+import models.{CheckMode, Mode, NormalMode, SupplierAddress}
 import navigation.Navigator
 import pages.{PurchaseTypePage, SupplierAddressPage}
 import play.api.data.Form
@@ -27,12 +26,10 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.ControllerHelpers
 import views.html.purchase.SupplierAddressView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Success
 
 class SupplierAddressController @Inject() (
   override val messagesApi: MessagesApi,
@@ -67,29 +64,17 @@ class SupplierAddressController @Inject() (
       .fold(
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)))),
         value =>
-          val redirectCall = navigator.nextPage(SupplierAddressPage, mode, request.userAnswers)
-          ControllerHelpers.shortCircuit(
-            SupplierAddressPage,
-            value,
-            mode,
-            request.userAnswers,
-            redirectCall,
-            routes.CheckYourPurchaseDetailsController.onPageLoad(),
-            None
-          ) { (answersAfterSet: UserAnswers) =>
-            val userAnswersTry = Success(answersAfterSet)
-            val redirectCall = computeRedirectAfterSave(answersAfterSet, mode)
-
-            ControllerHelpers.saveTryAndRedirect(userAnswersTry, sessionRepository, redirectCall)
+          for {
+            userAnswers <- Future.fromTry(request.userAnswers.set(SupplierAddressPage, value))
+            _           <- sessionRepository.set(userAnswers)
+          } yield {
+            if (mode == CheckMode && request.userAnswers.get(PurchaseTypePage).isDefined) {
+              Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
+            } else {
+              Redirect(navigator.nextPage(SupplierAddressPage, mode, userAnswers))
+            }
           }
       )
   }
-
-  private def computeRedirectAfterSave(answersAfterSet: UserAnswers, mode: Mode)(implicit request: DataRequest[?]) =
-    if (mode == CheckMode && request.userAnswers.get(PurchaseTypePage).isDefined) {
-      routes.CheckYourPurchaseDetailsController.onPageLoad()
-    } else {
-      navigator.nextPage(SupplierAddressPage, mode, answersAfterSet)
-    }
 
 }

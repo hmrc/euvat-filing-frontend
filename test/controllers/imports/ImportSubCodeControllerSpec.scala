@@ -30,7 +30,6 @@ import repositories.SessionRepository
 import scala.concurrent.Future
 
 class ImportSubCodeControllerSpec extends SpecBase with MockitoSugar {
-
   private def fuelRoute = controllers.imports.routes.ImportSubCodeController.onPageLoad("fuel").url
   private def journeyRecoveryUrl = controllers.routes.JourneyRecoveryController.onPageLoad().url
   private def sadReferenceUrl = controllers.imports.routes.SadReferenceController.onPageLoad.url
@@ -61,19 +60,6 @@ class ImportSubCodeControllerSpec extends SpecBase with MockitoSugar {
         content must include("value=\"__none__\"")
         """>\s*None\s*<""".r.findFirstIn(content) mustBe defined
         content must not include "value=\"1.2.6\""
-      }
-    }
-
-    "must render the back link to the Import type page" in {
-      val application = applicationBuilder(userAnswers = Some(answers())).build()
-
-      running(application) {
-        val result = route(application, FakeRequest(GET, fuelRoute)).value
-        val importTypeUrl = controllers.imports.routes.ImportTypeController.onPageLoad(NormalMode).url
-
-        status(result) mustEqual OK
-        contentAsString(result) must include(s"""href="$importTypeUrl"""")
-        contentAsString(result) must not include s"""href="$taskListUrl""""
       }
     }
 

@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package pages
+package queries
 
+import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-case object SupplierVatRegistrationArrivedFromInvoicePage extends QuestionPage[Boolean] {
+case object InvoiceNumberFlagQuery extends QuestionPage[Boolean] {
 
   override def path: JsPath = JsPath \ toString
 
-  override def toString: String = "supplierVatRegistrationArrivedFromInvoice"
-
+  override def toString: String = "invoiceNumberFlag"
 }

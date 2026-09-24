@@ -20,7 +20,7 @@ import base.SpecBase
 import models.{CheckMode, NormalMode}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import pages.{InvoiceNumberPage, SupplierVatRegistrationNumberPage, TotalPurchaseAmountBeforeVatPage}
+import pages.TotalPurchaseAmountBeforeVatPage
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -44,9 +44,7 @@ class SupplierTaxIdentifierWarningControllerSpec extends SpecBase {
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(
           controllers.purchase.routes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode),
-          controllers.purchase.routes.InvoiceNumberController.onPageLoad(CheckMode),
-          controllers.purchase.routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode),
-          NormalMode
+          controllers.purchase.routes.InvoiceNumberController.onPageLoad(CheckMode)
         )(request, messages(application)).toString
       }
     }
@@ -55,8 +53,7 @@ class SupplierTaxIdentifierWarningControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.SupplierTaxIdentifierWarningController.onSubmit(NormalMode).url)
-
+        val request = FakeRequest(POST, routes.SupplierTaxIdentifierWarningController.onSubmit().url)
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -77,7 +74,7 @@ class SupplierTaxIdentifierWarningControllerSpec extends SpecBase {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.SupplierTaxIdentifierWarningController.onSubmit(CheckMode).url)
+        val request = FakeRequest(POST, routes.SupplierTaxIdentifierWarningController.onSubmit().url)
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad().url

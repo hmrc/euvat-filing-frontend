@@ -19,7 +19,7 @@ package controllers.purchase
 import controllers.actions.*
 import forms.purchase.PurchaseSubTypeFormProvider
 import models.requests.DataRequest
-import models.*
+import models.{CheckMode, Mode, Other, PurchaseOrImportType, PurchaseSubCategoryType, UserAnswers}
 import navigation.Navigator
 import pages.*
 import play.api.data.Form
@@ -72,15 +72,13 @@ class PurchaseSubTypeController @Inject() (
     val options = config.subcodesFor(country, parentKey)
     val rawItems = config.buildRadioItems(options, messagesApi.preferred(request))
     val items = if (parentKey == "other") rawItems.filterNot(_.value.contains(ConfigPurchaseOrImportMapping.NoneValue)) else rawItems
-    val parentHeading = parentHeadingFor(parentKey)
     val msgs = messagesApi.preferred(request)
     val requiredKeyCandidates = Seq(s"purchase.sub.$parentKey.error.required")
     val requiredKey = requiredKeyCandidates.find(k => msgs.isDefinedAt(k)).getOrElse("error.required")
     val preparedForm = userAnswers.get(PurchaseSubTypePage).fold(formProvider(requiredKey))(formProvider(requiredKey).fill)
     val resolvedSlug = resolvedSlugFor(parentKey, purchaseTypeSlug)
-    val formAction = formActionFor(resolvedSlug, mode)
 
-    (options, items, parentHeading, preparedForm, resolvedSlug, formAction)
+    (options, items, parentHeadingFor(parentKey), preparedForm, resolvedSlug, formActionFor(resolvedSlug, mode))
   }
 
   private def ensurePurchaseTypeWhenMissing(currentAnswers: UserAnswers,
@@ -157,12 +155,6 @@ class PurchaseSubTypeController @Inject() (
     Call("POST", s"${MountPrefix.getFromRequest}/$isChangeMode$uri")
   }
 
-  private def backUrlFor(mode: Mode) = if (mode == CheckMode) {
-    routes.CheckYourPurchaseDetailsController.onPageLoad().url
-  } else {
-    routes.PurchaseTypeController.onPageLoad(NormalMode).url
-  }
-
   private def handleCountryChanged(purchaseTypeSlug: String, userAnswers: UserAnswers)(implicit request: RequestHeader) = {
     val clearedAnswers = for {
       afterRemovedSubType      <- userAnswers.remove(PurchaseSubTypePage)
@@ -181,13 +173,6 @@ class PurchaseSubTypeController @Inject() (
       )
   }
 
-  private def renderSubTypeView(preparedForm: Form[?], items: Seq[RadioItem], heading: String, formAction: Call, mode: Mode)(implicit
-    request: DataRequest[AnyContent]
-  ): Future[Result] = {
-    val backUrl = backUrlFor(mode)
-    Future.successful(Ok(view(preparedForm, items, heading, heading, "purchase.caption", formAction, backUrl)))
-  }
-
   private def markArrivalAndRenderSubType(preparedForm: Form[?],
                                           items: Seq[RadioItem],
                                           heading: String,
@@ -200,12 +185,10 @@ class PurchaseSubTypeController @Inject() (
       mode,
       userAnswers,
       sessionRepository
-    )(_ => renderSubTypeView(preparedForm, items, heading, formAction, mode))
+    )(_ => Future.successful(Ok(view(preparedForm, items, heading, heading, "purchase.caption", formAction))))
 
   private def redirectWhenNoOptions(mode: Mode): Future[Result] =
-    Future.successful(
-      ControllerHelpers.redirectToInvoiceTypeOrCYA(mode)
-    )
+    Future.successful(ControllerHelpers.redirectToInvoiceTypeOrCYA(mode))
 
   private def handleSingleOtherOption(options: Seq[(String, String)],
                                       preparedForm: Form[?],
@@ -266,14 +249,6 @@ class PurchaseSubTypeController @Inject() (
       }
   }
 
-  private def badSubmitRequest(formWithErrors: Form[?], items: Seq[RadioItem], parentHeading: String, resolvedSlug: String, mode: Mode)(implicit
-    request: DataRequest[AnyContent]
-  ): Future[Result] = {
-    val formAction = formActionFor(resolvedSlug, mode)
-    val backUrl = backUrlFor(mode)
-    Future.successful(BadRequest(view(formWithErrors, items, parentHeading, parentHeading, "purchase.caption", formAction, backUrl)))
-  }
-
   private def persistNoneSelection(mode: Mode, userAnswers: UserAnswers)(implicit request: DataRequest[AnyContent]): Future[Result] = {
     val noneLabel = ConfigPurchaseOrImportMapping.NoneValue
     val savedTry = for {
@@ -311,7 +286,7 @@ class PurchaseSubTypeController @Inject() (
   private def noChildrenRedirect(value: String, resolvedSlug: String, mode: Mode): Result = {
     val lastSeg = value.split("\\.").lastOption.getOrElse(value)
     val isOtherPurchaseType =
-      PurchaseOrImportType.values.find(pt => PurchaseOrImportType.urlSlugForPurchaseType(pt) == resolvedSlug).contains(models.Other)
+      PurchaseOrImportType.values.find(pt => PurchaseOrImportType.urlSlugForPurchaseType(pt) == resolvedSlug).contains(Other)
 
     if (isOtherPurchaseType && lastSeg == "99") {
       Redirect(routes.DescribeItemsOnInvoiceController.onPageLoad(mode))
@@ -371,7 +346,10 @@ class PurchaseSubTypeController @Inject() (
       preparedForm
         .bindFromRequest()
         .fold(
-          formWithErrors => badSubmitRequest(formWithErrors, items, parentHeading, resolvedSlug, mode),
+          formWithErrors =>
+            Future.successful(
+              BadRequest(view(formWithErrors, items, parentHeading, parentHeading, "purchase.caption", formActionFor(resolvedSlug, mode)))
+            ),
           value => handleSubmitValue(value, parentKey, country, resolvedSlug, mode, userAnswers)
         )
     }
