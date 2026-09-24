@@ -18,7 +18,7 @@ package controllers.purchase
 
 import base.SpecBase
 import forms.purchase.InvoiceNumberFormProvider
-import models.{CheckMode, Mode, NormalMode, SupplierTaxNumber, UserAnswers}
+import models.{CheckMode, NormalMode, SupplierTaxNumber, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
@@ -39,13 +39,7 @@ class InvoiceNumberControllerSpec extends SpecBase with MockitoSugar {
   def onwardRoute: Call = Call("GET", "/foo")
   val formProvider = new InvoiceNumberFormProvider()
   val form: Form[String] = formProvider()
-
   def invoiceNumberRoute: String = routes.InvoiceNumberController.onPageLoad(NormalMode).url
-  def backLink(mode: Mode): Call = if (mode == CheckMode) {
-    routes.CheckYourPurchaseDetailsController.onPageLoad()
-  } else {
-    routes.InvoiceTypeController.onPageLoad(NormalMode)
-  }
 
   "InvoiceNumber Controller" - {
 
@@ -59,13 +53,14 @@ class InvoiceNumberControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, backLink(NormalMode))(request, messages(application)).toString
+          view(form, NormalMode, routes.InvoiceTypeController.onPageLoad(NormalMode))(request, messages(application)).toString
         )
       }
     }
 
     "must return OK and the correct view for a GET in CheckMode" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val userAnswers = UserAnswers(userAnswersId).set(TotalPurchaseAmountBeforeVatPage, 123).success.value
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, routes.InvoiceNumberController.onPageLoad(CheckMode).url)
@@ -90,7 +85,7 @@ class InvoiceNumberControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form.fill("answer"), NormalMode, backLink(NormalMode))(
+          view(form.fill("answer"), NormalMode, routes.InvoiceTypeController.onPageLoad(NormalMode))(
             request,
             messages(application)
           ).toString
@@ -166,7 +161,7 @@ class InvoiceNumberControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual BAD_REQUEST
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(boundForm, NormalMode, backLink(NormalMode))(request, messages(application)).toString
+          view(boundForm, NormalMode, routes.InvoiceTypeController.onPageLoad(NormalMode))(request, messages(application)).toString
         )
       }
     }

@@ -31,11 +31,9 @@ import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.{ConfigPurchaseMapping, CountryCode}
 import views.html.purchase.InvoiceTypeView
-import utils.ControllerHelpers.*
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
 
 class InvoiceTypeController @Inject() (
   override val messagesApi: MessagesApi,
@@ -54,11 +52,6 @@ class InvoiceTypeController @Inject() (
     with Logging {
 
   val form: Form[InvoiceType] = formProvider()
-
-  private def badRequestView(formWithErrors: play.api.data.Form[?], mode: Mode)(implicit request: DataRequest[?]): Future[play.api.mvc.Result] = {
-    val html = view(formWithErrors, mode, computeBackTarget(mode))(request, messagesApi.preferred(request))
-    Future.successful(BadRequest(html))
-  }
 
   private def computeBackTarget(mode: Mode)(implicit request: DataRequest[?]): Call = {
     def parentIsNone = request.userAnswers.get(PurchaseSubTypePage).exists(v => v.split("\\.").lastOption.contains("99"))
@@ -80,53 +73,35 @@ class InvoiceTypeController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     val preparedForm = request.userAnswers.get(InvoiceTypePage).fold(form)(form.fill)
-
-    val back = computeBackTarget(mode)
-
-    Future.successful(Ok(view(preparedForm, mode, back)))
+    Future.successful(Ok(view(preparedForm, mode, computeBackTarget(mode))))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => badRequestView(formWithErrors, mode),
-        value => {
-          if (mode == CheckMode && request.userAnswers.isAnswerUnchanged(InvoiceTypePage, value)) {
-            Future.successful(Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad()))
-          } else {
-            persistAndRedirect(value, mode)
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, computeBackTarget(mode))(request, messagesApi.preferred(request)))),
+        value =>
+          for {
+            answers <- Future.fromTry(request.userAnswers.set(InvoiceTypePage, value))
+            _       <- sessionRepository.set(answers)
+          } yield {
+            if (request.userAnswers.isAnswerUnchanged(InvoiceTypePage, value)) {
+              if (mode == CheckMode) {
+                Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
+              } else {
+                Redirect(routes.InvoiceNumberController.onPageLoad(NormalMode))
+              }
+            } else {
+              postRedirect(mode, value, answers)
+            }
           }
-        }
       )
   }
 
-  private def persistAndRedirect(value: InvoiceType, mode: Mode)(implicit request: DataRequest[?]): Future[play.api.mvc.Result] = {
-    val userAnswersTry = buildUpdatedTry(value)
-
-    for {
-      builtAnswers <- Future.fromTry(userAnswersTry)
-      answersWithChangeFlag <-
-        if (mode == CheckMode) Future.fromTry(builtAnswers.set(InvoiceTypeChangedPage, true)) else Future.successful(builtAnswers)
-      _ <- sessionRepository.set(answersWithChangeFlag)
-    } yield postPersistRedirect(mode, value, builtAnswers)
-  }
-
-  private def buildUpdatedTry(value: InvoiceType)(implicit request: DataRequest[?]): Try[UserAnswers] =
-    request.userAnswers.get(InvoiceTypePage) match {
-      case Some(prev) if prev != value =>
-        for {
-          a <- request.userAnswers.remove(SupplierTaxNumberPage)
-          b <- a.remove(SimplifiedInvoiceVatRegCheckPage)
-          c <- b.remove(SupplierVatRegistrationNumberPage)
-          d <- c.set(InvoiceTypePage, value)
-        } yield d
-      case _ => request.userAnswers.set(InvoiceTypePage, value)
-    }
-
-  private def postPersistRedirect(mode: Mode, value: InvoiceType, updatedAnswers: UserAnswers)(implicit request: DataRequest[?]) = {
+  private def postRedirect(mode: Mode, value: InvoiceType, updatedAnswers: UserAnswers) = {
     if (mode == CheckMode) {
-      val countryOpt = CountryCode.findCountryCode(request.userAnswers)
+      val countryOpt = CountryCode.findCountryCode(updatedAnswers)
       countryOpt match {
         case Some("DE") => Redirect(routes.SupplierTaxNumberController.onPageLoad(CheckMode))
         case _ =>
@@ -139,4 +114,5 @@ class InvoiceTypeController @Inject() (
       Redirect(navigator.nextPage(InvoiceTypePage, mode, updatedAnswers))
     }
   }
+
 }

@@ -29,7 +29,7 @@ import play.api.mvc.*
 import repositories.SessionRepository
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.{ConfigPurchaseMapping, ControllerHelpers, CountryCode, MountPrefix}
+import utils.{ConfigPurchaseMapping, ControllerHelpers, CountryCode}
 import views.html.purchase.PurchaseSubTypeView
 
 import javax.inject.Inject
@@ -59,7 +59,6 @@ class PurchaseSubCategoryController @Inject() (
     heading: String,
     preparedForm: Form[String],
     formAction: Call,
-    backUrl: String,
     parentBase: String,
     childToPersist: String,
     parentLabelKeyOpt: Option[String]
@@ -117,20 +116,6 @@ class PurchaseSubCategoryController @Inject() (
           }
           .getOrElse(Call("POST", if (prefix.isEmpty) s"/" else s"$prefix/"))
       )
-  }
-
-  private def backUrlFor(userAnswers: UserAnswers, mode: Mode)(implicit request: RequestHeader): String = {
-    val prefix = MountPrefix.getFromRequest
-    userAnswers.get(PurchaseTypePage).map(pt => PurchaseType.urlSlugForPurchaseType(pt)) match {
-      case Some(slug) =>
-        if (mode == CheckMode) {
-          routes.CheckYourPurchaseDetailsController.onPageLoad().url
-        } else {
-          val url = ControllerHelpers.pathForSlug(slug, mode, prefix)
-          Call("GET", url).url
-        }
-      case None => routes.PurchaseTypeController.onPageLoad(models.NormalMode).url
-    }
   }
 
   private def selectTitle(parentKey: String, resolvedParentCode: String, options: Seq[(String, String)], msgs: Messages): String = {
@@ -212,7 +197,6 @@ class PurchaseSubCategoryController @Inject() (
     val preparedForm = userAnswers.get(PurchaseSubCategoryPage).fold(formProvider(requiredKey))(formProvider(requiredKey).fill)
     val candidates = formActionCandidates(resolvedParentCode)
     val formAction = computeFormAction(parentKey, candidates, userAnswers, mode)(request)
-    val backUrl = backUrlFor(userAnswers, mode)
     val parentBase = resolvedParentCode.split("\\.").headOption.getOrElse(resolvedParentCode)
     val childToPersist = childToPersistFor(resolvedParentCode, options)
 
@@ -224,7 +208,6 @@ class PurchaseSubCategoryController @Inject() (
       heading,
       preparedForm,
       formAction,
-      backUrl,
       parentBase,
       childToPersist,
       parentLabelKeyOpt
@@ -243,7 +226,7 @@ class PurchaseSubCategoryController @Inject() (
   }
 
   private def renderSubCategoryView(data: SubCategoryViewData)(implicit request: DataRequest[AnyContent]): Future[Result] =
-    Future.successful(Ok(view(data.preparedForm, data.items, data.pageTitle, data.heading, data.formAction, data.backUrl)))
+    Future.successful(Ok(view(data.preparedForm, data.items, data.pageTitle, data.heading, data.formAction)))
 
   private def markArrivalAndRenderSubCategory(data: SubCategoryViewData, mode: Mode, userAnswers: UserAnswers)(implicit
     request: DataRequest[AnyContent]
@@ -385,8 +368,7 @@ class PurchaseSubCategoryController @Inject() (
       data.preparedForm
         .bindFromRequest()
         .fold(
-          formWithErrors =>
-            Future.successful(BadRequest(view(formWithErrors, data.items, data.pageTitle, data.heading, data.formAction, data.backUrl))),
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, data.items, data.pageTitle, data.heading, data.formAction))),
           value => handleSubmitValue(value, data.options, mode, userAnswers)
         )
     }

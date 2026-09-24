@@ -17,10 +17,10 @@
 package controllers.warning
 
 import base.SpecBase
-import controllers.warning.routes
 import models.{CheckMode, NormalMode}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
+import pages.TotalPurchaseAmountBeforeVatPage
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -34,7 +34,6 @@ class SupplierVrnWarningControllerSpec extends SpecBase {
   "SupplierVrnWarning Controller" - {
 
     "must return OK and the correct view for a GET" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -44,9 +43,35 @@ class SupplierVrnWarningControllerSpec extends SpecBase {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual
-          view(controllers.purchase.routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode), NormalMode)(request,
-                                                                                                                       messages(application)
-                                                                                                                      ).toString
+          view(
+            NormalMode,
+            controllers.purchase.routes.SupplierVatRegistrationNumberController.onPageLoad(CheckMode),
+            controllers.purchase.routes.InvoiceNumberController.onPageLoad(CheckMode)
+          )(
+            request,
+            messages(application)
+          ).toString
+      }
+    }
+
+    "must return OK and the correct view for a GET in CheckMode" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.SupplierVrnWarningController.onPageLoad(CheckMode).url)
+        val result = route(application, request).value
+        val view = application.injector.instanceOf[SupplierVrnWarningView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual
+          view(
+            CheckMode,
+            controllers.purchase.routes.SupplierVatRegistrationNumberController.onPageLoad(CheckMode),
+            controllers.purchase.routes.InvoiceNumberController.onPageLoad(CheckMode)
+          )(
+            request,
+            messages(application)
+          ).toString
       }
     }
 
@@ -60,7 +85,8 @@ class SupplierVrnWarningControllerSpec extends SpecBase {
 
       running(application) {
         val request = FakeRequest(GET, routes.SupplierVrnWarningController.onPageLoad(NormalMode).url)
-        status(route(application, request).value) mustEqual OK
+        val result = route(application, request).value
+        status(result) mustEqual OK
         verify(mockSessionRepository).set(any())
       }
     }
@@ -107,7 +133,13 @@ class SupplierVrnWarningControllerSpec extends SpecBase {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
-      val userAnswers = emptyUserAnswers.set(pages.RefundingCountryPage, "FR").success.value
+      val userAnswers = emptyUserAnswers
+        .set(pages.RefundingCountryPage, "FR")
+        .success
+        .value
+        .set(TotalPurchaseAmountBeforeVatPage, 123)
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(bind[SessionRepository].toInstance(mockSessionRepository))

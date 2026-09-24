@@ -222,9 +222,12 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to CYA when in CheckMode and total vat claim unchanged for purchase journey" in {
+    "must redirect to CYA in CheckMode and total vat claim unchanged for purchase journey" in {
       val userAnswers = UserAnswers(userAnswersId)
         .set(PurchaseTypePage, Fuel)
+        .success
+        .value
+        .set(TotalVatPaidPage, validAnswer)
         .success
         .value
         .set(TotalVatClaimPage, validAnswer)
@@ -238,11 +241,11 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
           .withFormUrlEncodedBody(("value", validAnswer.toString))
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.CheckYourPurchaseDetailsController.onPageLoad().url
       }
     }
 
-    "must redirect to warning when in CheckMode and total vat claim unchanged but total vat paid triggers warning (arrived from prior page)" in {
+    "must redirect to warning in CheckMode and total vat claim unchanged but total vat paid triggers warning (arrived from prior page)" in {
       val userAnswers = UserAnswers(userAnswersId)
         .set(PurchaseTypePage, Fuel)
         .success
@@ -263,7 +266,7 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad().url
+        redirectLocation(result).value mustEqual controllers.warning.routes.VatClaimWarningController.onPageLoad(CheckMode).url
       }
     }
 

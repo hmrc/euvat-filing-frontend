@@ -19,7 +19,7 @@ package controllers.purchase
 import controllers.actions.*
 import forms.purchase.PurchaseSubTypeFormProvider
 import models.requests.DataRequest
-import models.{CheckMode, Mode, NormalMode, PurchaseSubCategoryType, PurchaseType, UserAnswers}
+import models.{CheckMode, Mode, PurchaseSubCategoryType, PurchaseType, UserAnswers}
 import navigation.Navigator
 import pages.*
 import play.api.data.Form
@@ -157,12 +157,6 @@ class PurchaseSubTypeController @Inject() (
     Call("POST", s"${MountPrefix.getFromRequest}/$isChangeMode$uri")
   }
 
-  private def backUrlFor(mode: Mode) = if (mode == CheckMode) {
-    routes.CheckYourPurchaseDetailsController.onPageLoad().url
-  } else {
-    routes.PurchaseTypeController.onPageLoad(NormalMode).url
-  }
-
   private def handleCountryChanged(purchaseTypeSlug: String, userAnswers: UserAnswers)(implicit request: RequestHeader) = {
     val clearedAnswers = for {
       afterRemovedSubType      <- userAnswers.remove(PurchaseSubTypePage)
@@ -181,13 +175,6 @@ class PurchaseSubTypeController @Inject() (
       )
   }
 
-  private def renderSubTypeView(preparedForm: Form[?], items: Seq[RadioItem], heading: String, formAction: Call, mode: Mode)(implicit
-    request: DataRequest[AnyContent]
-  ): Future[Result] = {
-    val backUrl = backUrlFor(mode)
-    Future.successful(Ok(view(preparedForm, items, heading, heading, formAction, backUrl)))
-  }
-
   private def markArrivalAndRenderSubType(preparedForm: Form[?],
                                           items: Seq[RadioItem],
                                           heading: String,
@@ -200,7 +187,7 @@ class PurchaseSubTypeController @Inject() (
       mode,
       userAnswers,
       sessionRepository
-    )(_ => renderSubTypeView(preparedForm, items, heading, formAction, mode))
+    )(_ => Future.successful(Ok(view(preparedForm, items, heading, heading, formAction))))
 
   private def redirectWhenNoOptions(mode: Mode): Future[Result] =
     Future.successful(
@@ -264,14 +251,6 @@ class PurchaseSubTypeController @Inject() (
           case None => Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
         }
       }
-  }
-
-  private def badSubmitRequest(formWithErrors: Form[?], items: Seq[RadioItem], parentHeading: String, resolvedSlug: String, mode: Mode)(implicit
-    request: DataRequest[AnyContent]
-  ): Future[Result] = {
-    val formAction = formActionFor(resolvedSlug, mode)
-    val backUrl = backUrlFor(mode)
-    Future.successful(BadRequest(view(formWithErrors, items, parentHeading, parentHeading, formAction, backUrl)))
   }
 
   private def persistNoneSelection(mode: Mode, userAnswers: UserAnswers)(implicit request: DataRequest[AnyContent]): Future[Result] = {
@@ -371,7 +350,10 @@ class PurchaseSubTypeController @Inject() (
       preparedForm
         .bindFromRequest()
         .fold(
-          formWithErrors => badSubmitRequest(formWithErrors, items, parentHeading, resolvedSlug, mode),
+          formWithErrors =>
+            Future.successful(
+              BadRequest(view(formWithErrors, items, parentHeading, parentHeading, formActionFor(resolvedSlug, mode)))
+            ),
           value => handleSubmitValue(value, parentKey, country, resolvedSlug, mode, userAnswers)
         )
     }
