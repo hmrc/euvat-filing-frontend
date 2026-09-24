@@ -151,7 +151,7 @@ class ConfigPurchaseOrImportMapping @Inject() (config: Configuration = Configura
             val derivedLabel = explicitLabelOpt.orElse {
               nodesForParent.find(n => n.code.startsWith(base + ".")).flatMap { child =>
                 val l = child.label
-                if (l.startsWith("sub.")) {
+                if (l.startsWith(prefix)) {
                   val parts = l.split("\\.")
                   if (parts.length > 3) Some(parts.dropRight(1).mkString(".")) else None
                 } else None
