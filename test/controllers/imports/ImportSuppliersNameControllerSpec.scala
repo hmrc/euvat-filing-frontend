@@ -30,7 +30,7 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.SuppliersNameView
+import views.html.PurchaseOrImportSuppliersNameView
 
 import scala.concurrent.Future
 
@@ -52,7 +52,7 @@ class ImportSuppliersNameControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request = FakeRequest(GET, suppliersNameRoute)
         val result = route(application, request).value
-        val view = application.injector.instanceOf[SuppliersNameView]
+        val view = application.injector.instanceOf[PurchaseOrImportSuppliersNameView]
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
@@ -70,7 +70,7 @@ class ImportSuppliersNameControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request = FakeRequest(GET, routes.ImportSuppliersNameController.onPageLoad(CheckMode).url)
         val result = route(application, request).value
-        val view = application.injector.instanceOf[SuppliersNameView]
+        val view = application.injector.instanceOf[PurchaseOrImportSuppliersNameView]
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
@@ -103,7 +103,7 @@ class ImportSuppliersNameControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(GET, suppliersNameRoute)
-        val view = application.injector.instanceOf[SuppliersNameView]
+        val view = application.injector.instanceOf[PurchaseOrImportSuppliersNameView]
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -145,7 +145,7 @@ class ImportSuppliersNameControllerSpec extends SpecBase with MockitoSugar {
         val request = FakeRequest(POST, suppliersNameRoute).withFormUrlEncodedBody(("value", ""))
 
         val boundForm = form.bind(Map("value" -> ""))
-        val view = application.injector.instanceOf[SuppliersNameView]
+        val view = application.injector.instanceOf[PurchaseOrImportSuppliersNameView]
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
@@ -165,7 +165,7 @@ class ImportSuppliersNameControllerSpec extends SpecBase with MockitoSugar {
         val request = FakeRequest(POST, suppliersNameRoute).withFormUrlEncodedBody(("value", "a" * 36))
 
         val boundForm = form.bind(Map("value" -> "a" * 36))
-        val view = application.injector.instanceOf[SuppliersNameView]
+        val view = application.injector.instanceOf[PurchaseOrImportSuppliersNameView]
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
