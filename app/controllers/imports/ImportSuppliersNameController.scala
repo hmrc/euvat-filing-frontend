@@ -26,7 +26,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.SuppliersNameView
+import views.html.PurchaseOrImportSuppliersNameView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -40,7 +40,7 @@ class ImportSuppliersNameController @Inject() (
   requireData: DataRequiredAction,
   formProvider: SuppliersNameFormProvider,
   val controllerComponents: MessagesControllerComponents,
-  view: SuppliersNameView
+  view: PurchaseOrImportSuppliersNameView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
