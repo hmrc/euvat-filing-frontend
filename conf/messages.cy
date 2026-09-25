@@ -126,6 +126,10 @@ refundingCurrency.newLeu = Romanian Leu ({0})
 refundingCurrency.swedishKrona = Swedish Krona ({0})
 refundingCurrency.error.required = Select a currency for this claim
 
+import.refundingCurrency.title = Which currency do you want to use for this import?
+import.refundingCurrency.heading = Which currency do you want to use for this import?
+import.refundingCurrency.error.required = Select a currency for this import
+
 refundPeriod.title = Refund period
 refundPeriod.heading = Refund period
 refundPeriod.rules.heading = Your refund period must:

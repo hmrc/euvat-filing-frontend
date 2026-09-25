@@ -17,7 +17,7 @@
 package controllers.purchase
 
 import controllers.actions.*
-import forms.purchase.RefundingCurrencyFormProvider
+import forms.RefundingCurrencyFormProvider
 import models.requests.DataRequest
 import models.{CheckMode, Mode, NormalMode, RefundingCurrency, UserAnswers}
 import navigation.Navigator
