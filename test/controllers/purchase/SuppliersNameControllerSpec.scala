@@ -76,7 +76,8 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form,
+          view(
+            form,
             routes.SuppliersNameController.onSubmit(CheckMode),
             routes.CheckYourPurchaseDetailsController.onPageLoad(),
             "purchase.caption",
