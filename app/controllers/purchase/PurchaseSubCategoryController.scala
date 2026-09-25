@@ -133,7 +133,6 @@ class PurchaseSubCategoryController @Inject() (
       title             = subCategoryTitle(parentKey, resolvedParentCode, options)(msgs),
       form              = preparedForm(formProvider, requiredKey, userAnswers.get(PurchaseSubCategoryPage)),
       formAction        = computeFormAction(parentKey, formActionCandidates(resolvedParentCode), userAnswers, mode),
-      backUrl           = backUrlFor(userAnswers, mode),
       parentBase        = resolvedParentCode.split("\\.").headOption.getOrElse(resolvedParentCode),
       childToPersist    = childToPersistFor(resolvedParentCode, options),
       parentLabelKeyOpt = config.subcodesFor(country, parentKey).find(_._1 == resolvedParentCode).map(_._2)

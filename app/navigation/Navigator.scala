@@ -23,7 +23,6 @@ import models.*
 import models.PurchaseOrImport.{Import, Purchase}
 import pages.*
 import play.api.mvc.Call
-import utils.{ConfigLanguageMapping, ConfigPurchaseOrImportMapping, CountryCode, CurrencyConfig}
 
 import javax.inject.{Inject, Singleton}
 
@@ -63,6 +62,8 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case TotalVatClaimPage                 => _ => purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
     case ImportTypePage                    => userAnswers => importNavigator.navigateFromImportTypePage(NormalMode)(userAnswers)
     case ImportSubCodePage                 => userAnswers => importNavigator.navigateFromImportSubCodePage(NormalMode)(userAnswers)
+    case ImportSubCategoryPage             => userAnswers => importNavigator.navigateFromImportSubCategoryPage(userAnswers)
+    case _                                 => _ => controllers.routes.IndexController.onPageLoad()
     case SadReferencePage =>
       userAnswers =>
         userAnswers.get(SadReferencePage) match {
