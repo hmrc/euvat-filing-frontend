@@ -1,17 +1,38 @@
-package controllers
+/*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-import controllers.actions._
-import forms.ImportDateFormProvider
-import javax.inject.Inject
-import models.Mode
+package controllers.imports
+
+import controllers.actions.*
+import forms.imports.ImportDateFormProvider
+import models.requests.DataRequest
+import pages.{ImportDatePage, SadReferencePage}
 import navigation.Navigator
-import pages.ImportDatePage
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+
+import javax.inject.Inject
+import models.{Mode, NormalMode, CheckMode}
+import play.api.data.Form
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.mvc.*
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.ImportDateView
+import views.html.imports.ImportDateView
 
+import java.time.LocalDate
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class ImportDateController @Inject()(
@@ -27,7 +48,7 @@ class ImportDateController @Inject()(
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
    private def form(implicit messages: Messages) = formProvider()
-   private def backLink(mode: Mode)(implicit request: DataRequest[?]) mode match ){
+   private def backLink(mode: Mode)(implicit request: DataRequest[?]): Call = mode match {
      case CheckMode => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: replace with CheckYourImportController once built
      case NormalMode => navigator.nextPage(SadReferencePage, mode, request.userAnswers)
    }
@@ -54,9 +75,9 @@ class ImportDateController @Inject()(
    }
 
    private def badRequestToImportDate(formWithErrors: Form[?], mode: Mode)(implicit
-     request: Request[AnyContent]
+     request: DataRequest[AnyContent]
    ): Future[play.api.mvc.Result] = {
-     val html = view(formWithErrors, mode, backLink(mode))(request, messagesApi.preferred(request))
+     val html = view(formWithErrors, mode, backLink(mode))
      Future.successful(BadRequest(html))
    }
 

@@ -14,15 +14,25 @@
  * limitations under the License.
  */
 
-package pages
+package forms.imports
+
+import forms.mappings.Mappings
+import play.api.data.Form
+import play.api.i18n.Messages
 
 import java.time.LocalDate
+import javax.inject.Inject
 
-import play.api.libs.json.JsPath
+class ImportDateFormProvider @Inject() extends Mappings {
 
-case object ImportDatePage extends QuestionPage[LocalDate] {
-
-  override def path: JsPath = JsPath \ toString
-
-  override def toString: String = "importDate"
+  def apply()(implicit messages: Messages): Form[LocalDate] =
+    Form(
+      "value" -> localDate(
+        invalidKey      = "importDate.error.invalid",
+        allRequiredKey  = "importDate.error.required.all",
+        twoRequiredKey  = "importDate.error.required.two",
+        requiredKey     = "importDate.error.required",
+        usePerFieldKeys = true
+      )
+    )
 }
