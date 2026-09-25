@@ -17,9 +17,9 @@
 package controllers.purchase
 
 import controllers.actions.*
-import forms.purchase.PurchaseSubTypeFormProvider
+import forms.PurchaseOrImportSubTypeFormProvider
 import models.requests.DataRequest
-import models.{CheckMode, Mode, Other, PurchaseOrImportType, PurchaseSubCategoryType, UserAnswers}
+import models.{CheckMode, Mode, Other, PurchaseOrImportSubCategoryType, PurchaseOrImportType, UserAnswers}
 import navigation.Navigator
 import pages.*
 import play.api.data.Form
@@ -41,7 +41,7 @@ class PurchaseSubTypeController @Inject() (
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  formProvider: PurchaseSubTypeFormProvider,
+  formProvider: PurchaseOrImportSubTypeFormProvider,
   config: ConfigPurchaseOrImportMapping,
   val controllerComponents: MessagesControllerComponents,
   view: PurchaseOrImportSubTypeView
@@ -73,7 +73,7 @@ class PurchaseSubTypeController @Inject() (
     val rawItems = config.buildRadioItems(options, messagesApi.preferred(request))
     val items = if (parentKey == "other") rawItems.filterNot(_.value.contains(ConfigPurchaseOrImportMapping.NoneValue)) else rawItems
     val msgs = messagesApi.preferred(request)
-    val requiredKeyCandidates = Seq(s"purchase.sub.$parentKey.error.required")
+    val requiredKeyCandidates = Seq(s"sub.$parentKey.error.required")
     val requiredKey = requiredKeyCandidates.find(k => msgs.isDefinedAt(k)).getOrElse("error.required")
     val preparedForm = userAnswers.get(PurchaseSubTypePage).fold(formProvider(requiredKey))(formProvider(requiredKey).fill)
     val resolvedSlug = resolvedSlugFor(parentKey, purchaseTypeSlug)
@@ -139,11 +139,11 @@ class PurchaseSubTypeController @Inject() (
 
   private def parentHeadingFor(parentKey: String)(implicit request: RequestHeader): String =
     parentKey match {
-      case "fuel"         => messagesApi.preferred(request)("purchase.sub.fuel.heading")
-      case "transport"    => messagesApi.preferred(request)("purchase.sub.transport.heading")
-      case "foodAndDrink" => messagesApi.preferred(request)("purchase.sub.foodAndDrink.heading")
-      case "luxuries"     => messagesApi.preferred(request)("purchase.sub.luxuries.heading")
-      case "other"        => messagesApi.preferred(request)("purchase.sub.other.heading")
+      case "fuel"         => messagesApi.preferred(request)("sub.fuel.heading")
+      case "transport"    => messagesApi.preferred(request)("sub.transport.heading")
+      case "foodAndDrink" => messagesApi.preferred(request)("sub.foodAndDrink.heading")
+      case "luxuries"     => messagesApi.preferred(request)("sub.luxuries.heading")
+      case "other"        => messagesApi.preferred(request)("sub.other.heading")
       case _              => parentKey
     }
 
@@ -272,7 +272,7 @@ class PurchaseSubTypeController @Inject() (
     candidates.iterator
       .map { c =>
         try {
-          val slug = PurchaseSubCategoryType.pathFor(parentKey, c)
+          val slug = PurchaseOrImportSubCategoryType.pathFor(parentKey, c)
           val prefix = MountPrefix.getFromRequest
           val path = ControllerHelpers.pathForSlug(slug, mode, prefix)
           Some(Call("GET", path))

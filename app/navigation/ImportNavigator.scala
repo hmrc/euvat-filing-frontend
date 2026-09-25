@@ -16,31 +16,42 @@
 
 package navigation
 
-import models.{CheckMode, InvoiceType, Mode, NormalMode, SupplierTaxNumber, UserAnswers}
-import pages.{ImportSubCodePage, ImportTypePage}
+import models.{Mode, UserAnswers}
+import pages.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage}
 import play.api.mvc.Call
 import utils.{ConfigPurchaseOrImportMapping, CountryCode, CurrencyConfig}
 import controllers.imports.routes as importsRoutes
+
 import javax.inject.{Inject, Singleton}
 
 @Singleton
 class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseOrImportMapping: ConfigPurchaseOrImportMapping) {
-  def navigateFromImportSubCodePage(mode: Mode)(userAnswers: UserAnswers): Call =
-    userAnswers.get(ImportSubCodePage) match {
-      case Some(value) if value == ConfigPurchaseOrImportMapping.NoneValue =>
+
+  def navigateFromImportTypePage(mode: Mode)(userAnswers: UserAnswers): Call =
+    (userAnswers.get(ImportTypePage), CountryCode.findCountryCode(userAnswers)) match {
+      case (Some(importType), Some(country)) if configPurchaseOrImportMapping.selectableSubcodes(country, importType.toString).isDefined =>
+        importsRoutes.ImportSubCodeController.onPageLoad(importType.toString)
+      case (Some(_), Some(_)) =>
+        importsRoutes.SadReferenceController.onPageLoad // TODO: Other with only 10.99 may go to the import free text page when it exists
+      case _ =>
         controllers.routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  def navigateFromImportSubCodePage(mode: Mode)(userAnswers: UserAnswers): Call =
+    (userAnswers.get(ImportTypePage), userAnswers.get(ImportSubCodePage), CountryCode.findCountryCode(userAnswers)) match {
+      case (Some(importType), Some(subCode), Some(country))
+          if configPurchaseOrImportMapping.subcategoriesFor(country, importType.toString, subCode).nonEmpty =>
+        importsRoutes.ImportSubCategoryController.onPageLoad(mode)
+      case (_, Some(_), _) =>
+        importsRoutes.SadReferenceController.onPageLoad
+      case _ =>
+        controllers.routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  def navigateFromImportSubCategoryPage(userAnswers: UserAnswers): Call =
+    userAnswers.get(ImportSubCategoryPage) match {
       case Some(_) => importsRoutes.SadReferenceController.onPageLoad
       case None    => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
-
-  def navigateFromImportTypePage(mode: Mode)(userAnswers: UserAnswers): Call = {
-    val importType = userAnswers.get(ImportTypePage).get
-
-    CountryCode.findCountryCode(userAnswers) match {
-      case Some(country) if configPurchaseOrImportMapping.selectableSubcodes(country, importType.toString).isDefined =>
-        importsRoutes.ImportSubCodeController.onPageLoad(importType.toString)
-      case _ => controllers.routes.JourneyRecoveryController.onPageLoad()
-    }
-  }
 
 }

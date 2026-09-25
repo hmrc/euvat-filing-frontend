@@ -17,23 +17,27 @@
 package controllers.imports
 
 import controllers.actions.*
-import forms.purchase.PurchaseSubTypeFormProvider
+import controllers.imports.routes
+import forms.PurchaseOrImportSubTypeFormProvider
 import forms.imports.SadReferenceFormProvider
 import models.requests.DataRequest
-import models.{NormalMode, PurchaseOrImportType}
+import models.{NormalMode, PurchaseOrImportType, UserAnswers}
 import navigation.Navigator
-import pages.{ImportSubCodePage, ImportTypePage}
+import pages.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import queries.{ImportSubCategoryLabelQuery, ImportSubTypeLabelQuery}
 import repositories.SessionRepository
-import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.PurchaseOrImportHelpers.*
 import utils.{ConfigPurchaseOrImportMapping, CountryCode}
 import views.html.PurchaseOrImportSubTypeView
+import views.html.imports.SadReferenceView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Success, Try}
 
 class ImportSubCodeController @Inject() (
   override val messagesApi: MessagesApi,
@@ -42,54 +46,31 @@ class ImportSubCodeController @Inject() (
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  formProvider: PurchaseSubTypeFormProvider,
+  formProvider: PurchaseOrImportSubTypeFormProvider,
   config: ConfigPurchaseOrImportMapping,
   sadFormProvider: SadReferenceFormProvider,
-  sadView: views.html.imports.SadReferenceView,
+  sadView: SadReferenceView,
   val controllerComponents: MessagesControllerComponents,
   view: PurchaseOrImportSubTypeView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
-  private def backUrl: String = routes.ImportTypeController.onPageLoad(NormalMode).url
-
   private def withPageData(importTypeKey: String)(
     block: (PurchaseOrImportType, Seq[(String, String)]) => Future[Result]
   )(implicit request: DataRequest[AnyContent]): Future[Result] = {
-    val importTypeOpt = PurchaseOrImportType.values.find(_.toString == importTypeKey)
-    val answeredImportOpt = request.userAnswers.get(ImportTypePage)
-    val countryOpt = CountryCode.findCountryCode(request.userAnswers)
-
     val resolved = for {
-      importType <- importTypeOpt
-      answered   <- answeredImportOpt if answered == importType
-      country    <- countryOpt
+      importType <- PurchaseOrImportType.values.find(_.toString == importTypeKey)
+      answered   <- request.userAnswers.get(ImportTypePage) if answered == importType
+      country    <- CountryCode.findCountryCode(request.userAnswers)
       options    <- config.selectableSubcodes(country, importType.toString)
     } yield (importType, options)
 
     resolved match {
       case Some((importType, options)) => block(importType, options)
-      case None                        =>
-        // Render SAD question directly so GET returns OK with SAD content
-        // TODO: perhaps to change again after level 3 is done
-        val preparedForm = sadFormProvider()
-        Future.successful(Ok(sadView(preparedForm, routes.ImportTypeController.onPageLoad(models.NormalMode))))
+      case None =>
+        Future.successful(Ok(sadView(sadFormProvider())))
     }
-  }
-
-  private def radioItems(options: Seq[(String, String)])(implicit request: DataRequest[AnyContent]): Seq[RadioItem] = {
-    val items = config.buildRadioItems(options, request2Messages)
-    if (options.map(_._1).contains(ConfigPurchaseOrImportMapping.NoneOfTheseSubCode)) {
-      items.filterNot(_.value.contains(ConfigPurchaseOrImportMapping.NoneValue))
-    } else {
-      items
-    }
-  }
-
-  private def allowedValues(options: Seq[(String, String)]): Seq[String] = {
-    val codes = options.map(_._1)
-    if (codes.contains(ConfigPurchaseOrImportMapping.NoneOfTheseSubCode)) codes else codes :+ ConfigPurchaseOrImportMapping.NoneValue
   }
 
   private def renderView(importType: PurchaseOrImportType, options: Seq[(String, String)], form: Form[String])(implicit
@@ -98,7 +79,7 @@ class ImportSubCodeController @Inject() (
     val messages = request2Messages
     view(
       form,
-      radioItems(options),
+      radioItems(config, options),
       messages(s"importSubCode.$importType.title"),
       messages(s"importSubCode.$importType.heading"),
       "import.caption",
@@ -106,15 +87,14 @@ class ImportSubCodeController @Inject() (
     )
   }
 
+  private def clearSubCategoryIfChanged(answers: UserAnswers, value: String): Try[UserAnswers] =
+    if (answers.get(ImportSubCodePage).contains(value)) Success(answers)
+    else answers.remove(ImportSubCategoryPage).flatMap(_.remove(ImportSubCategoryLabelQuery))
+
   def onPageLoad(importTypeKey: String): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     withPageData(importTypeKey) { (importType, options) =>
-      val form = formProvider(s"importSubCode.$importType.error.required")
-      val preparedForm = request.userAnswers.get(ImportSubCodePage) match {
-        case Some(value) => form.fill(value)
-        case None        => form
-      }
-
-      Future.successful(Ok(renderView(importType, options, preparedForm)))
+      val form = preparedForm(formProvider, s"importSubCode.$importType.error.required", request.userAnswers.get(ImportSubCodePage))
+      Future.successful(Ok(renderView(importType, options, form)))
     }
   }
 
@@ -126,8 +106,10 @@ class ImportSubCodeController @Inject() (
           formWithErrors => Future.successful(BadRequest(renderView(importType, options, formWithErrors))),
           value =>
             if (allowedValues(options).contains(value)) {
+              val label = labelFor(value, options)
               for {
-                updatedAnswers <- Future.fromTry(request.userAnswers.set(ImportSubCodePage, value))
+                cleared        <- Future.fromTry(clearSubCategoryIfChanged(request.userAnswers, value))
+                updatedAnswers <- Future.fromTry(setSelection(cleared, ImportSubCodePage, ImportSubTypeLabelQuery, value, label))
                 _              <- sessionRepository.set(updatedAnswers)
               } yield Redirect(navigator.nextPage(ImportSubCodePage, NormalMode, updatedAnswers))
             } else {
