@@ -72,18 +72,6 @@ class ImportSubCategoryControllerSpec extends SpecBase {
       }
     }
 
-    "must render the back link to the Import sub-code page" in {
-      val application = applicationBuilder(userAnswers = Some(answers())).build()
-
-      running(application) {
-        val result = route(application, FakeRequest(GET, subCategoryRoute)).value
-        val importSubCodeUrl = controllers.imports.routes.ImportSubCodeController.onPageLoad("fuel").url
-
-        status(result) mustEqual OK
-        contentAsString(result) must include(s"""href="$importSubCodeUrl"""")
-      }
-    }
-
     "must populate the view correctly on a GET when the question has previously been answered" in {
       val userAnswers = answers().set(ImportSubCategoryPage, "1.2.6").success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()

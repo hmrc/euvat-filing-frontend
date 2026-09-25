@@ -56,8 +56,6 @@ class ImportSubCodeController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  private def backUrl: String = controllers.imports.routes.ImportTypeController.onPageLoad(NormalMode).url
-
   private def withPageData(importTypeKey: String)(
     block: (PurchaseOrImportType, Seq[(String, String)]) => Future[Result]
   )(implicit request: DataRequest[AnyContent]): Future[Result] = {
@@ -70,7 +68,7 @@ class ImportSubCodeController @Inject() (
 
     resolved match {
       case Some((importType, options)) => block(importType, options)
-      case None                        =>
+      case None =>
         Future.successful(Ok(sadView(sadFormProvider())))
     }
   }

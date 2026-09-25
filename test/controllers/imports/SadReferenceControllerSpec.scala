@@ -39,55 +39,21 @@ class SadReferenceControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[views.html.imports.SadReferenceView]
 
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(formProvider(), controllers.imports.routes.ImportTypeController.onPageLoad(NormalMode))(request, messages(application)).toString
+          view(formProvider())(request, messages(application)).toString
         )
       }
     }
 
-    "must show back link to ImportSubCode when ImportSubCodePage present" in {
-      val userAnswers = emptyUserAnswers
-        .set(pages.ImportTypePage, models.Fuel)
-        .success
-        .value
-        .set(pages.ImportSubCodePage, "1.3")
-        .success
-        .value
-
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+    "must show a browser back link" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, controllers.imports.routes.SadReferenceController.onPageLoad.url)
         val result = route(application, request).value
 
         status(result) mustBe OK
-        contentAsString(result) must include(controllers.imports.routes.ImportSubCodeController.onPageLoad(models.Fuel.toString).url)
-      }
-    }
-
-    "must show back link to ImportSubCategory when ImportSubCategoryPage present" in {
-      val userAnswers = emptyUserAnswers
-        .set(pages.ImportTypePage, models.Fuel)
-        .success
-        .value
-        .set(pages.ImportSubCodePage, "1.2")
-        .success
-        .value
-        .set(pages.ImportSubCategoryPage, "1.2.6")
-        .success
-        .value
-
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
-
-      running(application) {
-        val request = FakeRequest(GET, controllers.imports.routes.SadReferenceController.onPageLoad.url)
-        val result = route(application, request).value
-
-        val subCategoryUrl = controllers.imports.routes.ImportSubCategoryController.onPageLoad(NormalMode).url
-        val subCodeUrl = controllers.imports.routes.ImportSubCodeController.onPageLoad(models.Fuel.toString).url
-
-        status(result) mustBe OK
-        contentAsString(result) must include(s"""href="$subCategoryUrl"""")
-        contentAsString(result) must not include s"""href="$subCodeUrl""""
+        contentAsString(result) must include("govuk-back-link")
+        contentAsString(result) must not include controllers.imports.routes.ImportSubCodeController.onPageLoad(models.Fuel.toString).url
       }
     }
 

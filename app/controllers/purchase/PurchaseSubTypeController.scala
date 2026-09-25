@@ -19,7 +19,7 @@ package controllers.purchase
 import controllers.actions.*
 import forms.PurchaseOrImportSubTypeFormProvider
 import models.requests.DataRequest
-import models.{CheckMode, Mode, Other, PurchaseOrImportType, PurchaseSubCategoryType, UserAnswers}
+import models.{CheckMode, Mode, Other, PurchaseOrImportSubCategoryType, PurchaseOrImportType, UserAnswers}
 import navigation.Navigator
 import pages.*
 import play.api.data.Form
