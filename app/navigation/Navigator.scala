@@ -102,6 +102,7 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case SadReferenceCheckPage             => userAnswers => importNavigator.navigateFromSadReferenceCheckPage(CheckMode)(userAnswers)
     case SadReferenceNumberPage            => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
     case ImportDetailsInfoPage             => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
+    case ImportSuppliersNamePage           => _ => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: check your import details
     case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 
