@@ -19,7 +19,6 @@ package navigation
 import base.SpecBase
 import com.typesafe.config.ConfigFactory
 import controllers.claim.routes as claimRoutes
-import controllers.routes
 import models.*
 import pages.*
 import play.api.Configuration
@@ -100,10 +99,10 @@ class ClaimNavigatorSpec extends SpecBase {
           claimRoutes.CheckYourClaimDetailsController.onPageLoad()
       }
 
-      "must go from CheckYourStateDetailsPage to JourneyRecoveryController if yes selected" in {
+      "must go from CheckYourStateDetailsPage to DeleteClaimController if yes selected" in {
         val ua = userAnswers.set(CheckYourStateDetailsPage, true).success.value
         navigator.navigateFromCheckYourStateDetailsPage(NormalMode)(ua) mustBe
-          controllers.routes.JourneyRecoveryController.onPageLoad()
+          controllers.routes.DeleteClaimController.onPageLoad()
       }
     }
 
@@ -161,10 +160,10 @@ class ClaimNavigatorSpec extends SpecBase {
           claimRoutes.CheckYourClaimDetailsController.onPageLoad()
       }
 
-      "must go from CheckYourStateDetailsPage to JourneyRecoveryController if yes selected" in {
+      "must go from CheckYourStateDetailsPage to DeleteClaimController if yes selected" in {
         val ua = userAnswers.set(CheckYourStateDetailsPage, true).success.value
         navigator.navigateFromCheckYourStateDetailsPage(CheckMode)(ua) mustBe
-          routes.JourneyRecoveryController.onPageLoad()
+          controllers.routes.DeleteClaimController.onPageLoad()
       }
 
       "must go from CheckYourStateDetailsPage to CheckYourClaimDetailsController if no selected" in {

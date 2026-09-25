@@ -63,8 +63,9 @@ class ClaimNavigator @Inject() (configLanguageMapping: ConfigLanguageMapping, co
 
   def navigateFromCheckYourStateDetailsPage(mode: Mode)(userAnswers: UserAnswers): Call =
     userAnswers.get(CheckYourStateDetailsPage) match {
-      case Some(true) => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: replace when F8 delete application is in place
-      case _          => claimRoutes.CheckYourClaimDetailsController.onPageLoad()
+      case Some(true)  => controllers.routes.DeleteClaimController.onPageLoad()
+      case Some(false) => claimRoutes.CheckYourClaimDetailsController.onPageLoad()
+      case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
 }
