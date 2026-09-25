@@ -1,6 +1,22 @@
+/*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package viewmodels.checkAnswers
 
-import controllers.routes
+import controllers.imports.routes
 import models.{CheckMode, UserAnswers}
 import pages.ImportDatePage
 import play.api.i18n.{Lang, Messages}
@@ -21,7 +37,7 @@ object ImportDateSummary  {
           key     = "importDate.checkYourAnswersLabel",
           value   = ValueViewModel(answer.format(dateTimeFormat())),
           actions = Seq(
-            ActionItemViewModel("site.change", routes.ImportDateController.onPageLoad(CheckMode).url)
+            ActionItemViewModel("site.change", controllers.imports.routes.ImportDateController.onPageLoad(CheckMode).url)
               .withVisuallyHiddenText(messages("importDate.change.hidden"))
           )
         )
