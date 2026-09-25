@@ -20,12 +20,14 @@ import controllers.actions.*
 import forms.imports.SadReferenceFormProvider
 import pages.SadReferencePage
 import models.requests.DataRequest
+import navigation.Navigator
 
 import javax.inject.Inject
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
+import models.NormalMode
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.imports.SadReferenceView
 
@@ -34,6 +36,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class SadReferenceController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
+  navigator: Navigator,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
@@ -67,7 +70,7 @@ class SadReferenceController @Inject() (
           for {
             updated <- Future.fromTry(request.userAnswers.set(SadReferencePage, value))
             _       <- sessionRepository.set(updated)
-          } yield Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+          } yield Redirect(navigator.nextPage(SadReferencePage, NormalMode, updated))
       )
   }
 

@@ -83,7 +83,6 @@ class ImportNavigatorSpec extends SpecBase {
           fakeImportConfig
         )
         val ua = userAnswers.set(RefundingCountryPage, "AT").success.value.set(ImportTypePage, Transport).success.value
-
         nav.navigateFromImportTypePage(NormalMode)(ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
@@ -97,8 +96,25 @@ class ImportNavigatorSpec extends SpecBase {
           fakePurchaseConfig
         )
         val ua = userAnswers.set(RefundingCountryPage, "AT").success.value.set(ImportTypePage, Other).success.value
-
         nav.navigateFromImportTypePage(NormalMode)(ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from SadReferencePage to Journey Recovery when 'Yes' is submitted" in {
+        val ua = userAnswers.set(SadReferencePage, true).success.value
+        navigator.navigateFromSadReferencePage(NormalMode)(ua) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from SadReferencePage to ImportDetailsInfoController when 'No' is answered" in {
+        val ua = userAnswers.set(SadReferencePage, false).success.value
+        navigator.navigateFromSadReferencePage(NormalMode)(ua) mustBe
+          controllers.imports.routes.ImportDetailsInfoController.onPageLoad(NormalMode)
+      }
+
+      // TODO: replace with "When is the import date?" page controller once built
+      "must go from ImportDetailsInfoPage to Journey Recovery in Normal Mode" in {
+        navigator.navigateFromImportDetailsInfoPage(NormalMode)(emptyUserAnswers) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
     }
@@ -107,6 +123,12 @@ class ImportNavigatorSpec extends SpecBase {
       "must go from ImportTypePage to JourneyRecovery in CheckMode when ImportType present but no country" in {
         val ua = userAnswers.set(ImportTypePage, Fuel).success.value
         navigator.navigateFromImportTypePage(CheckMode)(ua) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      // TODO: replace with imports CYA controller once built
+      "must go from ImportDetailsInfoPage to Journey Recovery in Check Mode" in {
+        navigator.navigateFromImportDetailsInfoPage(CheckMode)(emptyUserAnswers) mustBe
           controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 

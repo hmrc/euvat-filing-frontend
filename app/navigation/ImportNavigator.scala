@@ -17,10 +17,11 @@
 package navigation
 
 import models.{CheckMode, InvoiceType, Mode, NormalMode, SupplierTaxNumber, UserAnswers}
-import pages.{ImportSubCodePage, ImportTypePage}
+import pages.{ImportSubCodePage, ImportTypePage, SadReferencePage}
 import play.api.mvc.Call
 import utils.{ConfigPurchaseOrImportMapping, CountryCode, CurrencyConfig}
 import controllers.imports.routes as importsRoutes
+
 import javax.inject.{Inject, Singleton}
 
 @Singleton
@@ -42,5 +43,19 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
       case _ => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
   }
+
+  def navigateFromSadReferencePage(mode: Mode)(userAnswers: UserAnswers): Call =
+    userAnswers.get(SadReferencePage) match {
+      case Some(true) =>
+        controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: replace with "What is the SAD number?" controller once built
+      case Some(false) => controllers.imports.routes.ImportDetailsInfoController.onPageLoad(mode)
+      case None        => controllers.routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  def navigateFromImportDetailsInfoPage(mode: Mode)(userAnswers: UserAnswers): Call =
+    mode match {
+      case NormalMode => controllers.routes.JourneyRecoveryController.onPageLoad()
+      case CheckMode  => controllers.routes.JourneyRecoveryController.onPageLoad()
+    }
 
 }
