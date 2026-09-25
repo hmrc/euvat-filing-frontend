@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package forms.purchase
+package forms
 
 import forms.mappings.Mappings
 import models.RefundingCurrency
@@ -24,8 +24,8 @@ import javax.inject.Inject
 
 class RefundingCurrencyFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[RefundingCurrency] =
+  def apply(messagePrefix: String = "refundingCurrency"): Form[RefundingCurrency] =
     Form(
-      "value" -> enumerable[RefundingCurrency]("refundingCurrency.error.required")
+      "value" -> enumerable[RefundingCurrency](s"$messagePrefix.error.required")
     )
 }

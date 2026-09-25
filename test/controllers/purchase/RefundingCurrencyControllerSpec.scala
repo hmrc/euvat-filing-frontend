@@ -17,7 +17,7 @@
 package controllers.purchase
 
 import base.SpecBase
-import forms.purchase.RefundingCurrencyFormProvider
+import forms.RefundingCurrencyFormProvider
 import models.{CheckMode, NormalMode, RefundingCurrency, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
