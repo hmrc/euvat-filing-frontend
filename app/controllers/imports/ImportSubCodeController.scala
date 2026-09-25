@@ -74,7 +74,7 @@ class ImportSubCodeController @Inject() (
         // Render SAD question directly so GET returns OK with SAD content
         // TODO: perhaps to change again after level 3 is done
         val preparedForm = sadFormProvider()
-        Future.successful(Ok(sadView(preparedForm, controllers.imports.routes.ImportTypeController.onPageLoad(models.NormalMode))))
+        Future.successful(Ok(sadView(preparedForm, routes.ImportTypeController.onPageLoad(models.NormalMode))))
     }
   }
 
@@ -102,8 +102,7 @@ class ImportSubCodeController @Inject() (
       messages(s"importSubCode.$importType.title"),
       messages(s"importSubCode.$importType.heading"),
       "import.caption",
-      routes.ImportSubCodeController.onSubmit(importType.toString),
-      backUrl
+      routes.ImportSubCodeController.onSubmit(importType.toString)
     )
   }
 

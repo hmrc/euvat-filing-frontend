@@ -20,11 +20,12 @@ import controllers.actions.*
 import controllers.purchase.routes
 import models.{CheckMode, Mode, NormalMode}
 import navigation.Navigator
-import pages.{SupplierVatRegistrationNumberPage, SupplierVatRegistrationWarningPage}
+import pages.{SupplierVatRegistrationWarningPage, TotalPurchaseAmountBeforeVatPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.{CountryCode, CurrencyConfig}
 import views.html.warning.SupplierVrnWarningView
 
 import javax.inject.Inject
@@ -38,27 +39,32 @@ class SupplierVrnWarningController @Inject() (
   requireData: DataRequiredAction,
   navigator: Navigator,
   val controllerComponents: MessagesControllerComponents,
-  view: SupplierVrnWarningView
+  view: SupplierVrnWarningView,
+  currencyConfig: CurrencyConfig
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     for {
-      updated <- Future.fromTry(request.userAnswers.set(SupplierVatRegistrationWarningPage, true))
-      _       <- sessionRepository.set(updated)
-    } yield Ok(view(routes.SupplierVatRegistrationNumberController.onPageLoad(mode), mode))
+      updatedAnswers <- Future.fromTry(request.userAnswers.set(SupplierVatRegistrationWarningPage, true))
+      _              <- sessionRepository.set(updatedAnswers)
+    } yield Ok(view(mode, routes.SupplierVatRegistrationNumberController.onPageLoad(CheckMode), routes.InvoiceNumberController.onPageLoad(CheckMode)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     for {
-      cleared <- Future.fromTry(request.userAnswers.remove(SupplierVatRegistrationWarningPage))
-      _       <- sessionRepository.set(cleared)
+      userAnswers <- Future.fromTry(request.userAnswers.set(SupplierVatRegistrationWarningPage, true))
+      _           <- sessionRepository.set(userAnswers)
     } yield {
-      if (mode == CheckMode) {
+      if (userAnswers.get(TotalPurchaseAmountBeforeVatPage).isDefined) {
         Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
       } else {
-        Redirect(navigator.nextPage(SupplierVatRegistrationNumberPage, mode, cleared))
+        CountryCode.findCountryCode(userAnswers) match {
+          case Some(countryCode) if currencyConfig.requiresCurrencySelection(countryCode) =>
+            Redirect(routes.RefundingCurrencyController.onPageLoad(NormalMode))
+          case _ => Redirect(routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode))
+        }
       }
     }
   }

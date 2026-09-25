@@ -41,34 +41,23 @@ class SupplierTaxIdentifierWarningController @Inject() (
     with I18nSupport {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    val flagged = request.userAnswers.set(SupplierTaxIdentifierWarningPage, true)
-    Future
-      .fromTry(flagged)
-      .flatMap(ua =>
-        sessionRepository
-          .set(ua)
-          .map(_ =>
-            Ok(
-              view(
-                routes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode),
-                routes.InvoiceNumberController.onPageLoad(CheckMode),
-                routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode),
-                mode
-              )
-            )
-          )
-      )
+    for {
+      answers <- Future.fromTry(request.userAnswers.set(SupplierTaxIdentifierWarningPage, true))
+      _       <- sessionRepository.set(answers)
+    } yield {
+      Ok(view(routes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode), routes.InvoiceNumberController.onPageLoad(CheckMode)))
+    }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    val cleared = request.userAnswers.remove(SupplierTaxIdentifierWarningPage)
+  def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+    val userAnswers = request.userAnswers.set(SupplierTaxIdentifierWarningPage, true)
     Future
-      .fromTry(cleared)
+      .fromTry(userAnswers)
       .flatMap(ua =>
         sessionRepository
           .set(ua)
           .map(_ =>
-            if (request.userAnswers.get(TotalPurchaseAmountBeforeVatPage).isDefined) {
+            if (ua.get(TotalPurchaseAmountBeforeVatPage).isDefined) {
               Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
             } else {
               Redirect(routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode))

@@ -19,7 +19,6 @@ package controllers.purchase
 import controllers.actions.*
 import forms.purchase.TotalVatClaimFormProvider
 import models.{CheckMode, Mode, NormalMode}
-import models.requests.DataRequest
 import navigation.Navigator
 import pages.{TotalVatClaimPage, TotalVatPaidPage}
 import play.api.data.Form
@@ -27,7 +26,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.ControllerHelpers.*
+import utils.ControllerHelpers.currencySymbolFromSession
 import utils.CurrencyConfig
 import views.html.purchase.TotalVatClaimView
 
@@ -67,29 +66,23 @@ class TotalVatClaimController @Inject() (
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(badRequestView(formWithErrors, mode)),
-        value => handleSubmit(value, mode)
+        formWithErrors =>
+          Future.successful(
+            BadRequest(view(formWithErrors, mode, backLink(mode), currencySymbolFromSession(request.userAnswers, currencyConfig.currencyConfig)))
+          ),
+        value =>
+          for {
+            userAnswers <- Future.fromTry(request.userAnswers.set(TotalVatClaimPage, value))
+            _           <- sessionRepository.set(userAnswers)
+          } yield {
+            val totalVatPaid: BigDecimal = userAnswers.get(TotalVatPaidPage).getOrElse(BigDecimal(0))
+            if (value > totalVatPaid) {
+              Redirect(controllers.warning.routes.VatClaimWarningController.onPageLoad(mode))
+            } else {
+              Redirect(navigator.nextPage(TotalVatClaimPage, mode, userAnswers))
+            }
+          }
       )
   }
 
-  private def handleSubmit(value: BigDecimal, mode: Mode)(implicit request: DataRequest[?]) = {
-    shortCircuit(
-      TotalVatClaimPage,
-      value,
-      mode,
-      request.userAnswers,
-      navigator.nextPage(TotalVatClaimPage, mode, request.userAnswers),
-      routes.CheckYourPurchaseDetailsController.onPageLoad(),
-      Some(sessionRepository)
-    ) { updated =>
-      if (compareWithPage(value, TotalVatPaidPage, updated)(_ > _)) {
-        Future.successful(Redirect(controllers.warning.routes.VatClaimWarningController.onPageLoad(mode)))
-      } else {
-        Future.successful(Redirect(navigator.nextPage(TotalVatClaimPage, mode, updated)))
-      }
-    }
-  }
-
-  private def badRequestView(formWithErrors: Form[?], mode: Mode)(implicit request: DataRequest[?]) =
-    BadRequest(view(formWithErrors, mode, backLink(mode), currencySymbolFromSession(request.userAnswers, currencyConfig.currencyConfig)))
 }

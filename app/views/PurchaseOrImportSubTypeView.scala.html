@@ -29,11 +29,11 @@
     mainErrorSummary: MainErrorSummary
 )
 
-@(form: play.api.data.Form[?], items: Seq[RadioItem], pageTitle: String, heading: String, captionKey: String, formAction: Call, backUrl: String)(implicit request: play.api.mvc.Request[?], messages: Messages)
+@(form: Form[?], items: Seq[RadioItem], pageTitle: String, heading: String, captionKey: String, formAction: Call)(implicit request: Request[?], messages: Messages)
 
 @isError = @{form.error("value").isDefined}
 
-@layout(pageTitle = views.ViewUtils.title(form, pageTitle), backLinkUrl = Some(backUrl)) {
+@layout(pageTitle = views.ViewUtils.title(form, pageTitle)) {
 
     @formHelper(action = formAction, Symbol("autoComplete") -> "off") {
         @mainErrorSummary(form, Map("value" -> "value_0"))

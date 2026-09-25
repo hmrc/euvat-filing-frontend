@@ -63,23 +63,16 @@ class InvoiceDateController @Inject() (
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => badRequestToInvoiceNumber(formWithErrors, mode),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)))),
         value =>
           val today = java.time.LocalDate.now()
           if (value.isAfter(today)) {
             val errorForm = form.bindFromRequest().withError("value", "invoiceDate.error.past")
-            badRequestToInvoiceNumber(errorForm, mode)
+            Future.successful(BadRequest(view(errorForm, mode, backLink(mode))))
           } else {
             handleSubmission(value, mode)(request)
           }
       )
-  }
-
-  private def badRequestToInvoiceNumber(formWithErrors: Form[?], mode: Mode)(implicit
-    request: Request[AnyContent]
-  ): Future[play.api.mvc.Result] = {
-    val html = view(formWithErrors, mode, backLink(mode))(request, messagesApi.preferred(request))
-    Future.successful(BadRequest(html))
   }
 
   private def handleSubmission(value: LocalDate, mode: Mode)(implicit request: DataRequest[?]): Future[Result] = {

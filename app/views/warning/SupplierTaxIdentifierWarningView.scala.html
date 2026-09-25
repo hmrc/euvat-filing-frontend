@@ -21,13 +21,12 @@
     govukWarningText: GovukWarningText
 )
 
-@(changeTaxLink: Call, changeInvoiceLink: Call, continueLink: Call, mode: Mode)(implicit request: Request[_], messages: Messages)
+@(changeTaxLink: Call, changeInvoiceLink: Call)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("supplierTaxIdentifierWarning.title"))) {
-    @formHelper(action = controllers.warning.routes.SupplierTaxIdentifierWarningController.onSubmit(mode)) {
+    @formHelper(action = controllers.warning.routes.SupplierTaxIdentifierWarningController.onSubmit()) {
 
         <h1 class="govuk-heading-l">@messages("supplierTaxIdentifierWarning.heading")</h1>
-
         <p class="govuk-body">@messages("supplierTaxIdentifierWarning.p")</p>
 
         @govukWarningText(WarningText(

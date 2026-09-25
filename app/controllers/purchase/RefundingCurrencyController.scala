@@ -57,14 +57,14 @@ class RefundingCurrencyController @Inject() (
   private val logger = Logger(getClass)
 
   private def backLink(userAnswers: UserAnswers, mode: Mode): Call =
-    if (mode == CheckMode) {
-      routes.CheckYourPurchaseDetailsController.onPageLoad()
-    } else {
-      if (userAnswers.get(SimplifiedInvoiceVatRegCheckPage).getOrElse(false)) {
-        routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode)
-      } else {
-        routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode)
-      }
+    mode match {
+      case CheckMode => routes.CheckYourPurchaseDetailsController.onPageLoad()
+      case _ =>
+        if (userAnswers.get(SimplifiedInvoiceVatRegCheckPage).contains(false)) {
+          routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode)
+        } else {
+          routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode)
+        }
     }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
