@@ -23,7 +23,7 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.ImportDetailsInfoPage
+import pages.{ImportDetailsInfoPage, SadReferenceCheckPage, SadReferenceNumberPage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -59,6 +59,44 @@ class ImportDetailsInfoControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode, backLinkCall)(request, messages(application)).toString
+      }
+    }
+
+    "must show back link to SadReferenceNumber when SadReference was yes and number present" in {
+
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(SadReferenceCheckPage, true)
+        .success
+        .value
+        .set(SadReferenceNumberPage, "ABC123")
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, importDetailsInfoRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) must include(controllers.imports.routes.SadReferenceNumberController.onPageLoad(NormalMode).url)
+      }
+    }
+
+    "must show back link to SadReference when SadReference was yes but number missing" in {
+
+      val userAnswers = UserAnswers(userAnswersId).set(SadReferenceCheckPage, true).success.value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, importDetailsInfoRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) must include(controllers.imports.routes.SadReferenceCheckController.onPageLoad(NormalMode).url)
       }
     }
 

@@ -50,11 +50,20 @@ class ImportSuppliersNameController @Inject() (
 
   private def formAction(mode: Mode): Call = importRoutes.ImportSuppliersNameController.onSubmit(mode)
 
-  private def backLink: Call = importRoutes.SadReferenceCheckController.onPageLoad(NormalMode)
+  private def backLink(mode: Mode)(implicit request: models.requests.DataRequest[AnyContent]): Call =
+    request.userAnswers.get(pages.SadReferenceCheckPage) match {
+      case Some(true) =>
+        request.userAnswers.get(pages.SadReferenceNumberPage) match {
+          case Some(_) => importRoutes.SadReferenceNumberController.onPageLoad(mode)
+          case None    => importRoutes.SadReferenceCheckController.onPageLoad(mode)
+        }
+      case Some(false) => importRoutes.ImportDetailsInfoController.onPageLoad(mode)
+      case _           => importRoutes.SadReferenceCheckController.onPageLoad(mode)
+    }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(ImportSuppliersNamePage).fold(form)(form.fill)
-    Ok(view(preparedForm, formAction(mode), backLink, "import.caption", "suppliersName.import.hint"))
+    Ok(view(preparedForm, formAction(mode), backLink(mode), "import.caption", "suppliersName.import.hint"))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -62,7 +71,7 @@ class ImportSuppliersNameController @Inject() (
       .bindFromRequest()
       .fold(
         formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, formAction(mode), backLink, "import.caption", "suppliersName.import.hint"))),
+          Future.successful(BadRequest(view(formWithErrors, formAction(mode), backLink(mode), "import.caption", "suppliersName.import.hint"))),
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(ImportSuppliersNamePage, value))

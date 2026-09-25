@@ -70,8 +70,19 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
     CountryCode.findCountryCode(userAnswers) match {
       case Some(countryCode) if currencyConfig.requiresCurrencySelection(countryCode) =>
         importsRoutes.ImportCurrencyController.onPageLoad(mode)
-      case Some(_) => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: next import page
+      case Some(_) => importsRoutes.TotalAmountWithoutVatController.onPageLoad(mode) // TODO: next import page
       case None    => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
+
+  def navigateFromSadReferenceNumberPage(mode: Mode)(userAnswers: UserAnswers): Call =
+    userAnswers.get(SadReferenceCheckPage) match {
+      case Some(true)  => importsRoutes.ImportSuppliersNameController.onPageLoad(mode)
+      case Some(false) => importsRoutes.ImportDetailsInfoController.onPageLoad(mode)
+      case None        => importsRoutes.ImportDetailsInfoController.onPageLoad(mode)
+    }
+
+  // TODO: replace once the page following total amount without VAT is built
+  def navigateFromTotalAmountWithoutVatPage(mode: Mode)(userAnswers: UserAnswers): Call =
+    controllers.routes.JourneyRecoveryController.onPageLoad()
 
 }

@@ -88,6 +88,7 @@ class NavigatorSpec extends SpecBase {
       )
     )
   )
+
   private val userAnswers: UserAnswers = emptyUserAnswers
 
   "Navigator" - {
@@ -128,51 +129,6 @@ class NavigatorSpec extends SpecBase {
           controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from DescribeItemsOnInvoicePage to InvoiceTypeController" in {
-        navigator.nextPage(DescribeItemsOnInvoicePage, NormalMode, userAnswers) mustBe
-          purchaseRoutes.InvoiceTypeController.onPageLoad(NormalMode)
-      }
-
-      "must go from InvoiceTypePage to InvoiceNumberController" in {
-        navigator.nextPage(InvoiceTypePage, NormalMode, userAnswers) mustBe
-          purchaseRoutes.InvoiceNumberController.onPageLoad(NormalMode)
-      }
-
-      "must go from InvoiceDatePage to SuppliersNameController" in {
-        navigator.nextPage(InvoiceDatePage, NormalMode, userAnswers) mustBe
-          purchaseRoutes.SuppliersNameController.onPageLoad(NormalMode)
-      }
-
-      "must go from SuppliersNamePage to SupplierAddressController" in {
-        navigator.nextPage(SuppliersNamePage, NormalMode, userAnswers) mustBe
-          purchaseRoutes.SupplierAddressController.onPageLoad(NormalMode)
-      }
-
-      "must go from SupplierTaxIdentifierNumberPage to TotalPurchaseAmountBeforeVatController" in {
-        navigator.nextPage(SupplierTaxIdentifierNumberPage, NormalMode, userAnswers) mustBe
-          purchaseRoutes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
-      }
-
-      "must go from TotalPurchaseAmountBeforeVatPage to TotalVatPaidController" in {
-        navigator.nextPage(TotalPurchaseAmountBeforeVatPage, NormalMode, userAnswers) mustBe
-          purchaseRoutes.TotalVatPaidController.onPageLoad(NormalMode)
-      }
-
-      "must go from TotalVatPaidPage to TotalVatClaimController" in {
-        navigator.nextPage(TotalVatPaidPage, NormalMode, userAnswers) mustBe
-          purchaseRoutes.TotalVatClaimController.onPageLoad(NormalMode)
-      }
-
-      "must go from TotalVatClaimPage to CheckYourPurchaseDetailsController" in {
-        navigator.nextPage(TotalVatClaimPage, NormalMode, userAnswers) mustBe
-          purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
-      }
-
-      "must go from DescribeItemsOnImportDocPage to SadReferenceCheckController" in {
-        navigator.nextPage(DescribeItemsOnImportDocPage, NormalMode, userAnswers) mustBe
-          importRoutes.SadReferenceCheckController.onPageLoad(NormalMode)
-      }
-
       "must go from SadReferenceCheckPage to SadReferenceNumberController when the user has a SAD reference" in {
         val answers = userAnswers.set(SadReferenceCheckPage, true).success.value
 
@@ -192,8 +148,15 @@ class NavigatorSpec extends SpecBase {
           controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from SadReferenceNumberPage to ImportSuppliersNameController" in {
+      "must go from SadReferenceNumberPage to ImportDetailsInfoController when SadReferenceCheck is not yes" in {
         navigator.nextPage(SadReferenceNumberPage, NormalMode, userAnswers) mustBe
+          importRoutes.ImportDetailsInfoController.onPageLoad(NormalMode)
+      }
+
+      "must go from SadReferenceNumberPage to ImportSuppliersNameController when SadReferenceCheck is yes" in {
+        val answers = userAnswers.set(SadReferenceCheckPage, true).success.value
+
+        navigator.nextPage(SadReferenceNumberPage, NormalMode, answers) mustBe
           importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode)
       }
 
@@ -209,11 +172,11 @@ class NavigatorSpec extends SpecBase {
           importRoutes.ImportCurrencyController.onPageLoad(NormalMode)
       }
 
-      "must skip ImportCurrencyController from ImportSuppliersNamePage when the country has one currency" in {
+      "must go from ImportSuppliersNamePage to TotalAmountWithoutVatController when the country has one currency" in {
         val answers = userAnswers.set(RefundingCountryPage, "AT").success.value
 
         navigator.nextPage(ImportSuppliersNamePage, NormalMode, answers) mustBe
-          controllers.routes.JourneyRecoveryController.onPageLoad()
+          importRoutes.TotalAmountWithoutVatController.onPageLoad(NormalMode)
       }
 
       "must go from ImportSuppliersNamePage to Journey Recovery when no country is in session" in {
@@ -221,9 +184,9 @@ class NavigatorSpec extends SpecBase {
           controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from ImportCurrencyPage to JourneyRecoveryController" in {
+      "must go from ImportCurrencyPage to TotalAmountWithoutVatController" in {
         navigator.nextPage(ImportCurrencyPage, NormalMode, userAnswers) mustBe
-          controllers.routes.JourneyRecoveryController.onPageLoad()
+          importRoutes.TotalAmountWithoutVatController.onPageLoad(NormalMode)
       }
 
       "must go from a page that doesn't exist in the route map to Index" in {
@@ -296,8 +259,10 @@ class NavigatorSpec extends SpecBase {
           importRoutes.SadReferenceNumberController.onPageLoad(CheckMode)
       }
 
-      "must go from SadReferenceNumberPage to ImportSuppliersNameController" in {
-        navigator.nextPage(SadReferenceNumberPage, CheckMode, userAnswers) mustBe
+      "must go from SadReferenceNumberPage to ImportSuppliersNameController when SadReferenceCheck is yes" in {
+        val answers = userAnswers.set(SadReferenceCheckPage, true).success.value
+
+        navigator.nextPage(SadReferenceNumberPage, CheckMode, answers) mustBe
           importRoutes.ImportSuppliersNameController.onPageLoad(CheckMode)
       }
 
@@ -313,9 +278,9 @@ class NavigatorSpec extends SpecBase {
           importRoutes.ImportCurrencyController.onPageLoad(CheckMode)
       }
 
-      "must go from ImportCurrencyPage to JourneyRecoveryController" in {
+      "must go from ImportCurrencyPage to TotalAmountWithoutVatController" in {
         navigator.nextPage(ImportCurrencyPage, CheckMode, userAnswers) mustBe
-          controllers.routes.JourneyRecoveryController.onPageLoad()
+          importRoutes.TotalAmountWithoutVatController.onPageLoad(CheckMode)
       }
 
       "must go from a page that doesn't exist in the edit route map to IndexController" in {
