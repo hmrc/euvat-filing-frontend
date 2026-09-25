@@ -64,14 +64,9 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case ImportSubCodePage                 => userAnswers => importNavigator.navigateFromImportSubCodePage(NormalMode)(userAnswers)
     case ImportSubCategoryPage             => userAnswers => importNavigator.navigateFromImportSubCategoryPage(NormalMode)(userAnswers)
     case ImportDetailsInfoPage             => userAnswers => importNavigator.navigateFromImportDetailsInfoPage(NormalMode)(userAnswers)
-    case SadReferencePage =>
-      userAnswers =>
-        userAnswers.get(SadReferencePage) match {
-          case Some(true)  => importRoutes.SadReferenceNumberController.onPageLoad(NormalMode)
-          case Some(false) => importRoutes.ImportDetailsInfoController.onPageLoad(NormalMode)
-          case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
-        }
-    case SadReferenceNumberPage => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
+    case SadReferencePage                  => userAnswers => importNavigator.navigateFromSadReferencePage(NormalMode)(userAnswers)
+    case SadReferenceNumberPage            => userAnswers => importNavigator.navigateFromSadReferenceNumberPage(userAnswers)
+    case TotalAmountWithoutVatPage         => userAnswers => importNavigator.navigateFromTotalAmountWithoutVatPage(userAnswers)
     case _                      => _ => controllers.routes.IndexController.onPageLoad()
   }
 
@@ -104,14 +99,9 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case ImportSubCodePage                 => _ => importRoutes.SadReferenceController.onPageLoad(CheckMode)
     case ImportSubCategoryPage             => userAnswers => importNavigator.navigateFromImportSubCategoryPage(CheckMode)(userAnswers)
     case ImportDetailsInfoPage             => userAnswers => importNavigator.navigateFromImportDetailsInfoPage(CheckMode)(userAnswers)
-    case SadReferencePage =>
-      userAnswers =>
-        userAnswers.get(SadReferencePage) match {
-          case Some(true)  => importRoutes.SadReferenceNumberController.onPageLoad(CheckMode)
-          case Some(false) => importRoutes.ImportDetailsInfoController.onPageLoad(CheckMode)
-          case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
-        }
-    case SadReferenceNumberPage => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
+    case SadReferencePage                  => userAnswers => importNavigator.navigateFromSadReferencePage(CheckMode)(userAnswers)
+    case SadReferenceNumberPage            => userAnswers => importNavigator.navigateFromSadReferenceNumberPage(userAnswers)
+    case TotalAmountWithoutVatPage         => userAnswers => importNavigator.navigateFromTotalAmountWithoutVatPage(userAnswers)
     case _                      => _ => controllers.routes.IndexController.onPageLoad()
   }
 

@@ -17,7 +17,7 @@
 package navigation
 
 import models.{CheckMode, Mode, NormalMode, UserAnswers}
-import pages.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage}
+import pages.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage, SadReferencePage}
 import play.api.mvc.Call
 import utils.{ConfigPurchaseOrImportMapping, CountryCode, CurrencyConfig}
 import controllers.imports.routes as importsRoutes
@@ -60,5 +60,19 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
         controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: replace with "When is the import date" controller once built
       case CheckMode => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
+
+  def navigateFromSadReferencePage(mode: Mode)(userAnswers: UserAnswers): Call =
+    userAnswers.get(SadReferencePage) match {
+      case Some(true)  => importsRoutes.SadReferenceNumberController.onPageLoad(mode)
+      case Some(false) => importsRoutes.TotalAmountWithoutVatController.onPageLoad
+      case None        => controllers.routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  def navigateFromSadReferenceNumberPage(userAnswers: UserAnswers): Call =
+    importsRoutes.TotalAmountWithoutVatController.onPageLoad
+
+  // TODO: replace once the page following total amount without VAT is built
+  def navigateFromTotalAmountWithoutVatPage(userAnswers: UserAnswers): Call =
+    controllers.routes.JourneyRecoveryController.onPageLoad()
 
 }

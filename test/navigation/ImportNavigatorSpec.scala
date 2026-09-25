@@ -161,5 +161,44 @@ class ImportNavigatorSpec extends SpecBase {
 
     }
 
+    "navigateFromSadReferencePage" - {
+      "must go to SadReferenceNumberController in NormalMode when answer is yes" in {
+        val ua = userAnswers.set(SadReferencePage, true).success.value
+        navigator.navigateFromSadReferencePage(NormalMode)(ua) mustBe
+          controllers.imports.routes.SadReferenceNumberController.onPageLoad(NormalMode)
+      }
+
+      "must go to SadReferenceNumberController in CheckMode when answer is yes" in {
+        val ua = userAnswers.set(SadReferencePage, true).success.value
+        navigator.navigateFromSadReferencePage(CheckMode)(ua) mustBe
+          controllers.imports.routes.SadReferenceNumberController.onPageLoad(CheckMode)
+      }
+
+      "must go to TotalAmountWithoutVatController when answer is no" in {
+        val ua = userAnswers.set(SadReferencePage, false).success.value
+        navigator.navigateFromSadReferencePage(NormalMode)(ua) mustBe
+          controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad
+      }
+
+      "must go to JourneyRecoveryController when no answer is present" in {
+        navigator.navigateFromSadReferencePage(NormalMode)(userAnswers) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+    }
+
+    "navigateFromSadReferenceNumberPage" - {
+      "must go to TotalAmountWithoutVatController" in {
+        navigator.navigateFromSadReferenceNumberPage(userAnswers) mustBe
+          controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad
+      }
+    }
+
+    "navigateFromTotalAmountWithoutVatPage" - {
+      "must go to JourneyRecoveryController" in {
+        navigator.navigateFromTotalAmountWithoutVatPage(userAnswers) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+    }
+
   }
 }

@@ -525,6 +525,18 @@ importDetailsInfo.label = Enter import document details
 importDetailsInfo.error.required = Enter import document details
 importDetailsInfo.error.length = Import document details must be 255 characters or less
 
+totalAmountWithoutVat.title = Total amount without VAT
+totalAmountWithoutVat.heading = Total amount without VAT
+totalAmountWithoutVat.inset = The currency for this claim is in {0} ({1}). For import documents in any other currency, you must convert the amounts before adding them to your claim. Use the <a href="https://data.ecb.europa.eu/currency-converter" class="govuk-link" rel="noreferrer noopener" target="_blank">European Central Bank currency converter (opens in a new tab)</a>.
+totalAmountWithoutVat.p1 = If this amount is not on your import document, you’ll need to calculate it. Use the standard VAT rate of the country you’re claiming from.
+totalAmountWithoutVat.h2 = How much did the import cost without VAT?
+totalAmountWithoutVat.hint = For example, {0}150 or {0}120.45
+totalAmountWithoutVat.change.hidden = Total amount before VAT
+totalAmountWithoutVat.error.required = Enter the total amount before VAT
+totalAmountWithoutVat.error.invalidNumeric = Enter the total amount before VAT in the correct format
+totalAmountWithoutVat.error.nonNumeric = Enter the total amount before VAT in the correct format
+totalAmountWithoutVat.error.aboveMaximum = Total amount before VAT must be between -999,999,999.99 and 999,999,999.99
+
 # Warning messages
 confirmRefundPeriodStartDate.title = Are you sure the refund period start date is correct?
 confirmRefundPeriodStartDate.heading = Are you sure the refund period start date is correct?

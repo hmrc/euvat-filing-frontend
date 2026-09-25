@@ -159,6 +159,28 @@ class NavigatorSpec extends SpecBase {
         case object UnknownPage extends Page
         navigator.nextPage(UnknownPage, NormalMode, userAnswers) mustBe controllers.routes.IndexController.onPageLoad()
       }
+
+      "must go from SadReferencePage to SadReferenceNumberController when answer is yes" in {
+        val ua = userAnswers.set(SadReferencePage, true).success.value
+        navigator.nextPage(SadReferencePage, NormalMode, ua) mustBe
+          controllers.imports.routes.SadReferenceNumberController.onPageLoad(NormalMode)
+      }
+
+      "must go from SadReferencePage to TotalAmountWithoutVatController when answer is no" in {
+        val ua = userAnswers.set(SadReferencePage, false).success.value
+        navigator.nextPage(SadReferencePage, NormalMode, ua) mustBe
+          controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad
+      }
+
+      "must go from SadReferenceNumberPage to TotalAmountWithoutVatController" in {
+        navigator.nextPage(SadReferenceNumberPage, NormalMode, userAnswers) mustBe
+          controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad
+      }
+
+      "must go from TotalAmountWithoutVatPage to JourneyRecoveryController" in {
+        navigator.nextPage(TotalAmountWithoutVatPage, NormalMode, userAnswers) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
     }
 
     "in Check mode" - {
@@ -214,6 +236,28 @@ class NavigatorSpec extends SpecBase {
       "must go from a page that doesn't exist in the edit route map to IndexController" in {
         case object UnknownPage extends Page
         navigator.nextPage(UnknownPage, CheckMode, userAnswers) mustBe controllers.routes.IndexController.onPageLoad()
+      }
+
+      "must go from SadReferencePage to SadReferenceNumberController when answer is yes" in {
+        val ua = userAnswers.set(SadReferencePage, true).success.value
+        navigator.nextPage(SadReferencePage, CheckMode, ua) mustBe
+          controllers.imports.routes.SadReferenceNumberController.onPageLoad(CheckMode)
+      }
+
+      "must go from SadReferencePage to TotalAmountWithoutVatController when answer is no" in {
+        val ua = userAnswers.set(SadReferencePage, false).success.value
+        navigator.nextPage(SadReferencePage, CheckMode, ua) mustBe
+          controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad
+      }
+
+      "must go from SadReferenceNumberPage to TotalAmountWithoutVatController" in {
+        navigator.nextPage(SadReferenceNumberPage, CheckMode, userAnswers) mustBe
+          controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad
+      }
+
+      "must go from TotalAmountWithoutVatPage to JourneyRecoveryController" in {
+        navigator.nextPage(TotalAmountWithoutVatPage, CheckMode, userAnswers) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
       }
     }
   }
