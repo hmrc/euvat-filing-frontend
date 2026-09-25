@@ -222,6 +222,12 @@ class NavigatorSpec extends SpecBase {
           claimRoutes.BusinessActivityThreeController.onPageLoad()
       }
 
+
+      "must go from ImportDetailsInfoPage to ImportDateController" in {
+        navigator.nextPage(ImportDetailsInfoPage, CheckMode, userAnswers) mustBe
+          purchaseRoutes.ImportDateController.onPageLoad(CheckMode)
+      }
+
       "must go from DescribeItemsOnInvoicePage to CheckYourPurchaseDetailsController" in {
         navigator.nextPage(DescribeItemsOnInvoicePage, CheckMode, userAnswers) mustBe
           purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()

@@ -14,27 +14,333 @@
  * limitations under the License.
  */
 
-package forms.imports
+package forms
 
-import java.time.{LocalDate, ZoneOffset}
-import forms.behaviours.DateBehaviours
+import forms.imports.ImportDateFormProvider
+
+import java.time.LocalDate
+import generators.Generators
+import org.scalacheck.Gen
+import org.scalatest.OptionValues
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import play.api.data.{Form, FormError}
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
 
-class ImportDateFormProviderSpec extends DateBehaviours {
+class ImportDateFormProviderSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChecks with Generators with OptionValues {
 
   private implicit val messages: Messages = stubMessages()
-  private val form = new ImportDateFormProvider()()
 
-  ".value" - {
+  val form: Form[LocalDate] = new ImportDateFormProvider().apply()
 
-    val validData = datesBetween(
-      min = LocalDate.of(2000, 1, 1),
-      max = LocalDate.now(ZoneOffset.UTC)
-    )
+  val validData: Gen[LocalDate] = datesBetween(
+    min = LocalDate.of(2000, 1, 1),
+    max = LocalDate.of(3000, 1, 1)
+  )
 
-    behave like dateField(form, "value", validData)
+  val invalidField: Gen[String] = Gen.alphaStr.suchThat(_.nonEmpty)
+  val missingField: Gen[Option[String]] = Gen.option(Gen.const(""))
 
-    behave like mandatoryDateField(form, "value", "importDate.error.required.all")
+  "ImportDateFormProvider" - {
+
+    "must bind valid dates with months provided as numbers" in {
+      forAll(validData -> "valid date") { date =>
+
+        val data = Map(
+          "value.day"   -> f"${date.getDayOfMonth}%02d",
+          "value.month" -> f"${date.getMonthValue}%02d",
+          "value.year"  -> date.getYear.toString
+        )
+
+        val result = form.bind(data)
+
+        result.value.value mustEqual date
+      }
+    }
+
+    "must bind valid dates with months provided as numbers with leading zeroes" in {
+      forAll(validData -> "valid date") { date =>
+
+        val data = Map(
+          "value.day"   -> f"${date.getDayOfMonth}%02d",
+          "value.month" -> f"${date.getMonthValue}%02d",
+          "value.year"  -> date.getYear.toString
+        )
+
+        val result = form.bind(data)
+
+        result.value.value mustEqual date
+      }
+    }
+
+    "must bind valid dates with months provided as full names" in {
+      forAll(validData -> "valid date") { date =>
+
+        val data = Map(
+          "value.day"   -> f"${date.getDayOfMonth}%02d",
+          "value.month" -> date.getMonth.toString,
+          "value.year"  -> date.getYear.toString
+        )
+
+        val result = form.bind(data)
+
+        result.value.value mustEqual date
+      }
+    }
+
+    "must bind when day has leading zero" in {
+      val data = Map(
+        "value.day"   -> "04",
+        "value.month" -> "04",
+        "value.year"  -> "2025"
+      )
+
+      val result = form.bind(data)
+
+      result.value.value mustEqual LocalDate.of(2025, 4, 4)
+    }
+
+    "must bind when month is three-letter or full name (case-insensitive)" in {
+      val d1 = form.bind(Map("value.day" -> "05", "value.month" -> "Feb", "value.year" -> "2025"))
+      d1.value.value mustEqual LocalDate.of(2025, 2, 5)
+
+      val d2 = form.bind(Map("value.day" -> "06", "value.month" -> "February", "value.year" -> "2025"))
+      d2.value.value mustEqual LocalDate.of(2025, 2, 6)
+    }
+
+    "must fail when month is outside 1-12" in {
+      val low = form.bind(Map("value.day" -> "01", "value.month" -> "0", "value.year" -> "2025"))
+      low.errors must contain(FormError("value", "importDate.error.invalid.month", List(messages("date.error.month"))))
+      val high = form.bind(Map("value.day" -> "01", "value.month" -> "13", "value.year" -> "2025"))
+      high.errors must contain(FormError("value", "importDate.error.invalid.month", List(messages("date.error.month"))))
+    }
+
+    "must fail when month text is invalid" in {
+      val result = form.bind(Map("value.day" -> "01", "value.month" -> "Foo", "value.year" -> "2025"))
+      result.errors must contain(FormError("value", "importDate.error.invalid.month", List(messages("date.error.month"))))
+    }
+
+    "must fail when year has leading zeros (more than 4 digits)" in {
+      val result = form.bind(Map("value.day" -> "07", "value.month" -> "04", "value.year" -> "02025"))
+      result.errors must contain(FormError("value", "importDate.error.invalid.year", List(messages("date.error.year"))))
+    }
+
+    "must bind random textual months (3-letter and full, mixed case)" in {
+      val monthVariants = java.time.Month
+        .values()
+        .toList
+        .flatMap { m =>
+          val s = m.toString
+          Seq(s, s.toLowerCase, s.capitalize, s.take(3), s.take(3).toLowerCase, s.take(3).toUpperCase, s.head.toLower.toString + s.tail.toUpperCase)
+        }
+        .distinct
+
+      forAll(Gen.oneOf(monthVariants)) { monthStr =>
+        val data = Map(
+          "value.day"   -> "05",
+          "value.month" -> monthStr,
+          "value.year"  -> "2025"
+        )
+
+        val result = form.bind(data)
+        val expectedMonth =
+          java.time.Month.values().toList.find(m => m.toString == monthStr.toUpperCase || m.toString.take(3) == monthStr.toUpperCase)
+        if (expectedMonth.isDefined) {
+          result.value.value.getMonthValue mustEqual expectedMonth.get.getValue
+        } else {
+          result.errors must contain(FormError("value", "importDate.error.invalid.month", List(messages("date.error.month"))))
+        }
+      }
+    }
+
+    "must fail for invalid combination (31 Feb) and highlight day" in {
+      val result = form.bind(Map("value.day" -> "31", "value.month" -> "Feb", "value.year" -> "2025"))
+      result.errors must contain(FormError("value", "importDate.error.invalid.day", List.empty))
+    }
+
+    "must fail when all fields are invalid and show generic invalid message" in {
+      val result = form.bind(Map("value.day" -> "abc", "value.month" -> "def", "value.year" -> "ghi"))
+      result.errors must contain(FormError("value", "importDate.error.invalid", List.empty))
+    }
+
+    "must flag day and month for large invalid numeric input" in {
+      val rendered = messages("importDate.error.invalid.two", messages("date.error.day"), messages("date.error.month"))
+      val result = form.bind(Map("value.day" -> "123", "value.month" -> "123", "value.year" -> "1234"))
+      result.errors.map(_.message) must contain(rendered)
+    }
+
+    "must return invalid year when only year is invalid" in {
+      val result = form.bind(Map("value.day" -> "05", "value.month" -> "03", "value.year" -> "20ab"))
+      result.errors must contain(FormError("value", "importDate.error.invalid.year", List(messages("date.error.year"))))
+    }
+
+    "must return invalid month and year when both month and year are invalid" in {
+      val rendered = messages("importDate.error.invalid.two", messages("date.error.month"), messages("date.error.year"))
+      val result = form.bind(Map("value.day" -> "05", "value.month" -> "Foo", "value.year" -> "20ab"))
+      result.errors.map(_.message) must contain(rendered)
+    }
+
+    "missing beats invalid: when day is missing and month has invalid text, only the missing day is reported" in {
+      val result = form.bind(Map("value.month" -> "abc", "value.year" -> "2025"))
+      result.errors must contain only FormError("value", "importDate.error.required", List(messages("date.error.day")))
+    }
+
+
+    "must fail when day is outside 1-31" in {
+      val zeroDay = form.bind(Map("value.day" -> "0", "value.month" -> "01", "value.year" -> "2025"))
+      zeroDay.errors must contain(FormError("value", "importDate.error.invalid.day", List(messages("date.error.day"))))
+      val bigDay = form.bind(Map("value.day" -> "32", "value.month" -> "01", "value.year" -> "2025"))
+      bigDay.errors must contain(FormError("value", "importDate.error.invalid.day", List(messages("date.error.day"))))
+    }
+
+    "must fail to bind an empty date" in {
+      val result = form.bind(Map.empty[String, String])
+      result.errors must contain only FormError("value", "importDate.error.required.all", List.empty)
+    }
+
+    "must fail to bind a date with a missing day" in {
+      forAll(validData -> "valid date") { date =>
+
+        val data = Map(
+          "value.month" -> date.getMonthValue.toString,
+          "value.year"  -> date.getYear.toString
+        )
+
+        val result = form.bind(data)
+
+        result.errors must contain only FormError("value", "importDate.error.required", List(messages("date.error.day")))
+      }
+    }
+
+    "must fail to bind a date with an invalid day" in {
+      forAll(validData -> "valid date", invalidField -> "invalid field") { (date, field) =>
+
+        val data = Map(
+          "value.day"   -> field,
+          "value.month" -> f"${date.getMonthValue}%02d",
+          "value.year"  -> date.getYear.toString
+        )
+
+        val result = form.bind(data)
+
+        result.errors must contain(FormError("value", "importDate.error.invalid.day", List(messages("date.error.day"))))
+      }
+    }
+
+    "must fail to bind a date with a missing day and month" in {
+
+      forAll(validData -> "valid date", missingField -> "missing day", missingField -> "missing month") { (date, dayOpt, monthOpt) =>
+
+        val day = dayOpt.fold(Map.empty[String, String]) { value =>
+          Map("value.day" -> value)
+        }
+
+        val month = monthOpt.fold(Map.empty[String, String]) { value =>
+          Map("value.month" -> value)
+        }
+
+        val data: Map[String, String] = Map(
+          "value.year" -> date.getYear.toString
+        ) ++ day ++ month
+
+        val result = form.bind(data)
+
+        result.errors must contain only FormError("value",
+                                                  "importDate.error.required.two",
+                                                  List(messages("date.error.day"), messages("date.error.month"))
+                                                 )
+      }
+    }
+
+    "must fail to bind a date with a missing day and year" in {
+
+      forAll(validData -> "valid date", missingField -> "missing day", missingField -> "missing year") { (date, dayOpt, yearOpt) =>
+
+        val day = dayOpt.fold(Map.empty[String, String]) { value =>
+          Map("value.day" -> value)
+        }
+
+        val year = yearOpt.fold(Map.empty[String, String]) { value =>
+          Map("value.year" -> value)
+        }
+
+        val data: Map[String, String] = Map(
+          "value.month" -> f"${date.getMonthValue}%02d"
+        ) ++ day ++ year
+
+        val result = form.bind(data)
+
+        result.errors must contain only FormError("value",
+                                                  "importDate.error.required.two",
+                                                  List(messages("date.error.day"), messages("date.error.year"))
+                                                 )
+      }
+    }
+
+    "must fail to bind a date with a missing month and year" in {
+
+      forAll(validData -> "valid date", missingField -> "missing month", missingField -> "missing year") { (date, monthOpt, yearOpt) =>
+
+        val month = monthOpt.fold(Map.empty[String, String]) { value =>
+          Map("value.month" -> value)
+        }
+
+        val year = yearOpt.fold(Map.empty[String, String]) { value =>
+          Map("value.year" -> value)
+        }
+
+        val data: Map[String, String] = Map(
+          "value.day" -> f"${date.getDayOfMonth}%02d"
+        ) ++ month ++ year
+
+        val result = form.bind(data)
+
+        result.errors must contain only FormError("value",
+                                                  "importDate.error.required.two",
+                                                  List(messages("date.error.month"), messages("date.error.year"))
+                                                 )
+      }
+    }
+
+    "must fail to bind a date with a missing month" in {
+      forAll(validData -> "valid date") { date =>
+
+        val data = Map(
+          "value.day"  -> f"${date.getDayOfMonth}%02d",
+          "value.year" -> date.getYear.toString
+        )
+
+        val result = form.bind(data)
+
+        result.errors must contain only FormError("value", "importDate.error.required", List(messages("date.error.month")))
+      }
+    }
+
+    "must fail to bind a date with a missing year" in {
+      forAll(validData -> "valid date") { date =>
+
+        val data = Map(
+          "value.day"   -> f"${date.getDayOfMonth}%02d",
+          "value.month" -> f"${date.getMonthValue}%02d"
+        )
+
+        val result = form.bind(data)
+
+        result.errors must contain only FormError("value", "importDate.error.required", List(messages("date.error.year")))
+      }
+    }
+
+    "must unbind a date" in {
+      forAll(validData -> "valid date") { date =>
+
+        val filledForm = form.fill(date)
+
+        filledForm("value.day").value.value mustEqual date.getDayOfMonth.toString
+        filledForm("value.month").value.value mustEqual date.getMonthValue.toString
+        filledForm("value.year").value.value mustEqual date.getYear.toString
+      }
+    }
   }
 }
