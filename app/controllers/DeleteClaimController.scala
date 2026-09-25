@@ -90,8 +90,10 @@ class DeleteClaimController @Inject() (
             val maybeApp = request.userAnswers.get(queries.ClaimApplicationResponseQuery)
 
             maybeApp match {
-              case Some(appResp) =>
-                val deleteReq = DeleteApplicationRequest(appResp.applicationId, appResp.updateSeqNumber)
+              case Some(appResp) => {
+                val seqNumber = request.userAnswers.get(queries.UpdateSequenceNumberQuery).getOrElse(appResp.updateSeqNumber)
+                val deleteReq = DeleteApplicationRequest(appResp.applicationId, seqNumber)
+
                 euVatRefundsService
                   .deleteApplication(deleteReq)
                   .flatMap { _ =>
@@ -102,6 +104,7 @@ class DeleteClaimController @Inject() (
                     logger.error("Error deleting claim", ex)
                     Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
                   }
+              }
               case None =>
                 logger.warn("Missing applicationId for delete-claim")
                 Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))

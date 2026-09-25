@@ -167,8 +167,9 @@ class CheckYourPurchaseDetailsController @Inject() (
           .flatMap { resp =>
             val updatedAddResp = AddPurchaseResponse(itemNumber = addResp.itemNumber, updateSequenceNumber = resp.updateSequenceNumber)
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(AddPurchaseResponsePage, updatedAddResp))
-              _              <- sessionRepository.set(updatedAnswers)
+              updatedAnswers1 <- Future.fromTry(request.userAnswers.set(AddPurchaseResponsePage, updatedAddResp))
+              updatedAnswers2 <- Future.fromTry(updatedAnswers1.set(queries.UpdateSequenceNumberQuery, resp.updateSequenceNumber))
+              _               <- sessionRepository.set(updatedAnswers2)
             } yield Redirect(controllers.routes.TaskListDashboardController.onPageLoad())
           }
           .recover { case ex =>
