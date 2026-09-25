@@ -24,7 +24,7 @@
     govukRadios: GovukRadios,
     govukButton: GovukButton
 )
-@(form: Form[_], items: Seq[RadioItem], call: Call, mode: Mode)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], items: Seq[RadioItem], submitCall: Call, messagePrefix: String, captionKey: String, backLink: Option[Call] = None)(implicit request: Request[_], messages: Messages)
 
 @isError = @{form.error("value").isDefined}
 
@@ -42,12 +42,12 @@
                 RadiosViewModel(
                     field  = form("value"),
                     legend = Legend(
-                        content = Text(messages("refundingCurrency.heading")),
+                        content = Text(messages(s"$messagePrefix.heading")),
                         classes = "govuk-fieldset__legend--l",
                         isPageHeading = true
                     ),
                     items  = items
-                ).withHint(HintViewModel(messages("refundingCurrency.hint")))
+                )
             )
 
         </div>
