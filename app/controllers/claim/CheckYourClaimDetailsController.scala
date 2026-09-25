@@ -99,9 +99,10 @@ class CheckYourClaimDetailsController @Inject() (
 
   private def saveClaimResponseAndRedirect(userAnswers: UserAnswers, appRequest: ApplicationRequest)(using RequestHeader): Future[Result] = {
     for {
-      claimResponse  <- service.createApplication(appRequest)
-      updatedAnswers <- Future.fromTry(userAnswers.set(ClaimApplicationResponseQuery, claimResponse))
-      _              <- sessionRepository.set(updatedAnswers)
+      claimResponse   <- service.createApplication(appRequest)
+      updatedAnswers1 <- Future.fromTry(userAnswers.set(ClaimApplicationResponseQuery, claimResponse))
+      updatedAnswers2 <- Future.fromTry(updatedAnswers1.set(queries.UpdateSequenceNumberQuery, claimResponse.updateSeqNumber))
+      _               <- sessionRepository.set(updatedAnswers2)
     } yield {
       if (claimResponse.applicationId > 0) {
         Redirect(controllers.routes.TaskListDashboardController.onPageLoad())
