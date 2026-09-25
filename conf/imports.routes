@@ -16,3 +16,8 @@ POST        /import-type-other                                           control
 
 GET         /single-administrative-document-reference-number-available   controllers.imports.SadReferenceController.onPageLoad
 POST        /single-administrative-document-reference-number-available   controllers.imports.SadReferenceController.onSubmit
+
+GET         /supplier-name                                               controllers.imports.ImportSuppliersNameController.onPageLoad(mode: Mode = NormalMode)
+POST        /supplier-name                                               controllers.imports.ImportSuppliersNameController.onSubmit(mode: Mode = NormalMode)
+GET         /change-supplier-name                                        controllers.imports.ImportSuppliersNameController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-supplier-name                                        controllers.imports.ImportSuppliersNameController.onSubmit(mode: Mode = CheckMode)

@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package controllers.purchase
+package controllers.imports
 
 import controllers.actions.*
 import forms.SuppliersNameFormProvider
-import models.{CheckMode, Mode, NormalMode}
+import models.{Mode, NormalMode}
 import navigation.Navigator
-import pages.SuppliersNamePage
+import pages.ImportSuppliersNamePage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.PurchaseOrImportSuppliersNameView
@@ -31,7 +31,7 @@ import views.html.PurchaseOrImportSuppliersNameView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class SuppliersNameController @Inject() (
+class ImportSuppliersNameController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
   navigator: Navigator,
@@ -46,15 +46,14 @@ class SuppliersNameController @Inject() (
     with I18nSupport {
 
   val form: Form[String] = formProvider()
-  private def backLink(mode: Mode) = if (mode == CheckMode) {
-    routes.CheckYourPurchaseDetailsController.onPageLoad()
-  } else {
-    routes.InvoiceDateController.onPageLoad(NormalMode)
-  }
+
+  private def submitCall(mode: Mode): Call = controllers.imports.routes.ImportSuppliersNameController.onSubmit(mode)
+
+  private def backLink: Call = controllers.imports.routes.SadReferenceController.onPageLoad
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = request.userAnswers.get(SuppliersNamePage).fold(form)(form.fill)
-    Ok(view(preparedForm, routes.SuppliersNameController.onSubmit(mode), backLink(mode), "purchase.caption", "suppliersName.hint"))
+    val preparedForm = request.userAnswers.get(ImportSuppliersNamePage).fold(form)(form.fill)
+    Ok(view(preparedForm, submitCall(mode), backLink, "import.caption", "suppliersName.import.hint"))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -62,25 +61,12 @@ class SuppliersNameController @Inject() (
       .bindFromRequest()
       .fold(
         formWithErrors =>
-          Future.successful(
-            BadRequest(view(formWithErrors, routes.SuppliersNameController.onSubmit(mode), backLink(mode), "purchase.caption", "suppliersName.hint"))
-          ),
+          Future.successful(BadRequest(view(formWithErrors, submitCall(mode), backLink, "import.caption", "suppliersName.import.hint"))),
         value =>
-          if (mode == CheckMode && request.userAnswers.isAnswerUnchanged(SuppliersNamePage, value)) {
-            Future.successful(Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad()))
-          } else {
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(SuppliersNamePage, value))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield {
-              if (mode == CheckMode) {
-                Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
-              } else {
-                Redirect(navigator.nextPage(SuppliersNamePage, mode, updatedAnswers))
-              }
-            }
-          }
+          for {
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(ImportSuppliersNamePage, value))
+            _              <- sessionRepository.set(updatedAnswers)
+          } yield Redirect(navigator.nextPage(ImportSuppliersNamePage, mode, updatedAnswers))
       )
   }
-
 }
