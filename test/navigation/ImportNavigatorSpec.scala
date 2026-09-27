@@ -210,6 +210,16 @@ class ImportNavigatorSpec extends SpecBase {
         navigator.navigateToCurrencyOrNextPage(NormalMode)(userAnswers) mustBe
           controllers.routes.JourneyRecoveryController.onPageLoad()
       }
+
+      "must go from ImportDetailsInfoPage to ImportDateController in Normal Mode" in {
+        navigator.navigateFromImportDetailsInfoPage(NormalMode)(userAnswers) mustBe
+          controllers.imports.routes.ImportDateController.onPageLoad(NormalMode)
+      }
+
+       "must go from ImportDatePage to Journey Recovery in Normal Mode" in {
+         navigator.navigateFromImportDatePage(NormalMode)(userAnswers) mustBe
+           controllers.routes.JourneyRecoveryController.onPageLoad()
+       }
     }
 
     "in Check mode" - {
@@ -253,6 +263,16 @@ class ImportNavigatorSpec extends SpecBase {
 
         navigator.navigateToCurrencyOrNextPage(CheckMode)(ua) mustBe
           importRoutes.ImportCurrencyController.onPageLoad(CheckMode)
+      }
+
+      "must go from ImportDetailsInfoPage to ImportDateController in Check Mode" in {
+        navigator.navigateFromImportDetailsInfoPage(CheckMode)(userAnswers) mustBe
+          controllers.imports.routes.ImportDateController.onPageLoad(CheckMode)
+      }
+
+      "must go from ImportDatePage to Journey Recovery in Check Mode" in {
+        navigator.navigateFromImportDatePage(CheckMode)(userAnswers) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
       }
     }
 
