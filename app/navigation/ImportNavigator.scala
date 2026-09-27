@@ -66,5 +66,4 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
       case CheckMode  => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: replace with CheckYourImportController once built
     }
 
-
 }

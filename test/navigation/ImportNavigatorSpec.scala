@@ -156,10 +156,10 @@ class ImportNavigatorSpec extends SpecBase {
           controllers.imports.routes.ImportDateController.onPageLoad(NormalMode)
       }
 
-       "must go from ImportDatePage to Journey Recovery in Normal Mode" in {
-         navigator.navigateFromImportDatePage(NormalMode)(userAnswers) mustBe
-           controllers.routes.JourneyRecoveryController.onPageLoad()
-       }
+      "must go from ImportDatePage to Journey Recovery in Normal Mode" in {
+        navigator.navigateFromImportDatePage(NormalMode)(userAnswers) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
     }
 
 

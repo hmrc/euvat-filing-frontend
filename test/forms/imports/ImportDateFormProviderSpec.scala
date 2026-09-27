@@ -187,7 +187,6 @@ class ImportDateFormProviderSpec extends AnyFreeSpec with Matchers with ScalaChe
       result.errors must contain only FormError("value", "importDate.error.required", List(messages("date.error.day")))
     }
 
-
     "must fail when day is outside 1-31" in {
       val zeroDay = form.bind(Map("value.day" -> "0", "value.month" -> "01", "value.year" -> "2025"))
       zeroDay.errors must contain(FormError("value", "importDate.error.invalid.day", List(messages("date.error.day"))))
