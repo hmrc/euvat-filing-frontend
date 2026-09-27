@@ -54,10 +54,11 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual OK
           normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-            view(application.injector.instanceOf[ImportDateFormProvider].apply(),
-                 models.NormalMode,
-                 controllers.imports.routes.ImportDetailsInfoController.onPageLoad(models.NormalMode)
-                )(request, msgs).toString
+            view(
+              application.injector.instanceOf[ImportDateFormProvider].apply(),
+              models.NormalMode,
+              controllers.imports.routes.ImportDetailsInfoController.onPageLoad(models.NormalMode)
+            )(request, msgs).toString
           )
         }
       }
@@ -74,10 +75,11 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual OK
           normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-            view(application.injector.instanceOf[ImportDateFormProvider].apply(),
-                 models.NormalMode,
-                 controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: replace with SadNumberController once built
-                )(request, msgs).toString
+            view(
+              application.injector.instanceOf[ImportDateFormProvider].apply(),
+              models.NormalMode,
+              controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: replace with SadNumberController once built
+            )(request, msgs).toString
           )
         }
       }
@@ -104,12 +106,12 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
 
       "must populate the view correctly on a GET when the question has previously been answered " in {
         val userAnswers = emptyUserAnswers
-        .set(SadReferencePage, false)
-        .success
-        .value
-        .set(pages.ImportDatePage, LocalDate.of(2025, 3, 14))
-        .success
-        .value
+          .set(SadReferencePage, false)
+          .success
+          .value
+          .set(pages.ImportDatePage, LocalDate.of(2025, 3, 14))
+          .success
+          .value
 
         val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -120,13 +122,13 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
           implicit val msgs: Messages = messages(application)
 
           status(result) mustEqual OK
-           normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-             view(
-                application.injector.instanceOf[ImportDateFormProvider].apply().fill(LocalDate.of(2025, 3, 14)),
-                models.NormalMode,
-                controllers.imports.routes.ImportDetailsInfoController.onPageLoad(models.NormalMode)
-                )(request, msgs).toString
-           )
+          normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
+            view(
+              application.injector.instanceOf[ImportDateFormProvider].apply().fill(LocalDate.of(2025, 3, 14)),
+              models.NormalMode,
+              controllers.imports.routes.ImportDetailsInfoController.onPageLoad(models.NormalMode)
+            )(request, msgs).toString
+          )
         }
       }
 
@@ -249,10 +251,8 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual BAD_REQUEST
           val body = contentAsString(result)
-          val expected = messages(application)("importDate.error.required.two",
-                                               messages(application)("date.error.day"),
-                                               messages(application)("date.error.month")
-                                              )
+          val expected =
+            messages(application)("importDate.error.required.two", messages(application)("date.error.day"), messages(application)("date.error.month"))
           body must include(expected)
           body must include("href=\"#value.day\"")
           body must include("value=\"2025\"")
@@ -355,44 +355,45 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual BAD_REQUEST
           val body = contentAsString(result)
-          val expected = messages(application)("importDate.error.invalid.two", messages(application)("date.error.day"), messages(application)("date.error.month"))
+          val expected =
+            messages(application)("importDate.error.invalid.two", messages(application)("date.error.day"), messages(application)("date.error.month"))
           body must include(expected)
           body must include("href=\"#value.day\"")
+        }
       }
-    }
 
-       "must return Bad Request and link to day when day, month and year are all invalid" in {
-         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      "must return Bad Request and link to day when day, month and year are all invalid" in {
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
-         running(application) {
-           val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.NormalMode).url)
-             .withFormUrlEncodedBody(
-               "value.day"   -> "45",
-               "value.month" -> "67",
-                "value.year"  -> "dhg"
-             )
-           val result = route(application, request).value
+        running(application) {
+          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.NormalMode).url)
+            .withFormUrlEncodedBody(
+              "value.day"   -> "45",
+              "value.month" -> "67",
+              "value.year"  -> "dhg"
+            )
+          val result = route(application, request).value
 
-           status(result) mustEqual BAD_REQUEST
-           val body = contentAsString(result)
-           val expected = messages(application)("importDate.error.invalid")
-           body must include(expected)
-           body must include("href=\"#value.day\"")
-         }
-       }
+          status(result) mustEqual BAD_REQUEST
+          val body = contentAsString(result)
+          val expected = messages(application)("importDate.error.invalid")
+          body must include(expected)
+          body must include("href=\"#value.day\"")
+        }
+      }
 
-       "must accept a month entered as a short name" in {
-         val mockSessionRepository = mock[repositories.SessionRepository]
-         when(mockSessionRepository.set(any())) thenReturn scala.concurrent.Future.successful(true)
+      "must accept a month entered as a short name" in {
+        val mockSessionRepository = mock[repositories.SessionRepository]
+        when(mockSessionRepository.set(any())) thenReturn scala.concurrent.Future.successful(true)
 
-         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
             bind[navigation.Navigator].toInstance(new FakeNavigator(onwardRoute)),
             bind[repositories.SessionRepository].toInstance(mockSessionRepository)
           )
           .build()
 
-         running(application) {
+        running(application) {
           val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.NormalMode).url)
             .withFormUrlEncodedBody(
               "value.day"   -> "16",
@@ -403,68 +404,70 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual onwardRoute.url
-         }
-       }
+        }
+      }
 
-       "must persist and redirect to Journey Recovery when in CheckMode and import date unchanged" in {
-         val userAnswers = emptyUserAnswers.set(pages.ImportDatePage, LocalDate.of(2025, 3, 14)).success.value
+      "must persist and redirect to Journey Recovery when in CheckMode and import date unchanged" in {
+        val userAnswers = emptyUserAnswers.set(pages.ImportDatePage, LocalDate.of(2025, 3, 14)).success.value
 
-         val mockSessionRepository = mock[repositories.SessionRepository]
-         when(mockSessionRepository.set(any())) thenReturn scala.concurrent.Future.successful(true)
+        val mockSessionRepository = mock[repositories.SessionRepository]
+        when(mockSessionRepository.set(any())) thenReturn scala.concurrent.Future.successful(true)
 
-         val application = applicationBuilder(userAnswers = Some(userAnswers))
+        val application = applicationBuilder(userAnswers = Some(userAnswers))
           .overrides(
             bind[repositories.SessionRepository].toInstance(mockSessionRepository)
           )
           .build()
 
-          running(application) {
-            val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.CheckMode).url)
-              .withFormUrlEncodedBody(
-                "value.day"   -> "14",
-                "value.month" -> "03",
-                "value.year"  -> "2025"
-              )
-
-            val result = route(application, request).value
-
-            status(result) mustEqual SEE_OTHER
-            redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
-            org.mockito.Mockito.verify(mockSessionRepository, org.mockito.Mockito.never()).set(any())
-          }
-       }
-
-        "must persist and redirect to Journey Recovery when in CheckMode and import date changed" in {
-          val userAnswers = emptyUserAnswers.set(ImportDatePage, LocalDate.of(2025, 3, 14)).success.value
-
-          val mockSessionRepository = mock[repositories.SessionRepository]
-          when(mockSessionRepository.set(any())) thenReturn scala.concurrent.Future.successful(true)
-
-          val application = applicationBuilder(userAnswers = Some(userAnswers))
-            .overrides(
-              bind[repositories.SessionRepository].toInstance(mockSessionRepository)
+        running(application) {
+          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.CheckMode).url)
+            .withFormUrlEncodedBody(
+              "value.day"   -> "14",
+              "value.month" -> "03",
+              "value.year"  -> "2025"
             )
-            .build()
 
-          running(application) {
-            val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.CheckMode).url)
-              .withFormUrlEncodedBody(
-                "value.day"   -> "16",
-                "value.month" -> "03",
-                "value.year"  -> "2025"
-          )
+          val result = route(application, request).value
 
-             val result = route(application, request).value
-
-             status(result) mustEqual SEE_OTHER
-             redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url // TODO: replace with CheckYourImportController once built
-
-             val captor = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
-             org.mockito.Mockito.verify(mockSessionRepository).set(captor.capture())
-             val saved = captor.getValue
-             saved.get(pages.ImportDatePage) mustBe Some(LocalDate.of(2025, 3, 16))
-          }
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+          org.mockito.Mockito.verify(mockSessionRepository, org.mockito.Mockito.never()).set(any())
         }
+      }
+
+      "must persist and redirect to Journey Recovery when in CheckMode and import date changed" in {
+        val userAnswers = emptyUserAnswers.set(ImportDatePage, LocalDate.of(2025, 3, 14)).success.value
+
+        val mockSessionRepository = mock[repositories.SessionRepository]
+        when(mockSessionRepository.set(any())) thenReturn scala.concurrent.Future.successful(true)
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[repositories.SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+        running(application) {
+          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.CheckMode).url)
+            .withFormUrlEncodedBody(
+              "value.day"   -> "16",
+              "value.month" -> "03",
+              "value.year"  -> "2025"
+            )
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController
+            .onPageLoad()
+            .url // TODO: replace with CheckYourImportController once built
+
+          val captor = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
+          org.mockito.Mockito.verify(mockSessionRepository).set(captor.capture())
+          val saved = captor.getValue
+          saved.get(pages.ImportDatePage) mustBe Some(LocalDate.of(2025, 3, 16))
+        }
+      }
     }
   }
 }
