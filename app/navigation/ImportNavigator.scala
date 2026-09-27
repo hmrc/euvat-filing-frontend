@@ -56,9 +56,15 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
 
   def navigateFromImportDetailsInfoPage(mode: Mode)(userAnswers: UserAnswers): Call =
     mode match {
-      case NormalMode =>
-        controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: replace with "When is the import date" controller once built
-      case CheckMode => controllers.routes.JourneyRecoveryController.onPageLoad()
+      case NormalMode => controllers.imports.routes.ImportDateController.onPageLoad(NormalMode)
+      case CheckMode  => controllers.imports.routes.ImportDateController.onPageLoad(CheckMode)
     }
+
+  def navigateFromImportDatePage(mode: Mode)(userAnswers: UserAnswers): Call =
+    mode match {
+      case NormalMode => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO : replace with SupplierNameController once built
+      case CheckMode  => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: replace with CheckYourImportController once built
+    }
+
 
 }
