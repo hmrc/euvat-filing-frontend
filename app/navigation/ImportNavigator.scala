@@ -32,7 +32,7 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
       case (Some(importType), Some(country)) if configPurchaseOrImportMapping.selectableSubcodes(country, importType.toString).isDefined =>
         importsRoutes.ImportSubCodeController.onPageLoad(importType.toString)
       case (Some(_), Some(_)) =>
-        importsRoutes.SadReferenceController.onPageLoad // TODO: Other with only 10.99 may go to the import free text page when it exists
+        importsRoutes.SadReferenceController.onPageLoad(mode) // TODO: Other with only 10.99 may go to the import free text page when it exists
       case _ =>
         controllers.routes.JourneyRecoveryController.onPageLoad()
     }
@@ -40,28 +40,18 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
   def navigateFromImportSubCodePage(mode: Mode)(userAnswers: UserAnswers): Call =
     (userAnswers.get(ImportTypePage), userAnswers.get(ImportSubCodePage), CountryCode.findCountryCode(userAnswers)) match {
       case (Some(importType), Some(subCode), Some(country))
-          if configPurchaseOrImportMapping.subcategoriesFor(country, importType.toString, subCode).nonEmpty =>
+        if configPurchaseOrImportMapping.subcategoriesFor(country, importType.toString, subCode).nonEmpty =>
         importsRoutes.ImportSubCategoryController.onPageLoad(mode)
       case (_, Some(_), _) =>
-        importsRoutes.SadReferenceController.onPageLoad
+        importsRoutes.SadReferenceController.onPageLoad(mode)
       case _ =>
         controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
-  def navigateFromImportSubCategoryPage(userAnswers: UserAnswers): Call =
+  def navigateFromImportSubCategoryPage(mode: Mode)(userAnswers: UserAnswers): Call =
     userAnswers.get(ImportSubCategoryPage) match {
       case Some(_) => importsRoutes.SadReferenceController.onPageLoad(mode)
-      case None    => controllers.routes.JourneyRecoveryController.onPageLoad()
-    }
-
-  def navigateFromImportTypePage(mode: Mode)(userAnswers: UserAnswers): Call =
-    (userAnswers.get(ImportTypePage), CountryCode.findCountryCode(userAnswers)) match {
-      case (Some(importType), Some(country)) if configPurchaseOrImportMapping.selectableSubcodes(country, importType.toString).isDefined =>
-        importsRoutes.ImportSubCodeController.onPageLoad(importType.toString)
-      case (Some(_), Some(_)) =>
-        importsRoutes.SadReferenceController.onPageLoad(mode) // TODO: Other with only 10.99 may go to the import free text page when it exists
-      case _ =>
-        controllers.routes.JourneyRecoveryController.onPageLoad()
+      case None => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
 }

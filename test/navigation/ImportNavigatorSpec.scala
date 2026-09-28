@@ -104,7 +104,7 @@ class ImportNavigatorSpec extends SpecBase {
         )
         val ua = userAnswers.set(RefundingCountryPage, "AT").success.value.set(ImportTypePage, Other).success.value
 
-        nav.navigateFromImportTypePage(NormalMode)(ua) mustBe controllers.imports.routes.SadReferenceController.onPageLoad
+        nav.navigateFromImportTypePage(NormalMode)(ua) mustBe controllers.imports.routes.SadReferenceController.onPageLoad(NormalMode)
       }
     }
 
@@ -115,7 +115,7 @@ class ImportNavigatorSpec extends SpecBase {
       )
       val ua = userAnswers.set(ImportTypePage, Transport).success.value
 
-      nav.navigateFromImportTypePage(NormalMode)(ua) mustBe importRoutes.SadReferenceController.onPageLoad(NormalMode)
+      nav.navigateFromImportTypePage(NormalMode)(ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from PurchaseOrImportPage to ImportTypeController when Import is selected" in {

@@ -32,7 +32,7 @@ class ImportSubCategoryControllerSpec extends SpecBase {
   private def subCategoryRoute = controllers.imports.routes.ImportSubCategoryController.onPageLoad(NormalMode).url
   private def submitRoute = controllers.imports.routes.ImportSubCategoryController.onSubmit(NormalMode).url
   private def journeyRecoveryUrl = controllers.routes.JourneyRecoveryController.onPageLoad().url
-  private def sadReferenceUrl = controllers.imports.routes.SadReferenceController.onPageLoad.url
+  private def sadReferenceUrl = controllers.imports.routes.SadReferenceController.onPageLoad(NormalMode).url
 
   private def answers(subCode: String = "1.2"): UserAnswers =
     emptyUserAnswers
