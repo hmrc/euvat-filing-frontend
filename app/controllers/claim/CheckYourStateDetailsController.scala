@@ -16,6 +16,7 @@
 
 package controllers.claim
 
+import config.FrontendAppConfig
 import controllers.actions.*
 import forms.claim.CheckYourStateDetailsFormProvider
 import models.Mode
@@ -25,9 +26,14 @@ import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
+import services.EuVatRefundsService
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.claim.CheckYourStateDetailsView
 import utils.ControllerHelpers.*
+import models.requests.DeleteApplicationRequest
+import play.api.Logging
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -41,10 +47,13 @@ class CheckYourStateDetailsController @Inject() (
   requireData: DataRequiredAction,
   formProvider: CheckYourStateDetailsFormProvider,
   val controllerComponents: MessagesControllerComponents,
-  view: CheckYourStateDetailsView
+  view: CheckYourStateDetailsView,
+  appConfig: FrontendAppConfig,
+  euVatRefundsService: EuVatRefundsService
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
   val form: Form[Boolean] = formProvider()
 
@@ -61,10 +70,37 @@ class CheckYourStateDetailsController @Inject() (
       .fold(
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink))),
         value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(CheckYourStateDetailsPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(CheckYourStateDetailsPage, mode, updatedAnswers))
+          if (value) {
+            implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+
+            val maybeApp = request.userAnswers.get(queries.ClaimApplicationResponseQuery)
+
+            maybeApp match {
+              case Some(appResp) =>
+                val seqNumber = request.userAnswers.get(queries.UpdateSequenceNumberQuery).getOrElse(appResp.updateSeqNumber)
+                val deleteReq = DeleteApplicationRequest(appResp.applicationId, seqNumber)
+
+                euVatRefundsService
+                  .deleteApplication(deleteReq)
+                  .flatMap { _ =>
+                    val cleared = request.userAnswers.clear()
+                    sessionRepository.set(cleared).map(_ => Redirect(appConfig.claimDashboardUrl))
+                  }
+                  .recover { case ex =>
+                    logger.error("Error deleting claim", ex)
+                    Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+                  }
+
+              case None =>
+                logger.warn("Missing applicationId for delete-claim")
+                Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+            }
+          } else {
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(CheckYourStateDetailsPage, value))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(navigator.nextPage(CheckYourStateDetailsPage, mode, updatedAnswers))
+          }
       )
   }
 }

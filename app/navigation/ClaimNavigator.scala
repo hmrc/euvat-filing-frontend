@@ -63,9 +63,8 @@ class ClaimNavigator @Inject() (configLanguageMapping: ConfigLanguageMapping) {
 
   def navigateFromCheckYourStateDetailsPage(mode: Mode)(userAnswers: UserAnswers): Call =
     userAnswers.get(CheckYourStateDetailsPage) match {
-      case Some(true)  => controllers.routes.DeleteClaimController.onPageLoad()
-      case Some(false) => claimRoutes.CheckYourClaimDetailsController.onPageLoad()
-      case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
+      case Some(_) => claimRoutes.CheckYourClaimDetailsController.onPageLoad()
+      case _       => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
 }

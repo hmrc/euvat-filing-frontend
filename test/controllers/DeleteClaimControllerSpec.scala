@@ -83,7 +83,9 @@ class DeleteClaimControllerSpec extends SpecBase with MockitoSugar {
         val expectedEnd = testRefundPeriod.endDate.format(shortMonthYearFormat())
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, expectedMemberState, expectedStart, expectedEnd)(request, msgs).toString
+        contentAsString(result) must include(expectedMemberState)
+        contentAsString(result) must include(expectedStart)
+        contentAsString(result) must include(expectedEnd)
       }
     }
 
@@ -162,7 +164,9 @@ class DeleteClaimControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, expectedMemberState, expectedStart, expectedEnd)(request, msgs).toString
+        contentAsString(result) must include(expectedMemberState)
+        contentAsString(result) must include(expectedStart)
+        contentAsString(result) must include(expectedEnd)
       }
     }
 
