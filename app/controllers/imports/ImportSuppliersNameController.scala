@@ -49,7 +49,7 @@ class ImportSuppliersNameController @Inject() (
 
   private def submitCall(mode: Mode): Call = controllers.imports.routes.ImportSuppliersNameController.onSubmit(mode)
 
-  private def backLink: Call = controllers.imports.routes.SadReferenceController.onPageLoad
+  private def backLink: Call = controllers.imports.routes.SadReferenceController.onPageLoad(NormalMode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(ImportSuppliersNamePage).fold(form)(form.fill)

@@ -42,7 +42,6 @@ class SadReferenceController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: SadReferenceFormProvider,
-  navigator: Navigator,
   val controllerComponents: MessagesControllerComponents,
   view: SadReferenceView
 )(implicit ec: ExecutionContext)

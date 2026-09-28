@@ -41,7 +41,7 @@ class ImportSuppliersNameControllerSpec extends SpecBase with MockitoSugar {
   val form: Form[String] = formProvider()
 
   lazy val suppliersNameRoute: String = routes.ImportSuppliersNameController.onPageLoad(NormalMode).url
-  private def backLink: Call = routes.SadReferenceController.onPageLoad
+  private def backLink: Call = routes.SadReferenceController.onPageLoad(NormalMode)
   private def submitCall(mode: models.Mode): Call = routes.ImportSuppliersNameController.onSubmit(mode)
 
   "ImportSuppliersName Controller" - {
