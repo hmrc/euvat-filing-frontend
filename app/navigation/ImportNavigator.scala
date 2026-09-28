@@ -27,18 +27,25 @@ import javax.inject.{Inject, Singleton}
 @Singleton
 class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseOrImportMapping: ConfigPurchaseOrImportMapping) {
 
+  private def isNoneOrOtherSubCode(subCode: String): Boolean =
+    subCode == ConfigPurchaseOrImportMapping.NoneValue || subCode.split("\\.").lastOption.contains("99")
+
   def navigateFromImportTypePage(mode: Mode)(userAnswers: UserAnswers): Call =
     (userAnswers.get(ImportTypePage), CountryCode.findCountryCode(userAnswers)) match {
       case (Some(importType), Some(country)) if configPurchaseOrImportMapping.selectableSubcodes(country, importType.toString).isDefined =>
         importsRoutes.ImportSubCodeController.onPageLoad(importType.toString)
+      case (Some(Other), Some(_)) =>
+        importsRoutes.DescribeItemsOnImportDocController.onPageLoad(mode)
       case (Some(_), Some(_)) =>
-        importsRoutes.SadReferenceController.onPageLoad(mode) // TODO: Other with only 10.99 may go to the import free text page when it exists
+        importsRoutes.SadReferenceController.onPageLoad(mode)
       case _ =>
         controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
   def navigateFromImportSubCodePage(mode: Mode)(userAnswers: UserAnswers): Call =
     (userAnswers.get(ImportTypePage), userAnswers.get(ImportSubCodePage), CountryCode.findCountryCode(userAnswers)) match {
+      case (Some(Other), Some(subCode), _) if isNoneOrOtherSubCode(subCode) =>
+        importsRoutes.DescribeItemsOnImportDocController.onPageLoad(mode)
       case (Some(importType), Some(subCode), Some(country))
           if configPurchaseOrImportMapping.subcategoriesFor(country, importType.toString, subCode).nonEmpty =>
         importsRoutes.ImportSubCategoryController.onPageLoad(mode)

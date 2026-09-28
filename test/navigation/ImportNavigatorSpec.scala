@@ -93,39 +93,24 @@ class ImportNavigatorSpec extends SpecBase {
         nav.navigateFromImportTypePage(NormalMode)(ua) mustBe importRoutes.SadReferenceController.onPageLoad(NormalMode)
       }
 
-      "must go from ImportTypePage to SadReference when the only sub code is 10.99" in {
-        val fakePurchaseConfig = new ConfigPurchaseOrImportMapping() {
-          override def subcodesFor(country: String, parentKey: String): Seq[(String, String)] =
-            if (parentKey == Other.toString) Seq(("10.99", "purchase.sub.other.10.99")) else Seq.empty
-        }
+      "must go from ImportTypePage to Journey Recovery when no country has been answered" in {
         val nav = new ImportNavigator(
           new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
-          fakePurchaseConfig
+          new ConfigPurchaseOrImportMapping()
         )
-        val ua = userAnswers.set(RefundingCountryPage, "AT").success.value.set(ImportTypePage, Other).success.value
+        val ua = userAnswers.set(ImportTypePage, Transport).success.value
 
-        nav.navigateFromImportTypePage(NormalMode)(ua) mustBe controllers.imports.routes.SadReferenceController.onPageLoad(NormalMode)
-      }
+        nav.navigateFromImportTypePage(NormalMode)(ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
-    "must go from ImportTypePage to Journey Recovery when no country has been answered" in {
-      val nav = new ImportNavigator(
-        new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
-        new ConfigPurchaseOrImportMapping()
-      )
-      val ua = userAnswers.set(ImportTypePage, Transport).success.value
-
-      nav.navigateFromImportTypePage(NormalMode)(ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
-    }
-
-    "must go from PurchaseOrImportPage to ImportTypeController when Import is selected" in {
-      val claimNav = new ClaimNavigator(new ConfigLanguageMapping(Configuration(ConfigFactory.parseString("""language.mapping = {}"""))))
-      val purchaseNav = new PurchaseNavigator(new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
-                                              new ConfigPurchaseOrImportMapping()
-                                             )
-      val importNav = new ImportNavigator(new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
-                                          new ConfigPurchaseOrImportMapping()
-                                         )
+      "must go from PurchaseOrImportPage to ImportTypeController when Import is selected" in {
+        val claimNav = new ClaimNavigator(new ConfigLanguageMapping(Configuration(ConfigFactory.parseString("""language.mapping = {}"""))))
+        val purchaseNav = new PurchaseNavigator(new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
+          new ConfigPurchaseOrImportMapping()
+        )
+        val importNav = new ImportNavigator(new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
+          new ConfigPurchaseOrImportMapping()
+        )
 
       val nav = new navigation.Navigator(claimNav, purchaseNav, importNav)
 
@@ -135,14 +120,14 @@ class ImportNavigatorSpec extends SpecBase {
         importRoutes.ImportTypeController.onPageLoad(NormalMode)
     }
 
-    "must go from PurchaseTypePage to DescribeItemsOnInvoiceController" in {
-      val claimNav = new ClaimNavigator(new ConfigLanguageMapping(Configuration(ConfigFactory.parseString("""language.mapping = {}"""))))
-      val purchaseNav = new PurchaseNavigator(new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
-                                              new ConfigPurchaseOrImportMapping()
-                                             )
-      val importNav = new ImportNavigator(new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
-                                          new ConfigPurchaseOrImportMapping()
-                                         )
+      "must go from PurchaseTypePage to DescribeItemsOnInvoiceController" in {
+        val claimNav = new ClaimNavigator(new ConfigLanguageMapping(Configuration(ConfigFactory.parseString("""language.mapping = {}"""))))
+        val purchaseNav = new PurchaseNavigator(new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
+          new ConfigPurchaseOrImportMapping()
+        )
+        val importNav = new ImportNavigator(new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
+          new ConfigPurchaseOrImportMapping()
+        )
 
       val nav = new navigation.Navigator(claimNav, purchaseNav, importNav)
 
@@ -150,6 +135,75 @@ class ImportNavigatorSpec extends SpecBase {
 
       nav.nextPage(PurchaseTypePage, NormalMode, ua) mustBe
         purchaseRoutes.DescribeItemsOnInvoiceController.onPageLoad(NormalMode)
+      }
+      "must go from ImportTypePage to the free text page when Other has no selectable sub codes" in {
+        val fakeConfig = new ConfigPurchaseOrImportMapping() {
+          override def subcodesFor(country: String, parentKey: String): Seq[(String, String)] =
+            if (parentKey == Other.toString) Seq(("10.99", "sub.other.99")) else Seq.empty
+        }
+        val nav = new ImportNavigator(
+          new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
+          fakeConfig
+        )
+        val ua = userAnswers
+          .set(RefundingCountryPage, "AT")
+          .success
+          .value
+          .set(ImportTypePage, Other)
+          .success
+          .value
+
+        nav.navigateFromImportTypePage(NormalMode)(ua) mustBe
+          importRoutes.DescribeItemsOnImportDocController.onPageLoad(NormalMode)
+      }
+
+      "must go from ImportSubCodePage to the free text page when Other and None of these was selected" in {
+        val ua = userAnswers
+          .set(RefundingCountryPage, "BE")
+          .success
+          .value
+          .set(ImportTypePage, Other)
+          .success
+          .value
+          .set(ImportSubCodePage, "__none__")
+          .success
+          .value
+
+        navigator.navigateFromImportSubCodePage(NormalMode)(ua) mustBe
+          importRoutes.DescribeItemsOnImportDocController.onPageLoad(NormalMode)
+      }
+
+      "must go from ImportSubCodePage to the free text page when Other and a 99 sub code was selected" in {
+        val ua = userAnswers
+          .set(RefundingCountryPage, "BE")
+          .success
+          .value
+          .set(ImportTypePage, Other)
+          .success
+          .value
+          .set(ImportSubCodePage, "10.99")
+          .success
+          .value
+
+        navigator.navigateFromImportSubCodePage(NormalMode)(ua) mustBe
+          importRoutes.DescribeItemsOnImportDocController.onPageLoad(NormalMode)
+      }
+
+      "must go from ImportSubCodePage to SadReference when None of these was selected for a type other than Other" in {
+        val ua = userAnswers
+          .set(RefundingCountryPage, "AT")
+          .success
+          .value
+          .set(ImportTypePage, Fuel)
+          .success
+          .value
+          .set(ImportSubCodePage, "__none__")
+          .success
+          .value
+
+        navigator.navigateFromImportSubCodePage(NormalMode)(ua) mustBe
+          importRoutes.SadReferenceController.onPageLoad(NormalMode)
+      }
     }
 
     "in Check mode" - {
