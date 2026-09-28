@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-package forms.purchase
+package pages
 
-import forms.mappings.Mappings
-import play.api.data.Form
+import play.api.libs.json.JsPath
 
-import javax.inject.Inject
+case object DescribeItemsOnImportDocPage extends QuestionPage[String] {
 
-class DescribeItemsOnInvoiceFormProvider @Inject() extends Mappings {
+  override def path: JsPath = JsPath \ toString
 
-  def apply(): Form[String] =
-    Form(
-      "value" -> text("describeItemsOnInvoice.error.required")
-        .verifying(maxLength(255, "describeItemsOnInvoice.error.length"))
-    )
+  override def toString: String = "describeItemsOnImportDoc"
 }

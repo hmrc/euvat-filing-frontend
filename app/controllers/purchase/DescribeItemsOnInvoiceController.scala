@@ -17,9 +17,9 @@
 package controllers.purchase
 
 import controllers.actions.*
-import forms.purchase.DescribeItemsOnInvoiceFormProvider
+import forms.DescribeItemsFormProvider
 import models.requests.DataRequest
-import models.{CheckMode, Mode, Other, PurchaseOrImportType, UserAnswers}
+import models.{CheckMode, Mode, UserAnswers}
 import navigation.Navigator
 import pages.*
 import play.api.data.Form
@@ -27,9 +27,8 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.{ConfigPurchaseOrImportMapping, CountryCode}
-import utils.ControllerHelpers.*
-import views.html.purchase.DescribeItemsOnInvoiceView
+import utils.ConfigPurchaseOrImportMapping
+import views.html.PurchaseOrImportDescribeItemsView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -42,14 +41,23 @@ class DescribeItemsOnInvoiceController @Inject() (
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  formProvider: DescribeItemsOnInvoiceFormProvider,
+  formProvider: DescribeItemsFormProvider,
   val controllerComponents: MessagesControllerComponents,
-  view: DescribeItemsOnInvoiceView
+  view: PurchaseOrImportDescribeItemsView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
-  val form: Form[String] = formProvider()
+  val form: Form[String] = formProvider("describeItemsOnInvoice")
+
+  private def renderView(form: Form[String], mode: Mode)(implicit request: DataRequest[AnyContent]) =
+    view(
+      form,
+      routes.DescribeItemsOnInvoiceController.onSubmit(mode),
+      "describeItemsOnInvoice",
+      "purchase.caption",
+      Some(messagesApi.preferred(request)("describeItemsOnInvoice.hint"))
+    )
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     val preparedForm = request.userAnswers.get(DescribeItemsOnInvoicePage).fold(form)(form.fill)
@@ -57,10 +65,10 @@ class DescribeItemsOnInvoiceController @Inject() (
     if (mode == CheckMode && !request.userAnswers.get(pages.DescribeItemsArrivedFromCheckYourAnswersPage).contains(true)) {
       val markedTry = request.userAnswers.set(pages.DescribeItemsArrivedFromCheckYourAnswersPage, true)
       Future.fromTry(markedTry).flatMap { updated =>
-        sessionRepository.set(updated).map(_ => Ok(view(preparedForm, mode)))
+        sessionRepository.set(updated).map(_ => Ok(renderView(preparedForm, mode)))
       }
     } else {
-      Future.successful(Ok(view(preparedForm, mode)))
+      Future.successful(Ok(renderView(preparedForm, mode)))
     }
   }
 
@@ -72,7 +80,7 @@ class DescribeItemsOnInvoiceController @Inject() (
           if (formWithErrors.errors.exists(_.message == "describeItemsOnInvoice.error.required")) {
             saveToSession("").map(_ => Redirect(controllers.warning.routes.PurchaseWarningController.onPageLoad(mode)))
           } else {
-            Future.successful(BadRequest(view(formWithErrors, mode)))
+            Future.successful(BadRequest(renderView(formWithErrors, mode)))
           },
         value => saveToSession(value).map(userAnswers => Redirect(navigator.nextPage(DescribeItemsOnInvoicePage, mode, userAnswers)))
       )
