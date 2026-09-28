@@ -31,7 +31,7 @@ import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.*
-import views.html.purchase.RefundingCurrencyView
+import views.html.RefundingCurrencyView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -85,7 +85,16 @@ class RefundingCurrencyController @Inject() (
           }
           .getOrElse(form)
 
-        Ok(view(preparedForm, items, backLink(request.userAnswers, mode), mode))
+        Ok(
+          view(
+            preparedForm,
+            items,
+            routes.RefundingCurrencyController.onSubmit(mode),
+            "refundingCurrency",
+            "purchase.caption",
+            Some(backLink(request.userAnswers, mode))
+          )
+        )
     }
   }
 
@@ -104,7 +113,18 @@ class RefundingCurrencyController @Inject() (
         val currencies = currencyConfig.currencyConfig(countryCode)
         val msgs = messagesApi.preferred(request)
         val items = buildRadioItems(currencies, msgs)
-        Future.successful(BadRequest(view(formWithErrors, items, backLink(request.userAnswers, mode), mode)))
+        Future.successful(
+          BadRequest(
+            view(
+              formWithErrors,
+              items,
+              routes.RefundingCurrencyController.onSubmit(mode),
+              "refundingCurrency",
+              "purchase.caption",
+              Some(backLink(request.userAnswers, mode))
+            )
+          )
+        )
     }
 
   private def handleValidSubmission(value: RefundingCurrency, mode: Mode)(implicit request: DataRequest[?]): Future[Result] =
