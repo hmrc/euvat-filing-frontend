@@ -42,4 +42,15 @@ class RefundingCurrencyFormProviderSpec extends OptionFieldBehaviours {
       requiredError = FormError(fieldName, requiredKey)
     )
   }
+
+  ".value with import prefix" - {
+
+    val importForm = new RefundingCurrencyFormProvider()("import.refundingCurrency")
+
+    behave like mandatoryField(
+      importForm,
+      "value",
+      requiredError = FormError("value", "import.refundingCurrency.error.required")
+    )
+  }
 }
