@@ -93,7 +93,7 @@ class ClaimNavigatorSpec extends SpecBase {
       "must go from CheckYourStateDetailsPage to DeleteClaimController if yes selected" in {
         val ua = userAnswers.set(CheckYourStateDetailsPage, true).success.value
         navigator.navigateFromCheckYourStateDetailsPage(NormalMode)(ua) mustBe
-          controllers.routes.DeleteClaimController.onPageLoad()
+          claimRoutes.CheckYourClaimDetailsController.onPageLoad()
       }
     }
 
@@ -154,7 +154,7 @@ class ClaimNavigatorSpec extends SpecBase {
       "must go from CheckYourStateDetailsPage to DeleteClaimController if yes selected" in {
         val ua = userAnswers.set(CheckYourStateDetailsPage, true).success.value
         navigator.navigateFromCheckYourStateDetailsPage(CheckMode)(ua) mustBe
-          controllers.routes.DeleteClaimController.onPageLoad()
+          claimRoutes.CheckYourClaimDetailsController.onPageLoad()
       }
 
       "must go from CheckYourStateDetailsPage to CheckYourClaimDetailsController if no selected" in {
