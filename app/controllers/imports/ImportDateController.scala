@@ -85,20 +85,12 @@ class ImportDateController @Inject() (
 
   private def handleSubmission(value: LocalDate, mode: Mode)(implicit request: DataRequest[?]): Future[Result] = {
     if (mode == CheckMode && request.userAnswers.isAnswerUnchanged(ImportDatePage, value)) {
-      Future.successful(
-        Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-      ) // TODO: replace with CheckYourImportController once built
+      Future.successful(Redirect(navigator.nextPage(ImportDatePage, mode, request.userAnswers)))
     } else {
       for {
         updatedAnswers <- Future.fromTry(request.userAnswers.set(ImportDatePage, value))
         _              <- sessionRepository.set(updatedAnswers)
-      } yield {
-        if (mode == CheckMode) {
-          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()) // TODO: replace with CheckYourImportController once built
-        } else {
-          Redirect(navigator.nextPage(ImportDatePage, mode, updatedAnswers))
-        }
-      }
+      } yield Redirect(navigator.nextPage(ImportDatePage, mode, updatedAnswers))
     }
   }
 }
