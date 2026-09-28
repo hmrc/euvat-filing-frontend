@@ -43,7 +43,6 @@ class SadReferenceCheckController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: SadReferenceCheckFormProvider,
-  navigator: Navigator,
   val controllerComponents: MessagesControllerComponents,
   view: SadReferenceCheckView
 )(implicit ec: ExecutionContext)

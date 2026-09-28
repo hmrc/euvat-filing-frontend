@@ -151,7 +151,82 @@ class ImportNavigatorSpec extends SpecBase {
           importRoutes.SadReferenceCheckController.onPageLoad(NormalMode)
       }
 
-      "must go from ImportSubCodePage to Journey Recovery when no sub code has been answered" in {
+      "must go from ImportSubCodePage to the sub category page when the sub code has sub categories" in {
+      val fakeConfig = new ConfigPurchaseOrImportMapping() {
+        override def subcategoriesFor(country: String, parentKey: String, subcode: String): Seq[(String, String)] =
+          Seq(("1.2.6", "sub.fuel.2.6"))
+      }
+      val nav = new ImportNavigator(
+        new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
+        fakeConfig
+      )
+      val ua = userAnswers
+        .set(RefundingCountryPage, "AT")
+        .success
+        .value
+        .set(ImportTypePage, Fuel)
+        .success
+        .value
+        .set(ImportSubCodePage, "1.2")
+        .success
+        .value
+
+      nav.navigateFromImportSubCodePage(NormalMode)(ua) mustBe
+        importRoutes.ImportSubCategoryController.onPageLoad(NormalMode)
+    }
+
+    "must go from ImportSubCodePage to SadReference when the sub code has no sub categories" in {
+      val ua = userAnswers
+        .set(RefundingCountryPage, "AT")
+        .success
+        .value
+        .set(ImportTypePage, Fuel)
+        .success
+        .value
+        .set(ImportSubCodePage, "1.3")
+        .success
+        .value
+
+      navigator.navigateFromImportSubCodePage(NormalMode)(ua) mustBe
+        importRoutes.SadReferenceController.onPageLoad(NormalMode)
+    }
+
+    "must go from ImportSubCodePage to SadReference when None of these was selected" in {
+      val ua = userAnswers
+        .set(RefundingCountryPage, "AT")
+        .success
+        .value
+        .set(ImportTypePage, Fuel)
+        .success
+        .value
+        .set(ImportSubCodePage, "__none__")
+        .success
+        .value
+
+      navigator.navigateFromImportSubCodePage(NormalMode)(ua) mustBe
+        importRoutes.SadReferenceController.onPageLoad(NormalMode)
+    }
+
+    "must go from ImportSubCodePage to Journey Recovery when no sub code has been answered" in {
+      val ua = userAnswers.set(ImportTypePage, Fuel).success.value
+
+      navigator.navigateFromImportSubCodePage(NormalMode)(ua) mustBe
+        controllers.routes.JourneyRecoveryController.onPageLoad()
+    }
+
+    "must go from ImportSubCategoryPage to SadReference when a sub category has been answered" in {
+      val ua = userAnswers.set(ImportSubCategoryPage, "1.2.6").success.value
+
+      navigator.navigateFromImportSubCategoryPage(NormalMode)(ua) mustBe
+        importRoutes.SadReferenceController.onPageLoad(NormalMode)
+    }
+
+    "must go from ImportSubCategoryPage to Journey Recovery when no sub category has been answered" in {
+      navigator.navigateFromImportSubCategoryPage(NormalMode)(userAnswers) mustBe
+        controllers.routes.JourneyRecoveryController.onPageLoad()
+    }
+
+    "must go from ImportSubCodePage to Journey Recovery when no sub code has been answered" in {
         val ua = userAnswers.set(ImportTypePage, Fuel).success.value
 
         navigator.navigateFromImportSubCodePage(NormalMode)(ua) mustBe
@@ -178,6 +253,29 @@ class ImportNavigatorSpec extends SpecBase {
 
         navigator.navigateFromImportTypePage(CheckMode)(ua) mustBe
           controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from ImportSubCodePage to SadReference in CheckMode when the sub code has no sub categories" in {
+        val ua = userAnswers
+          .set(RefundingCountryPage, "AT")
+          .success
+          .value
+          .set(ImportTypePage, Fuel)
+          .success
+          .value
+          .set(ImportSubCodePage, "1.3")
+          .success
+          .value
+
+        navigator.navigateFromImportSubCodePage(CheckMode)(ua) mustBe
+          importRoutes.SadReferenceController.onPageLoad(CheckMode)
+      }
+
+      "must go from ImportSubCategoryPage to SadReference in CheckMode" in {
+        val ua = userAnswers.set(ImportSubCategoryPage, "1.2.6").success.value
+
+        navigator.navigateFromImportSubCategoryPage(CheckMode)(ua) mustBe
+          importRoutes.SadReferenceController.onPageLoad(CheckMode)
       }
 
       "must go from ImportSubCategoryPage to SadReferenceCheck when a sub category has been answered" in {
