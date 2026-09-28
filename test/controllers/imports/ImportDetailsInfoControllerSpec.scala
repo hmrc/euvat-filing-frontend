@@ -38,7 +38,8 @@ class ImportDetailsInfoControllerSpec extends SpecBase with MockitoSugar {
   def onwardRoute = Call("GET", "/foo")
 
   lazy val importDetailsInfoRoute: String = controllers.imports.routes.ImportDetailsInfoController.onPageLoad(NormalMode).url
-  lazy val backLinkCall: Call = controllers.imports.routes.SadReferenceController.onPageLoad
+  lazy val backLinkCall: Call = controllers.imports.routes.SadReferenceController.onPageLoad(NormalMode)
+  lazy val checkModeBackLinkCall: Call = controllers.imports.routes.SadReferenceController.onPageLoad(CheckMode)
 
   val formProvider = new ImportDetailsInfoFormProvider()
   val form = formProvider()
@@ -73,7 +74,7 @@ class ImportDetailsInfoControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[ImportDetailsInfoView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, CheckMode, backLinkCall)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, CheckMode, checkModeBackLinkCall)(request, messages(application)).toString
       }
     }
 

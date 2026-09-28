@@ -68,8 +68,7 @@ class SadReferenceControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustBe SEE_OTHER
-        // TODO: update to SadReferenceNumberController once built
-        redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustBe controllers.imports.routes.SadReferenceNumberController.onPageLoad(NormalMode).url
       }
     }
 
@@ -77,7 +76,7 @@ class SadReferenceControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(POST, controllers.imports.routes.SadReferenceController.onSubmit.url)
+        val request = FakeRequest(POST, controllers.imports.routes.SadReferenceController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody("value" -> "false")
 
         val result = route(application, request).value

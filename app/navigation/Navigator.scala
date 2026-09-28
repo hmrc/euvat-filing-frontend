@@ -68,7 +68,7 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
       userAnswers =>
         userAnswers.get(SadReferencePage) match {
           case Some(true)  => importRoutes.SadReferenceNumberController.onPageLoad(NormalMode)
-          case Some(false) => controllers.routes.JourneyRecoveryController.onPageLoad()
+          case Some(false) => importRoutes.ImportDetailsInfoController.onPageLoad(NormalMode)
           case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
         }
     case SadReferenceNumberPage => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
@@ -108,7 +108,7 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
       userAnswers =>
         userAnswers.get(SadReferencePage) match {
           case Some(true)  => importRoutes.SadReferenceNumberController.onPageLoad(CheckMode)
-          case Some(false) => controllers.routes.JourneyRecoveryController.onPageLoad()
+          case Some(false) => importRoutes.ImportDetailsInfoController.onPageLoad(CheckMode)
           case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
         }
     case SadReferenceNumberPage => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
