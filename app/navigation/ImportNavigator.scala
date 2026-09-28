@@ -29,18 +29,18 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
     userAnswers.get(ImportSubCodePage) match {
       case Some(value) if value == ConfigPurchaseOrImportMapping.NoneValue =>
         controllers.routes.JourneyRecoveryController.onPageLoad()
-      case Some(_) => importsRoutes.SadReferenceController.onPageLoad
+      case Some(_) => importsRoutes.SadReferenceController.onPageLoad(mode)
       case None    => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
-  def navigateFromImportTypePage(mode: Mode)(userAnswers: UserAnswers): Call = {
-    val importType = userAnswers.get(ImportTypePage).get
-
-    CountryCode.findCountryCode(userAnswers) match {
-      case Some(country) if configPurchaseOrImportMapping.selectableSubcodes(country, importType.toString).isDefined =>
+  def navigateFromImportTypePage(mode: Mode)(userAnswers: UserAnswers): Call =
+    (userAnswers.get(ImportTypePage), CountryCode.findCountryCode(userAnswers)) match {
+      case (Some(importType), Some(country)) if configPurchaseOrImportMapping.selectableSubcodes(country, importType.toString).isDefined =>
         importsRoutes.ImportSubCodeController.onPageLoad(importType.toString)
-      case _ => controllers.routes.JourneyRecoveryController.onPageLoad()
+      case (Some(_), Some(_)) =>
+        importsRoutes.SadReferenceController.onPageLoad(mode) // TODO: Other with only 10.99 may go to the import free text page when it exists
+      case _ =>
+        controllers.routes.JourneyRecoveryController.onPageLoad()
     }
-  }
 
 }

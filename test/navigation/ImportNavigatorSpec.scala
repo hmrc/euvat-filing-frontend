@@ -21,7 +21,10 @@ import com.typesafe.config.ConfigFactory
 import models.*
 import pages.*
 import play.api.Configuration
-import utils.{ConfigPurchaseOrImportMapping, CurrencyConfig}
+import utils.{ConfigLanguageMapping, ConfigPurchaseOrImportMapping, CurrencyConfig}
+import controllers.purchase.routes as purchaseRoutes
+import controllers.imports.routes as importRoutes
+import controllers.routes as routes
 
 class ImportNavigatorSpec extends SpecBase {
 
@@ -84,7 +87,7 @@ class ImportNavigatorSpec extends SpecBase {
         )
         val ua = userAnswers.set(RefundingCountryPage, "AT").success.value.set(ImportTypePage, Transport).success.value
 
-        nav.navigateFromImportTypePage(NormalMode)(ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
+        nav.navigateFromImportTypePage(NormalMode)(ua) mustBe importRoutes.SadReferenceController.onPageLoad(NormalMode)
       }
 
       "must go from ImportTypePage to TaskListDashboardController when the only sub code is 10.99" in {
@@ -98,7 +101,41 @@ class ImportNavigatorSpec extends SpecBase {
         )
         val ua = userAnswers.set(RefundingCountryPage, "AT").success.value.set(ImportTypePage, Other).success.value
 
-        nav.navigateFromImportTypePage(NormalMode)(ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
+        nav.navigateFromImportTypePage(NormalMode)(ua) mustBe importRoutes.SadReferenceController.onPageLoad(NormalMode)
+      }
+
+      "must go from PurchaseOrImportPage to ImportTypeController when Import is selected" in {
+        val claimNav = new ClaimNavigator(new ConfigLanguageMapping(Configuration(ConfigFactory.parseString("""language.mapping = {}"""))))
+        val purchaseNav = new PurchaseNavigator(new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
+                                                new ConfigPurchaseOrImportMapping()
+                                               )
+        val importNav = new ImportNavigator(new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
+                                            new ConfigPurchaseOrImportMapping()
+                                           )
+
+        val nav = new navigation.Navigator(claimNav, purchaseNav, importNav)
+
+        val ua = userAnswers.set(PurchaseOrImportPage, models.PurchaseOrImport.Import).success.value
+
+        nav.nextPage(PurchaseOrImportPage, NormalMode, ua) mustBe
+          importRoutes.ImportTypeController.onPageLoad(NormalMode)
+      }
+
+      "must go from PurchaseTypePage to DescribeItemsOnInvoiceController" in {
+        val claimNav = new ClaimNavigator(new ConfigLanguageMapping(Configuration(ConfigFactory.parseString("""language.mapping = {}"""))))
+        val purchaseNav = new PurchaseNavigator(new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
+                                                new ConfigPurchaseOrImportMapping()
+                                               )
+        val importNav = new ImportNavigator(new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
+                                            new ConfigPurchaseOrImportMapping()
+                                           )
+
+        val nav = new navigation.Navigator(claimNav, purchaseNav, importNav)
+
+        val ua = userAnswers.set(PurchaseTypePage, models.PurchaseOrImportType.values.head).success.value
+
+        nav.nextPage(PurchaseTypePage, NormalMode, ua) mustBe
+          purchaseRoutes.DescribeItemsOnInvoiceController.onPageLoad(NormalMode)
       }
 
     }
