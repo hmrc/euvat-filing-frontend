@@ -113,7 +113,6 @@ refundingLanguage.greek = Greek
 
 refundingCurrency.title = Which currency do you want to use for this claim?
 refundingCurrency.heading = Which currency do you want to use for this claim?
-refundingCurrency.hint = You will use this currency for all the items you add to this claim
 refundingCurrency.euro = Euro ({0})
 refundingCurrency.estonianKroon = Estonian Kroon ({0})
 refundingCurrency.bulgarianLev = Bulgarian Lev ({0})
