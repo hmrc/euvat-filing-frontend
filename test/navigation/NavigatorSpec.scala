@@ -165,6 +165,16 @@ class NavigatorSpec extends SpecBase {
         navigator.nextPage(DescribeItemsOnImportDocPage, NormalMode, userAnswers) mustBe
           importRoutes.SadReferenceCheckController.onPageLoad(NormalMode)
       }
+
+      "must go from SadReferenceNumberPage to ImportCurrencyController" in {
+        navigator.nextPage(SadReferenceNumberPage, NormalMode, userAnswers) mustBe
+          importRoutes.ImportCurrencyController.onPageLoad(NormalMode)
+      }
+
+      "must go from ImportCurrencyPage to JourneyRecoveryController" in {
+        navigator.nextPage(ImportCurrencyPage, NormalMode, userAnswers) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
     }
 
     "in Check mode" - {
@@ -215,6 +225,16 @@ class NavigatorSpec extends SpecBase {
       "must go from TotalVatClaimPage to CheckYourPurchaseDetailsController" in {
         navigator.nextPage(TotalVatClaimPage, CheckMode, userAnswers) mustBe
           purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
+      }
+
+      "must go from SadReferenceNumberPage to ImportCurrencyController" in {
+        navigator.nextPage(SadReferenceNumberPage, CheckMode, userAnswers) mustBe
+          importRoutes.ImportCurrencyController.onPageLoad(CheckMode)
+      }
+
+      "must go from ImportCurrencyPage to JourneyRecoveryController" in {
+        navigator.nextPage(ImportCurrencyPage, CheckMode, userAnswers) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from a page that doesn't exist in the edit route map to IndexController" in {

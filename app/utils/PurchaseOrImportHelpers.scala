@@ -17,10 +17,11 @@
 package utils
 
 import forms.PurchaseOrImportSubTypeFormProvider
-import models.UserAnswers
+import models.{RefundingCurrency, UserAnswers}
 import play.api.data.Form
 import play.api.i18n.Messages
 import queries.Settable
+import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 
 import scala.util.Try
@@ -74,4 +75,23 @@ object PurchaseOrImportHelpers {
 
   def isNoneSelection(code: String): Boolean =
     code == ConfigPurchaseOrImportMapping.NoneValue || code.split("\\.").lastOption.contains("99")
+
+  def currencyRadioItems(currencies: Seq[Currency], msgs: Messages): Seq[RadioItem] =
+    currencies.zipWithIndex
+      .flatMap: (c, idx) =>
+        RefundingCurrency.values
+          .find(_.toString.equalsIgnoreCase(c.name))
+          .map: v =>
+            RadioItem(
+              content = Text(msgs(s"refundingCurrency.${v.toString}", c.symbol)),
+              value = Some(v.toString),
+              id = Some(if (idx == 0) "value" else s"value_$idx"),
+              label = None,
+              hint = None,
+              divider = None,
+              checked = false,
+              conditionalHtml = None,
+              disabled = false,
+              attributes = Map.empty
+            )
 }
