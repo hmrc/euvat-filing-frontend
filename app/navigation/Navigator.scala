@@ -66,7 +66,7 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case DescribeItemsOnImportDocPage      => _ => importRoutes.SadReferenceCheckController.onPageLoad(NormalMode)
     case SadReferenceCheckPage             => userAnswers => importNavigator.navigateFromSadReferenceCheckPage(NormalMode)(userAnswers)
     case SadReferenceNumberPage            => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
-    case ImportDetailsInfoPage            => _ => importRoutes.ImportCurrencyController.onPageLoad(NormalMode)
+    case ImportDetailsInfoPage            => userAnswers => importNavigator.navigateFromSadReferenceNumberPage(NormalMode)(userAnswers)
     case ImportCurrencyPage                => _ => controllers.routes.JourneyRecoveryController.onPageLoad()// TODO link to import date
     case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
@@ -102,7 +102,7 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case DescribeItemsOnImportDocPage      => _ => importRoutes.SadReferenceCheckController.onPageLoad(CheckMode)
     case SadReferenceCheckPage             => userAnswers => importNavigator.navigateFromSadReferenceCheckPage(CheckMode)(userAnswers)
     case SadReferenceNumberPage            => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
-    case ImportDetailsInfoPage            => _ => importRoutes.ImportCurrencyController.onPageLoad(CheckMode)
+    case ImportDetailsInfoPage            => userAnswers => importNavigator.navigateFromSadReferenceNumberPage(CheckMode)(userAnswers)
     case ImportCurrencyPage                => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
     case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
