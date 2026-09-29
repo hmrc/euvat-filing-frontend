@@ -71,7 +71,7 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
           case Some(false) => importRoutes.ImportDetailsInfoController.onPageLoad(NormalMode)
           case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
         }
-    case SadReferenceNumberPage            => _ => importRoutes.ImportCurrencyController.onPageLoad(NormalMode)
+    case SadReferenceNumberPage            => userAnswers => importNavigator.navigateFromSadReferenceNumberPage(NormalMode)(userAnswers)
     case ImportCurrencyPage                => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
     case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
@@ -112,7 +112,7 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
           case Some(false) => importRoutes.ImportDetailsInfoController.onPageLoad(CheckMode)
           case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
         }
-    case SadReferenceNumberPage            => _ => importRoutes.ImportCurrencyController.onPageLoad(CheckMode)
+    case SadReferenceNumberPage            => userAnswers => importNavigator.navigateFromSadReferenceNumberPage(CheckMode)(userAnswers)
     case ImportCurrencyPage                => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
     case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
