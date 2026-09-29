@@ -71,8 +71,9 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
           case Some(false) => importRoutes.ImportDetailsInfoController.onPageLoad(NormalMode)
           case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
         }
-    case SadReferenceNumberPage => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
-    case _                      => _ => controllers.routes.IndexController.onPageLoad()
+    case SadReferenceNumberPage            => _ => importRoutes.ImportCurrencyController.onPageLoad(NormalMode)
+    case ImportCurrencyPage                => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
+    case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 
   private val checkRoutes: Page => UserAnswers => Call = {
@@ -111,8 +112,9 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
           case Some(false) => importRoutes.ImportDetailsInfoController.onPageLoad(CheckMode)
           case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
         }
-    case SadReferenceNumberPage => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
-    case _                      => _ => controllers.routes.IndexController.onPageLoad()
+    case SadReferenceNumberPage            => _ => importRoutes.ImportCurrencyController.onPageLoad(CheckMode)
+    case ImportCurrencyPage                => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
+    case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 
   private def navigateFromPurchaseOrImportPage(userAnswers: UserAnswers): Call =

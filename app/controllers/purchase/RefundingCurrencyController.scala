@@ -75,7 +75,7 @@ class RefundingCurrencyController @Inject() (
       case Some(countryCode) =>
         val currencies = currencyConfig.currencyConfig(countryCode)
         val msgs = messagesApi.preferred(request)
-        val items = buildRadioItems(currencies, msgs)
+        val items = PurchaseOrImportHelpers.currencyRadioItems(currencies, msgs)
         val preparedForm = request.userAnswers
           .get(RefundingCurrencyPage)
           .flatMap { storedCode =>
@@ -112,7 +112,7 @@ class RefundingCurrencyController @Inject() (
       case Some(countryCode) =>
         val currencies = currencyConfig.currencyConfig(countryCode)
         val msgs = messagesApi.preferred(request)
-        val items = buildRadioItems(currencies, msgs)
+        val items = PurchaseOrImportHelpers.currencyRadioItems(currencies, msgs)
         Future.successful(
           BadRequest(
             view(
@@ -171,26 +171,4 @@ class RefundingCurrencyController @Inject() (
             }
         }
     }
-
-  private def buildRadioItems(
-    currencies: Seq[Currency],
-    msgs: Messages
-  ): Seq[RadioItem] =
-    currencies.zipWithIndex
-      .flatMap: (c, idx) =>
-        RefundingCurrency.values
-          .find(_.toString.equalsIgnoreCase(c.name))
-          .map: v =>
-            RadioItem(
-              content         = Text(msgs(s"refundingCurrency.${v.toString}", c.symbol)),
-              value           = Some(v.toString),
-              id              = Some(if (idx == 0) "value" else s"value_$idx"),
-              label           = None,
-              hint            = None,
-              divider         = None,
-              checked         = false,
-              conditionalHtml = None,
-              disabled        = false,
-              attributes      = Map.empty
-            )
 }
