@@ -352,7 +352,9 @@ class PurchaseSubTypeController @Inject() (
         .fold(
           formWithErrors =>
             Future.successful(
-              BadRequest(view(formWithErrors, items, parentHeading, parentHeading, "purchase.caption", formActionFor(resolvedSlug, mode), backUrlFor(mode)))
+              BadRequest(
+                view(formWithErrors, items, parentHeading, parentHeading, "purchase.caption", formActionFor(resolvedSlug, mode), backUrlFor(mode))
+              )
             ),
           value => handleSubmitValue(value, parentKey, country, resolvedSlug, mode, userAnswers)
         )

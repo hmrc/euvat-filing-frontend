@@ -53,22 +53,22 @@ class PurchaseSubCategoryController @Inject() (
     with Logging {
 
   private case class SubCategoryViewData(
-                                          options: Seq[(String, String)],
-                                          items: Seq[RadioItem],
-                                          title: String,
-                                          form: Form[String],
-                                          formAction: Call,
-                                          backUrl: Call,
-                                          parentBase: String,
-                                          childToPersist: String,
-                                          parentLabelKeyOpt: Option[String]
-                                        )
+    options: Seq[(String, String)],
+    items: Seq[RadioItem],
+    title: String,
+    form: Form[String],
+    formAction: Call,
+    backUrl: Call,
+    parentBase: String,
+    childToPersist: String,
+    parentLabelKeyOpt: Option[String]
+  )
 
   private def backUrlFor(userAnswers: UserAnswers, mode: Mode)(implicit request: RequestHeader): String =
     userAnswers.get(PurchaseTypePage).map(PurchaseOrImportType.urlSlugForPurchaseType) match {
       case Some(_) if mode == CheckMode => routes.CheckYourPurchaseDetailsController.onPageLoad().url
-      case Some(slug) => ControllerHelpers.pathForSlug(slug, mode, MountPrefix.getFromRequest)
-      case None => routes.PurchaseTypeController.onPageLoad(NormalMode).url
+      case Some(slug)                   => ControllerHelpers.pathForSlug(slug, mode, MountPrefix.getFromRequest)
+      case None                         => routes.PurchaseTypeController.onPageLoad(NormalMode).url
     }
 
   private def tryReverseParent(parentKey: String, candidate: String, mode: Mode)(implicit request: RequestHeader): Option[Call] =
