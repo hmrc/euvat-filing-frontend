@@ -71,4 +71,9 @@ POST        /change-single-administrative-document-reference-number             
 GET         /import-document-details                                     controllers.imports.ImportDetailsInfoController.onPageLoad(mode: Mode = NormalMode)
 POST        /import-document-details                                     controllers.imports.ImportDetailsInfoController.onSubmit(mode: Mode = NormalMode)
 GET         /change-import-document-details                              controllers.imports.ImportDetailsInfoController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-import-document-details                              controllers.imports.ImportDetailsInfoController.onSubmit(mode: Mode = CheckMode)
+POST        /change-import-document-details
+
+GET        /total-vat-paid                                              controllers.imports.TotalVatPaidImportController.onPageLoad(mode: Mode = NormalMode)
+POST       /total-vat-paid                                              controllers.imports.TotalVatPaidImportController.onSubmit(mode: Mode = NormalMode)
+GET        /change-total-vat-paid                                       controllers.imports.TotalVatPaidImportController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-total-vat-paid                                       controllers.imports.TotalVatPaidImportController.onSubmit(mode: Mode = CheckMode)
