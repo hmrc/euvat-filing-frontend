@@ -71,7 +71,8 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case ImportSuppliersNamePage   => userAnswers => importNavigator.navigateToCurrencyOrNextPage(NormalMode)(userAnswers)
     case ImportCurrencyPage        => _ => importRoutes.TotalAmountWithoutVatController.onPageLoad(NormalMode)
     case TotalAmountWithoutVatPage => userAnswers => importNavigator.navigateFromTotalAmountWithoutVatPage(NormalMode)(userAnswers)
-    case _                         => _ => controllers.routes.IndexController.onPageLoad()
+    case TotalVatPaidImportPage            => _ => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO : replace with Total Vat Claim RA5.9 controller once built
+    case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 
   private val checkRoutes: Page => UserAnswers => Call = {
