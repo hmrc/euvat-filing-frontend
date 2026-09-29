@@ -16,8 +16,8 @@
 
 package navigation
 
-import models.{CheckMode, Mode, NormalMode, UserAnswers}
-import pages.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage}
+import models.{CheckMode, Mode, NormalMode, Other, UserAnswers}
+import pages.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage, SadReferenceCheckPage}
 import play.api.mvc.Call
 import utils.{ConfigPurchaseOrImportMapping, CountryCode, CurrencyConfig}
 import controllers.imports.routes as importsRoutes
@@ -37,7 +37,7 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
       case (Some(Other), Some(_)) =>
         importsRoutes.DescribeItemsOnImportDocController.onPageLoad(mode)
       case (Some(_), Some(_)) =>
-        importsRoutes.SadReferenceController.onPageLoad(mode)
+        importsRoutes.SadReferenceCheckController.onPageLoad(mode)
       case _ =>
         controllers.routes.JourneyRecoveryController.onPageLoad()
     }
@@ -50,15 +50,21 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
           if configPurchaseOrImportMapping.subcategoriesFor(country, importType.toString, subCode).nonEmpty =>
         importsRoutes.ImportSubCategoryController.onPageLoad(mode)
       case (_, Some(_), _) =>
-        importsRoutes.SadReferenceController.onPageLoad(mode)
+        importsRoutes.SadReferenceCheckController.onPageLoad(mode)
       case _ =>
         controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
   def navigateFromImportSubCategoryPage(mode: Mode)(userAnswers: UserAnswers): Call =
     userAnswers.get(ImportSubCategoryPage) match {
-      case Some(_) => importsRoutes.SadReferenceController.onPageLoad(mode)
+      case Some(_) => importsRoutes.SadReferenceCheckController.onPageLoad(mode)
       case None    => controllers.routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  def navigateFromSadReferenceCheckPage(mode: Mode)(userAnswers: UserAnswers): Call =
+    userAnswers.get(SadReferenceCheckPage) match {
+      case Some(true) => importsRoutes.SadReferenceNumberController.onPageLoad(NormalMode)
+      case _          => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
   def navigateFromImportDetailsInfoPage(mode: Mode)(userAnswers: UserAnswers): Call =

@@ -30,7 +30,7 @@ import repositories.SessionRepository
 class ImportSubCodeControllerSpec extends SpecBase {
   private def fuelRoute = controllers.imports.routes.ImportSubCodeController.onPageLoad("fuel").url
   private def journeyRecoveryUrl = controllers.routes.JourneyRecoveryController.onPageLoad().url
-  private def sadReferenceUrl = controllers.imports.routes.SadReferenceController.onPageLoad(NormalMode).url
+  private def sadReferenceUrl = controllers.imports.routes.SadReferenceCheckController.onPageLoad(NormalMode).url
   private def taskListUrl = controllers.routes.TaskListDashboardController.onPageLoad().url
   private def importSubCategoryUrl = controllers.imports.routes.ImportSubCategoryController.onPageLoad(NormalMode).url
 

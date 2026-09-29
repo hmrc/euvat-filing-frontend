@@ -23,9 +23,9 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import models.NormalMode
 
-class SadReferenceControllerSpec extends SpecBase with MockitoSugar {
+class SadReferenceCheckControllerSpec extends SpecBase with MockitoSugar {
 
-  val formProvider = new forms.imports.SadReferenceFormProvider()
+  val formProvider = new forms.imports.SadReferenceCheckFormProvider()
 
   "SadReference Controller" - {
 
@@ -33,14 +33,14 @@ class SadReferenceControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.imports.routes.SadReferenceController.onPageLoad(NormalMode).url)
+        val request = FakeRequest(GET, controllers.imports.routes.SadReferenceCheckController.onPageLoad(NormalMode).url)
         val result = route(application, request).value
 
         status(result) mustBe OK
-        val view = application.injector.instanceOf[views.html.imports.SadReferenceView]
+        val view = application.injector.instanceOf[views.html.imports.SadReferenceCheckView]
 
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(formProvider())(request, messages(application)).toString
+          view(formProvider(), controllers.imports.routes.ImportTypeController.onPageLoad(NormalMode))(request, messages(application)).toString
         )
       }
     }
@@ -49,7 +49,7 @@ class SadReferenceControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.imports.routes.SadReferenceController.onPageLoad(NormalMode).url)
+        val request = FakeRequest(GET, controllers.imports.routes.SadReferenceCheckController.onPageLoad(NormalMode).url)
         val result = route(application, request).value
 
         status(result) mustBe OK
@@ -62,7 +62,7 @@ class SadReferenceControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(POST, controllers.imports.routes.SadReferenceController.onSubmit(NormalMode).url)
+        val request = FakeRequest(POST, controllers.imports.routes.SadReferenceCheckController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody("value" -> "true")
 
         val result = route(application, request).value
@@ -90,7 +90,7 @@ class SadReferenceControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(POST, controllers.imports.routes.SadReferenceController.onSubmit(NormalMode).url)
+        val request = FakeRequest(POST, controllers.imports.routes.SadReferenceCheckController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody("value" -> "")
 
         val result = route(application, request).value

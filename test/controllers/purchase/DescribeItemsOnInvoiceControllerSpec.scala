@@ -18,7 +18,7 @@ package controllers.purchase
 
 import base.SpecBase
 import forms.DescribeItemsFormProvider
-import models.{CheckMode, Mode, NormalMode, UserAnswers}
+import models.*
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -51,6 +51,7 @@ class DescribeItemsOnInvoiceControllerSpec extends SpecBase with MockitoSugar {
     view(
       form,
       routes.DescribeItemsOnInvoiceController.onSubmit(mode),
+      routes.PurchaseSubTypeController.onPageLoad(PurchaseOrImportType.urlSlugForPurchaseType(Other), NormalMode),
       "describeItemsOnInvoice",
       "purchase.caption",
       Some(messages(application)("describeItemsOnInvoice.hint"))

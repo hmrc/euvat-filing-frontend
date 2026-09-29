@@ -161,9 +161,9 @@ class NavigatorSpec extends SpecBase {
         navigator.nextPage(UnknownPage, NormalMode, userAnswers) mustBe controllers.routes.IndexController.onPageLoad()
       }
 
-      "must go from DescribeItemsOnImportDocPage to SadReferenceController" in {
+      "must go from DescribeItemsOnImportDocPage to SadReferenceCheckController" in {
         navigator.nextPage(DescribeItemsOnImportDocPage, NormalMode, userAnswers) mustBe
-          importRoutes.SadReferenceController.onPageLoad(NormalMode)
+          importRoutes.SadReferenceCheckController.onPageLoad(NormalMode)
       }
     }
 
@@ -222,9 +222,9 @@ class NavigatorSpec extends SpecBase {
         navigator.nextPage(UnknownPage, CheckMode, userAnswers) mustBe controllers.routes.IndexController.onPageLoad()
       }
 
-      "must go from DescribeItemsOnImportDocPage to SadReferenceController" in {
+      "must go from DescribeItemsOnImportDocPage to SadReferenceCheckController" in {
         navigator.nextPage(DescribeItemsOnImportDocPage, CheckMode, userAnswers) mustBe
-          importRoutes.SadReferenceController.onPageLoad(CheckMode)
+          importRoutes.SadReferenceCheckController.onPageLoad(CheckMode)
       }
     }
   }

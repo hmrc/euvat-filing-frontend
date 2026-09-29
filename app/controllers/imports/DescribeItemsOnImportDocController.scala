@@ -19,7 +19,7 @@ package controllers.imports
 import controllers.actions.*
 import forms.DescribeItemsFormProvider
 import models.requests.DataRequest
-import models.{Mode, Other, UserAnswers}
+import models.*
 import navigation.Navigator
 import pages.{DescribeItemsOnImportDocPage, ImportSubCodePage, ImportTypePage, RefundingLanguagePage}
 import play.api.data.Form
@@ -52,6 +52,12 @@ class DescribeItemsOnImportDocController @Inject() (
 
   val form: Form[String] = formProvider(messagePrefix)
 
+  private def backLink(answers: UserAnswers): Call =
+    answers.get(ImportSubCodePage) match {
+      case Some(_) => controllers.imports.routes.ImportSubCodeController.onPageLoad(Other.toString)
+      case None    => controllers.imports.routes.ImportTypeController.onPageLoad(NormalMode)
+    }
+
   private def submitCall(mode: Mode): Call = controllers.imports.routes.DescribeItemsOnImportDocController.onSubmit(mode)
 
   private def isReachable(answers: UserAnswers): Boolean =
@@ -72,7 +78,7 @@ class DescribeItemsOnImportDocController @Inject() (
       .map(language => messages(s"$messagePrefix.hint", messages(s"refundingLanguage.${language.value}")))
 
   private def renderView(form: Form[String], mode: Mode)(implicit request: DataRequest[AnyContent]) =
-    view(form, submitCall(mode), messagePrefix, "import.caption", hint(request.userAnswers))
+    view(form, submitCall(mode), backLink(request.userAnswers), messagePrefix, "import.caption", hint(request.userAnswers))
 
   private def withGuard(block: => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] =
     if (isReachable(request.userAnswers)) block

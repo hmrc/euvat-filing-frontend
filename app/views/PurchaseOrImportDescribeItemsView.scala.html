@@ -24,11 +24,11 @@
     mainErrorSummary: views.html.components.MainErrorSummary
 )
 
-@(form: Form[?], submitCall: Call, messagePrefix: String, captionKey: String, hint: Option[String])(implicit request: Request[?], messages: Messages)
+@(form: Form[?], submitCall: Call, backLink: Call, messagePrefix: String, captionKey: String, hint: Option[String])(implicit request: Request[?], messages: Messages)
 
 @isError = @{form.error("value").isDefined}
 
-@layout(pageTitle = views.ViewUtils.title(form, s"$messagePrefix.title")) {
+@layout(pageTitle = views.ViewUtils.title(form, s"$messagePrefix.title"), backLinkUrl = Some(backLink.url)) {
     @formHelper(action = submitCall) {
         @mainErrorSummary(form, Map("value" -> "value"))
 

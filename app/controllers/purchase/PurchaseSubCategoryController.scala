@@ -53,15 +53,23 @@ class PurchaseSubCategoryController @Inject() (
     with Logging {
 
   private case class SubCategoryViewData(
-    options: Seq[(String, String)],
-    items: Seq[RadioItem],
-    title: String,
-    form: Form[String],
-    formAction: Call,
-    parentBase: String,
-    childToPersist: String,
-    parentLabelKeyOpt: Option[String]
-  )
+                                          options: Seq[(String, String)],
+                                          items: Seq[RadioItem],
+                                          title: String,
+                                          form: Form[String],
+                                          formAction: Call,
+                                          backUrl: Call,
+                                          parentBase: String,
+                                          childToPersist: String,
+                                          parentLabelKeyOpt: Option[String]
+                                        )
+
+  private def backUrlFor(userAnswers: UserAnswers, mode: Mode)(implicit request: RequestHeader): String =
+    userAnswers.get(PurchaseTypePage).map(PurchaseOrImportType.urlSlugForPurchaseType) match {
+      case Some(_) if mode == CheckMode => routes.CheckYourPurchaseDetailsController.onPageLoad().url
+      case Some(slug) => ControllerHelpers.pathForSlug(slug, mode, MountPrefix.getFromRequest)
+      case None => routes.PurchaseTypeController.onPageLoad(NormalMode).url
+    }
 
   private def tryReverseParent(parentKey: String, candidate: String, mode: Mode)(implicit request: RequestHeader): Option[Call] =
     try {
@@ -133,6 +141,7 @@ class PurchaseSubCategoryController @Inject() (
       title             = subCategoryTitle(parentKey, resolvedParentCode, options)(msgs),
       form              = preparedForm(formProvider, requiredKey, userAnswers.get(PurchaseSubCategoryPage)),
       formAction        = computeFormAction(parentKey, formActionCandidates(resolvedParentCode), userAnswers, mode),
+      backUrl           = Call("GET", backUrlFor(userAnswers, mode)),
       parentBase        = resolvedParentCode.split("\\.").headOption.getOrElse(resolvedParentCode),
       childToPersist    = childToPersistFor(resolvedParentCode, options),
       parentLabelKeyOpt = config.subcodesFor(country, parentKey).find(_._1 == resolvedParentCode).map(_._2)
@@ -149,7 +158,7 @@ class PurchaseSubCategoryController @Inject() (
   }
 
   private def renderView(data: SubCategoryViewData, form: Form[String])(implicit request: DataRequest[AnyContent]) =
-    view(form, data.items, data.title, data.title, "purchase.caption", data.formAction)
+    view(form, data.items, data.title, data.title, "purchase.caption", data.formAction, data.backUrl)
 
   private def markArrivalAndRender(data: SubCategoryViewData, mode: Mode, userAnswers: UserAnswers)(implicit
     request: DataRequest[AnyContent]

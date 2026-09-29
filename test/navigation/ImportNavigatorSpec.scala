@@ -90,7 +90,7 @@ class ImportNavigatorSpec extends SpecBase {
         )
         val ua = userAnswers.set(RefundingCountryPage, "AT").success.value.set(ImportTypePage, Transport).success.value
 
-        nav.navigateFromImportTypePage(NormalMode)(ua) mustBe importRoutes.SadReferenceController.onPageLoad(NormalMode)
+        nav.navigateFromImportTypePage(NormalMode)(ua) mustBe importRoutes.SadReferenceCheckController.onPageLoad(NormalMode)
       }
 
       "must go from ImportTypePage to Journey Recovery when no country has been answered" in {
@@ -106,11 +106,11 @@ class ImportNavigatorSpec extends SpecBase {
       "must go from PurchaseOrImportPage to ImportTypeController when Import is selected" in {
         val claimNav = new ClaimNavigator(new ConfigLanguageMapping(Configuration(ConfigFactory.parseString("""language.mapping = {}"""))))
         val purchaseNav = new PurchaseNavigator(new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
-          new ConfigPurchaseOrImportMapping()
-        )
+                                                new ConfigPurchaseOrImportMapping()
+                                               )
         val importNav = new ImportNavigator(new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
-          new ConfigPurchaseOrImportMapping()
-        )
+                                            new ConfigPurchaseOrImportMapping()
+                                           )
 
       val nav = new navigation.Navigator(claimNav, purchaseNav, importNav)
 
@@ -123,11 +123,11 @@ class ImportNavigatorSpec extends SpecBase {
       "must go from PurchaseTypePage to DescribeItemsOnInvoiceController" in {
         val claimNav = new ClaimNavigator(new ConfigLanguageMapping(Configuration(ConfigFactory.parseString("""language.mapping = {}"""))))
         val purchaseNav = new PurchaseNavigator(new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
-          new ConfigPurchaseOrImportMapping()
-        )
+                                                new ConfigPurchaseOrImportMapping()
+                                               )
         val importNav = new ImportNavigator(new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
-          new ConfigPurchaseOrImportMapping()
-        )
+                                            new ConfigPurchaseOrImportMapping()
+                                           )
 
       val nav = new navigation.Navigator(claimNav, purchaseNav, importNav)
 
@@ -202,7 +202,7 @@ class ImportNavigatorSpec extends SpecBase {
           .value
 
         navigator.navigateFromImportSubCodePage(NormalMode)(ua) mustBe
-          importRoutes.SadReferenceController.onPageLoad(NormalMode)
+          importRoutes.SadReferenceCheckController.onPageLoad(NormalMode)
       }
     }
 

@@ -16,24 +16,16 @@
 
 package forms.imports
 
-import forms.behaviours.BooleanFieldBehaviours
-import play.api.data.FormError
+import forms.mappings.Mappings
+import play.api.data.Form
 
-class SadReferenceFormProviderSpec extends BooleanFieldBehaviours {
+import javax.inject.Inject
 
-  val requiredKey = "sadReference.error.required"
-  val invalidKey = "error.boolean"
+class SadReferenceCheckFormProvider @Inject() extends Mappings {
 
-  val form = new SadReferenceFormProvider()()
-
-  ".value" - {
-    val fieldName = "value"
-
-    behave like booleanField(
-      form,
-      fieldName,
-      FormError(fieldName, invalidKey)
+  def apply(): Form[Boolean] =
+    Form(
+      "value" -> boolean("sadReference.error.required")
     )
-  }
 
 }

@@ -19,15 +19,15 @@ package controllers.purchase
 import controllers.actions.*
 import forms.DescribeItemsFormProvider
 import models.requests.DataRequest
-import models.{CheckMode, Mode, UserAnswers}
+import models.*
 import navigation.Navigator
 import pages.*
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.ConfigPurchaseOrImportMapping
+import utils.{ConfigPurchaseOrImportMapping, CountryCode}
 import views.html.PurchaseOrImportDescribeItemsView
 
 import javax.inject.Inject
@@ -50,10 +50,23 @@ class DescribeItemsOnInvoiceController @Inject() (
 
   val form: Form[String] = formProvider("describeItemsOnInvoice")
 
+  private def backLink(answers: UserAnswers): Call = {
+    val subTypePageWasSkipped = CountryCode
+      .findCountryCode(answers)
+      .exists { country =>
+        val options = configPurchaseMapping.subcodesFor(country, Other.toString)
+        options.size == 1 && options.head._1.split("\\.").lastOption.contains("99")
+      }
+
+    if (subTypePageWasSkipped) routes.PurchaseTypeController.onPageLoad(NormalMode)
+    else routes.PurchaseSubTypeController.onPageLoad(PurchaseOrImportType.urlSlugForPurchaseType(Other), NormalMode)
+  }
+
   private def renderView(form: Form[String], mode: Mode)(implicit request: DataRequest[AnyContent]) =
     view(
       form,
       routes.DescribeItemsOnInvoiceController.onSubmit(mode),
+      backLink(request.userAnswers),
       "describeItemsOnInvoice",
       "purchase.caption",
       Some(messagesApi.preferred(request)("describeItemsOnInvoice.hint"))
