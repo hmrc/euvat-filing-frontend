@@ -22,6 +22,8 @@ import forms.DeleteClaimFormProvider
 import models.responses.ApplicationResponse
 import models.{RefundPeriod, UserAnswers}
 import org.mockito.ArgumentCaptor
+import services.DeleteClaimService
+import play.api.mvc.Results
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
@@ -91,15 +93,14 @@ class DeleteClaimControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to the management frontend when 'Yes' is submitted" in {
 
-      val mockSessionRepository = mock[SessionRepository]
+      val mockDeleteService = mock[DeleteClaimService]
 
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-      when(mockEuVatRefundsService.deleteApplication(any())(any())) thenReturn Future.successful(())
+      when(mockDeleteService.deleteAndRedirect(any())(any())) thenReturn Future.successful(Results.Redirect("/manage"))
 
       val application =
         applicationBuilder(userAnswers = Some(populatedAnswers))
           .overrides(
-            bind[SessionRepository].toInstance(mockSessionRepository)
+            bind[services.DeleteClaimService].toInstance(mockDeleteService)
           )
           .build()
 
@@ -108,18 +109,12 @@ class DeleteClaimControllerSpec extends SpecBase with MockitoSugar {
           FakeRequest(POST, deleteClaimRoute)
             .withFormUrlEncodedBody(("value", "true"))
 
-        val appConfig = application.injector.instanceOf[FrontendAppConfig]
-
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual appConfig.claimDashboardUrl
+        redirectLocation(result).value mustEqual "/manage"
 
-        verify(mockEuVatRefundsService).deleteApplication(any())(any())
-        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
-        verify(mockSessionRepository).set(captor.capture())
-        import play.api.libs.json.Json
-        captor.getValue.data mustBe Json.obj()
+        verify(mockDeleteService).deleteAndRedirect(any())(any())
       }
     }
 
