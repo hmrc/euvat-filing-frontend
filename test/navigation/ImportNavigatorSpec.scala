@@ -150,38 +150,36 @@ class ImportNavigatorSpec extends SpecBase {
 
       nav.nextPage(PurchaseTypePage, NormalMode, ua) mustBe
         purchaseRoutes.DescribeItemsOnInvoiceController.onPageLoad(NormalMode)
-
-      "must go from ImportDetailsInfoPage to ImportDateController in Normal Mode" in {
-        navigator.navigateFromImportDetailsInfoPage(NormalMode)(userAnswers) mustBe
-          controllers.imports.routes.ImportDateController.onPageLoad(NormalMode)
-      }
-
-      "must go from ImportDatePage to Journey Recovery in Normal Mode" in {
-        navigator.navigateFromImportDatePage(NormalMode)(userAnswers) mustBe
-          controllers.routes.JourneyRecoveryController.onPageLoad()
-      }
     }
 
+    "must go from ImportDetailsInfoPage to ImportDateController in Normal Mode" in {
+      navigator.navigateFromImportDetailsInfoPage(NormalMode)(userAnswers) mustBe
+        controllers.imports.routes.ImportDateController.onPageLoad(NormalMode)
+    }
 
+    "must go from ImportDatePage to Journey Recovery in Normal Mode" in {
+      navigator.navigateFromImportDatePage(NormalMode)(userAnswers) mustBe
+        controllers.routes.JourneyRecoveryController.onPageLoad()
+    }
+  }
 
-    "in Check mode" - {
-      "must go from ImportTypePage to JourneyRecovery in CheckMode when ImportType present but no country" in {
-        val ua = userAnswers.set(ImportTypePage, Fuel).success.value
-        navigator.navigateFromImportTypePage(CheckMode)(ua) mustBe
-          controllers.routes.JourneyRecoveryController.onPageLoad()
-      }
+  "in Check mode" - {
+    "must go from ImportTypePage to JourneyRecovery in CheckMode when ImportType present but no country" in {
+      val ua = userAnswers.set(ImportTypePage, Fuel).success.value
+      navigator.navigateFromImportTypePage(CheckMode)(ua) mustBe
+        controllers.routes.JourneyRecoveryController.onPageLoad()
+    }
 
-      "must go from ImportDetailsInfoPage to ImportDateController in Check Mode" in {
-        navigator.navigateFromImportDetailsInfoPage(CheckMode)(userAnswers) mustBe
-          controllers.imports.routes.ImportDateController.onPageLoad(CheckMode)
-      }
+    "must go from ImportDetailsInfoPage to ImportDateController in Check Mode" in {
+      navigator.navigateFromImportDetailsInfoPage(CheckMode)(userAnswers) mustBe
+        controllers.imports.routes.ImportDateController.onPageLoad(CheckMode)
+    }
 
-      "must go from ImportDatePage to Journey Recovery in Check Mode" in {
-        navigator.navigateFromImportDatePage(CheckMode)(userAnswers) mustBe
-          controllers.routes.JourneyRecoveryController.onPageLoad()
-      }
-
+    "must go from ImportDatePage to Journey Recovery in Check Mode" in {
+      navigator.navigateFromImportDatePage(CheckMode)(userAnswers) mustBe
+        controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
   }
+
 }

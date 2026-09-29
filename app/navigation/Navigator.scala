@@ -105,7 +105,7 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case ImportSubCodePage                 => _ => importRoutes.SadReferenceController.onPageLoad(CheckMode)
     case ImportSubCategoryPage             => userAnswers => importNavigator.navigateFromImportSubCategoryPage(CheckMode)(userAnswers)
     case ImportDetailsInfoPage             => userAnswers => importNavigator.navigateFromImportDetailsInfoPage(CheckMode)(userAnswers)
-     case ImportDatePage                    => userAnswers => importNavigator.navigateFromImportDatePage(CheckMode)(userAnswers)
+    case ImportDatePage                    => userAnswers => importNavigator.navigateFromImportDatePage(CheckMode)(userAnswers)
     case SadReferencePage =>
       userAnswers =>
         userAnswers.get(SadReferencePage) match {
