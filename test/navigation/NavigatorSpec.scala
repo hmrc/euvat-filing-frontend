@@ -212,13 +212,22 @@ class NavigatorSpec extends SpecBase {
           importRoutes.SadReferenceCheckController.onPageLoad(NormalMode)
       }
 
-      "must go from SadReferenceNumberPage to ImportCurrencyController" in {
-        navigator.nextPage(SadReferenceNumberPage, NormalMode, userAnswers) mustBe
+      "must go from SadReferenceNumberPage to ImportCurrencyController when the country requires currency selection" in {
+        val answers = userAnswers.set(RefundingCountryPage, "EE").success.value
+
+        navigator.nextPage(SadReferenceNumberPage, NormalMode, answers) mustBe
           importRoutes.ImportCurrencyController.onPageLoad(NormalMode)
       }
 
-      "must go from ImportCurrencyPage to JourneyRecoveryController" in {
-        navigator.nextPage(ImportCurrencyPage, NormalMode, userAnswers) mustBe
+      "must skip ImportCurrencyController from SadReferenceNumberPage when the country has one currency" in {
+        val answers = userAnswers.set(RefundingCountryPage, "AT").success.value
+
+        navigator.nextPage(SadReferenceNumberPage, NormalMode, answers) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from SadReferenceNumberPage to JourneyRecoveryController when no country is in session" in {
+        navigator.nextPage(SadReferenceNumberPage, NormalMode, userAnswers) mustBe
           controllers.routes.JourneyRecoveryController.onPageLoad()
       }
     }
@@ -273,8 +282,10 @@ class NavigatorSpec extends SpecBase {
           purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
       }
 
-      "must go from SadReferenceNumberPage to ImportCurrencyController" in {
-        navigator.nextPage(SadReferenceNumberPage, CheckMode, userAnswers) mustBe
+      "must go from SadReferenceNumberPage to ImportCurrencyController when the country requires currency selection" in {
+        val answers = userAnswers.set(RefundingCountryPage, "EE").success.value
+
+        navigator.nextPage(SadReferenceNumberPage, CheckMode, answers) mustBe
           importRoutes.ImportCurrencyController.onPageLoad(CheckMode)
       }
 

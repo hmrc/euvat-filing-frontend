@@ -66,7 +66,7 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case DescribeItemsOnImportDocPage      => _ => importRoutes.SadReferenceCheckController.onPageLoad(NormalMode)
     case SadReferenceCheckPage             => userAnswers => importNavigator.navigateFromSadReferenceCheckPage(NormalMode)(userAnswers)
     case SadReferenceNumberPage            => _ => importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode) // TODO: import date page goes here
-    case ImportDetailsInfoPage            => _ => importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode)
+    case ImportDetailsInfoPage             => _ => importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode)
     case ImportSuppliersNamePage           => _ => importRoutes.ImportCurrencyController.onPageLoad(NormalMode)
     case ImportCurrencyPage                => _ => controllers.routes.JourneyRecoveryController.onPageLoad()// TODO link to import date
     case _                                 => _ => controllers.routes.IndexController.onPageLoad()
