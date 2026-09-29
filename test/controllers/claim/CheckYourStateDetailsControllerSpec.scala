@@ -23,6 +23,8 @@ import models.responses.ApplicationResponse
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
+import services.DeleteClaimService
+import play.api.mvc.Results
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
@@ -86,10 +88,9 @@ class CheckYourStateDetailsControllerSpec extends SpecBase with MockitoSugar {
 
     "must call delete and redirect to the management frontend when 'Yes' is submitted" in {
 
-      val mockSessionRepository = mock[SessionRepository]
+      val mockDeleteService = mock[DeleteClaimService]
 
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-      when(mockEuVatRefundsService.deleteApplication(any())(any())) thenReturn Future.successful(())
+      when(mockDeleteService.deleteAndRedirect(any())(any())) thenReturn Future.successful(Results.Redirect("/manage"))
 
       val populatedAnswers = emptyUserAnswers
         .set(ClaimApplicationResponseQuery, ApplicationResponse(123, "APP123", 1))
@@ -100,7 +101,7 @@ class CheckYourStateDetailsControllerSpec extends SpecBase with MockitoSugar {
         applicationBuilder(userAnswers = Some(populatedAnswers))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository)
+            bind[DeleteClaimService].toInstance(mockDeleteService)
           )
           .build()
 
@@ -109,17 +110,12 @@ class CheckYourStateDetailsControllerSpec extends SpecBase with MockitoSugar {
           FakeRequest(POST, checkYourStateDetailsRoute)
             .withFormUrlEncodedBody(("value", "true"))
 
-        val appConfig = application.injector.instanceOf[FrontendAppConfig]
-
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual appConfig.claimDashboardUrl
+        redirectLocation(result).value mustEqual "/manage"
 
-        verify(mockEuVatRefundsService).deleteApplication(any())(any())
-        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
-        verify(mockSessionRepository).set(captor.capture())
-        captor.getValue.data mustBe Json.obj()
+        verify(mockDeleteService).deleteAndRedirect(any())(any())
       }
     }
 

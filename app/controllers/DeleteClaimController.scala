@@ -27,7 +27,7 @@ import play.api.data.Form
 import play.api.i18n.{I18nSupport, Lang, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
-import services.EuVatRefundsService
+import services.{DeleteClaimService, EuVatRefundsService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -46,7 +46,7 @@ class DeleteClaimController @Inject() (
   requireData: DataRequiredAction,
   formProvider: DeleteClaimFormProvider,
   appConfig: FrontendAppConfig,
-  euVatRefundsService: EuVatRefundsService,
+  deleteClaimService: DeleteClaimService,
   val controllerComponents: MessagesControllerComponents,
   view: DeleteClaimView
 )(implicit ec: ExecutionContext)
@@ -86,29 +86,7 @@ class DeleteClaimController @Inject() (
         value =>
           if (value) {
             implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-
-            val maybeApp = request.userAnswers.get(queries.ClaimApplicationResponseQuery)
-
-            maybeApp match {
-              case Some(appResp) => {
-                val seqNumber = request.userAnswers.get(queries.UpdateSequenceNumberQuery).getOrElse(appResp.updateSeqNumber)
-                val deleteReq = DeleteApplicationRequest(appResp.applicationId, seqNumber)
-
-                euVatRefundsService
-                  .deleteApplication(deleteReq)
-                  .flatMap { _ =>
-                    val cleared = request.userAnswers.clear()
-                    sessionRepository.set(cleared).map(_ => Redirect(appConfig.claimDashboardUrl))
-                  }
-                  .recover { case ex =>
-                    logger.error("Error deleting claim", ex)
-                    Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-                  }
-              }
-              case None =>
-                logger.warn("Missing applicationId for delete-claim")
-                Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-            }
+            deleteClaimService.deleteAndRedirect(request.userAnswers)
           } else {
             Future.successful(Redirect(controllers.routes.TaskListDashboardController.onPageLoad()))
           }

@@ -22,7 +22,7 @@ import pages.*
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import queries.{ClaimApplicationResponseQuery, InvoiceNumberFlagQuery}
+import queries.{ClaimApplicationResponseQuery, InvoiceNumberFlagQuery, UpdateSequenceNumberQuery}
 import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -170,7 +170,7 @@ class CheckYourPurchaseDetailsController @Inject() (
             val updatedAddResp = AddPurchaseResponse(itemNumber = addResp.itemNumber, updateSequenceNumber = resp.updateSequenceNumber)
             for {
               updatedAnswers1 <- Future.fromTry(request.userAnswers.set(AddPurchaseResponsePage, updatedAddResp))
-              updatedAnswers2 <- Future.fromTry(updatedAnswers1.set(queries.UpdateSequenceNumberQuery, resp.updateSequenceNumber))
+              updatedAnswers2 <- Future.fromTry(updatedAnswers1.set(UpdateSequenceNumberQuery, resp.updateSequenceNumber))
               _               <- sessionRepository.set(updatedAnswers2)
             } yield Redirect(controllers.routes.TaskListDashboardController.onPageLoad())
           }

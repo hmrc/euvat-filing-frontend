@@ -24,7 +24,7 @@ import pages.*
 import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.*
-import queries.ClaimApplicationResponseQuery
+import queries.{ClaimApplicationResponseQuery, UpdateSequenceNumberQuery}
 import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -101,7 +101,7 @@ class CheckYourClaimDetailsController @Inject() (
     for {
       claimResponse   <- service.createApplication(appRequest)
       updatedAnswers1 <- Future.fromTry(userAnswers.set(ClaimApplicationResponseQuery, claimResponse))
-      updatedAnswers2 <- Future.fromTry(updatedAnswers1.set(queries.UpdateSequenceNumberQuery, claimResponse.updateSeqNumber))
+      updatedAnswers2 <- Future.fromTry(updatedAnswers1.set(UpdateSequenceNumberQuery, claimResponse.updateSeqNumber))
       _               <- sessionRepository.set(updatedAnswers2)
     } yield {
       if (claimResponse.applicationId > 0) {
