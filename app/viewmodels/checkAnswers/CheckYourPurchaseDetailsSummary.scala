@@ -24,10 +24,9 @@ import play.api.mvc.RequestHeader
 import utils.{ConfigPurchaseMapping, MountPrefix}
 
 object CheckYourPurchaseDetailsSummary {
-
   type Row = (String, Option[String], Seq[(String, String, String)])
 
-  def rowPurchaseType(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
+  private def rowPurchaseType(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
     answers.get(PurchaseTypePage).map { pt =>
       val value = messages(s"purchaseType.${pt.toString}")
       val url = routes.PurchaseTypeController.onPageLoad(CheckMode).url
@@ -38,7 +37,7 @@ object CheckYourPurchaseDetailsSummary {
       )
     }
 
-  def rowPurchaseSubTypeLabel(answers: UserAnswers, config: ConfigPurchaseMapping)(implicit messages: Messages): Option[Row] = {
+  private def rowPurchaseSubTypeLabel(answers: UserAnswers, config: ConfigPurchaseMapping)(implicit messages: Messages): Option[Row] = {
     answers.get(PurchaseTypePage) match {
       case None => None
       case Some(pt) =>
@@ -92,7 +91,7 @@ object CheckYourPurchaseDetailsSummary {
     Some((keyLabel, displayValueOpt, Seq((url, "site.change", "purchase.subType.change.hidden"))))
   }
 
-  def rowPurchaseSubCategoryLabel(answers: UserAnswers)(implicit messages: Messages, request: RequestHeader): Option[Row] =
+  private def rowPurchaseSubCategoryLabel(answers: UserAnswers)(implicit messages: Messages, request: RequestHeader): Option[Row] =
     for {
       pt    <- answers.get(PurchaseTypePage)
       code  <- answers.get(PurchaseSubCategoryPage)
@@ -125,7 +124,7 @@ object CheckYourPurchaseDetailsSummary {
       (keyLabel, Some(displayValue), Seq((url, "site.change", "purchase.subCategory.change.hidden")))
     }
 
-  def rowInvoiceType(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
+  private def rowInvoiceType(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
     answers.get(InvoiceTypePage).map { it =>
       val url = routes.InvoiceTypeController.onPageLoad(CheckMode).url
       val parts = it.toString.split("\\s+").toSeq.filter(_.nonEmpty)
@@ -144,13 +143,13 @@ object CheckYourPurchaseDetailsSummary {
       (messages("invoiceType.checkYourAnswersLabel"), Some(display), Seq((url, "site.change", "invoiceType.change.hidden")))
     }
 
-  def rowInvoiceNumber(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
+  private def rowInvoiceNumber(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
     answers.get(InvoiceNumberPage).map { num =>
       val url = routes.InvoiceNumberController.onPageLoad(CheckMode).url
       (messages("invoiceNumber.checkYourAnswersLabel"), Some(num), Seq((url, "site.change", "invoiceNumber.change.hidden")))
     }
 
-  def rowInvoiceDate(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
+  private def rowInvoiceDate(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
     answers.get(InvoiceDatePage).map { date =>
       val url = routes.InvoiceDateController.onPageLoad(CheckMode).url
       implicit val lang: Lang = messages.lang
@@ -160,27 +159,27 @@ object CheckYourPurchaseDetailsSummary {
       )
     }
 
-  def rowDescribeItems(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
+  private def rowDescribeItems(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
     answers.get(DescribeItemsOnInvoicePage).map { desc =>
       val url = routes.DescribeItemsOnInvoiceController.onPageLoad(CheckMode).url
       val display = if (desc == null || desc.trim.isEmpty) messages("site.notProvided") else desc
       (messages("describeItemsOnInvoice.checkYourAnswersLabel"), Some(display), Seq((url, "site.change", "describeItemsOnInvoice.change.hidden")))
     }
 
-  def rowSupplierName(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
+  private def rowSupplierName(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
     answers.get(SuppliersNamePage).map { name =>
       val url = routes.SuppliersNameController.onPageLoad(CheckMode).url
       (messages("suppliersName.checkYourAnswersLabel"), Some(name), Seq((url, "site.change", "suppliersName.change.hidden")))
     }
 
-  def rowSupplierAddress(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
+  private def rowSupplierAddress(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
     answers.get(SupplierAddressPage).map { addr =>
       val url = routes.SupplierAddressController.onPageLoad(CheckMode).url
       val lines = Seq(Some(addr.line1), addr.line2, addr.line3).flatten.mkString("<br>")
       (messages("supplierAddress.checkYourAnswersLabel"), Some(lines), Seq((url, "site.change", "supplierAddress.change.hidden")))
     }
 
-  def rowSupplierVatRegCheck(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
+  private def rowSupplierVatRegCheck(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
     answers.get(SimplifiedInvoiceVatRegCheckPage).map { v =>
       val url = routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(CheckMode).url
       (messages("simplifiedInvoiceVatRegCheck.checkYourAnswersLabel"),
@@ -189,7 +188,7 @@ object CheckYourPurchaseDetailsSummary {
       )
     }
 
-  def rowSupplierVatRegNumber(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
+  private def rowSupplierVatRegNumber(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
     answers.get(SupplierVatRegistrationNumberPage).map { num =>
       val url = routes.SupplierVatRegistrationNumberController.onPageLoad(CheckMode).url
       (messages("supplierVatRegistrationNumber.checkYourAnswersLabel"),
@@ -198,7 +197,7 @@ object CheckYourPurchaseDetailsSummary {
       )
     }
 
-  def rowSupplierTaxIdentifierNumber(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
+  private def rowSupplierTaxIdentifierNumber(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
     answers.get(SupplierTaxIdentifierNumberPage).map { num =>
       val url = routes.SupplierTaxIdentifierNumberController.onPageLoad(CheckMode).url
       (messages("supplierTaxIdentifierNumber.checkYourAnswersLabel"),
@@ -207,7 +206,7 @@ object CheckYourPurchaseDetailsSummary {
       )
     }
 
-  def rowCurrency(displayName: Option[String])(implicit messages: Messages): Option[Row] =
+  private def rowCurrency(displayName: Option[String])(implicit messages: Messages): Option[Row] =
     displayName.map { name =>
       val url = routes.RefundingCurrencyController.onPageLoad(CheckMode).url
       (messages("checkYourPurchaseDetails.refundingCurrency.label"),
@@ -216,7 +215,7 @@ object CheckYourPurchaseDetailsSummary {
       )
     }
 
-  def rowAmountBeforeVat(answers: UserAnswers, maybeSymbol: Option[String])(implicit messages: Messages): Option[Row] =
+  private def rowAmountBeforeVat(answers: UserAnswers, maybeSymbol: Option[String])(implicit messages: Messages): Option[Row] =
     answers.get(TotalPurchaseAmountBeforeVatPage).map { amt =>
       val url = routes.TotalPurchaseAmountBeforeVatController.onPageLoad(CheckMode).url
       val formattedNumber = f"$amt%,1.2f".replace(".00", "")
@@ -227,7 +226,7 @@ object CheckYourPurchaseDetailsSummary {
       )
     }
 
-  def rowVatPaid(answers: UserAnswers, maybeSymbol: Option[String])(implicit messages: Messages): Option[Row] =
+  private def rowVatPaid(answers: UserAnswers, maybeSymbol: Option[String])(implicit messages: Messages): Option[Row] =
     answers.get(pages.TotalVatPaidPage).map { amt =>
       val url = routes.TotalVatPaidController.onPageLoad(CheckMode).url
       val formattedNumber = f"$amt%,1.2f".replace(".00", "")
@@ -235,7 +234,7 @@ object CheckYourPurchaseDetailsSummary {
       (messages("totalVatPaid.checkYourAnswersLabel"), Some(display), Seq((url, "site.change", "totalVatPaid.change.hidden")))
     }
 
-  def rowVatClaim(answers: UserAnswers, maybeSymbol: Option[String])(implicit messages: Messages): Option[Row] =
+  private def rowVatClaim(answers: UserAnswers, maybeSymbol: Option[String])(implicit messages: Messages): Option[Row] =
     answers.get(TotalVatClaimPage).map { amt =>
       val url = routes.TotalVatClaimController.onPageLoad(CheckMode).url
       val formattedNumber = f"$amt%,1.2f".replace(".00", "")
@@ -243,7 +242,7 @@ object CheckYourPurchaseDetailsSummary {
       (messages("totalVatClaim.checkYourAnswersLabel"), Some(display), Seq((url, "site.change", "totalVatClaim.change.hidden")))
     }
 
-  def rowSupplierTaxNumbers(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
+  private def rowSupplierTaxNumbers(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
     answers
       .get(SupplierVatRegistrationNumberPage)
       .map { _num =>

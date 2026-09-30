@@ -17,16 +17,25 @@
 package controllers
 
 import controllers.actions.*
-import forms.PurchaseOrImportFormProvider
-import models.PurchaseOrImport
-import pages.PurchaseOrImportPage
+import forms.PurchaseImportSummaryFormProvider
+import models.requests.{DataRequest, PurchaseImportListRequest}
+import models.{PurchaseImport, UserAnswers}
+import navigation.Navigator
+import pages.PurchaseImportSummaryPage
+import play.api.Logging
 import play.api.data.Form
-
-import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import queries.ClaimApplicationResponseQuery
+import repositories.SessionRepository
+import services.EuVatRefundsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.CurrencyConfig
+import viewmodels.checkAnswers.PurchaseImportListSummary
 import views.html.PurchaseImportSummaryView
+
+import javax.inject.Inject
+import scala.concurrent.Future
 
 class PurchaseImportSummaryController @Inject() (
   override val messagesApi: MessagesApi,
@@ -34,15 +43,63 @@ class PurchaseImportSummaryController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   val controllerComponents: MessagesControllerComponents,
-  formProvider: PurchaseOrImportFormProvider,
-  view: PurchaseImportSummaryView
+  formProvider: PurchaseImportSummaryFormProvider,
+  view: PurchaseImportSummaryView,
+  currencyConfig: CurrencyConfig,
+  sessionRepository: SessionRepository,
+  navigator: Navigator,
+  service: EuVatRefundsService
 ) extends FrontendBaseController
+    with Logging
     with I18nSupport {
 
-  val form: Form[PurchaseOrImport] = formProvider()
+  val form: Form[Boolean] = formProvider()
+  implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = request.userAnswers.get(PurchaseOrImportPage).fold(form)(form.fill)
-    Ok(view(preparedForm))
+  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+    val userAnswers = request.userAnswers
+    val preparedForm = userAnswers.get(PurchaseImportSummaryPage).fold(form)(form.fill)
+    retrieveSummaryList(userAnswers).map {
+      case (responseList: List[PurchaseImport], totalClaim: BigDecimal) =>
+        val summaryListRows = PurchaseImportListSummary.rows(userAnswers, responseList, currencyConfig.currencyConfig)
+        Ok(view(preparedForm, summaryListRows, responseList.size, totalClaim))
+      case _ =>
+        logger.warn("No records found in database")
+        Redirect(routes.JourneyRecoveryController.onPageLoad())
+    }
   }
+
+  private def retrieveSummaryList(userAnswers: UserAnswers)(implicit request: DataRequest[?]) = {
+    userAnswers.get(ClaimApplicationResponseQuery).map(_.applicationId) match {
+      case Some(appId) =>
+        service
+          .getPurchaseImportList(PurchaseImportListRequest(appId))
+          .map(response => {
+            val totalClaim = response.purchaseImportList.map(_.deductibleVatAmount).sum
+            (response.purchaseImportList, totalClaim)
+          })
+      case _ =>
+        logger.warn("Missing or invalid applicationId")
+        Future.successful(Seq.empty, BigDecimal(0))
+    }
+  }
+
+  def onSubmit: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+    form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, Seq.empty, 0, BigDecimal(0)))),
+        value =>
+          for {
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(PurchaseImportSummaryPage, value))
+            _              <- sessionRepository.set(updatedAnswers)
+          } yield
+            if (value) {
+              Redirect(routes.PurchaseOrImportController.onPageLoad)
+            } else {
+              Redirect(routes.JourneyRecoveryController.onPageLoad()) // TODO - redirect to CYA page
+            }
+      )
+  }
+
 }

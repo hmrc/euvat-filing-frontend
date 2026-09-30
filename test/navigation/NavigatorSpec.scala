@@ -94,8 +94,9 @@ class NavigatorSpec extends SpecBase {
           claimRoutes.BusinessActivityThreeController.onPageLoad()
       }
 
-      "must go from PurchaseOrImportPage to PurchaseTypeController" in {
-        navigator.nextPage(PurchaseOrImportPage, NormalMode, userAnswers) mustBe
+      "must go from PurchaseOrImportPage to ImportTypeController when Import selected" in {
+        val ua = userAnswers.set(PurchaseOrImportPage, PurchaseOrImport.Purchase).success.value
+        navigator.nextPage(PurchaseOrImportPage, NormalMode, ua) mustBe
           purchaseRoutes.PurchaseTypeController.onPageLoad(NormalMode)
       }
 

@@ -18,8 +18,9 @@ package base
 
 import controllers.actions.*
 import models.UserAnswers
-import models.responses.{LatestApplicationResponse, TraderKnownFactsResponse}
+import models.responses.{LatestApplicationResponse, PurchaseImportListResponse, TraderKnownFactsResponse}
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
@@ -56,13 +57,16 @@ trait SpecBase
 
   override protected def beforeEach(): Unit = {
     super.beforeEach()
-    org.mockito.Mockito.reset(mockEuVatRefundsService)
-    org.mockito.Mockito.reset(mockSessionRepository)
+    Mockito.reset(mockSessionRepository)
+    Mockito.reset(mockEuVatRefundsService)
+
+    when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
     when(mockEuVatRefundsService.retrieveTraderKnownFacts()(any()))
       .thenReturn(Future.successful(TraderKnownFactsResponse(vatRegNumber = 999900106, traderName = None, tradeClass = None)))
     when(mockEuVatRefundsService.getLatestApplications(any())(any()))
       .thenReturn(Future.successful(LatestApplicationResponse(applications = List.empty, totalApplication = 0)))
-    when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+    when(mockEuVatRefundsService.getPurchaseImportList(any())(any()))
+      .thenReturn(Future.successful(PurchaseImportListResponse(totalItems = 0, purchaseImportList = Nil)))
   }
 
   def messages(app: Application): Messages = app.injector.instanceOf[MessagesApi].preferred(FakeRequest())

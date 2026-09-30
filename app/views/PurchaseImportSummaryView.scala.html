@@ -21,12 +21,12 @@
     layout: templates.Layout,
     formHelper: FormWithCSRF,
     govukButton: GovukButton,
-    govukSummaryList : GovukSummaryList,
+    govukSummaryList: GovukSummaryList,
     govukRadios: GovukRadios,
     govukDetails : GovukDetails
 )
 
-@(form: play.api.data.Form[_])(implicit request: Request[_], messages: Messages)
+@(form: play.api.data.Form[_], summaryList: Seq[SummaryListRow], numberOfItems: Int, totalClaim: BigDecimal)(implicit request: Request[_], messages: Messages)
 @content = {
     <p class = "govuk-body">@messages("purchaseImportSummary.details.list")</p>
     <ul class = "govuk-list govuk-list--bullet">
@@ -35,59 +35,20 @@
     </ul>
 }
 
-@layout(pageTitle = titleNoForm(messages("purchaseImportSummary.title")), showBackLink = false, useFullGrid = true) {
-    @formHelper(action = controllers.claim.routes.RefundingLanguageController.onSubmit(CheckMode), Symbol("autoComplete") -> "off") {
+@layout(pageTitle = titleNoForm(messages("purchaseImportSummary.title", numberOfItems)), showBackLink = false, useFullGrid = true) {
+    @formHelper(action = controllers.routes.PurchaseImportSummaryController.onSubmit, Symbol("autoComplete") -> "off") {
         <h1 class="govuk-heading-l">
             <span class="govuk-caption-l">@messages("purchaseImportSummary.caption")</span>
-            @messages("purchaseImportSummary.heading")
+            @messages("purchaseImportSummary.heading", numberOfItems)
         </h1>
-        <p class = "govuk-body">@messages("purchaseImportSummary.p1")</p>
+        <p class = "govuk-body">@messages("purchaseImportSummary.p1", totalClaim)</p>
 
         @govukDetails(Details(
             summary = Text(messages("purchaseImportSummary.details.summary")),
             content = HtmlContent(content)
         ))
 
-        @govukSummaryList(SummaryList(
-            rows = Seq(
-                SummaryListRow(
-                    key = Key(content = Text("Purchase")),
-                    value = Value(content = Text("53 VAT claim")),
-                    actions = Some(Actions(
-                        items = Seq(
-                            ActionItem(
-                                href = "#",
-                                content = Text("Change"),
-                                visuallyHiddenText = Some("Purchase")
-                            ),
-                            ActionItem(
-                                href = "#",
-                                content = Text("Remove"),
-                                visuallyHiddenText = Some("Purchase")
-                            )
-                        )
-                    ))
-                ),
-                SummaryListRow(
-                    key = Key(content = Text("Import")),
-                    value = Value(content = Text("48 VAT claim")),
-                    actions = Some(Actions(
-                        items = Seq(
-                            ActionItem(
-                                href = "#",
-                                content = Text("Change"),
-                                visuallyHiddenText = Some("Import")
-                            ),
-                            ActionItem(
-                                href = "#",
-                                content = Text("Remove"),
-                                visuallyHiddenText = Some("Import")
-                            )
-                        )
-                    ))
-                )
-            )
-        ))
+        @govukSummaryList(SummaryList(rows = summaryList))
 
         @govukRadios(
             RadiosViewModel(
@@ -97,7 +58,7 @@
                     RadioItem(id = Some("value"), value = Some("true"), content = Text(messages("site.yes"))),
                     RadioItem(id = Some("value"), value = Some("false"), content = Text(messages("site.no")))
                 )
-            ).withHint(HintViewModel(messages("purchaseImportSummary.hint")))
+            )
         )
 
         @govukButton(ButtonViewModel(messages("site.continue")))

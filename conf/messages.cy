@@ -485,6 +485,19 @@ describeItemsOnInvoice.error.length = Item description must be 255 characters or
 describeItemsOnInvoice.checkYourAnswersLabel = Purchase description
 describeItemsOnInvoice.change.hidden = Change purchase description
 
+purchaseImportSummary.title = You have added {0} items to this claim
+purchaseImportSummary.heading = You have added {0} items to this claim
+purchaseImportSummary.caption = Purchases and imports
+purchaseImportSummary.p1 = The total amount of VAT you are claiming on this application is {0}.
+purchaseImportSummary.details.summary = Minimum VAT claim limits
+purchaseImportSummary.details.list = The minimum amount for a claim is:
+purchaseImportSummary.details.list1 = €400 (or the national currency equal) if your application is for 3 months or more
+purchaseImportSummary.details.list2 = €50 (or the national currency equal) if your application is less than 3 months
+purchaseImportSummary.add.item = Do you need to add another item?
+purchaseImportSummary.change.hidden = Change {0} with a VAT claim of {1}
+purchaseImportSummary.remove.hidden = Remove {0} with a VAT claim of {1}
+purchaseImportSummary.error.required = Select yes if you need to add another item
+
 # Warning messages
 confirmRefundPeriodStartDate.title = Are you sure the refund period start date is correct?
 confirmRefundPeriodStartDate.heading = Are you sure the refund period start date is correct?

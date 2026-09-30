@@ -17,25 +17,120 @@
 package controllers
 
 import base.SpecBase
+import forms.PurchaseImportSummaryFormProvider
+import models.PurchaseImport
+import models.responses.{ApplicationResponse, PurchaseImportListResponse}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import pages.PurchaseImportSummaryPage
+import play.api.data.Form
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import views.html.PurchaseImportSummaryView
+import queries.ClaimApplicationResponseQuery
+import repositories.SessionRepository
+import services.EuVatRefundsService
+
+import scala.concurrent.Future
 
 class PurchaseImportSummaryControllerSpec extends SpecBase {
+  val formProvider = new PurchaseImportSummaryFormProvider()
+  val form: Form[Boolean] = formProvider()
 
   "PurchaseImportSummary Controller" - {
+    val purchaseImportResponse = PurchaseImportListResponse(
+      totalItems = 2,
+      purchaseImportList = List(
+        PurchaseImport(
+          itemNumber                  = 123,
+          itemType                    = "P",
+          goodsDescriptionCategory    = "1",
+          goodsDescriptionSubCategory = Some("1.2.3"),
+          currencyCode                = Some("EU"),
+          taxableAmount               = BigDecimal(300),
+          vatAmount                   = BigDecimal(200),
+          deductibleVatAmount         = BigDecimal(100)
+        ),
+        PurchaseImport(
+          itemNumber                  = 456,
+          itemType                    = "I",
+          goodsDescriptionCategory    = "7",
+          goodsDescriptionSubCategory = Some("7.9"),
+          currencyCode                = Some("EU"),
+          taxableAmount               = BigDecimal(456),
+          vatAmount                   = BigDecimal(345),
+          deductibleVatAmount         = BigDecimal(234)
+        )
+      )
+    )
 
-//    "must return OK and the correct view for a GET" in {
-//      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-//
-//      running(application) {
-//        val request = FakeRequest(GET, controllers.routes.PurchaseImportSummaryController.onPageLoad.url)
-//        val result = route(application, request).value
-//        val view = application.injector.instanceOf[PurchaseImportSummaryView]
-//
-//        status(result) mustEqual OK
-//        contentAsString(result) mustEqual view()(request, messages(application)).toString
-//      }
-//    }
+    "return OK on page load" in {
+      val userAnswers = emptyUserAnswers.set(ClaimApplicationResponseQuery, ApplicationResponse(111, "App1", 1)).success.value
+      when(mockEuVatRefundsService.getPurchaseImportList(any())(any())).thenReturn(Future.successful(purchaseImportResponse))
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.PurchaseImportSummaryController.onPageLoad.url)
+        val result = route(application, request).value
+        status(result) mustEqual OK
+      }
+    }
+
+    "redirect to PurchaseOrImportController when user selects yes" in {
+      when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+      val userAnswers = emptyUserAnswers.set(PurchaseImportSummaryPage, true).success.value
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.PurchaseImportSummaryController.onSubmit.url).withFormUrlEncodedBody(
+          "value" -> "true"
+        )
+        val result = route(application, request).value
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.PurchaseOrImportController.onPageLoad.url
+      }
+    }
+
+    "redirect to JourneyRecoveryController when user selects no" in {
+      when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request =
+          FakeRequest(
+            POST,
+            routes.PurchaseImportSummaryController.onSubmit.url
+          ).withFormUrlEncodedBody(
+            "value" -> "false"
+          )
+        val result = route(application, request).value
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual
+          routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "return BAD_REQUEST when no answer is submitted" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .build()
+
+      running(application) {
+        val request =
+          FakeRequest(
+            POST,
+            routes.PurchaseImportSummaryController.onSubmit.url
+          )
+
+        val result = route(application, request).value
+        status(result) mustEqual BAD_REQUEST
+      }
+    }
+
   }
 }
