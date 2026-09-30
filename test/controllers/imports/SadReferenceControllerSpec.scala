@@ -58,7 +58,7 @@ class SadReferenceControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Journey Recovery when 'yes' is submitted" in {
+    "must redirect to Sad Reference Number when yes is selected" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {

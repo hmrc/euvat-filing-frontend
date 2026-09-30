@@ -333,14 +333,6 @@ supplierVatRegistrationNumber.error.length = Supplier’s VAT registration numbe
 supplierVatRegistrationNumber.checkYourAnswersLabel = Supplier VAT registration number
 supplierVatRegistrationNumber.change.hidden = Change supplier VAT registration number
 
-supplierVrnWarning.title = Are you sure the supplier’s VAT registration number is correct?
-supplierVrnWarning.heading = Are you sure the supplier’s VAT registration number is correct?
-supplierVrnWarning.p = You’ve already made a claim with the same supplier’s VAT registration number and invoice number. Use a different supplier’s VAT registration number or invoice number for this claim.
-supplierVrnWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
-supplierVrnWarning.changeVRN = Change supplier’s VAT registration number
-supplierVrnWarning.changeInvoiceNo = Change invoice number
-supplierVrnWarning.correct = Yes, this is correct
-
 supplierTaxIdentifierNumber.title = What is the supplier’s tax identifier number?
 supplierTaxIdentifierNumber.heading = What is the supplier’s tax identifier number?
 supplierTaxIdentifierNumber.hint = This is 10 or 11 digits, for example 12/345/67890
@@ -511,6 +503,28 @@ importSubCode.other.title = What other category best describes the item?
 importSubCode.other.heading = What other category best describes the item?
 importSubCode.other.error.required = Select the type of import
 
+singleAdministrativeDocumentReferenceNumberAvailable.title = Do you have a Single Administrative Document (SAD) reference number?
+singleAdministrativeDocumentReferenceNumberAvailable.heading = Do you have a Single Administrative Document (SAD) reference number?
+singleAdministrativeDocumentReferenceNumberAvailable.hint = You can usually find this at the top of the import document
+sadReference.error.required = Select yes if you have the Single Administrative Document (SAD) reference number
+singleAdministrativeDocumentReferenceNumberAvailable.error.required = Select yes if you have the Single Administrative Document (SAD) reference number
+
+sadReferenceNumber.title = What is your Single Administrative Document (SAD) reference number?
+sadReferenceNumber.heading = What is your Single Administrative Document (SAD) reference number?
+sadReferenceNumber.hint = Enter your SAD reference number in the correct format
+sadReferenceNumber.error.required = Enter your SAD reference number
+sadReferenceNumber.error.invalid = Enter your SAD reference number in the correct format
+sadReferenceNumber.error.length = SAD reference number must be 18 characters or less
+
+importDetailsInfo.title = Import document information
+importDetailsInfo.heading = Import document information
+importDetailsInfo.p1 = You must provide the:
+importDetailsInfo.bullet1 = port of import
+importDetailsInfo.bullet2 = document reference number
+importDetailsInfo.label = Enter import document details
+importDetailsInfo.error.required = Enter import document details
+importDetailsInfo.error.length = Import document details must be 255 characters or less
+
 # Warning messages
 confirmRefundPeriodStartDate.title = Are you sure the refund period start date is correct?
 confirmRefundPeriodStartDate.heading = Are you sure the refund period start date is correct?
@@ -540,6 +554,14 @@ purchaseWarning.warning = If you submit a claim with inaccurate information, it 
 purchaseWarning.correct = Yes, this is correct
 purchaseWarning.backLink = No, change the purchase details
 
+supplierVrnWarning.title = Are you sure the supplier’s VAT registration number is correct?
+supplierVrnWarning.heading = Are you sure the supplier’s VAT registration number is correct?
+supplierVrnWarning.p = You’ve already made a claim with the same supplier’s VAT registration number and invoice number. Use a different supplier’s VAT registration number or invoice number for this claim.
+supplierVrnWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
+supplierVrnWarning.changeVRN = Change supplier’s VAT registration number
+supplierVrnWarning.changeInvoiceNo = Change invoice number
+supplierVrnWarning.correct = Yes, this is correct
+
 supplierTaxIdentifierWarning.title = Are you sure the supplier’s tax identifier number is correct?
 supplierTaxIdentifierWarning.heading = Are you sure the supplier’s tax identifier number is correct?
 supplierTaxIdentifierWarning.p = You’ve already made a claim with the same supplier’s tax identifier and invoice number. Use a different supplier’s tax identifier or invoice number for this claim.
@@ -562,24 +584,4 @@ vatClaimWarning.warning = If you submit a claim with inaccurate information, it 
 vatClaimWarning.yes = Yes, this is correct
 vatClaimWarning.no = No, change the VAT claim amount
 
-singleAdministrativeDocumentReferenceNumberAvailable.title = Do you have a Single Administrative Document (SAD) reference number?
-singleAdministrativeDocumentReferenceNumberAvailable.heading = Do you have a Single Administrative Document (SAD) reference number?
-singleAdministrativeDocumentReferenceNumberAvailable.hint = You can usually find this at the top of the import document
-sadReference.error.required = Select yes if you have the Single Administrative Document (SAD) reference number
-singleAdministrativeDocumentReferenceNumberAvailable.error.required = Select yes if you have the Single Administrative Document (SAD) reference number
 
-sadReferenceNumber.title = What is your Single Administrative Document (SAD) reference number?
-sadReferenceNumber.heading = What is your Single Administrative Document (SAD) reference number?
-sadReferenceNumber.hint = Enter your SAD reference number in the correct format
-sadReferenceNumber.error.required = Enter your SAD reference number
-sadReferenceNumber.error.invalid = Enter your SAD reference number in the correct format
-sadReferenceNumber.error.length = SAD reference number must be 18 characters or less
-
-importDetailsInfo.title = Import document information
-importDetailsInfo.heading = Import document information
-importDetailsInfo.p1 = You must provide the:
-importDetailsInfo.bullet1 = port of import
-importDetailsInfo.bullet2 = document reference number
-importDetailsInfo.label = Enter import document details
-importDetailsInfo.error.required = Enter import document details
-importDetailsInfo.error.length = Import document details must be 255 characters or less
