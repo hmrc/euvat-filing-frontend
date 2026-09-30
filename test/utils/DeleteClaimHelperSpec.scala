@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package services
+package utils
 
 import base.SpecBase
 import config.FrontendAppConfig
@@ -26,13 +26,13 @@ import org.mockito.Mockito.{verify, when}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
-import play.api.test.Helpers.*
+import play.api.test.Helpers._
 import queries.{ClaimApplicationResponseQuery, UpdateSequenceNumberQuery}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class DeleteClaimServiceSpec extends SpecBase with MockitoSugar with ScalaFutures {
+class DeleteClaimHelperSpec extends SpecBase with MockitoSugar with ScalaFutures {
 
   implicit val ec: ExecutionContext = ExecutionContext.global
   implicit val hc: HeaderCarrier = HeaderCarrier()
@@ -40,9 +40,9 @@ class DeleteClaimServiceSpec extends SpecBase with MockitoSugar with ScalaFuture
   val mockConfig: FrontendAppConfig = mock[FrontendAppConfig]
   when(mockConfig.claimDashboardUrl).thenReturn("/manage")
 
-  val service = new DeleteClaimService(mockEuVatRefundsService, mockSessionRepository, mockConfig)
+  val helper = new DeleteClaimHelper(mockEuVatRefundsService, mockSessionRepository, mockConfig)
 
-  "DeleteClaimService.deleteAndRedirect" - {
+  "DeleteClaimHelper.deleteAndRedirect" - {
 
     "should call connector with provided update sequence number, clear session and redirect to management" in {
       val appResp = ApplicationResponse(123L, "GB123", 5)
@@ -51,7 +51,7 @@ class DeleteClaimServiceSpec extends SpecBase with MockitoSugar with ScalaFuture
 
       when(mockEuVatRefundsService.deleteApplication(any())(any())).thenReturn(Future.successful(()))
 
-      val resultF = service.deleteAndRedirect(ua)
+      val resultF = helper.deleteAndRedirect(ua)
 
       redirectLocation(resultF).value mustEqual "/manage"
 
@@ -67,7 +67,7 @@ class DeleteClaimServiceSpec extends SpecBase with MockitoSugar with ScalaFuture
 
       when(mockEuVatRefundsService.deleteApplication(any())(any())).thenReturn(Future.successful(()))
 
-      val resultF = service.deleteAndRedirect(ua)
+      val resultF = helper.deleteAndRedirect(ua)
 
       redirectLocation(resultF).value mustEqual "/manage"
       verify(mockEuVatRefundsService).deleteApplication(DeleteApplicationRequest(222L, 7))(hc)
@@ -76,7 +76,7 @@ class DeleteClaimServiceSpec extends SpecBase with MockitoSugar with ScalaFuture
     "should redirect to Journey Recovery when ClaimApplicationResponse is missing" in {
       val ua = emptyUserAnswers
 
-      val resultF = service.deleteAndRedirect(ua)
+      val resultF = helper.deleteAndRedirect(ua)
 
       redirectLocation(resultF).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
     }
@@ -87,7 +87,7 @@ class DeleteClaimServiceSpec extends SpecBase with MockitoSugar with ScalaFuture
 
       when(mockEuVatRefundsService.deleteApplication(any())(any())).thenReturn(Future.failed(new RuntimeException("boom")))
 
-      val resultF = service.deleteAndRedirect(ua)
+      val resultF = helper.deleteAndRedirect(ua)
 
       redirectLocation(resultF).value must include(controllers.routes.JourneyRecoveryController.onPageLoad().url)
     }

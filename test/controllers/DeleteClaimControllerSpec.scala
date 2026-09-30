@@ -22,7 +22,7 @@ import forms.DeleteClaimFormProvider
 import models.responses.ApplicationResponse
 import models.{RefundPeriod, UserAnswers}
 import org.mockito.ArgumentCaptor
-import services.DeleteClaimService
+import utils.DeleteClaimHelper
 import play.api.mvc.Results
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
@@ -93,14 +93,14 @@ class DeleteClaimControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to the management frontend when 'Yes' is submitted" in {
 
-      val mockDeleteService = mock[DeleteClaimService]
+      val mockDeleteHelper = mock[DeleteClaimHelper]
 
-      when(mockDeleteService.deleteAndRedirect(any())(any())) thenReturn Future.successful(Results.Redirect("/manage"))
+      when(mockDeleteHelper.deleteAndRedirect(any())(any())) thenReturn Future.successful(Results.Redirect("/manage"))
 
       val application =
         applicationBuilder(userAnswers = Some(populatedAnswers))
           .overrides(
-            bind[services.DeleteClaimService].toInstance(mockDeleteService)
+            bind[utils.DeleteClaimHelper].toInstance(mockDeleteHelper)
           )
           .build()
 
@@ -114,7 +114,7 @@ class DeleteClaimControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual "/manage"
 
-        verify(mockDeleteService).deleteAndRedirect(any())(any())
+        verify(mockDeleteHelper).deleteAndRedirect(any())(any())
       }
     }
 

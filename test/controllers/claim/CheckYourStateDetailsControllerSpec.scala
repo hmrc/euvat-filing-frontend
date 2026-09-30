@@ -23,7 +23,7 @@ import models.responses.ApplicationResponse
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
-import services.DeleteClaimService
+import utils.DeleteClaimHelper
 import play.api.mvc.Results
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
@@ -88,9 +88,9 @@ class CheckYourStateDetailsControllerSpec extends SpecBase with MockitoSugar {
 
     "must call delete and redirect to the management frontend when 'Yes' is submitted" in {
 
-      val mockDeleteService = mock[DeleteClaimService]
+      val mockDeleteHelper = mock[DeleteClaimHelper]
 
-      when(mockDeleteService.deleteAndRedirect(any())(any())) thenReturn Future.successful(Results.Redirect("/manage"))
+      when(mockDeleteHelper.deleteAndRedirect(any())(any())) thenReturn Future.successful(Results.Redirect("/manage"))
 
       val populatedAnswers = emptyUserAnswers
         .set(ClaimApplicationResponseQuery, ApplicationResponse(123, "APP123", 1))
@@ -101,7 +101,7 @@ class CheckYourStateDetailsControllerSpec extends SpecBase with MockitoSugar {
         applicationBuilder(userAnswers = Some(populatedAnswers))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[DeleteClaimService].toInstance(mockDeleteService)
+            bind[utils.DeleteClaimHelper].toInstance(mockDeleteHelper)
           )
           .build()
 
@@ -115,7 +115,7 @@ class CheckYourStateDetailsControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual "/manage"
 
-        verify(mockDeleteService).deleteAndRedirect(any())(any())
+        verify(mockDeleteHelper).deleteAndRedirect(any())(any())
       }
     }
 

@@ -27,7 +27,8 @@ import play.api.data.Form
 import play.api.i18n.{I18nSupport, Lang, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
-import services.{DeleteClaimService, EuVatRefundsService}
+import services.EuVatRefundsService
+import utils.DeleteClaimHelper
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -46,7 +47,7 @@ class DeleteClaimController @Inject() (
   requireData: DataRequiredAction,
   formProvider: DeleteClaimFormProvider,
   appConfig: FrontendAppConfig,
-  deleteClaimService: DeleteClaimService,
+  deleteClaimHelper: DeleteClaimHelper,
   val controllerComponents: MessagesControllerComponents,
   view: DeleteClaimView
 )(implicit ec: ExecutionContext)
@@ -86,7 +87,7 @@ class DeleteClaimController @Inject() (
         value =>
           if (value) {
             implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-            deleteClaimService.deleteAndRedirect(request.userAnswers)
+            deleteClaimHelper.deleteAndRedirect(request.userAnswers)
           } else {
             Future.successful(Redirect(controllers.routes.TaskListDashboardController.onPageLoad()))
           }

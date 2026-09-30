@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package services
+package utils
 
 import models.UserAnswers
 import models.requests.DeleteApplicationRequest
@@ -29,8 +29,8 @@ import uk.gov.hmrc.http.HeaderCarrier
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class DeleteClaimService @Inject() (
-  euVatRefundsService: EuVatRefundsService,
+class DeleteClaimHelper @Inject() (
+  euVatRefundsService: services.EuVatRefundsService,
   sessionRepository: SessionRepository,
   appConfig: FrontendAppConfig
 )(implicit ec: ExecutionContext)
