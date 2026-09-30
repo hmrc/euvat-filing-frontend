@@ -18,7 +18,7 @@ package controllers.purchase
 
 import base.SpecBase
 import forms.purchase.TotalPurchaseAmountBeforeVatFormProvider
-import models.{CheckMode, Fuel, NormalMode, PurchaseType, SupplierTaxNumber, UserAnswers}
+import models.{CheckMode, Fuel, NormalMode, PurchaseOrImportType, SupplierTaxNumber, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}

@@ -32,19 +32,19 @@
             @govukErrorSummary(ErrorSummaryViewModel(form,  errorLinkOverrides = Map("value" -> "value_0")))
         }
         <div class="govuk-form-group @if(form.error("value").isDefined){govuk-form-group--error}">
-        <span class="govuk-caption-l">@messages("purchasesAndImports.caption")</span>
+            <span class="govuk-caption-l">@messages("purchasesAndImports.caption")</span>
 
-        @govukRadios(
-            RadiosViewModel(
-                field  = form("value"),
-                legend = Legend(
-                    content = Text(messages("purchaseOrImport.heading")),
-                    classes = "govuk-fieldset__legend--l",
-                    isPageHeading = true
-                ),
-                items  = PurchaseOrImport.options
+            @govukRadios(
+                RadiosViewModel(
+                    field  = form("value"),
+                    legend = Legend(
+                        content = Text(messages("purchaseOrImport.heading")),
+                        classes = "govuk-fieldset__legend--l",
+                        isPageHeading = true
+                    ),
+                    items  = PurchaseOrImport.options
+                )
             )
-        )
         </div>
 
         @govukButton(

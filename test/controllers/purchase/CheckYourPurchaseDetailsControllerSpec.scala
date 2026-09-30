@@ -17,19 +17,22 @@
 package controllers.purchase
 
 import base.SpecBase
+import controllers.routes
 import models.requests.UpdatePurchaseRequest
 import models.responses.{AddPurchaseResponse, UpdatePurchaseResponse}
-import models.{Fuel, InvoiceType, PurchaseType, SupplierAddress}
+import models.{Fuel, InvoiceType, SupplierAddress}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.mockito.{ArgumentCaptor, Mockito}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.*
-import play.api.Application
+import play.api.{Application, Configuration}
 import play.api.inject.bind
+import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
+import utils.{Currency, CurrencyConfig}
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -353,7 +356,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
 
         val saved = savedCaptor.getValue
         val stored = saved.get(AddPurchaseResponsePage).value
-        stored.updateSequenceNumber mustEqual 99
+        stored.updateSequenceNumber mustBe 99
         stored.itemNumber mustEqual 8
       }
     }

@@ -17,13 +17,12 @@
 package controllers.helpers
 
 import base.SpecBase
-import models.{Fuel, NormalMode, PurchaseType}
+import models.{Fuel, NormalMode, PurchaseOrImportType}
 import models.requests.DataRequest
 import pages.{PurchaseSubCategoryPage, PurchaseSubTypePage, PurchaseTypePage}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import play.api.mvc.{AnyContent, AnyContentAsEmpty, Call}
-import controllers.helpers.PurchaseBackLinkHelper
 import play.api.i18n.Messages
 
 class PurchaseBackLinkHelperSpec extends SpecBase {

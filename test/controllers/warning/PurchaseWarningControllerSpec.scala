@@ -55,9 +55,10 @@ class PurchaseWarningControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[PurchaseWarningView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(controllers.purchase.routes.DescribeItemsOnInvoiceController.onPageLoad(NormalMode), NormalMode)(request,
-                                                                                                                           messages(application)
-                                                                                                                          ).toString
+        contentAsString(result) mustEqual view(controllers.purchase.routes.DescribeItemsOnInvoiceController.onPageLoad(NormalMode), NormalMode)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -73,9 +74,10 @@ class PurchaseWarningControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[PurchaseWarningView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(controllers.purchase.routes.DescribeItemsOnInvoiceController.onPageLoad(CheckMode), CheckMode)(request,
-                                                                                                                         messages(application)
-                                                                                                                        ).toString
+        contentAsString(result) mustEqual view(controllers.purchase.routes.DescribeItemsOnInvoiceController.onPageLoad(CheckMode), CheckMode)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 

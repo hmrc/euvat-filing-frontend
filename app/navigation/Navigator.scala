@@ -17,16 +17,17 @@
 package navigation
 
 import controllers.claim.routes as claimRoutes
+import controllers.imports.routes as importRoutes
 import controllers.purchase.routes as purchaseRoutes
 import models.*
-import models.PurchaseOrImport.Purchase
+import models.PurchaseOrImport.{Import, Purchase}
 import pages.*
 import play.api.mvc.Call
 
 import javax.inject.{Inject, Singleton}
 
 @Singleton
-class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: PurchaseNavigator) {
+class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: PurchaseNavigator, importNavigator: ImportNavigator) {
 
   def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call = mode match {
     case NormalMode => normalRoutes(page)(userAnswers)
@@ -59,6 +60,11 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case TotalPurchaseAmountBeforeVatPage  => _ => purchaseRoutes.TotalVatPaidController.onPageLoad(NormalMode)
     case TotalVatPaidPage                  => _ => purchaseRoutes.TotalVatClaimController.onPageLoad(NormalMode)
     case TotalVatClaimPage                 => _ => purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
+    case ImportTypePage                    => userAnswers => importNavigator.navigateFromImportTypePage(NormalMode)(userAnswers)
+    case ImportSubCodePage                 => userAnswers => importNavigator.navigateFromImportSubCodePage(NormalMode)(userAnswers)
+    case ImportSubCategoryPage             => userAnswers => importNavigator.navigateFromImportSubCategoryPage(NormalMode)(userAnswers)
+    case SadReferencePage                  => userAnswers => importNavigator.navigateFromSadReferenceCheckPage(NormalMode)(userAnswers)
+    case SadReferenceNumberPage            => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
     case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 
@@ -87,13 +93,18 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case TotalPurchaseAmountBeforeVatPage  => _ => purchaseRoutes.TotalVatPaidController.onPageLoad(CheckMode)
     case TotalVatPaidPage                  => _ => purchaseRoutes.TotalVatClaimController.onPageLoad(CheckMode)
     case TotalVatClaimPage                 => _ => purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
+    case ImportTypePage                    => userAnswers => importNavigator.navigateFromImportTypePage(CheckMode)(userAnswers)
+    case ImportSubCodePage                 => _ => importRoutes.SadReferenceController.onPageLoad(CheckMode)
+    case ImportSubCategoryPage             => userAnswers => importNavigator.navigateFromImportSubCategoryPage(CheckMode)(userAnswers)
+    case SadReferencePage                  => userAnswers => importNavigator.navigateFromSadReferenceCheckPage(CheckMode)(userAnswers)
+    case SadReferenceNumberPage            => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
     case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 
   private def navigateFromPurchaseOrImportPage(userAnswers: UserAnswers): Call =
     userAnswers.get(PurchaseOrImportPage) match {
       case Some(Purchase) => purchaseRoutes.PurchaseTypeController.onPageLoad(NormalMode)
-//      case Some(Import) => importRoutes.ImportTypeController.onPageLoad(NormalMode)
-      case _ => controllers.routes.JourneyRecoveryController.onPageLoad()
+      case Some(Import)   => importRoutes.ImportTypeController.onPageLoad(NormalMode)
+      case _              => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 }

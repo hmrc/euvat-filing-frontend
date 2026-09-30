@@ -51,6 +51,7 @@ unauthorised.guidance = You do not have access to this service.
 claim.caption = Claim details
 purchase.caption = Purchase details
 purchasesAndImports.caption = Purchases and imports
+import.caption = Import details
 
 taskListDashboard.title = Make a claim for an EU VAT refund
 taskListDashboard.heading = Make a claim for an EU VAT refund
@@ -498,6 +499,31 @@ purchaseImportSummary.change.hidden = Change {0} with a VAT claim of {1}
 purchaseImportSummary.remove.hidden = Remove {0} with a VAT claim of {1}
 purchaseImportSummary.error.required = Select yes if you need to add another item
 
+importType.title = Which category best describes the item on your import document?
+importType.heading = Which category best describes the item on your import document?
+importType.fuel = Fuel
+importType.transport = Transport costs
+importType.foodAndDrink = Food, drink and restaurant services
+importType.luxuries = Luxuries, entertainment and hospitality
+importType.other = Other
+importType.error.required = Select the type of import
+
+importSubCode.fuel.title = What is the fuel used for?
+importSubCode.fuel.heading = What is the fuel used for?
+importSubCode.fuel.error.required = Select what the fuel is used for
+importSubCode.transport.title = What is the type of transport cost?
+importSubCode.transport.heading = What is the type of transport cost?
+importSubCode.transport.error.required = Select the type of transport cost
+importSubCode.foodAndDrink.title = What is the type of food, drink or restaurant cost?
+importSubCode.foodAndDrink.heading = What is the type of food, drink or restaurant cost?
+importSubCode.foodAndDrink.error.required = Select the type of food, drink or restaurant cost
+importSubCode.luxuries.title = What is the type of luxury, entertainment or hospitality cost?
+importSubCode.luxuries.heading = What is the type of luxury, entertainment or hospitality cost?
+importSubCode.luxuries.error.required = Select the type of luxury, entertainment or hospitality cost
+importSubCode.other.title = What other category best describes the item?
+importSubCode.other.heading = What other category best describes the item?
+importSubCode.other.error.required = Select the type of import
+
 # Warning messages
 confirmRefundPeriodStartDate.title = Are you sure the refund period start date is correct?
 confirmRefundPeriodStartDate.heading = Are you sure the refund period start date is correct?
@@ -548,3 +574,16 @@ vatClaimWarning.p = You''ve told us the amount of VAT you''re claiming is {0}. T
 vatClaimWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
 vatClaimWarning.yes = Yes, this is correct
 vatClaimWarning.no = No, change the VAT claim amount
+
+singleAdministrativeDocumentReferenceNumberAvailable.title = Do you have a Single Administrative Document (SAD) reference number?
+singleAdministrativeDocumentReferenceNumberAvailable.heading = Do you have a Single Administrative Document (SAD) reference number?
+singleAdministrativeDocumentReferenceNumberAvailable.hint = You can usually find this at the top of the import document
+sadReference.error.required = Select yes if you have the Single Administrative Document (SAD) reference number
+singleAdministrativeDocumentReferenceNumberAvailable.error.required = Select yes if you have the Single Administrative Document (SAD) reference number
+
+sadReferenceNumber.title = What is your Single Administrative Document (SAD) reference number?
+sadReferenceNumber.heading = What is your Single Administrative Document (SAD) reference number?
+sadReferenceNumber.hint = Enter your SAD reference number in the correct format
+sadReferenceNumber.error.required = Enter your SAD reference number
+sadReferenceNumber.error.invalid = Enter your SAD reference number in the correct format
+sadReferenceNumber.error.length = SAD reference number must be 18 characters or less

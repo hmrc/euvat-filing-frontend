@@ -20,11 +20,11 @@ import controllers.claim.routes as claimRoutes
 import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import pages.{BusinessActivityPage, BusinessActivityTwoPage, CheckYourStateDetailsPage, CountryChangedPage}
 import play.api.mvc.Call
-import utils.{ConfigLanguageMapping, ConfigPurchaseMapping, CountryCode}
+import utils.{ConfigLanguageMapping, CountryCode}
 
 import javax.inject.{Inject, Singleton}
 @Singleton
-class ClaimNavigator @Inject() (configLanguageMapping: ConfigLanguageMapping, configPurchaseMapping: ConfigPurchaseMapping) {
+class ClaimNavigator @Inject() (configLanguageMapping: ConfigLanguageMapping) {
 
   def navigateFromRefundingCountryPage(mode: Mode, userAnswers: UserAnswers): Call = {
     CountryCode.findCountryCode(userAnswers) match {
