@@ -44,9 +44,15 @@ class DeleteClaimHelper @Inject() (
 
         euVatRefundsService
           .deleteApplication(deleteReq)
-          .flatMap { _ =>
-            val cleared = userAnswers.clear()
-            sessionRepository.set(cleared).map(_ => Redirect(appConfig.claimDashboardUrl))
+          .flatMap { resp =>
+            val status = resp.status
+            if (status >= 200 && status < 300) {
+              val cleared = userAnswers.clear()
+              sessionRepository.set(cleared).map(_ => Redirect(appConfig.claimDashboardUrl))
+            } else {
+              logger.error(s"Delete application returned non-2xx status $status")
+              Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+            }
           }
           .recover { case ex =>
             logger.error("Error deleting claim", ex)
