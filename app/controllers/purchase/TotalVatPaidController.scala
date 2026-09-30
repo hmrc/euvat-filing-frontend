@@ -69,7 +69,10 @@ class TotalVatPaidController @Inject() (
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, formAction(mode), backLink(mode), "purchase.caption", "totalVatPaid.p1", prefix, currencyName))),
+        formWithErrors =>
+          Future.successful(
+            BadRequest(view(formWithErrors, formAction(mode), backLink(mode), "purchase.caption", "totalVatPaid.p1", prefix, currencyName))
+          ),
         value =>
           for {
             userAnswers <- Future.fromTry(request.userAnswers.set(TotalVatPaidPage, value))
