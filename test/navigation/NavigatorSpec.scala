@@ -177,9 +177,9 @@ class NavigatorSpec extends SpecBase {
           controllers.imports.routes.ImportDetailsInfoController.onPageLoad(NormalMode)
       }
 
-      "must go from TotalAmountWithoutVatPage to JourneyRecoveryController" in {
+      "must go from TotalAmountWithoutVatPage to TotalVatClaimController" in {
         navigator.nextPage(TotalAmountWithoutVatPage, NormalMode, userAnswers) mustBe
-          controllers.routes.JourneyRecoveryController.onPageLoad()
+          controllers.imports.routes.TotalVatClaimController.onPageLoad(NormalMode)
       }
     }
 
@@ -255,9 +255,9 @@ class NavigatorSpec extends SpecBase {
           controllers.imports.routes.ImportDetailsInfoController.onPageLoad(CheckMode)
       }
 
-      "must go from TotalAmountWithoutVatPage to JourneyRecoveryController" in {
+      "must go from TotalAmountWithoutVatPage to TotalVatClaimController" in {
         navigator.nextPage(TotalAmountWithoutVatPage, CheckMode, userAnswers) mustBe
-          controllers.routes.JourneyRecoveryController.onPageLoad()
+          controllers.imports.routes.TotalVatClaimController.onPageLoad(CheckMode)
       }
     }
   }

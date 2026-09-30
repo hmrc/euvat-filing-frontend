@@ -194,9 +194,9 @@ class ImportNavigatorSpec extends SpecBase {
     }
 
     "navigateFromTotalAmountWithoutVatPage" - {
-      "must go to JourneyRecoveryController" in {
+      "must go to TotalVatClaimController" in {
         navigator.navigateFromTotalAmountWithoutVatPage(NormalMode)(userAnswers) mustBe
-          controllers.routes.JourneyRecoveryController.onPageLoad()
+          controllers.imports.routes.TotalVatClaimController.onPageLoad(NormalMode)
       }
     }
 
