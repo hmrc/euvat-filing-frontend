@@ -26,7 +26,7 @@ import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
-import services.DeleteClaimService
+import utils.DeleteClaimHelper
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -47,7 +47,7 @@ class CheckYourStateDetailsController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   view: CheckYourStateDetailsView,
   appConfig: FrontendAppConfig,
-  deleteClaimService: DeleteClaimService
+  deleteClaimHelper: DeleteClaimHelper
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
@@ -70,7 +70,7 @@ class CheckYourStateDetailsController @Inject() (
         value =>
           if (value) {
             implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-            deleteClaimService.deleteAndRedirect(request.userAnswers)
+            deleteClaimHelper.deleteAndRedirect(request.userAnswers)
           } else {
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(CheckYourStateDetailsPage, value))
