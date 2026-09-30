@@ -35,7 +35,7 @@ import viewmodels.checkAnswers.PurchaseImportListSummary
 import views.html.PurchaseImportSummaryView
 
 import javax.inject.Inject
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class PurchaseImportSummaryController @Inject() (
   override val messagesApi: MessagesApi,
@@ -49,12 +49,12 @@ class PurchaseImportSummaryController @Inject() (
   sessionRepository: SessionRepository,
   navigator: Navigator,
   service: EuVatRefundsService
-) extends FrontendBaseController
+)(using ExecutionContext)
+    extends FrontendBaseController
     with Logging
     with I18nSupport {
 
   val form: Form[Boolean] = formProvider()
-  implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     val userAnswers = request.userAnswers
