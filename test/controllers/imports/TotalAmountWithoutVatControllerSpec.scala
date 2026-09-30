@@ -22,7 +22,7 @@ import models.UserAnswers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{RefundingCountryPage, RefundingCurrencyPage, TotalAmountWithoutVatPage}
+import pages.{RefundingCountryPage, RefundingCurrencyPage, SadReferenceNumberPage, SadReferencePage, TotalAmountWithoutVatPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.test.FakeRequest
@@ -36,8 +36,8 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
 
   val formProvider = new TotalAmountWithoutVatFormProvider()
   val form: Form[BigDecimal] = formProvider()
-  lazy val totalAmountWithoutVatRoute: String = controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad.url
-  lazy val backLink = controllers.imports.routes.SadReferenceNumberController.onPageLoad(models.NormalMode)
+  lazy val totalAmountWithoutVatRoute: String = controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad(models.NormalMode).url
+  lazy val backLink = controllers.imports.routes.SadReferenceController.onPageLoad(models.NormalMode)
 
   "TotalAmountWithoutVat Controller" - {
 
@@ -51,7 +51,7 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, backLink, "€", "Euro")(request, messages(application)).toString
+          view(form, models.NormalMode, backLink, "€", "Euro")(request, messages(application)).toString
         )
       }
     }
@@ -67,7 +67,7 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form.fill(BigDecimal("12.34")), backLink, "€", "Euro")(request, messages(application)).toString
+          view(form.fill(BigDecimal("12.34")), models.NormalMode, backLink, "€", "Euro")(request, messages(application)).toString
         )
       }
     }
@@ -89,8 +89,41 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, backLink, "лв", "Bulgarian Lev")(request, messages(application)).toString
+          view(form, models.NormalMode, backLink, "лв", "Bulgarian Lev")(request, messages(application)).toString
         )
+      }
+    }
+
+    "must show back link to SadReferenceNumber when SadReference was yes and number present" in {
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(SadReferencePage, true)
+        .success
+        .value
+        .set(SadReferenceNumberPage, "ABC123")
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, totalAmountWithoutVatRoute)
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) must include(controllers.imports.routes.SadReferenceNumberController.onPageLoad(models.NormalMode).url)
+      }
+    }
+
+    "must show back link to SadReference when SadReference was yes but number missing" in {
+      val userAnswers = UserAnswers(userAnswersId).set(SadReferencePage, true).success.value
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, totalAmountWithoutVatRoute)
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) must include(controllers.imports.routes.SadReferenceController.onPageLoad(models.NormalMode).url)
       }
     }
 
@@ -104,7 +137,8 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
           .build()
 
       running(application) {
-        val request = FakeRequest(POST, totalAmountWithoutVatRoute).withFormUrlEncodedBody(("value", "123.45"))
+        val request = FakeRequest(POST, controllers.imports.routes.TotalAmountWithoutVatController.onSubmit(models.NormalMode).url)
+          .withFormUrlEncodedBody(("value", "123.45"))
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -117,7 +151,8 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(POST, totalAmountWithoutVatRoute).withFormUrlEncodedBody(("value", ""))
+        val request = FakeRequest(POST, controllers.imports.routes.TotalAmountWithoutVatController.onSubmit(models.NormalMode).url)
+          .withFormUrlEncodedBody(("value", ""))
 
         val boundForm = form.bind(Map("value" -> ""))
         val view = application.injector.instanceOf[TotalAmountWithoutVatView]
@@ -125,7 +160,7 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual BAD_REQUEST
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(boundForm, backLink, "€", "Euro")(request, messages(application)).toString
+          view(boundForm, models.NormalMode, backLink, "€", "Euro")(request, messages(application)).toString
         )
       }
     }
@@ -145,7 +180,8 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(POST, totalAmountWithoutVatRoute).withFormUrlEncodedBody(("value", "123.45"))
+        val request = FakeRequest(POST, controllers.imports.routes.TotalAmountWithoutVatController.onSubmit(models.NormalMode).url)
+          .withFormUrlEncodedBody(("value", "123.45"))
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url

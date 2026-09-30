@@ -17,10 +17,11 @@
 package controllers.imports
 
 import controllers.actions.*
+import controllers.imports.routes as importRoutes
 import forms.imports.TotalAmountWithoutVatFormProvider
-import models.NormalMode
+import models.Mode
 import navigation.Navigator
-import pages.TotalAmountWithoutVatPage
+import pages.{SadReferenceNumberPage, SadReferencePage, TotalAmountWithoutVatPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
@@ -50,25 +51,33 @@ class TotalAmountWithoutVatController @Inject() (
 
   val form: Form[BigDecimal] = formProvider()
 
-  private def backLink: Call = controllers.imports.routes.SadReferenceNumberController.onPageLoad(NormalMode)
+  private def backLink(mode: Mode)(userAnswers: models.UserAnswers): Call =
+    userAnswers.get(SadReferencePage) match {
+      case Some(true) =>
+        userAnswers.get(SadReferenceNumberPage) match {
+          case Some(_) => importRoutes.SadReferenceNumberController.onPageLoad(mode)
+          case None    => importRoutes.SadReferenceController.onPageLoad(mode)
+        }
+      case _ => importRoutes.SadReferenceController.onPageLoad(mode)
+    }
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(TotalAmountWithoutVatPage).fold(form)(form.fill)
     val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)
-    Ok(view(preparedForm, backLink, prefix, currencyName))
+    Ok(view(preparedForm, mode, backLink(mode)(request.userAnswers), prefix, currencyName))
   }
 
-  def onSubmit: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, backLink, prefix, currencyName))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)(request.userAnswers), prefix, currencyName))),
         value =>
           for {
             updated <- Future.fromTry(request.userAnswers.set(TotalAmountWithoutVatPage, value))
             _       <- sessionRepository.set(updated)
-          } yield Redirect(navigator.nextPage(TotalAmountWithoutVatPage, NormalMode, updated))
+          } yield Redirect(navigator.nextPage(TotalAmountWithoutVatPage, mode, updated))
       )
   }
 

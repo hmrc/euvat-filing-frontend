@@ -169,12 +169,12 @@ class NavigatorSpec extends SpecBase {
       "must go from SadReferencePage to TotalAmountWithoutVatController when answer is no" in {
         val ua = userAnswers.set(SadReferencePage, false).success.value
         navigator.nextPage(SadReferencePage, NormalMode, ua) mustBe
-          controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad
+          controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad(NormalMode)
       }
 
       "must go from SadReferenceNumberPage to TotalAmountWithoutVatController" in {
         navigator.nextPage(SadReferenceNumberPage, NormalMode, userAnswers) mustBe
-          controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad
+          controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad(NormalMode)
       }
 
       "must go from TotalAmountWithoutVatPage to JourneyRecoveryController" in {
@@ -247,12 +247,12 @@ class NavigatorSpec extends SpecBase {
       "must go from SadReferencePage to TotalAmountWithoutVatController when answer is no" in {
         val ua = userAnswers.set(SadReferencePage, false).success.value
         navigator.nextPage(SadReferencePage, CheckMode, ua) mustBe
-          controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad
+          controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad(CheckMode)
       }
 
       "must go from SadReferenceNumberPage to TotalAmountWithoutVatController" in {
         navigator.nextPage(SadReferenceNumberPage, CheckMode, userAnswers) mustBe
-          controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad
+          controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad(CheckMode)
       }
 
       "must go from TotalAmountWithoutVatPage to JourneyRecoveryController" in {

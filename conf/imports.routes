@@ -73,5 +73,7 @@ POST        /import-document-details                                     control
 GET         /change-import-document-details                              controllers.imports.ImportDetailsInfoController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-import-document-details                              controllers.imports.ImportDetailsInfoController.onSubmit(mode: Mode = CheckMode)
 
-GET         /total-amount-without-vat                                   controllers.imports.TotalAmountWithoutVatController.onPageLoad
-POST        /total-amount-without-vat                                   controllers.imports.TotalAmountWithoutVatController.onSubmit
+GET         /total-amount-without-vat                                   controllers.imports.TotalAmountWithoutVatController.onPageLoad(mode: Mode = NormalMode)
+POST        /total-amount-without-vat                                   controllers.imports.TotalAmountWithoutVatController.onSubmit(mode: Mode = NormalMode)
+GET         /change-total-amount-without-vat                            controllers.imports.TotalAmountWithoutVatController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-total-amount-without-vat                            controllers.imports.TotalAmountWithoutVatController.onSubmit(mode: Mode = CheckMode)

@@ -17,6 +17,7 @@
 @import viewmodels.InputWidth.*
 @import viewmodels.LabelSize
 @import views.html.components.MainErrorSummary
+@import models.Mode
 
 @this(
     layout: templates.Layout,
@@ -26,11 +27,11 @@
     govukButton: GovukButton
 )
 
-@(form: Form[_], call: Call, prefix: String, currencyName: String)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, call: Call, prefix: String, currencyName: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("totalAmountWithoutVat.title")), backLinkUrl = Some(call.url)) {
 
-    @formHelper(action = controllers.imports.routes.TotalAmountWithoutVatController.onSubmit, Symbol("autoComplete") -> "off") {
+    @formHelper(action = controllers.imports.routes.TotalAmountWithoutVatController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @mainErrorSummary(form, Map.empty)
 
