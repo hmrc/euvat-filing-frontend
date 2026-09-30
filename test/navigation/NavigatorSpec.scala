@@ -21,7 +21,6 @@ import com.typesafe.config.ConfigFactory
 import controllers.claim.routes as claimRoutes
 import controllers.purchase.routes as purchaseRoutes
 import models.*
-import models.PurchaseOrImport.{Import, Purchase}
 import pages.*
 import play.api.Configuration
 import play.api.mvc.Call
