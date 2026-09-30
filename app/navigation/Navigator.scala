@@ -111,14 +111,23 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case ImportSuppliersNamePage   => userAnswers => importNavigator.navigateToCurrencyOrNextPage(CheckMode)(userAnswers)
     case ImportCurrencyPage        => _ => importRoutes.TotalAmountWithoutVatController.onPageLoad(CheckMode)
     case TotalAmountWithoutVatPage => userAnswers => importNavigator.navigateFromTotalAmountWithoutVatPage(CheckMode)(userAnswers)
-    case _                         => _ => controllers.routes.IndexController.onPageLoad()
+    case TotalVatPaidImportPage            => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
+    case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 
   private def navigateFromPurchaseOrImportPage(userAnswers: UserAnswers): Call =
-    userAnswers.get(PurchaseOrImportPage) match {
-      case Some(Purchase) => purchaseRoutes.PurchaseTypeController.onPageLoad(NormalMode)
-      case Some(Import)   => importRoutes.ImportTypeController.onPageLoad(NormalMode)
-      case None           => controllers.routes.JourneyRecoveryController.onPageLoad()
-    }
+      userAnswers.get(PurchaseOrImportPage) match {
+        case Some(Purchase) => purchaseRoutes.PurchaseTypeController.onPageLoad(NormalMode)
+        case Some(Import)   => importRoutes.ImportTypeController.onPageLoad(NormalMode)
+        case None           => controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+
+    case TotalVatPaidImportPage => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
+      private def navigateFromPurchaseOrImportPage(userAnswers: UserAnswers): Call =
+        userAnswers.get(PurchaseOrImportPage) match {
+          case Some(Purchase) => purchaseRoutes.PurchaseTypeController.onPageLoad(NormalMode)
+          case Some(Import)   => importRoutes.ImportTypeController.onPageLoad(NormalMode)
+          case None           => controllers.routes.JourneyRecoveryController.onPageLoad()
+        }
 
 }

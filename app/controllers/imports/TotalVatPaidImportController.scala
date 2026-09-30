@@ -16,7 +16,7 @@
 
 package controllers.imports
 
-import controllers.actions._
+import controllers.actions.*
 import forms.imports.TotalVatPaidImportFormProvider
 import javax.inject.Inject
 import models.Mode
@@ -33,40 +33,43 @@ import views.html.imports.TotalVatPaidImportView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class TotalVatPaidImportController @Inject()(
-                                        override val messagesApi: MessagesApi,
-                                        sessionRepository: SessionRepository,
-                                        navigator: Navigator,
-                                        currencyConfig: CurrencyConfig,
-                                        identify: IdentifierAction,
-                                        getData: DataRetrievalAction,
-                                        requireData: DataRequiredAction,
-                                        formProvider: TotalVatPaidImportFormProvider,
-                                        val controllerComponents: MessagesControllerComponents,
-                                        view: TotalVatPaidImportView
-                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+class TotalVatPaidImportController @Inject() (
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  navigator: Navigator,
+  currencyConfig: CurrencyConfig,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: TotalVatPaidImportFormProvider,
+  val controllerComponents: MessagesControllerComponents,
+  view: TotalVatPaidImportView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
 
   val form: Form[BigDecimal] = formProvider()
 
-  private def backLink(mode: Mode): Call = controllers.imports.routes.SadReferenceNumberController.onPageLoad(mode) // TODO: replace with TotalAmountWithoutVatController once built
+  private def backLink(mode: Mode): Call =
+    controllers.imports.routes.SadReferenceNumberController.onPageLoad(mode) // TODO: replace with TotalAmountWithoutVatController once built
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-      val preparedForm = request.userAnswers.get(TotalVatPaidImportPage).fold(form)(form.fill)
-      val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)
-      Ok(view(preparedForm, mode, backLink(mode), prefix, currencyName))
-    }
+    val preparedForm = request.userAnswers.get(TotalVatPaidImportPage).fold(form)(form.fill)
+    val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)
+    Ok(view(preparedForm, mode, backLink(mode), prefix, currencyName))
+  }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-     val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)
-      form.bindFromRequest().fold(
+    val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)
+    form
+      .bindFromRequest()
+      .fold(
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode), prefix, currencyName))),
         value =>
           for {
             userAnswers <- Future.fromTry(request.userAnswers.set(TotalVatPaidImportPage, value))
-            _              <- sessionRepository.set(userAnswers)
+            _           <- sessionRepository.set(userAnswers)
           } yield Redirect(navigator.nextPage(TotalVatPaidImportPage, mode, userAnswers))
       )
   }
 }
-
-
