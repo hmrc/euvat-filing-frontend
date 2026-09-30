@@ -31,21 +31,21 @@ import com.typesafe.config.{ConfigObject, ConfigValueType}
 
 case class PurchaseNode(parent: String, code: String, label: String, children: Seq[PurchaseNode] = Seq.empty)
 
-/** `ConfigPurchaseMapping` loads a declarative purchase mapping from `application.conf` (under `purchase.mapping`) and exposes helpers used by
-  * controllers and views to build radio items and lookup subcodes/subcategories.
+/** `ConfigPurchaseOrImportMapping` loads a declarative purchase mapping from `application.conf` (under `purchase.mapping`) and exposes helpers used
+  * by controllers and views to build radio items and lookup subcodes/subcategories.
   *
   * The mapping supports mixed arrays (plain strings and nested objects) and contains logic to normalise label keys that include numeric ordering
   * segments. The class is intentionally defensive: most parsing errors are swallowed and an empty mapping is returned so the application can fall
   * back to sensible defaults.
   */
 
-object ConfigPurchaseMapping {
+object ConfigPurchaseOrImportMapping {
   val NoneValue: String = "__none__"
+  val NoneOfTheseSubCode: String = "10.99"
 }
 
-class ConfigPurchaseMapping @Inject() (config: Configuration = Configuration.empty, env: Environment = Environment.simple()) {
-
-  val prefix = "purchase.sub."
+class ConfigPurchaseOrImportMapping @Inject() (config: Configuration = Configuration.empty, env: Environment = Environment.simple()) {
+  val prefix = "sub."
 
   private def normalizeLabel(label: String, code: String): String = {
     if !label.startsWith(prefix) || code.isEmpty then label
@@ -58,7 +58,7 @@ class ConfigPurchaseMapping @Inject() (config: Configuration = Configuration.emp
 
   private val mapping: Map[String, Seq[PurchaseNode]] =
     try {
-      val rootConfig = config.underlying.getConfig("purchase.mapping")
+      val rootConfig = config.underlying.getConfig("purchase-or-import-mapping")
 
       def parseEntry(entry: Any): PurchaseNode = entry match {
         case s: String =>
@@ -151,7 +151,7 @@ class ConfigPurchaseMapping @Inject() (config: Configuration = Configuration.emp
             val derivedLabel = explicitLabelOpt.orElse {
               nodesForParent.find(n => n.code.startsWith(base + ".")).flatMap { child =>
                 val l = child.label
-                if (l.startsWith("purchase.sub.")) {
+                if (l.startsWith(prefix)) {
                   val parts = l.split("\\.")
                   if (parts.length > 3) Some(parts.dropRight(1).mkString(".")) else None
                 } else None
@@ -182,6 +182,11 @@ class ConfigPurchaseMapping @Inject() (config: Configuration = Configuration.emp
 
   def subcodesFor(parentKey: String): Seq[(String, String)] =
     mapping.values.toSeq.flatten.filter(_.parent == parentKey).map(n => (n.code, n.label))
+
+  def selectableSubcodes(country: String, parentKey: String): Option[Seq[(String, String)]] =
+    Some(subcodesFor(country, parentKey)).filter { options =>
+      options.nonEmpty && options.map(_._1) != Seq(ConfigPurchaseOrImportMapping.NoneOfTheseSubCode)
+    }
 
   def subcategoriesFor(country: String, parentKey: String, subcode: String): Seq[(String, String)] =
     nodesForCountry(country).toSeq.flatMap(_.filter(n => n.parent == parentKey && n.code == subcode).flatMap(_.children).map(c => (c.code, c.label)))
@@ -235,7 +240,7 @@ class ConfigPurchaseMapping @Inject() (config: Configuration = Configuration.emp
       val lang = Option(msgs.lang.code).getOrElse("en")
 
       def loadPurchaseMessages(langCode: String): Map[String, String] = {
-        val fileName: String = s"messages.purchase.$langCode"
+        val fileName: String = s"messages.purchaseOrImport.$langCode"
 
         try {
           env
@@ -275,7 +280,7 @@ class ConfigPurchaseMapping @Inject() (config: Configuration = Configuration.emp
       )
     } :+ RadioItem(
       content = Text("None"),
-      value   = Some(ConfigPurchaseMapping.NoneValue),
+      value   = Some(ConfigPurchaseOrImportMapping.NoneValue),
       id      = Some(s"value_${options.size}")
     )
 }

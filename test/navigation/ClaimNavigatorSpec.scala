@@ -23,7 +23,7 @@ import controllers.routes
 import models.*
 import pages.*
 import play.api.Configuration
-import utils.{ConfigLanguageMapping, ConfigPurchaseMapping}
+import utils.ConfigLanguageMapping
 
 class ClaimNavigatorSpec extends SpecBase {
 
@@ -37,15 +37,6 @@ class ClaimNavigatorSpec extends SpecBase {
             CZ = ["czech"]
           }
         """)
-      )
-    ),
-    new ConfigPurchaseMapping(
-      Configuration(
-        ConfigFactory.parseString("""
-              purchase.mapping {
-                DE = ["parent|sub1|purchase.sub.parent.sub1"]
-              }
-            """)
       )
     )
   )

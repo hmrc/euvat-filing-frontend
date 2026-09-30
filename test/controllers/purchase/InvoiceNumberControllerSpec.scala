@@ -33,6 +33,7 @@ import repositories.SessionRepository
 import views.html.purchase.InvoiceNumberView
 
 import scala.concurrent.Future
+import pages.{PurchaseTypePage, RefundingCountryPage, SupplierTaxNumberPage}
 
 class InvoiceNumberControllerSpec extends SpecBase with MockitoSugar {
 

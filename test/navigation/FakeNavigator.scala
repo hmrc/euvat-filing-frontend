@@ -19,7 +19,7 @@ package navigation
 import play.api.mvc.Call
 import pages.*
 import models.{Mode, UserAnswers}
-import utils.{ConfigLanguageMapping, ConfigPurchaseMapping, CurrencyConfig}
+import utils.{ConfigLanguageMapping, ConfigPurchaseOrImportMapping, CurrencyConfig}
 import play.api.Configuration
 import com.typesafe.config.ConfigFactory
 
@@ -33,15 +33,6 @@ class FakeNavigator(desiredRoute: Call)
                 AT = ["german", "english"]
                 BE = ["english", "german", "french", "dutch"]
                 CZ = ["czech"]
-              }
-            """)
-          )
-        ),
-        new ConfigPurchaseMapping(
-          Configuration(
-            ConfigFactory.parseString("""
-              purchase.mapping {
-                DE = ["parent|sub1|purchase.sub.parent.sub1"]
               }
             """)
           )
@@ -59,7 +50,29 @@ class FakeNavigator(desiredRoute: Call)
             """)
           )
         ),
-        new ConfigPurchaseMapping(
+        new ConfigPurchaseOrImportMapping(
+          Configuration(
+            ConfigFactory.parseString("""
+              purchase.mapping {
+                DE = ["parent|sub1|purchase.sub.parent.sub1"]
+              }
+            """)
+          )
+        )
+      ),
+      new ImportNavigator(
+        new CurrencyConfig(
+          Configuration(
+            ConfigFactory.parseString("""
+              currency.mapping {
+                BG = ["euro|EUR|€", "bulgarianLev|BGN|лв"]
+                EE = ["euro|EUR|€", "estonianKroon|EEK|kr"]
+                AT = ["euro|EUR|€"]
+              }
+            """)
+          )
+        ),
+        new ConfigPurchaseOrImportMapping(
           Configuration(
             ConfigFactory.parseString("""
               purchase.mapping {

@@ -20,7 +20,7 @@ import controllers.actions.*
 import controllers.helpers.PurchaseBackLinkHelper
 import forms.purchase.InvoiceTypeFormProvider
 import models.requests.DataRequest
-import models.{CheckMode, InvoiceType, Mode, NormalMode, Other, PurchaseType, UserAnswers}
+import models.{CheckMode, InvoiceType, Mode, NormalMode, Other, PurchaseOrImportType, UserAnswers}
 import navigation.Navigator
 import pages.*
 import play.api.Logging
@@ -29,7 +29,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.{ConfigPurchaseMapping, CountryCode}
+import utils.{ConfigPurchaseOrImportMapping, CountryCode}
 import views.html.purchase.InvoiceTypeView
 
 import javax.inject.Inject
@@ -38,7 +38,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class InvoiceTypeController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
-  configPurchaseMapping: ConfigPurchaseMapping,
+  configPurchaseMapping: ConfigPurchaseOrImportMapping,
   navigator: Navigator,
   identify: IdentifierAction,
   getData: DataRetrievalAction,

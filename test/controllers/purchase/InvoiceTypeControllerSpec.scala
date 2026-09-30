@@ -18,7 +18,7 @@ package controllers.purchase
 
 import base.SpecBase
 import forms.purchase.InvoiceTypeFormProvider
-import models.{CheckMode, Fuel, InvoiceType, NormalMode, Other, PurchaseType, SupplierTaxNumber, Transport, UserAnswers}
+import models.{CheckMode, Fuel, InvoiceType, NormalMode, Other, SupplierTaxNumber, Transport, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
@@ -29,7 +29,7 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import utils.ConfigPurchaseMapping
+import utils.ConfigPurchaseOrImportMapping
 import views.html.purchase.InvoiceTypeView
 
 import scala.concurrent.Future
@@ -154,7 +154,6 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must show backlink to DescribeItemsOnInvoice when PurchaseType is Other and parent sub-type ends with 99" in {
-
       val userAnswers = emptyUserAnswers
         .set(PurchaseTypePage, Other)
         .success
@@ -167,9 +166,7 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(GET, invoiceTypeRoute)
-
         val view = application.injector.instanceOf[InvoiceTypeView]
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -196,9 +193,7 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(GET, invoiceTypeRoute)
-
         val view = application.injector.instanceOf[InvoiceTypeView]
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -222,9 +217,7 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(GET, invoiceTypeRoute)
-
         val view = application.injector.instanceOf[InvoiceTypeView]
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -251,21 +244,17 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request = FakeRequest(GET, invoiceTypeRoute)
         val result = route(application, request).value
-
         status(result) mustEqual OK
       }
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
       val userAnswers = UserAnswers(userAnswersId).set(InvoiceTypePage, InvoiceType.values.head).success.value
-
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, invoiceTypeRoute)
-
         val view = application.injector.instanceOf[InvoiceTypeView]
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -279,8 +268,7 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must show backlink to DescribeItemsOnInvoice when PurchaseType is Other, parent ends with 99, and country has multiple other options" in {
-
-      val fakeConfig = new ConfigPurchaseMapping() {
+      val fakeConfig = new ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String): Seq[(String, String)] =
           if (country == "BE" && parentKey == "other") Seq(("10.6", "purchase.sub.other.6"), ("10.99", "purchase.sub.other.99"))
           else super.subcodesFor(country, parentKey)
@@ -298,14 +286,12 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
         .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(bind[ConfigPurchaseMapping].toInstance(fakeConfig))
+        .overrides(bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig))
         .build()
 
       running(application) {
         val request = FakeRequest(GET, invoiceTypeRoute)
-
         val view = application.injector.instanceOf[InvoiceTypeView]
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -319,9 +305,7 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to the next page when standard invoice is submitted" in {
-
       val mockSessionRepository = mock[SessionRepository]
-
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val application =
@@ -337,7 +321,6 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("value", InvoiceType.StandardInvoice.toString))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.InvoiceNumberController.onPageLoad(NormalMode).url
       }
@@ -390,14 +373,12 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request = FakeRequest(POST, invoiceTypeRoute).withFormUrlEncodedBody(("value", InvoiceType.SimplifiedInvoice.toString))
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.InvoiceNumberController.onPageLoad(NormalMode).url
       }
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -406,9 +387,7 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("value", "invalid value"))
 
         val boundForm = form.bind(Map("value" -> "invalid value"))
-
         val view = application.injector.instanceOf[InvoiceTypeView]
-
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
@@ -419,12 +398,10 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
         val request = FakeRequest(GET, invoiceTypeRoute)
-
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -433,7 +410,6 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "redirect to Journey Recovery for a POST if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
@@ -442,18 +418,14 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("value", InvoiceType.values.head.toString))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
-
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
 
     }
 
     "must redirect to Check Your Purchase Details when in CheckMode and value unchanged" in {
-
       val userAnswers = emptyUserAnswers.set(InvoiceTypePage, InvoiceType.StandardInvoice).success.value
-
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -462,16 +434,13 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("value", InvoiceType.StandardInvoice.toString))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.CheckYourPurchaseDetailsController.onPageLoad().url
       }
     }
 
     "must redirect to SimplifiedInvoiceVatRegCheck in CheckMode when submitted value changes" in {
-
       val mockSessionRepository = mock[SessionRepository]
-
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val application =
@@ -487,16 +456,13 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("value", InvoiceType.SimplifiedInvoice.toString))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(CheckMode).url
       }
     }
 
     "must redirect to SupplierVatRegistrationNumber in CheckMode when submitted value changes to standard" in {
-
       val mockSessionRepository = mock[SessionRepository]
-
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val application =
@@ -512,7 +478,6 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("value", InvoiceType.StandardInvoice.toString))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.SupplierVatRegistrationNumberController.onPageLoad(CheckMode).url
       }

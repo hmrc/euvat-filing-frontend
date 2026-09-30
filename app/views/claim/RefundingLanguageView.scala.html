@@ -44,20 +44,15 @@
         <div class="govuk-form-group @if(isError){govuk-form-group--error}">
             <span class="govuk-caption-l">@messages("claim.caption")</span>
 
-            @{
-                govukRadios(
-                  RadiosViewModel(
-                    field  = form("value"),
-                    legend = LegendViewModel(messages("refundingLanguage.heading")).asPageHeading(LegendSize.Large),
-                    items  = items
-                  ).withHint(HintViewModel(Text(messages("refundingLanguage.hint"))))
-                )
-            }
-
+            @govukRadios(
+              RadiosViewModel(
+                field  = form("value"),
+                legend = LegendViewModel(messages("refundingLanguage.heading")).asPageHeading(LegendSize.Large),
+                items  = items
+              ).withHint(HintViewModel(Text(messages("refundingLanguage.hint"))))
+            )
         </div>
 
-        @govukButton(
-            ButtonViewModel(messages("site.continue"))
-        )
+        @govukButton(ButtonViewModel(messages("site.continue")))
     }
 }

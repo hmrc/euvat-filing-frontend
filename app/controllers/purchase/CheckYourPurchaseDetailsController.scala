@@ -17,7 +17,7 @@
 package controllers.purchase
 
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
-import models.{InvoiceType, PurchaseType}
+import models.{InvoiceType, PurchaseOrImportType}
 import pages.*
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.Logging
@@ -30,7 +30,7 @@ import models.requests.UpdatePurchaseRequest
 import models.responses.AddPurchaseResponse
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.{ConfigPurchaseMapping, CountryCode, CurrencyConfig}
+import utils.{ConfigPurchaseOrImportMapping, CountryCode, CurrencyConfig}
 import viewmodels.checkAnswers.CheckYourPurchaseDetailsSummary
 import views.html.purchase.CheckYourPurchaseDetailsView
 
@@ -45,7 +45,7 @@ class CheckYourPurchaseDetailsController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   view: CheckYourPurchaseDetailsView,
   currencyConfig: CurrencyConfig,
-  configPurchaseMapping: ConfigPurchaseMapping,
+  configPurchaseMapping: ConfigPurchaseOrImportMapping,
   sessionRepository: SessionRepository,
   euVatRefundsService: EuVatRefundsService
 )(using ec: ExecutionContext)
@@ -102,20 +102,22 @@ class CheckYourPurchaseDetailsController @Inject() (
         val purchaseSubCategory = request.userAnswers.get(PurchaseSubCategoryPage)
 
         val goodsDescriptionSubCategory: Option[String] = {
-          if (purchaseSubType.contains(ConfigPurchaseMapping.NoneValue) && purchaseSubCategory.contains(ConfigPurchaseMapping.NoneValue)) None
-          else if (purchaseSubCategory.exists(v => v != ConfigPurchaseMapping.NoneValue)) purchaseSubCategory
-          else if (purchaseSubType.exists(v => v != ConfigPurchaseMapping.NoneValue)) purchaseSubType
+          if (
+            purchaseSubType.contains(ConfigPurchaseOrImportMapping.NoneValue) && purchaseSubCategory.contains(ConfigPurchaseOrImportMapping.NoneValue)
+          ) None
+          else if (purchaseSubCategory.exists(v => v != ConfigPurchaseOrImportMapping.NoneValue)) purchaseSubCategory
+          else if (purchaseSubType.exists(v => v != ConfigPurchaseOrImportMapping.NoneValue)) purchaseSubType
           else None
         }
 
         val goodsDescriptionCategory: String = request.userAnswers
           .get(PurchaseTypePage)
-          .map(pt => PurchaseType.codes.getOrElse(pt, ""))
+          .map(pt => PurchaseOrImportType.codes.getOrElse(pt, ""))
           .getOrElse("")
 
         val goodsDescriptionText = request.userAnswers.get(DescribeItemsOnInvoicePage) match {
-          case Some(t) if t.trim.nonEmpty && t != ConfigPurchaseMapping.NoneValue => Some(t)
-          case _                                                                  => None
+          case Some(t) if t.trim.nonEmpty && t != ConfigPurchaseOrImportMapping.NoneValue => Some(t)
+          case _                                                                          => None
         }
         val simplifiedInvoiceIndicator: Option[String] = request.userAnswers
           .get(SimplifiedInvoiceVatRegCheckPage)
