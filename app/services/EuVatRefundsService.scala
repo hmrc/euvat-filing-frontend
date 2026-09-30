@@ -21,7 +21,7 @@ import connectors.EuVatRefundsConnector
 import models.requests.*
 import models.responses.*
 import play.api.Logging
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -46,7 +46,7 @@ class EuVatRefundsService @Inject() (euVatRefundsConnector: EuVatRefundsConnecto
   def updatePurchase(request: UpdatePurchaseRequest)(implicit hc: HeaderCarrier): Future[UpdatePurchaseResponse] =
     euVatRefundsConnector.updatePurchase(request)
 
-  def deleteApplication(request: models.requests.DeleteApplicationRequest)(implicit hc: HeaderCarrier): Future[Unit] =
+  def deleteApplication(request: models.requests.DeleteApplicationRequest)(implicit hc: HeaderCarrier): Future[HttpResponse] =
     euVatRefundsConnector.deleteApplication(request)
 
   def getSupplierTaxIdentifierCount(request: SupplierTaxIdentifierCountRequest)(implicit

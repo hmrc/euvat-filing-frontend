@@ -26,7 +26,7 @@ import org.mockito.Mockito.{verify, when}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import queries.{ClaimApplicationResponseQuery, UpdateSequenceNumberQuery}
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -49,7 +49,8 @@ class DeleteClaimHelperSpec extends SpecBase with MockitoSugar with ScalaFutures
       val ua1 = emptyUserAnswers.set(ClaimApplicationResponseQuery, appResp).success.value
       val ua = ua1.set(UpdateSequenceNumberQuery, 9).success.value
 
-      when(mockEuVatRefundsService.deleteApplication(any())(any())).thenReturn(Future.successful(()))
+      import uk.gov.hmrc.http.HttpResponse
+      when(mockEuVatRefundsService.deleteApplication(any())(any())).thenReturn(Future.successful(HttpResponse(204, "")))
 
       val resultF = helper.deleteAndRedirect(ua)
 
@@ -65,7 +66,8 @@ class DeleteClaimHelperSpec extends SpecBase with MockitoSugar with ScalaFutures
       val appResp = ApplicationResponse(222L, "GB222", 7)
       val ua = emptyUserAnswers.set(ClaimApplicationResponseQuery, appResp).success.value
 
-      when(mockEuVatRefundsService.deleteApplication(any())(any())).thenReturn(Future.successful(()))
+      import uk.gov.hmrc.http.HttpResponse
+      when(mockEuVatRefundsService.deleteApplication(any())(any())).thenReturn(Future.successful(HttpResponse(200, "")))
 
       val resultF = helper.deleteAndRedirect(ua)
 
@@ -85,7 +87,8 @@ class DeleteClaimHelperSpec extends SpecBase with MockitoSugar with ScalaFutures
       val appResp = ApplicationResponse(321L, "GB321", 2)
       val ua = emptyUserAnswers.set(ClaimApplicationResponseQuery, appResp).success.value
 
-      when(mockEuVatRefundsService.deleteApplication(any())(any())).thenReturn(Future.failed(new RuntimeException("boom")))
+      import uk.gov.hmrc.http.HttpResponse
+      when(mockEuVatRefundsService.deleteApplication(any())(any())).thenReturn(Future.successful(HttpResponse(303, "")))
 
       val resultF = helper.deleteAndRedirect(ua)
 
