@@ -116,40 +116,40 @@ class ImportNavigatorSpec extends SpecBase {
       val ua = userAnswers.set(ImportTypePage, Transport).success.value
 
       nav.navigateFromImportTypePage(NormalMode)(ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
-      }
+    }
 
-      "must go from PurchaseOrImportPage to ImportTypeController when Import is selected" in {
-        val claimNav = new ClaimNavigator(new ConfigLanguageMapping(Configuration(ConfigFactory.parseString("""language.mapping = {}"""))))
-        val purchaseNav = new PurchaseNavigator(new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
-                                                new ConfigPurchaseOrImportMapping()
-                                               )
-        val importNav = new ImportNavigator(new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
-                                            new ConfigPurchaseOrImportMapping()
-                                           )
+    "must go from PurchaseOrImportPage to ImportTypeController when Import is selected" in {
+      val claimNav = new ClaimNavigator(new ConfigLanguageMapping(Configuration(ConfigFactory.parseString("""language.mapping = {}"""))))
+      val purchaseNav = new PurchaseNavigator(new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
+                                              new ConfigPurchaseOrImportMapping()
+                                             )
+      val importNav = new ImportNavigator(new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
+                                          new ConfigPurchaseOrImportMapping()
+                                         )
 
-        val nav = new navigation.Navigator(claimNav, purchaseNav, importNav)
+      val nav = new navigation.Navigator(claimNav, purchaseNav, importNav)
 
-        val ua = userAnswers.set(PurchaseOrImportPage, models.PurchaseOrImport.Import).success.value
+      val ua = userAnswers.set(PurchaseOrImportPage, models.PurchaseOrImport.Import).success.value
 
-        nav.nextPage(PurchaseOrImportPage, NormalMode, ua) mustBe
-          importRoutes.ImportTypeController.onPageLoad(NormalMode)
-      }
+      nav.nextPage(PurchaseOrImportPage, NormalMode, ua) mustBe
+        importRoutes.ImportTypeController.onPageLoad(NormalMode)
+    }
 
-      "must go from PurchaseTypePage to DescribeItemsOnInvoiceController" in {
-        val claimNav = new ClaimNavigator(new ConfigLanguageMapping(Configuration(ConfigFactory.parseString("""language.mapping = {}"""))))
-        val purchaseNav = new PurchaseNavigator(new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
-                                                new ConfigPurchaseOrImportMapping()
-                                               )
-        val importNav = new ImportNavigator(new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
-                                            new ConfigPurchaseOrImportMapping()
-                                           )
+    "must go from PurchaseTypePage to DescribeItemsOnInvoiceController" in {
+      val claimNav = new ClaimNavigator(new ConfigLanguageMapping(Configuration(ConfigFactory.parseString("""language.mapping = {}"""))))
+      val purchaseNav = new PurchaseNavigator(new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
+                                              new ConfigPurchaseOrImportMapping()
+                                             )
+      val importNav = new ImportNavigator(new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
+                                          new ConfigPurchaseOrImportMapping()
+                                         )
 
-        val nav = new navigation.Navigator(claimNav, purchaseNav, importNav)
+      val nav = new navigation.Navigator(claimNav, purchaseNav, importNav)
 
-        val ua = userAnswers.set(PurchaseTypePage, models.PurchaseOrImportType.values.head).success.value
+      val ua = userAnswers.set(PurchaseTypePage, models.PurchaseOrImportType.values.head).success.value
 
-        nav.nextPage(PurchaseTypePage, NormalMode, ua) mustBe
-          purchaseRoutes.DescribeItemsOnInvoiceController.onPageLoad(NormalMode)
+      nav.nextPage(PurchaseTypePage, NormalMode, ua) mustBe
+        purchaseRoutes.DescribeItemsOnInvoiceController.onPageLoad(NormalMode)
     }
 
     "in Check mode" - {

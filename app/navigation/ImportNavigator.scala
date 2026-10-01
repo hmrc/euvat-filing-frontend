@@ -16,7 +16,7 @@
 
 package navigation
 
-import models.{Mode, NormalMode, UserAnswers}
+import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import pages.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage, SadReferencePage}
 import play.api.mvc.Call
 import utils.{ConfigPurchaseOrImportMapping, CountryCode, CurrencyConfig}
@@ -57,7 +57,14 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
   def navigateFromSadReferenceCheckPage(mode: Mode)(userAnswers: UserAnswers): Call =
     userAnswers.get(SadReferencePage) match {
       case Some(true) => importRoutes.SadReferenceNumberController.onPageLoad(NormalMode)
-      case _          => controllers.routes.JourneyRecoveryController.onPageLoad()
+      case _          => importRoutes.ImportDetailsInfoController.onPageLoad(NormalMode)
+    }
+
+  def navigateFromImportDetailsInfoPage(mode: Mode)(userAnswers: UserAnswers): Call =
+    mode match {
+      case NormalMode =>
+        controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: replace with "When is the import date" controller once built
+      case CheckMode => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
 }

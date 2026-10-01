@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package pages
+package forms.imports
 
-import models.SupplierTaxNumber
-import play.api.libs.json.JsPath
+import javax.inject.Inject
+import forms.mappings.Mappings
+import play.api.data.Form
 
-case object SupplierTaxNumberCheckPage extends QuestionPage[SupplierTaxNumber] {
+class ImportDetailsInfoFormProvider @Inject() extends Mappings {
 
-  override def path: JsPath = JsPath \ toString
-
-  override def toString: String = "supplierTaxNumberCheck"
+  def apply(): Form[String] =
+    Form(
+      "value" -> text("importDetailsInfo.error.required")
+        .verifying(maxLength(255, "importDetailsInfo.error.length"))
+    )
 }

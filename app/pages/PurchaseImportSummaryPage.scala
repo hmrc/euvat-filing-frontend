@@ -22,5 +22,5 @@ case object PurchaseImportSummaryPage extends QuestionPage[Boolean] {
 
   override def path: JsPath = JsPath \ toString
 
-  override def toString: String = "purchaseImportListSummary"
+  override def toString: String = "purchaseImportSummary"
 }
