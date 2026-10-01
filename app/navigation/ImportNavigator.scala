@@ -16,7 +16,7 @@
 
 package navigation
 
-import models.{Mode, UserAnswers}
+import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import pages.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage}
 import play.api.mvc.Call
 import utils.{ConfigPurchaseOrImportMapping, CountryCode, CurrencyConfig}
@@ -40,7 +40,7 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
   def navigateFromImportSubCodePage(mode: Mode)(userAnswers: UserAnswers): Call =
     (userAnswers.get(ImportTypePage), userAnswers.get(ImportSubCodePage), CountryCode.findCountryCode(userAnswers)) match {
       case (Some(importType), Some(subCode), Some(country))
-        if configPurchaseOrImportMapping.subcategoriesFor(country, importType.toString, subCode).nonEmpty =>
+          if configPurchaseOrImportMapping.subcategoriesFor(country, importType.toString, subCode).nonEmpty =>
         importsRoutes.ImportSubCategoryController.onPageLoad(mode)
       case (_, Some(_), _) =>
         importsRoutes.SadReferenceController.onPageLoad(mode)
@@ -51,7 +51,14 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
   def navigateFromImportSubCategoryPage(mode: Mode)(userAnswers: UserAnswers): Call =
     userAnswers.get(ImportSubCategoryPage) match {
       case Some(_) => importsRoutes.SadReferenceController.onPageLoad(mode)
-      case None => controllers.routes.JourneyRecoveryController.onPageLoad()
+      case None    => controllers.routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  def navigateFromImportDetailsInfoPage(mode: Mode)(userAnswers: UserAnswers): Call =
+    mode match {
+      case NormalMode =>
+        controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: replace with "When is the import date" controller once built
+      case CheckMode => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
 }

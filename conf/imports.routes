@@ -67,3 +67,8 @@ GET         /single-administrative-document-reference-number                    
 POST        /single-administrative-document-reference-number                     controllers.imports.SadReferenceNumberController.onSubmit(mode: Mode = NormalMode)
 GET         /change-single-administrative-document-reference-number              controllers.imports.SadReferenceNumberController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-single-administrative-document-reference-number              controllers.imports.SadReferenceNumberController.onSubmit(mode: Mode = CheckMode)
+
+GET         /import-document-details                                     controllers.imports.ImportDetailsInfoController.onPageLoad(mode: Mode = NormalMode)
+POST        /import-document-details                                     controllers.imports.ImportDetailsInfoController.onSubmit(mode: Mode = NormalMode)
+GET         /change-import-document-details                              controllers.imports.ImportDetailsInfoController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-import-document-details                              controllers.imports.ImportDetailsInfoController.onSubmit(mode: Mode = CheckMode)
