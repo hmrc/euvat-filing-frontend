@@ -505,7 +505,7 @@ importSubCode.other.error.required = Select the type of import
 
 describeItemsOnImportDoc.title = List each item from your import document
 describeItemsOnImportDoc.heading = List each item from your import document
-describeItemsOnImportDoc.hint = You can give the details in {0} as your preferred language
+describeItemsOnImportDoc.hint = You can give the details in your preferred language
 describeItemsOnImportDoc.error.required = Enter a description of the items on your import document
 describeItemsOnImportDoc.error.length = Item description must be 255 characters or less
 

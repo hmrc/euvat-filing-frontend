@@ -21,9 +21,9 @@ import forms.DescribeItemsFormProvider
 import models.requests.DataRequest
 import models.*
 import navigation.Navigator
-import pages.{DescribeItemsOnImportDocPage, ImportSubCodePage, ImportTypePage, RefundingLanguagePage}
+import pages.{DescribeItemsOnImportDocPage, ImportSubCodePage, ImportTypePage}
 import play.api.data.Form
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -72,13 +72,14 @@ class DescribeItemsOnImportDocController @Inject() (
       }
     }
 
-  private def hint(answers: UserAnswers)(implicit messages: Messages): Option[String] =
-    answers
-      .get(RefundingLanguagePage)
-      .map(language => messages(s"$messagePrefix.hint", messages(s"refundingLanguage.${language.value}")))
-
   private def renderView(form: Form[String], mode: Mode)(implicit request: DataRequest[AnyContent]) =
-    view(form, submitCall(mode), backLink(request.userAnswers), messagePrefix, "import.caption", hint(request.userAnswers))
+    view(form,
+         submitCall(mode),
+         backLink(request.userAnswers),
+         messagePrefix,
+         "import.caption",
+         Some(messagesApi.preferred(request)(s"$messagePrefix.hint"))
+        )
 
   private def withGuard(block: => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] =
     if (isReachable(request.userAnswers)) block
