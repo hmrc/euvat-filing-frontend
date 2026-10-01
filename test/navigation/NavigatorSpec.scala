@@ -20,6 +20,7 @@ import base.SpecBase
 import com.typesafe.config.ConfigFactory
 import controllers.claim.routes as claimRoutes
 import controllers.purchase.routes as purchaseRoutes
+import controllers.imports.routes as importRoutes
 import models.*
 import models.PurchaseOrImport.{Import, Purchase}
 import pages.*
@@ -159,6 +160,11 @@ class NavigatorSpec extends SpecBase {
         case object UnknownPage extends Page
         navigator.nextPage(UnknownPage, NormalMode, userAnswers) mustBe controllers.routes.IndexController.onPageLoad()
       }
+
+      "must go from DescribeItemsOnImportDocPage to SadReferenceCheckController" in {
+        navigator.nextPage(DescribeItemsOnImportDocPage, NormalMode, userAnswers) mustBe
+          importRoutes.SadReferenceCheckController.onPageLoad(NormalMode)
+      }
     }
 
     "in Check mode" - {
@@ -214,6 +220,11 @@ class NavigatorSpec extends SpecBase {
       "must go from a page that doesn't exist in the edit route map to IndexController" in {
         case object UnknownPage extends Page
         navigator.nextPage(UnknownPage, CheckMode, userAnswers) mustBe controllers.routes.IndexController.onPageLoad()
+      }
+
+      "must go from DescribeItemsOnImportDocPage to SadReferenceCheckController" in {
+        navigator.nextPage(DescribeItemsOnImportDocPage, CheckMode, userAnswers) mustBe
+          importRoutes.SadReferenceCheckController.onPageLoad(CheckMode)
       }
     }
   }

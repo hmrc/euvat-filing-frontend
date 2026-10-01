@@ -25,13 +25,13 @@
     mainErrorSummary: MainErrorSummary
 )
 
-@(form: play.api.data.Form[_])(implicit request: play.api.mvc.Request[_], messages: play.api.i18n.Messages)
+@(form: play.api.data.Form[_], call: play.api.mvc.Call)(implicit request: play.api.mvc.Request[_], messages: play.api.i18n.Messages)
 
 @isError = @{form.error("value").isDefined}
 
-@layout(pageTitle = title(form, messages("singleAdministrativeDocumentReferenceNumberAvailable.title"))) {
+@layout(pageTitle = title(form, messages("singleAdministrativeDocumentReferenceNumberAvailable.title")), backLinkUrl = Some(call.url)) {
 
-    @formHelper(action = controllers.imports.routes.SadReferenceController.onSubmit(models.NormalMode), Symbol("autoComplete") -> "off") {
+    @formHelper(action = controllers.imports.routes.SadReferenceCheckController.onSubmit(models.NormalMode), Symbol("autoComplete") -> "off") {
 
         @mainErrorSummary(form, errorLinkOverrides = Map("value" -> "value"))
         
