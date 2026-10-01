@@ -179,6 +179,25 @@ class NavigatorSpec extends SpecBase {
         navigator.nextPage(SadReferenceNumberPage, NormalMode, userAnswers) mustBe
           controllers.routes.JourneyRecoveryController.onPageLoad()
       }
+
+      "must go from ImportDetailsInfoPage to ImportCurrencyController when the country requires currency selection" in {
+        val answers = userAnswers.set(RefundingCountryPage, "EE").success.value
+
+        navigator.nextPage(ImportDetailsInfoPage, NormalMode, answers) mustBe
+          importRoutes.ImportCurrencyController.onPageLoad(NormalMode)
+      }
+
+      "must skip ImportCurrencyController from ImportDetailsInfoPage when the country has one currency" in {
+        val answers = userAnswers.set(RefundingCountryPage, "AT").success.value
+
+        navigator.nextPage(ImportDetailsInfoPage, NormalMode, answers) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from ImportCurrencyPage to JourneyRecoveryController" in {
+        navigator.nextPage(ImportCurrencyPage, NormalMode, userAnswers) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
     }
 
     "in Check mode" - {
@@ -241,6 +260,13 @@ class NavigatorSpec extends SpecBase {
       "must go from ImportCurrencyPage to JourneyRecoveryController" in {
         navigator.nextPage(ImportCurrencyPage, CheckMode, userAnswers) mustBe
           controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from ImportDetailsInfoPage to ImportCurrencyController when the country requires currency selection" in {
+        val answers = userAnswers.set(RefundingCountryPage, "EE").success.value
+
+        navigator.nextPage(ImportDetailsInfoPage, CheckMode, answers) mustBe
+          importRoutes.ImportCurrencyController.onPageLoad(CheckMode)
       }
 
       "must go from a page that doesn't exist in the edit route map to IndexController" in {
