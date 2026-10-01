@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.purchase.SupplierTaxNumberFormProvider
 import models.{CheckMode, InvoiceType, Mode, NormalMode, SupplierTaxNumber}
 import navigation.Navigator
-import pages.{InvoiceTypePage, SupplierTaxIdentifierNumberPage, SupplierTaxNumberPage, SupplierVatRegistrationNumberPage}
+import pages.{InvoiceTypePage, SupplierTaxIdentifierNumberPage, SupplierTaxNumberCheckPage, SupplierVatRegistrationNumberPage}
 import play.api.Logger
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -57,7 +57,7 @@ class SupplierTaxNumberController @Inject() (
   }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = request.userAnswers.get(SupplierTaxNumberPage).fold(form)(form.fill)
+    val preparedForm = request.userAnswers.get(SupplierTaxNumberCheckPage).fold(form)(form.fill)
     val isSimplifiedInvoice: Boolean = request.userAnswers.get(InvoiceTypePage).contains(InvoiceType.SimplifiedInvoice)
     Ok(view(preparedForm, mode, backLink(mode), isSimplifiedInvoice))
   }
@@ -70,7 +70,7 @@ class SupplierTaxNumberController @Inject() (
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode), isSimplifiedInvoice))),
         value =>
           for {
-            userAnswers <- Future.fromTry(request.userAnswers.set(SupplierTaxNumberPage, value))
+            userAnswers <- Future.fromTry(request.userAnswers.set(SupplierTaxNumberCheckPage, value))
             updatedAnswers <- value match {
                                 case SupplierTaxNumber.Vatregistrationnumber => Future.fromTry(userAnswers.remove(SupplierTaxIdentifierNumberPage))
                                 case SupplierTaxNumber.Taxidentifiernumber   => Future.fromTry(userAnswers.remove(SupplierVatRegistrationNumberPage))
@@ -81,7 +81,7 @@ class SupplierTaxNumberController @Inject() (
                                   } yield tidAnswers
                               }
             _ <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(SupplierTaxNumberPage, mode, updatedAnswers))
+          } yield Redirect(navigator.nextPage(SupplierTaxNumberCheckPage, mode, updatedAnswers))
       )
   }
 

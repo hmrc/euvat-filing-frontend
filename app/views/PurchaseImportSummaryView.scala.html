@@ -1,0 +1,66 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Content
+@import viewmodels.LegendSize
+
+@this(
+    layout: templates.Layout,
+    formHelper: FormWithCSRF,
+    govukButton: GovukButton,
+    govukSummaryList: GovukSummaryList,
+    govukRadios: GovukRadios,
+    govukDetails : GovukDetails
+)
+
+@(form: play.api.data.Form[_], summaryList: Seq[SummaryListRow], numberOfItems: Int, totalClaim: BigDecimal)(implicit request: Request[_], messages: Messages)
+@content = {
+    <p class = "govuk-body">@messages("purchaseImportSummary.details.list")</p>
+    <ul class = "govuk-list govuk-list--bullet">
+        <li>@messages("purchaseImportSummary.details.list1")</li>
+        <li>@messages("purchaseImportSummary.details.list2")</li>
+    </ul>
+}
+
+@layout(pageTitle = titleNoForm(messages("purchaseImportSummary.title", numberOfItems)), showBackLink = false, useFullGrid = true) {
+    @formHelper(action = controllers.routes.PurchaseImportSummaryController.onSubmit, Symbol("autoComplete") -> "off") {
+        <h1 class="govuk-heading-l">
+            <span class="govuk-caption-l">@messages("purchaseImportSummary.caption")</span>
+            @messages("purchaseImportSummary.heading", numberOfItems)
+        </h1>
+        <p class = "govuk-body">@messages("purchaseImportSummary.p1", totalClaim)</p>
+
+        @govukDetails(Details(
+            summary = Text(messages("purchaseImportSummary.details.summary")),
+            content = HtmlContent(content)
+        ))
+
+        @govukSummaryList(SummaryList(rows = summaryList))
+
+        @govukRadios(
+            RadiosViewModel(
+                field  = form("value"),
+                legend = LegendViewModel(messages("purchaseImportSummary.add.item")).asPageHeading(LegendSize.Medium),
+                items  = Seq(
+                    RadioItem(id = Some("value"), value = Some("true"), content = Text(messages("site.yes"))),
+                    RadioItem(id = Some("value"), value = Some("false"), content = Text(messages("site.no")))
+                )
+            )
+        )
+
+        @govukButton(ButtonViewModel(messages("site.continue")))
+    }
+}

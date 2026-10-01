@@ -21,7 +21,6 @@ import models.NormalMode
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import models.NormalMode
 
 class SadReferenceControllerSpec extends SpecBase with MockitoSugar {
 

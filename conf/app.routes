@@ -23,6 +23,9 @@ POST        /before-you-start                             controllers.BeforeYouS
 GET         /purchase-or-import                           controllers.PurchaseOrImportController.onPageLoad
 POST        /purchase-or-import                           controllers.PurchaseOrImportController.onSubmit
 
+GET         /purchase-import-summary                      controllers.PurchaseImportSummaryController.onPageLoad
+POST        /purchase-import-summary                      controllers.PurchaseImportSummaryController.onSubmit
+
 # Warning pages
 GET         /check-refund-period                          controllers.warning.PeriodOverlapWarningController.onPageLoad(mode: Mode = NormalMode)
 POST        /check-refund-period                          controllers.warning.PeriodOverlapWarningController.onSubmit(mode: Mode = NormalMode)

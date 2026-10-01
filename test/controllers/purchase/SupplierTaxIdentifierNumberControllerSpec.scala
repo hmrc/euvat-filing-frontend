@@ -212,7 +212,7 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
         .set(InvoiceNumberPage, "INV123")
         .success
         .value
-        .set(pages.SupplierTaxNumberPage, models.SupplierTaxNumber.Taxidentifiernumber)
+        .set(pages.SupplierTaxNumberCheckPage, models.SupplierTaxNumber.Taxidentifiernumber)
         .success
         .value
         .set(pages.RefundingCountryPage, "DE")
