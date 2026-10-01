@@ -166,15 +166,15 @@ class NavigatorSpec extends SpecBase {
           controllers.imports.routes.SadReferenceNumberController.onPageLoad(NormalMode)
       }
 
-      "must go from SadReferencePage to TotalAmountWithoutVatController when answer is no" in {
+      "must go from SadReferencePage to ImportDetailsInfoController when answer is no" in {
         val ua = userAnswers.set(SadReferencePage, false).success.value
         navigator.nextPage(SadReferencePage, NormalMode, ua) mustBe
-          controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad(NormalMode)
+          controllers.imports.routes.ImportDetailsInfoController.onPageLoad(NormalMode)
       }
 
-      "must go from SadReferenceNumberPage to TotalAmountWithoutVatController" in {
+      "must go from SadReferenceNumberPage to ImportDetailsInfoController" in {
         navigator.nextPage(SadReferenceNumberPage, NormalMode, userAnswers) mustBe
-          controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad(NormalMode)
+          controllers.imports.routes.ImportDetailsInfoController.onPageLoad(NormalMode)
       }
 
       "must go from TotalAmountWithoutVatPage to JourneyRecoveryController" in {
@@ -244,15 +244,15 @@ class NavigatorSpec extends SpecBase {
           controllers.imports.routes.SadReferenceNumberController.onPageLoad(CheckMode)
       }
 
-      "must go from SadReferencePage to TotalAmountWithoutVatController when answer is no" in {
+      "must go from SadReferencePage to ImportDetailsInfoController when answer is no" in {
         val ua = userAnswers.set(SadReferencePage, false).success.value
         navigator.nextPage(SadReferencePage, CheckMode, ua) mustBe
-          controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad(CheckMode)
+          controllers.imports.routes.ImportDetailsInfoController.onPageLoad(CheckMode)
       }
 
-      "must go from SadReferenceNumberPage to TotalAmountWithoutVatController" in {
+      "must go from SadReferenceNumberPage to ImportDetailsInfoController" in {
         navigator.nextPage(SadReferenceNumberPage, CheckMode, userAnswers) mustBe
-          controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad(CheckMode)
+          controllers.imports.routes.ImportDetailsInfoController.onPageLoad(CheckMode)
       }
 
       "must go from TotalAmountWithoutVatPage to JourneyRecoveryController" in {

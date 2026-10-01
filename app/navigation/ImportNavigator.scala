@@ -57,19 +57,19 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
   def navigateFromImportDetailsInfoPage(mode: Mode)(userAnswers: UserAnswers): Call =
     mode match {
       case NormalMode =>
-        controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: replace with "When is the import date" controller once built
+        importsRoutes.TotalAmountWithoutVatController.onPageLoad(mode) // TODO: replace with "When is the import date" controller once built
       case CheckMode => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
   def navigateFromSadReferencePage(mode: Mode)(userAnswers: UserAnswers): Call =
     userAnswers.get(SadReferencePage) match {
       case Some(true)  => importsRoutes.SadReferenceNumberController.onPageLoad(mode)
-      case Some(false) => importsRoutes.TotalAmountWithoutVatController.onPageLoad(mode)
+      case Some(false) => importsRoutes.ImportDetailsInfoController.onPageLoad(mode)
       case None        => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
   def navigateFromSadReferenceNumberPage(mode: Mode)(userAnswers: UserAnswers): Call =
-    importsRoutes.TotalAmountWithoutVatController.onPageLoad(mode)
+    importsRoutes.ImportDetailsInfoController.onPageLoad(mode)
 
   // TODO: replace once the page following total amount without VAT is built
   def navigateFromTotalAmountWithoutVatPage(mode: Mode)(userAnswers: UserAnswers): Call =

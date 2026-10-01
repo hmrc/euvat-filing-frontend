@@ -174,10 +174,10 @@ class ImportNavigatorSpec extends SpecBase {
           controllers.imports.routes.SadReferenceNumberController.onPageLoad(CheckMode)
       }
 
-      "must go to TotalAmountWithoutVatController when answer is no" in {
+      "must go to ImportDetailsInfoController when answer is no" in {
         val ua = userAnswers.set(SadReferencePage, false).success.value
         navigator.navigateFromSadReferencePage(NormalMode)(ua) mustBe
-          controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad(NormalMode)
+          controllers.imports.routes.ImportDetailsInfoController.onPageLoad(NormalMode)
       }
 
       "must go to JourneyRecoveryController when no answer is present" in {
@@ -187,9 +187,9 @@ class ImportNavigatorSpec extends SpecBase {
     }
 
     "navigateFromSadReferenceNumberPage" - {
-      "must go to TotalAmountWithoutVatController" in {
+      "must go to ImportDetailsInfoController" in {
         navigator.navigateFromSadReferenceNumberPage(NormalMode)(userAnswers) mustBe
-          controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad(NormalMode)
+          controllers.imports.routes.ImportDetailsInfoController.onPageLoad(NormalMode)
       }
     }
 

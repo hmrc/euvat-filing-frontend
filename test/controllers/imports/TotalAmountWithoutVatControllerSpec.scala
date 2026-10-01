@@ -37,7 +37,7 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
   val formProvider = new TotalAmountWithoutVatFormProvider()
   val form: Form[BigDecimal] = formProvider()
   lazy val totalAmountWithoutVatRoute: String = controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad(models.NormalMode).url
-  lazy val backLink = controllers.imports.routes.SadReferenceController.onPageLoad(models.NormalMode)
+  lazy val backLink = controllers.imports.routes.ImportDetailsInfoController.onPageLoad(models.NormalMode)
 
   "TotalAmountWithoutVat Controller" - {
 
@@ -94,7 +94,7 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must show back link to SadReferenceNumber when SadReference was yes and number present" in {
+    "must show back link to ImportDetailsInfo when SadReference was yes and number present" in {
       val userAnswers = UserAnswers(userAnswersId)
         .set(SadReferencePage, true)
         .success
@@ -110,11 +110,11 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) must include(controllers.imports.routes.SadReferenceNumberController.onPageLoad(models.NormalMode).url)
+        contentAsString(result) must include(controllers.imports.routes.ImportDetailsInfoController.onPageLoad(models.NormalMode).url)
       }
     }
 
-    "must show back link to SadReference when SadReference was yes but number missing" in {
+    "must show back link to ImportDetailsInfo when SadReference was yes but number missing" in {
       val userAnswers = UserAnswers(userAnswersId).set(SadReferencePage, true).success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -123,7 +123,7 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) must include(controllers.imports.routes.SadReferenceController.onPageLoad(models.NormalMode).url)
+        contentAsString(result) must include(controllers.imports.routes.ImportDetailsInfoController.onPageLoad(models.NormalMode).url)
       }
     }
 
