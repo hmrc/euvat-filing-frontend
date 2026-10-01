@@ -17,7 +17,6 @@
 package forms
 
 import forms.behaviours.OptionFieldBehaviours
-import forms.purchase.RefundingCurrencyFormProvider
 import models.RefundingCurrency
 import play.api.data.FormError
 
@@ -41,6 +40,17 @@ class RefundingCurrencyFormProviderSpec extends OptionFieldBehaviours {
       form,
       fieldName,
       requiredError = FormError(fieldName, requiredKey)
+    )
+  }
+
+  ".value with import prefix" - {
+
+    val importForm = new RefundingCurrencyFormProvider()("import.refundingCurrency")
+
+    behave like mandatoryField(
+      importForm,
+      "value",
+      requiredError = FormError("value", "import.refundingCurrency.error.required")
     )
   }
 }

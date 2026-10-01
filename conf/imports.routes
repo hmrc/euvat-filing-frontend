@@ -72,3 +72,8 @@ GET         /import-document-details                                     control
 POST        /import-document-details                                     controllers.imports.ImportDetailsInfoController.onSubmit(mode: Mode = NormalMode)
 GET         /change-import-document-details                              controllers.imports.ImportDetailsInfoController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-import-document-details                              controllers.imports.ImportDetailsInfoController.onSubmit(mode: Mode = CheckMode)
+
+GET         /currency                                                    controllers.imports.ImportCurrencyController.onPageLoad(mode:Mode = NormalMode)
+POST        /currency                                                    controllers.imports.ImportCurrencyController.onSubmit(mode:Mode = NormalMode)
+GET         /change-currency                                             controllers.imports.ImportCurrencyController.onPageLoad(mode:Mode = CheckMode)
+POST        /change-currency                                             controllers.imports.ImportCurrencyController.onSubmit(mode:Mode = CheckMode)
