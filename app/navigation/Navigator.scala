@@ -63,7 +63,7 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case ImportTypePage                    => userAnswers => importNavigator.navigateFromImportTypePage(NormalMode)(userAnswers)
     case ImportSubCodePage                 => userAnswers => importNavigator.navigateFromImportSubCodePage(NormalMode)(userAnswers)
     case ImportSubCategoryPage             => userAnswers => importNavigator.navigateFromImportSubCategoryPage(NormalMode)(userAnswers)
-    case ImportDetailsInfoPage             => userAnswers => importNavigator.navigateFromImportDetailsInfoPage(NormalMode)(userAnswers)
+    case ImportDetailsInfoPage             => _ => importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode) // TODO: import date page goes here after merge
     case SadReferencePage =>
       userAnswers =>
         userAnswers.get(SadReferencePage) match {
@@ -71,9 +71,9 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
           case Some(false) => importRoutes.ImportDetailsInfoController.onPageLoad(NormalMode)
           case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
         }
-    case SadReferenceNumberPage  => _ => importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode)
-    case ImportSuppliersNamePage => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
-    case _                       => _ => controllers.routes.IndexController.onPageLoad()
+    case SadReferenceNumberPage            => _ => importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode) // TODO: import date page goes here after merge
+    case ImportSuppliersNamePage           => _ => controllers.routes.JourneyRecoveryController.onPageLoad() //TODO: wire up after supplier address is merged
+    case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 
   private val checkRoutes: Page => UserAnswers => Call = {
@@ -104,7 +104,7 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case ImportTypePage                    => userAnswers => importNavigator.navigateFromImportTypePage(CheckMode)(userAnswers)
     case ImportSubCodePage                 => _ => importRoutes.SadReferenceController.onPageLoad(CheckMode)
     case ImportSubCategoryPage             => userAnswers => importNavigator.navigateFromImportSubCategoryPage(CheckMode)(userAnswers)
-    case ImportDetailsInfoPage             => userAnswers => importNavigator.navigateFromImportDetailsInfoPage(CheckMode)(userAnswers)
+    case ImportDetailsInfoPage             => _ => importRoutes.ImportSuppliersNameController.onPageLoad(CheckMode)
     case SadReferencePage =>
       userAnswers =>
         userAnswers.get(SadReferencePage) match {
@@ -112,9 +112,9 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
           case Some(false) => importRoutes.ImportDetailsInfoController.onPageLoad(CheckMode)
           case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
         }
-    case SadReferenceNumberPage  => _ => importRoutes.ImportSuppliersNameController.onPageLoad(CheckMode)
-    case ImportSuppliersNamePage => _ => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: check your import details
-    case _                       => _ => controllers.routes.IndexController.onPageLoad()
+    case SadReferenceNumberPage            => _ => importRoutes.ImportSuppliersNameController.onPageLoad(CheckMode) // TODO: import date page goes here after merge
+    case ImportSuppliersNamePage           => _ => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: wire up after supplier address is merged
+    case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 
   private def navigateFromPurchaseOrImportPage(userAnswers: UserAnswers): Call =

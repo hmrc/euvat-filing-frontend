@@ -135,11 +135,11 @@ class NavigatorSpec extends SpecBase {
           importRoutes.SadReferenceNumberController.onPageLoad(NormalMode)
       }
 
-      "must go from SadReferencePage to Journey Recovery when the user has no SAD reference" in {
+      "must go from SadReferencePage to ImportDetailsInfoController when the user has no SAD reference" in {
         val answers = userAnswers.set(SadReferencePage, false).success.value
 
         navigator.nextPage(SadReferencePage, NormalMode, answers) mustBe
-          controllers.routes.JourneyRecoveryController.onPageLoad()
+          importRoutes.ImportDetailsInfoController.onPageLoad(NormalMode)
       }
 
       "must go from SadReferencePage to Journey Recovery when the question is unanswered" in {
@@ -149,6 +149,11 @@ class NavigatorSpec extends SpecBase {
 
       "must go from SadReferenceNumberPage to ImportSuppliersNameController" in {
         navigator.nextPage(SadReferenceNumberPage, NormalMode, userAnswers) mustBe
+          importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode)
+      }
+
+      "must go from ImportDetailsInfoPage to ImportSuppliersNameController" in {
+        navigator.nextPage(ImportDetailsInfoPage, NormalMode, userAnswers) mustBe
           importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode)
       }
 
@@ -267,6 +272,11 @@ class NavigatorSpec extends SpecBase {
 
       "must go from SadReferenceNumberPage to ImportSuppliersNameController" in {
         navigator.nextPage(SadReferenceNumberPage, CheckMode, userAnswers) mustBe
+          importRoutes.ImportSuppliersNameController.onPageLoad(CheckMode)
+      }
+
+      "must go from ImportDetailsInfoPage to ImportSuppliersNameController" in {
+        navigator.nextPage(ImportDetailsInfoPage, CheckMode, userAnswers) mustBe
           importRoutes.ImportSuppliersNameController.onPageLoad(CheckMode)
       }
     }
