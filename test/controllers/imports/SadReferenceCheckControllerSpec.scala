@@ -76,7 +76,7 @@ class SadReferenceCheckControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(POST, controllers.imports.routes.SadReferenceController.onSubmit(NormalMode).url)
+        val request = FakeRequest(POST, controllers.imports.routes.SadReferenceCheckController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody("value" -> "false")
 
         val result = route(application, request).value
