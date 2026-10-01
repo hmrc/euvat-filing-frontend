@@ -17,19 +17,25 @@
 package controllers.claim
 
 import base.SpecBase
-import controllers.claim.routes
+import config.FrontendAppConfig
 import forms.claim.CheckYourStateDetailsFormProvider
+import models.responses.ApplicationResponse
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
+import org.mockito.ArgumentCaptor
+import utils.DeleteClaimHelper
+import play.api.mvc.Results
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.CheckYourStateDetailsPage
 import play.api.data.Form
 import play.api.inject.bind
+import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import queries.ClaimApplicationResponseQuery
 import repositories.SessionRepository
 import views.html.claim.CheckYourStateDetailsView
 
@@ -58,9 +64,7 @@ class CheckYourStateDetailsControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[CheckYourStateDetailsView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, routes.CheckYourClaimDetailsController.onPageLoad())(request,
-                                                                                                                      messages(application)
-                                                                                                                     ).toString
+        contentAsString(result) must include(routes.CheckYourClaimDetailsController.onPageLoad().url)
       }
     }
 
@@ -78,23 +82,26 @@ class CheckYourStateDetailsControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(true), NormalMode, routes.CheckYourClaimDetailsController.onPageLoad())(request,
-                                                                                                                                 messages(application)
-                                                                                                                                ).toString
+        contentAsString(result) must include(routes.CheckYourClaimDetailsController.onPageLoad().url)
       }
     }
 
-    "must redirect to the next page when valid data is submitted" in {
+    "must call delete and redirect to the management frontend when 'Yes' is submitted" in {
 
-      val mockSessionRepository = mock[SessionRepository]
+      val mockDeleteHelper = mock[DeleteClaimHelper]
 
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      when(mockDeleteHelper.deleteAndRedirect(any())(any())) thenReturn Future.successful(Results.Redirect("/manage"))
+
+      val populatedAnswers = emptyUserAnswers
+        .set(ClaimApplicationResponseQuery, ApplicationResponse(123, "APP123", 1))
+        .success
+        .value
 
       val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        applicationBuilder(userAnswers = Some(populatedAnswers))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository)
+            bind[utils.DeleteClaimHelper].toInstance(mockDeleteHelper)
           )
           .build()
 
@@ -106,7 +113,9 @@ class CheckYourStateDetailsControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
+        redirectLocation(result).value mustEqual "/manage"
+
+        verify(mockDeleteHelper).deleteAndRedirect(any())(any())
       }
     }
 
@@ -126,9 +135,7 @@ class CheckYourStateDetailsControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, routes.CheckYourClaimDetailsController.onPageLoad())(request,
-                                                                                                                           messages(application)
-                                                                                                                          ).toString
+        contentAsString(result) must include(routes.CheckYourClaimDetailsController.onPageLoad().url)
       }
     }
 

@@ -16,6 +16,7 @@
 
 package controllers.claim
 
+import config.FrontendAppConfig
 import controllers.actions.*
 import forms.claim.CheckYourStateDetailsFormProvider
 import models.Mode
@@ -25,9 +26,12 @@ import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
+import utils.DeleteClaimHelper
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.claim.CheckYourStateDetailsView
-import utils.ControllerHelpers.*
+import play.api.Logging
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -41,10 +45,13 @@ class CheckYourStateDetailsController @Inject() (
   requireData: DataRequiredAction,
   formProvider: CheckYourStateDetailsFormProvider,
   val controllerComponents: MessagesControllerComponents,
-  view: CheckYourStateDetailsView
+  view: CheckYourStateDetailsView,
+  appConfig: FrontendAppConfig,
+  deleteClaimHelper: DeleteClaimHelper
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
   val form: Form[Boolean] = formProvider()
 
@@ -61,10 +68,15 @@ class CheckYourStateDetailsController @Inject() (
       .fold(
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink))),
         value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(CheckYourStateDetailsPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(CheckYourStateDetailsPage, mode, updatedAnswers))
+          if (value) {
+            implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+            deleteClaimHelper.deleteAndRedirect(request.userAnswers)
+          } else {
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(CheckYourStateDetailsPage, value))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(navigator.nextPage(CheckYourStateDetailsPage, mode, updatedAnswers))
+          }
       )
   }
 }
