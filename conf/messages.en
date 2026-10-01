@@ -125,10 +125,6 @@ refundingCurrency.newLeu = Romanian Leu ({0})
 refundingCurrency.swedishKrona = Swedish Krona ({0})
 refundingCurrency.error.required = Select a currency for this claim
 
-import.refundingCurrency.title = Which currency do you want to use for this import?
-import.refundingCurrency.heading = Which currency do you want to use for this import?
-import.refundingCurrency.error.required = Select a currency for this import
-
 refundPeriod.title = Refund period
 refundPeriod.heading = Refund period
 refundPeriod.rules.heading = Your refund period must:
@@ -535,6 +531,10 @@ importDetailsInfo.error.required = Enter import document details
 importDetailsInfo.error.length = Import document details must be 255 characters or less
 
 suppliersName.import.hint = Find the supplier’s name on the import document
+
+import.refundingCurrency.title = Which currency do you want to use for this import?
+import.refundingCurrency.heading = Which currency do you want to use for this import?
+import.refundingCurrency.error.required = Select a currency for this import
 
 # Warning messages
 confirmRefundPeriodStartDate.title = Are you sure the refund period start date is correct?
