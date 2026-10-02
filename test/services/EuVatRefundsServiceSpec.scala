@@ -195,6 +195,35 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
     }
   }
 
+  "EuVatRefundsService.addImport" - {
+
+    val request = AddImportRequest(
+      applicationId            = 123456,
+      goodsDescriptionCategory = "1",
+      updateSequenceNumber     = 1
+    )
+
+    val expectedResponse = AddImportResponse(itemNumber = 4, updateSequenceNumber = 1)
+
+    "should return the add import response from the connector" in {
+      when(mockConnector.addImport(any())(any()))
+        .thenReturn(Future.successful(expectedResponse))
+
+      service.addImport(request)(hc).futureValue mustEqual expectedResponse
+    }
+
+    "should propagate an exception from the connector" in {
+      val failure = new RuntimeException("Connector failed")
+
+      when(mockConnector.addImport(any())(any()))
+        .thenReturn(Future.failed(failure))
+
+      whenReady(service.addImport(request).failed) { ex =>
+        ex mustEqual failure
+      }
+    }
+  }
+
   "EuVatRefundsService.updatePurchase" - {
 
     val updateRequest = models.requests.UpdatePurchaseRequest(
