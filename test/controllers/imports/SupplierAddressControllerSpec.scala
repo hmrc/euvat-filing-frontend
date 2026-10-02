@@ -238,14 +238,12 @@ class SupplierAddressControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
 
-//      TODO: Update once actual TotalAmountWithoutVatController route is available
-        redirectLocation(result).value mustEqual
-          controllers.routes.JourneyRecoveryController.onPageLoad().url
+//      TODO: Recheck once actual TotalAmountWithoutVatController route is available
 
-//        redirectLocation(result).value mustEqual
-//          controllers.imports.routes.TotalAmountWithoutVatController
-//            .onPageLoad()
-//            .url
+        redirectLocation(result).value mustEqual
+          controllers.imports.routes.TotalAmountWithoutVatController
+            .onPageLoad()
+            .url
 
         verify(mockSessionRepository, times(1))
           .set(any())

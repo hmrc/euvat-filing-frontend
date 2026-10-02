@@ -16,17 +16,20 @@
 
 package controllers.imports
 
-import models.Mode
-import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
+import play.api.i18n.I18nSupport
+import play.api.mvc._
+import views.html.imports.TotalAmountWithoutVatView
 
 import javax.inject.Inject
 
 class TotalAmountWithoutVatController @Inject() (
-                                                  val controllerComponents: ControllerComponents
-                                                ) extends BaseController {
+                                                  val controllerComponents: MessagesControllerComponents,
+                                                  view: TotalAmountWithoutVatView
+                                                ) extends BaseController
+  with I18nSupport {
 
-  def onPageLoad(mode: Mode): Action[AnyContent] =
-    Action {
-      Ok("Temporary Total amount without VAT page")
+  def onPageLoad(): Action[AnyContent] =
+    Action { implicit request =>
+      Ok(view())
     }
 }

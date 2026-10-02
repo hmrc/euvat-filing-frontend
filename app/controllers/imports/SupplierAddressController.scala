@@ -90,9 +90,9 @@ class SupplierAddressController @Inject() (
                 case Some("EE") =>
                   controllers.imports.routes.ImportCurrencyController.onPageLoad(mode)
 
-                // TODO: Check temporary redirect once dependent DTR-8186 import journey PR is merged.
-//                 case Some(_) =>
-//                   controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad(mode)
+                // TODO: Check temporary redirect once dependent DTR-8186 Total amount without VAT  PR is merged.
+                 case Some(_) =>
+                   controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad()
 
                 case _ =>
                   controllers.routes.JourneyRecoveryController.onPageLoad()
