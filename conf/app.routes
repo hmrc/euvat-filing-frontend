@@ -25,3 +25,6 @@ POST        /purchases-imports/select-item              controllers.PurchaseOrIm
 
 GET         /purchases-imports/summary                  controllers.PurchaseImportSummaryController.onPageLoad
 POST        /purchases-imports/summary                  controllers.PurchaseImportSummaryController.onSubmit
+
+GET         /remove-item                                controllers.RemoveItemController.onPageLoad()
+POST        /remove-item                                controllers.RemoveItemController.onSubmit()

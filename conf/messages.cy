@@ -525,7 +525,22 @@ importDetailsInfo.bullet1 = port of import
 importDetailsInfo.bullet2 = document reference number
 importDetailsInfo.label = Enter import document details
 importDetailsInfo.error.required = Enter import document details
-importDetailsInfo.error.length = Import document details must be 255 characters or less
+importDetailsInfo.error.length = Import document details must be 255 characters or less#
+
+importDate.title = When is the import date?
+importDate.heading = When is the import date?
+importDate.hint = For example, 27 3 2025
+importDate.error.invalid = Enter a date in the correct format
+importDate.error.invalid.day = Enter a day in the correct format
+importDate.error.invalid.month = Enter a month in the correct format
+importDate.error.invalid.year = Enter a year in the correct format
+importDate.error.invalid.two = Enter a {0} and {1} in the correct format
+importDate.error.required = Enter a {0}
+importDate.error.required.all = Enter a date
+importDate.error.required.two = Enter a {0} and {1}
+importDate.error.past = The import date must be in the past
+importDate.checkYourAnswersLabel = Import date
+importDate.change.hidden = Change import date
 
 importDate.title = When is the import date?
 importDate.heading = When is the import date?
@@ -588,6 +603,13 @@ purchaseImportSummary.complete.remove.hidden = {0} for {1} with a VAT claim of {
 purchaseImportSummary.error.required = Select yes if you need to add another item
 purchaseImportSummary.error.incomplete = You must add details to the incomplete items or remove them before you can continue
 
+removeItem.title = Remove item
+removeItem.heading = Remove item
+removeItem.list1 = Type
+removeItem.list2 = VAT claim
+removeItem.value = Not provided // TODO: if item "incomplete" show this msg instead of the amount
+removeItem.legend = Are you sure you want to remove this item?
+removeItem.error.required = Select yes if you want to remove this item
 
 # Warning messages
 refundPeriodStartDateWarning.title = Are you sure the refund period start date is correct?
