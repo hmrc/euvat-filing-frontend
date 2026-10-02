@@ -525,15 +525,15 @@ importDetailsInfo.label = Enter import document details
 importDetailsInfo.error.required = Enter import document details
 importDetailsInfo.error.length = Import document details must be 255 characters or less
 
-totalVatPaid.title = Total VAT paid
-totalVatPaid.heading = Total VAT paid
-totalVatPaid.p1 = If this amount is not on your import document, you’ll need to calculate it. Use the standard VAT rate of the country you’re claiming from.
-totalVatPaid.h2 = How much VAT did you pay?
-totalVatPaid.hint = For example, €150 or €120.45
-totalVatPaid.error.required = Enter total VAT paid
-totalVatPaid.error.invalidNumeric = Enter total VAT paid in the correct format
-totalVatPaid.error.nonNumeric = Enter total VAT paid in the correct format
-totalVatPaid.error.aboveMaximum = Total VAT paid must be between -999,999,999.99 and 999,999,999.99
+totalVatPaidImport.title = Total VAT paid
+totalVatPaidImport.heading = Total VAT paid
+totalVatPaidImport.p1 = If this amount is not on your import document, you’ll need to calculate it. Use the standard VAT rate of the country you’re claiming from.
+totalVatPaidImport.h2 = How much VAT did you pay?
+totalVatPaidImport.hint = For example, {0}150 or {0}120.45
+totalVatPaidImport.error.required = Enter total VAT paid
+totalVatPaidImport.error.invalidNumeric = Enter total VAT paid in the correct format
+totalVatPaidImport.error.nonNumeric = Enter total VAT paid in the correct format
+totalVatPaidImport.error.aboveMaximum = Total VAT paid must be between -999,999,999.99 and 999,999,999.99
 
 # Warning messages
 confirmRefundPeriodStartDate.title = Are you sure the refund period start date is correct?
