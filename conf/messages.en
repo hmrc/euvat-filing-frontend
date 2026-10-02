@@ -34,6 +34,8 @@ error.title.prefix = Error:
 error.prefix = Error
 error.summary.title = There is a problem
 
+purchaseOrImportDate.hint = For example, 27 3 2025
+
 journeyRecovery.continue.title = Sorry, there is a problem with the service
 journeyRecovery.continue.heading = Sorry, there is a problem with the service
 journeyRecovery.continue.guidance = [Add content to explain how to proceed.]
@@ -674,3 +676,12 @@ sadReferenceNumberWarning.p = You’ve already added an import with the same SAD
 sadReferenceNumberWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
 sadReferenceNumberWarning.correct = Yes, this is correct
 sadReferenceNumberWarning.backLink = No, change SAD reference number
+
+removeItem.title = Remove item
+removeItem.heading = Remove item
+removeItem.list1 = Type
+removeItem.list2 = VAT claim
+# TODO: if item "incomplete" show this msg instead of the amount (separate business function)
+removeItem.value = Not provided  
+removeItem.legend = Are you sure you want to remove this item?
+removeItem.error.required = Select yes if you want to remove this item
