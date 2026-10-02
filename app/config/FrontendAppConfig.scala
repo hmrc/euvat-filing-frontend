@@ -55,6 +55,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val cacheTtl: Long = configuration.get[Int]("mongodb.timeToLiveInSeconds")
 
   val countriesInEU: Map[String, String] = configuration.get[Map[String, String]]("eu.member-states")
+  val supplierCountries: Map[String, String] = configuration.get[Map[String, String]]("supplier-countryCode")
 
   val refundAllowlistCreate: Set[String] = configuration.get[Seq[String]]("allowlist.refund.create.vrns").toSet
   val refundAllowlistAmend: Set[String] = configuration.get[Seq[String]]("allowlist.refund.amend.vrns").toSet

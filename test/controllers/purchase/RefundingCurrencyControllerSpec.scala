@@ -17,7 +17,7 @@
 package controllers.purchase
 
 import base.SpecBase
-import forms.purchase.RefundingCurrencyFormProvider
+import forms.RefundingCurrencyFormProvider
 import models.{CheckMode, NormalMode, RefundingCurrency, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
@@ -88,6 +88,7 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
+        contentAsString(result) must include(messages(application)("purchase.caption"))
         contentAsString(result) must include(messages(application)("refundingCurrency.heading"))
         contentAsString(result) must include("Euro (€)")
         contentAsString(result) must include("Estonian Kroon (kr)")
@@ -153,6 +154,21 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
+      }
+    }
+
+    "must return a Bad Request and the purchase error message when no value is submitted" in {
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithEstonia)).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, refundingCurrencyRoute)
+            .withFormUrlEncodedBody(("value", ""))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual BAD_REQUEST
+        contentAsString(result) must include(messages(application)("refundingCurrency.error.required"))
       }
     }
 

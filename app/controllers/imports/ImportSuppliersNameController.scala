@@ -14,18 +14,22 @@
  * limitations under the License.
  */
 
-package forms.purchase
+package controllers.imports
 
-import forms.mappings.Mappings
-import models.RefundingCurrency
-import play.api.data.Form
+import play.api.i18n.I18nSupport
+import play.api.mvc._
+import views.html.imports.ImportSuppliersNameView
 
 import javax.inject.Inject
 
-class RefundingCurrencyFormProvider @Inject() extends Mappings {
+class ImportSuppliersNameController @Inject() (
+                                                val controllerComponents: MessagesControllerComponents,
+                                                view: ImportSuppliersNameView
+                                              ) extends BaseController
+  with I18nSupport {
 
-  def apply(): Form[RefundingCurrency] =
-    Form(
-      "value" -> enumerable[RefundingCurrency]("refundingCurrency.error.required")
-    )
+  def onPageLoad(): Action[AnyContent] =
+    Action { implicit request =>
+      Ok(view())
+    }
 }
