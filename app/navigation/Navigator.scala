@@ -71,8 +71,11 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
           case Some(false) => importRoutes.ImportDetailsInfoController.onPageLoad(NormalMode)
           case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
         }
-    case SadReferenceNumberPage => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
-    case _                      => _ => controllers.routes.IndexController.onPageLoad()
+    case SadReferenceNumberPage =>
+      _ => controllers.imports.routes.TotalVatPaidImportController.onPageLoad(NormalMode) // TODO: replace with ImportDateController once built
+    case TotalVatPaidImportPage =>
+      _ => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO : replace with Total Vat Claim RA5.9 controller once built
+    case _ => _ => controllers.routes.IndexController.onPageLoad()
   }
 
   private val checkRoutes: Page => UserAnswers => Call = {
@@ -112,6 +115,7 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
           case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
         }
     case SadReferenceNumberPage => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
+    case TotalVatPaidImportPage => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
     case _                      => _ => controllers.routes.IndexController.onPageLoad()
   }
 
