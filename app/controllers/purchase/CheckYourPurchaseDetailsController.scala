@@ -18,7 +18,7 @@ package controllers.purchase
 
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import models.requests.UpdatePurchaseRequest
-import models.responses.{AddPurchaseResponse, PurchaseDetailResponse}
+import models.responses.{AddPurchaseResponse, PurchaseDetailsResponse}
 import models.{CheckMode, InvoiceType, Mode, PurchaseOrImportType, SupplierAddress, UserAnswers}
 import play.api.mvc.Call
 import pages.PurchaseImportSummaryPage
@@ -58,7 +58,7 @@ class CheckYourPurchaseDetailsController @Inject() (
 
   private def formAction(mode: Mode): Call = controllers.purchase.routes.CheckYourPurchaseDetailsController.onSubmit()
 
-  private def currentPurchaseDetails(userAnswers: UserAnswers): PurchaseDetailResponse = {
+  private def currentPurchaseDetails(userAnswers: UserAnswers): PurchaseDetailsResponse = {
     val purchaseSubType = userAnswers.get(PurchaseSubTypePage)
     val purchaseSubCategory = userAnswers.get(PurchaseSubCategoryPage)
 
@@ -73,6 +73,7 @@ class CheckYourPurchaseDetailsController @Inject() (
     val goodsDescriptionCode = userAnswers
       .get(PurchaseTypePage)
       .map(pt => PurchaseOrImportType.codes.getOrElse(pt, ""))
+      .getOrElse("")
 
     val goodsDescriptionText = userAnswers.get(DescribeItemsOnInvoicePage) match {
       case Some(text) if text.trim.nonEmpty && text != ConfigPurchaseOrImportMapping.NoneValue => Some(text)
@@ -87,7 +88,7 @@ class CheckYourPurchaseDetailsController @Inject() (
 
     val supplierAddress = userAnswers.get(SupplierAddressPage)
 
-    PurchaseDetailResponse(
+    PurchaseDetailsResponse(
       goodsDescriptionCode       = goodsDescriptionCode,
       goodsDescriptionSubCode    = goodsDescriptionSubCode,
       goodsDescriptionText       = goodsDescriptionText,
@@ -106,8 +107,9 @@ class CheckYourPurchaseDetailsController @Inject() (
       deductibleVatAmount        = userAnswers.get(TotalVatClaimPage),
       updateSequenceNumber = userAnswers
         .get(PurchaseDetailResponseQuery)
-        .flatMap(_.updateSequenceNumber)
+        .map(_.updateSequenceNumber)
         .orElse(userAnswers.get(AddPurchaseResponsePage).map(_.updateSequenceNumber))
+        .getOrElse(0)
     )
   }
 
@@ -233,7 +235,7 @@ class CheckYourPurchaseDetailsController @Inject() (
     val maybeAppId = maybeDetailRoute.map(_.applicationId).orElse(request.userAnswers.get(ClaimApplicationResponseQuery).map(_.applicationId))
     val maybeItemNumber = maybeDetailRoute.map(_.itemNumber).orElse(maybeAddResp.map(_.itemNumber))
     val maybeUpdateSequenceNumber = maybeDetailRoute
-      .flatMap(_ => request.userAnswers.get(PurchaseDetailResponseQuery).flatMap(_.updateSequenceNumber))
+      .flatMap(_ => request.userAnswers.get(PurchaseDetailResponseQuery).map(_.updateSequenceNumber))
       .orElse(maybeAddResp.map(_.updateSequenceNumber))
 
     (maybeAppId, maybeItemNumber, maybeUpdateSequenceNumber) match {
@@ -242,7 +244,7 @@ class CheckYourPurchaseDetailsController @Inject() (
         val updateReq = UpdatePurchaseRequest(
           applicationId               = appId,
           itemNumber                  = itemNumber,
-          goodsDescriptionCategory    = currentDetails.goodsDescriptionCode.getOrElse(""),
+          goodsDescriptionCategory    = currentDetails.goodsDescriptionCode,
           goodsDescriptionSubCategory = currentDetails.goodsDescriptionSubCode,
           goodsDescriptionText        = currentDetails.goodsDescriptionText,
           simplifiedInvoiceIndicator  = currentDetails.simplifiedInvoiceIndicator,
@@ -328,9 +330,8 @@ class CheckYourPurchaseDetailsController @Inject() (
 
               val currencyList = countryCodeOpt.flatMap(code => currencyConfig.currencyConfig.get(code)).getOrElse(currencyConfig.default)
 
-              val purchaseTypeOpt: Option[models.PurchaseOrImportType] = resp.goodsDescriptionCode.flatMap { code =>
-                PurchaseOrImportType.codes.find(_._2 == code).map(_._1)
-              }
+              val purchaseTypeOpt: Option[models.PurchaseOrImportType] =
+                PurchaseOrImportType.codes.find(_._2 == resp.goodsDescriptionCode).map(_._1)
 
               val invoiceTypeOpt: Option[InvoiceType] =
                 Some(if (resp.simplifiedInvoiceIndicator.isDefined) InvoiceType.SimplifiedInvoice else InvoiceType.StandardInvoice)
@@ -363,11 +364,9 @@ class CheckYourPurchaseDetailsController @Inject() (
                 f = setIfPresent(f, resp.taxableAmount, TotalPurchaseAmountBeforeVatPage)
                 f = setIfPresent(f, resp.vatAmount, TotalVatPaidPage)
                 f = setIfPresent(f, resp.deductibleVatAmount, TotalVatClaimPage)
-                f = f.flatMap(ua =>
-                  Future.fromTry(ua.set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber, resp.updateSequenceNumber.getOrElse(1))))
-                )
+                f = f.flatMap(ua => Future.fromTry(ua.set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber, resp.updateSequenceNumber))))
 
-                f = f.flatMap(ua => Future.fromTry(ua.set(queries.PurchaseDetailResponseQuery, resp)))
+                f = f.flatMap(ua => Future.fromTry(ua.set(PurchaseDetailResponseQuery, resp)))
                 f = f.flatMap(ua => Future.fromTry(ua.set(queries.PurchaseDetailRouteQuery, PurchaseDetailRoute(applicationId, itemNumber))))
 
                 f

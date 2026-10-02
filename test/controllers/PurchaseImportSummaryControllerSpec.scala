@@ -27,7 +27,7 @@ import play.api.data.Form
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import queries.ClaimApplicationResponseQuery
+import queries.{ClaimApplicationResponseQuery, PurchaseImportTotalItemsQuery}
 import repositories.SessionRepository
 
 import scala.concurrent.Future
@@ -69,12 +69,18 @@ class PurchaseImportSummaryControllerSpec extends SpecBase {
       when(mockEuVatRefundsService.getPurchaseImportList(any())(any())).thenReturn(Future.successful(purchaseImportResponse))
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
         .build()
 
       running(application) {
         val request = FakeRequest(GET, routes.PurchaseImportSummaryController.onPageLoad.url)
         val result = route(application, request).value
         status(result) mustEqual OK
+        contentAsString(result) must include(routes.RemoveItemController.onPageLoad("P", 123).url)
+        contentAsString(result) must include(routes.RemoveItemController.onPageLoad("I", 456).url)
+        val savedAnswers = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
+        org.mockito.Mockito.verify(mockSessionRepository).set(savedAnswers.capture())
+        savedAnswers.getValue.get(PurchaseImportTotalItemsQuery) mustEqual Some(2)
       }
     }
 
