@@ -77,3 +77,8 @@ GET         /currency                                                    control
 POST        /currency                                                    controllers.imports.ImportCurrencyController.onSubmit(mode:Mode = NormalMode)
 GET         /change-currency                                             controllers.imports.ImportCurrencyController.onPageLoad(mode:Mode = CheckMode)
 POST        /change-currency                                             controllers.imports.ImportCurrencyController.onSubmit(mode:Mode = CheckMode)
+
+GET         /supplier-address     controllers.imports.SupplierAddressController.onPageLoad(mode: Mode = NormalMode)
+POST        /supplier-address     controllers.imports.SupplierAddressController.onSubmit(mode: Mode = NormalMode)
+
+GET         /total-amount-without-vat     controllers.imports.TotalAmountWithoutVatController.onPageLoad(mode: Mode = NormalMode)
