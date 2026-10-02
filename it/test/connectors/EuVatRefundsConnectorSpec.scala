@@ -16,7 +16,7 @@
 
 package connectors
 
-import models.requests.{AddPurchaseRequest, LatestApplicationRequest, SupplierTaxIdentifierCountRequest, SupplierVrnCountRequest}
+import models.requests.{AddImportRequest, AddPurchaseRequest, LatestApplicationRequest, SupplierTaxIdentifierCountRequest, SupplierVrnCountRequest}
 import models.responses.*
 import org.mockito.ArgumentMatchers.*
 import org.mockito.Mockito.*
@@ -211,6 +211,46 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
         .thenReturn(Future.failed(new RuntimeException("boom")))
 
       whenReady(connector.addPurchase(request).failed) { ex =>
+        ex shouldBe a[RuntimeException]
+      }
+    }
+
+  }
+
+  "EuVatRefundsConnector.addImport" should {
+
+    val request = AddImportRequest(
+      applicationId = 123456,
+      goodsDescriptionCategory = "1",
+      goodsDescriptionText = Some("Fuel"),
+      updateSequenceNumber = 1
+    )
+
+    val expectedResponse = AddImportResponse(itemNumber = 4, updateSequenceNumber = 1)
+
+    "call the correct URL and return the expected response" in {
+      reset(mockHttp, mockRequestBuilder)
+
+      when(mockHttp.post(any())(any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.execute[AddImportResponse](any(), any()))
+        .thenReturn(Future.successful(expectedResponse))
+
+      val result = connector.addImport(request).futureValue
+
+      result shouldBe expectedResponse
+
+      verify(mockHttp).post(url"$baseUrl/add-import")
+      verify(mockRequestBuilder).execute[AddImportResponse](any(), any())
+    }
+
+    "propagate failures from the HTTP client" in {
+      when(mockHttp.post(any())(any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.execute[AddImportResponse](any(), any()))
+        .thenReturn(Future.failed(new RuntimeException("boom")))
+
+      whenReady(connector.addImport(request).failed) { ex =>
         ex shouldBe a[RuntimeException]
       }
     }
