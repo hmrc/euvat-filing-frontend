@@ -69,7 +69,11 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
     }
 
   def navigateFromSadReferenceNumberPage(mode: Mode)(userAnswers: UserAnswers): Call =
-    importsRoutes.ImportDetailsInfoController.onPageLoad(mode)
+    userAnswers.get(SadReferencePage) match {
+      case Some(true)  => importsRoutes.TotalAmountWithoutVatController.onPageLoad(mode)
+      case Some(false) => importsRoutes.ImportDetailsInfoController.onPageLoad(mode)
+      case None        => importsRoutes.ImportDetailsInfoController.onPageLoad(mode)
+    }
 
   // TODO: replace once the page following total amount without VAT is built
   def navigateFromTotalAmountWithoutVatPage(mode: Mode)(userAnswers: UserAnswers): Call =

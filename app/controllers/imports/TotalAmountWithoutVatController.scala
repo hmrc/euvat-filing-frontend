@@ -52,7 +52,14 @@ class TotalAmountWithoutVatController @Inject() (
   val form: Form[BigDecimal] = formProvider()
 
   private def backLink(mode: Mode)(userAnswers: models.UserAnswers): Call =
-    importRoutes.ImportDetailsInfoController.onPageLoad(mode)
+    userAnswers.get(SadReferencePage) match {
+      case Some(true) =>
+        userAnswers.get(SadReferenceNumberPage) match {
+          case Some(_) => importRoutes.SadReferenceNumberController.onPageLoad(mode)
+          case None    => importRoutes.ImportDetailsInfoController.onPageLoad(mode)
+        }
+      case _ => importRoutes.ImportDetailsInfoController.onPageLoad(mode)
+    }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(TotalAmountWithoutVatPage).fold(form)(form.fill)

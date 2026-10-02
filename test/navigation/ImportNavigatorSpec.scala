@@ -187,9 +187,15 @@ class ImportNavigatorSpec extends SpecBase {
     }
 
     "navigateFromSadReferenceNumberPage" - {
-      "must go to ImportDetailsInfoController" in {
+      "must go to ImportDetailsInfoController when SadReference is not yes" in {
         navigator.navigateFromSadReferenceNumberPage(NormalMode)(userAnswers) mustBe
           controllers.imports.routes.ImportDetailsInfoController.onPageLoad(NormalMode)
+      }
+
+      "must go to TotalAmountWithoutVatController when SadReference is yes" in {
+        val ua = userAnswers.set(SadReferencePage, true).success.value
+        navigator.navigateFromSadReferenceNumberPage(NormalMode)(ua) mustBe
+          controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad(NormalMode)
       }
     }
 

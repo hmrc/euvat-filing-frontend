@@ -94,7 +94,7 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must show back link to ImportDetailsInfo when SadReference was yes and number present" in {
+    "must show back link to SadReferenceNumber when SadReference was yes and number present" in {
       val userAnswers = UserAnswers(userAnswersId)
         .set(SadReferencePage, true)
         .success
@@ -110,12 +110,12 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) must include(controllers.imports.routes.ImportDetailsInfoController.onPageLoad(models.NormalMode).url)
+        contentAsString(result) must include(controllers.imports.routes.SadReferenceNumberController.onPageLoad(models.NormalMode).url)
       }
     }
 
-    "must show back link to ImportDetailsInfo when SadReference was yes but number missing" in {
-      val userAnswers = UserAnswers(userAnswersId).set(SadReferencePage, true).success.value
+    "must show back link to ImportDetailsInfo when SadReference was not yes or number missing" in {
+      val userAnswers = UserAnswers(userAnswersId).set(SadReferencePage, false).success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
