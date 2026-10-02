@@ -18,33 +18,33 @@ package controllers.imports
 
 import base.SpecBase
 import config.FrontendAppConfig
-import forms.imports.SupplierAddressFormProvider
+import forms.imports.ImportSupplierAddressFormProvider
 import models.{ImportSupplierAddress, NormalMode}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.RefundingCountryPage
-import pages.imports.SupplierAddressPage
+import pages.imports.ImportSupplierAddressPage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.imports.SupplierAddressView
+import views.html.imports.ImportSupplierAddressView
 
 import scala.concurrent.Future
 
-class SupplierAddressControllerSpec extends SpecBase with MockitoSugar {
+class ImportSupplierAddressControllerSpec extends SpecBase with MockitoSugar {
 
   private lazy val pageLoadRoute =
-    routes.SupplierAddressController.onPageLoad().url
+    routes.ImportSupplierAddressController.onPageLoad().url
 
   private lazy val submitRoute =
-    routes.SupplierAddressController.onSubmit().url
+    routes.ImportSupplierAddressController.onSubmit().url
 
-  // Temporary until ImportSuppliersNameController PR is merged
+  // TODO:Temporary until ImportSuppliersNameController PR is merged
   private val backLink: Call =
-    Call("GET", "/import/supplier-name")
+    Call("GET", "/file-eu-vat/import/supplier-name")
 
   private val validFormData = Map(
     "addressLine1" -> "1 High Street",
@@ -57,10 +57,10 @@ class SupplierAddressControllerSpec extends SpecBase with MockitoSugar {
     addressLine1 = "1 High Street",
     addressLine2 = Some("Apartment 3"),
     addressLine3 = Some("London"),
-    country = "AF"
+    country      = "AF"
   )
 
-  "SupplierAddress Controller" - {
+  "Import SupplierAddress Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
@@ -76,10 +76,10 @@ class SupplierAddressControllerSpec extends SpecBase with MockitoSugar {
           route(application, request).value
 
         val view =
-          application.injector.instanceOf[SupplierAddressView]
+          application.injector.instanceOf[ImportSupplierAddressView]
 
         val formProvider =
-          application.injector.instanceOf[SupplierAddressFormProvider]
+          application.injector.instanceOf[ImportSupplierAddressFormProvider]
 
         val config =
           application.injector.instanceOf[FrontendAppConfig]
@@ -124,7 +124,7 @@ class SupplierAddressControllerSpec extends SpecBase with MockitoSugar {
 
       val userAnswers =
         emptyUserAnswers
-          .set(SupplierAddressPage, supplierAddress)
+          .set(ImportSupplierAddressPage, supplierAddress)
           .success
           .value
 
@@ -140,10 +140,10 @@ class SupplierAddressControllerSpec extends SpecBase with MockitoSugar {
           route(application, request).value
 
         val view =
-          application.injector.instanceOf[SupplierAddressView]
+          application.injector.instanceOf[ImportSupplierAddressView]
 
         val formProvider =
-          application.injector.instanceOf[SupplierAddressFormProvider]
+          application.injector.instanceOf[ImportSupplierAddressFormProvider]
 
         val config =
           application.injector.instanceOf[FrontendAppConfig]

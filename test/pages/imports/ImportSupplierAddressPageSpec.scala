@@ -19,7 +19,7 @@ package pages.imports
 import base.SpecBase
 import models.ImportSupplierAddress
 
-class SupplierAddressPageSpec extends SpecBase {
+class ImportSupplierAddressPageSpec extends SpecBase {
 
   "SupplierAddressPage" - {
 
@@ -29,16 +29,16 @@ class SupplierAddressPageSpec extends SpecBase {
         addressLine1 = "1 High Street",
         addressLine2 = Some("Apartment 3"),
         addressLine3 = Some("London"),
-        country = "AF"
+        country      = "AF"
       )
 
       val userAnswers =
         emptyUserAnswers
-          .set(SupplierAddressPage, address)
+          .set(ImportSupplierAddressPage, address)
           .success
           .value
 
-      userAnswers.get(SupplierAddressPage).value mustEqual address
+      userAnswers.get(ImportSupplierAddressPage).value mustEqual address
     }
 
     "must remove ImportSupplierAddress from UserAnswers" in {
@@ -47,19 +47,19 @@ class SupplierAddressPageSpec extends SpecBase {
         addressLine1 = "1 High Street",
         addressLine2 = Some("Apartment 3"),
         addressLine3 = Some("London"),
-        country = "AF"
+        country      = "AF"
       )
 
       val userAnswers =
         emptyUserAnswers
-          .set(SupplierAddressPage, address)
+          .set(ImportSupplierAddressPage, address)
           .success
           .value
-          .remove(SupplierAddressPage)
+          .remove(ImportSupplierAddressPage)
           .success
           .value
 
-      userAnswers.get(SupplierAddressPage) mustBe None
+      userAnswers.get(ImportSupplierAddressPage) mustBe None
     }
   }
 }

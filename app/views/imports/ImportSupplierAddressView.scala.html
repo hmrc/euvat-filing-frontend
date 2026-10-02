@@ -30,32 +30,32 @@
 @(form: Form[?], countries: Map[String, String], mode: Mode, call: Call)(implicit request: Request[?], messages: Messages)
 
 @layout(
-   pageTitle = views.ViewUtils.title(form, "supplierAddress.title"),
-   backLinkUrl = Some(call.url)
+pageTitle = views.ViewUtils.title(form, "supplierAddress.title"),
+backLinkUrl = Some(call.url)
 ) {
 
 @formHelper(
-   action = controllers.imports.routes.SupplierAddressController.onSubmit(),
-   Symbol("novalidate") -> "novalidate"
+    action = controllers.imports.routes.ImportSupplierAddressController.onSubmit(),
+    Symbol("novalidate") -> "novalidate"
 ) {
 
 @mainErrorSummary(
-  form,
-  Map(
-    "addressLine1" -> "addressLine1",
-    "addressLine2" -> "addressLine2",
-    "addressLine3" -> "addressLine3",
-    "country" -> "country"
-  )
+form,
+Map(
+"addressLine1" -> "addressLine1",
+"addressLine2" -> "addressLine2",
+"addressLine3" -> "addressLine3",
+"country" -> "country"
+)
 )
 
 <h1 class="govuk-heading-l">
- <span class="govuk-caption-l">@messages("import.caption")</span>
- @messages("supplierAddress.heading")
+    <span class="govuk-caption-l">@messages("import.caption")</span>
+    @messages("supplierAddress.heading")
 </h1>
 
 <p class="govuk-body">
- @messages("supplierAddress.lead")
+    @messages("supplierAddress.lead")
 </p>
 
 @govukInput(
@@ -86,21 +86,23 @@ label = LabelViewModel(messages("supplierAddress.line3.label"))
 Select(
 id = "country",
 name = "country",
-items =
+items = (
 Seq(
 SelectItem(
 value = Some(""),
 text = ""
 )
-) ++ countries.toSeq
-.sortBy(_._2)
+) ++
+countries.toSeq
+.sortBy { case (_, countryName) => countryName }
 .map { case (code, countryName) =>
 SelectItem(
 value = Some(code),
 text = countryName,
 selected = form("country").value.contains(code)
 )
-},
+}
+),
 label = Label(
 content = Text(messages("supplierAddress.country.label"))
 ),

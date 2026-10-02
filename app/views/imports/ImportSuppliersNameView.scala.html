@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,20 +12,20 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package models
-
-import play.api.libs.json.{Json, OFormat}
-
-case class ImportSupplierAddress(
-  addressLine1: String,
-  addressLine2: Option[String],
-  addressLine3: Option[String],
-  country: String
+@this(
+layout: templates.Layout
 )
 
-object ImportSupplierAddress {
-  implicit val format: OFormat[ImportSupplierAddress] =
-    Json.format[ImportSupplierAddress]
+@(implicit request: Request[?], messages: Messages)
+
+@layout(
+pageTitle = "Supplier name"
+) {
+<h1 class="govuk-heading-l">Supplier name</h1>
+
+<p class="govuk-body">
+    Temporary page for testing supplier address back navigation.
+</p>
 }

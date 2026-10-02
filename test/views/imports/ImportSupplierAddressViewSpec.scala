@@ -18,26 +18,26 @@ package views.imports
 
 import base.SpecBase
 import config.FrontendAppConfig
-import forms.imports.SupplierAddressFormProvider
+import forms.imports.ImportSupplierAddressFormProvider
 import models.NormalMode
 import play.api.mvc.Call
 import play.api.test.FakeRequest
-import views.html.imports.SupplierAddressView
+import views.html.imports.ImportSupplierAddressView
 
-class SupplierAddressViewSpec extends SpecBase {
+class ImportSupplierAddressViewSpec extends SpecBase {
 
   private val request = FakeRequest()
 
   private lazy val application = applicationBuilder().build()
 
   private lazy val formProvider =
-    application.injector.instanceOf[SupplierAddressFormProvider]
+    application.injector.instanceOf[ImportSupplierAddressFormProvider]
 
   private lazy val config =
     application.injector.instanceOf[FrontendAppConfig]
 
   private lazy val view =
-    application.injector.instanceOf[SupplierAddressView]
+    application.injector.instanceOf[ImportSupplierAddressView]
 
   private val backLink =
     Call("GET", "/import/supplier-name")

@@ -17,16 +17,16 @@
 package controllers.imports
 
 import play.api.i18n.I18nSupport
-import play.api.mvc._
+import play.api.mvc.*
 import views.html.imports.TotalAmountWithoutVatView
 
 import javax.inject.Inject
 
 class TotalAmountWithoutVatController @Inject() (
-                                                  val controllerComponents: MessagesControllerComponents,
-                                                  view: TotalAmountWithoutVatView
-                                                ) extends BaseController
-  with I18nSupport {
+  val controllerComponents: MessagesControllerComponents,
+  view: TotalAmountWithoutVatView
+) extends BaseController
+    with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] =
     Action { implicit request =>

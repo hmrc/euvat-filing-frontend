@@ -14,17 +14,22 @@
  * limitations under the License.
  */
 
-package pages.imports
+package controllers.imports
 
-import models.ImportSupplierAddress
-import pages.QuestionPage
-import play.api.libs.json.JsPath
+import play.api.i18n.I18nSupport
+import play.api.mvc._
+import views.html.imports.ImportSuppliersNameView
 
-case object SupplierAddressPage extends QuestionPage[ImportSupplierAddress] {
+import javax.inject.Inject
 
-  override def path: JsPath =
-    JsPath \ toString
+class ImportSuppliersNameController @Inject() (
+                                                val controllerComponents: MessagesControllerComponents,
+                                                view: ImportSuppliersNameView
+                                              ) extends BaseController
+  with I18nSupport {
 
-  override def toString: String =
-    "supplierAddress"
+  def onPageLoad(): Action[AnyContent] =
+    Action { implicit request =>
+      Ok(view())
+    }
 }

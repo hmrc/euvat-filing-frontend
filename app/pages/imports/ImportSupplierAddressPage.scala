@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package models
+package pages.imports
 
-import play.api.libs.json.{Json, OFormat}
+import models.ImportSupplierAddress
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-case class ImportSupplierAddress(
-  addressLine1: String,
-  addressLine2: Option[String],
-  addressLine3: Option[String],
-  country: String
-)
+case object ImportSupplierAddressPage extends QuestionPage[ImportSupplierAddress] {
 
-object ImportSupplierAddress {
-  implicit val format: OFormat[ImportSupplierAddress] =
-    Json.format[ImportSupplierAddress]
+  override def path: JsPath =
+    JsPath \ toString
+
+  override def toString: String =
+    "supplierAddress"
 }

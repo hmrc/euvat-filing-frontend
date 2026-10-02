@@ -17,43 +17,45 @@
 package controllers.imports
 
 import config.FrontendAppConfig
-import controllers.actions._
-import forms.imports.SupplierAddressFormProvider
+import controllers.actions.*
+import forms.imports.ImportSupplierAddressFormProvider
 import models.Mode
 import pages.RefundingCountryPage
-import pages.imports.SupplierAddressPage
+import pages.imports.ImportSupplierAddressPage
 import play.api.i18n.I18nSupport
-import play.api.mvc._
+import play.api.mvc.*
 import repositories.SessionRepository
-import views.html.imports.SupplierAddressView
+import views.html.imports.ImportSupplierAddressView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class SupplierAddressController @Inject() (
-                                            identify: IdentifierAction,
-                                            getData: DataRetrievalAction,
-                                            requireData: DataRequiredAction,
-                                            formProvider: SupplierAddressFormProvider,
-                                            sessionRepository: SessionRepository,
-                                            config: FrontendAppConfig,
-                                            val controllerComponents: MessagesControllerComponents,
-                                            view: SupplierAddressView
-                                          )(implicit ec: ExecutionContext)
-  extends BaseController
+class ImportSupplierAddressController @Inject() (
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: ImportSupplierAddressFormProvider,
+  sessionRepository: SessionRepository,
+  config: FrontendAppConfig,
+  val controllerComponents: MessagesControllerComponents,
+  view: ImportSupplierAddressView
+)(implicit ec: ExecutionContext)
+    extends BaseController
     with I18nSupport {
 
   private val form = formProvider()
 
-  val backLink =
-    Call("GET", "/import/supplier-name")
-  // TODO: Replace with:
-  // controllers.imports.routes.ImportSuppliersNameController.onPageLoad()
+  private val backLink: Call =
+    Call("GET", "/file-eu-vat/import/supplier-name")
+// TODO: Recheck after RA5.4 is merged and replace teh above line with the commented one below
+
+//  private val backLink: Call =
+//    controllers.imports.routes.ImportSuppliersNameController.onPageLoad()
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData) { implicit request =>
       val preparedForm =
-        request.userAnswers.get(SupplierAddressPage) match {
+        request.userAnswers.get(ImportSupplierAddressPage) match {
           case None        => form
           case Some(value) => form.fill(value)
         }
@@ -91,17 +93,17 @@ class SupplierAddressController @Inject() (
                   controllers.imports.routes.ImportCurrencyController.onPageLoad(mode)
 
                 // TODO: Check temporary redirect once dependent DTR-8186 Total amount without VAT  PR is merged.
-                 case Some(_) =>
-                   controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad()
+                case Some(_) =>
+                  controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad()
 
                 case _ =>
                   controllers.routes.JourneyRecoveryController.onPageLoad()
               }
-              
+
             for {
               updatedAnswers <- Future.fromTry(
-                request.userAnswers.set(SupplierAddressPage, value)
-              )
+                                  request.userAnswers.set(ImportSupplierAddressPage, value)
+                                )
               _ <- sessionRepository.set(updatedAnswers)
             } yield Redirect(nextPage)
         )

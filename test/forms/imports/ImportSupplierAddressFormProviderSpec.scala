@@ -22,7 +22,7 @@ import models.ImportSupplierAddress
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.i18n.MessagesApi
 
-class SupplierAddressFormProviderSpec extends SpecBase with MockitoSugar {
+class ImportSupplierAddressFormProviderSpec extends SpecBase with MockitoSugar {
 
   private val messagesApi =
     applicationBuilder().build().injector.instanceOf[MessagesApi]
@@ -31,7 +31,7 @@ class SupplierAddressFormProviderSpec extends SpecBase with MockitoSugar {
     applicationBuilder().build().injector.instanceOf[FrontendAppConfig]
 
   private val form =
-    new SupplierAddressFormProvider(messagesApi, config)()
+    new ImportSupplierAddressFormProvider(messagesApi, config)()
 
   private val validData = Map(
     "addressLine1" -> "1 High Street",
@@ -51,7 +51,7 @@ class SupplierAddressFormProviderSpec extends SpecBase with MockitoSugar {
           addressLine1 = "1 High Street",
           addressLine2 = Some("Apartment 3"),
           addressLine3 = Some("London"),
-          country = "AF"
+          country      = "AF"
         )
       )
     }
@@ -70,7 +70,7 @@ class SupplierAddressFormProviderSpec extends SpecBase with MockitoSugar {
           addressLine1 = "1 High Street",
           addressLine2 = None,
           addressLine3 = None,
-          country = "AF"
+          country      = "AF"
         )
       )
     }

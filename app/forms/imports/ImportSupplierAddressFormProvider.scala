@@ -26,10 +26,10 @@ import play.api.i18n.{Lang, MessagesApi}
 
 import javax.inject.Inject
 
-class SupplierAddressFormProvider @Inject() (
-                                              messagesApi: MessagesApi,
-                                              config: FrontendAppConfig
-                                            ) extends Mappings {
+class ImportSupplierAddressFormProvider @Inject() (
+  messagesApi: MessagesApi,
+  config: FrontendAppConfig
+) extends Mappings {
 
   val addressLineMaxLength: Int = 35
 
@@ -37,9 +37,9 @@ class SupplierAddressFormProvider @Inject() (
     messagesApi.preferred(Seq(Lang("en")))
 
   private def fieldMaxLengthConstraint(
-                                        labelKey: String,
-                                        errorKey: String
-                                      ): Constraint[String] =
+    labelKey: String,
+    errorKey: String
+  ): Constraint[String] =
     Constraint { str =>
       if (str.length <= addressLineMaxLength) {
         Valid
@@ -72,7 +72,6 @@ class SupplierAddressFormProvider @Inject() (
                 "supplierAddress.error.line1.maxLength"
               )
             ),
-
         "addressLine2" ->
           optional(
             text().verifying(
@@ -82,7 +81,6 @@ class SupplierAddressFormProvider @Inject() (
               )
             )
           ),
-
         "addressLine3" ->
           optional(
             text().verifying(
@@ -92,11 +90,9 @@ class SupplierAddressFormProvider @Inject() (
               )
             )
           ),
-
         "country" ->
           text("supplierAddress.error.country.required")
             .verifying(validCountry)
-
       )(ImportSupplierAddress.apply)(o => Some(Tuple.fromProductTyped(o)))
     )
 }
