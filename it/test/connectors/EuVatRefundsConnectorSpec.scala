@@ -216,6 +216,46 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
 
   }
 
+  "EuVatRefundsConnector.addImport" should {
+
+    val request = AddImportRequest(
+      applicationId = 123456,
+      goodsDescriptionCategory = "1",
+      goodsDescriptionText = Some("Fuel"),
+      updateSequenceNumber = 1
+    )
+
+    val expectedResponse = AddImportResponse(itemNumber = 4, updateSequenceNumber = 1)
+
+    "call the correct URL and return the expected response" in {
+      reset(mockHttp, mockRequestBuilder)
+
+      when(mockHttp.post(any())(any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.execute[AddImportResponse](any(), any()))
+        .thenReturn(Future.successful(expectedResponse))
+
+      val result = connector.addImport(request).futureValue
+
+      result shouldBe expectedResponse
+
+      verify(mockHttp).post(url"$baseUrl/add-import")
+      verify(mockRequestBuilder).execute[AddImportResponse](any(), any())
+    }
+
+    "propagate failures from the HTTP client" in {
+      when(mockHttp.post(any())(any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.execute[AddImportResponse](any(), any()))
+        .thenReturn(Future.failed(new RuntimeException("boom")))
+
+      whenReady(connector.addImport(request).failed) { ex =>
+        ex shouldBe a[RuntimeException]
+      }
+    }
+
+  }
+
   "EuVatRefundsConnector.getSupplierTaxIdentifierCount" should {
 
     val requestPayload = SupplierTaxIdentifierCountRequest(applicationId = 123L, itemNumber = 1, taxIdentifier = "TAX123", invoiceNumber = "INV1")
