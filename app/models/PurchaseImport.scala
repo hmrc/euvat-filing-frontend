@@ -23,7 +23,7 @@ case class PurchaseImport(
   itemType: String,
   goodsDescriptionCategory: String,
   goodsDescriptionSubCategory: Option[String],
-  currencyCode: Option[String],
+  currencyCode: String,
   taxableAmount: BigDecimal,
   vatAmount: BigDecimal,
   deductibleVatAmount: BigDecimal

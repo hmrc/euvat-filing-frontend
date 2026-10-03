@@ -37,10 +37,8 @@
 
 @layout(pageTitle = titleNoForm(messages("purchaseImportSummary.title", numberOfItems)), showBackLink = false, useFullGrid = true) {
     @formHelper(action = controllers.routes.PurchaseImportSummaryController.onSubmit, Symbol("autoComplete") -> "off") {
-        <h1 class="govuk-heading-l">
-            <span class="govuk-caption-l">@messages("purchaseImportSummary.caption")</span>
-            @messages("purchaseImportSummary.heading", numberOfItems)
-        </h1>
+        <span class="govuk-caption-l">@messages("purchaseImportSummary.caption")</span>
+        <h1 class="govuk-heading-l">@messages("purchaseImportSummary.heading", numberOfItems)</h1>
         <p class = "govuk-body">@messages("purchaseImportSummary.p1", totalClaim)</p>
 
         @govukDetails(Details(

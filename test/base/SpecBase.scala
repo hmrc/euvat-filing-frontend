@@ -31,7 +31,6 @@ import play.api.Application
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.mvc.{BodyParser, BodyParsers}
 import play.api.test.FakeRequest
 import repositories.SessionRepository
 import services.EuVatRefundsService
@@ -66,7 +65,7 @@ trait SpecBase
     when(mockEuVatRefundsService.getLatestApplications(any())(any()))
       .thenReturn(Future.successful(LatestApplicationResponse(applications = List.empty, totalApplication = 0)))
     when(mockEuVatRefundsService.getPurchaseImportList(any())(any()))
-      .thenReturn(Future.successful(PurchaseImportListResponse(totalItems = 0, purchaseImportList = Nil)))
+      .thenReturn(Future.successful(PurchaseImportListResponse(totalItems = 0, purchaseImportList = Nil, totalVatClaims = BigDecimal(0))))
   }
 
   def messages(app: Application): Messages = app.injector.instanceOf[MessagesApi].preferred(FakeRequest())

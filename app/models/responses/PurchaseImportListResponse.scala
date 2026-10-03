@@ -21,7 +21,8 @@ import play.api.libs.json.{Json, OFormat}
 
 case class PurchaseImportListResponse(
   purchaseImportList: List[PurchaseImport],
-  totalItems: Int
+  totalItems: Int,
+  totalVatClaims: BigDecimal
 )
 
 object PurchaseImportListResponse {

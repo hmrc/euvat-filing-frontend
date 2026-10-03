@@ -16,7 +16,6 @@
 
 package queries
 
-import models.ContactDetails
 import models.responses.ApplicationResponse
 import pages.QuestionPage
 import play.api.libs.json.JsPath

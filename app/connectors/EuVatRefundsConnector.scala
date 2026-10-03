@@ -87,7 +87,7 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
 
   def getPurchaseImportList(request: PurchaseImportListRequest)(implicit hc: HeaderCarrier): Future[PurchaseImportListResponse] = {
     http
-      .post(url"$euVatRefundsBaseUrl/get-purchase-import-list")
+      .post(url"$euVatRefundsBaseUrl/get-purchases-and-imports")
       .withBody(Json.toJson(request))
       .execute[PurchaseImportListResponse]
   }

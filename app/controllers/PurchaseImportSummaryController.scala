@@ -18,8 +18,7 @@ package controllers
 
 import controllers.actions.*
 import forms.PurchaseImportSummaryFormProvider
-import models.requests.{DataRequest, PurchaseImportListRequest}
-import models.{PurchaseImport, UserAnswers}
+import models.requests.PurchaseImportListRequest
 import navigation.Navigator
 import pages.PurchaseImportSummaryPage
 import play.api.Logging
@@ -59,28 +58,15 @@ class PurchaseImportSummaryController @Inject() (
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     val userAnswers = request.userAnswers
     val preparedForm = userAnswers.get(PurchaseImportSummaryPage).fold(form)(form.fill)
-    retrieveSummaryList(userAnswers).map {
-      case (responseList: List[PurchaseImport], totalClaim: BigDecimal) =>
-        val summaryListRows = PurchaseImportListSummary.rows(userAnswers, responseList, currencyConfig.currencyConfig)
-        Ok(view(preparedForm, summaryListRows, responseList.size, totalClaim))
-      case _ =>
-        logger.warn("No records found in database")
-        Redirect(routes.JourneyRecoveryController.onPageLoad())
-    }
-  }
-
-  private def retrieveSummaryList(userAnswers: UserAnswers)(implicit request: DataRequest[?]) = {
     userAnswers.get(ClaimApplicationResponseQuery).map(_.applicationId) match {
       case Some(appId) =>
-        service
-          .getPurchaseImportList(PurchaseImportListRequest(appId))
-          .map(response => {
-            val totalClaim = response.purchaseImportList.map(_.deductibleVatAmount).sum
-            (response.purchaseImportList, totalClaim)
-          })
+        service.getPurchaseImportList(PurchaseImportListRequest(appId)).map { summaryResponse =>
+          val summaryListRows = PurchaseImportListSummary.rows(userAnswers, summaryResponse.purchaseImportList, currencyConfig.currencyConfig)
+          Ok(view(preparedForm, summaryListRows, summaryResponse.totalItems, summaryResponse.totalVatClaims))
+        }
       case _ =>
         logger.warn("Missing or invalid applicationId")
-        Future.successful(Seq.empty, BigDecimal(0))
+        Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
     }
   }
 
@@ -88,7 +74,23 @@ class PurchaseImportSummaryController @Inject() (
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, Seq.empty, 0, BigDecimal(0)))),
+        formWithErrors => {
+          request.userAnswers
+            .get(ClaimApplicationResponseQuery)
+            .map(_.applicationId)
+            .fold {
+              logger.warn("Missing applicationId")
+              Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+            } { applicationId =>
+              service
+                .getPurchaseImportList(PurchaseImportListRequest(applicationId))
+                .map { summaryResponse =>
+                  val summaryListRows =
+                    PurchaseImportListSummary.rows(request.userAnswers, summaryResponse.purchaseImportList, currencyConfig.currencyConfig)
+                  BadRequest(view(formWithErrors, summaryListRows, summaryResponse.totalItems, summaryResponse.totalVatClaims))
+                }
+            }
+        },
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(PurchaseImportSummaryPage, value))

@@ -29,7 +29,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import queries.ClaimApplicationResponseQuery
 import repositories.SessionRepository
-import services.EuVatRefundsService
 
 import scala.concurrent.Future
 
@@ -39,14 +38,15 @@ class PurchaseImportSummaryControllerSpec extends SpecBase {
 
   "PurchaseImportSummary Controller" - {
     val purchaseImportResponse = PurchaseImportListResponse(
-      totalItems = 2,
+      totalItems     = 2,
+      totalVatClaims = BigDecimal(334),
       purchaseImportList = List(
         PurchaseImport(
           itemNumber                  = 123,
           itemType                    = "P",
           goodsDescriptionCategory    = "1",
           goodsDescriptionSubCategory = Some("1.2.3"),
-          currencyCode                = Some("EU"),
+          currencyCode                = "EU",
           taxableAmount               = BigDecimal(300),
           vatAmount                   = BigDecimal(200),
           deductibleVatAmount         = BigDecimal(100)
@@ -56,7 +56,7 @@ class PurchaseImportSummaryControllerSpec extends SpecBase {
           itemType                    = "I",
           goodsDescriptionCategory    = "7",
           goodsDescriptionSubCategory = Some("7.9"),
-          currencyCode                = Some("EU"),
+          currencyCode                = "EU",
           taxableAmount               = BigDecimal(456),
           vatAmount                   = BigDecimal(345),
           deductibleVatAmount         = BigDecimal(234)
@@ -102,30 +102,30 @@ class PurchaseImportSummaryControllerSpec extends SpecBase {
         .build()
 
       running(application) {
-        val request =
-          FakeRequest(
-            POST,
-            routes.PurchaseImportSummaryController.onSubmit.url
-          ).withFormUrlEncodedBody(
-            "value" -> "false"
-          )
+        val request = FakeRequest(POST, routes.PurchaseImportSummaryController.onSubmit.url).withFormUrlEncodedBody(
+          "value" -> "false"
+        )
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual
-          routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 
     "return BAD_REQUEST when no answer is submitted" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .build()
+      val userAnswers = emptyUserAnswers.set(ClaimApplicationResponseQuery, ApplicationResponse(111, "App1", 1)).success.value
+
+      val summaryResponse = PurchaseImportListResponse(
+        purchaseImportList = List.empty,
+        totalItems         = 0,
+        totalVatClaims     = java.math.BigDecimal.ZERO
+      )
+
+      when(mockEuVatRefundsService.getPurchaseImportList(any())(any())).thenReturn(Future.successful(summaryResponse))
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request =
-          FakeRequest(
-            POST,
-            routes.PurchaseImportSummaryController.onSubmit.url
-          )
+        val request = FakeRequest(POST, routes.PurchaseImportSummaryController.onSubmit.url).withFormUrlEncodedBody()
 
         val result = route(application, request).value
         status(result) mustEqual BAD_REQUEST

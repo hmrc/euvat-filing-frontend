@@ -17,7 +17,7 @@
 package connectors
 
 import models.PurchaseImport
-import models.requests.{AddPurchaseRequest, LatestApplicationRequest, PurchaseImportListRequest, SupplierTaxIdentifierCountRequest, SupplierVrnCountRequest}
+import models.requests.*
 import models.responses.*
 import org.mockito.ArgumentMatchers.*
 import org.mockito.Mockito.*
@@ -299,14 +299,15 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
   "EuVatRefundsConnector.getPurchaseImportList" should {
     val requestPayload = PurchaseImportListRequest(applicationId = 123)
     val expectedResponse = PurchaseImportListResponse(
-      totalItems = 2,
+      totalVatClaims = BigDecimal(334),
+      totalItems     = 2,
       purchaseImportList = List(
         PurchaseImport(
           itemNumber                  = 123,
           itemType                    = "P",
           goodsDescriptionCategory    = "1",
           goodsDescriptionSubCategory = Some("1.2.3"),
-          currencyCode                = Some("EU"),
+          currencyCode                = "EU",
           taxableAmount               = BigDecimal(300),
           vatAmount                   = BigDecimal(200),
           deductibleVatAmount         = BigDecimal(100)
@@ -316,7 +317,7 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
           itemType                    = "I",
           goodsDescriptionCategory    = "7",
           goodsDescriptionSubCategory = Some("7.9"),
-          currencyCode                = Some("EU"),
+          currencyCode                = "EU",
           taxableAmount               = BigDecimal(456),
           vatAmount                   = BigDecimal(345),
           deductibleVatAmount         = BigDecimal(234)
@@ -335,7 +336,7 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
       val result = connector.getPurchaseImportList(requestPayload).futureValue
       result shouldBe expectedResponse
 
-      verify(mockHttp).post(url"$baseUrl/get-purchase-import-list")
+      verify(mockHttp).post(url"$baseUrl/get-purchases-and-imports")
       verify(mockRequestBuilder).execute[PurchaseImportListResponse](any(), any())
     }
 
