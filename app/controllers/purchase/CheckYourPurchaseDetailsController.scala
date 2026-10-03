@@ -17,19 +17,19 @@
 package controllers.purchase
 
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
+import models.requests.UpdatePurchaseRequest
+import models.responses.AddPurchaseResponse
 import models.{InvoiceType, PurchaseOrImportType}
 import pages.*
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.Logging
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import queries.{ClaimApplicationResponseQuery, InvoiceNumberFlagQuery}
 import repositories.SessionRepository
 import services.EuVatRefundsService
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import models.requests.UpdatePurchaseRequest
-import models.responses.AddPurchaseResponse
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import utils.{ConfigPurchaseOrImportMapping, CountryCode, CurrencyConfig}
 import viewmodels.checkAnswers.CheckYourPurchaseDetailsSummary
 import views.html.purchase.CheckYourPurchaseDetailsView
@@ -59,11 +59,10 @@ class CheckYourPurchaseDetailsController @Inject() (
       answers <- Future.fromTry(request.userAnswers.set(InvoiceNumberFlagQuery, false))
       _       <- sessionRepository.set(answers)
     } yield {
-      lazy val currencyList =
-        CountryCode
-          .findCountryCode(request.userAnswers)
-          .map(currencyConfig.currencyConfig(_))
-          .getOrElse(currencyConfig.default)
+      lazy val currencyList = CountryCode
+        .findCountryCode(request.userAnswers)
+        .map(currencyConfig.currencyConfig(_))
+        .getOrElse(currencyConfig.default)
 
       val (maybeCurrencyDisplayName, maybeCurrencySymbol): (Option[String], Option[String]) =
         request.userAnswers
@@ -75,14 +74,13 @@ class CheckYourPurchaseDetailsController @Inject() (
 
       Ok(
         view(
-          CheckYourPurchaseDetailsSummary
-            .sections(
-              request.userAnswers,
-              maybeCurrencyDisplayName,
-              maybeCurrencySymbol,
-              configPurchaseMapping,
-              currencyList.size > 1
-            ),
+          CheckYourPurchaseDetailsSummary.sections(
+            request.userAnswers,
+            maybeCurrencyDisplayName,
+            maybeCurrencySymbol,
+            configPurchaseMapping,
+            currencyList.size > 1
+          ),
           isPostSubmission = false,
           isAmended        = false
         )
@@ -171,7 +169,7 @@ class CheckYourPurchaseDetailsController @Inject() (
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(AddPurchaseResponsePage, updatedAddResp))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(controllers.routes.TaskListDashboardController.onPageLoad())
+            } yield Redirect(controllers.routes.PurchaseImportSummaryController.onPageLoad)
           }
           .recover { case ex =>
             logger.error("Error updating purchase details", ex)

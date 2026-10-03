@@ -17,7 +17,6 @@
 package controllers.imports
 
 import controllers.actions.*
-import controllers.imports.routes
 import forms.PurchaseOrImportSubTypeFormProvider
 import forms.imports.SadReferenceFormProvider
 import models.requests.DataRequest
@@ -69,7 +68,7 @@ class ImportSubCodeController @Inject() (
     resolved match {
       case Some((importType, options)) => block(importType, options)
       case None =>
-        Future.successful(Ok(sadView(sadFormProvider())))
+        Future.successful(Ok(sadView(sadFormProvider(), routes.ImportSubCodeController.onPageLoad(importTypeKey))))
     }
   }
 

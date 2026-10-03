@@ -14,13 +14,18 @@
  * limitations under the License.
  */
 
-package queries
+package models.requests
 
-import models.responses.ApplicationResponse
-import pages.QuestionPage
-import play.api.libs.json.JsPath
+import play.api.libs.json.{Json, OFormat}
 
-case object ClaimApplicationResponseQuery extends QuestionPage[ApplicationResponse] {
-  override def path: JsPath = JsPath \ toString
-  override def toString: String = "claimApplicationResponse"
+case class PurchaseImportListRequest(
+  applicationId: Long,
+  orderBy: Int = 0,
+  sortOrder: String = "ASC",
+  startAt: Int = 0,
+  maxNumber: Option[Int] = Some(20)
+)
+
+object PurchaseImportListRequest {
+  implicit val format: OFormat[PurchaseImportListRequest] = Json.format[PurchaseImportListRequest]
 }

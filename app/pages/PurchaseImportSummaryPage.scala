@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package queries
+package pages
 
-import models.responses.ApplicationResponse
-import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-case object ClaimApplicationResponseQuery extends QuestionPage[ApplicationResponse] {
+case object PurchaseImportSummaryPage extends QuestionPage[Boolean] {
+
   override def path: JsPath = JsPath \ toString
-  override def toString: String = "claimApplicationResponse"
+
+  override def toString: String = "purchaseImportSummary"
 }

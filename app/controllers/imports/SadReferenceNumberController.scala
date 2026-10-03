@@ -18,11 +18,9 @@ package controllers.imports
 
 import controllers.actions.*
 import forms.imports.SadReferenceNumberFormProvider
-import pages.SadReferenceNumberPage
+import models.Mode
 import navigation.Navigator
-import models.{Mode, NormalMode}
-
-import javax.inject.Inject
+import pages.SadReferenceNumberPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
@@ -30,6 +28,7 @@ import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.imports.SadReferenceNumberView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class SadReferenceNumberController @Inject() (
@@ -48,7 +47,7 @@ class SadReferenceNumberController @Inject() (
 
   val form: Form[String] = formProvider()
 
-  private def backLink(mode: Mode): Call = controllers.imports.routes.SadReferenceController.onPageLoad(mode)
+  private def backLink(mode: Mode): Call = routes.SadReferenceController.onPageLoad(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(SadReferenceNumberPage).fold(form)(form.fill)
