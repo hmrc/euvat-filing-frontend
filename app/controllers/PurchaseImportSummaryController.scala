@@ -99,7 +99,7 @@ class PurchaseImportSummaryController @Inject() (
             if (value) {
               Redirect(routes.PurchaseOrImportController.onPageLoad)
             } else {
-              Redirect(routes.JourneyRecoveryController.onPageLoad()) // TODO - redirect to CYA page
+              Redirect(routes.TaskListDashboardController.onPageLoad())
             }
       )
   }

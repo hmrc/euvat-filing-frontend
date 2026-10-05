@@ -95,7 +95,7 @@ class PurchaseImportSummaryControllerSpec extends SpecBase {
       }
     }
 
-    "redirect to JourneyRecoveryController when user selects no" in {
+    "redirect to TaskListDashboardController when user selects no" in {
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
         .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
@@ -107,7 +107,7 @@ class PurchaseImportSummaryControllerSpec extends SpecBase {
         )
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.TaskListDashboardController.onPageLoad().url
       }
     }
 

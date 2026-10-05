@@ -56,19 +56,15 @@ import.caption = Import details
 
 taskListDashboard.title = Make a claim for an EU VAT refund
 taskListDashboard.heading = Make a claim for an EU VAT refund
-taskListDashboard.listItem1 = Add claim details
-taskListDashboard.listItem2 = Add a purchase
-taskListDashboard.listItem3 = Add an import
-taskListDashboard.listItem4 = Add supporting documents
-taskListDashboard.listItem5 = Add bank details
-taskListDashboard.listItem6 = Submit claim
+taskListDashboard.listItem1 = Claim details
+taskListDashboard.listItem2 = Purchases and imports
+taskListDashboard.listItem3 = Supporting documents
+taskListDashboard.listItem4 = Bank details
+taskListDashboard.listItem5 = Submit claim
 taskListDashboard.status1 = Not yet started
 taskListDashboard.status2 = Cannot start yet
 taskListDashboard.status3 = Completed
-taskListDashboard.listItem1.completed = View claim details
 taskListDashboard.dashboardLink = Return to Claim an EU VAT refund
-taskListDashboard.errorSummary1 = There is a problem
-taskListDashboard.errorSummary2 = Select add claim details to start a claim
 taskListDashboard.deleteLink = Delete this claim
 
 refundingCountry.title = Which EU member state are you claiming back VAT from?
