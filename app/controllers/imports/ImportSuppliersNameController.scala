@@ -47,13 +47,13 @@ class ImportSuppliersNameController @Inject() (
 
   val form: Form[String] = formProvider()
 
-  private def submitCall(mode: Mode): Call = controllers.imports.routes.ImportSuppliersNameController.onSubmit(mode)
+  private def formAction(mode: Mode): Call = controllers.imports.routes.ImportSuppliersNameController.onSubmit(mode)
 
   private def backLink: Call = controllers.imports.routes.SadReferenceController.onPageLoad(NormalMode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(ImportSuppliersNamePage).fold(form)(form.fill)
-    Ok(view(preparedForm, submitCall(mode), backLink, "import.caption", "suppliersName.import.hint"))
+    Ok(view(preparedForm, formAction(mode), backLink, "import.caption", "suppliersName.import.hint"))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -61,7 +61,7 @@ class ImportSuppliersNameController @Inject() (
       .bindFromRequest()
       .fold(
         formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, submitCall(mode), backLink, "import.caption", "suppliersName.import.hint"))),
+          Future.successful(BadRequest(view(formWithErrors, formAction(mode), backLink, "import.caption", "suppliersName.import.hint"))),
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(ImportSuppliersNamePage, value))
