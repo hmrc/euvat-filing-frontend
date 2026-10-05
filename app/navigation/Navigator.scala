@@ -63,9 +63,10 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case ImportTypePage                    => userAnswers => importNavigator.navigateFromImportTypePage(NormalMode)(userAnswers)
     case ImportSubCodePage                 => userAnswers => importNavigator.navigateFromImportSubCodePage(NormalMode)(userAnswers)
     case ImportSubCategoryPage             => userAnswers => importNavigator.navigateFromImportSubCategoryPage(NormalMode)(userAnswers)
-    case SadReferencePage                  => userAnswers => importNavigator.navigateFromSadReferenceCheckPage(NormalMode)(userAnswers)
+    case DescribeItemsOnImportDocPage      => _ => importRoutes.SadReferenceCheckController.onPageLoad(NormalMode)
+    case SadReferenceCheckPage             => userAnswers => importNavigator.navigateFromSadReferenceCheckPage(NormalMode)(userAnswers)
     case SadReferenceNumberPage            => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
-    case ImportDetailsInfoPage             => userAnswers => importNavigator.navigateFromImportDetailsInfoPage(NormalMode)(userAnswers)
+    case ImportDetailsInfoPage             => _ => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO link to import date
     case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 
@@ -95,11 +96,12 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case TotalVatPaidPage                  => _ => purchaseRoutes.TotalVatClaimController.onPageLoad(CheckMode)
     case TotalVatClaimPage                 => _ => purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
     case ImportTypePage                    => userAnswers => importNavigator.navigateFromImportTypePage(CheckMode)(userAnswers)
-    case ImportSubCodePage                 => _ => importRoutes.SadReferenceController.onPageLoad(CheckMode)
+    case ImportSubCodePage                 => _ => importRoutes.SadReferenceCheckController.onPageLoad(CheckMode)
     case ImportSubCategoryPage             => userAnswers => importNavigator.navigateFromImportSubCategoryPage(CheckMode)(userAnswers)
-    case SadReferencePage                  => userAnswers => importNavigator.navigateFromSadReferenceCheckPage(CheckMode)(userAnswers)
+    case DescribeItemsOnImportDocPage      => _ => importRoutes.SadReferenceCheckController.onPageLoad(CheckMode)
+    case SadReferenceCheckPage             => userAnswers => importNavigator.navigateFromSadReferenceCheckPage(CheckMode)(userAnswers)
     case SadReferenceNumberPage            => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
-    case ImportDetailsInfoPage             => userAnswers => importNavigator.navigateFromImportDetailsInfoPage(CheckMode)(userAnswers)
+    case ImportDetailsInfoPage             => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
     case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 

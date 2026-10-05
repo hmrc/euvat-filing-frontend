@@ -16,11 +16,12 @@
 
 package navigation
 
-import models.{CheckMode, Mode, NormalMode, UserAnswers}
-import pages.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage, SadReferencePage}
+import models.{CheckMode, Mode, NormalMode, Other, UserAnswers}
+import pages.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage, SadReferenceCheckPage}
 import play.api.mvc.Call
 import utils.{ConfigPurchaseOrImportMapping, CountryCode, CurrencyConfig}
-import controllers.imports.routes as importRoutes
+import controllers.imports.routes as importsRoutes
+import utils.PurchaseOrImportHelpers.isNoneSelection
 
 import javax.inject.{Inject, Singleton}
 
@@ -30,41 +31,33 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
   def navigateFromImportTypePage(mode: Mode)(userAnswers: UserAnswers): Call =
     (userAnswers.get(ImportTypePage), CountryCode.findCountryCode(userAnswers)) match {
       case (Some(importType), Some(country)) if configPurchaseOrImportMapping.selectableSubcodes(country, importType.toString).isDefined =>
-        importRoutes.ImportSubCodeController.onPageLoad(importType.toString)
-      case (Some(_), Some(_)) =>
-        importRoutes.SadReferenceController.onPageLoad(mode) // TODO: Other with only 10.99 may go to the import free text page when it exists
-      case _ =>
-        controllers.routes.JourneyRecoveryController.onPageLoad()
+        importsRoutes.ImportSubCodeController.onPageLoad(importType.toString)
+      case (Some(Other), Some(_)) => importsRoutes.DescribeItemsOnImportDocController.onPageLoad(mode)
+      case (Some(_), Some(_))     => importsRoutes.SadReferenceCheckController.onPageLoad(mode)
+      case _                      => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
   def navigateFromImportSubCodePage(mode: Mode)(userAnswers: UserAnswers): Call =
     (userAnswers.get(ImportTypePage), userAnswers.get(ImportSubCodePage), CountryCode.findCountryCode(userAnswers)) match {
+      case (Some(Other), Some(subCode), _) if isNoneSelection(subCode) =>
+        importsRoutes.DescribeItemsOnImportDocController.onPageLoad(mode)
       case (Some(importType), Some(subCode), Some(country))
           if configPurchaseOrImportMapping.subcategoriesFor(country, importType.toString, subCode).nonEmpty =>
-        importRoutes.ImportSubCategoryController.onPageLoad(mode)
-      case (_, Some(_), _) =>
-        importRoutes.SadReferenceController.onPageLoad(mode)
-      case _ =>
-        controllers.routes.JourneyRecoveryController.onPageLoad()
+        importsRoutes.ImportSubCategoryController.onPageLoad(mode)
+      case (_, Some(_), _) => importsRoutes.SadReferenceCheckController.onPageLoad(mode)
+      case _               => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
   def navigateFromImportSubCategoryPage(mode: Mode)(userAnswers: UserAnswers): Call =
     userAnswers.get(ImportSubCategoryPage) match {
-      case Some(_) => importRoutes.SadReferenceController.onPageLoad(mode)
+      case Some(_) => importsRoutes.SadReferenceCheckController.onPageLoad(mode)
       case None    => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
   def navigateFromSadReferenceCheckPage(mode: Mode)(userAnswers: UserAnswers): Call =
-    userAnswers.get(SadReferencePage) match {
-      case Some(true) => importRoutes.SadReferenceNumberController.onPageLoad(NormalMode)
-      case _          => importRoutes.ImportDetailsInfoController.onPageLoad(NormalMode)
-    }
-
-  def navigateFromImportDetailsInfoPage(mode: Mode)(userAnswers: UserAnswers): Call =
-    mode match {
-      case NormalMode =>
-        controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: replace with "When is the import date" controller once built
-      case CheckMode => controllers.routes.JourneyRecoveryController.onPageLoad()
+    userAnswers.get(SadReferenceCheckPage) match {
+      case Some(true) => importsRoutes.SadReferenceNumberController.onPageLoad(NormalMode)
+      case _          => importsRoutes.ImportDetailsInfoController.onPageLoad(NormalMode)
     }
 
 }

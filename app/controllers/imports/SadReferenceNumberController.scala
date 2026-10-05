@@ -46,8 +46,7 @@ class SadReferenceNumberController @Inject() (
     with I18nSupport {
 
   val form: Form[String] = formProvider()
-
-  private def backLink(mode: Mode): Call = routes.SadReferenceController.onPageLoad(mode)
+  private def backLink(mode: Mode): Call = routes.SadReferenceCheckController.onPageLoad(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(SadReferenceNumberPage).fold(form)(form.fill)

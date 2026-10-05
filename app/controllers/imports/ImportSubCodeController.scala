@@ -18,7 +18,7 @@ package controllers.imports
 
 import controllers.actions.*
 import forms.PurchaseOrImportSubTypeFormProvider
-import forms.imports.SadReferenceFormProvider
+import forms.imports.SadReferenceCheckFormProvider
 import models.requests.DataRequest
 import models.{NormalMode, PurchaseOrImportType, UserAnswers}
 import navigation.Navigator
@@ -32,7 +32,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.PurchaseOrImportHelpers.*
 import utils.{ConfigPurchaseOrImportMapping, CountryCode}
 import views.html.PurchaseOrImportSubTypeView
-import views.html.imports.SadReferenceView
+import views.html.imports.SadReferenceCheckView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -47,8 +47,8 @@ class ImportSubCodeController @Inject() (
   requireData: DataRequiredAction,
   formProvider: PurchaseOrImportSubTypeFormProvider,
   config: ConfigPurchaseOrImportMapping,
-  sadFormProvider: SadReferenceFormProvider,
-  sadView: SadReferenceView,
+  sadFormProvider: SadReferenceCheckFormProvider,
+  sadView: SadReferenceCheckView,
   val controllerComponents: MessagesControllerComponents,
   view: PurchaseOrImportSubTypeView
 )(implicit ec: ExecutionContext)
@@ -68,7 +68,7 @@ class ImportSubCodeController @Inject() (
     resolved match {
       case Some((importType, options)) => block(importType, options)
       case None =>
-        Future.successful(Ok(sadView(sadFormProvider(), routes.ImportSubCodeController.onPageLoad(importTypeKey))))
+        Future.successful(Ok(sadView(sadFormProvider(), routes.ImportTypeController.onPageLoad(NormalMode))))
     }
   }
 
@@ -82,7 +82,8 @@ class ImportSubCodeController @Inject() (
       messages(s"importSubCode.$importType.title"),
       messages(s"importSubCode.$importType.heading"),
       "import.caption",
-      routes.ImportSubCodeController.onSubmit(importType.toString)
+      routes.ImportSubCodeController.onSubmit(importType.toString),
+      routes.ImportTypeController.onPageLoad(NormalMode)
     )
   }
 
