@@ -19,7 +19,8 @@ package viewmodels.checkAnswers
 import models.requests.DataRequest
 import models.{PurchaseImport, UserAnswers}
 import play.api.i18n.Messages
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import play.twirl.api.Html
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryListRow, Value}
 import utils.{ControllerHelpers, Currency}
 import viewmodels.govuk.summarylist.*
@@ -31,29 +32,52 @@ object PurchaseImportListSummary {
     messages: Messages,
     request: DataRequest[?]
   ): Seq[SummaryListRow] = {
-    list.map { item =>
-      val itemNumber = item.itemNumber
-      val vatClaim = item.deductibleVatAmount
-      val itemType = if (item.itemType == "P") {
-        "Purchase"
-      } else {
-        "Import"
-      }
+    val (completeClaims, incompleteClaims) = list.partition(_.deductibleVatAmount > 0) // split between incomplete and complete items
+    (incompleteClaims ++ completeClaims) // display incomplete first and then completed ones
+      .map { item =>
+        val itemNumber = item.itemNumber
+        val vatClaim = item.deductibleVatAmount
+        val itemType = if (item.itemType == "P") { "Purchase" }
+        else { "Import" }
 
-      val currencySymbol = ControllerHelpers.currencySymbolFromSession(userAnswers, config)
-      SummaryListRowViewModel(
-        key   = itemType,
-        value = Value(content = Text(s"$currencySymbol" + item.deductibleVatAmount.toString() + " VAT claim")),
-        actions = Seq(
-          ActionItemViewModel("site.change", "#").withVisuallyHiddenText(
-            messages("purchaseImportSummary.change.hidden", itemType, currencySymbol + vatClaim)
-          ),
-          ActionItemViewModel("site.remove", "#").withVisuallyHiddenText(
-            messages("purchaseImportSummary.remove.hidden", itemType, currencySymbol + vatClaim)
-          )
-        )
-      )
-    }
+        if (vatClaim == 0) {
+          displaySummaryListRow(itemType, itemNumber)
+        } else {
+          val currencySymbol = ControllerHelpers.currencySymbolFromSession(userAnswers, config)
+          displaySummaryListRow(itemType, itemNumber, currencySymbol, vatClaim)
+        }
+      }
   }
 
+  private def displaySummaryListRow(itemType: String, itemNumber: Int, currencySymbol: String = "", vatClaim: BigDecimal = 0)(implicit
+    messages: Messages
+  ): SummaryListRow = {
+    SummaryListRowViewModel(
+      key = itemType,
+      value = if (vatClaim == 0) {
+        Value(content = HtmlContent(Html("<strong class='govuk-tag'> Incomplete</strong>")))
+      } else {
+        Value(content = Text(s"$currencySymbol" + vatClaim.toString() + " VAT claim"))
+      },
+      actions = if (vatClaim == 0) {
+        Seq(
+          ActionItemViewModel("site.add", "#").withVisuallyHiddenText(
+            messages("purchaseImportSummary.incomplete.add.hidden", itemType, itemNumber)
+          ),
+          ActionItemViewModel("site.remove", "#").withVisuallyHiddenText(
+            messages("purchaseImportSummary.incomplete.remove.hidden", itemType, itemNumber)
+          )
+        )
+      } else {
+        Seq(
+          ActionItemViewModel("site.change", "#").withVisuallyHiddenText(
+            messages("purchaseImportSummary.complete.change.hidden", itemType, itemNumber, currencySymbol + vatClaim)
+          ),
+          ActionItemViewModel("site.remove", "#").withVisuallyHiddenText(
+            messages("purchaseImportSummary.complete.remove.hidden", itemType, itemNumber, currencySymbol + vatClaim)
+          )
+        )
+      }
+    )
+  }
 }
