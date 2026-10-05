@@ -121,13 +121,4 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
         case Some(Import)   => importRoutes.ImportTypeController.onPageLoad(NormalMode)
         case None           => controllers.routes.JourneyRecoveryController.onPageLoad()
       }
-
-    case TotalVatPaidImportPage => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
-      private def navigateFromPurchaseOrImportPage(userAnswers: UserAnswers): Call =
-        userAnswers.get(PurchaseOrImportPage) match {
-          case Some(Purchase) => purchaseRoutes.PurchaseTypeController.onPageLoad(NormalMode)
-          case Some(Import)   => importRoutes.ImportTypeController.onPageLoad(NormalMode)
-          case None           => controllers.routes.JourneyRecoveryController.onPageLoad()
-        }
-
 }

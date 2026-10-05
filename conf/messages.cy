@@ -364,7 +364,7 @@ totalVatPaid.error.invalidNumeric = Enter total VAT paid in the correct format
 totalVatPaid.error.nonNumeric = Enter total VAT paid in the correct format
 totalVatPaid.error.aboveMaximum = Total VAT paid must be between -999,999,999.99 and 999,999,999.99
 totalVatPaid.checkYourAnswersLabel = VAT paid
-totalVatPaid.change.hidden=Change VAT paid
+totalVatPaid.change.hidden=Change VAT paidq
 
 totalVatClaim.title = Total VAT claim
 totalVatClaim.heading = Total VAT claim
