@@ -531,6 +531,8 @@ importDetailsInfo.label = Enter import document details
 importDetailsInfo.error.required = Enter import document details
 importDetailsInfo.error.length = Import document details must be 255 characters or less
 
+suppliersName.import.hint = Find the supplier’s name on the import document
+
 # Warning messages
 confirmRefundPeriodStartDate.title = Are you sure the refund period start date is correct?
 confirmRefundPeriodStartDate.heading = Are you sure the refund period start date is correct?
