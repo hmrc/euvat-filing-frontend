@@ -23,12 +23,12 @@ import navigation.Navigator
 import pages.{TotalPurchaseAmountBeforeVatPage, TotalVatPaidPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ControllerHelpers.*
 import utils.CurrencyConfig
-import views.html.purchase.TotalVatPaidView
+import views.html.PurchaseOrImportTotalVatPaidView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -43,7 +43,7 @@ class TotalVatPaidController @Inject() (
   requireData: DataRequiredAction,
   formProvider: TotalVatPaidFormProvider,
   val controllerComponents: MessagesControllerComponents,
-  view: TotalVatPaidView
+  view: PurchaseOrImportTotalVatPaidView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
@@ -56,10 +56,12 @@ class TotalVatPaidController @Inject() (
     routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
   }
 
+  private def formAction(mode: Mode): Call = routes.TotalVatPaidController.onSubmit(mode)
+
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(TotalVatPaidPage).fold(form)(form.fill)
     val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)
-    Ok(view(preparedForm, mode, backLink(mode), prefix, currencyName))
+    Ok(view(preparedForm, formAction(mode), backLink(mode), "purchase.caption", "totalVatPaid.p1", prefix, currencyName))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -67,7 +69,7 @@ class TotalVatPaidController @Inject() (
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode), prefix, currencyName))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, formAction(mode), backLink(mode), "purchase.caption", "totalVatPaid.p1", prefix, currencyName))),
         value =>
           for {
             userAnswers <- Future.fromTry(request.userAnswers.set(TotalVatPaidPage, value))

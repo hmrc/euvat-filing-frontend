@@ -29,7 +29,7 @@ import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ControllerHelpers.*
 import utils.CurrencyConfig
-import views.html.imports.TotalVatPaidImportView
+import views.html.PurchaseOrImportTotalVatPaidView
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -43,7 +43,7 @@ class TotalVatPaidImportController @Inject() (
   requireData: DataRequiredAction,
   formProvider: TotalVatPaidImportFormProvider,
   val controllerComponents: MessagesControllerComponents,
-  view: TotalVatPaidImportView
+  view: PurchaseOrImportTotalVatPaidView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
@@ -53,10 +53,12 @@ class TotalVatPaidImportController @Inject() (
   private def backLink(mode: Mode): Call =
     controllers.imports.routes.SadReferenceNumberController.onPageLoad(mode) // TODO: replace with TotalAmountWithoutVatController once built
 
+  private def formAction(mode: Mode): Call = routes.TotalVatPaidImportController.onSubmit(mode)
+
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(TotalVatPaidImportPage).fold(form)(form.fill)
     val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)
-    Ok(view(preparedForm, mode, backLink(mode), prefix, currencyName))
+    Ok(view(preparedForm, formAction(mode), backLink(mode), "import.caption", "totalVatPaidImport.p1", prefix, currencyName))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -64,7 +66,7 @@ class TotalVatPaidImportController @Inject() (
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode), prefix, currencyName))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, formAction(mode), backLink(mode), "import.caption", "totalVatPaidImport.p1", prefix, currencyName))),
         value =>
           for {
             userAnswers <- Future.fromTry(request.userAnswers.set(TotalVatPaidImportPage, value))

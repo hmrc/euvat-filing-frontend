@@ -30,7 +30,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import play.api.data.Form
 import repositories.SessionRepository
-import views.html.imports.TotalVatPaidImportView
+import views.html.PurchaseOrImportTotalVatPaidView
 
 import scala.concurrent.Future
 
@@ -58,11 +58,11 @@ class TotalVatPaidImportControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[TotalVatPaidImportView]
+        val view = application.injector.instanceOf[PurchaseOrImportTotalVatPaidView]
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, backLink(NormalMode), "€", "Euro")(
+          view(form, routes.TotalVatPaidImportController.onSubmit(NormalMode), backLink(NormalMode), "import.caption", "totalVatPaidImport.p1", "€", "Euro")(
             request,
             messages(application)
           ).toString
@@ -77,13 +77,13 @@ class TotalVatPaidImportControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request = FakeRequest(GET, routes.TotalVatPaidImportController.onPageLoad(CheckMode).url)
 
-        val view = application.injector.instanceOf[TotalVatPaidImportView]
+        val view = application.injector.instanceOf[PurchaseOrImportTotalVatPaidView]
 
         val result = route(application, request).value
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, CheckMode, backLink(CheckMode), "€", "Euro")(
+          view(form, routes.TotalVatPaidImportController.onSubmit(CheckMode), backLink(CheckMode), "import.caption", "totalVatPaidImport.p1" , "€", "Euro")(
             request,
             messages(application)
           ).toString
@@ -100,13 +100,13 @@ class TotalVatPaidImportControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request = FakeRequest(GET, totalVatPaidImportRoute)
 
-        val view = application.injector.instanceOf[TotalVatPaidImportView]
+        val view = application.injector.instanceOf[PurchaseOrImportTotalVatPaidView]
 
         val result = route(application, request).value
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form.fill(validAnswer), NormalMode, backLink(NormalMode), "€", "Euro")(
+          view(form.fill(validAnswer), routes.TotalVatPaidImportController.onSubmit(NormalMode), backLink(NormalMode), "import.caption", "totalVatPaidImport.p1", "€", "Euro")(
             request,
             messages(application)
           ).toString
@@ -151,13 +151,13 @@ class TotalVatPaidImportControllerSpec extends SpecBase with MockitoSugar {
 
         val boundForm = form.bind(Map("value" -> "invalid value"))
 
-        val view = application.injector.instanceOf[TotalVatPaidImportView]
+        val view = application.injector.instanceOf[PurchaseOrImportTotalVatPaidView]
 
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(boundForm, NormalMode, backLink(NormalMode), "€", "Euro")(
+          view(boundForm, routes.TotalVatPaidImportController.onSubmit(NormalMode), backLink(NormalMode), "import.caption", "totalVatPaidImport.p1", "€", "Euro")(
             request,
             messages(application)
           ).toString
