@@ -28,6 +28,7 @@ import play.api.mvc.*
 import repositories.SessionRepository
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.PurchaseOrImportHelpers.isNoneSelection
 import utils.{ConfigPurchaseOrImportMapping, ControllerHelpers, CountryCode, MountPrefix}
 import views.html.PurchaseOrImportSubTypeView
 
@@ -98,11 +99,8 @@ class PurchaseSubTypeController @Inject() (
         }
     }
 
-  private def isNoneOfTheseSelection(selection: String): Boolean =
-    selection == ConfigPurchaseOrImportMapping.NoneValue || selection.split("\\.").lastOption.contains("99")
-
   private def isTransitionAwayFromNoneForOther(parentKey: String, previousSelection: String, newSelection: String): Boolean =
-    parentKey == models.Other.toString && isNoneOfTheseSelection(previousSelection) && !isNoneOfTheseSelection(newSelection)
+    parentKey == models.Other.toString && isNoneSelection(previousSelection) && !isNoneSelection(newSelection)
 
   private def persistChangedSelection(currentAnswers: UserAnswers, parentKey: String, value: String, label: String): scala.util.Try[UserAnswers] =
     for {

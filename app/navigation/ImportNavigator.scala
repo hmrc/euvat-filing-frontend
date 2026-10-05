@@ -21,14 +21,12 @@ import pages.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage, SadRefer
 import play.api.mvc.Call
 import utils.{ConfigPurchaseOrImportMapping, CountryCode, CurrencyConfig}
 import controllers.imports.routes as importsRoutes
+import utils.PurchaseOrImportHelpers.isNoneSelection
 
 import javax.inject.{Inject, Singleton}
 
 @Singleton
 class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseOrImportMapping: ConfigPurchaseOrImportMapping) {
-
-  private def isNoneOrOtherSubCode(subCode: String): Boolean =
-    subCode == ConfigPurchaseOrImportMapping.NoneValue || subCode.split("\\.").lastOption.contains("99")
 
   def navigateFromImportTypePage(mode: Mode)(userAnswers: UserAnswers): Call =
     (userAnswers.get(ImportTypePage), CountryCode.findCountryCode(userAnswers)) match {
@@ -44,7 +42,7 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
 
   def navigateFromImportSubCodePage(mode: Mode)(userAnswers: UserAnswers): Call =
     (userAnswers.get(ImportTypePage), userAnswers.get(ImportSubCodePage), CountryCode.findCountryCode(userAnswers)) match {
-      case (Some(Other), Some(subCode), _) if isNoneOrOtherSubCode(subCode) =>
+      case (Some(Other), Some(subCode), _) if isNoneSelection(subCode) =>
         importsRoutes.DescribeItemsOnImportDocController.onPageLoad(mode)
       case (Some(importType), Some(subCode), Some(country))
           if configPurchaseOrImportMapping.subcategoriesFor(country, importType.toString, subCode).nonEmpty =>

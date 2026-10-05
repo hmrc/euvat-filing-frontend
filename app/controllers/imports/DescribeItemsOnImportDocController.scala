@@ -16,6 +16,7 @@
 
 package controllers.imports
 
+import controllers.imports.routes as importRoutes
 import controllers.actions.*
 import forms.DescribeItemsFormProvider
 import models.requests.DataRequest
@@ -27,6 +28,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.PurchaseOrImportHelpers.isNoneSelection
 import utils.{ConfigPurchaseOrImportMapping, CountryCode}
 import views.html.PurchaseOrImportDescribeItemsView
 
@@ -54,17 +56,17 @@ class DescribeItemsOnImportDocController @Inject() (
 
   private def backLink(answers: UserAnswers): Call =
     answers.get(ImportSubCodePage) match {
-      case Some(_) => controllers.imports.routes.ImportSubCodeController.onPageLoad(Other.toString)
-      case None    => controllers.imports.routes.ImportTypeController.onPageLoad(NormalMode)
+      case Some(_) => importRoutes.ImportSubCodeController.onPageLoad(Other.toString)
+      case None    => importRoutes.ImportTypeController.onPageLoad(NormalMode)
     }
 
-  private def submitCall(mode: Mode): Call = controllers.imports.routes.DescribeItemsOnImportDocController.onSubmit(mode)
+  private def submitCall(mode: Mode): Call = importRoutes.DescribeItemsOnImportDocController.onSubmit(mode)
 
   private def isReachable(answers: UserAnswers): Boolean =
     answers.get(ImportTypePage).contains(Other) && {
       answers.get(ImportSubCodePage) match {
         case Some(subCode) =>
-          subCode == ConfigPurchaseOrImportMapping.NoneValue || subCode.split("\\.").lastOption.contains("99")
+          isNoneSelection(subCode)
         case None =>
           CountryCode
             .findCountryCode(answers)
