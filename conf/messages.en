@@ -547,6 +547,8 @@ import.refundingCurrency.title = Which currency do you want to use for this impo
 import.refundingCurrency.heading = Which currency do you want to use for this import?
 import.refundingCurrency.error.required = Select a currency for this import
 
+totalVatPaidImport.p1 = If this amount is not on your import document, you’ll need to calculate it. Use the standard VAT rate of the country you’re claiming from.
+
 # Warning messages
 confirmRefundPeriodStartDate.title = Are you sure the refund period start date is correct?
 confirmRefundPeriodStartDate.heading = Are you sure the refund period start date is correct?

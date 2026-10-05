@@ -25,16 +25,16 @@ class TotalVatPaidImportFormProvider @Inject() extends Mappings {
   def apply(): Form[BigDecimal] =
     Form(
       "value" -> currency(
-        requiredKey      = "totalVatPaidImport.error.required",
-        invalidNumeric   = "totalVatPaidImport.error.invalidNumeric",
-        nonNumericKey    = "totalVatPaidImport.error.nonNumeric",
+        requiredKey      = "totalVatPaid.error.required",
+        invalidNumeric   = "totalVatPaid.error.invalidNumeric",
+        nonNumericKey    = "totalVatPaid.error.nonNumeric",
         enforceGrouping  = true,
-        groupingErrorKey = "totalVatPaidImport.error.invalidNumeric",
+        groupingErrorKey = "totalVatPaid.error.invalidNumeric",
         allowNegative    = true
       ).verifying(
         Constraint[BigDecimal]("range") { v =>
           if (v.abs <= maximumCurrencyAmount) Valid
-          else Invalid("totalVatPaidImport.error.aboveMaximum")
+          else Invalid("totalVatPaid.error.aboveMaximum")
         }
       )
     )

@@ -22,10 +22,10 @@ import play.api.data.FormError
 
 class TotalVatPaidImportFormProviderSpec extends CurrencyFieldBehaviours with StringFieldBehaviours {
 
-  val requiredKey = "totalVatPaidImport.error.required"
-  val invalidNumeric = "totalVatPaidImport.error.invalidNumeric"
-  val nonNumeric = "totalVatPaidImport.error.nonNumeric"
-  val aboveMaximum = "totalVatPaidImport.error.aboveMaximum"
+  val requiredKey = "totalVatPaid.error.required"
+  val invalidNumeric = "totalVatPaid.error.invalidNumeric"
+  val nonNumeric = "totalVatPaid.error.nonNumeric"
+  val aboveMaximum = "totalVatPaid.error.aboveMaximum"
   val max = BigDecimal("999999999.99")
 
   val form = new TotalVatPaidImportFormProvider()()
@@ -44,7 +44,7 @@ class TotalVatPaidImportFormProviderSpec extends CurrencyFieldBehaviours with St
 
   "must return grouping error for space-separated thousands when grouping enforced" in {
     val result = form.bind(Map("value" -> "1 234.56")).apply("value")
-    result.errors mustEqual Seq(FormError("value", "totalVatPaidImport.error.invalidNumeric"))
+    result.errors mustEqual Seq(FormError("value", "totalVatPaid.error.invalidNumeric"))
   }
 
   "must bind a set of valid currency edge cases" in {

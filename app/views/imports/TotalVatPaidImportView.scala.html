@@ -29,7 +29,7 @@
 
 @(form: Form[_], mode: Mode, call: Call, prefix: String, currencyName: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("totalVatPaidImport.title")), backLinkUrl = Some(call.url)) {
+@layout(pageTitle = title(form, messages("totalVatPaid.title")), backLinkUrl = Some(call.url)) {
 
     @formHelper(action = controllers.imports.routes.TotalVatPaidImportController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
@@ -37,18 +37,18 @@
 
         <span class="govuk-caption-l">@messages("import.caption")</span>
         <h1 class="govuk-heading-l">
-            @messages("totalVatPaidImport.heading")
+            @messages("totalVatPaid.heading")
         </h1>
         <p id="total-vat-paid" class="govuk-body">@Html(messages("totalVatPaidImport.p1"))</p>
 
         @govukInput(
             InputViewModel(
                 field = form("value"),
-                label = LabelViewModel(messages("totalVatPaidImport.h2")).withCssClass(LabelSize.Medium.toString)
+                label = LabelViewModel(messages("totalVatPaid.h2")).withCssClass(LabelSize.Medium.toString)
             )
             .withPrefix(PrefixOrSuffix(content = prefix))
             .withWidth(Fixed5)
-            .withHint(HintViewModel(messages("totalVatPaidImport.hint", prefix)))
+            .withHint(HintViewModel(messages("totalVatPaid.hint", prefix)))
             )
 
             @govukButton(
