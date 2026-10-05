@@ -137,5 +137,24 @@ class PurchaseOrImportHelpersSpec extends SpecBase {
         result.get(ImportSubCategoryLabelQuery) mustBe Some("Diesel")
       }
     }
+
+    "isNoneSelection" - {
+
+      "must be true for the generic None value" in {
+        isNoneSelection(ConfigPurchaseOrImportMapping.NoneValue) mustBe true
+      }
+
+      "must be true for a code ending in 99" in {
+        isNoneSelection("10.99") mustBe true
+      }
+
+      "must be false for a real sub code" in {
+        isNoneSelection("10.17") mustBe false
+      }
+
+      "must be false for a sub category code" in {
+        isNoneSelection("1.2.6") mustBe false
+      }
+    }
   }
 }

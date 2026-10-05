@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package forms.imports
+package forms
 
 import forms.mappings.Mappings
 import play.api.data.Form
 
 import javax.inject.Inject
 
-class SadReferenceFormProvider @Inject() extends Mappings {
+class DescribeItemsFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[Boolean] =
+  def apply(messagePrefix: String): Form[String] =
     Form(
-      "value" -> boolean("sadReference.error.required")
+      "value" -> text(s"$messagePrefix.error.required")
+        .verifying(maxLength(255, s"$messagePrefix.error.length"))
     )
-
 }

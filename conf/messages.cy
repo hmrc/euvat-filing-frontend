@@ -503,6 +503,12 @@ importSubCode.other.title = What other category best describes the item?
 importSubCode.other.heading = What other category best describes the item?
 importSubCode.other.error.required = Select the type of import
 
+describeItemsOnImportDoc.title = List each item from your import document
+describeItemsOnImportDoc.heading = List each item from your import document
+describeItemsOnImportDoc.hint = You can give the details in your preferred language
+describeItemsOnImportDoc.error.required = Enter a description of the items on your import document
+describeItemsOnImportDoc.error.length = Item description must be 255 characters or less
+
 singleAdministrativeDocumentReferenceNumberAvailable.title = Do you have a Single Administrative Document (SAD) reference number?
 singleAdministrativeDocumentReferenceNumberAvailable.heading = Do you have a Single Administrative Document (SAD) reference number?
 singleAdministrativeDocumentReferenceNumberAvailable.hint = You can usually find this at the top of the import document
@@ -583,5 +589,3 @@ vatClaimWarning.p = You''ve told us the amount of VAT you''re claiming is {0}. T
 vatClaimWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
 vatClaimWarning.yes = Yes, this is correct
 vatClaimWarning.no = No, change the VAT claim amount
-
-

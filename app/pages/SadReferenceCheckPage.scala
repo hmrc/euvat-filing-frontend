@@ -14,26 +14,14 @@
  * limitations under the License.
  */
 
-package forms.imports
+package pages
 
-import forms.behaviours.BooleanFieldBehaviours
-import play.api.data.FormError
+import play.api.libs.json.JsPath
 
-class SadReferenceFormProviderSpec extends BooleanFieldBehaviours {
+case object SadReferenceCheckPage extends QuestionPage[Boolean] {
 
-  val requiredKey = "sadReference.error.required"
-  val invalidKey = "error.boolean"
+  override def path: JsPath = JsPath \ toString
 
-  val form = new SadReferenceFormProvider()()
-
-  ".value" - {
-    val fieldName = "value"
-
-    behave like booleanField(
-      form,
-      fieldName,
-      FormError(fieldName, invalidKey)
-    )
-  }
+  override def toString: String = "singleAdministrativeDocumentReferenceNumberAvailable"
 
 }

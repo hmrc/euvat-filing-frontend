@@ -17,23 +17,23 @@
 @import uk.gov.hmrc.govukfrontend.views.html.components.CharacterCount
 
 @this(
-        layout: templates.Layout,
-        formHelper: FormWithCSRF,
-        govukButton: GovukButton,
-        govukCharacterCount: GovukCharacterCount,
-        mainErrorSummary: views.html.components.MainErrorSummary
+    layout: templates.Layout,
+    formHelper: FormWithCSRF,
+    govukButton: GovukButton,
+    govukCharacterCount: GovukCharacterCount,
+    mainErrorSummary: views.html.components.MainErrorSummary
 )
 
-@(form: Form[?], mode: Mode)(implicit request: Request[?], messages: Messages)
+@(form: Form[?], submitCall: Call, backLink: Call, messagePrefix: String, captionKey: String, hint: Option[String])(implicit request: Request[?], messages: Messages)
 
 @isError = @{form.error("value").isDefined}
 
-@layout(pageTitle = views.ViewUtils.title(form, "describeItemsOnInvoice.title")) {
-    @formHelper(action = controllers.purchase.routes.DescribeItemsOnInvoiceController.onSubmit(mode)) {
+@layout(pageTitle = views.ViewUtils.title(form, s"$messagePrefix.title"), backLinkUrl = Some(backLink.url)) {
+    @formHelper(action = submitCall) {
         @mainErrorSummary(form, Map("value" -> "value"))
 
         <div class="govuk-form-group @if(isError){govuk-form-group--error}">
-            <span class="govuk-caption-l">@messages("purchase.caption")</span>
+            <span class="govuk-caption-l">@messages(captionKey)</span>
 
             @govukCharacterCount(CharacterCount(
                 id = "value",
@@ -42,11 +42,9 @@
                 label = Label(
                     isPageHeading = true,
                     classes = "govuk-label--l",
-                    content = Text(messages("describeItemsOnInvoice.heading"))
+                    content = Text(messages(s"$messagePrefix.heading"))
                 ),
-                hint = Some(Hint(
-                    content = Text(messages("describeItemsOnInvoice.hint"))
-                )),
+                hint = hint.map(text => Hint(content = Text(text))),
                 value = form("value").value,
                 errorMessage = form("value").error.map(err => ErrorMessage(content = Text(messages(err.message, err.args*))))
             ))
