@@ -16,6 +16,7 @@
 
 package controllers.imports
 
+import controllers.imports.routes as importRoutes
 import controllers.actions.*
 import forms.SuppliersNameFormProvider
 import models.{Mode, NormalMode}
@@ -47,9 +48,9 @@ class ImportSuppliersNameController @Inject() (
 
   val form: Form[String] = formProvider()
 
-  private def formAction(mode: Mode): Call = controllers.imports.routes.ImportSuppliersNameController.onSubmit(mode)
+  private def formAction(mode: Mode): Call = importRoutes.ImportSuppliersNameController.onSubmit(mode)
 
-  private def backLink: Call = controllers.imports.routes.SadReferenceController.onPageLoad(NormalMode)
+  private def backLink: Call = importRoutes.SadReferenceCheckController.onPageLoad(NormalMode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(ImportSuppliersNamePage).fold(form)(form.fill)

@@ -128,22 +128,22 @@ class NavigatorSpec extends SpecBase {
           controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from SadReferencePage to SadReferenceNumberController when the user has a SAD reference" in {
-        val answers = userAnswers.set(SadReferencePage, true).success.value
+      "must go from SadReferenceCheckPage to SadReferenceNumberController when the user has a SAD reference" in {
+        val answers = userAnswers.set(SadReferenceCheckPage, true).success.value
 
-        navigator.nextPage(SadReferencePage, NormalMode, answers) mustBe
+        navigator.nextPage(SadReferenceCheckPage, NormalMode, answers) mustBe
           importRoutes.SadReferenceNumberController.onPageLoad(NormalMode)
       }
 
-      "must go from SadReferencePage to ImportDetailsInfoController when the user has no SAD reference" in {
-        val answers = userAnswers.set(SadReferencePage, false).success.value
+      "must go from SadReferenceCheckPage to ImportDetailsInfoController when the user has no SAD reference" in {
+        val answers = userAnswers.set(SadReferenceCheckPage, false).success.value
 
-        navigator.nextPage(SadReferencePage, NormalMode, answers) mustBe
+        navigator.nextPage(SadReferenceCheckPage, NormalMode, answers) mustBe
           importRoutes.ImportDetailsInfoController.onPageLoad(NormalMode)
       }
 
-      "must go from SadReferencePage to Journey Recovery when the question is unanswered" in {
-        navigator.nextPage(SadReferencePage, NormalMode, userAnswers) mustBe
+      "must go from SadReferenceCheckPage to Journey Recovery when the question is unanswered" in {
+        navigator.nextPage(SadReferenceCheckPage, NormalMode, userAnswers) mustBe
           controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
@@ -273,10 +273,10 @@ class NavigatorSpec extends SpecBase {
           importRoutes.SadReferenceCheckController.onPageLoad(CheckMode)
       }
 
-      "must go from SadReferencePage to SadReferenceNumberController when the user has a SAD reference" in {
-        val answers = userAnswers.set(SadReferencePage, true).success.value
+      "must go from SadReferenceCheckPage to SadReferenceNumberController when the user has a SAD reference" in {
+        val answers = userAnswers.set(SadReferenceCheckPage, true).success.value
 
-        navigator.nextPage(SadReferencePage, CheckMode, answers) mustBe
+        navigator.nextPage(SadReferenceCheckPage, CheckMode, answers) mustBe
           importRoutes.SadReferenceNumberController.onPageLoad(CheckMode)
       }
 
