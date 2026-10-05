@@ -65,9 +65,9 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case ImportSubCategoryPage             => userAnswers => importNavigator.navigateFromImportSubCategoryPage(NormalMode)(userAnswers)
     case DescribeItemsOnImportDocPage      => _ => importRoutes.SadReferenceCheckController.onPageLoad(NormalMode)
     case SadReferenceCheckPage             => userAnswers => importNavigator.navigateFromSadReferenceCheckPage(NormalMode)(userAnswers)
-    case SadReferenceNumberPage            => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
-    case ImportDetailsInfoPage            => userAnswers => importNavigator.navigateFromSadReferenceNumberPage(NormalMode)(userAnswers)
-    case ImportCurrencyPage                => _ => controllers.routes.JourneyRecoveryController.onPageLoad()// TODO link to import date
+    case SadReferenceNumberPage            => userAnswers => importNavigator.navigateToCurrencyOrNextPage(NormalMode)(userAnswers)
+    case ImportDetailsInfoPage             => userAnswers => importNavigator.navigateToCurrencyOrNextPage(NormalMode)(userAnswers)
+    case ImportCurrencyPage                => _ => controllers.routes.JourneyRecoveryController.onPageLoad()// TODO link to total vat
     case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 
@@ -101,9 +101,9 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case ImportSubCategoryPage             => userAnswers => importNavigator.navigateFromImportSubCategoryPage(CheckMode)(userAnswers)
     case DescribeItemsOnImportDocPage      => _ => importRoutes.SadReferenceCheckController.onPageLoad(CheckMode)
     case SadReferenceCheckPage             => userAnswers => importNavigator.navigateFromSadReferenceCheckPage(CheckMode)(userAnswers)
-    case SadReferenceNumberPage            => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
-    case ImportDetailsInfoPage            => userAnswers => importNavigator.navigateFromSadReferenceNumberPage(CheckMode)(userAnswers)
-    case ImportCurrencyPage                => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
+    case SadReferenceNumberPage            => userAnswers => importNavigator.navigateToCurrencyOrNextPage(CheckMode)(userAnswers)
+    case ImportDetailsInfoPage             => userAnswers => importNavigator.navigateToCurrencyOrNextPage(CheckMode)(userAnswers)
+    case ImportCurrencyPage                => _ => controllers.routes.JourneyRecoveryController.onPageLoad()// TODO link to total vat
     case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 

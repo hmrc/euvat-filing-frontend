@@ -66,12 +66,12 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
       case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
-  def navigateFromSadReferenceNumberPage(mode: Mode)(userAnswers: UserAnswers): Call =
+  def navigateToCurrencyOrNextPage(mode: Mode)(userAnswers: UserAnswers): Call =
     CountryCode.findCountryCode(userAnswers) match {
       case Some(countryCode) if currencyConfig.requiresCurrencySelection(countryCode) =>
         importsRoutes.ImportCurrencyController.onPageLoad(mode)
-      case Some(_) => controllers.routes.JourneyRecoveryController.onPageLoad()
+      case Some(_) => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: next import page
       case None => controllers.routes.JourneyRecoveryController.onPageLoad()
-    } //TODO rename the method and plug it in properly once supplier address page is developed and merged
+    }
 
 }
