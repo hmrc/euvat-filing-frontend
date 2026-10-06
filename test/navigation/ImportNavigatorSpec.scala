@@ -191,6 +191,25 @@ class ImportNavigatorSpec extends SpecBase {
         navigator.navigateFromSadReferenceCheckPage(NormalMode)(userAnswers) mustBe
           controllers.routes.JourneyRecoveryController.onPageLoad()
       }
+
+      "must go from navigateToCurrencyOrNextPage to ImportCurrency when the country requires currency selection" in {
+        val ua = userAnswers.set(RefundingCountryPage, "EE").success.value
+
+        navigator.navigateToCurrencyOrNextPage(NormalMode)(ua) mustBe
+          importRoutes.ImportCurrencyController.onPageLoad(NormalMode)
+      }
+
+      "must skip ImportCurrency in navigateToCurrencyOrNextPage when the country has one currency" in {
+        val ua = userAnswers.set(RefundingCountryPage, "AT").success.value
+
+        navigator.navigateToCurrencyOrNextPage(NormalMode)(ua) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from navigateToCurrencyOrNextPage to Journey Recovery when no country is in session" in {
+        navigator.navigateToCurrencyOrNextPage(NormalMode)(userAnswers) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
     }
 
     "in Check mode" - {
@@ -228,6 +247,13 @@ class ImportNavigatorSpec extends SpecBase {
 
         navigator.navigateFromSadReferenceCheckPage(CheckMode)(ua) mustBe
           importRoutes.ImportDetailsInfoController.onPageLoad(CheckMode)
+      }
+
+      "must go from navigateToCurrencyOrNextPage to ImportCurrency when the country requires currency selection" in {
+        val ua = userAnswers.set(RefundingCountryPage, "EE").success.value
+
+        navigator.navigateToCurrencyOrNextPage(CheckMode)(ua) mustBe
+          importRoutes.ImportCurrencyController.onPageLoad(CheckMode)
       }
     }
   }
