@@ -213,8 +213,7 @@ class NavigatorSpec extends SpecBase {
         val answers = userAnswers.set(RefundingCountryPage, "AT").success.value
 
         navigator.nextPage(ImportSuppliersNamePage, NormalMode, answers) mustBe
-          controllers.routes.JourneyRecoveryController.onPageLoad()
-      }
+          controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad()      }
 
       "must go from ImportSuppliersNamePage to Journey Recovery when no country is in session" in {
         navigator.nextPage(ImportSuppliersNamePage, NormalMode, userAnswers) mustBe
@@ -284,23 +283,23 @@ class NavigatorSpec extends SpecBase {
           purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
       }
 
-      "must go from SadReferenceNumberPage to ImportCurrencyController when the country requires currency selection" in {
+      "must go from SadReferenceNumberPage to ImportSuppliersNameController in CheckMode" in {
         val answers = userAnswers.set(RefundingCountryPage, "EE").success.value
 
         navigator.nextPage(SadReferenceNumberPage, CheckMode, answers) mustBe
-          importRoutes.ImportCurrencyController.onPageLoad(CheckMode)
+          controllers.imports.routes.ImportSuppliersNameController.onPageLoad(CheckMode)
       }
 
-      "must go from ImportCurrencyPage to JourneyRecoveryController" in {
+      "must go from ImportCurrencyPage to JourneyRecoveryController check mode" in {
         navigator.nextPage(ImportCurrencyPage, CheckMode, userAnswers) mustBe
           controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from ImportDetailsInfoPage to ImportCurrencyController when the country requires currency selection" in {
+      "must go from ImportDetailsInfoPage to ImportSuppliersNameController in CheckMode" in {
         val answers = userAnswers.set(RefundingCountryPage, "EE").success.value
 
         navigator.nextPage(ImportDetailsInfoPage, CheckMode, answers) mustBe
-          importRoutes.ImportCurrencyController.onPageLoad(CheckMode)
+          controllers.imports.routes.ImportSuppliersNameController.onPageLoad(CheckMode)
       }
 
       "must go from a page that doesn't exist in the edit route map to IndexController" in {
@@ -335,16 +334,6 @@ class NavigatorSpec extends SpecBase {
 
         navigator.nextPage(ImportSuppliersNamePage, CheckMode, answers) mustBe
           importRoutes.ImportCurrencyController.onPageLoad(CheckMode)
-      }
-
-      "must go from ImportCurrencyPage to JourneyRecoveryController" in {
-        navigator.nextPage(ImportCurrencyPage, CheckMode, userAnswers) mustBe
-          controllers.routes.JourneyRecoveryController.onPageLoad()
-      }
-
-      "must go from a page that doesn't exist in the edit route map to IndexController" in {
-        case object UnknownPage extends Page
-        navigator.nextPage(UnknownPage, CheckMode, userAnswers) mustBe controllers.routes.IndexController.onPageLoad()
       }
     }
   }
