@@ -14,18 +14,22 @@
  * limitations under the License.
  *@
 
+@* <!--TODO: Temporary Code to test wiring, override code when actual development is done in DTR-8186. --> *@
+
 @this(
 layout: templates.Layout
 )
 
-@(implicit request: Request[?], messages: Messages)
+@()(implicit request: Request[?], messages: Messages)
 
 @layout(
 pageTitle = "Total amount without VAT"
 ) {
-<h1 class="govuk-heading-l">Total amount without VAT</h1>
+<h1 class="govuk-heading-l">
+ Total amount without VAT
+</h1>
 
 <p class="govuk-body">
-    Temporary page for testing import journey routing.
+ Temporary page for testing import journey routing.
 </p>
 }

@@ -20,10 +20,10 @@ import config.FrontendAppConfig
 import controllers.actions.*
 import forms.imports.ImportSupplierAddressFormProvider
 import models.Mode
-import pages.RefundingCountryPage
 import pages.imports.ImportSupplierAddressPage
 import play.api.i18n.I18nSupport
 import play.api.mvc.*
+import navigation.Navigator
 import repositories.SessionRepository
 import views.html.imports.ImportSupplierAddressView
 
@@ -36,6 +36,7 @@ class ImportSupplierAddressController @Inject() (
   requireData: DataRequiredAction,
   formProvider: ImportSupplierAddressFormProvider,
   sessionRepository: SessionRepository,
+  navigator: Navigator,
   config: FrontendAppConfig,
   val controllerComponents: MessagesControllerComponents,
   view: ImportSupplierAddressView
@@ -87,25 +88,18 @@ class ImportSupplierAddressController @Inject() (
               )
             ),
           value =>
-            val nextPage =
-              request.userAnswers.get(RefundingCountryPage) match {
-                case Some("EE") =>
-                  controllers.imports.routes.ImportCurrencyController.onPageLoad(mode)
-
-                // TODO: Check temporary redirect once dependent DTR-8186 Total amount without VAT  PR is merged.
-                case Some(_) =>
-                  controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad()
-
-                case _ =>
-                  controllers.routes.JourneyRecoveryController.onPageLoad()
-              }
-
             for {
               updatedAnswers <- Future.fromTry(
-                                  request.userAnswers.set(ImportSupplierAddressPage, value)
-                                )
+                request.userAnswers.set(ImportSupplierAddressPage, value)
+              )
               _ <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(nextPage)
+            } yield Redirect(
+              navigator.nextPage(
+                ImportSupplierAddressPage,
+                mode,
+                updatedAnswers
+              )
+            )
         )
     }
 }

@@ -22,6 +22,7 @@ import controllers.purchase.routes as purchaseRoutes
 import models.*
 import models.PurchaseOrImport.{Import, Purchase}
 import pages.*
+import pages.imports.*
 import play.api.mvc.Call
 
 import javax.inject.{Inject, Singleton}
@@ -68,6 +69,7 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case SadReferenceNumberPage            => userAnswers => importNavigator.navigateToCurrencyOrNextPage(NormalMode)(userAnswers)
     case ImportDetailsInfoPage             => userAnswers => importNavigator.navigateToCurrencyOrNextPage(NormalMode)(userAnswers)
     case ImportCurrencyPage                => _ => controllers.routes.JourneyRecoveryController.onPageLoad()// TODO link to total vat
+    case ImportSupplierAddressPage         => userAnswers => importNavigator.navigateToCurrencyOrNextPage(NormalMode)(userAnswers)
     case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 
@@ -104,6 +106,7 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case SadReferenceNumberPage            => userAnswers => importNavigator.navigateToCurrencyOrNextPage(CheckMode)(userAnswers)
     case ImportDetailsInfoPage             => userAnswers => importNavigator.navigateToCurrencyOrNextPage(CheckMode)(userAnswers)
     case ImportCurrencyPage                => _ => controllers.routes.JourneyRecoveryController.onPageLoad()// TODO link to total vat
+    case ImportSupplierAddressPage         => userAnswers => importNavigator.navigateToCurrencyOrNextPage(CheckMode)(userAnswers)
     case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 

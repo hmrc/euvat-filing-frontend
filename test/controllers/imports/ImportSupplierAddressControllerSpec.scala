@@ -29,12 +29,15 @@ import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import navigation.{FakeNavigator, Navigator}
 import repositories.SessionRepository
 import views.html.imports.ImportSupplierAddressView
 
 import scala.concurrent.Future
 
 class ImportSupplierAddressControllerSpec extends SpecBase with MockitoSugar {
+
+  private val onwardRoute = Call("GET", "/foo")
 
   private lazy val pageLoadRoute =
     routes.ImportSupplierAddressController.onPageLoad().url
@@ -278,6 +281,39 @@ class ImportSupplierAddressControllerSpec extends SpecBase with MockitoSugar {
 
         redirectLocation(result).value mustEqual
           controllers.routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must persist the answer and redirect to the next page when valid data is submitted" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+
+      when(mockSessionRepository.set(any()))
+        .thenReturn(Future.successful(true))
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+
+        val request =
+          FakeRequest(POST, submitRoute)
+            .withFormUrlEncodedBody(validFormData.toSeq *)
+
+        val result =
+          route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+
+        redirectLocation(result).value mustEqual onwardRoute.url
+
+        verify(mockSessionRepository, times(1))
+          .set(any())
       }
     }
 

@@ -17,17 +17,21 @@
 @import models.Mode
 @import viewmodels.InputWidth.*
 @import views.html.components.MainErrorSummary
+@import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.accessibleautocomplete.AccessibleAutocomplete
 
 @this(
-    layout: templates.Layout,
-    formHelper: FormWithCSRF,
-    govukInput: GovukInput,
-    govukSelect: GovukSelect,
-    govukButton: GovukButton,
-    mainErrorSummary: MainErrorSummary
+layout: templates.Layout,
+formHelper: FormWithCSRF,
+govukInput: GovukInput,
+govukSelect: GovukSelect,
+govukButton: GovukButton,
+mainErrorSummary: MainErrorSummary
 )
 
 @(form: Form[?], countries: Map[String, String], mode: Mode, call: Call)(implicit request: Request[?], messages: Messages)
+
+@isCountryError = @{form.error("country").isDefined}
 
 @layout(
 pageTitle = views.ViewUtils.title(form, "supplierAddress.title"),
@@ -35,8 +39,8 @@ backLinkUrl = Some(call.url)
 ) {
 
 @formHelper(
-    action = controllers.imports.routes.ImportSupplierAddressController.onSubmit(),
-    Symbol("novalidate") -> "novalidate"
+action = controllers.imports.routes.ImportSupplierAddressController.onSubmit(),
+Symbol("novalidate") -> "novalidate"
 ) {
 
 @mainErrorSummary(
@@ -45,17 +49,17 @@ Map(
 "addressLine1" -> "addressLine1",
 "addressLine2" -> "addressLine2",
 "addressLine3" -> "addressLine3",
-"country" -> "country"
+"country" -> (form("country").id + "-input")
 )
 )
 
 <h1 class="govuk-heading-l">
-    <span class="govuk-caption-l">@messages("import.caption")</span>
-    @messages("supplierAddress.heading")
+ <span class="govuk-caption-l">@messages("import.caption")</span>
+ @messages("supplierAddress.heading")
 </h1>
 
 <p class="govuk-body">
-    @messages("supplierAddress.lead")
+ @messages("supplierAddress.lead")
 </p>
 
 @govukInput(
@@ -82,42 +86,63 @@ label = LabelViewModel(messages("supplierAddress.line3.label"))
 .withWidth(Full)
 )
 
-@govukSelect(
-Select(
-id = "country",
-name = "country",
-items = (
-Seq(
-SelectItem(
-value = Some(""),
-text = ""
-)
-) ++
-countries.toSeq
-.sortBy { case (_, countryName) => countryName }
-.map { case (code, countryName) =>
-SelectItem(
-value = Some(code),
-text = countryName,
-selected = form("country").value.contains(code)
-)
-}
-),
-label = Label(
-content = Text(messages("supplierAddress.country.label"))
-),
-errorMessage = form("country").error.map { error =>
-ErrorMessage(
-content = Text(
-messages(error.message, error.args*)
-)
-)
-},
-attributes = Map(
-"data-module" -> "hmrc-accessible-autocomplete"
-)
-)
-)
+<div class="govuk-form-group @if(isCountryError){govuk-form-group--error}">
+ 
+ @govukSelect(
+ Select(
+ id = form("country").id + "-input",
+ name = "country",
+ classes = TwoThirds.toString,
+ label = Label(
+ content = Text(messages("supplierAddress.country.label"))
+ ),
+ items =
+ Seq(
+ SelectItem(
+ value = Some(""),
+ text = "Select a country",
+ selected = form("country").value.isEmpty
+ )
+ ) ++
+ countries.toSeq
+ .sortBy { case (_, countryName) => countryName }
+ .map { case (code, countryName) =>
+ SelectItem(
+ value = Some(code),
+ text = countryName,
+ selected = form("country").value.contains(code)
+ )
+ },
+ attributes = Map(
+ "data-ac-typed" -> "#countryTyped",
+ "data-ac-input-classes" -> "govuk-input govuk-!-width-two-thirds"
+ ),
+ errorMessage = form.error("country").map { error =>
+ ErrorMessage(
+ content = Text(
+ messages(error.message, error.args*)
+ )
+ )
+ }
+ ).asAccessibleAutocomplete(
+ Some(
+ AccessibleAutocomplete(
+ showAllValues = false,
+ autoSelect = false,
+ minLength = None
+ )
+ )
+ )
+ )
+
+</div>
+
+<input
+        type="hidden"
+        id="countryTyped"
+        name="countryTyped"
+        value=""
+>
 
 @govukButton(
 ButtonViewModel(messages("site.continue"))
