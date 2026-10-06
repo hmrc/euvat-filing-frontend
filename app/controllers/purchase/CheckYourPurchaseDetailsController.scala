@@ -169,7 +169,8 @@ class CheckYourPurchaseDetailsController @Inject() (
             for {
               updatedAnswers1 <- Future.fromTry(request.userAnswers.set(AddPurchaseResponsePage, updatedAddResp))
               updatedAnswers2 <- Future.fromTry(updatedAnswers1.set(UpdateSequenceNumberQuery, resp.updateSequenceNumber))
-              _               <- sessionRepository.set(updatedAnswers2)
+              updatedAnswers3 <- Future.fromTry(updatedAnswers2.remove(PurchaseImportSummaryPage))
+              _               <- sessionRepository.set(updatedAnswers3)
             } yield Redirect(controllers.routes.PurchaseImportSummaryController.onPageLoad)
           }
           .recover { case ex =>

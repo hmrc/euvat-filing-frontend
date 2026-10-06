@@ -18,13 +18,13 @@ package controllers
 
 import controllers.actions.*
 import forms.PurchaseImportSummaryFormProvider
-import models.requests.{DataRequest, PurchaseImportListRequest}
+import models.requests.PurchaseImportListRequest
 import navigation.Navigator
-import pages.PurchaseImportSummaryPage
+import pages.{PurchaseImportSummaryPage, PurchaseOrImportPage}
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import queries.ClaimApplicationResponseQuery
 import repositories.SessionRepository
 import services.EuVatRefundsService
@@ -93,7 +93,8 @@ class PurchaseImportSummaryController @Inject() (
         },
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(PurchaseImportSummaryPage, value))
+            userAnswers    <- Future.fromTry(request.userAnswers.set(PurchaseImportSummaryPage, value))
+            updatedAnswers <- Future.fromTry(userAnswers.remove(PurchaseOrImportPage))
             _              <- sessionRepository.set(updatedAnswers)
           } yield {
 //            updatedAnswers.get(ClaimApplicationResponseQuery).map(_.applicationId) match {

@@ -16,6 +16,7 @@
 
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Content
 @import viewmodels.LegendSize
+@import views.html.components.MainErrorSummary
 
 @this(
     layout: templates.Layout,
@@ -23,7 +24,8 @@
     govukButton: GovukButton,
     govukSummaryList: GovukSummaryList,
     govukRadios: GovukRadios,
-    govukDetails : GovukDetails
+    govukDetails : GovukDetails,
+    mainErrorSummary: MainErrorSummary
 )
 
 @(form: play.api.data.Form[_], summaryList: Seq[SummaryListRow], numberOfItems: Int, totalClaim: BigDecimal)(implicit request: Request[_], messages: Messages)
@@ -37,6 +39,7 @@
 
 @layout(pageTitle = titleNoForm(messages("purchaseImportSummary.title", numberOfItems)), showBackLink = false, useFullGrid = true) {
     @formHelper(action = controllers.routes.PurchaseImportSummaryController.onSubmit, Symbol("autoComplete") -> "off") {
+        @mainErrorSummary(form)
         <span class="govuk-caption-l">@messages("purchaseImportSummary.caption")</span>
         <h1 class="govuk-heading-l">@messages("purchaseImportSummary.heading", numberOfItems)</h1>
         <p class = "govuk-body">@messages("purchaseImportSummary.p1", totalClaim)</p>
@@ -54,7 +57,7 @@
                 legend = LegendViewModel(messages("purchaseImportSummary.add.item")).asPageHeading(LegendSize.Medium),
                 items  = Seq(
                     RadioItem(id = Some("value"), value = Some("true"), content = Text(messages("site.yes"))),
-                    RadioItem(id = Some("value"), value = Some("false"), content = Text(messages("site.no")))
+                    RadioItem(id = Some("value_0"), value = Some("false"), content = Text(messages("site.no")))
                 )
             )
         )
