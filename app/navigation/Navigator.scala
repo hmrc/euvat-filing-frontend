@@ -63,16 +63,11 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case ImportTypePage                    => userAnswers => importNavigator.navigateFromImportTypePage(NormalMode)(userAnswers)
     case ImportSubCodePage                 => userAnswers => importNavigator.navigateFromImportSubCodePage(NormalMode)(userAnswers)
     case ImportSubCategoryPage             => userAnswers => importNavigator.navigateFromImportSubCategoryPage(NormalMode)(userAnswers)
-    case SadReferencePage =>
-      userAnswers =>
-        userAnswers.get(SadReferencePage) match {
-          case Some(true)  => importRoutes.SadReferenceNumberController.onPageLoad(NormalMode)
-          case Some(false) => importRoutes.ImportDetailsInfoController.onPageLoad(NormalMode)
-          case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
-        }
-    case SadReferenceNumberPage            => userAnswers => importNavigator.navigateToCurrencyOrNextPage(NormalMode)(userAnswers) //TODO link up pages correctly
-    case ImportDetailsInfoPage             => userAnswers => importNavigator.navigateToCurrencyOrNextPage(NormalMode)(userAnswers) //TODO link up pages correctly
-    case ImportCurrencyPage                => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
+    case DescribeItemsOnImportDocPage      => _ => importRoutes.SadReferenceCheckController.onPageLoad(NormalMode)
+    case SadReferenceCheckPage             => userAnswers => importNavigator.navigateFromSadReferenceCheckPage(NormalMode)(userAnswers)
+    case SadReferenceNumberPage            => userAnswers => importNavigator.navigateToCurrencyOrNextPage(NormalMode)(userAnswers)
+    case ImportDetailsInfoPage             => userAnswers => importNavigator.navigateToCurrencyOrNextPage(NormalMode)(userAnswers)
+    case ImportCurrencyPage                => _ => controllers.routes.JourneyRecoveryController.onPageLoad()// TODO link to total vat
     case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 
@@ -102,18 +97,13 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case TotalVatPaidPage                  => _ => purchaseRoutes.TotalVatClaimController.onPageLoad(CheckMode)
     case TotalVatClaimPage                 => _ => purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
     case ImportTypePage                    => userAnswers => importNavigator.navigateFromImportTypePage(CheckMode)(userAnswers)
-    case ImportSubCodePage                 => _ => importRoutes.SadReferenceController.onPageLoad(CheckMode)
+    case ImportSubCodePage                 => _ => importRoutes.SadReferenceCheckController.onPageLoad(CheckMode)
     case ImportSubCategoryPage             => userAnswers => importNavigator.navigateFromImportSubCategoryPage(CheckMode)(userAnswers)
-    case SadReferencePage =>
-      userAnswers =>
-        userAnswers.get(SadReferencePage) match {
-          case Some(true)  => importRoutes.SadReferenceNumberController.onPageLoad(CheckMode)
-          case Some(false) => importRoutes.ImportDetailsInfoController.onPageLoad(CheckMode)
-          case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
-        }
+    case DescribeItemsOnImportDocPage      => _ => importRoutes.SadReferenceCheckController.onPageLoad(CheckMode)
+    case SadReferenceCheckPage             => userAnswers => importNavigator.navigateFromSadReferenceCheckPage(CheckMode)(userAnswers)
     case SadReferenceNumberPage            => userAnswers => importNavigator.navigateToCurrencyOrNextPage(CheckMode)(userAnswers)
     case ImportDetailsInfoPage             => userAnswers => importNavigator.navigateToCurrencyOrNextPage(CheckMode)(userAnswers)
-    case ImportCurrencyPage                => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
+    case ImportCurrencyPage                => _ => controllers.routes.JourneyRecoveryController.onPageLoad()// TODO link to total vat
     case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 

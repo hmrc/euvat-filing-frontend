@@ -18,13 +18,11 @@ package navigation
 
 import base.SpecBase
 import com.typesafe.config.ConfigFactory
+import controllers.imports.routes as importRoutes
 import models.*
 import pages.*
 import play.api.Configuration
-import utils.{ConfigLanguageMapping, ConfigPurchaseOrImportMapping, CurrencyConfig}
-import controllers.purchase.routes as purchaseRoutes
-import controllers.imports.routes as importRoutes
-import controllers.routes as routes
+import utils.{ConfigPurchaseOrImportMapping, CurrencyConfig}
 
 class ImportNavigatorSpec extends SpecBase {
 
@@ -52,17 +50,25 @@ class ImportNavigatorSpec extends SpecBase {
   )
   val userAnswers: UserAnswers = emptyUserAnswers
 
-  "Navigator" - {
+  private def navigatorWith(config: ConfigPurchaseOrImportMapping): ImportNavigator =
+    new ImportNavigator(
+      new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
+      config
+    )
+
+  "ImportNavigator" - {
 
     "in Normal mode" - {
+
       "must go from ImportTypePage to JourneyRecovery when ImportType present but no country" in {
         val ua = userAnswers.set(ImportTypePage, Fuel).success.value
+
         navigator.navigateFromImportTypePage(NormalMode)(ua) mustBe
           controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from ImportTypePage to the import sub code page for that type when the country has sub codes" in {
-        val fakeImportConfig = new ConfigPurchaseOrImportMapping() {
+        val fakeConfig = new ConfigPurchaseOrImportMapping() {
           override def subcodesFor(country: String, parentKey: String): Seq[(String, String)] =
             if (country == "BG" && parentKey == Fuel.toString) {
               Seq(("1.1", "purchase.sub.fuel.1.1"), ("1.1.1", "purchase.sub.fuel.1.1.1"))
@@ -70,96 +76,142 @@ class ImportNavigatorSpec extends SpecBase {
               Seq.empty
             }
         }
-        val nav = new ImportNavigator(
-          new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
-          fakeImportConfig
-        )
         val ua = userAnswers.set(RefundingCountryPage, "BG").success.value.set(ImportTypePage, Fuel).success.value
 
-        nav.navigateFromImportTypePage(NormalMode)(ua) mustBe
-          controllers.imports.routes.ImportSubCodeController.onPageLoad(Fuel.toString)
+        navigatorWith(fakeConfig).navigateFromImportTypePage(NormalMode)(ua) mustBe
+          importRoutes.ImportSubCodeController.onPageLoad(Fuel.toString)
       }
 
-      "must go from ImportTypePage to SadReference when the country has no sub codes for that type" in {
-        val fakeImportConfig = new ConfigPurchaseOrImportMapping() {
+      "must go from ImportTypePage to SadReferenceCheck when the country has no sub codes for that type" in {
+        val fakeConfig = new ConfigPurchaseOrImportMapping() {
           override def subcodesFor(country: String, parentKey: String): Seq[(String, String)] = Seq.empty
         }
-        val nav = new ImportNavigator(
-          new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
-          fakeImportConfig
-        )
         val ua = userAnswers.set(RefundingCountryPage, "AT").success.value.set(ImportTypePage, Transport).success.value
 
-        nav.navigateFromImportTypePage(NormalMode)(ua) mustBe importRoutes.SadReferenceController.onPageLoad(NormalMode)
+        navigatorWith(fakeConfig).navigateFromImportTypePage(NormalMode)(ua) mustBe
+          importRoutes.SadReferenceCheckController.onPageLoad(NormalMode)
       }
 
-      "must go from ImportTypePage to SadReference when the only sub code is 10.99" in {
-        val fakePurchaseConfig = new ConfigPurchaseOrImportMapping() {
+      "must go from ImportTypePage to the free text page when Other has no selectable sub codes" in {
+        val fakeConfig = new ConfigPurchaseOrImportMapping() {
           override def subcodesFor(country: String, parentKey: String): Seq[(String, String)] =
-            if (parentKey == Other.toString) Seq(("10.99", "purchase.sub.other.10.99")) else Seq.empty
+            if (parentKey == Other.toString) Seq(("10.99", "sub.other.99")) else Seq.empty
         }
-        val nav = new ImportNavigator(
-          new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
-          fakePurchaseConfig
-        )
         val ua = userAnswers.set(RefundingCountryPage, "AT").success.value.set(ImportTypePage, Other).success.value
 
-        nav.navigateFromImportTypePage(NormalMode)(ua) mustBe controllers.imports.routes.SadReferenceController.onPageLoad(NormalMode)
+        navigatorWith(fakeConfig).navigateFromImportTypePage(NormalMode)(ua) mustBe
+          importRoutes.DescribeItemsOnImportDocController.onPageLoad(NormalMode)
       }
-    }
 
-    "must go from ImportTypePage to Journey Recovery when no country has been answered" in {
-      val nav = new ImportNavigator(
-        new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
-        new ConfigPurchaseOrImportMapping()
-      )
-      val ua = userAnswers.set(ImportTypePage, Transport).success.value
+      "must go from ImportSubCodePage to the free text page when Other and None of these was selected" in {
+        val ua = userAnswers
+          .set(RefundingCountryPage, "BE")
+          .success
+          .value
+          .set(ImportTypePage, Other)
+          .success
+          .value
+          .set(ImportSubCodePage, "__none__")
+          .success
+          .value
 
-      nav.navigateFromImportTypePage(NormalMode)(ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
-    }
+        navigator.navigateFromImportSubCodePage(NormalMode)(ua) mustBe
+          importRoutes.DescribeItemsOnImportDocController.onPageLoad(NormalMode)
+      }
 
-    "must go from PurchaseOrImportPage to ImportTypeController when Import is selected" in {
-      val claimNav = new ClaimNavigator(new ConfigLanguageMapping(Configuration(ConfigFactory.parseString("""language.mapping = {}"""))))
-      val purchaseNav = new PurchaseNavigator(new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
-                                              new ConfigPurchaseOrImportMapping()
-                                             )
-      val importNav = new ImportNavigator(new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
-                                          new ConfigPurchaseOrImportMapping()
-                                         )
+      "must go from ImportSubCodePage to the free text page when Other and a 99 sub code was selected" in {
+        val ua = userAnswers
+          .set(RefundingCountryPage, "BE")
+          .success
+          .value
+          .set(ImportTypePage, Other)
+          .success
+          .value
+          .set(ImportSubCodePage, "10.99")
+          .success
+          .value
 
-      val nav = new navigation.Navigator(claimNav, purchaseNav, importNav)
+        navigator.navigateFromImportSubCodePage(NormalMode)(ua) mustBe
+          importRoutes.DescribeItemsOnImportDocController.onPageLoad(NormalMode)
+      }
 
-      val ua = userAnswers.set(PurchaseOrImportPage, models.PurchaseOrImport.Import).success.value
+      "must go from ImportSubCodePage to SadReferenceCheck when None of these was selected for a type other than Other" in {
+        val ua = userAnswers
+          .set(RefundingCountryPage, "AT")
+          .success
+          .value
+          .set(ImportTypePage, Fuel)
+          .success
+          .value
+          .set(ImportSubCodePage, "__none__")
+          .success
+          .value
 
-      nav.nextPage(PurchaseOrImportPage, NormalMode, ua) mustBe
-        importRoutes.ImportTypeController.onPageLoad(NormalMode)
-    }
+        navigator.navigateFromImportSubCodePage(NormalMode)(ua) mustBe
+          importRoutes.SadReferenceCheckController.onPageLoad(NormalMode)
+      }
 
-    "must go from PurchaseTypePage to DescribeItemsOnInvoiceController" in {
-      val claimNav = new ClaimNavigator(new ConfigLanguageMapping(Configuration(ConfigFactory.parseString("""language.mapping = {}"""))))
-      val purchaseNav = new PurchaseNavigator(new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
-                                              new ConfigPurchaseOrImportMapping()
-                                             )
-      val importNav = new ImportNavigator(new CurrencyConfig(Configuration(ConfigFactory.parseString("""currency.mapping = {}"""))),
-                                          new ConfigPurchaseOrImportMapping()
-                                         )
+      "must go from ImportSubCodePage to Journey Recovery when no sub code has been answered" in {
+        val ua = userAnswers.set(ImportTypePage, Fuel).success.value
 
-      val nav = new navigation.Navigator(claimNav, purchaseNav, importNav)
+        navigator.navigateFromImportSubCodePage(NormalMode)(ua) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
 
-      val ua = userAnswers.set(PurchaseTypePage, models.PurchaseOrImportType.values.head).success.value
+      "must go from ImportSubCategoryPage to SadReferenceCheck when a sub category has been answered" in {
+        val ua = userAnswers.set(ImportSubCategoryPage, "1.2.6").success.value
 
-      nav.nextPage(PurchaseTypePage, NormalMode, ua) mustBe
-        purchaseRoutes.DescribeItemsOnInvoiceController.onPageLoad(NormalMode)
+        navigator.navigateFromImportSubCategoryPage(NormalMode)(ua) mustBe
+          importRoutes.SadReferenceCheckController.onPageLoad(NormalMode)
+      }
+
+      "must go from ImportSubCategoryPage to Journey Recovery when no sub category has been answered" in {
+        navigator.navigateFromImportSubCategoryPage(NormalMode)(userAnswers) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from navigateToCurrencyOrNextPage to ImportCurrency when the country requires currency selection" in {
+        val ua = userAnswers.set(RefundingCountryPage, "EE").success.value
+
+        navigator.navigateToCurrencyOrNextPage(NormalMode)(ua) mustBe
+          importRoutes.ImportCurrencyController.onPageLoad(NormalMode)
+      }
+
+      "must skip ImportCurrency in navigateToCurrencyOrNextPage when the country has one currency" in {
+        val ua = userAnswers.set(RefundingCountryPage, "AT").success.value
+
+        navigator.navigateToCurrencyOrNextPage(NormalMode)(ua) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from navigateToCurrencyOrNextPage to Journey Recovery when no country is in session" in {
+        navigator.navigateToCurrencyOrNextPage(NormalMode)(userAnswers) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
     }
 
     "in Check mode" - {
-      "must go from ImportTypePage to JourneyRecovery in CheckMode when ImportType present but no country" in {
+
+      "must go from ImportTypePage to JourneyRecovery when ImportType present but no country" in {
         val ua = userAnswers.set(ImportTypePage, Fuel).success.value
+
         navigator.navigateFromImportTypePage(CheckMode)(ua) mustBe
           controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
-    }
+      "must go from ImportSubCategoryPage to SadReferenceCheck when a sub category has been answered" in {
+        val ua = userAnswers.set(ImportSubCategoryPage, "1.2.6").success.value
 
+        navigator.navigateFromImportSubCategoryPage(CheckMode)(ua) mustBe
+          importRoutes.SadReferenceCheckController.onPageLoad(CheckMode)
+      }
+
+      "must go from navigateToCurrencyOrNextPage to ImportCurrency when the country requires currency selection" in {
+        val ua = userAnswers.set(RefundingCountryPage, "EE").success.value
+
+        navigator.navigateToCurrencyOrNextPage(CheckMode)(ua) mustBe
+          importRoutes.ImportCurrencyController.onPageLoad(CheckMode)
+      }
+    }
   }
 }

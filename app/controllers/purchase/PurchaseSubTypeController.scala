@@ -19,7 +19,7 @@ package controllers.purchase
 import controllers.actions.*
 import forms.PurchaseOrImportSubTypeFormProvider
 import models.requests.DataRequest
-import models.{CheckMode, Mode, Other, PurchaseOrImportSubCategoryType, PurchaseOrImportType, UserAnswers}
+import models.*
 import navigation.Navigator
 import pages.*
 import play.api.data.Form
@@ -28,6 +28,7 @@ import play.api.mvc.*
 import repositories.SessionRepository
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.PurchaseOrImportHelpers.isNoneSelection
 import utils.{ConfigPurchaseOrImportMapping, ControllerHelpers, CountryCode, MountPrefix}
 import views.html.PurchaseOrImportSubTypeView
 
@@ -49,6 +50,10 @@ class PurchaseSubTypeController @Inject() (
     extends FrontendBaseController
     with I18nSupport
     with play.api.Logging:
+
+  private def backUrlFor(mode: Mode): Call =
+    if (mode == CheckMode) routes.CheckYourPurchaseDetailsController.onPageLoad()
+    else routes.PurchaseTypeController.onPageLoad(NormalMode)
 
   private def resolveParentAndCountry(purchaseTypeSlug: String, userAnswers: UserAnswers): Option[(String, String)] =
     val parentKey =
@@ -94,11 +99,8 @@ class PurchaseSubTypeController @Inject() (
         }
     }
 
-  private def isNoneOfTheseSelection(selection: String): Boolean =
-    selection == ConfigPurchaseOrImportMapping.NoneValue || selection.split("\\.").lastOption.contains("99")
-
   private def isTransitionAwayFromNoneForOther(parentKey: String, previousSelection: String, newSelection: String): Boolean =
-    parentKey == models.Other.toString && isNoneOfTheseSelection(previousSelection) && !isNoneOfTheseSelection(newSelection)
+    parentKey == models.Other.toString && isNoneSelection(previousSelection) && !isNoneSelection(newSelection)
 
   private def persistChangedSelection(currentAnswers: UserAnswers, parentKey: String, value: String, label: String): scala.util.Try[UserAnswers] =
     for {
@@ -185,7 +187,7 @@ class PurchaseSubTypeController @Inject() (
       mode,
       userAnswers,
       sessionRepository
-    )(_ => Future.successful(Ok(view(preparedForm, items, heading, heading, "purchase.caption", formAction))))
+    )(_ => Future.successful(Ok(view(preparedForm, items, heading, heading, "purchase.caption", formAction, backUrlFor(mode)))))
 
   private def redirectWhenNoOptions(mode: Mode): Future[Result] =
     Future.successful(ControllerHelpers.redirectToInvoiceTypeOrCYA(mode))
@@ -348,7 +350,9 @@ class PurchaseSubTypeController @Inject() (
         .fold(
           formWithErrors =>
             Future.successful(
-              BadRequest(view(formWithErrors, items, parentHeading, parentHeading, "purchase.caption", formActionFor(resolvedSlug, mode)))
+              BadRequest(
+                view(formWithErrors, items, parentHeading, parentHeading, "purchase.caption", formActionFor(resolvedSlug, mode), backUrlFor(mode))
+              )
             ),
           value => handleSubmitValue(value, parentKey, country, resolvedSlug, mode, userAnswers)
         )

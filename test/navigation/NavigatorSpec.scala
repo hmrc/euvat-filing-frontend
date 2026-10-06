@@ -161,6 +161,11 @@ class NavigatorSpec extends SpecBase {
         navigator.nextPage(UnknownPage, NormalMode, userAnswers) mustBe controllers.routes.IndexController.onPageLoad()
       }
 
+      "must go from DescribeItemsOnImportDocPage to SadReferenceCheckController" in {
+        navigator.nextPage(DescribeItemsOnImportDocPage, NormalMode, userAnswers) mustBe
+          importRoutes.SadReferenceCheckController.onPageLoad(NormalMode)
+      }
+
       "must go from SadReferenceNumberPage to ImportCurrencyController when the country requires currency selection" in {
         val answers = userAnswers.set(RefundingCountryPage, "EE").success.value
 
@@ -272,6 +277,11 @@ class NavigatorSpec extends SpecBase {
       "must go from a page that doesn't exist in the edit route map to IndexController" in {
         case object UnknownPage extends Page
         navigator.nextPage(UnknownPage, CheckMode, userAnswers) mustBe controllers.routes.IndexController.onPageLoad()
+      }
+
+      "must go from DescribeItemsOnImportDocPage to SadReferenceCheckController" in {
+        navigator.nextPage(DescribeItemsOnImportDocPage, CheckMode, userAnswers) mustBe
+          importRoutes.SadReferenceCheckController.onPageLoad(CheckMode)
       }
     }
   }

@@ -73,6 +73,9 @@ object PurchaseOrImportHelpers {
   ): Try[UserAnswers] =
     answers.set(valuePage, value).flatMap(_.set(labelQuery, label))
 
+  def isNoneSelection(code: String): Boolean =
+    code == ConfigPurchaseOrImportMapping.NoneValue || code.split("\\.").lastOption.contains("99")
+
   def currencyRadioItems(currencies: Seq[Currency], msgs: Messages): Seq[RadioItem] =
     currencies.zipWithIndex
       .flatMap: (c, idx) =>
