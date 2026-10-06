@@ -21,6 +21,7 @@ import com.typesafe.config.ConfigFactory
 import controllers.imports.routes as importRoutes
 import models.*
 import pages.*
+import controllers.imports.routes as importsRoutes
 import play.api.Configuration
 import utils.{ConfigPurchaseOrImportMapping, CurrencyConfig}
 
@@ -181,7 +182,7 @@ class ImportNavigatorSpec extends SpecBase {
         val ua = userAnswers.set(RefundingCountryPage, "AT").success.value
 
         navigator.navigateToCurrencyOrNextPage(NormalMode)(ua) mustBe
-          controllers.routes.JourneyRecoveryController.onPageLoad()
+          importsRoutes.TotalAmountWithoutVatController.onPageLoad()
       }
 
       "must go from navigateToCurrencyOrNextPage to Journey Recovery when no country is in session" in {

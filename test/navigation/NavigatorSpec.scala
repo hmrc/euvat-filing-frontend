@@ -177,7 +177,7 @@ class NavigatorSpec extends SpecBase {
         val answers = userAnswers.set(RefundingCountryPage, "AT").success.value
 
         navigator.nextPage(SadReferenceNumberPage, NormalMode, answers) mustBe
-          controllers.routes.JourneyRecoveryController.onPageLoad()
+          controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad()
       }
 
       "must go from SadReferenceNumberPage to JourneyRecoveryController when no country is in session" in {
@@ -196,7 +196,7 @@ class NavigatorSpec extends SpecBase {
         val answers = userAnswers.set(RefundingCountryPage, "AT").success.value
 
         navigator.nextPage(ImportDetailsInfoPage, NormalMode, answers) mustBe
-          controllers.routes.JourneyRecoveryController.onPageLoad()
+          controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad()
       }
 
       "must go from ImportCurrencyPage to JourneyRecoveryController" in {
