@@ -31,7 +31,7 @@
 
 @layout(pageTitle = title(form, messages("totalVatPaid.title")), backLinkUrl = Some(backLink.url)) {
 
-    @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
+    @formHelper(action = submitCall, Symbol("autoComplete") -> "on") {
 
         @mainErrorSummary(form, Map.empty)
 

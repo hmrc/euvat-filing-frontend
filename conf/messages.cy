@@ -357,7 +357,7 @@ totalPurchaseAmountBeforeVat.error.invalidNumeric = Enter the total purchase amo
 totalVatPaid.title = Total VAT paid
 totalVatPaid.heading = Total VAT paid
 totalVatPaid.h2 = How much VAT did you pay?
-totalVatPaid.p1 = This is the amount of VAT charged. If your invoice does not show this amount, you''ll need to <a href="https://www.gov.uk/charge-reclaim-record-vat" class="govuk-link" target="_blank">calculate it (opens in a new tab)</a>.
+totalVatPaid.p1 = This is the amount of VAT charged. If your invoice does not show this amount, you’ll need to <a href="https://www.gov.uk/charge-reclaim-record-vat" class="govuk-link" target="_blank">calculate it (opens in new tab)</a>.
 totalVatPaid.hint = For example, {0}150 or {0}120.45
 totalVatPaid.error.required = Enter total VAT paid
 totalVatPaid.error.invalidNumeric = Enter total VAT paid in the correct format
