@@ -65,7 +65,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
 
       "must return OK and the correct view for a GET in NormalMode when SAD reference is Yes" in {
         val userAnswers = emptyUserAnswers.set(SadReferencePage, true).success.value
-        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+        val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
         running(application) {
           val request = FakeRequest(GET, routes.ImportDateController.onPageLoad(models.NormalMode).url)
@@ -78,7 +78,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
             view(
               application.injector.instanceOf[ImportDateFormProvider].apply(),
               models.NormalMode,
-              controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: replace with SadNumberController once built
+              controllers.imports.routes.SadReferenceNumberController.onPageLoad(models.NormalMode)
             )(request, msgs).toString
           )
         }

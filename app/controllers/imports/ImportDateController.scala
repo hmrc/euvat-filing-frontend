@@ -30,6 +30,7 @@ import play.api.mvc.*
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.imports.ImportDateView
+import navigation.ImportNavigator
 
 import java.time.LocalDate
 import javax.inject.Inject
@@ -39,6 +40,7 @@ class ImportDateController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
   navigator: Navigator,
+  importNavigator: ImportNavigator,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
@@ -50,10 +52,7 @@ class ImportDateController @Inject() (
     with I18nSupport {
 
   private def form(implicit messages: Messages) = formProvider()
-  private def backLink(mode: Mode)(implicit request: DataRequest[?]): Call = mode match {
-    case CheckMode  => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: replace with CheckYourImportController once built
-    case NormalMode => navigator.nextPage(SadReferencePage, mode, request.userAnswers)
-  }
+  private def backLink(mode: Mode)(implicit request: DataRequest[?]): Call = importNavigator.backLinkFromImportDatePage(mode)(request.userAnswers)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(ImportDatePage).fold(form)(form.fill)
@@ -66,7 +65,7 @@ class ImportDateController @Inject() (
       .fold(
         formWithErrors => badRequestToImportDate(formWithErrors, mode),
         value =>
-          val today = java.time.LocalDate.now()
+          val today = LocalDate.now()
           if (value.isAfter(today)) {
             val errorForm = form.bindFromRequest().withError("value", "importDate.error.past")
             badRequestToImportDate(errorForm, mode)
@@ -78,7 +77,7 @@ class ImportDateController @Inject() (
 
   private def badRequestToImportDate(formWithErrors: Form[?], mode: Mode)(implicit
     request: DataRequest[AnyContent]
-  ): Future[play.api.mvc.Result] = {
+  ): Future[Result] = {
     val html = view(formWithErrors, mode, backLink(mode))
     Future.successful(BadRequest(html))
   }

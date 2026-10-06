@@ -216,11 +216,28 @@ class ImportNavigatorSpec extends SpecBase {
           controllers.imports.routes.ImportDateController.onPageLoad(NormalMode)
       }
 
-      "must go from ImportDatePage to Journey Recovery in Normal Mode" in {
-        navigator.navigateFromImportDatePage(NormalMode)(userAnswers) mustBe
-          controllers.routes.JourneyRecoveryController.onPageLoad()
-      }
+    "must go from ImportDatePage to SadReferenceNumberController in Normal Mode when SadReferencePage is true" in {
+      val ua = userAnswers.set(SadReferencePage, true).success.value
+      navigator.backLinkFromImportDatePage(NormalMode)(ua) mustBe
+        controllers.imports.routes.SadReferenceNumberController.onPageLoad(NormalMode)
     }
+
+    "must go from ImportDatePage to ImportDetailsInfoController in Normal Mode when SadReferencePage is false" in {
+      val ua = userAnswers.set(SadReferencePage, false).success.value
+      navigator.backLinkFromImportDatePage(NormalMode)(ua) mustBe
+        controllers.imports.routes. ImportDetailsInfoController.onPageLoad(NormalMode)
+    }
+
+     "must go from ImportDatePage to Journey Recovery in Normal Mode when SadReferencePage is not answered" in {
+       navigator.backLinkFromImportDatePage(NormalMode)(userAnswers) mustBe
+        controllers.routes.JourneyRecoveryController.onPageLoad()
+     }
+
+    "must go from ImportDatePage to Journey Recovery in Normal Mode" in { // TODO: goes to SuppliersNameController once built
+      navigator.navigateFromImportDatePage(NormalMode)(userAnswers) mustBe
+        controllers.routes.JourneyRecoveryController.onPageLoad()
+    }
+  }
 
     "in Check mode" - {
 
@@ -321,4 +338,14 @@ class ImportNavigatorSpec extends SpecBase {
       }
     }
   }
+     "must go from ImportDatePage backlink to Journey Recovery in Check Mode" in {
+       navigator.backLinkFromImportDatePage(CheckMode)(userAnswers) mustBe
+         controllers.routes.JourneyRecoveryController.onPageLoad()
+     }
+
+     "must go from ImportDatePage to Journey Recovery in Check Mode" in {
+       navigator.navigateFromImportDatePage(CheckMode)(userAnswers) mustBe
+         controllers.routes.JourneyRecoveryController.onPageLoad()
+     }
+   }
 }
