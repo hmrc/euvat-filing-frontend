@@ -65,8 +65,9 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case ImportSubCategoryPage             => userAnswers => importNavigator.navigateFromImportSubCategoryPage(NormalMode)(userAnswers)
     case DescribeItemsOnImportDocPage      => _ => importRoutes.SadReferenceCheckController.onPageLoad(NormalMode)
     case SadReferenceCheckPage             => userAnswers => importNavigator.navigateFromSadReferenceCheckPage(NormalMode)(userAnswers)
-    case SadReferenceNumberPage            => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
-    case ImportDetailsInfoPage             => _ => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO link to import date
+    case SadReferenceNumberPage            => _ => importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode) // TODO: import date page goes here
+    case ImportDetailsInfoPage             => _ => importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode)
+    case ImportSuppliersNamePage           => _ => controllers.routes.JourneyRecoveryController.onPageLoad()// TODO link to import date
     case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 
@@ -100,8 +101,9 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case ImportSubCategoryPage             => userAnswers => importNavigator.navigateFromImportSubCategoryPage(CheckMode)(userAnswers)
     case DescribeItemsOnImportDocPage      => _ => importRoutes.SadReferenceCheckController.onPageLoad(CheckMode)
     case SadReferenceCheckPage             => userAnswers => importNavigator.navigateFromSadReferenceCheckPage(CheckMode)(userAnswers)
-    case SadReferenceNumberPage            => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
-    case ImportDetailsInfoPage             => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
+    case SadReferenceNumberPage            => _ => importRoutes.ImportSuppliersNameController.onPageLoad(CheckMode) // TODO: import date page goes here
+    case ImportDetailsInfoPage             => _ => importRoutes.ImportSuppliersNameController.onPageLoad(CheckMode)
+    case ImportSuppliersNamePage           => _ => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: check your import details
     case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 

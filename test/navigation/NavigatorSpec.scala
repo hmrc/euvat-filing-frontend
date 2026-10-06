@@ -116,6 +116,52 @@ class NavigatorSpec extends SpecBase {
           purchaseRoutes.PurchaseTypeController.onPageLoad(NormalMode)
       }
 
+      "must go from PurchaseOrImportPage to ImportTypeController when Import is selected" in {
+        val answers = userAnswers.set(PurchaseOrImportPage, Import).success.value
+
+        navigator.nextPage(PurchaseOrImportPage, NormalMode, answers) mustBe
+          importRoutes.ImportTypeController.onPageLoad(NormalMode)
+      }
+
+      "must go from PurchaseOrImportPage to Journey Recovery when nothing is selected" in {
+        navigator.nextPage(PurchaseOrImportPage, NormalMode, userAnswers) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from SadReferenceCheckPage to SadReferenceNumberController when the user has a SAD reference" in {
+        val answers = userAnswers.set(SadReferenceCheckPage, true).success.value
+
+        navigator.nextPage(SadReferenceCheckPage, NormalMode, answers) mustBe
+          importRoutes.SadReferenceNumberController.onPageLoad(NormalMode)
+      }
+
+      "must go from SadReferenceCheckPage to ImportDetailsInfoController when the user has no SAD reference" in {
+        val answers = userAnswers.set(SadReferenceCheckPage, false).success.value
+
+        navigator.nextPage(SadReferenceCheckPage, NormalMode, answers) mustBe
+          importRoutes.ImportDetailsInfoController.onPageLoad(NormalMode)
+      }
+
+      "must go from SadReferenceCheckPage to Journey Recovery when the question is unanswered" in {
+        navigator.nextPage(SadReferenceCheckPage, NormalMode, userAnswers) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from SadReferenceNumberPage to ImportSuppliersNameController" in {
+        navigator.nextPage(SadReferenceNumberPage, NormalMode, userAnswers) mustBe
+          importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode)
+      }
+
+      "must go from ImportDetailsInfoPage to ImportSuppliersNameController" in {
+        navigator.nextPage(ImportDetailsInfoPage, NormalMode, userAnswers) mustBe
+          importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode)
+      }
+
+      "must go from ImportSuppliersNamePage to Journey Recovery until the next import page exists" in {
+        navigator.nextPage(ImportSuppliersNamePage, NormalMode, userAnswers) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+
       "must go from DescribeItemsOnInvoicePage to InvoiceTypeController" in {
         navigator.nextPage(DescribeItemsOnInvoicePage, NormalMode, userAnswers) mustBe
           purchaseRoutes.InvoiceTypeController.onPageLoad(NormalMode)
@@ -225,6 +271,23 @@ class NavigatorSpec extends SpecBase {
       "must go from DescribeItemsOnImportDocPage to SadReferenceCheckController" in {
         navigator.nextPage(DescribeItemsOnImportDocPage, CheckMode, userAnswers) mustBe
           importRoutes.SadReferenceCheckController.onPageLoad(CheckMode)
+      }
+
+      "must go from SadReferenceCheckPage to SadReferenceNumberController when the user has a SAD reference" in {
+        val answers = userAnswers.set(SadReferenceCheckPage, true).success.value
+
+        navigator.nextPage(SadReferenceCheckPage, CheckMode, answers) mustBe
+          importRoutes.SadReferenceNumberController.onPageLoad(CheckMode)
+      }
+
+      "must go from SadReferenceNumberPage to ImportSuppliersNameController" in {
+        navigator.nextPage(SadReferenceNumberPage, CheckMode, userAnswers) mustBe
+          importRoutes.ImportSuppliersNameController.onPageLoad(CheckMode)
+      }
+
+      "must go from ImportDetailsInfoPage to ImportSuppliersNameController" in {
+        navigator.nextPage(ImportDetailsInfoPage, CheckMode, userAnswers) mustBe
+          importRoutes.ImportSuppliersNameController.onPageLoad(CheckMode)
       }
     }
   }
