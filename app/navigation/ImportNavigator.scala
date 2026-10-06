@@ -71,7 +71,7 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
       case Some(countryCode) if currencyConfig.requiresCurrencySelection(countryCode) =>
         importsRoutes.ImportCurrencyController.onPageLoad(mode)
       case Some(_) => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: next import page
-      case None => controllers.routes.JourneyRecoveryController.onPageLoad()
+      case None    => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
 }

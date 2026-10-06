@@ -83,15 +83,15 @@ object PurchaseOrImportHelpers {
           .find(_.toString.equalsIgnoreCase(c.name))
           .map: v =>
             RadioItem(
-              content = Text(msgs(s"refundingCurrency.${v.toString}", c.symbol)),
-              value = Some(v.toString),
-              id = Some(if (idx == 0) "value" else s"value_$idx"),
-              label = None,
-              hint = None,
-              divider = None,
-              checked = false,
+              content         = Text(msgs(s"refundingCurrency.${v.toString}", c.symbol)),
+              value           = Some(v.toString),
+              id              = Some(if (idx == 0) "value" else s"value_$idx"),
+              label           = None,
+              hint            = None,
+              divider         = None,
+              checked         = false,
               conditionalHtml = None,
-              disabled = false,
-              attributes = Map.empty
+              disabled        = false,
+              attributes      = Map.empty
             )
 }
