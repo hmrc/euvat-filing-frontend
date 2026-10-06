@@ -170,7 +170,7 @@ class CheckYourPurchaseDetailsController @Inject() (
               updatedAnswers1 <- Future.fromTry(request.userAnswers.set(AddPurchaseResponsePage, updatedAddResp))
               updatedAnswers2 <- Future.fromTry(updatedAnswers1.set(UpdateSequenceNumberQuery, resp.updateSequenceNumber))
               _               <- sessionRepository.set(updatedAnswers2)
-            } yield Redirect(controllers.routes.TaskListDashboardController.onPageLoad())
+            } yield Redirect(controllers.routes.PurchaseImportSummaryController.onPageLoad)
           }
           .recover { case ex =>
             logger.error("Error updating purchase details", ex)
