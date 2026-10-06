@@ -16,14 +16,16 @@
 
 package connectors
 
-import models.requests.{AddPurchaseRequest, LatestApplicationRequest, SupplierTaxIdentifierCountRequest, SupplierVrnCountRequest}
+import models.requests.*
 import models.responses.*
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.*
 import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
+import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http.*
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -54,11 +56,8 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
         traderName   = Some("ABC GmbH"),
         tradeClass   = Some("49200")
       )
-
-      // Mock GET call
       when(mockHttp.get(any())(any())).thenReturn(mockRequestBuilder)
 
-      // Mock execute returning expected response
       when(mockRequestBuilder.execute[TraderKnownFactsResponse](any(), any()))
         .thenReturn(Future.successful(expected))
 
@@ -105,7 +104,7 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
 
     "call the correct URL and return the expected response" in {
       reset(mockHttp, mockRequestBuilder)
-      
+
       when(mockHttp.post(any())(any())).thenReturn(mockRequestBuilder)
       when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)
       when(mockRequestBuilder.execute[LatestApplicationResponse](any(), any()))
@@ -307,4 +306,30 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
       }
     }
   }
+
+  "EuVatRefundsConnector.deleteApplication" should {
+
+    "call the delete endpoint with JSON body and return Unit" in {
+
+      reset(mockHttp, mockRequestBuilder)
+      val req = DeleteApplicationRequest(123L, 1)
+
+      when(mockHttp.delete(any())(any())).thenReturn(mockRequestBuilder)
+
+      doReturn(mockRequestBuilder).when(mockRequestBuilder).withBody(any[JsValue]())(any(), any(), any())
+      doReturn(Future.successful(())).when(mockRequestBuilder).execute[Unit](any(), any())
+
+      val result: Unit = connector.deleteApplication(req).futureValue
+
+      result shouldBe()
+
+      verify(mockHttp).delete(url"$baseUrl/delete-application")
+      val bodyCaptor: ArgumentCaptor[JsValue] = ArgumentCaptor.forClass(classOf[JsValue])
+      verify(mockRequestBuilder).withBody(bodyCaptor.capture())(any(), any(), any())
+      bodyCaptor.getValue shouldBe Json.toJson(req)
+      verify(mockRequestBuilder).execute[Unit](any(), any())
+    }
+
+  }
+
 }
