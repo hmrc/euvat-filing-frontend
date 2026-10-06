@@ -18,13 +18,13 @@ package controllers
 
 import controllers.actions.*
 import forms.PurchaseImportSummaryFormProvider
-import models.requests.PurchaseImportListRequest
+import models.requests.{DataRequest, PurchaseImportListRequest}
 import navigation.Navigator
 import pages.PurchaseImportSummaryPage
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import queries.ClaimApplicationResponseQuery
 import repositories.SessionRepository
 import services.EuVatRefundsService
@@ -95,12 +95,26 @@ class PurchaseImportSummaryController @Inject() (
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(PurchaseImportSummaryPage, value))
             _              <- sessionRepository.set(updatedAnswers)
-          } yield
+          } yield {
+//            updatedAnswers.get(ClaimApplicationResponseQuery).map(_.applicationId) match {
+//              case Some(appId) =>
+//                service.getPurchaseImportList(PurchaseImportListRequest(appId)).map { summaryResponse =>
+//                  if (summaryResponse.totalVatClaims <= 0) {
+//                    val summaryListRows =
+//                      PurchaseImportListSummary.rows(request.userAnswers, summaryResponse.purchaseImportList, currencyConfig.currencyConfig)
+//                    BadRequest(view(form, summaryListRows, summaryResponse.totalItems, summaryResponse.totalVatClaims))
+//                  }
+//                }
+//              case _ =>
+//                logger.warn("Missing or invalid applicationId")
+//                Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+//            }
             if (value) {
               Redirect(routes.PurchaseOrImportController.onPageLoad)
             } else {
               Redirect(routes.TaskListDashboardController.onPageLoad())
             }
+          }
       )
   }
 
