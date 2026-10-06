@@ -303,7 +303,7 @@ class ImportSupplierAddressControllerSpec extends SpecBase with MockitoSugar {
 
         val request =
           FakeRequest(POST, submitRoute)
-            .withFormUrlEncodedBody(validFormData.toSeq *)
+            .withFormUrlEncodedBody(validFormData.toSeq*)
 
         val result =
           route(application, request).value

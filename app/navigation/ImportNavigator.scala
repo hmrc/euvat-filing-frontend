@@ -71,7 +71,7 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
       case Some(countryCode) if currencyConfig.requiresCurrencySelection(countryCode) =>
         importsRoutes.ImportCurrencyController.onPageLoad(mode)
       case Some(_) => importsRoutes.TotalAmountWithoutVatController.onPageLoad() // TODO: check next import page after DTR-8186 is merged
-      case None => controllers.routes.JourneyRecoveryController.onPageLoad()
+      case None    => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
 }
