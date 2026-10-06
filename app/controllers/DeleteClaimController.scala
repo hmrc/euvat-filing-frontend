@@ -19,13 +19,19 @@ package controllers
 import config.FrontendAppConfig
 import controllers.actions.*
 import forms.DeleteClaimFormProvider
+import models.requests.DeleteApplicationRequest
 import navigation.Navigator
 import pages.{RefundPeriodPage, RefundingCountryNamePage}
+import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Lang, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import services.EuVatRefundsService
+import utils.DeleteClaimHelper
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import utils.DateTimeFormats.shortMonthYearFormat
 import views.html.DeleteClaimView
 
@@ -41,11 +47,13 @@ class DeleteClaimController @Inject() (
   requireData: DataRequiredAction,
   formProvider: DeleteClaimFormProvider,
   appConfig: FrontendAppConfig,
+  deleteClaimHelper: DeleteClaimHelper,
   val controllerComponents: MessagesControllerComponents,
   view: DeleteClaimView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
   val form: Form[Boolean] = formProvider()
 
@@ -78,8 +86,8 @@ class DeleteClaimController @Inject() (
         },
         value =>
           if (value) {
-            // TODO: insert delete claim logic here for F2.9
-            Future.successful(Redirect(appConfig.claimDashboardUrl))
+            implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+            deleteClaimHelper.deleteAndRedirect(request.userAnswers)
           } else {
             Future.successful(Redirect(controllers.routes.TaskListDashboardController.onPageLoad()))
           }

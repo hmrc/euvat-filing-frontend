@@ -110,7 +110,6 @@ refundingLanguage.greek = Greek
 
 refundingCurrency.title = Which currency do you want to use for this claim?
 refundingCurrency.heading = Which currency do you want to use for this claim?
-refundingCurrency.hint = You will use this currency for all the items you add to this claim
 refundingCurrency.euro = Euro ({0})
 refundingCurrency.estonianKroon = Estonian Kroon ({0})
 refundingCurrency.bulgarianLev = Bulgarian Lev ({0})
@@ -542,6 +541,12 @@ importDetailsInfo.bullet2 = document reference number
 importDetailsInfo.label = Enter import document details
 importDetailsInfo.error.required = Enter import document details
 importDetailsInfo.error.length = Import document details must be 255 characters or less
+
+suppliersName.import.hint = Find the supplier’s name on the import document
+
+import.refundingCurrency.title = Which currency do you want to use for this import?
+import.refundingCurrency.heading = Which currency do you want to use for this import?
+import.refundingCurrency.error.required = Select a currency for this import
 
 # Warning messages
 confirmRefundPeriodStartDate.title = Are you sure the refund period start date is correct?

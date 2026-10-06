@@ -24,7 +24,7 @@ import pages.*
 import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import queries.{ClaimApplicationResponseQuery, InvoiceNumberFlagQuery}
+import queries.{ClaimApplicationResponseQuery, InvoiceNumberFlagQuery, UpdateSequenceNumberQuery}
 import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.http.HeaderCarrier
@@ -121,9 +121,9 @@ class CheckYourPurchaseDetailsController @Inject() (
           .get(SimplifiedInvoiceVatRegCheckPage)
           .map(_.toString)
           .orElse {
-            request.userAnswers.get(InvoiceTypePage).map {
-              case InvoiceType.SimplifiedInvoice => "true"
-              case _                             => "false"
+            request.userAnswers.get(pages.InvoiceTypePage).map {
+              case models.InvoiceType.SimplifiedInvoice => "true"
+              case _                                    => "false"
             }
           }
         val supplierName = request.userAnswers.get(SuppliersNamePage)
@@ -167,9 +167,10 @@ class CheckYourPurchaseDetailsController @Inject() (
           .flatMap { resp =>
             val updatedAddResp = AddPurchaseResponse(itemNumber = addResp.itemNumber, updateSequenceNumber = resp.updateSequenceNumber)
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(AddPurchaseResponsePage, updatedAddResp))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(controllers.routes.PurchaseImportSummaryController.onPageLoad)
+              updatedAnswers1 <- Future.fromTry(request.userAnswers.set(AddPurchaseResponsePage, updatedAddResp))
+              updatedAnswers2 <- Future.fromTry(updatedAnswers1.set(UpdateSequenceNumberQuery, resp.updateSequenceNumber))
+              _               <- sessionRepository.set(updatedAnswers2)
+            } yield Redirect(controllers.routes.TaskListDashboardController.onPageLoad())
           }
           .recover { case ex =>
             logger.error("Error updating purchase details", ex)

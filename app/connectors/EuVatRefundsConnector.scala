@@ -22,7 +22,7 @@ import play.api.Logging
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, HttpReadsInstances, StringContextOps}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpReadsInstances, HttpResponse, StringContextOps}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import javax.inject.{Inject, Singleton}
@@ -90,6 +90,13 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
       .post(url"$euVatRefundsBaseUrl/get-purchases-and-imports")
       .withBody(Json.toJson(request))
       .execute[PurchaseImportListResponse]
+  }
+
+  def deleteApplication(request: DeleteApplicationRequest)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+    http
+      .delete(url"$euVatRefundsBaseUrl/delete-application")
+      .withBody(Json.toJson(request))
+      .execute[HttpResponse]
   }
 
 }

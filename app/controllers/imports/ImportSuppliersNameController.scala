@@ -14,69 +14,60 @@
  * limitations under the License.
  */
 
-package controllers.claim
+package controllers.imports
 
-import config.FrontendAppConfig
+import controllers.imports.routes as importRoutes
 import controllers.actions.*
-import forms.claim.CheckYourStateDetailsFormProvider
-import models.Mode
+import forms.SuppliersNameFormProvider
+import models.{Mode, NormalMode}
 import navigation.Navigator
-import pages.CheckYourStateDetailsPage
+import pages.ImportSuppliersNamePage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
-import utils.DeleteClaimHelper
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.claim.CheckYourStateDetailsView
-import play.api.Logging
+import views.html.PurchaseOrImportSuppliersNameView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class CheckYourStateDetailsController @Inject() (
+class ImportSuppliersNameController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
   navigator: Navigator,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  formProvider: CheckYourStateDetailsFormProvider,
+  formProvider: SuppliersNameFormProvider,
   val controllerComponents: MessagesControllerComponents,
-  view: CheckYourStateDetailsView,
-  appConfig: FrontendAppConfig,
-  deleteClaimHelper: DeleteClaimHelper
+  view: PurchaseOrImportSuppliersNameView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport
-    with Logging {
+    with I18nSupport {
 
-  val form: Form[Boolean] = formProvider()
+  val form: Form[String] = formProvider()
 
-  private def backLink: Call = routes.CheckYourClaimDetailsController.onPageLoad()
+  private def formAction(mode: Mode): Call = importRoutes.ImportSuppliersNameController.onSubmit(mode)
+
+  private def backLink: Call = importRoutes.SadReferenceCheckController.onPageLoad(NormalMode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = request.userAnswers.get(CheckYourStateDetailsPage).fold(form)(form.fill)
-    Ok(view(preparedForm, mode, backLink))
+    val preparedForm = request.userAnswers.get(ImportSuppliersNamePage).fold(form)(form.fill)
+    Ok(view(preparedForm, formAction(mode), backLink, "import.caption", "suppliersName.import.hint"))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink))),
+        formWithErrors =>
+          Future.successful(BadRequest(view(formWithErrors, formAction(mode), backLink, "import.caption", "suppliersName.import.hint"))),
         value =>
-          if (value) {
-            implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-            deleteClaimHelper.deleteAndRedirect(request.userAnswers)
-          } else {
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(CheckYourStateDetailsPage, value))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(CheckYourStateDetailsPage, mode, updatedAnswers))
-          }
+          for {
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(ImportSuppliersNamePage, value))
+            _              <- sessionRepository.set(updatedAnswers)
+          } yield Redirect(navigator.nextPage(ImportSuppliersNamePage, mode, updatedAnswers))
       )
   }
 }

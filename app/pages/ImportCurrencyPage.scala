@@ -14,18 +14,12 @@
  * limitations under the License.
  */
 
-package forms.purchase
+package pages
 
-import forms.mappings.Mappings
-import models.RefundingCurrency
-import play.api.data.Form
+import models.UserAnswers
+import play.api.libs.json.JsPath
 
-import javax.inject.Inject
-
-class RefundingCurrencyFormProvider @Inject() extends Mappings {
-
-  def apply(): Form[RefundingCurrency] =
-    Form(
-      "value" -> enumerable[RefundingCurrency]("refundingCurrency.error.required")
-    )
+case object ImportCurrencyPage extends QuestionPage[String] {
+  override def path: JsPath = JsPath \ toString
+  override def toString: String = "importCurrency"
 }

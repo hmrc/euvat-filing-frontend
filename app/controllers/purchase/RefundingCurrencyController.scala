@@ -17,7 +17,7 @@
 package controllers.purchase
 
 import controllers.actions.*
-import forms.purchase.RefundingCurrencyFormProvider
+import forms.RefundingCurrencyFormProvider
 import models.requests.DataRequest
 import models.{CheckMode, Mode, NormalMode, RefundingCurrency, UserAnswers}
 import navigation.Navigator
@@ -31,7 +31,7 @@ import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.*
-import views.html.purchase.RefundingCurrencyView
+import views.html.RefundingCurrencyView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -75,7 +75,7 @@ class RefundingCurrencyController @Inject() (
       case Some(countryCode) =>
         val currencies = currencyConfig.currencyConfig(countryCode)
         val msgs = messagesApi.preferred(request)
-        val items = buildRadioItems(currencies, msgs)
+        val items = PurchaseOrImportHelpers.currencyRadioItems(currencies, msgs)
         val preparedForm = request.userAnswers
           .get(RefundingCurrencyPage)
           .flatMap { storedCode =>
@@ -85,7 +85,16 @@ class RefundingCurrencyController @Inject() (
           }
           .getOrElse(form)
 
-        Ok(view(preparedForm, items, backLink(request.userAnswers, mode), mode))
+        Ok(
+          view(
+            preparedForm,
+            items,
+            routes.RefundingCurrencyController.onSubmit(mode),
+            "refundingCurrency",
+            "purchase.caption",
+            Some(backLink(request.userAnswers, mode))
+          )
+        )
     }
   }
 
@@ -103,8 +112,19 @@ class RefundingCurrencyController @Inject() (
       case Some(countryCode) =>
         val currencies = currencyConfig.currencyConfig(countryCode)
         val msgs = messagesApi.preferred(request)
-        val items = buildRadioItems(currencies, msgs)
-        Future.successful(BadRequest(view(formWithErrors, items, backLink(request.userAnswers, mode), mode)))
+        val items = PurchaseOrImportHelpers.currencyRadioItems(currencies, msgs)
+        Future.successful(
+          BadRequest(
+            view(
+              formWithErrors,
+              items,
+              routes.RefundingCurrencyController.onSubmit(mode),
+              "refundingCurrency",
+              "purchase.caption",
+              Some(backLink(request.userAnswers, mode))
+            )
+          )
+        )
     }
 
   private def handleValidSubmission(value: RefundingCurrency, mode: Mode)(implicit request: DataRequest[?]): Future[Result] =
@@ -151,26 +171,4 @@ class RefundingCurrencyController @Inject() (
             }
         }
     }
-
-  private def buildRadioItems(
-    currencies: Seq[Currency],
-    msgs: Messages
-  ): Seq[RadioItem] =
-    currencies.zipWithIndex
-      .flatMap: (c, idx) =>
-        RefundingCurrency.values
-          .find(_.toString.equalsIgnoreCase(c.name))
-          .map: v =>
-            RadioItem(
-              content         = Text(msgs(s"refundingCurrency.${v.toString}", c.symbol)),
-              value           = Some(v.toString),
-              id              = Some(if (idx == 0) "value" else s"value_$idx"),
-              label           = None,
-              hint            = None,
-              divider         = None,
-              checked         = false,
-              conditionalHtml = None,
-              disabled        = false,
-              attributes      = Map.empty
-            )
 }
