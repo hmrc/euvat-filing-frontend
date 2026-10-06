@@ -57,6 +57,18 @@ class ImportNavigatorSpec extends SpecBase {
       config
     )
 
+  private def answersFor(country: String, importType: PurchaseOrImportType, subCode: String): UserAnswers =
+    userAnswers
+      .set(RefundingCountryPage, country)
+      .success
+      .value
+      .set(ImportTypePage, importType)
+      .success
+      .value
+      .set(ImportSubCodePage, subCode)
+      .success
+      .value
+
   "ImportNavigator" - {
 
     "in Normal mode" - {
@@ -105,48 +117,39 @@ class ImportNavigatorSpec extends SpecBase {
       }
 
       "must go from ImportSubCodePage to the free text page when Other and None of these was selected" in {
-        val ua = userAnswers
-          .set(RefundingCountryPage, "BE")
-          .success
-          .value
-          .set(ImportTypePage, Other)
-          .success
-          .value
-          .set(ImportSubCodePage, "__none__")
-          .success
-          .value
+        val ua = answersFor("BE", Other, "__none__")
 
         navigator.navigateFromImportSubCodePage(NormalMode)(ua) mustBe
           importRoutes.DescribeItemsOnImportDocController.onPageLoad(NormalMode)
       }
 
       "must go from ImportSubCodePage to the free text page when Other and a 99 sub code was selected" in {
-        val ua = userAnswers
-          .set(RefundingCountryPage, "BE")
-          .success
-          .value
-          .set(ImportTypePage, Other)
-          .success
-          .value
-          .set(ImportSubCodePage, "10.99")
-          .success
-          .value
+        val ua = answersFor("BE", Other, "10.99")
 
         navigator.navigateFromImportSubCodePage(NormalMode)(ua) mustBe
           importRoutes.DescribeItemsOnImportDocController.onPageLoad(NormalMode)
       }
 
+      "must go from ImportSubCodePage to the sub category page when the sub code has sub categories" in {
+        val fakeConfig = new ConfigPurchaseOrImportMapping() {
+          override def subcategoriesFor(country: String, parentKey: String, subcode: String): Seq[(String, String)] =
+            Seq(("1.2.6", "sub.fuel.2.6"))
+        }
+        val ua = answersFor("AT", Fuel, "1.2")
+
+        navigatorWith(fakeConfig).navigateFromImportSubCodePage(NormalMode)(ua) mustBe
+          importRoutes.ImportSubCategoryController.onPageLoad(NormalMode)
+      }
+
+      "must go from ImportSubCodePage to SadReferenceCheck when the sub code has no sub categories" in {
+        val ua = answersFor("AT", Fuel, "1.3")
+
+        navigator.navigateFromImportSubCodePage(NormalMode)(ua) mustBe
+          importRoutes.SadReferenceCheckController.onPageLoad(NormalMode)
+      }
+
       "must go from ImportSubCodePage to SadReferenceCheck when None of these was selected for a type other than Other" in {
-        val ua = userAnswers
-          .set(RefundingCountryPage, "AT")
-          .success
-          .value
-          .set(ImportTypePage, Fuel)
-          .success
-          .value
-          .set(ImportSubCodePage, "__none__")
-          .success
-          .value
+        val ua = answersFor("AT", Fuel, "__none__")
 
         navigator.navigateFromImportSubCodePage(NormalMode)(ua) mustBe
           importRoutes.SadReferenceCheckController.onPageLoad(NormalMode)
@@ -168,6 +171,25 @@ class ImportNavigatorSpec extends SpecBase {
 
       "must go from ImportSubCategoryPage to Journey Recovery when no sub category has been answered" in {
         navigator.navigateFromImportSubCategoryPage(NormalMode)(userAnswers) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from SadReferenceCheckPage to the SAD reference number page when the user has a SAD reference" in {
+        val ua = userAnswers.set(SadReferenceCheckPage, true).success.value
+
+        navigator.navigateFromSadReferenceCheckPage(NormalMode)(ua) mustBe
+          importRoutes.SadReferenceNumberController.onPageLoad(NormalMode)
+      }
+
+      "must go from SadReferenceCheckPage to the import details info page when the user has no SAD reference" in {
+        val ua = userAnswers.set(SadReferenceCheckPage, false).success.value
+
+        navigator.navigateFromSadReferenceCheckPage(NormalMode)(ua) mustBe
+          importRoutes.ImportDetailsInfoController.onPageLoad(NormalMode)
+      }
+
+      "must go from SadReferenceCheckPage to Journey Recovery when the question is unanswered" in {
+        navigator.navigateFromSadReferenceCheckPage(NormalMode)(userAnswers) mustBe
           controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
@@ -200,11 +222,32 @@ class ImportNavigatorSpec extends SpecBase {
           controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
+      "must go from ImportSubCodePage to SadReferenceCheck when the sub code has no sub categories" in {
+        val ua = answersFor("AT", Fuel, "1.3")
+
+        navigator.navigateFromImportSubCodePage(CheckMode)(ua) mustBe
+          importRoutes.SadReferenceCheckController.onPageLoad(CheckMode)
+      }
+
       "must go from ImportSubCategoryPage to SadReferenceCheck when a sub category has been answered" in {
         val ua = userAnswers.set(ImportSubCategoryPage, "1.2.6").success.value
 
         navigator.navigateFromImportSubCategoryPage(CheckMode)(ua) mustBe
           importRoutes.SadReferenceCheckController.onPageLoad(CheckMode)
+      }
+
+      "must go from SadReferenceCheckPage to the SAD reference number page when the user has a SAD reference" in {
+        val ua = userAnswers.set(SadReferenceCheckPage, true).success.value
+
+        navigator.navigateFromSadReferenceCheckPage(CheckMode)(ua) mustBe
+          importRoutes.SadReferenceNumberController.onPageLoad(CheckMode)
+      }
+
+      "must go from SadReferenceCheckPage to the import details info page when the user has no SAD reference" in {
+        val ua = userAnswers.set(SadReferenceCheckPage, false).success.value
+
+        navigator.navigateFromSadReferenceCheckPage(CheckMode)(ua) mustBe
+          importRoutes.ImportDetailsInfoController.onPageLoad(CheckMode)
       }
 
       "must go from navigateToCurrencyOrNextPage to ImportCurrency when the country requires currency selection" in {

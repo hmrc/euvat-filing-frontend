@@ -16,20 +16,58 @@
 
 package controllers.imports
 
-import play.api.i18n.I18nSupport
-import play.api.mvc._
-import views.html.imports.ImportSuppliersNameView
+import controllers.imports.routes as importRoutes
+import controllers.actions.*
+import forms.SuppliersNameFormProvider
+import models.{Mode, NormalMode}
+import navigation.Navigator
+import pages.ImportSuppliersNamePage
+import play.api.data.Form
+import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
+import repositories.SessionRepository
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import views.html.PurchaseOrImportSuppliersNameView
 
 import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
 class ImportSuppliersNameController @Inject() (
-                                                val controllerComponents: MessagesControllerComponents,
-                                                view: ImportSuppliersNameView
-                                              ) extends BaseController
-  with I18nSupport {
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  navigator: Navigator,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: SuppliersNameFormProvider,
+  val controllerComponents: MessagesControllerComponents,
+  view: PurchaseOrImportSuppliersNameView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] =
-    Action { implicit request =>
-      Ok(view())
-    }
+  val form: Form[String] = formProvider()
+
+  private def formAction(mode: Mode): Call = importRoutes.ImportSuppliersNameController.onSubmit(mode)
+
+  private def backLink: Call = importRoutes.SadReferenceCheckController.onPageLoad(NormalMode)
+
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+    val preparedForm = request.userAnswers.get(ImportSuppliersNamePage).fold(form)(form.fill)
+    Ok(view(preparedForm, formAction(mode), backLink, "import.caption", "suppliersName.import.hint"))
+  }
+
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+    form
+      .bindFromRequest()
+      .fold(
+        formWithErrors =>
+          Future.successful(BadRequest(view(formWithErrors, formAction(mode), backLink, "import.caption", "suppliersName.import.hint"))),
+        value =>
+          for {
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(ImportSuppliersNamePage, value))
+            _              <- sessionRepository.set(updatedAnswers)
+          } yield Redirect(navigator.nextPage(ImportSuppliersNamePage, mode, updatedAnswers))
+      )
+  }
 }

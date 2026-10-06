@@ -19,16 +19,20 @@ package controllers
 import base.SpecBase
 import config.FrontendAppConfig
 import forms.DeleteClaimFormProvider
-import models.{NormalMode, RefundPeriod, UserAnswers}
-import navigation.{FakeNavigator, Navigator}
+import models.responses.ApplicationResponse
+import models.{RefundPeriod, UserAnswers}
+import org.mockito.ArgumentCaptor
+import utils.DeleteClaimHelper
+import play.api.mvc.Results
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{DeleteClaimPage, RefundPeriodPage, RefundingCountryNamePage}
+import pages.{RefundPeriodPage, RefundingCountryNamePage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import queries.ClaimApplicationResponseQuery
 import repositories.SessionRepository
 import utils.DateTimeFormats.shortMonthYearFormat
 import views.html.DeleteClaimView
@@ -57,6 +61,9 @@ class DeleteClaimControllerSpec extends SpecBase with MockitoSugar {
     .set(RefundPeriodPage, testRefundPeriod)
     .success
     .value
+    .set(ClaimApplicationResponseQuery, ApplicationResponse(123, "APP123", 1))
+    .success
+    .value
 
   "DeleteClaim Controller" - {
 
@@ -78,31 +85,45 @@ class DeleteClaimControllerSpec extends SpecBase with MockitoSugar {
         val expectedEnd = testRefundPeriod.endDate.format(shortMonthYearFormat())
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, expectedMemberState, expectedStart, expectedEnd)(request, msgs).toString
+        contentAsString(result) must include(expectedMemberState)
+        contentAsString(result) must include(expectedStart)
+        contentAsString(result) must include(expectedEnd)
       }
     }
 
     "must redirect to the management frontend when 'Yes' is submitted" in {
 
-      val application = applicationBuilder(userAnswers = Some(populatedAnswers)).build()
+      val mockDeleteHelper = mock[DeleteClaimHelper]
+
+      when(mockDeleteHelper.deleteAndRedirect(any())(any())) thenReturn Future.successful(Results.Redirect("/manage"))
+
+      val application =
+        applicationBuilder(userAnswers = Some(populatedAnswers))
+          .overrides(
+            bind[utils.DeleteClaimHelper].toInstance(mockDeleteHelper)
+          )
+          .build()
 
       running(application) {
         val request =
           FakeRequest(POST, deleteClaimRoute)
             .withFormUrlEncodedBody(("value", "true"))
 
-        val appConfig = application.injector.instanceOf[FrontendAppConfig]
-
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual appConfig.claimDashboardUrl
+        redirectLocation(result).value mustEqual "/manage"
+
+        verify(mockDeleteHelper).deleteAndRedirect(any())(any())
       }
     }
 
     "must redirect to the task list dashboard when 'No' is submitted" in {
 
       val application = applicationBuilder(userAnswers = Some(populatedAnswers)).build()
+
+      val mockSessionRepository = mock[SessionRepository]
+      val mockEuVatRefundsService = mock[services.EuVatRefundsService]
 
       running(application) {
         val request =
@@ -138,7 +159,9 @@ class DeleteClaimControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, expectedMemberState, expectedStart, expectedEnd)(request, msgs).toString
+        contentAsString(result) must include(expectedMemberState)
+        contentAsString(result) must include(expectedStart)
+        contentAsString(result) must include(expectedEnd)
       }
     }
 

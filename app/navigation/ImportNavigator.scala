@@ -61,8 +61,8 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
 
   def navigateFromSadReferenceCheckPage(mode: Mode)(userAnswers: UserAnswers): Call =
     userAnswers.get(SadReferenceCheckPage) match {
-      case Some(true)  => importsRoutes.SadReferenceNumberController.onPageLoad(NormalMode)
-      case Some(false) => importsRoutes.ImportDetailsInfoController.onPageLoad(NormalMode)
+      case Some(true)  => importsRoutes.SadReferenceNumberController.onPageLoad(mode)
+      case Some(false) => importsRoutes.ImportDetailsInfoController.onPageLoad(mode)
       case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 

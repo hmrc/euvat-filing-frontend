@@ -14,18 +14,12 @@
  * limitations under the License.
  */
 
-package forms.purchase
+package models.requests
 
-import forms.mappings.Mappings
-import play.api.data.Form
+import play.api.libs.json.{Json, OFormat}
 
-import javax.inject.Inject
+case class DeleteApplicationRequest(applicationId: Long, updateSequenceNumber: Int)
 
-class SuppliersNameFormProvider @Inject() extends Mappings {
-
-  def apply(): Form[String] =
-    Form(
-      "value" -> text("suppliersName.error.required")
-        .verifying(maxLength(35, "suppliersName.error.length"))
-    )
+object DeleteApplicationRequest {
+  implicit val format: OFormat[DeleteApplicationRequest] = Json.format[DeleteApplicationRequest]
 }

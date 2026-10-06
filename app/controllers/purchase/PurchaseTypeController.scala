@@ -27,7 +27,7 @@ import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.*
-import queries.ClaimApplicationResponseQuery
+import queries.{ClaimApplicationResponseQuery, UpdateSequenceNumberQuery}
 import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.http.HeaderCarrier
@@ -416,9 +416,10 @@ class PurchaseTypeController @Inject() (
 
         def persistAddPurchaseResponseAndRedirect(response: AddPurchaseResponse): Future[Result] =
           for {
-            updatedAnswers <- Future.fromTry(answers.set(AddPurchaseResponsePage, response))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield redirectWithPrefix(navigator.nextPage(PurchaseTypePage, mode, updatedAnswers))(request)
+            updatedAnswers1 <- Future.fromTry(answers.set(AddPurchaseResponsePage, response))
+            updatedAnswers2 <- Future.fromTry(updatedAnswers1.set(UpdateSequenceNumberQuery, response.updateSequenceNumber))
+            _               <- sessionRepository.set(updatedAnswers2)
+          } yield redirectWithPrefix(navigator.nextPage(PurchaseTypePage, mode, updatedAnswers2))(request)
 
         euVatRefundsService
           .addPurchase(purchaseRequest)

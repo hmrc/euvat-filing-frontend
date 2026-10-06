@@ -18,6 +18,7 @@ package controllers.imports
 
 import controllers.actions.*
 import forms.imports.SadReferenceCheckFormProvider
+import models.NormalMode
 import pages.SadReferenceCheckPage
 import models.requests.DataRequest
 import navigation.Navigator
