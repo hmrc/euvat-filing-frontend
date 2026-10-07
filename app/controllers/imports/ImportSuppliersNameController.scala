@@ -20,6 +20,7 @@ import controllers.imports.routes as importRoutes
 import controllers.actions.*
 import forms.SuppliersNameFormProvider
 import models.{Mode, NormalMode}
+import models.requests.DataRequest
 import navigation.Navigator
 import pages.ImportSuppliersNamePage
 import play.api.data.Form
@@ -50,11 +51,13 @@ class ImportSuppliersNameController @Inject() (
 
   private def formAction(mode: Mode): Call = importRoutes.ImportSuppliersNameController.onSubmit(mode)
 
-  private def backLink: Call = importRoutes.SadReferenceCheckController.onPageLoad(NormalMode)
+  // TODO: Implement a proper back link to import date instead of the generic journey recovery page.
+  private def backLink(mode: Mode)(implicit request: DataRequest[AnyContent]): Call =
+    controllers.routes.JourneyRecoveryController.onPageLoad()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(ImportSuppliersNamePage).fold(form)(form.fill)
-    Ok(view(preparedForm, formAction(mode), backLink, "import.caption", "suppliersName.import.hint"))
+    Ok(view(preparedForm, formAction(mode), backLink(mode), "import.caption", "suppliersName.import.hint"))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -62,7 +65,7 @@ class ImportSuppliersNameController @Inject() (
       .bindFromRequest()
       .fold(
         formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, formAction(mode), backLink, "import.caption", "suppliersName.import.hint"))),
+          Future.successful(BadRequest(view(formWithErrors, formAction(mode), backLink(mode), "import.caption", "suppliersName.import.hint"))),
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(ImportSuppliersNamePage, value))

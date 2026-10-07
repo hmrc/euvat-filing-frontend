@@ -16,22 +16,66 @@
 
 package controllers.imports
 
-import play.api.i18n.I18nSupport
-import play.api.mvc.*
+import controllers.actions.*
+import controllers.imports.routes as importRoutes
+import forms.imports.TotalAmountWithoutVatFormProvider
+import models.Mode
+import navigation.Navigator
+import pages.{SadReferenceCheckPage, SadReferenceNumberPage, TotalAmountWithoutVatPage}
+import play.api.data.Form
+import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
+import repositories.SessionRepository
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.ControllerHelpers.*
+import utils.{CountryCode, CurrencyConfig}
 import views.html.imports.TotalAmountWithoutVatView
 
 import javax.inject.Inject
-
-// TODO: Over ride code when actual development is done in DTR-8186.
+import scala.concurrent.{ExecutionContext, Future}
 
 class TotalAmountWithoutVatController @Inject() (
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  navigator: Navigator,
+  currencyConfig: CurrencyConfig,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: TotalAmountWithoutVatFormProvider,
   val controllerComponents: MessagesControllerComponents,
   view: TotalAmountWithoutVatView
-) extends BaseController
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] =
-    Action { implicit request =>
-      Ok(view())
+  val form: Form[BigDecimal] = formProvider()
+
+  private def backLink(mode: Mode)(userAnswers: models.UserAnswers): Call =
+    CountryCode.findCountryCode(userAnswers) match {
+      case Some(country) if currencyConfig.requiresCurrencySelection(country) => importRoutes.ImportCurrencyController.onPageLoad(mode)
+      // TODO: Wire this to supplier address page when it is ready
+      case _ => importRoutes.ImportSuppliersNameController.onPageLoad(mode)
     }
+
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+    val preparedForm = request.userAnswers.get(TotalAmountWithoutVatPage).fold(form)(form.fill)
+    val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)
+    Ok(view(preparedForm, mode, backLink(mode)(request.userAnswers), prefix, currencyName))
+  }
+
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+    val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)
+    form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)(request.userAnswers), prefix, currencyName))),
+        value =>
+          for {
+            updated <- Future.fromTry(request.userAnswers.set(TotalAmountWithoutVatPage, value))
+            _       <- sessionRepository.set(updated)
+          } yield Redirect(navigator.nextPage(TotalAmountWithoutVatPage, mode, updated))
+      )
+  }
+
 }

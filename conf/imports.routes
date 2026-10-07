@@ -83,6 +83,7 @@ POST        /supplier-name                                               control
 GET         /change-supplier-name                                        controllers.imports.ImportSuppliersNameController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-supplier-name                                        controllers.imports.ImportSuppliersNameController.onSubmit(mode: Mode = CheckMode)
 
+
 GET         /currency                                                    controllers.imports.ImportCurrencyController.onPageLoad(mode:Mode = NormalMode)
 POST        /currency                                                    controllers.imports.ImportCurrencyController.onSubmit(mode:Mode = NormalMode)
 GET         /change-currency                                             controllers.imports.ImportCurrencyController.onPageLoad(mode:Mode = CheckMode)
@@ -90,5 +91,9 @@ POST        /change-currency                                             control
 
 GET         /supplier-address                                            controllers.imports.ImportSupplierAddressController.onPageLoad(mode: Mode = NormalMode)
 POST        /supplier-address                                            controllers.imports.ImportSupplierAddressController.onSubmit(mode: Mode = NormalMode)
-GET         /total-amount-without-vat                                    controllers.imports.TotalAmountWithoutVatController.onPageLoad()
 
+
+GET         /total-amount-without-vat                                   controllers.imports.TotalAmountWithoutVatController.onPageLoad(mode: Mode = NormalMode)
+POST        /total-amount-without-vat                                   controllers.imports.TotalAmountWithoutVatController.onSubmit(mode: Mode = NormalMode)
+GET         /change-total-amount-without-vat                            controllers.imports.TotalAmountWithoutVatController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-total-amount-without-vat                            controllers.imports.TotalAmountWithoutVatController.onSubmit(mode: Mode = CheckMode)

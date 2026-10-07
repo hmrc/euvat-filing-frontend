@@ -52,6 +52,7 @@ class ImportCurrencyControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) must include(messages(application)("import.caption"))
         contentAsString(result) must include("Euro (€)")
         contentAsString(result) must include("Estonian Kroon (kr)")
+        contentAsString(result) must include(routes.ImportSuppliersNameController.onPageLoad(NormalMode).url)
       }
     }
 

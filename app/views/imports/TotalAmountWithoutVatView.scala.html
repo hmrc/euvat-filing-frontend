@@ -14,22 +14,48 @@
  * limitations under the License.
  *@
 
-@* <!--TODO: Temporary Code to test wiring, override code when actual development is done in DTR-8186. --> *@
+@import viewmodels.InputWidth.*
+@import viewmodels.LabelSize
+@import views.html.components.MainErrorSummary
+@import models.Mode
 
 @this(
-layout: templates.Layout
+    layout: templates.Layout,
+    formHelper: FormWithCSRF,
+    mainErrorSummary: views.html.components.MainErrorSummary,
+    govukInput: GovukInput,
+    govukButton: GovukButton
 )
 
-@()(implicit request: Request[?], messages: Messages)
+@(form: Form[_], mode: Mode, call: Call, prefix: String, currencyName: String)(implicit request: Request[_], messages: Messages)
 
-@layout(
-pageTitle = "Total amount without VAT"
-) {
-<h1 class="govuk-heading-l">
- Total amount without VAT
-</h1>
+@layout(pageTitle = title(form, messages("totalAmountWithoutVat.title")), backLinkUrl = Some(call.url)) {
 
-<p class="govuk-body">
- Temporary page for testing import journey routing.
-</p>
+    @formHelper(action = controllers.imports.routes.TotalAmountWithoutVatController.onSubmit(mode), Symbol("autoComplete") -> "off") {
+
+        @mainErrorSummary(form, Map.empty)
+
+        <h1 class="govuk-heading-l">
+            <span class="govuk-caption-l">@messages("import.caption")</span>
+            @messages("totalAmountWithoutVat.heading")
+        </h1>
+
+        <div id="total-amount-without-vat-inset" class="govuk-body">@Html(messages("totalAmountWithoutVat.inset", currencyName.toLowerCase, prefix))</div>
+
+        <p class="govuk-body">@messages("totalAmountWithoutVat.p1")</p>
+
+        @govukInput(
+            InputViewModel(
+                field = form("value"),
+                label = LabelViewModel(messages("totalAmountWithoutVat.h2")).withCssClass(LabelSize.Medium.toString)
+            )
+            .withPrefix(PrefixOrSuffix(content = prefix))
+            .withWidth(Fixed5)
+            .withHint(HintViewModel(messages("totalAmountWithoutVat.hint", prefix)))
+        )
+
+        @govukButton(
+            ButtonViewModel(messages("site.continue"))
+        )
+    }
 }

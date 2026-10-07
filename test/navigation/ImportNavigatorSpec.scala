@@ -204,7 +204,7 @@ class ImportNavigatorSpec extends SpecBase {
         val ua = userAnswers.set(RefundingCountryPage, "AT").success.value
 
         navigator.navigateToCurrencyOrNextPage(NormalMode)(ua) mustBe
-          importsRoutes.TotalAmountWithoutVatController.onPageLoad()
+          importRoutes.TotalAmountWithoutVatController.onPageLoad(NormalMode)
       }
 
       "must go from navigateToCurrencyOrNextPage to Journey Recovery when no country is in session" in {
@@ -231,7 +231,6 @@ class ImportNavigatorSpec extends SpecBase {
 
       "must go from ImportSubCategoryPage to SadReferenceCheck when a sub category has been answered" in {
         val ua = userAnswers.set(ImportSubCategoryPage, "1.2.6").success.value
-
         navigator.navigateFromImportSubCategoryPage(CheckMode)(ua) mustBe
           importRoutes.SadReferenceCheckController.onPageLoad(CheckMode)
       }
@@ -255,6 +254,51 @@ class ImportNavigatorSpec extends SpecBase {
 
         navigator.navigateToCurrencyOrNextPage(CheckMode)(ua) mustBe
           importRoutes.ImportCurrencyController.onPageLoad(CheckMode)
+      }
+    }
+
+    "navigateFromSadReferenceCheckPage" - {
+      "must go to SadReferenceNumberController in NormalMode when answer is yes" in {
+        val ua = userAnswers.set(SadReferenceCheckPage, true).success.value
+        navigator.navigateFromSadReferenceCheckPage(NormalMode)(ua) mustBe
+          controllers.imports.routes.SadReferenceNumberController.onPageLoad(NormalMode)
+      }
+
+      "must go to SadReferenceNumberController in CheckMode when answer is yes" in {
+        val ua = userAnswers.set(SadReferenceCheckPage, true).success.value
+        navigator.navigateFromSadReferenceCheckPage(CheckMode)(ua) mustBe
+          controllers.imports.routes.SadReferenceNumberController.onPageLoad(CheckMode)
+      }
+
+      "must go to ImportDetailsInfoController when answer is no" in {
+        val ua = userAnswers.set(SadReferenceCheckPage, false).success.value
+        navigator.navigateFromSadReferenceCheckPage(NormalMode)(ua) mustBe
+          controllers.imports.routes.ImportDetailsInfoController.onPageLoad(NormalMode)
+      }
+
+      "must go to JourneyRecoveryController when no answer is present" in {
+        navigator.navigateFromSadReferenceCheckPage(NormalMode)(userAnswers) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+    }
+
+    "navigateFromSadReferenceNumberPage" - {
+      "must go to ImportDetailsInfoController when SadReference is not yes" in {
+        navigator.navigateFromSadReferenceNumberPage(NormalMode)(userAnswers) mustBe
+          controllers.imports.routes.ImportDetailsInfoController.onPageLoad(NormalMode)
+      }
+
+      "must go to ImportSuppliersNameController when SadReference is yes" in {
+        val ua = userAnswers.set(SadReferenceCheckPage, true).success.value
+        navigator.navigateFromSadReferenceNumberPage(NormalMode)(ua) mustBe
+          controllers.imports.routes.ImportSuppliersNameController.onPageLoad(NormalMode)
+      }
+    }
+
+    "navigateFromTotalAmountWithoutVatPage" - {
+      "must go to JourneyRecoveryController" in {
+        navigator.navigateFromTotalAmountWithoutVatPage(NormalMode)(userAnswers) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
       }
     }
   }

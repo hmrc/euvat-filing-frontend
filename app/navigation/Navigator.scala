@@ -66,12 +66,14 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case ImportSubCategoryPage             => userAnswers => importNavigator.navigateFromImportSubCategoryPage(NormalMode)(userAnswers)
     case DescribeItemsOnImportDocPage      => _ => importRoutes.SadReferenceCheckController.onPageLoad(NormalMode)
     case SadReferenceCheckPage             => userAnswers => importNavigator.navigateFromSadReferenceCheckPage(NormalMode)(userAnswers)
-    case SadReferenceNumberPage  => _ => importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode) // TODO: import date page goes here
-    case ImportDetailsInfoPage   => _ => importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode)
-    case ImportSuppliersNamePage => userAnswers => importNavigator.navigateToCurrencyOrNextPage(NormalMode)(userAnswers)
-    case ImportCurrencyPage      => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
-    case ImportSupplierAddressPage         => userAnswers => importNavigator.navigateToCurrencyOrNextPage(NormalMode)(userAnswers)
-    case _                                 => _ => controllers.routes.IndexController.onPageLoad()
+    case SadReferenceNumberPage =>
+      userAnswers => importNavigator.navigateFromSadReferenceNumberPage(NormalMode)(userAnswers) // TODO: import date page goes here
+    case ImportDetailsInfoPage     => _ => importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode)
+    case ImportSuppliersNamePage   => userAnswers => importNavigator.navigateToCurrencyOrNextPage(NormalMode)(userAnswers)
+    case ImportCurrencyPage        => _ => importRoutes.TotalAmountWithoutVatController.onPageLoad(NormalMode)
+    case ImportSupplierAddressPage => userAnswers => importNavigator.navigateToCurrencyOrNextPage(NormalMode)(userAnswers)
+    case TotalAmountWithoutVatPage => userAnswers => importNavigator.navigateFromTotalAmountWithoutVatPage(NormalMode)(userAnswers)
+    case _                         => _ => controllers.routes.IndexController.onPageLoad()
   }
 
   private val checkRoutes: Page => UserAnswers => Call = {
@@ -104,12 +106,14 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case ImportSubCategoryPage             => userAnswers => importNavigator.navigateFromImportSubCategoryPage(CheckMode)(userAnswers)
     case DescribeItemsOnImportDocPage      => _ => importRoutes.SadReferenceCheckController.onPageLoad(CheckMode)
     case SadReferenceCheckPage             => userAnswers => importNavigator.navigateFromSadReferenceCheckPage(CheckMode)(userAnswers)
-    case SadReferenceNumberPage  => _ => importRoutes.ImportSuppliersNameController.onPageLoad(CheckMode) // TODO: import date page goes here
-    case ImportDetailsInfoPage   => _ => importRoutes.ImportSuppliersNameController.onPageLoad(CheckMode)
-    case ImportSuppliersNamePage => userAnswers => importNavigator.navigateToCurrencyOrNextPage(CheckMode)(userAnswers)
-    case ImportCurrencyPage      => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
-    case ImportSupplierAddressPage         => userAnswers => importNavigator.navigateToCurrencyOrNextPage(CheckMode)(userAnswers)
-    case _                                 => _ => controllers.routes.IndexController.onPageLoad()
+    case SadReferenceNumberPage =>
+      userAnswers => importNavigator.navigateFromSadReferenceNumberPage(CheckMode)(userAnswers) // TODO: import date page goes here
+    case ImportDetailsInfoPage     => _ => importRoutes.ImportSuppliersNameController.onPageLoad(CheckMode)
+    case ImportSuppliersNamePage   => userAnswers => importNavigator.navigateToCurrencyOrNextPage(CheckMode)(userAnswers)
+    case ImportCurrencyPage        => _ => importRoutes.TotalAmountWithoutVatController.onPageLoad(CheckMode)
+    case ImportSupplierAddressPage => userAnswers => importNavigator.navigateToCurrencyOrNextPage(CheckMode)(userAnswers)
+    case TotalAmountWithoutVatPage => userAnswers => importNavigator.navigateFromTotalAmountWithoutVatPage(CheckMode)(userAnswers)
+    case _                         => _ => controllers.routes.IndexController.onPageLoad()
   }
 
   private def navigateFromPurchaseOrImportPage(userAnswers: UserAnswers): Call =

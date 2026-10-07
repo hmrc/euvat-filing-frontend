@@ -17,6 +17,7 @@
 package controllers.imports
 
 import controllers.actions.*
+import controllers.imports.routes as importRoutes
 import forms.RefundingCurrencyFormProvider
 import models.requests.DataRequest
 import models.{Mode, RefundingCurrency}
@@ -104,6 +105,7 @@ class ImportCurrencyController @Inject() (
       PurchaseOrImportHelpers.currencyRadioItems(currencies, messagesApi.preferred(request)),
       routes.ImportCurrencyController.onSubmit(mode),
       messagePrefix,
-      "import.caption"
+      "import.caption",
+      Some(importRoutes.ImportSuppliersNameController.onPageLoad(mode))
     )
 }
