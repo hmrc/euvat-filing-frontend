@@ -21,6 +21,9 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.dateinput.{DateInput, InputItem}
 @import viewmodels.govuk.date.DateViewModel
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.fieldset.*
+@import play.api.data.Form
+@import play.api.i18n.Messages
+@import play.api.mvc.{Call, Request}
 
 @this(
     layout: templates.Layout,
@@ -30,13 +33,13 @@
     govukButton: GovukButton
 )
 
-@(form: play.api.data.Form[_], mode: Mode, backLink: play.api.mvc.Call)(implicit request: play.api.mvc.Request[_], messages: play.api.i18n.Messages)
+@(form: Form[_], submitCall: Call, backLink: Call, captionKey: String, titleKey: String, headingKey: String)(implicit request: play.api.mvc.Request[_], messages: play.api.i18n.Messages)
 
 @isError = @{form.error("value").isDefined}
 
-@layout(pageTitle = title(form, messages("invoiceDate.title")), backLinkUrl = Some(backLink.url)) {
+@layout(pageTitle = title(form, messages(titleKey)), backLinkUrl = Some(backLink.url)) {
 
-    @formHelper(action = controllers.purchase.routes.InvoiceDateController.onSubmit(mode), Symbol("autoComplete") -> "off") {
+    @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
         @defining({
             val field = form("value")
             val dayEmpty = field("day").value.isEmpty
@@ -56,27 +59,27 @@
                 else if (hasYearError) "year"
                 else "day"
             }
-        }) { firstMissing =>
-            @if(form.errors.nonEmpty) {
-                @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> s"value.${firstMissing}")))
-            }
+    }) { firstMissing =>
+        @if(form.errors.nonEmpty) {
+            @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> s"value.${firstMissing}")))
         }
-
-        <div class="govuk-form-group @if(isError){govuk-form-group--error}">
-            <span class="govuk-caption-l">@messages("purchase.caption")</span>
-
-            @govukDateInput(
-                DateViewModel(
-                    field  = form("value"),
-                    legend = LegendViewModel(messages("invoiceDate.heading")).asPageHeading().withCssClass("govuk-fieldset__legend--l")
-                ).withHint(HintViewModel(messages("invoiceDate.hint")))
-            )
-
-        </div>
-
-        @govukButton(
-            ButtonViewModel(messages("site.continue"))
-        )
     }
-    @* backLink passed to layout above *@
+
+    <div class="govuk-form-group @if(isError){govuk-form-group--error}">
+        <span class="govuk-caption-l">@messages(captionKey)</span>
+
+        @govukDateInput(
+            DateViewModel(
+                field  = form("value"),
+                legend = LegendViewModel(messages(headingKey)).asPageHeading().withCssClass("govuk-fieldset__legend--l")
+            ).withHint(HintViewModel(messages("purchaseOrImportDate.hint")))
+        )
+
+    </div>
+
+    @govukButton(
+        ButtonViewModel(messages("site.continue"))
+    )
+}
+
 }

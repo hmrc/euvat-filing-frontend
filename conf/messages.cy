@@ -549,6 +549,21 @@ import.refundingCurrency.error.required = Select a currency for this import
 
 totalVatPaidImport.p1 = If this amount is not on your import document, you’ll need to calculate it. Use the standard VAT rate of the country you’re claiming from.
 
+importDate.title = When is the import date?
+importDate.heading = When is the import date?
+importDate.hint = For example, 27 3 2025
+importDate.error.invalid = Enter a date in the correct format
+importDate.error.invalid.day = Enter a day in the correct format
+importDate.error.invalid.month = Enter a month in the correct format
+importDate.error.invalid.year = Enter a year in the correct format
+importDate.error.invalid.two = Enter a {0} and {1} in the correct format
+importDate.error.required = Enter a {0}
+importDate.error.required.all = Enter a date
+importDate.error.required.two = Enter a {0} and {1}
+importDate.error.past = The import date must be in the past
+importDate.checkYourAnswersLabel = Import date
+importDate.change.hidden = Change import date
+
 # Warning messages
 confirmRefundPeriodStartDate.title = Are you sure the refund period start date is correct?
 confirmRefundPeriodStartDate.heading = Are you sure the refund period start date is correct?

@@ -83,4 +83,14 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
   def navigateFromTotalAmountWithoutVatPage(mode: Mode)(userAnswers: UserAnswers): Call =
     importsRoutes.TotalVatPaidImportController.onPageLoad(mode)
 
+  def backLinkFromImportDatePage(mode: Mode)(userAnswers: UserAnswers): Call =
+    mode match {
+      case CheckMode => controllers.routes.JourneyRecoveryController.onPageLoad()
+      case NormalMode =>
+        userAnswers.get(SadReferenceCheckPage) match {
+          case Some(true)  => controllers.imports.routes.SadReferenceNumberController.onPageLoad(NormalMode)
+          case Some(false) => controllers.imports.routes.ImportDetailsInfoController.onPageLoad(NormalMode)
+          case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
+        }
+    }
 }

@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package controllers.purchase
+package controllers.imports
 
 import base.SpecBase
-import forms.purchase.InvoiceDateFormProvider
+import forms.imports.ImportDateFormProvider
 import models.*
 import navigation.FakeNavigator
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.RefundPeriodPage
+import pages.{ImportDatePage, SadReferenceCheckPage}
 import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -31,26 +31,28 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.PurchaseOrImportDateView
 
-import java.time.{LocalDate, LocalDateTime}
+import java.time.LocalDate
 import scala.concurrent.Future
 
-class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
+class ImportDateControllerSpec extends SpecBase with MockitoSugar {
 
   val onwardRoute: Call = Call("GET", "/foo")
 
-  private def formAction(mode: Mode): Call = controllers.purchase.routes.InvoiceDateController.onSubmit(mode)
-  private val captionKey = "purchase.caption"
-  private val titleKey = "invoiceDate.title"
-  private val headingKey = "invoiceDate.heading"
+  private def formAction(mode: Mode): Call = controllers.imports.routes.ImportDateController.onSubmit(mode)
+  private val captionKey = "import.caption"
+  private val titleKey = "importDate.title"
+  private val headingKey = "importDate.heading"
 
-  "InvoiceDate Controller" - {
+  "ImportDate Controller" - {
 
     ".onPageLoad" - {
-      "must return OK and the correct view for a GET when refund period exists" in {
-        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      "must return OK and the correct view for a GET in NormalMode when SAD reference is No" in {
+        val userAnswers = emptyUserAnswers.set(SadReferenceCheckPage, false).success.value
+
+        val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
         running(application) {
-          val request = FakeRequest(GET, routes.InvoiceDateController.onPageLoad(models.NormalMode).url)
+          val request = FakeRequest(GET, routes.ImportDateController.onPageLoad(models.NormalMode).url)
           val result = route(application, request).value
           val view = application.injector.instanceOf[PurchaseOrImportDateView]
           implicit val msgs: Messages = messages(application)
@@ -58,9 +60,9 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
           status(result) mustEqual OK
           normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
             view(
-              application.injector.instanceOf[InvoiceDateFormProvider].apply(),
-              formAction(NormalMode),
-              routes.InvoiceNumberController.onPageLoad(models.NormalMode),
+              application.injector.instanceOf[ImportDateFormProvider].apply(),
+              formAction(models.NormalMode),
+              controllers.imports.routes.ImportDetailsInfoController.onPageLoad(models.NormalMode),
               captionKey,
               titleKey,
               headingKey
@@ -69,11 +71,12 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must return OK and the correct view for a GET when refund period exists in check mode" in {
-        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      "must return OK and the correct view for a GET in NormalMode when SAD reference is Yes" in {
+        val userAnswers = emptyUserAnswers.set(SadReferenceCheckPage, true).success.value
+        val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
         running(application) {
-          val request = FakeRequest(GET, routes.InvoiceDateController.onPageLoad(models.CheckMode).url)
+          val request = FakeRequest(GET, routes.ImportDateController.onPageLoad(models.NormalMode).url)
           val result = route(application, request).value
           val view = application.injector.instanceOf[PurchaseOrImportDateView]
           implicit val msgs: Messages = messages(application)
@@ -81,9 +84,9 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
           status(result) mustEqual OK
           normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
             view(
-              application.injector.instanceOf[InvoiceDateFormProvider].apply(),
-              formAction(CheckMode),
-              routes.CheckYourPurchaseDetailsController.onPageLoad(),
+              application.injector.instanceOf[ImportDateFormProvider].apply(),
+              formAction(models.NormalMode),
+              controllers.imports.routes.SadReferenceNumberController.onPageLoad(models.NormalMode),
               captionKey,
               titleKey,
               headingKey
@@ -92,16 +95,42 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must populate the view correctly on a GET when the question has previously been answered" in {
+      "must return OK and the correct view for a GET in CheckMode" in {
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+        running(application) {
+          val request = FakeRequest(GET, routes.ImportDateController.onPageLoad(models.CheckMode).url)
+          val result = route(application, request).value
+          val view = application.injector.instanceOf[PurchaseOrImportDateView]
+          implicit val msgs: Messages = messages(application)
+
+          status(result) mustEqual OK
+          normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
+            view(
+              application.injector.instanceOf[ImportDateFormProvider].apply(),
+              formAction(models.CheckMode),
+              controllers.routes.JourneyRecoveryController.onPageLoad(),
+              captionKey,
+              titleKey,
+              headingKey
+            )(request, msgs).toString
+          )
+        }
+      }
+
+      "must populate the view correctly on a GET when the question has previously been answered " in {
         val userAnswers = emptyUserAnswers
-          .set(pages.InvoiceDatePage, LocalDate.of(2025, 4, 15))
+          .set(SadReferenceCheckPage, false)
+          .success
+          .value
+          .set(pages.ImportDatePage, LocalDate.of(2025, 3, 14))
           .success
           .value
 
         val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
         running(application) {
-          val request = FakeRequest(GET, routes.InvoiceDateController.onPageLoad(models.NormalMode).url)
+          val request = FakeRequest(GET, routes.ImportDateController.onPageLoad(models.NormalMode).url)
           val result = route(application, request).value
           val view = application.injector.instanceOf[PurchaseOrImportDateView]
           implicit val msgs: Messages = messages(application)
@@ -109,9 +138,9 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
           status(result) mustEqual OK
           normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
             view(
-              application.injector.instanceOf[InvoiceDateFormProvider].apply().fill(LocalDate.of(2025, 4, 15)),
-              formAction(NormalMode),
-              routes.InvoiceNumberController.onPageLoad(models.NormalMode),
+              application.injector.instanceOf[ImportDateFormProvider].apply().fill(LocalDate.of(2025, 3, 14)),
+              formAction(models.NormalMode),
+              controllers.imports.routes.ImportDetailsInfoController.onPageLoad(models.NormalMode),
               captionKey,
               titleKey,
               headingKey
@@ -120,11 +149,11 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must redirect to journey recovery when no user answers exist" in {
+      "must redirect to Journey Recovery when no user answers exist" in {
         val application = applicationBuilder(userAnswers = None).build()
 
         running(application) {
-          val request = FakeRequest(GET, routes.InvoiceDateController.onPageLoad(models.NormalMode).url)
+          val request = FakeRequest(GET, routes.ImportDateController.onPageLoad(models.NormalMode).url)
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
@@ -135,7 +164,7 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
 
     ".onSubmit" - {
 
-      "must redirect to the next page when valid date within refund period submitted" in {
+      "must redirect to the next page when valid past date is submitted" in {
         val mockSessionRepository = mock[repositories.SessionRepository]
         when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
@@ -147,7 +176,7 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
           .build()
 
         running(application) {
-          val request = FakeRequest(POST, routes.InvoiceDateController.onSubmit(models.NormalMode).url)
+          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.NormalMode).url)
             .withFormUrlEncodedBody(
               "value.day"   -> "15",
               "value.month" -> "04",
@@ -166,7 +195,7 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
 
         running(application) {
           val future = LocalDate.now().plusDays(1)
-          val request = FakeRequest(POST, routes.InvoiceDateController.onSubmit(models.NormalMode).url)
+          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.NormalMode).url)
             .withFormUrlEncodedBody(
               "value.day"   -> f"${future.getDayOfMonth}%02d",
               "value.month" -> f"${future.getMonthValue}%02d",
@@ -176,7 +205,7 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual BAD_REQUEST
           val body = contentAsString(result)
-          body must include(messages(application)("invoiceDate.error.past"))
+          body must include(messages(application)("importDate.error.past"))
           body must include("href=\"#value.day\"")
         }
       }
@@ -185,7 +214,7 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
         running(application) {
-          val request = FakeRequest(POST, routes.InvoiceDateController.onSubmit(models.NormalMode).url)
+          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.NormalMode).url)
             .withFormUrlEncodedBody(
               "value.day"   -> "15",
               "value.month" -> "",
@@ -195,7 +224,7 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual BAD_REQUEST
           val body = contentAsString(result)
-          val expected = messages(application)("invoiceDate.error.required", messages(application)("date.error.month"))
+          val expected = messages(application)("importDate.error.required", messages(application)("date.error.month"))
           body must include(expected)
           body must include("href=\"#value.month\"")
           body must include("value=\"15\"")
@@ -207,7 +236,7 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
         running(application) {
-          val request = FakeRequest(POST, routes.InvoiceDateController.onSubmit(models.NormalMode).url)
+          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.NormalMode).url)
             .withFormUrlEncodedBody(
               "value.day"   -> "15",
               "value.month" -> "04",
@@ -217,7 +246,7 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual BAD_REQUEST
           val body = contentAsString(result)
-          val expected = messages(application)("invoiceDate.error.required", messages(application)("date.error.year"))
+          val expected = messages(application)("importDate.error.required", messages(application)("date.error.year"))
           body must include(expected)
           body must include("href=\"#value.year\"")
           body must include("value=\"15\"")
@@ -229,7 +258,7 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
         running(application) {
-          val request = FakeRequest(POST, routes.InvoiceDateController.onSubmit(models.NormalMode).url)
+          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.NormalMode).url)
             .withFormUrlEncodedBody(
               "value.day"   -> "",
               "value.month" -> "",
@@ -239,10 +268,8 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual BAD_REQUEST
           val body = contentAsString(result)
-          val expected = messages(application)("invoiceDate.error.required.two",
-                                               messages(application)("date.error.day"),
-                                               messages(application)("date.error.month")
-                                              )
+          val expected =
+            messages(application)("importDate.error.required.two", messages(application)("date.error.day"), messages(application)("date.error.month"))
           body must include(expected)
           body must include("href=\"#value.day\"")
           body must include("value=\"2025\"")
@@ -253,7 +280,7 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
         running(application) {
-          val request = FakeRequest(POST, routes.InvoiceDateController.onSubmit(models.NormalMode).url)
+          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.NormalMode).url)
             .withFormUrlEncodedBody(
               "value.day"   -> "",
               "value.month" -> "",
@@ -263,41 +290,20 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual BAD_REQUEST
           val body = contentAsString(result)
-          val expected = messages(application)("invoiceDate.error.required.all")
+          val expected = messages(application)("importDate.error.required.all")
           body must include(expected)
           body must include("href=\"#value.day\"")
         }
       }
 
-      "must return Bad Request and link to day when numeric garbage input posted" in {
+      "must return Bad Request and link to day when day is invalid and month/year are valid" in {
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
         running(application) {
-          val request = FakeRequest(POST, routes.InvoiceDateController.onSubmit(models.NormalMode).url)
+          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.NormalMode).url)
             .withFormUrlEncodedBody(
-              "value.day"   -> "123",
-              "value.month" -> "123",
-              "value.year"  -> "1234"
-            )
-          val result = route(application, request).value
-
-          status(result) mustEqual BAD_REQUEST
-          val body = contentAsString(result)
-          val expected =
-            messages(application)("invoiceDate.error.invalid.two", messages(application)("date.error.day"), messages(application)("date.error.month"))
-          body must include(expected)
-          body must include("href=\"#value.day\"")
-        }
-      }
-
-      "must return Bad Request and link to day when day and month are invalid text" in {
-        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-
-        running(application) {
-          val request = FakeRequest(POST, routes.InvoiceDateController.onSubmit(models.NormalMode).url)
-            .withFormUrlEncodedBody(
-              "value.day"   -> "abc",
-              "value.month" -> "def",
+              "value.day"   -> "39",
+              "value.month" -> "04",
               "value.year"  -> "2025"
             )
           val result = route(application, request).value
@@ -305,73 +311,121 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
           status(result) mustEqual BAD_REQUEST
           val body = contentAsString(result)
           val expected =
-            messages(application)("invoiceDate.error.invalid.two", messages(application)("date.error.day"), messages(application)("date.error.month"))
+            messages(application)("importDate.error.invalid.day")
           body must include(expected)
           body must include("href=\"#value.day\"")
         }
       }
 
-      "must return Bad Request and link to month when day is valid but month is invalid text" in {
+      "must return Bad Request and link to month when month is invalid and day/year are valid" in {
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
         running(application) {
-          val request = FakeRequest(POST, routes.InvoiceDateController.onSubmit(models.NormalMode).url)
+          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.NormalMode).url)
             .withFormUrlEncodedBody(
-              "value.day"   -> "31",
-              "value.month" -> "abc",
-              "value.year"  -> "2026"
+              "value.day"   -> "14",
+              "value.month" -> "45",
+              "value.year"  -> "2025"
             )
           val result = route(application, request).value
 
           status(result) mustEqual BAD_REQUEST
           val body = contentAsString(result)
-          val expected = messages(application)("invoiceDate.error.invalid.month")
+          val expected =
+            messages(application)("importDate.error.invalid.month")
           body must include(expected)
           body must include("href=\"#value.month\"")
         }
       }
 
-      "must redirect to Check Your Answers when in CheckMode" in {
+      "must return Bad Request and link to year when year is invalid and day/month are valid" in {
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+        running(application) {
+          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.NormalMode).url)
+            .withFormUrlEncodedBody(
+              "value.day"   -> "14",
+              "value.month" -> "04",
+              "value.year"  -> "dhg"
+            )
+          val result = route(application, request).value
+
+          status(result) mustEqual BAD_REQUEST
+          val body = contentAsString(result)
+          val expected = messages(application)("importDate.error.invalid.year")
+          body must include(expected)
+          body must include("href=\"#value.year\"")
+        }
+      }
+
+      "must return Bad Request and link to day and month when day and month are invalid" in {
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+        running(application) {
+          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.NormalMode).url)
+            .withFormUrlEncodedBody(
+              "value.day"   -> "45",
+              "value.month" -> "67",
+              "value.year"  -> "2025"
+            )
+          val result = route(application, request).value
+
+          status(result) mustEqual BAD_REQUEST
+          val body = contentAsString(result)
+          val expected =
+            messages(application)("importDate.error.invalid.two", messages(application)("date.error.day"), messages(application)("date.error.month"))
+          body must include(expected)
+          body must include("href=\"#value.day\"")
+        }
+      }
+
+      "must return Bad Request and link to day when day, month and year are all invalid" in {
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+        running(application) {
+          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.NormalMode).url)
+            .withFormUrlEncodedBody(
+              "value.day"   -> "45",
+              "value.month" -> "67",
+              "value.year"  -> "dhg"
+            )
+          val result = route(application, request).value
+
+          status(result) mustEqual BAD_REQUEST
+          val body = contentAsString(result)
+          val expected = messages(application)("importDate.error.invalid")
+          body must include(expected)
+          body must include("href=\"#value.day\"")
+        }
+      }
+
+      "must accept a month entered as a short name" in {
         val mockSessionRepository = mock[repositories.SessionRepository]
         when(mockSessionRepository.set(any())) thenReturn scala.concurrent.Future.successful(true)
 
-        val checkYourAnswersRoute = controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad()
-
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
-            bind[navigation.Navigator].toInstance(new FakeNavigator(checkYourAnswersRoute)),
+            bind[navigation.Navigator].toInstance(new FakeNavigator(onwardRoute)),
             bind[repositories.SessionRepository].toInstance(mockSessionRepository)
           )
           .build()
 
         running(application) {
-          val request = FakeRequest(POST, routes.InvoiceDateController.onSubmit(models.CheckMode).url)
+          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.NormalMode).url)
             .withFormUrlEncodedBody(
-              "value.day"   -> "15",
-              "value.month" -> "04",
+              "value.day"   -> "16",
+              "value.month" -> "Feb",
               "value.year"  -> "2025"
             )
-
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual checkYourAnswersRoute.url
-          verify(mockSessionRepository).set(any())
+          redirectLocation(result).value mustEqual onwardRoute.url
         }
       }
 
-      "must redirect back to purchase CYA when in CheckMode and invoice date unchanged" in {
-        val savedPeriod = models.RefundPeriod(LocalDateTime.of(2025, 3, 1, 0, 0), LocalDateTime.of(2025, 8, 1, 23, 59))
-        val userAnswers = emptyUserAnswers
-          .set(RefundPeriodPage, savedPeriod)
-          .success
-          .value
-          .set(pages.PurchaseTypePage, Fuel)
-          .success
-          .value
-          .set(pages.InvoiceDatePage, LocalDate.of(2025, 4, 15))
-          .success
-          .value
+      "must persist and redirect to ImportSuppliersNameController when in CheckMode and import date unchanged" in {
+        val userAnswers = emptyUserAnswers.set(pages.ImportDatePage, LocalDate.of(2025, 3, 14)).success.value
 
         val mockSessionRepository = mock[repositories.SessionRepository]
         when(mockSessionRepository.set(any())) thenReturn scala.concurrent.Future.successful(true)
@@ -383,34 +437,23 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
           .build()
 
         running(application) {
-          val request = FakeRequest(POST, routes.InvoiceDateController.onSubmit(models.CheckMode).url)
+          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.CheckMode).url)
             .withFormUrlEncodedBody(
-              "value.day"   -> "15",
-              "value.month" -> "04",
+              "value.day"   -> "14",
+              "value.month" -> "03",
               "value.year"  -> "2025"
             )
 
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.CheckYourPurchaseDetailsController.onPageLoad().url
-          // unchanged -> should not persist a new session
+          redirectLocation(result).value mustEqual controllers.imports.routes.ImportSuppliersNameController.onPageLoad(CheckMode).url
           org.mockito.Mockito.verify(mockSessionRepository, org.mockito.Mockito.never()).set(any())
         }
       }
 
-      "must persist and redirect to purchase CYA when in CheckMode and invoice date changed" in {
-        val savedPeriod = models.RefundPeriod(LocalDateTime.of(2025, 3, 1, 0, 0), LocalDateTime.of(2025, 8, 1, 23, 59))
-        val userAnswers = emptyUserAnswers
-          .set(RefundPeriodPage, savedPeriod)
-          .success
-          .value
-          .set(pages.PurchaseTypePage, Fuel)
-          .success
-          .value
-          .set(pages.InvoiceDatePage, LocalDate.of(2025, 4, 15))
-          .success
-          .value
+      "must persist and redirect to ImportSuppliersNameController when in CheckMode and import date changed" in {
+        val userAnswers = emptyUserAnswers.set(ImportDatePage, LocalDate.of(2025, 3, 14)).success.value
 
         val mockSessionRepository = mock[repositories.SessionRepository]
         when(mockSessionRepository.set(any())) thenReturn scala.concurrent.Future.successful(true)
@@ -422,22 +465,22 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
           .build()
 
         running(application) {
-          val request = FakeRequest(POST, routes.InvoiceDateController.onSubmit(models.CheckMode).url)
+          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.CheckMode).url)
             .withFormUrlEncodedBody(
               "value.day"   -> "16",
-              "value.month" -> "04",
+              "value.month" -> "03",
               "value.year"  -> "2025"
             )
 
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.CheckYourPurchaseDetailsController.onPageLoad().url
+          redirectLocation(result).value mustEqual controllers.imports.routes.ImportSuppliersNameController.onPageLoad(CheckMode).url
 
           val captor = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
           org.mockito.Mockito.verify(mockSessionRepository).set(captor.capture())
           val saved = captor.getValue
-          saved.get(pages.InvoiceDatePage) mustBe Some(LocalDate.of(2025, 4, 16))
+          saved.get(pages.ImportDatePage) mustBe Some(LocalDate.of(2025, 3, 16))
         }
       }
     }

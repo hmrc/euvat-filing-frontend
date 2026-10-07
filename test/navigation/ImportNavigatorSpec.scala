@@ -210,6 +210,23 @@ class ImportNavigatorSpec extends SpecBase {
         navigator.navigateToCurrencyOrNextPage(NormalMode)(userAnswers) mustBe
           controllers.routes.JourneyRecoveryController.onPageLoad()
       }
+
+      "must go from ImportDatePage to SadReferenceNumberController in Normal Mode when SadReferencePage is true" in {
+        val ua = userAnswers.set(SadReferenceCheckPage, true).success.value
+        navigator.backLinkFromImportDatePage(NormalMode)(ua) mustBe
+          controllers.imports.routes.SadReferenceNumberController.onPageLoad(NormalMode)
+      }
+
+      "must go from ImportDatePage to ImportDetailsInfoController in Normal Mode when SadReferencePage is false" in {
+        val ua = userAnswers.set(SadReferenceCheckPage, false).success.value
+        navigator.backLinkFromImportDatePage(NormalMode)(ua) mustBe
+          controllers.imports.routes.ImportDetailsInfoController.onPageLoad(NormalMode)
+      }
+
+      "must go from ImportDatePage to Journey Recovery in Normal Mode when SadReferencePage is not answered" in {
+        navigator.backLinkFromImportDatePage(NormalMode)(userAnswers) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
     }
 
     "in Check mode" - {
@@ -299,6 +316,11 @@ class ImportNavigatorSpec extends SpecBase {
         navigator.navigateFromTotalAmountWithoutVatPage(NormalMode)(userAnswers) mustBe
           controllers.imports.routes.TotalVatPaidImportController.onPageLoad(NormalMode)
       }
+    }
+
+    "must go from ImportDatePage backlink to Journey Recovery in Check Mode" in {
+      navigator.backLinkFromImportDatePage(CheckMode)(userAnswers) mustBe
+        controllers.routes.JourneyRecoveryController.onPageLoad()
     }
   }
 }
