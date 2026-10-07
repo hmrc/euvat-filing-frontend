@@ -16,61 +16,62 @@
 
 package controllers.imports
 
-import controllers.imports.routes as importRoutes
 import controllers.actions.*
-import forms.SuppliersNameFormProvider
-import models.{Mode, NormalMode}
-import models.requests.DataRequest
+import forms.imports.TotalVatPaidImportFormProvider
+import javax.inject.Inject
+import models.Mode
 import navigation.Navigator
-import pages.ImportSuppliersNamePage
+import pages.TotalVatPaidImportPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.PurchaseOrImportSuppliersNameView
+import utils.ControllerHelpers.*
+import utils.CurrencyConfig
+import views.html.PurchaseOrImportTotalVatPaidView
 
-import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class ImportSuppliersNameController @Inject() (
+class TotalVatPaidImportController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
   navigator: Navigator,
+  currencyConfig: CurrencyConfig,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  formProvider: SuppliersNameFormProvider,
+  formProvider: TotalVatPaidImportFormProvider,
   val controllerComponents: MessagesControllerComponents,
-  view: PurchaseOrImportSuppliersNameView
+  view: PurchaseOrImportTotalVatPaidView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
-  val form: Form[String] = formProvider()
+  val form: Form[BigDecimal] = formProvider()
 
-  private def formAction(mode: Mode): Call = importRoutes.ImportSuppliersNameController.onSubmit(mode)
+  private def backLink(mode: Mode): Call =
+    controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad(mode)
 
-  // TODO: Implement a proper back link to import date instead of the generic journey recovery page.
-  private def backLink(mode: Mode)(implicit request: DataRequest[AnyContent]): Call =
-    controllers.routes.JourneyRecoveryController.onPageLoad()
+  private def formAction(mode: Mode): Call = routes.TotalVatPaidImportController.onSubmit(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = request.userAnswers.get(ImportSuppliersNamePage).fold(form)(form.fill)
-    Ok(view(preparedForm, formAction(mode), backLink(mode), "import.caption", "suppliersName.import.hint"))
+    val preparedForm = request.userAnswers.get(TotalVatPaidImportPage).fold(form)(form.fill)
+    val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)
+    Ok(view(preparedForm, formAction(mode), backLink(mode), "import.caption", "totalVatPaidImport.p1", prefix, currencyName))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+    val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)
     form
       .bindFromRequest()
       .fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, formAction(mode), backLink(mode), "import.caption", "suppliersName.import.hint"))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, formAction(mode), backLink(mode), "import.caption", "totalVatPaidImport.p1", prefix, currencyName))),
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(ImportSuppliersNamePage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(ImportSuppliersNamePage, mode, updatedAnswers))
+            userAnswers <- Future.fromTry(request.userAnswers.set(TotalVatPaidImportPage, value))
+            _           <- sessionRepository.set(userAnswers)
+          } yield Redirect(navigator.nextPage(TotalVatPaidImportPage, mode, userAnswers))
       )
   }
 }

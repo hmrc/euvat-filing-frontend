@@ -17,7 +17,7 @@
 @import viewmodels.InputWidth.*
 @import viewmodels.LabelSize
 @import views.html.components.MainErrorSummary
-@import forms.mappings.Mappings
+@import models.Mode
 
 @this(
     layout: templates.Layout,
@@ -29,26 +29,29 @@
 
 @(form: Form[_], mode: Mode, call: Call, prefix: String, currencyName: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("totalVatPaid.title")), backLinkUrl = Some(call.url)) {
+@layout(pageTitle = title(form, messages("totalAmountWithoutVat.title")), backLinkUrl = Some(call.url)) {
 
-    @formHelper(action = controllers.purchase.routes.TotalVatPaidController.onSubmit(mode), Symbol("autoComplete") -> "off") {
+    @formHelper(action = controllers.imports.routes.TotalAmountWithoutVatController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @mainErrorSummary(form, Map.empty)
 
         <h1 class="govuk-heading-l">
-            <span class="govuk-caption-l">@messages("purchase.caption")</span>
-            @messages("totalVatPaid.heading")
+            <span class="govuk-caption-l">@messages("import.caption")</span>
+            @messages("totalAmountWithoutVat.heading")
         </h1>
-        <div id="total-vat-paid" class="govuk-body">@Html(messages("totalVatPaid.p1"))</div>
+
+        <div id="total-amount-without-vat-inset" class="govuk-body">@Html(messages("totalAmountWithoutVat.inset", currencyName.toLowerCase, prefix))</div>
+
+        <p class="govuk-body">@messages("totalAmountWithoutVat.p1")</p>
 
         @govukInput(
             InputViewModel(
                 field = form("value"),
-                label = LabelViewModel(messages("totalVatPaid.h2")).withCssClass(LabelSize.Medium.toString)
+                label = LabelViewModel(messages("totalAmountWithoutVat.h2")).withCssClass(LabelSize.Medium.toString)
             )
             .withPrefix(PrefixOrSuffix(content = prefix))
             .withWidth(Fixed5)
-            .withHint(HintViewModel(messages("totalVatPaid.hint", prefix)))
+            .withHint(HintViewModel(messages("totalAmountWithoutVat.hint", prefix)))
         )
 
         @govukButton(

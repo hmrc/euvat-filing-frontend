@@ -307,6 +307,7 @@ suppliersName.error.required = Enter a supplier’s name
 suppliersName.error.length = The supplier’s name must be 35 characters or less
 suppliersName.checkYourAnswersLabel = Supplier name
 suppliersName.change.hidden = Change supplier name
+suppliersName.import.hint = Find the supplier’s name on the import document
 
 supplierTaxNumber.title = Select the supplier tax numbers shown on the invoice
 supplierTaxNumber.heading = Select the supplier tax numbers shown on the invoice
@@ -353,14 +354,14 @@ totalPurchaseAmountBeforeVat.error.invalidNumeric = Enter the total purchase amo
 totalVatPaid.title = Total VAT paid
 totalVatPaid.heading = Total VAT paid
 totalVatPaid.h2 = How much VAT did you pay?
-totalVatPaid.p1 = This is the amount of VAT charged. If your invoice does not show this amount, you''ll need to <a href="https://www.gov.uk/charge-reclaim-record-vat" class="govuk-link" target="_blank">calculate it (opens in a new tab)</a>.
+totalVatPaid.p1 = This is the amount of VAT charged. If your invoice does not show this amount, you’ll need to <a href="https://www.gov.uk/charge-reclaim-record-vat" class="govuk-link" target="_blank">calculate it (opens in new tab)</a>.
 totalVatPaid.hint = For example, {0}150 or {0}120.45
 totalVatPaid.error.required = Enter total VAT paid
 totalVatPaid.error.invalidNumeric = Enter total VAT paid in the correct format
 totalVatPaid.error.nonNumeric = Enter total VAT paid in the correct format
 totalVatPaid.error.aboveMaximum = Total VAT paid must be between -999,999,999.99 and 999,999,999.99
 totalVatPaid.checkYourAnswersLabel = VAT paid
-totalVatPaid.change.hidden=Change VAT paid
+totalVatPaid.change.hidden = Change VAT paid
 
 totalVatClaim.title = Total VAT claim
 totalVatClaim.heading = Total VAT claim
@@ -543,11 +544,23 @@ importDetailsInfo.label = Enter import document details
 importDetailsInfo.error.required = Enter import document details
 importDetailsInfo.error.length = Import document details must be 255 characters or less
 
-suppliersName.import.hint = Find the supplier’s name on the import document
+totalAmountWithoutVat.title = Total amount without VAT
+totalAmountWithoutVat.heading = Total amount without VAT
+totalAmountWithoutVat.inset = The currency for this claim is in {0} ({1}). For import documents in any other currency, you must convert the amounts before adding them to your claim. Use the <a href="https://data.ecb.europa.eu/currency-converter" class="govuk-link" rel="noreferrer noopener" target="_blank">European Central Bank currency converter (opens in a new tab)</a>.
+totalAmountWithoutVat.p1 = If this amount is not on your import document, you’ll need to calculate it. Use the standard VAT rate of the country you’re claiming from.
+totalAmountWithoutVat.h2 = How much did the import cost without VAT?
+totalAmountWithoutVat.hint = For example, {0}150 or {0}120.45
+totalAmountWithoutVat.change.hidden = Total amount without VAT
+totalAmountWithoutVat.error.required = Enter the total amount without VAT
+totalAmountWithoutVat.error.invalidNumeric = Enter the total amount without VAT in the correct format
+totalAmountWithoutVat.error.nonNumeric = Enter the total amount without VAT in the correct format
+totalAmountWithoutVat.error.aboveMaximum = Total amount without VAT must be between -999,999,999.99 and 999,999,999.99
 
 import.refundingCurrency.title = Which currency do you want to use for this import?
 import.refundingCurrency.heading = Which currency do you want to use for this import?
 import.refundingCurrency.error.required = Select a currency for this import
+
+totalVatPaidImport.p1 = If this amount is not on your import document, you’ll need to calculate it. Use the standard VAT rate of the country you’re claiming from.
 
 # Warning messages
 confirmRefundPeriodStartDate.title = Are you sure the refund period start date is correct?

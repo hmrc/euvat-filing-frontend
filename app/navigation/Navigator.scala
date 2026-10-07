@@ -65,11 +65,13 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case ImportSubCategoryPage             => userAnswers => importNavigator.navigateFromImportSubCategoryPage(NormalMode)(userAnswers)
     case DescribeItemsOnImportDocPage      => _ => importRoutes.SadReferenceCheckController.onPageLoad(NormalMode)
     case SadReferenceCheckPage             => userAnswers => importNavigator.navigateFromSadReferenceCheckPage(NormalMode)(userAnswers)
-    case SadReferenceNumberPage  => _ => importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode) // TODO: import date page goes here
-    case ImportDetailsInfoPage   => _ => importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode)
-    case ImportSuppliersNamePage => userAnswers => importNavigator.navigateFromSupplierNamePage(NormalMode)(userAnswers)
-    case ImportCurrencyPage      => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
-    case _                       => _ => controllers.routes.IndexController.onPageLoad()
+    case SadReferenceNumberPage            => userAnswers => importNavigator.navigateFromSadReferenceNumberPage(NormalMode)(userAnswers)
+    case ImportDetailsInfoPage             => _ => importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode)
+    case ImportSuppliersNamePage           => userAnswers => importNavigator.navigateFromSupplierNamePage(NormalMode)(userAnswers)
+    case ImportCurrencyPage                => _ => importRoutes.TotalAmountWithoutVatController.onPageLoad(NormalMode)
+    case TotalAmountWithoutVatPage         => userAnswers => importNavigator.navigateFromTotalAmountWithoutVatPage(NormalMode)(userAnswers)
+    case TotalVatPaidImportPage            => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
+    case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 
   private val checkRoutes: Page => UserAnswers => Call = {
@@ -102,17 +104,19 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case ImportSubCategoryPage             => userAnswers => importNavigator.navigateFromImportSubCategoryPage(CheckMode)(userAnswers)
     case DescribeItemsOnImportDocPage      => _ => importRoutes.SadReferenceCheckController.onPageLoad(CheckMode)
     case SadReferenceCheckPage             => userAnswers => importNavigator.navigateFromSadReferenceCheckPage(CheckMode)(userAnswers)
-    case SadReferenceNumberPage  => _ => importRoutes.ImportSuppliersNameController.onPageLoad(CheckMode) // TODO: import date page goes here
-    case ImportDetailsInfoPage   => _ => importRoutes.ImportSuppliersNameController.onPageLoad(CheckMode)
-    case ImportSuppliersNamePage => userAnswers => importNavigator.navigateFromSupplierNamePage(CheckMode)(userAnswers)
-    case ImportCurrencyPage      => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
-    case _                       => _ => controllers.routes.IndexController.onPageLoad()
+    case SadReferenceNumberPage            => userAnswers => importNavigator.navigateFromSadReferenceNumberPage(CheckMode)(userAnswers)
+    case ImportDetailsInfoPage             => _ => importRoutes.ImportSuppliersNameController.onPageLoad(CheckMode)
+    case ImportSuppliersNamePage           => userAnswers => importNavigator.navigateFromSupplierNamePage(CheckMode)(userAnswers)
+    case ImportCurrencyPage                => _ => importRoutes.TotalAmountWithoutVatController.onPageLoad(CheckMode)
+    case TotalAmountWithoutVatPage         => userAnswers => importNavigator.navigateFromTotalAmountWithoutVatPage(CheckMode)(userAnswers)
+    case TotalVatPaidImportPage            => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
+    case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 
   private def navigateFromPurchaseOrImportPage(userAnswers: UserAnswers): Call =
     userAnswers.get(PurchaseOrImportPage) match {
       case Some(Purchase) => purchaseRoutes.PurchaseTypeController.onPageLoad(NormalMode)
       case Some(Import)   => importRoutes.ImportTypeController.onPageLoad(NormalMode)
-      case _              => controllers.routes.JourneyRecoveryController.onPageLoad()
+      case None           => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 }

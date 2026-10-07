@@ -14,26 +14,27 @@
  * limitations under the License.
  */
 
-package controllers.purchase
+package controllers.imports
 
 import controllers.actions.*
-import forms.purchase.TotalVatPaidFormProvider
-import models.{CheckMode, Mode, NormalMode}
+import controllers.imports.routes as importRoutes
+import forms.imports.TotalAmountWithoutVatFormProvider
+import models.Mode
 import navigation.Navigator
-import pages.{TotalPurchaseAmountBeforeVatPage, TotalVatPaidPage}
+import pages.{SadReferenceCheckPage, SadReferenceNumberPage, TotalAmountWithoutVatPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ControllerHelpers.*
-import utils.CurrencyConfig
-import views.html.PurchaseOrImportTotalVatPaidView
+import utils.{CountryCode, CurrencyConfig}
+import views.html.imports.TotalAmountWithoutVatView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class TotalVatPaidController @Inject() (
+class TotalAmountWithoutVatController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
   navigator: Navigator,
@@ -41,27 +42,26 @@ class TotalVatPaidController @Inject() (
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  formProvider: TotalVatPaidFormProvider,
+  formProvider: TotalAmountWithoutVatFormProvider,
   val controllerComponents: MessagesControllerComponents,
-  view: PurchaseOrImportTotalVatPaidView
+  view: TotalAmountWithoutVatView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
   val form: Form[BigDecimal] = formProvider()
 
-  private def backLink(mode: Mode) = if (mode == CheckMode) {
-    routes.CheckYourPurchaseDetailsController.onPageLoad()
-  } else {
-    routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
-  }
-
-  private def formAction(mode: Mode): Call = routes.TotalVatPaidController.onSubmit(mode)
+  private def backLink(mode: Mode)(userAnswers: models.UserAnswers): Call =
+    CountryCode.findCountryCode(userAnswers) match {
+      case Some(country) if currencyConfig.requiresCurrencySelection(country) => importRoutes.ImportCurrencyController.onPageLoad(mode)
+      // TODO: Wire this to supplier address page when it is ready
+      case _ => importRoutes.ImportSuppliersNameController.onPageLoad(mode)
+    }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = request.userAnswers.get(TotalVatPaidPage).fold(form)(form.fill)
+    val preparedForm = request.userAnswers.get(TotalAmountWithoutVatPage).fold(form)(form.fill)
     val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)
-    Ok(view(preparedForm, formAction(mode), backLink(mode), "purchase.caption", "totalVatPaid.p1", prefix, currencyName))
+    Ok(view(preparedForm, mode, backLink(mode)(request.userAnswers), prefix, currencyName))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -69,19 +69,12 @@ class TotalVatPaidController @Inject() (
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, formAction(mode), backLink(mode), "purchase.caption", "totalVatPaid.p1", prefix, currencyName))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)(request.userAnswers), prefix, currencyName))),
         value =>
           for {
-            userAnswers <- Future.fromTry(request.userAnswers.set(TotalVatPaidPage, value))
-            _           <- sessionRepository.set(userAnswers)
-          } yield {
-            val amountBeforeVat: BigDecimal = userAnswers.get(TotalPurchaseAmountBeforeVatPage).getOrElse(BigDecimal(0))
-            if (value > amountBeforeVat) {
-              Redirect(controllers.warning.routes.VatPaidWarningController.onPageLoad(mode))
-            } else {
-              Redirect(navigator.nextPage(TotalVatPaidPage, mode, userAnswers))
-            }
-          }
+            updated <- Future.fromTry(request.userAnswers.set(TotalAmountWithoutVatPage, value))
+            _       <- sessionRepository.set(updated)
+          } yield Redirect(navigator.nextPage(TotalAmountWithoutVatPage, mode, updated))
       )
   }
 
