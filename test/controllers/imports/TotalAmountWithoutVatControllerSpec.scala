@@ -49,10 +49,9 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[TotalAmountWithoutVatView]
 
         status(result) mustEqual OK
+        val expectedBack = controllers.imports.routes.ImportSuppliersNameController.onPageLoad(models.NormalMode)
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, models.NormalMode, controllers.routes.JourneyRecoveryController.onPageLoad(), "€", "Euro")(request,
-                                                                                                                messages(application)
-                                                                                                               ).toString
+          view(form, models.NormalMode, expectedBack, "€", "Euro")(request, messages(application)).toString
         )
       }
     }
@@ -67,11 +66,9 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
+        val expectedBack = controllers.imports.routes.ImportSuppliersNameController.onPageLoad(models.NormalMode)
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form.fill(BigDecimal("12.34")), models.NormalMode, controllers.routes.JourneyRecoveryController.onPageLoad(), "€", "Euro")(
-            request,
-            messages(application)
-          ).toString
+          view(form.fill(BigDecimal("12.34")), models.NormalMode, expectedBack, "€", "Euro")(request, messages(application)).toString
         )
       }
     }
@@ -113,7 +110,7 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) must include(controllers.routes.JourneyRecoveryController.onPageLoad().url)
+        contentAsString(result) must include(controllers.imports.routes.ImportSuppliersNameController.onPageLoad(models.NormalMode).url)
       }
     }
 
@@ -149,10 +146,9 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
+        val expectedBack = controllers.imports.routes.ImportSuppliersNameController.onPageLoad(models.NormalMode)
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(boundForm, models.NormalMode, controllers.routes.JourneyRecoveryController.onPageLoad(), "€", "Euro")(request,
-                                                                                                                     messages(application)
-                                                                                                                    ).toString
+          view(boundForm, models.NormalMode, expectedBack, "€", "Euro")(request, messages(application)).toString
         )
       }
     }

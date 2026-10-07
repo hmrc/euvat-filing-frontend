@@ -54,8 +54,8 @@ class TotalAmountWithoutVatController @Inject() (
   private def backLink(mode: Mode)(userAnswers: models.UserAnswers): Call =
     CountryCode.findCountryCode(userAnswers) match {
       case Some(country) if currencyConfig.requiresCurrencySelection(country) => importRoutes.ImportCurrencyController.onPageLoad(mode)
-      case Some(_)                                                            => importRoutes.ImportSuppliersNameController.onPageLoad(mode)
-      case None                                                               => controllers.routes.JourneyRecoveryController.onPageLoad()
+      // TODO: Wire this to supplier address page when it is ready
+      case _ => importRoutes.ImportSuppliersNameController.onPageLoad(mode)
     }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
