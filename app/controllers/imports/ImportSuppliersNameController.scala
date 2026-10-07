@@ -20,6 +20,7 @@ import controllers.imports.routes as importRoutes
 import controllers.actions.*
 import forms.SuppliersNameFormProvider
 import models.{Mode, NormalMode}
+import models.requests.DataRequest
 import navigation.Navigator
 import pages.ImportSuppliersNamePage
 import play.api.data.Form
@@ -50,7 +51,7 @@ class ImportSuppliersNameController @Inject() (
 
   private def formAction(mode: Mode): Call = importRoutes.ImportSuppliersNameController.onSubmit(mode)
 
-  private def backLink(mode: Mode)(implicit request: models.requests.DataRequest[AnyContent]): Call =
+  private def backLink(mode: Mode)(implicit request: DataRequest[AnyContent]): Call =
     request.userAnswers.get(pages.SadReferenceCheckPage) match {
       case Some(true) =>
         request.userAnswers.get(pages.SadReferenceNumberPage) match {
