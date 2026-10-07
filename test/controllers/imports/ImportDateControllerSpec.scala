@@ -23,13 +23,13 @@ import navigation.FakeNavigator
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{ImportDatePage, SadReferencePage}
+import pages.{ImportDatePage, SadReferenceCheckPage}
 import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import views.html.imports.ImportDateView
+import views.html.PurchaseOrImportDateView
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -38,47 +38,58 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
 
   val onwardRoute: Call = Call("GET", "/foo")
 
+  private def formAction(mode: Mode): Call = controllers.imports.routes.ImportDateController.onSubmit(mode)
+  private val captionKey = "import.caption"
+  private val titleKey   = "importDate.title"
+  private val headingKey = "importDate.heading"
+
   "ImportDate Controller" - {
 
     ".onPageLoad" - {
       "must return OK and the correct view for a GET in NormalMode when SAD reference is No" in {
-        val userAnswers = emptyUserAnswers.set(SadReferencePage, false).success.value
+        val userAnswers = emptyUserAnswers.set(SadReferenceCheckPage, false).success.value
 
         val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
         running(application) {
           val request = FakeRequest(GET, routes.ImportDateController.onPageLoad(models.NormalMode).url)
           val result = route(application, request).value
-          val view = application.injector.instanceOf[ImportDateView]
+          val view = application.injector.instanceOf[PurchaseOrImportDateView]
           implicit val msgs: Messages = messages(application)
 
           status(result) mustEqual OK
           normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
             view(
               application.injector.instanceOf[ImportDateFormProvider].apply(),
-              models.NormalMode,
-              controllers.imports.routes.ImportDetailsInfoController.onPageLoad(models.NormalMode)
+              formAction(models.NormalMode),
+              controllers.imports.routes.ImportDetailsInfoController.onPageLoad(models.NormalMode),
+              captionKey,
+              titleKey,
+              headingKey
             )(request, msgs).toString
           )
         }
       }
 
       "must return OK and the correct view for a GET in NormalMode when SAD reference is Yes" in {
-        val userAnswers = emptyUserAnswers.set(SadReferencePage, true).success.value
+        val userAnswers = emptyUserAnswers.set(SadReferenceCheckPage, true).success.value
         val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
         running(application) {
           val request = FakeRequest(GET, routes.ImportDateController.onPageLoad(models.NormalMode).url)
           val result = route(application, request).value
-          val view = application.injector.instanceOf[ImportDateView]
+          val view = application.injector.instanceOf[PurchaseOrImportDateView]
           implicit val msgs: Messages = messages(application)
 
           status(result) mustEqual OK
           normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
             view(
               application.injector.instanceOf[ImportDateFormProvider].apply(),
-              models.NormalMode,
-              controllers.imports.routes.SadReferenceNumberController.onPageLoad(models.NormalMode)
+              formAction(models.NormalMode),
+              controllers.imports.routes.SadReferenceNumberController.onPageLoad(models.NormalMode),
+              captionKey,
+              titleKey,
+              headingKey
             )(request, msgs).toString
           )
         }
@@ -90,15 +101,18 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
         running(application) {
           val request = FakeRequest(GET, routes.ImportDateController.onPageLoad(models.CheckMode).url)
           val result = route(application, request).value
-          val view = application.injector.instanceOf[ImportDateView]
+          val view = application.injector.instanceOf[PurchaseOrImportDateView]
           implicit val msgs: Messages = messages(application)
 
           status(result) mustEqual OK
           normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
             view(
               application.injector.instanceOf[ImportDateFormProvider].apply(),
-              models.CheckMode,
-              controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: replace with CheckYourImportController.onPageLoad() once built
+              formAction(models.CheckMode),
+              controllers.routes.JourneyRecoveryController.onPageLoad(),
+              captionKey,
+              titleKey,
+              headingKey
             )(request, msgs).toString
           )
         }
@@ -106,7 +120,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
 
       "must populate the view correctly on a GET when the question has previously been answered " in {
         val userAnswers = emptyUserAnswers
-          .set(SadReferencePage, false)
+          .set(SadReferenceCheckPage, false)
           .success
           .value
           .set(pages.ImportDatePage, LocalDate.of(2025, 3, 14))
@@ -118,15 +132,18 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
         running(application) {
           val request = FakeRequest(GET, routes.ImportDateController.onPageLoad(models.NormalMode).url)
           val result = route(application, request).value
-          val view = application.injector.instanceOf[ImportDateView]
+          val view = application.injector.instanceOf[PurchaseOrImportDateView]
           implicit val msgs: Messages = messages(application)
 
           status(result) mustEqual OK
           normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
             view(
               application.injector.instanceOf[ImportDateFormProvider].apply().fill(LocalDate.of(2025, 3, 14)),
-              models.NormalMode,
-              controllers.imports.routes.ImportDetailsInfoController.onPageLoad(models.NormalMode)
+              formAction(models.NormalMode),
+              controllers.imports.routes.ImportDetailsInfoController.onPageLoad(models.NormalMode),
+              captionKey,
+              titleKey,
+              headingKey
             )(request, msgs).toString
           )
         }
@@ -407,7 +424,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must persist and redirect to Journey Recovery when in CheckMode and import date unchanged" in {
+      "must persist and redirect to ImportSuppliersNameController when in CheckMode and import date unchanged" in {
         val userAnswers = emptyUserAnswers.set(pages.ImportDatePage, LocalDate.of(2025, 3, 14)).success.value
 
         val mockSessionRepository = mock[repositories.SessionRepository]
@@ -430,12 +447,12 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+          redirectLocation(result).value mustEqual controllers.imports.routes.ImportSuppliersNameController.onPageLoad(CheckMode).url
           org.mockito.Mockito.verify(mockSessionRepository, org.mockito.Mockito.never()).set(any())
         }
       }
 
-      "must persist and redirect to Journey Recovery when in CheckMode and import date changed" in {
+      "must persist and redirect to ImportSuppliersNameController when in CheckMode and import date changed" in {
         val userAnswers = emptyUserAnswers.set(ImportDatePage, LocalDate.of(2025, 3, 14)).success.value
 
         val mockSessionRepository = mock[repositories.SessionRepository]
@@ -458,9 +475,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController
-            .onPageLoad()
-            .url // TODO: replace with CheckYourImportController once built
+          redirectLocation(result).value mustEqual controllers.imports.routes.ImportSuppliersNameController.onPageLoad(CheckMode).url
 
           val captor = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
           org.mockito.Mockito.verify(mockSessionRepository).set(captor.capture())

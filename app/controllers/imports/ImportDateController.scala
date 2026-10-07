@@ -19,7 +19,7 @@ package controllers.imports
 import controllers.actions.*
 import forms.imports.ImportDateFormProvider
 import models.requests.DataRequest
-import pages.{ImportDatePage, SadReferencePage}
+import pages.{ImportDatePage, SadReferenceCheckPage}
 import navigation.Navigator
 
 import javax.inject.Inject
@@ -29,7 +29,7 @@ import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.*
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.imports.ImportDateView
+import views.html.PurchaseOrImportDateView
 import navigation.ImportNavigator
 
 import java.time.LocalDate
@@ -46,17 +46,18 @@ class ImportDateController @Inject() (
   requireData: DataRequiredAction,
   formProvider: ImportDateFormProvider,
   val controllerComponents: MessagesControllerComponents,
-  view: ImportDateView
+  view: PurchaseOrImportDateView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
   private def form(implicit messages: Messages) = formProvider()
   private def backLink(mode: Mode)(implicit request: DataRequest[?]): Call = importNavigator.backLinkFromImportDatePage(mode)(request.userAnswers)
+  private def formAction(mode: Mode): Call = routes.ImportDateController.onSubmit(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(ImportDatePage).fold(form)(form.fill)
-    Ok(view(preparedForm, mode, backLink(mode)))
+    Ok(view(preparedForm, formAction(mode), backLink(mode), "import.caption", "importDate.title", "importDate.heading"))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -75,10 +76,8 @@ class ImportDateController @Inject() (
       )
   }
 
-  private def badRequestToImportDate(formWithErrors: Form[?], mode: Mode)(implicit
-    request: DataRequest[AnyContent]
-  ): Future[Result] = {
-    val html = view(formWithErrors, mode, backLink(mode))
+  private def badRequestToImportDate(formWithErrors: Form[?], mode: Mode)(implicit request: DataRequest[AnyContent]): Future[Result] = {
+    val html = view(formWithErrors, formAction(mode), backLink(mode), "import.caption", "importDate.title", "importDate.heading" )
     Future.successful(BadRequest(html))
   }
 

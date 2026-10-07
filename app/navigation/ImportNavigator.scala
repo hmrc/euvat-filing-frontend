@@ -72,17 +72,6 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
         importsRoutes.ImportCurrencyController.onPageLoad(mode)
       case Some(_) => importsRoutes.TotalAmountWithoutVatController.onPageLoad(mode) // TODO: next import page
       case None    => controllers.routes.JourneyRecoveryController.onPageLoad()
-
-  def navigateFromImportDetailsInfoPage(mode: Mode)(userAnswers: UserAnswers): Call =
-    mode match {
-      case NormalMode => controllers.imports.routes.ImportDateController.onPageLoad(NormalMode)
-      case CheckMode  => controllers.imports.routes.ImportDateController.onPageLoad(CheckMode)
-    }
-
-  def navigateFromImportDatePage(mode: Mode)(userAnswers: UserAnswers): Call =
-    mode match {
-      case NormalMode => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO : replace with SupplierNameController once built
-      case CheckMode  => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: replace with CheckYourImportController once built
     }
 
   def navigateFromSadReferenceNumberPage(mode: Mode)(userAnswers: UserAnswers): Call =
@@ -98,7 +87,7 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
     mode match {
         case CheckMode  => controllers.routes.JourneyRecoveryController.onPageLoad()
         case NormalMode =>
-            userAnswers.get(SadReferencePage) match {
+            userAnswers.get(SadReferenceCheckPage) match {
              case Some(true)  => controllers.imports.routes.SadReferenceNumberController.onPageLoad(NormalMode)
              case Some(false) => controllers.imports.routes.ImportDetailsInfoController.onPageLoad(NormalMode)
              case _           => controllers.routes.JourneyRecoveryController.onPageLoad()

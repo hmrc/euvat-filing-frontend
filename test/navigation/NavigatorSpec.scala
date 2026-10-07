@@ -129,6 +129,51 @@ class NavigatorSpec extends SpecBase {
           controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
+      "must go from DescribeItemsOnInvoicePage to InvoiceTypeController" in {
+        navigator.nextPage(DescribeItemsOnInvoicePage, NormalMode, userAnswers) mustBe
+          purchaseRoutes.InvoiceTypeController.onPageLoad(NormalMode)
+      }
+
+      "must go from InvoiceTypePage to InvoiceNumberController" in {
+        navigator.nextPage(InvoiceTypePage, NormalMode, userAnswers) mustBe
+          purchaseRoutes.InvoiceNumberController.onPageLoad(NormalMode)
+      }
+
+      "must go from InvoiceDatePage to SuppliersNameController" in {
+        navigator.nextPage(InvoiceDatePage, NormalMode, userAnswers) mustBe
+          purchaseRoutes.SuppliersNameController.onPageLoad(NormalMode)
+      }
+
+      "must go from SuppliersNamePage to SupplierAddressController" in {
+        navigator.nextPage(SuppliersNamePage, NormalMode, userAnswers) mustBe
+          purchaseRoutes.SupplierAddressController.onPageLoad(NormalMode)
+      }
+
+      "must go from SupplierTaxIdentifierNumberPage to TotalPurchaseAmountBeforeVatController" in {
+        navigator.nextPage(SupplierTaxIdentifierNumberPage, NormalMode, userAnswers) mustBe
+          purchaseRoutes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
+      }
+
+      "must go from TotalPurchaseAmountBeforeVatPage to TotalVatPaidController" in {
+        navigator.nextPage(TotalPurchaseAmountBeforeVatPage, NormalMode, userAnswers) mustBe
+          purchaseRoutes.TotalVatPaidController.onPageLoad(NormalMode)
+      }
+
+      "must go from TotalVatPaidPage to TotalVatClaimController" in {
+        navigator.nextPage(TotalVatPaidPage, NormalMode, userAnswers) mustBe
+          purchaseRoutes.TotalVatClaimController.onPageLoad(NormalMode)
+      }
+
+      "must go from TotalVatClaimPage to CheckYourPurchaseDetailsController" in {
+        navigator.nextPage(TotalVatClaimPage, NormalMode, userAnswers) mustBe
+          purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
+      }
+
+      "must go from DescribeItemsOnImportDocPage to SadReferenceCheckController" in {
+        navigator.nextPage(DescribeItemsOnImportDocPage, NormalMode, userAnswers) mustBe
+          importRoutes.SadReferenceCheckController.onPageLoad(NormalMode)
+      }
+
       "must go from SadReferenceCheckPage to SadReferenceNumberController when the user has a SAD reference" in {
         val answers = userAnswers.set(SadReferenceCheckPage, true).success.value
 
@@ -148,21 +193,19 @@ class NavigatorSpec extends SpecBase {
           controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from SadReferenceNumberPage to ImportDetailsInfoController when SadReferenceCheck is not yes" in {
+      "must go from SadReferenceNumberPage to ImportDateController" in {
         navigator.nextPage(SadReferenceNumberPage, NormalMode, userAnswers) mustBe
-          importRoutes.ImportDetailsInfoController.onPageLoad(NormalMode)
+          importRoutes.ImportDateController.onPageLoad(NormalMode)
       }
 
-      "must go from SadReferenceNumberPage to ImportSuppliersNameController when SadReferenceCheck is yes" in {
-        val answers = userAnswers.set(SadReferenceCheckPage, true).success.value
-
-        navigator.nextPage(SadReferenceNumberPage, NormalMode, answers) mustBe
-          importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode)
-      }
-
-      "must go from ImportDetailsInfoPage to ImportSuppliersNameController" in {
+      "must go from ImportDetailsInfoPage to ImportDateController" in {
         navigator.nextPage(ImportDetailsInfoPage, NormalMode, userAnswers) mustBe
-          importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode)
+          importRoutes.ImportDateController.onPageLoad(NormalMode)
+      }
+
+      "must go from ImportDatePage to ImportSuppliersNameController" in {
+         navigator.nextPage(ImportDatePage, NormalMode, userAnswers) mustBe
+           importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode)
       }
 
       "must go from ImportSuppliersNamePage to ImportCurrencyController when the country requires currency selection" in {
@@ -269,15 +312,18 @@ class NavigatorSpec extends SpecBase {
           importRoutes.SadReferenceNumberController.onPageLoad(CheckMode)
       }
 
-      "must go from SadReferenceNumberPage to ImportSuppliersNameController when SadReferenceCheck is yes" in {
-        val answers = userAnswers.set(SadReferenceCheckPage, true).success.value
-
-        navigator.nextPage(SadReferenceNumberPage, CheckMode, answers) mustBe
-          importRoutes.ImportSuppliersNameController.onPageLoad(CheckMode)
+      "must go from SadReferenceNumberPage to ImportDateController" in {
+        navigator.nextPage(SadReferenceNumberPage, CheckMode, userAnswers) mustBe
+          importRoutes.ImportDateController.onPageLoad(CheckMode)
       }
 
-      "must go from ImportDetailsInfoPage to ImportSuppliersNameController" in {
+      "must go from ImportDetailsInfoPage to ImportDateController" in {
         navigator.nextPage(ImportDetailsInfoPage, CheckMode, userAnswers) mustBe
+          importRoutes.ImportDateController.onPageLoad(CheckMode)
+      }
+
+      "must go from ImportDatePage to ImportSuppliersNameController" in {
+        navigator.nextPage(ImportDatePage, CheckMode, userAnswers) mustBe
           importRoutes.ImportSuppliersNameController.onPageLoad(CheckMode)
       }
 

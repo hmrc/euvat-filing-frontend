@@ -29,7 +29,7 @@ import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import views.html.purchase.InvoiceDateView
+import views.html.PurchaseOrImportDateView
 
 import java.time.{LocalDate, LocalDateTime}
 import scala.concurrent.Future
@@ -37,6 +37,11 @@ import scala.concurrent.Future
 class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
 
   val onwardRoute: Call = Call("GET", "/foo")
+
+  private def formAction(mode: Mode): Call = controllers.purchase.routes.InvoiceDateController.onSubmit(mode)
+  private val captionKey = "purchase.caption"
+  private val titleKey = "invoiceDate.title"
+  private val headingKey = "invoiceDate.heading"
 
   "InvoiceDate Controller" - {
 
@@ -47,14 +52,17 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
         running(application) {
           val request = FakeRequest(GET, routes.InvoiceDateController.onPageLoad(models.NormalMode).url)
           val result = route(application, request).value
-          val view = application.injector.instanceOf[InvoiceDateView]
+          val view = application.injector.instanceOf[PurchaseOrImportDateView]
           implicit val msgs: Messages = messages(application)
 
           status(result) mustEqual OK
           normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
             view(application.injector.instanceOf[InvoiceDateFormProvider].apply(),
-                 models.NormalMode,
-                 routes.InvoiceNumberController.onPageLoad(models.NormalMode)
+                 formAction(NormalMode),
+                 routes.InvoiceNumberController.onPageLoad(models.NormalMode),
+                 captionKey,
+                 titleKey,
+                 headingKey
                 )(request, msgs).toString
           )
         }
@@ -66,14 +74,17 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
         running(application) {
           val request = FakeRequest(GET, routes.InvoiceDateController.onPageLoad(models.CheckMode).url)
           val result = route(application, request).value
-          val view = application.injector.instanceOf[InvoiceDateView]
+          val view = application.injector.instanceOf[PurchaseOrImportDateView]
           implicit val msgs: Messages = messages(application)
 
           status(result) mustEqual OK
           normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
             view(application.injector.instanceOf[InvoiceDateFormProvider].apply(),
-                 models.CheckMode,
-                 routes.CheckYourPurchaseDetailsController.onPageLoad()
+                 formAction(CheckMode),
+                 routes.CheckYourPurchaseDetailsController.onPageLoad(),
+                 captionKey,
+                 titleKey,
+                 headingKey
                 )(request, msgs).toString
           )
         }
@@ -90,15 +101,18 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
         running(application) {
           val request = FakeRequest(GET, routes.InvoiceDateController.onPageLoad(models.NormalMode).url)
           val result = route(application, request).value
-          val view = application.injector.instanceOf[InvoiceDateView]
+          val view = application.injector.instanceOf[PurchaseOrImportDateView]
           implicit val msgs: Messages = messages(application)
 
           status(result) mustEqual OK
           normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
             view(
               application.injector.instanceOf[InvoiceDateFormProvider].apply().fill(LocalDate.of(2025, 4, 15)),
-              models.NormalMode,
-              routes.InvoiceNumberController.onPageLoad(models.NormalMode)
+              formAction(NormalMode),
+              routes.InvoiceNumberController.onPageLoad(models.NormalMode),
+              captionKey,
+              titleKey,
+              headingKey
             )(request, msgs).toString
           )
         }

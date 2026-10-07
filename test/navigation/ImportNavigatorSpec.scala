@@ -211,33 +211,23 @@ class ImportNavigatorSpec extends SpecBase {
           controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from ImportDetailsInfoPage to ImportDateController in Normal Mode" in {
-        navigator.navigateFromImportDetailsInfoPage(NormalMode)(userAnswers) mustBe
-          controllers.imports.routes.ImportDateController.onPageLoad(NormalMode)
+      "must go from ImportDatePage to SadReferenceNumberController in Normal Mode when SadReferencePage is true" in {
+        val ua = userAnswers.set(SadReferenceCheckPage, true).success.value
+        navigator.backLinkFromImportDatePage(NormalMode)(ua) mustBe
+          controllers.imports.routes.SadReferenceNumberController.onPageLoad(NormalMode)
       }
 
-    "must go from ImportDatePage to SadReferenceNumberController in Normal Mode when SadReferencePage is true" in {
-      val ua = userAnswers.set(SadReferencePage, true).success.value
-      navigator.backLinkFromImportDatePage(NormalMode)(ua) mustBe
-        controllers.imports.routes.SadReferenceNumberController.onPageLoad(NormalMode)
-    }
+      "must go from ImportDatePage to ImportDetailsInfoController in Normal Mode when SadReferencePage is false" in {
+        val ua = userAnswers.set(SadReferenceCheckPage, false).success.value
+        navigator.backLinkFromImportDatePage(NormalMode)(ua) mustBe
+          controllers.imports.routes. ImportDetailsInfoController.onPageLoad(NormalMode)
+      }
 
-    "must go from ImportDatePage to ImportDetailsInfoController in Normal Mode when SadReferencePage is false" in {
-      val ua = userAnswers.set(SadReferencePage, false).success.value
-      navigator.backLinkFromImportDatePage(NormalMode)(ua) mustBe
-        controllers.imports.routes. ImportDetailsInfoController.onPageLoad(NormalMode)
-    }
-
-     "must go from ImportDatePage to Journey Recovery in Normal Mode when SadReferencePage is not answered" in {
-       navigator.backLinkFromImportDatePage(NormalMode)(userAnswers) mustBe
+      "must go from ImportDatePage to Journey Recovery in Normal Mode when SadReferencePage is not answered" in {
+        navigator.backLinkFromImportDatePage(NormalMode)(userAnswers) mustBe
         controllers.routes.JourneyRecoveryController.onPageLoad()
-     }
-
-    "must go from ImportDatePage to Journey Recovery in Normal Mode" in { // TODO: goes to SuppliersNameController once built
-      navigator.navigateFromImportDatePage(NormalMode)(userAnswers) mustBe
-        controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
     }
-  }
 
     "in Check mode" - {
 
