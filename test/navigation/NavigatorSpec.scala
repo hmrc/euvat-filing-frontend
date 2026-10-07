@@ -189,7 +189,12 @@ class NavigatorSpec extends SpecBase {
           importRoutes.TotalAmountWithoutVatController.onPageLoad(NormalMode)
       }
 
-      "must go from TotalVatPaidImportPage to JourneyRecoveryController" in { // TODO: replace with Total vat Claim controller once built
+      "must go from TotalAmountWithoutVatPage to TotalVatPaidImportController" in {
+        navigator.nextPage(TotalAmountWithoutVatPage, NormalMode, userAnswers) mustBe
+         importRoutes.TotalVatPaidImportController.onPageLoad(NormalMode)
+      }
+
+      "must go from TotalVatPaidImportPage to JourneyRecoveryController" in {
         navigator.nextPage(TotalVatPaidImportPage, NormalMode, userAnswers) mustBe
           controllers.routes.JourneyRecoveryController.onPageLoad()
       }
@@ -288,7 +293,12 @@ class NavigatorSpec extends SpecBase {
           importRoutes.TotalAmountWithoutVatController.onPageLoad(CheckMode)
       }
 
-      "must go from TotalVatPaidImportPage to JourneyRecoveryController" in { // TODO : replace with CYA controller once built
+      "must go from TotalAmountWithoutVatPage to TotalVatPaidImportController" in {
+        navigator.nextPage(TotalAmountWithoutVatPage, CheckMode, userAnswers) mustBe
+          importRoutes.TotalVatPaidImportController.onPageLoad(CheckMode)
+      }
+
+      "must go from TotalVatPaidImportPage to JourneyRecoveryController" in {
         navigator.nextPage(TotalVatPaidImportPage, CheckMode, userAnswers) mustBe
           controllers.routes.JourneyRecoveryController.onPageLoad()
       }

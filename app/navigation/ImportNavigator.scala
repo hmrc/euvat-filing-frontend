@@ -80,8 +80,7 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
       case _          => importsRoutes.ImportDetailsInfoController.onPageLoad(mode)
     }
 
-  // TODO: replace once the page following total amount without VAT is built
   def navigateFromTotalAmountWithoutVatPage(mode: Mode)(userAnswers: UserAnswers): Call =
-    controllers.routes.JourneyRecoveryController.onPageLoad()
+    importsRoutes.TotalVatPaidImportController.onPageLoad(mode)
 
 }

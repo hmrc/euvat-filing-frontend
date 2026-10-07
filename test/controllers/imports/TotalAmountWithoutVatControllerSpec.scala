@@ -18,7 +18,7 @@ package controllers.imports
 
 import base.SpecBase
 import forms.imports.TotalAmountWithoutVatFormProvider
-import models.UserAnswers
+import models.{UserAnswers, NormalMode, CheckMode}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
@@ -110,7 +110,7 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) must include(controllers.imports.routes.ImportSuppliersNameController.onPageLoad(models.NormalMode).url)
+        contentAsString(result) must include(routes.ImportSuppliersNameController.onPageLoad(models.NormalMode).url)
       }
     }
 
@@ -124,12 +124,12 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
           .build()
 
       running(application) {
-        val request = FakeRequest(POST, controllers.imports.routes.TotalAmountWithoutVatController.onSubmit(models.NormalMode).url)
+        val request = FakeRequest(POST, routes.TotalAmountWithoutVatController.onSubmit(models.NormalMode).url)
           .withFormUrlEncodedBody(("value", "123.45"))
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.TotalVatPaidImportController.onPageLoad(NormalMode).url
         verify(mockSessionRepository).set(any())
       }
     }
@@ -138,7 +138,7 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(POST, controllers.imports.routes.TotalAmountWithoutVatController.onSubmit(models.NormalMode).url)
+        val request = FakeRequest(POST, routes.TotalAmountWithoutVatController.onSubmit(models.NormalMode).url)
           .withFormUrlEncodedBody(("value", ""))
 
         val boundForm = form.bind(Map("value" -> ""))
@@ -146,7 +146,7 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        val expectedBack = controllers.imports.routes.ImportSuppliersNameController.onPageLoad(models.NormalMode)
+        val expectedBack = routes.ImportSuppliersNameController.onPageLoad(models.NormalMode)
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
           view(boundForm, models.NormalMode, expectedBack, "€", "Euro")(request, messages(application)).toString
         )
@@ -168,7 +168,7 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(POST, controllers.imports.routes.TotalAmountWithoutVatController.onSubmit(models.NormalMode).url)
+        val request = FakeRequest(POST, routes.TotalAmountWithoutVatController.onSubmit(models.NormalMode).url)
           .withFormUrlEncodedBody(("value", "123.45"))
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER

@@ -45,7 +45,7 @@ class TotalVatPaidImportControllerSpec extends SpecBase with MockitoSugar {
   lazy val totalVatPaidImportRoute: String = routes.TotalVatPaidImportController.onPageLoad(NormalMode).url
 
   def backLink(mode: Mode): Call =
-    routes.SadReferenceNumberController.onPageLoad(mode) // TODO: replace with TotalAmountWithoutVatController once built
+    routes.TotalAmountWithoutVatController.onPageLoad(mode)
 
   "TotalVatPaidImport Controller" - {
 

@@ -51,7 +51,7 @@ class TotalVatPaidImportController @Inject() (
   val form: Form[BigDecimal] = formProvider()
 
   private def backLink(mode: Mode): Call =
-    controllers.imports.routes.SadReferenceNumberController.onPageLoad(mode) // TODO: replace with TotalAmountWithoutVatController once built
+    controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad(mode)
 
   private def formAction(mode: Mode): Call = routes.TotalVatPaidImportController.onSubmit(mode)
 
