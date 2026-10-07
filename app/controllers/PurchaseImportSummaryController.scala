@@ -18,13 +18,14 @@ package controllers
 
 import controllers.actions.*
 import forms.PurchaseImportSummaryFormProvider
-import models.requests.PurchaseImportListRequest
+import models.UserAnswers
+import models.requests.{DataRequest, PurchaseImportListRequest}
 import navigation.Navigator
 import pages.{PurchaseImportSummaryPage, PurchaseOrImportPage}
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import queries.ClaimApplicationResponseQuery
 import repositories.SessionRepository
 import services.EuVatRefundsService
@@ -56,70 +57,73 @@ class PurchaseImportSummaryController @Inject() (
   val form: Form[Boolean] = formProvider()
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    val userAnswers = request.userAnswers
-    val preparedForm = userAnswers.get(PurchaseImportSummaryPage).fold(form)(form.fill)
-    userAnswers.get(ClaimApplicationResponseQuery).map(_.applicationId) match {
-      case Some(appId) =>
-        service.getPurchaseImportList(PurchaseImportListRequest(appId)).map { summaryResponse =>
-          val summaryListRows = PurchaseImportListSummary.rows(userAnswers, summaryResponse.purchaseImportList, currencyConfig.currencyConfig)
-          Ok(view(preparedForm, summaryListRows, summaryResponse.totalItems, summaryResponse.totalVatClaims))
-        }
-      case _ =>
-        logger.warn("Missing or invalid applicationId")
-        Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-    }
+    val preparedForm = request.userAnswers.get(PurchaseImportSummaryPage).fold(form)(form.fill)
+    renderSummary(userAnswers = request.userAnswers, formToRender = preparedForm, badRequest = false)
   }
 
   def onSubmit: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    form
-      .bindFromRequest()
-      .fold(
-        formWithErrors => {
-          request.userAnswers
-            .get(ClaimApplicationResponseQuery)
-            .map(_.applicationId)
-            .fold {
-              logger.warn("Missing applicationId")
-              Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-            } { applicationId =>
-              service
-                .getPurchaseImportList(PurchaseImportListRequest(applicationId))
-                .map { summaryResponse =>
-                  val summaryListRows =
-                    PurchaseImportListSummary.rows(request.userAnswers, summaryResponse.purchaseImportList, currencyConfig.currencyConfig)
-                  BadRequest(view(formWithErrors, summaryListRows, summaryResponse.totalItems, summaryResponse.totalVatClaims))
-                }
-            }
-        },
-        value =>
-          (for {
-            userAnswers    <- Future.fromTry(request.userAnswers.set(PurchaseImportSummaryPage, value))
-            updatedAnswers <- Future.fromTry(userAnswers.remove(PurchaseOrImportPage))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield updatedAnswers).flatMap { updatedAnswers =>
-            if (value) {
-              Future.successful(Redirect(routes.PurchaseOrImportController.onPageLoad))
-            } else {
-              updatedAnswers.get(ClaimApplicationResponseQuery).map(_.applicationId) match {
-                case Some(appId) =>
-                  service.getPurchaseImportList(PurchaseImportListRequest(appId)).map { summaryResponse =>
-                    val allDeductibleVatAmtZero = summaryResponse.purchaseImportList.exists(_.deductibleVatAmount <= 0)
-                    if (allDeductibleVatAmtZero) {
-                      val summaryListRows =
-                        PurchaseImportListSummary.rows(request.userAnswers, summaryResponse.purchaseImportList, currencyConfig.currencyConfig)
-                      BadRequest(view(form.bindFromRequest(), summaryListRows, summaryResponse.totalItems, summaryResponse.totalVatClaims))
-                    } else {
-                      Redirect(routes.TaskListDashboardController.onPageLoad())
-                    }
-                  }
-                case None =>
-                  logger.warn("Missing or invalid applicationId")
-                  Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-              }
-            }
-          }
-      )
-
+    val boundForm = form.bindFromRequest()
+    boundForm.fold(
+      formWithErrors => renderSummary(userAnswers = request.userAnswers, formToRender = formWithErrors, badRequest = true),
+      value => saveAndRedirect(value)
+    )
   }
+
+  private def renderSummary(
+    userAnswers: UserAnswers,
+    formToRender: Form[Boolean],
+    badRequest: Boolean
+  )(implicit request: DataRequest[AnyContent]): Future[Result] = {
+    getApplicationId(userAnswers).fold(recoveryPage("Missing or invalid applicationId")) { applicationId =>
+      service
+        .getPurchaseImportList(PurchaseImportListRequest(applicationId))
+        .map { summaryResponse =>
+          val summaryListRows = PurchaseImportListSummary.rows(userAnswers, summaryResponse.purchaseImportList, currencyConfig.currencyConfig)
+          val page = view(formToRender, summaryListRows, summaryResponse.totalItems, summaryResponse.totalVatClaims)
+          if (badRequest) BadRequest(page) else Ok(page)
+        }
+    }
+  }
+
+  private def saveAndRedirect(value: Boolean)(implicit request: DataRequest[AnyContent]): Future[Result] = {
+    for {
+      answersWithSummary <- Future.fromTry(request.userAnswers.set(PurchaseImportSummaryPage, value))
+      updatedAnswers     <- Future.fromTry(answersWithSummary.remove(PurchaseOrImportPage))
+      _                  <- sessionRepository.set(updatedAnswers)
+      result <-
+        if (value) {
+          Future.successful(Redirect(routes.PurchaseOrImportController.onPageLoad))
+        } else {
+          validateDeductibleVatAmounts(updatedAnswers, value)
+        }
+    } yield result
+  }
+
+  private def validateDeductibleVatAmounts(updatedAnswers: UserAnswers, submittedValue: Boolean)(implicit
+    request: DataRequest[AnyContent]
+  ): Future[Result] = {
+    getApplicationId(updatedAnswers).fold(recoveryPage("Missing or invalid applicationId")) { applicationId =>
+      service
+        .getPurchaseImportList(PurchaseImportListRequest(applicationId))
+        .map { summaryResponse =>
+          val hasAnyZeroDeductibleVatAmount = summaryResponse.purchaseImportList.exists(_.deductibleVatAmount <= 0)
+          if (hasAnyZeroDeductibleVatAmount) {
+            val formWithError = form.fill(submittedValue).withError("", "purchaseImportSummary.error.incomplete")
+            val summaryListRows = PurchaseImportListSummary.rows(updatedAnswers, summaryResponse.purchaseImportList, currencyConfig.currencyConfig)
+            BadRequest(view(formWithError, summaryListRows, summaryResponse.totalItems, summaryResponse.totalVatClaims))
+          } else {
+            Redirect(routes.TaskListDashboardController.onPageLoad())
+          }
+        }
+    }
+  }
+
+  private def recoveryPage(msg: String): Future[Result] = {
+    logger.warn(msg)
+    Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+  }
+
+  private def getApplicationId(userAnswers: UserAnswers): Option[Long] =
+    userAnswers.get(ClaimApplicationResponseQuery).map(_.applicationId)
 
 }

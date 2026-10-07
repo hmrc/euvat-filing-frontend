@@ -57,7 +57,7 @@ object PurchaseImportListSummary {
     SummaryListRowViewModel(
       key = itemType + " (" + category + ")",
       value = if (vatClaim == 0) {
-        Value(content = HtmlContent(Html("<strong class='govuk-tag'> Incomplete</strong>")))
+        Value(content = HtmlContent(Html("<strong class='govuk-tag'>Incomplete</strong>")))
       } else {
         Value(content = Text(s"$currencySymbol" + vatClaim.toString() + " VAT claim"))
       },

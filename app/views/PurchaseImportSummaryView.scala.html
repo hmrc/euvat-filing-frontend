@@ -28,7 +28,7 @@
     mainErrorSummary: MainErrorSummary
 )
 
-@(form: play.api.data.Form[_], summaryList: Seq[SummaryListRow], numberOfItems: Int, totalClaim: BigDecimal)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], summaryList: Seq[SummaryListRow], numberOfItems: Int, totalVatClaim: BigDecimal)(implicit request: Request[_], messages: Messages)
 @content = {
     <p class = "govuk-body">@messages("purchaseImportSummary.details.list")</p>
     <ul class = "govuk-list govuk-list--bullet">
@@ -42,7 +42,7 @@
         @mainErrorSummary(form)
         <span class="govuk-caption-l">@messages("purchaseImportSummary.caption")</span>
         <h1 class="govuk-heading-l">@messages("purchaseImportSummary.heading", numberOfItems)</h1>
-        <p class = "govuk-body">@messages("purchaseImportSummary.p1", totalClaim)</p>
+        <p class = "govuk-body">@messages("purchaseImportSummary.p1", totalVatClaim)</p>
 
         @govukDetails(Details(
             summary = Text(messages("purchaseImportSummary.details.summary")),

@@ -113,23 +113,49 @@ class PurchaseImportSummaryControllerSpec extends SpecBase {
       }
     }
 
-//    "redirect to TaskListDashboardController when user selects no for incomplete items" in {
-//      val userAnswers = emptyUserAnswers.set(ClaimApplicationResponseQuery, ApplicationResponse(111, "App1", 1)).success.value
-//      when(mockEuVatRefundsService.getPurchaseImportList(any())(any())).thenReturn(Future.successful(purchaseImportResponse.copy(purchaseImportList = PurchaseImport(deductibleVatAmount = 0))))
-//      when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
-//      val application = applicationBuilder(userAnswers = Some(userAnswers))
-//        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
-//        .build()
-//
-//      running(application) {
-//        val request = FakeRequest(POST, routes.PurchaseImportSummaryController.onSubmit.url).withFormUrlEncodedBody(
-//          "value" -> "false"
-//        )
-//        val result = route(application, request).value
-//        status(result) mustEqual SEE_OTHER
-//        redirectLocation(result).value mustEqual routes.TaskListDashboardController.onPageLoad().url
-//      }
-//    }
+    "redirect to TaskListDashboardController when user selects no for incomplete items" in {
+      val purchaseimpResponse = PurchaseImportListResponse(
+        totalItems     = 2,
+        totalVatClaims = BigDecimal(100),
+        purchaseImportList = List(
+          PurchaseImport(
+            itemNumber                  = 123,
+            itemType                    = "P",
+            goodsDescriptionCategory    = "1",
+            goodsDescriptionSubCategory = Some("1.2.3"),
+            currencyCode                = "EU",
+            taxableAmount               = BigDecimal(300),
+            vatAmount                   = BigDecimal(200),
+            deductibleVatAmount         = BigDecimal(100)
+          ),
+          PurchaseImport(
+            itemNumber                  = 456,
+            itemType                    = "I",
+            goodsDescriptionCategory    = "7",
+            goodsDescriptionSubCategory = None,
+            currencyCode                = "",
+            taxableAmount               = 0,
+            vatAmount                   = 0,
+            deductibleVatAmount         = 0
+          )
+        )
+      )
+      val userAnswers = emptyUserAnswers.set(ClaimApplicationResponseQuery, ApplicationResponse(111, "App1", 1)).success.value
+      when(mockEuVatRefundsService.getPurchaseImportList(any())(any()))
+        .thenReturn(Future.successful(purchaseimpResponse))
+      when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.PurchaseImportSummaryController.onSubmit.url).withFormUrlEncodedBody(
+          "value" -> "false"
+        )
+        val result = route(application, request).value
+        status(result) mustEqual BAD_REQUEST
+      }
+    }
 
     "return BAD_REQUEST when no answer is submitted" in {
       val userAnswers = emptyUserAnswers.set(ClaimApplicationResponseQuery, ApplicationResponse(111, "App1", 1)).success.value

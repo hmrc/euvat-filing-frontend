@@ -17,14 +17,14 @@ GET         /redirect-to-manage-claim                     controllers.TaskListDa
 GET         /delete-claim                                 controllers.DeleteClaimController.onPageLoad()
 POST        /delete-claim                                 controllers.DeleteClaimController.onSubmit()
 
-GET         /before-you-start                             controllers.BeforeYouStartController.onPageLoad()
-POST        /before-you-start                             controllers.BeforeYouStartController.onSubmit()
+GET         /purchases-imports/before-you-start           controllers.BeforeYouStartController.onPageLoad()
+POST        /purchases-imports/before-you-start           controllers.BeforeYouStartController.onSubmit()
 
-GET         /purchase-or-import                           controllers.PurchaseOrImportController.onPageLoad
-POST        /purchase-or-import                           controllers.PurchaseOrImportController.onSubmit
+GET         /purchases-imports/purchase-or-import         controllers.PurchaseOrImportController.onPageLoad
+POST        /purchases-imports/purchase-or-import         controllers.PurchaseOrImportController.onSubmit
 
-GET         /purchase-import-summary                      controllers.PurchaseImportSummaryController.onPageLoad
-POST        /purchase-import-summary                      controllers.PurchaseImportSummaryController.onSubmit
+GET         /purchases-imports/summary                    controllers.PurchaseImportSummaryController.onPageLoad
+POST        /purchases-imports/summary                    controllers.PurchaseImportSummaryController.onSubmit
 
 # Warning pages
 GET         /check-refund-period                          controllers.warning.PeriodOverlapWarningController.onPageLoad(mode: Mode = NormalMode)

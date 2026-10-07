@@ -488,6 +488,7 @@ purchaseImportSummary.incomplete.remove.hidden = incomplete {0} for {1}
 purchaseImportSummary.complete.change.hidden = {0} for {1} with a VAT claim of {2}
 purchaseImportSummary.complete.remove.hidden = {0} for {1} with a VAT claim of {2}
 purchaseImportSummary.error.required = Select yes if you need to add another item
+purchaseImportSummary.error.incomplete = You must add details to the incomplete items or remove them before you can continue
 
 importType.title = Which category best describes the item on your import document?
 importType.heading = Which category best describes the item on your import document?
