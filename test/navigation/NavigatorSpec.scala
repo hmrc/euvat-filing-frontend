@@ -189,6 +189,16 @@ class NavigatorSpec extends SpecBase {
           importRoutes.TotalAmountWithoutVatController.onPageLoad(NormalMode)
       }
 
+      "must go from TotalAmountWithoutVatPage to TotalVatPaidImportController" in {
+        navigator.nextPage(TotalAmountWithoutVatPage, NormalMode, userAnswers) mustBe
+         importRoutes.TotalVatPaidImportController.onPageLoad(NormalMode)
+      }
+
+      "must go from TotalVatPaidImportPage to JourneyRecoveryController" in {
+        navigator.nextPage(TotalVatPaidImportPage, NormalMode, userAnswers) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+
       "must go from a page that doesn't exist in the route map to Index" in {
         case object UnknownPage extends Page
         navigator.nextPage(UnknownPage, NormalMode, userAnswers) mustBe controllers.routes.IndexController.onPageLoad()
@@ -281,6 +291,16 @@ class NavigatorSpec extends SpecBase {
       "must go from ImportCurrencyPage to TotalAmountWithoutVatController" in {
         navigator.nextPage(ImportCurrencyPage, CheckMode, userAnswers) mustBe
           importRoutes.TotalAmountWithoutVatController.onPageLoad(CheckMode)
+      }
+
+      "must go from TotalAmountWithoutVatPage to TotalVatPaidImportController" in {
+        navigator.nextPage(TotalAmountWithoutVatPage, CheckMode, userAnswers) mustBe
+          importRoutes.TotalVatPaidImportController.onPageLoad(CheckMode)
+      }
+
+      "must go from TotalVatPaidImportPage to JourneyRecoveryController" in {
+        navigator.nextPage(TotalVatPaidImportPage, CheckMode, userAnswers) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from a page that doesn't exist in the edit route map to IndexController" in {
