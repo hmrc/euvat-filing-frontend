@@ -54,10 +54,10 @@
         @govukRadios(
             RadiosViewModel(
                 field  = form("value"),
-                legend = LegendViewModel(messages("purchaseImportSummary.add.item")).asPageHeading(LegendSize.Medium),
+                legend = LegendViewModel(messages("purchaseImportSummary.add.item")).withCssClass("govuk-fieldset__legend--m"),
                 items  = Seq(
                     RadioItem(id = Some("value"), value = Some("true"), content = Text(messages("site.yes"))),
-                    RadioItem(id = Some("value_0"), value = Some("false"), content = Text(messages("site.no")))
+                    RadioItem(id = Some("value-2"), value = Some("false"), content = Text(messages("site.no")))
                 )
             )
         )

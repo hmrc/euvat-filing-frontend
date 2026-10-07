@@ -95,9 +95,11 @@ class PurchaseImportSummaryControllerSpec extends SpecBase {
       }
     }
 
-    "redirect to TaskListDashboardController when user selects no" in {
+    "redirect to TaskListDashboardController when user selects no for all completed items" in {
+      val userAnswers = emptyUserAnswers.set(ClaimApplicationResponseQuery, ApplicationResponse(111, "App1", 1)).success.value
+      when(mockEuVatRefundsService.getPurchaseImportList(any())(any())).thenReturn(Future.successful(purchaseImportResponse))
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
         .build()
 
@@ -110,6 +112,24 @@ class PurchaseImportSummaryControllerSpec extends SpecBase {
         redirectLocation(result).value mustEqual routes.TaskListDashboardController.onPageLoad().url
       }
     }
+
+//    "redirect to TaskListDashboardController when user selects no for incomplete items" in {
+//      val userAnswers = emptyUserAnswers.set(ClaimApplicationResponseQuery, ApplicationResponse(111, "App1", 1)).success.value
+//      when(mockEuVatRefundsService.getPurchaseImportList(any())(any())).thenReturn(Future.successful(purchaseImportResponse.copy(purchaseImportList = PurchaseImport(deductibleVatAmount = 0))))
+//      when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+//      val application = applicationBuilder(userAnswers = Some(userAnswers))
+//        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+//        .build()
+//
+//      running(application) {
+//        val request = FakeRequest(POST, routes.PurchaseImportSummaryController.onSubmit.url).withFormUrlEncodedBody(
+//          "value" -> "false"
+//        )
+//        val result = route(application, request).value
+//        status(result) mustEqual SEE_OTHER
+//        redirectLocation(result).value mustEqual routes.TaskListDashboardController.onPageLoad().url
+//      }
+//    }
 
     "return BAD_REQUEST when no answer is submitted" in {
       val userAnswers = emptyUserAnswers.set(ClaimApplicationResponseQuery, ApplicationResponse(111, "App1", 1)).success.value

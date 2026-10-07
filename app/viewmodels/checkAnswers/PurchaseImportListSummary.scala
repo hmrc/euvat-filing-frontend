@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers
 
 import models.requests.DataRequest
-import models.{PurchaseImport, UserAnswers}
+import models.{PurchaseImport, PurchaseOrImportType, UserAnswers}
 import play.api.i18n.Messages
 import play.twirl.api.Html
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
@@ -33,27 +33,29 @@ object PurchaseImportListSummary {
     request: DataRequest[?]
   ): Seq[SummaryListRow] = {
     val (completeClaims, incompleteClaims) = list.partition(_.deductibleVatAmount > 0) // split between incomplete and complete items
-    (incompleteClaims ++ completeClaims) // display incomplete first and then completed ones
+    (incompleteClaims ++ completeClaims) // display incomplete first and the completed ones
       .map { item =>
         val itemNumber = item.itemNumber
         val vatClaim = item.deductibleVatAmount
+        val category = PurchaseOrImportType.codeToType.getOrElse(item.goodsDescriptionCategory, "Unknown")
+
         val itemType = if (item.itemType == "P") { "Purchase" }
         else { "Import" }
 
         if (vatClaim == 0) {
-          displaySummaryListRow(itemType, itemNumber)
+          displaySummaryListRow(itemType, category)
         } else {
           val currencySymbol = ControllerHelpers.currencySymbolFromSession(userAnswers, config)
-          displaySummaryListRow(itemType, itemNumber, currencySymbol, vatClaim)
+          displaySummaryListRow(itemType, category, currencySymbol, vatClaim)
         }
       }
   }
 
-  private def displaySummaryListRow(itemType: String, itemNumber: Int, currencySymbol: String = "", vatClaim: BigDecimal = 0)(implicit
+  private def displaySummaryListRow(itemType: String, category: String, currencySymbol: String = "", vatClaim: BigDecimal = 0)(implicit
     messages: Messages
   ): SummaryListRow = {
     SummaryListRowViewModel(
-      key = itemType,
+      key = itemType + " (" + category + ")",
       value = if (vatClaim == 0) {
         Value(content = HtmlContent(Html("<strong class='govuk-tag'> Incomplete</strong>")))
       } else {
@@ -62,19 +64,19 @@ object PurchaseImportListSummary {
       actions = if (vatClaim == 0) {
         Seq(
           ActionItemViewModel("site.add", "#").withVisuallyHiddenText(
-            messages("purchaseImportSummary.incomplete.add.hidden", itemType, itemNumber)
+            messages("purchaseImportSummary.incomplete.add.hidden", itemType, category)
           ),
           ActionItemViewModel("site.remove", "#").withVisuallyHiddenText(
-            messages("purchaseImportSummary.incomplete.remove.hidden", itemType, itemNumber)
+            messages("purchaseImportSummary.incomplete.remove.hidden", itemType, category)
           )
         )
       } else {
         Seq(
           ActionItemViewModel("site.change", "#").withVisuallyHiddenText(
-            messages("purchaseImportSummary.complete.change.hidden", itemType, itemNumber, currencySymbol + vatClaim)
+            messages("purchaseImportSummary.complete.change.hidden", itemType, category, currencySymbol + vatClaim)
           ),
           ActionItemViewModel("site.remove", "#").withVisuallyHiddenText(
-            messages("purchaseImportSummary.complete.remove.hidden", itemType, itemNumber, currencySymbol + vatClaim)
+            messages("purchaseImportSummary.complete.remove.hidden", itemType, category, currencySymbol + vatClaim)
           )
         )
       }

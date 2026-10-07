@@ -483,10 +483,10 @@ purchaseImportSummary.details.list = The minimum amount for a claim is:
 purchaseImportSummary.details.list1 = €400 (or the national currency equal) if your application is for 3 months or more
 purchaseImportSummary.details.list2 = €50 (or the national currency equal) if your application is less than 3 months
 purchaseImportSummary.add.item = Do you need to add another item?
-purchaseImportSummary.complete.change.hidden = {0} item {1} with a VAT claim of {2}
-purchaseImportSummary.complete.remove.hidden = {0} item {1} with a VAT claim of {2}
-purchaseImportSummary.incomplete.add.hidden = to incomplete {0} item {1}
-purchaseImportSummary.incomplete.remove.hidden = incomplete {0} item {1}
+purchaseImportSummary.incomplete.add.hidden = to incomplete {0} for {1}
+purchaseImportSummary.incomplete.remove.hidden = incomplete {0} for {1}
+purchaseImportSummary.complete.change.hidden = {0} for {1} with a VAT claim of {2}
+purchaseImportSummary.complete.remove.hidden = {0} for {1} with a VAT claim of {2}
 purchaseImportSummary.error.required = Select yes if you need to add another item
 
 importType.title = Which category best describes the item on your import document?

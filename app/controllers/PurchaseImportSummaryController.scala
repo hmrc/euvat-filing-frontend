@@ -92,31 +92,34 @@ class PurchaseImportSummaryController @Inject() (
             }
         },
         value =>
-          for {
+          (for {
             userAnswers    <- Future.fromTry(request.userAnswers.set(PurchaseImportSummaryPage, value))
             updatedAnswers <- Future.fromTry(userAnswers.remove(PurchaseOrImportPage))
             _              <- sessionRepository.set(updatedAnswers)
-          } yield {
-//            updatedAnswers.get(ClaimApplicationResponseQuery).map(_.applicationId) match {
-//              case Some(appId) =>
-//                service.getPurchaseImportList(PurchaseImportListRequest(appId)).map { summaryResponse =>
-//                  if (summaryResponse.totalVatClaims <= 0) {
-//                    val summaryListRows =
-//                      PurchaseImportListSummary.rows(request.userAnswers, summaryResponse.purchaseImportList, currencyConfig.currencyConfig)
-//                    BadRequest(view(form, summaryListRows, summaryResponse.totalItems, summaryResponse.totalVatClaims))
-//                  }
-//                }
-//              case _ =>
-//                logger.warn("Missing or invalid applicationId")
-//                Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-//            }
+          } yield updatedAnswers).flatMap { updatedAnswers =>
             if (value) {
-              Redirect(routes.PurchaseOrImportController.onPageLoad)
+              Future.successful(Redirect(routes.PurchaseOrImportController.onPageLoad))
             } else {
-              Redirect(routes.TaskListDashboardController.onPageLoad())
+              updatedAnswers.get(ClaimApplicationResponseQuery).map(_.applicationId) match {
+                case Some(appId) =>
+                  service.getPurchaseImportList(PurchaseImportListRequest(appId)).map { summaryResponse =>
+                    val allDeductibleVatAmtZero = summaryResponse.purchaseImportList.exists(_.deductibleVatAmount <= 0)
+                    if (allDeductibleVatAmtZero) {
+                      val summaryListRows =
+                        PurchaseImportListSummary.rows(request.userAnswers, summaryResponse.purchaseImportList, currencyConfig.currencyConfig)
+                      BadRequest(view(form.bindFromRequest(), summaryListRows, summaryResponse.totalItems, summaryResponse.totalVatClaims))
+                    } else {
+                      Redirect(routes.TaskListDashboardController.onPageLoad())
+                    }
+                  }
+                case None =>
+                  logger.warn("Missing or invalid applicationId")
+                  Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+              }
             }
           }
       )
+
   }
 
 }
