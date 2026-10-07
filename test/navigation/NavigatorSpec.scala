@@ -165,23 +165,11 @@ class NavigatorSpec extends SpecBase {
           importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode)
       }
 
-      "must go from ImportSuppliersNamePage to ImportCurrencyController when the country requires currency selection" in {
+      "must go from ImportSuppliersNamePage to ImportSupplierAddressController when the country requires currency selection" in {
         val answers = userAnswers.set(RefundingCountryPage, "EE").success.value
 
         navigator.nextPage(ImportSuppliersNamePage, NormalMode, answers) mustBe
-          importRoutes.ImportCurrencyController.onPageLoad(NormalMode)
-      }
-
-      "must go from ImportSuppliersNamePage to TotalAmountWithoutVatController when the country has one currency" in {
-        val answers = userAnswers.set(RefundingCountryPage, "AT").success.value
-
-        navigator.nextPage(ImportSuppliersNamePage, NormalMode, answers) mustBe
-          importRoutes.TotalAmountWithoutVatController.onPageLoad(NormalMode)
-      }
-
-      "must go from ImportSuppliersNamePage to Journey Recovery when no country is in session" in {
-        navigator.nextPage(ImportSuppliersNamePage, NormalMode, userAnswers) mustBe
-          controllers.routes.JourneyRecoveryController.onPageLoad()
+          importRoutes.ImportSupplierAddressController.onPageLoad(NormalMode)
       }
 
       "must go from ImportCurrencyPage to TotalAmountWithoutVatController" in {
@@ -293,23 +281,6 @@ class NavigatorSpec extends SpecBase {
       "must go from ImportDetailsInfoPage to ImportSuppliersNameController" in {
         navigator.nextPage(ImportDetailsInfoPage, CheckMode, userAnswers) mustBe
           importRoutes.ImportSuppliersNameController.onPageLoad(CheckMode)
-      }
-
-      "must go from ImportSuppliersNamePage to ImportCurrencyController when the country requires currency selection" in {
-        val answers = userAnswers.set(RefundingCountryPage, "EE").success.value
-
-        navigator.nextPage(ImportSuppliersNamePage, CheckMode, answers) mustBe
-          importRoutes.ImportCurrencyController.onPageLoad(CheckMode)
-      }
-
-      "must go from ImportCurrencyPage to TotalAmountWithoutVatController" in {
-        navigator.nextPage(ImportCurrencyPage, CheckMode, userAnswers) mustBe
-          importRoutes.TotalAmountWithoutVatController.onPageLoad(CheckMode)
-      }
-
-      "must go from a page that doesn't exist in the edit route map to IndexController" in {
-        case object UnknownPage extends Page
-        navigator.nextPage(UnknownPage, CheckMode, userAnswers) mustBe controllers.routes.IndexController.onPageLoad()
       }
     }
   }

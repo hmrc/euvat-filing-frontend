@@ -40,14 +40,13 @@ class ImportSupplierAddressControllerSpec extends SpecBase with MockitoSugar {
   private val onwardRoute = Call("GET", "/foo")
 
   private lazy val pageLoadRoute =
-    routes.ImportSupplierAddressController.onPageLoad().url
+    routes.ImportSupplierAddressController.onPageLoad(NormalMode).url
 
   private lazy val submitRoute =
-    routes.ImportSupplierAddressController.onSubmit().url
+    routes.ImportSupplierAddressController.onSubmit(NormalMode).url
 
-  // TODO:Temporary until ImportSuppliersNameController PR is merged
   private val backLink: Call =
-    Call("GET", "/file-eu-vat/import/supplier-name")
+    controllers.imports.routes.ImportSuppliersNameController.onPageLoad(NormalMode)
 
   private val validFormData = Map(
     "addressLine1" -> "1 High Street",
@@ -245,7 +244,7 @@ class ImportSupplierAddressControllerSpec extends SpecBase with MockitoSugar {
 
         redirectLocation(result).value mustEqual
           controllers.imports.routes.TotalAmountWithoutVatController
-            .onPageLoad()
+            .onPageLoad(NormalMode)
             .url
 
         verify(mockSessionRepository, times(1))

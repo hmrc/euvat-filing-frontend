@@ -16,10 +16,11 @@
 
 package controllers.imports
 
+import controllers.imports.routes as importRoutes
 import config.FrontendAppConfig
 import controllers.actions.*
 import forms.imports.ImportSupplierAddressFormProvider
-import models.Mode
+import models.{Mode, NormalMode}
 import pages.imports.ImportSupplierAddressPage
 import play.api.i18n.I18nSupport
 import play.api.mvc.*
@@ -46,12 +47,8 @@ class ImportSupplierAddressController @Inject() (
 
   private val form = formProvider()
 
-  private val backLink: Call =
-    Call("GET", "/file-eu-vat/import/supplier-name")
-// TODO: Recheck after RA5.4 is merged and replace teh above line with the commented one below
-
-//  private val backLink: Call =
-//    controllers.imports.routes.ImportSuppliersNameController.onPageLoad()
+  private def backLink: Call =
+    importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData) { implicit request =>
