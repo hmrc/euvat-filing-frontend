@@ -41,7 +41,7 @@ class ImportSuppliersNameControllerSpec extends SpecBase with MockitoSugar {
   val form: Form[String] = formProvider()
 
   lazy val suppliersNameRoute: String = routes.ImportSuppliersNameController.onPageLoad(NormalMode).url
-  private def backLink: Call = routes.SadReferenceCheckController.onPageLoad(NormalMode)
+  private def backLink: Call = controllers.routes.JourneyRecoveryController.onPageLoad()
   private def submitCall(mode: models.Mode): Call = routes.ImportSuppliersNameController.onSubmit(mode)
 
   "ImportSuppliersName Controller" - {
@@ -74,11 +74,62 @@ class ImportSuppliersNameControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, submitCall(CheckMode), backLink, "import.caption", "suppliersName.import.hint")(
+          view(form, submitCall(CheckMode), controllers.routes.JourneyRecoveryController.onPageLoad(), "import.caption", "suppliersName.import.hint")(
             request,
             messages(application)
           ).toString
         )
+      }
+    }
+
+    "must show back link to SadReferenceNumber when SadReference was yes and number present" in {
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(pages.SadReferenceCheckPage, true)
+        .success
+        .value
+        .set(pages.SadReferenceNumberPage, "ABC123")
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, suppliersNameRoute)
+        val result = route(application, request).value
+        status(result) mustEqual OK
+        contentAsString(result) must include(backLink.url)
+      }
+    }
+
+    "must show back link to SadReferenceCheck when SadReference was yes but number missing" in {
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(pages.SadReferenceCheckPage, true)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, suppliersNameRoute)
+        val result = route(application, request).value
+        status(result) mustEqual OK
+        contentAsString(result) must include(backLink.url)
+      }
+    }
+
+    "must show back link to ImportDetailsInfo when SadReference was no" in {
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(pages.SadReferenceCheckPage, false)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, suppliersNameRoute)
+        val result = route(application, request).value
+        status(result) mustEqual OK
+        contentAsString(result) must include(backLink.url)
       }
     }
 
