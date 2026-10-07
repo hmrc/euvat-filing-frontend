@@ -40,7 +40,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
 
   private def formAction(mode: Mode): Call = controllers.imports.routes.ImportDateController.onSubmit(mode)
   private val captionKey = "import.caption"
-  private val titleKey   = "importDate.title"
+  private val titleKey = "importDate.title"
   private val headingKey = "importDate.heading"
 
   "ImportDate Controller" - {

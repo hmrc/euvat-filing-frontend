@@ -77,7 +77,7 @@ class ImportDateController @Inject() (
   }
 
   private def badRequestToImportDate(formWithErrors: Form[?], mode: Mode)(implicit request: DataRequest[AnyContent]): Future[Result] = {
-    val html = view(formWithErrors, formAction(mode), backLink(mode), "import.caption", "importDate.title", "importDate.heading" )
+    val html = view(formWithErrors, formAction(mode), backLink(mode), "import.caption", "importDate.title", "importDate.heading")
     Future.successful(BadRequest(html))
   }
 

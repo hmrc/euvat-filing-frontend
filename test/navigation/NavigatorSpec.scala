@@ -204,8 +204,8 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from ImportDatePage to ImportSuppliersNameController" in {
-         navigator.nextPage(ImportDatePage, NormalMode, userAnswers) mustBe
-           importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode)
+        navigator.nextPage(ImportDatePage, NormalMode, userAnswers) mustBe
+          importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode)
       }
 
       "must go from ImportSuppliersNamePage to ImportCurrencyController when the country requires currency selection" in {
@@ -234,7 +234,7 @@ class NavigatorSpec extends SpecBase {
 
       "must go from TotalAmountWithoutVatPage to TotalVatPaidImportController" in {
         navigator.nextPage(TotalAmountWithoutVatPage, NormalMode, userAnswers) mustBe
-         importRoutes.TotalVatPaidImportController.onPageLoad(NormalMode)
+          importRoutes.TotalVatPaidImportController.onPageLoad(NormalMode)
       }
 
       "must go from TotalVatPaidImportPage to JourneyRecoveryController" in {

@@ -57,13 +57,14 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual OK
           normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-            view(application.injector.instanceOf[InvoiceDateFormProvider].apply(),
-                 formAction(NormalMode),
-                 routes.InvoiceNumberController.onPageLoad(models.NormalMode),
-                 captionKey,
-                 titleKey,
-                 headingKey
-                )(request, msgs).toString
+            view(
+              application.injector.instanceOf[InvoiceDateFormProvider].apply(),
+              formAction(NormalMode),
+              routes.InvoiceNumberController.onPageLoad(models.NormalMode),
+              captionKey,
+              titleKey,
+              headingKey
+            )(request, msgs).toString
           )
         }
       }
@@ -79,13 +80,14 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual OK
           normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-            view(application.injector.instanceOf[InvoiceDateFormProvider].apply(),
-                 formAction(CheckMode),
-                 routes.CheckYourPurchaseDetailsController.onPageLoad(),
-                 captionKey,
-                 titleKey,
-                 headingKey
-                )(request, msgs).toString
+            view(
+              application.injector.instanceOf[InvoiceDateFormProvider].apply(),
+              formAction(CheckMode),
+              routes.CheckYourPurchaseDetailsController.onPageLoad(),
+              captionKey,
+              titleKey,
+              headingKey
+            )(request, msgs).toString
           )
         }
       }

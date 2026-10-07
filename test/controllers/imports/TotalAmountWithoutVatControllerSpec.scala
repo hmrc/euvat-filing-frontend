@@ -18,7 +18,7 @@ package controllers.imports
 
 import base.SpecBase
 import forms.imports.TotalAmountWithoutVatFormProvider
-import models.{UserAnswers, NormalMode, CheckMode}
+import models.{CheckMode, NormalMode, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar

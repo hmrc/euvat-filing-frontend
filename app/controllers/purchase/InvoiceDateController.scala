@@ -64,12 +64,17 @@ class InvoiceDateController @Inject() (
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, formAction(mode), backLink(mode), "purchase.caption", "invoiceDate.title", "invoiceDate.heading"))),
+        formWithErrors =>
+          Future.successful(
+            BadRequest(view(formWithErrors, formAction(mode), backLink(mode), "purchase.caption", "invoiceDate.title", "invoiceDate.heading"))
+          ),
         value =>
           val today = java.time.LocalDate.now()
           if (value.isAfter(today)) {
             val errorForm = form.bindFromRequest().withError("value", "invoiceDate.error.past")
-            Future.successful(BadRequest(view(errorForm, formAction(mode), backLink(mode), "purchase.caption", "invoiceDate.title", "invoiceDate.heading")))
+            Future.successful(
+              BadRequest(view(errorForm, formAction(mode), backLink(mode), "purchase.caption", "invoiceDate.title", "invoiceDate.heading"))
+            )
           } else {
             handleSubmission(value, mode)(request)
           }
