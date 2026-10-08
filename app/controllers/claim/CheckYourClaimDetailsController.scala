@@ -18,7 +18,7 @@ package controllers.claim
 
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import models.UserAnswers
-import models.requests.{ApplicationRequest, LatestApplicationRequest}
+import models.requests.{ApplicationRequest, LatestApplicationRequest, UpdateApplicationDetailsRequest}
 import models.responses.ApplicationResponse
 import pages.*
 import play.api.Logging
@@ -34,6 +34,7 @@ import views.html.claim.CheckYourClaimDetailsView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 class CheckYourClaimDetailsController @Inject() (
   override val messagesApi: MessagesApi,
@@ -64,16 +65,15 @@ class CheckYourClaimDetailsController @Inject() (
 
     if (isPostSubmission && !isAmended) {
       Future.successful(Redirect(controllers.routes.TaskListDashboardController.onPageLoad()))
-    } else {
-      val updatedAnswers = Future.fromTry {
-        if (isPostSubmission) {
-          userAnswers.remove(ClaimDetailsAmendedQuery)
-        } else {
-          userAnswers.set(ClaimDetailsCompletedQuery, true)
+    } else if (isPostSubmission) {
+      updateClaimDetailsAndRedirect(userAnswers)
+        .recover { case ex =>
+          logger.error("Error while updating the refund application details", ex)
+          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
         }
-      }
-
-      updatedAnswers
+    } else {
+      Future
+        .fromTry(userAnswers.set(ClaimDetailsCompletedQuery, true))
         .flatMap { flaggedAnswers =>
           val latestReq = LatestApplicationRequest(
             applicantVatRegNumber = request.identifierValue,
@@ -158,6 +158,49 @@ class CheckYourClaimDetailsController @Inject() (
       businessActivityCode1    = Some(businessActivityCode1),
       businessActivityCode2    = userAnswers.get(BusinessActivityCodeTwoPage),
       businessActivityCode3    = userAnswers.get(BusinessActivityCodeThreePage)
+    )
+  }
+
+  private def updateClaimDetailsAndRedirect(userAnswers: UserAnswers)(using RequestHeader): Future[Result] =
+    for {
+      updateRequest  <- Future.fromTry(Try(buildUpdateRequest(userAnswers)))
+      response       <- service.updateApplicationDetails(updateRequest)
+      withNewSeq     <- Future.fromTry(userAnswers.set(UpdateSequenceNumberQuery, response.updateSequenceNumber))
+      clearedAnswers <- Future.fromTry(withNewSeq.remove(ClaimDetailsAmendedQuery))
+      _              <- sessionRepository.set(clearedAnswers)
+    } yield Redirect(controllers.routes.TaskListDashboardController.onPageLoad())
+
+  private def buildUpdateRequest(userAnswers: UserAnswers): UpdateApplicationDetailsRequest = {
+    val claimResponse = userAnswers.get(ClaimApplicationResponseQuery).getOrElse(throw new RuntimeException("Claim application response missing"))
+    val updateSeq = userAnswers.get(UpdateSequenceNumberQuery).getOrElse(throw new RuntimeException("Update sequence number missing"))
+    val countryCode = userAnswers.get(RefundingCountryPage).getOrElse(throw new RuntimeException("Country code missing"))
+    val languageCode = userAnswers.get(RefundingLanguagePage).map(_.code).getOrElse(throw new RuntimeException("Language code missing"))
+    val refundPeriod = userAnswers.get(RefundPeriodPage).getOrElse(throw new RuntimeException("Refund period missing"))
+    val contactDetails = userAnswers.get(ContactDetailsPage).getOrElse(throw new RuntimeException("Contact details missing"))
+
+    UpdateApplicationDetailsRequest(
+      applicationId         = claimResponse.applicationId,
+      applicationLanguage   = languageCode,
+      refundingCountry      = countryCode,
+      periodStartDate       = refundPeriod.startDate,
+      periodEndDate         = refundPeriod.endDate,
+      applicantEmailAddress = contactDetails.email,
+      applicantPhoneNumber  = contactDetails.telephone,
+      // TODO: bank/representative/encryption fields not captured yet (bank details sub-journey not built).
+      // Must be mapped from the cache once available, otherwise this update will wipe them in cande proxy.
+      representativeCountry      = None,
+      representativeEmailAddress = None,
+      representativePhoneNumber  = None,
+      bankAccountOwnerName       = None,
+      bankAccountOwnerType       = None,
+      ibanCode                   = None,
+      bicCode                    = None,
+      bankAccountCurrencyCode    = None,
+      businessActivityCode2      = userAnswers.get(BusinessActivityCodeTwoPage),
+      businessActivityCode3      = userAnswers.get(BusinessActivityCodeThreePage),
+      cipherText                 = None,
+      encryptionStatus           = None,
+      updateSequenceNumber       = updateSeq
     )
   }
 
