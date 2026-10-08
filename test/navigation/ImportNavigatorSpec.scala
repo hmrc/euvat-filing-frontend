@@ -21,6 +21,7 @@ import com.typesafe.config.ConfigFactory
 import controllers.imports.routes as importRoutes
 import models.*
 import pages.*
+import controllers.imports.routes as importsRoutes
 import play.api.Configuration
 import utils.{ConfigPurchaseOrImportMapping, CurrencyConfig}
 

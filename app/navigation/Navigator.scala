@@ -22,6 +22,7 @@ import controllers.purchase.routes as purchaseRoutes
 import models.*
 import models.PurchaseOrImport.{Import, Purchase}
 import pages.*
+import pages.imports.*
 import play.api.mvc.Call
 
 import javax.inject.{Inject, Singleton}
@@ -68,8 +69,9 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case SadReferenceNumberPage =>
       userAnswers => importNavigator.navigateFromSadReferenceNumberPage(NormalMode)(userAnswers) // TODO: import date page goes here
     case ImportDetailsInfoPage     => _ => importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode)
-    case ImportSuppliersNamePage   => userAnswers => importNavigator.navigateToCurrencyOrNextPage(NormalMode)(userAnswers)
+    case ImportSuppliersNamePage   => _ => importRoutes.ImportSupplierAddressController.onPageLoad(NormalMode)
     case ImportCurrencyPage        => _ => importRoutes.TotalAmountWithoutVatController.onPageLoad(NormalMode)
+    case ImportSupplierAddressPage => userAnswers => importNavigator.navigateToCurrencyOrNextPage(NormalMode)(userAnswers)
     case TotalAmountWithoutVatPage => _ => controllers.imports.routes.TotalVatPaidImportController.onPageLoad(NormalMode)
     case TotalVatPaidImportPage    => _ => controllers.imports.routes.TotalVatClaimController.onPageLoad(NormalMode)
     case ImportTotalVatClaimPage   => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
@@ -114,6 +116,7 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case TotalAmountWithoutVatPage => _ => controllers.imports.routes.TotalVatPaidImportController.onPageLoad(CheckMode)
     case TotalVatPaidImportPage    => _ => controllers.imports.routes.TotalVatClaimController.onPageLoad(CheckMode)
     case ImportTotalVatClaimPage   => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
+    case ImportSupplierAddressPage         => userAnswers => importNavigator.navigateToCurrencyOrNextPage(CheckMode)(userAnswers)
     case _                         => _ => controllers.routes.IndexController.onPageLoad()
   }
 
