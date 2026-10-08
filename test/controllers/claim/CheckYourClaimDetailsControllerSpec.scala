@@ -28,6 +28,7 @@ import play.api.inject.bind
 import play.api.test.CSRFTokenHelper.*
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import queries.{ClaimDetailsAmendedQuery, ClaimDetailsCompletedQuery}
 import repositories.SessionRepository
 import viewmodels.govuk.SummaryListFluency
 
@@ -48,12 +49,12 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
       }
     }
 
-    "must redirect to the task list on submit and set ClaimDetailsCompletedPage to true" in {
+    "must redirect to the task list on submit and set ClaimDetailsCompletedQuery to true" in {
       val ua = emptyUserAnswers
         .set(RefundingCountryPage, "BE")
         .success
         .value
-        .set(ClaimDetailsCompletedPage, true)
+        .set(ClaimDetailsCompletedQuery, true)
         .success
         .value
         .set(RefundingCurrencyPage, "eur")
@@ -95,7 +96,7 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
         .set(RefundingCountryPage, "BE")
         .success
         .value
-        .set(ClaimDetailsCompletedPage, true)
+        .set(ClaimDetailsCompletedQuery, true)
         .success
         .value
         .set(RefundingCurrencyPage, "eur")
@@ -268,8 +269,8 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
       }
     }
 
-    "must render post submission view when ClaimDetailsCompletedPage is true" in {
-      val ua = emptyUserAnswers.set(ClaimDetailsCompletedPage, true).success.value
+    "must render post submission view when ClaimDetailsCompletedQuery is true" in {
+      val ua = emptyUserAnswers.set(ClaimDetailsCompletedQuery, true).success.value
 
       val application = applicationBuilder(userAnswers = Some(ua)).build()
 
@@ -282,7 +283,7 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
       }
     }
 
-    "must render pre submission view when ClaimDetailsCompletedPage is not set" in {
+    "must render pre submission view when ClaimDetailsCompletedQuery is not set" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -294,12 +295,12 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
       }
     }
 
-    "must show Save and continue button when ClaimDetailsAmendedPage is true" in {
+    "must show Save and continue button when ClaimDetailsAmendedQuery is true" in {
       val ua = emptyUserAnswers
-        .set(ClaimDetailsCompletedPage, true)
+        .set(ClaimDetailsCompletedQuery, true)
         .success
         .value
-        .set(ClaimDetailsAmendedPage, true)
+        .set(ClaimDetailsAmendedQuery, true)
         .success
         .value
 
@@ -314,8 +315,8 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
       }
     }
 
-    "must show Continue button when post submission and ClaimDetailsAmendedPage is not set" in {
-      val ua = emptyUserAnswers.set(ClaimDetailsCompletedPage, true).success.value
+    "must show Continue button when post submission and ClaimDetailsAmendedQuery is not set" in {
+      val ua = emptyUserAnswers.set(ClaimDetailsCompletedQuery, true).success.value
 
       val application = applicationBuilder(userAnswers = Some(ua)).build()
 
@@ -330,7 +331,7 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
 
     "must NOT call createApplication or sessionRepository when post-submission and not amended" in {
       val mockSessionRepository = mock[SessionRepository]
-      val ua = emptyUserAnswers.set(ClaimDetailsCompletedPage, true).success.value
+      val ua = emptyUserAnswers.set(ClaimDetailsCompletedQuery, true).success.value
 
       val application = applicationBuilder(userAnswers = Some(ua))
         .overrides(
@@ -353,10 +354,10 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
         .thenReturn(Future.successful(ApplicationResponse(123, "GB123456789", 10)))
 
       val ua = emptyUserAnswers
-        .set(ClaimDetailsCompletedPage, true)
+        .set(ClaimDetailsCompletedQuery, true)
         .success
         .value
-        .set(ClaimDetailsAmendedPage, true)
+        .set(ClaimDetailsAmendedQuery, true)
         .success
         .value
         .set(RefundingCountryPage, "DE")
@@ -393,7 +394,7 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
       }
     }
 
-    "must clear ClaimDetailsAmendedPage on submit when post submission" in {
+    "must clear ClaimDetailsAmendedQuery on submit when post submission" in {
       val mockSessionRepository = mock[SessionRepository]
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
@@ -401,10 +402,10 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
         .thenReturn(Future.successful(ApplicationResponse(123, "GB123456789", 10)))
 
       val ua = emptyUserAnswers
-        .set(ClaimDetailsCompletedPage, true)
+        .set(ClaimDetailsCompletedQuery, true)
         .success
         .value
-        .set(ClaimDetailsAmendedPage, true)
+        .set(ClaimDetailsAmendedQuery, true)
         .success
         .value
         .set(RefundingCountryPage, "DE")
@@ -442,7 +443,7 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
         val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
         val saved = captor.getValue
-        saved.get(ClaimDetailsAmendedPage).isDefined mustBe false
+        saved.get(ClaimDetailsAmendedQuery).isDefined mustBe false
       }
     }
   }

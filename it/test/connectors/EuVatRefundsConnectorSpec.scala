@@ -376,4 +376,63 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
     }
   }
 
+  "EuVatRefundsConnector.updateApplicationDetails" should {
+
+    val updateRequest = UpdateApplicationDetailsRequest(
+      applicationId = 133,
+      applicationLanguage = "en",
+      refundingCountry = "LV",
+      periodStartDate = LocalDateTime.of(2011, 6, 1, 0, 0),
+      periodEndDate = LocalDateTime.of(2011, 10, 31, 23, 59, 59),
+      applicantEmailAddress = "test@hotmail.com",
+      applicantPhoneNumber = None,
+      representativeCountry = None,
+      representativeEmailAddress = None,
+      representativePhoneNumber = None,
+      bankAccountOwnerName = None,
+      bankAccountOwnerType = None,
+      ibanCode = None,
+      bicCode = None,
+      bankAccountCurrencyCode = None,
+      businessActivityCode2 = None,
+      businessActivityCode3 = None,
+      cipherText = None,
+      encryptionStatus = None,
+      updateSequenceNumber = 30
+    )
+
+    val expectedResponse = UpdateApplicationDetailsResponse(updateSequenceNumber = 32)
+
+    "call the correct URL and return the expected response" in {
+      reset(mockHttp, mockRequestBuilder)
+
+      when(mockHttp.put(any())(any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.execute[UpdateApplicationDetailsResponse](any(), any()))
+        .thenReturn(Future.successful(expectedResponse))
+
+      val result = connector.updateApplicationDetails(updateRequest).futureValue
+
+      result shouldBe expectedResponse
+
+      verify(mockHttp).put(url"$baseUrl/update-application-details")
+      verify(mockRequestBuilder).execute[UpdateApplicationDetailsResponse](any(), any())
+    }
+
+    "propagate failures from the HTTP client" in {
+      val failure = new RuntimeException("boom")
+
+      when(mockHttp.put(any())(any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.execute[UpdateApplicationDetailsResponse](any(), any()))
+        .thenReturn(Future.failed(failure))
+
+      val result = connector.updateApplicationDetails(updateRequest)
+
+      whenReady(result.failed) { ex =>
+        ex shouldBe failure
+      }
+    }
+  }
+
 }

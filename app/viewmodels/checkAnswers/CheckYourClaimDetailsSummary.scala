@@ -20,6 +20,7 @@ import controllers.claim.routes
 import models.{CheckMode, UserAnswers}
 import pages.*
 import play.api.i18n.{Lang, Messages}
+import queries.ClaimDetailsCompletedQuery
 import utils.DateTimeFormats.shortMonthYearFormat
 
 object CheckYourClaimDetailsSummary {
@@ -29,7 +30,7 @@ object CheckYourClaimDetailsSummary {
   def rowCountry(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
     answers.get(RefundingCountryNamePage).map { countryName =>
       val changeUrl =
-        if (answers.get(ClaimDetailsCompletedPage).contains(true)) {
+        if (answers.get(ClaimDetailsCompletedQuery).contains(true)) {
           routes.CheckYourStateDetailsController.onPageLoad(CheckMode).url
         } else {
           routes.RefundingCountryController.onPageLoad(CheckMode).url

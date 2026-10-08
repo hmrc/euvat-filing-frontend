@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package pages
+package models.responses
 
-import play.api.libs.json.JsPath
+import play.api.libs.json.{Json, OFormat}
 
-case object ClaimDetailsAmendedPage extends QuestionPage[Boolean] {
-  override def path: JsPath = JsPath \ toString
-  override def toString: String = "claimDetailsAmended"
+case class UpdateApplicationDetailsResponse(updateSequenceNumber: Int)
+
+object UpdateApplicationDetailsResponse {
+  implicit val format: OFormat[UpdateApplicationDetailsResponse] = Json.format[UpdateApplicationDetailsResponse]
 }

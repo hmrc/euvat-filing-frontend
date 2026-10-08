@@ -19,6 +19,7 @@ package viewmodels
 import models.UserAnswers
 import pages.{ClaimDetailsCompletedPage, PurchaseImportSummaryPage}
 import play.api.i18n.Messages
+import queries.ClaimDetailsCompletedQuery
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.tag.Tag
 import uk.gov.hmrc.govukfrontend.views.viewmodels.tasklist.{TaskList, TaskListItem, TaskListItemStatus, TaskListItemTitle}
@@ -27,10 +28,10 @@ import javax.inject.Inject
 
 class TaskListViewModel @Inject() () {
 
-  def showDeleteLink(answers: UserAnswers): Boolean = answers.get(ClaimDetailsCompletedPage).contains(true)
+  def showDeleteLink(answers: UserAnswers): Boolean = answers.get(ClaimDetailsCompletedQuery).contains(true)
 
   def buildTaskList(answers: UserAnswers)(implicit messages: Messages): TaskList = {
-    val claimDetailsDone = answers.get(ClaimDetailsCompletedPage).contains(true)
+    val claimDetailsDone = answers.get(ClaimDetailsCompletedQuery).contains(true)
     def notStartedStatus = TaskListItemStatus(tag = Some(Tag(content = Text(messages("taskListDashboard.status1")))))
     def cannotStartStatus =
       TaskListItemStatus(content = Text(messages("taskListDashboard.status2")), classes = "govuk-task-list__status--cannot-start-yet")

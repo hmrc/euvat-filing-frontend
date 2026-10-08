@@ -24,7 +24,7 @@ import pages.*
 import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.*
-import queries.{ClaimApplicationResponseQuery, UpdateSequenceNumberQuery}
+import queries.{ClaimApplicationResponseQuery, ClaimDetailsAmendedQuery, ClaimDetailsCompletedQuery, UpdateSequenceNumberQuery}
 import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -52,24 +52,24 @@ class CheckYourClaimDetailsController @Inject() (
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val summaryList = buildSummaryList(request.userAnswers)
-    val isPostSubmission = request.userAnswers.get(ClaimDetailsCompletedPage).contains(true)
-    val isAmended = request.userAnswers.get(ClaimDetailsAmendedPage).contains(true)
+    val isPostSubmission = request.userAnswers.get(ClaimDetailsCompletedQuery).contains(true)
+    val isAmended = request.userAnswers.get(ClaimDetailsAmendedQuery).contains(true)
     Ok(view(summaryList, isPostSubmission, isAmended))
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     val userAnswers = request.userAnswers
-    val isPostSubmission = userAnswers.get(ClaimDetailsCompletedPage).contains(true)
-    val isAmended = userAnswers.get(ClaimDetailsAmendedPage).contains(true)
+    val isPostSubmission = userAnswers.get(ClaimDetailsCompletedQuery).contains(true)
+    val isAmended = userAnswers.get(ClaimDetailsAmendedQuery).contains(true)
 
     if (isPostSubmission && !isAmended) {
       Future.successful(Redirect(controllers.routes.TaskListDashboardController.onPageLoad()))
     } else {
       val updatedAnswers = Future.fromTry {
         if (isPostSubmission) {
-          userAnswers.remove(ClaimDetailsAmendedPage)
+          userAnswers.remove(ClaimDetailsAmendedQuery)
         } else {
-          userAnswers.set(ClaimDetailsCompletedPage, true)
+          userAnswers.set(ClaimDetailsCompletedQuery, true)
         }
       }
 

@@ -25,6 +25,7 @@ import play.api.Logger
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import queries.{ClaimDetailsAmendedQuery, ClaimDetailsCompletedQuery}
 import repositories.SessionRepository
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
@@ -108,8 +109,8 @@ class RefundingLanguageController @Inject() (
           }
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(RefundingLanguagePage, value))
-            updatedAnswers1 <- if (isChanged && request.userAnswers.get(pages.ClaimDetailsCompletedPage).contains(true)) {
-                                 Future.fromTry(updatedAnswers.set(pages.ClaimDetailsAmendedPage, true))
+            updatedAnswers1 <- if (isChanged && request.userAnswers.get(ClaimDetailsCompletedQuery).contains(true)) {
+                                 Future.fromTry(updatedAnswers.set(ClaimDetailsAmendedQuery, true))
                                } else {
                                  Future.successful(updatedAnswers)
                                }
