@@ -97,3 +97,8 @@ GET        /vat-paid                                    controllers.imports.Tota
 POST       /vat-paid                                    controllers.imports.TotalVatPaidImportController.onSubmit(mode: Mode = NormalMode)
 GET        /change-vat-paid                             controllers.imports.TotalVatPaidImportController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-vat-paid                             controllers.imports.TotalVatPaidImportController.onSubmit(mode: Mode = CheckMode)
+
+GET        /vat-claim                                   controllers.imports.TotalVatClaimController.onPageLoad(mode: Mode = NormalMode)
+POST       /vat-claim                                   controllers.imports.TotalVatClaimController.onSubmit(mode: Mode = NormalMode)
+GET        /change-vat-claim                            controllers.imports.TotalVatClaimController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-vat-claim                            controllers.imports.TotalVatClaimController.onSubmit(mode: Mode = CheckMode)
