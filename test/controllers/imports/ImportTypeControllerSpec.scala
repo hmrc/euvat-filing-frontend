@@ -20,16 +20,19 @@ import base.SpecBase
 import controllers.routes
 import forms.ImportTypeFormProvider
 import models.{Fuel, NormalMode, PurchaseOrImportType, UserAnswers}
+import models.responses.{AddImportResponse, ApplicationResponse}
 import navigation.{FakeNavigator, Navigator}
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.ImportTypePage
+import pages.{AddImportResponsePage, ImportTypePage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import queries.ClaimApplicationResponseQuery
 import repositories.SessionRepository
 import views.html.PurchaseOrImportTypeView
 
@@ -102,6 +105,102 @@ class ImportTypeControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
+      }
+    }
+
+    "must call addImport and persist the response when ClaimApplicationResponseQuery is present and no AddImportResponsePage exists" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val addImportResponse = AddImportResponse(itemNumber = 7, updateSequenceNumber = 2)
+      when(mockEuVatRefundsService.addImport(any())(any())) thenReturn Future.successful(addImportResponse)
+
+      val userAnswers = emptyUserAnswers
+        .set(ClaimApplicationResponseQuery, ApplicationResponse(134, "GB123134", 1))
+        .success
+        .value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, importTypeRoute)
+            .withFormUrlEncodedBody(("value", Fuel.toString))
+
+        val result = route(application, request).value
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+
+        val captor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(mockSessionRepository, times(2)).set(captor.capture())
+        captor.getAllValues.get(1).get(AddImportResponsePage).value mustEqual addImportResponse
+      }
+    }
+
+    "must not call addImport when AddImportResponsePage is already populated" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val userAnswers = emptyUserAnswers
+        .set(ClaimApplicationResponseQuery, ApplicationResponse(134, "GB123134", 1))
+        .success
+        .value
+        .set(AddImportResponsePage, AddImportResponse(itemNumber = 1, updateSequenceNumber = 1))
+        .success
+        .value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, importTypeRoute)
+            .withFormUrlEncodedBody(("value", Fuel.toString))
+
+        val result = route(application, request).value
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+        verify(mockEuVatRefundsService, org.mockito.Mockito.never()).addImport(any())(any())
+      }
+    }
+
+    "must redirect to Journey Recovery when addImport fails" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      when(mockEuVatRefundsService.addImport(any())(any())) thenReturn Future.failed(new RuntimeException("boom"))
+
+      val userAnswers = emptyUserAnswers
+        .set(ClaimApplicationResponseQuery, ApplicationResponse(134, "GB123134", 1))
+        .success
+        .value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, importTypeRoute)
+            .withFormUrlEncodedBody(("value", Fuel.toString))
+
+        val result = route(application, request).value
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 
