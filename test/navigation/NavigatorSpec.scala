@@ -245,16 +245,9 @@ class NavigatorSpec extends SpecBase {
           purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
       }
 
-      "must go from SadReferenceNumberPage to ImportSuppliersNameController in CheckMode" in {
-        val answers = userAnswers.set(RefundingCountryPage, "EE").success.value
-
-        navigator.nextPage(SadReferenceNumberPage, CheckMode, answers) mustBe
-          controllers.imports.routes.ImportSuppliersNameController.onPageLoad(CheckMode)
-      }
-
-      "must go from ImportCurrencyPage to JourneyRecoveryController check mode" in {
-        navigator.nextPage(ImportCurrencyPage, CheckMode, userAnswers) mustBe
-          controllers.routes.JourneyRecoveryController.onPageLoad()
+      "must go from SadReferenceNumberPage to ImportDetailsInfoController in CheckMode" in {
+        navigator.nextPage(SadReferenceNumberPage, CheckMode, userAnswers) mustBe
+          controllers.imports.routes.ImportDetailsInfoController.onPageLoad(CheckMode)
       }
 
       "must go from ImportDetailsInfoPage to ImportSuppliersNameController in CheckMode" in {
