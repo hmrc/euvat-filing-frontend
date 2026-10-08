@@ -1,0 +1,39 @@
+GET         /same-refund-period                         controllers.warning.PeriodOverlapWarningController.onPageLoad(mode: Mode = NormalMode)
+POST        /same-refund-period                         controllers.warning.PeriodOverlapWarningController.onSubmit(mode: Mode = NormalMode)
+GET         /change-same-refund-period                  controllers.warning.PeriodOverlapWarningController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-same-refund-period                  controllers.warning.PeriodOverlapWarningController.onSubmit(mode: Mode = CheckMode)
+
+GET         /start-date                                 controllers.warning.ConfirmRefundPeriodStartDateController.onPageLoad(mode: Mode = NormalMode)
+POST        /start-date                                 controllers.warning.ConfirmRefundPeriodStartDateController.onSubmit(mode: Mode = NormalMode)
+GET         /change-start-date                          controllers.warning.ConfirmRefundPeriodStartDateController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-start-date                          controllers.warning.ConfirmRefundPeriodStartDateController.onSubmit(mode: Mode = CheckMode)
+
+GET         /end-date                                   controllers.warning.ConfirmRefundPeriodEndDateController.onPageLoad(mode: Mode = NormalMode)
+POST        /end-date                                   controllers.warning.ConfirmRefundPeriodEndDateController.onSubmit(mode: Mode = NormalMode)
+GET         /change-end-date                            controllers.warning.ConfirmRefundPeriodEndDateController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-end-date                            controllers.warning.ConfirmRefundPeriodEndDateController.onSubmit(mode: Mode = CheckMode)
+
+GET         /item-details                               controllers.warning.PurchaseWarningController.onPageLoad(mode: Mode = NormalMode)
+POST        /item-details                               controllers.warning.PurchaseWarningController.onSubmit(mode: Mode = NormalMode)
+GET         /change-item-details                        controllers.warning.PurchaseWarningController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-item-details                        controllers.warning.PurchaseWarningController.onSubmit(mode: Mode = CheckMode)
+
+GET         /supplier-tax-identifier                    controllers.warning.SupplierTaxIdentifierWarningController.onPageLoad(mode: Mode = NormalMode)
+POST        /supplier-tax-identifier                    controllers.warning.SupplierTaxIdentifierWarningController.onSubmit()
+GET         /change-supplier-tax-identifier             controllers.warning.SupplierTaxIdentifierWarningController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-supplier-tax-identifier             controllers.warning.SupplierTaxIdentifierWarningController.onSubmit()
+
+GET         /supplier-vat-registration                  controllers.warning.SupplierVrnWarningController.onPageLoad(mode: Mode = NormalMode)
+POST        /supplier-vat-registration                  controllers.warning.SupplierVrnWarningController.onSubmit(mode: Mode = NormalMode)
+GET         /change-supplier-vat-registration           controllers.warning.SupplierVrnWarningController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-supplier-vat-registration           controllers.warning.SupplierVrnWarningController.onSubmit(mode: Mode = CheckMode)
+
+GET         /vat-paid                                   controllers.warning.VatPaidWarningController.onPageLoad(mode: Mode = NormalMode)
+POST        /vat-paid                                   controllers.warning.VatPaidWarningController.onSubmit(mode: Mode = NormalMode)
+GET         /change-vat-paid                            controllers.warning.VatPaidWarningController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-vat-paid                            controllers.warning.VatPaidWarningController.onSubmit(mode: Mode = CheckMode)
+
+GET         /vat-claim                                  controllers.warning.VatClaimWarningController.onPageLoad(mode: Mode = NormalMode)
+POST        /vat-claim                                  controllers.warning.VatClaimWarningController.onSubmit(mode: Mode = NormalMode)
+GET         /change-vat-claim                           controllers.warning.VatClaimWarningController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-vat-claim                           controllers.warning.VatClaimWarningController.onSubmit(mode: Mode = CheckMode)

@@ -14,42 +14,57 @@
  * limitations under the License.
  */
 
-package controllers.claim
+package controllers.warning
 
 import controllers.actions.*
-import models.{Mode, RefundPeriod}
-import navigation.Navigator
+import controllers.claim.routes
+import models.{CheckMode, Mode, NormalMode, RefundPeriod}
 import pages.RefundPeriodPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.claim.ConfirmRefundPeriodEndDateView
+import views.html.warning.ConfirmRefundPeriodStartDateView
 
 import java.time.format.DateTimeFormatter
+import java.time.{LocalDate, MonthDay, YearMonth}
 import javax.inject.Inject
 
-class ConfirmRefundPeriodEndDateController @Inject() (
+class ConfirmRefundPeriodStartDateController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   val controllerComponents: MessagesControllerComponents,
-  navigator: Navigator,
-  view: ConfirmRefundPeriodEndDateView
+  view: ConfirmRefundPeriodStartDateView
 ) extends FrontendBaseController
     with I18nSupport {
+
+  protected def today: LocalDate = LocalDate.now()
+
+  private[controllers] def earliestPermittedStartDate(): YearMonth = {
+    val cutoff = MonthDay.of(9, 30).atYear(today.getYear)
+    if (!today.isAfter(cutoff)) {
+      YearMonth.of(today.getYear - 1, 1)
+    } else {
+      YearMonth.of(today.getYear, 1)
+    }
+  }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     request.userAnswers.get(RefundPeriodPage) match {
       case None => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       case Some(refundPeriod) =>
-        val endDate = refundPeriod.endDate.format(DateTimeFormatter.ofPattern("MM/yyyy"))
+        val startDate = refundPeriod.startDate.format(java.time.format.DateTimeFormatter.ofPattern("MM/yyyy"))
+        val minDate = earliestPermittedStartDate().format(DateTimeFormatter.ofPattern("MM/yyyy"))
         val call = routes.RefundPeriodController.onPageLoad(mode)
-        Ok(view(endDate, call, mode))
+        Ok(view(startDate, minDate, call, mode))
     }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    Redirect(navigator.nextPage(RefundPeriodPage, mode, request.userAnswers))
+    mode match {
+      case NormalMode => Redirect(routes.ContactDetailsController.onPageLoad(NormalMode))
+      case CheckMode  => Redirect(routes.CheckYourClaimDetailsController.onPageLoad())
+    }
   }
 }

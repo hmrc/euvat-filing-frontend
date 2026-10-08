@@ -1,55 +1,24 @@
 # microservice specific routes
 
-->          /hmrc-frontend                                hmrcfrontend.Routes
-GET         /                                             controllers.IndexController.onPageLoad()
-GET         /assets/*file                                 controllers.Assets.versioned(path="/public", file: Asset)
-GET         /language/:lang                               controllers.LanguageSwitchController.switchToLanguage(lang: String)
-GET         /refresh-session                              controllers.KeepAliveController.keepAlive()
-GET         /there-is-a-problem                           controllers.JourneyRecoveryController.onPageLoad(continueUrl: Option[RedirectUrl] ?= None)
-GET         /account/sign-out-survey                      controllers.auth.AuthController.signOut()
-GET         /account/sign-out                             controllers.auth.AuthController.signOutNoSurvey()
-GET         /account/signed-out                           controllers.auth.SignedOutController.onPageLoad()
-GET         /unauthorised                                 controllers.UnauthorisedController.onPageLoad()
+->          /hmrc-frontend                              hmrcfrontend.Routes
+GET         /                                           controllers.IndexController.onPageLoad()
+GET         /assets/*file                               controllers.Assets.versioned(path="/public", file: Asset)
+GET         /language/:lang                             controllers.LanguageSwitchController.switchToLanguage(lang: String)
+GET         /refresh-session                            controllers.KeepAliveController.keepAlive()
+GET         /there-is-a-problem                         controllers.JourneyRecoveryController.onPageLoad(continueUrl: Option[RedirectUrl] ?= None)
+GET         /account/sign-out-survey                    controllers.auth.AuthController.signOut()
+GET         /account/sign-out                           controllers.auth.AuthController.signOutNoSurvey()
+GET         /account/signed-out                         controllers.auth.SignedOutController.onPageLoad()
+GET         /unauthorised                               controllers.UnauthorisedController.onPageLoad()
 
-GET         /make-a-claim-eu-vat-refund                   controllers.TaskListDashboardController.onPageLoad()
-GET         /redirect-to-manage-claim                     controllers.TaskListDashboardController.redirectToManageClaim()
+GET         /make-a-claim-eu-vat-refund                 controllers.TaskListDashboardController.onPageLoad()
+GET         /redirect-to-manage-claim                   controllers.TaskListDashboardController.redirectToManageClaim()
 
-GET         /delete-claim                                 controllers.DeleteClaimController.onPageLoad()
-POST        /delete-claim                                 controllers.DeleteClaimController.onSubmit()
+GET         /delete-claim                               controllers.DeleteClaimController.onPageLoad()
+POST        /delete-claim                               controllers.DeleteClaimController.onSubmit()
 
-GET         /before-you-start                             controllers.BeforeYouStartController.onPageLoad()
-POST        /before-you-start                             controllers.BeforeYouStartController.onSubmit()
+GET         /purchases-imports/before-you-start         controllers.BeforeYouStartController.onPageLoad()
+POST        /purchases-imports/before-you-start         controllers.BeforeYouStartController.onSubmit()
 
-GET         /purchase-or-import                           controllers.PurchaseOrImportController.onPageLoad
-POST        /purchase-or-import                           controllers.PurchaseOrImportController.onSubmit
-
-# Warning pages
-GET         /check-refund-period                          controllers.warning.PeriodOverlapWarningController.onPageLoad(mode: Mode = NormalMode)
-POST        /check-refund-period                          controllers.warning.PeriodOverlapWarningController.onSubmit(mode: Mode = NormalMode)
-GET         /change-check-refund-period                   controllers.warning.PeriodOverlapWarningController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-check-refund-period                   controllers.warning.PeriodOverlapWarningController.onSubmit(mode: Mode = CheckMode)
-
-GET         /check-purchase-details                       controllers.warning.PurchaseWarningController.onPageLoad(mode: Mode = NormalMode)
-POST        /check-purchase-details                       controllers.warning.PurchaseWarningController.onSubmit(mode: Mode = NormalMode)
-GET         /change-check-purchase-details                controllers.warning.PurchaseWarningController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-check-purchase-details                controllers.warning.PurchaseWarningController.onSubmit(mode: Mode = CheckMode)
-
-GET         /check-supplier-tax-identifier-number           controllers.warning.SupplierTaxIdentifierWarningController.onPageLoad(mode: Mode = NormalMode)
-POST        /check-supplier-tax-identifier-number           controllers.warning.SupplierTaxIdentifierWarningController.onSubmit()
-GET         /change-check-supplier-tax-identifier-number    controllers.warning.SupplierTaxIdentifierWarningController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-check-supplier-tax-identifier-number    controllers.warning.SupplierTaxIdentifierWarningController.onSubmit()
-
-GET         /check-supplier-vat-registration-number         controllers.warning.SupplierVrnWarningController.onPageLoad(mode: Mode = NormalMode)
-POST        /check-supplier-vat-registration-number         controllers.warning.SupplierVrnWarningController.onSubmit(mode: Mode = NormalMode)
-GET         /change-check-supplier-vat-registration-number  controllers.warning.SupplierVrnWarningController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-check-supplier-vat-registration-number  controllers.warning.SupplierVrnWarningController.onSubmit(mode: Mode = CheckMode)
-
-GET         /check-vat-amount                             controllers.warning.VatPaidWarningController.onPageLoad(mode: Mode = NormalMode)
-POST        /check-vat-amount                             controllers.warning.VatPaidWarningController.onSubmit(mode: Mode = NormalMode)
-GET         /change-check-vat-amount                      controllers.warning.VatPaidWarningController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-check-vat-amount                      controllers.warning.VatPaidWarningController.onSubmit(mode: Mode = CheckMode)
-
-GET         /check-vat-claim                              controllers.warning.VatClaimWarningController.onPageLoad(mode: Mode = NormalMode)
-POST        /check-vat-claim                              controllers.warning.VatClaimWarningController.onSubmit(mode: Mode = NormalMode)
-GET         /change-check-vat-claim                       controllers.warning.VatClaimWarningController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-check-vat-claim                       controllers.warning.VatClaimWarningController.onSubmit(mode: Mode = CheckMode)
+GET         /purchases-imports/select-item              controllers.PurchaseOrImportController.onPageLoad
+POST        /purchases-imports/select-item              controllers.PurchaseOrImportController.onSubmit

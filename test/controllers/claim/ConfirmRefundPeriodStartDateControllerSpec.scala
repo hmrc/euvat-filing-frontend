@@ -18,8 +18,8 @@ package controllers.claim
 
 import base.SpecBase
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
-import controllers.claim.ConfirmRefundPeriodStartDateController
 import controllers.claim.routes
+import controllers.warning.ConfirmRefundPeriodStartDateController
 import models.{CheckMode, NormalMode, RefundPeriod}
 import pages.RefundPeriodPage
 import play.api.i18n.MessagesApi
