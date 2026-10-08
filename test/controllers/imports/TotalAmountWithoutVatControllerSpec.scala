@@ -18,7 +18,7 @@ package controllers.imports
 
 import base.SpecBase
 import forms.imports.TotalAmountWithoutVatFormProvider
-import models.{UserAnswers, NormalMode, CheckMode}
+import models.{CheckMode, NormalMode, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
@@ -129,7 +129,7 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.TotalVatPaidImportController.onPageLoad(NormalMode).url
+        redirectLocation(result).value mustEqual controllers.imports.routes.TotalVatPaidImportController.onPageLoad(NormalMode).url
         verify(mockSessionRepository).set(any())
       }
     }

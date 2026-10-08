@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package controllers.purchase
+package controllers.imports
 
 import controllers.actions.*
 import forms.purchase.TotalVatClaimFormProvider
-import models.{CheckMode, Mode, NormalMode}
+import models.{Mode, UserAnswers}
 import navigation.Navigator
-import pages.{TotalVatClaimPage, TotalVatPaidPage}
+import pages.ImportTotalVatClaimPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
@@ -50,47 +50,27 @@ class TotalVatClaimController @Inject() (
 
   val form: Form[BigDecimal] = formProvider()
 
-  private def backLink(mode: Mode): Call = if (mode == CheckMode) {
-    routes.CheckYourPurchaseDetailsController.onPageLoad()
-  } else {
-    routes.TotalVatPaidController.onPageLoad(NormalMode)
-  }
+  private def backLink(mode: Mode): Call = routes.TotalVatPaidImportController.onPageLoad(mode)
 
   private def formAction(mode: Mode): Call = routes.TotalVatClaimController.onSubmit(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = request.userAnswers.get(TotalVatClaimPage).fold(form)(form.fill)
+    val preparedForm = request.userAnswers.get(ImportTotalVatClaimPage).fold(form)(form.fill)
     val currencySymbol = currencySymbolFromSession(request.userAnswers, currencyConfig.currencyConfig)
     Ok(view(preparedForm, mode, formAction(mode), backLink(mode), currencySymbol))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+    val currencySymbol = currencySymbolFromSession(request.userAnswers, currencyConfig.currencyConfig)
     form
       .bindFromRequest()
       .fold(
-        formWithErrors =>
-          Future.successful(
-            BadRequest(
-              view(formWithErrors,
-                   mode,
-                   formAction(mode),
-                   backLink(mode),
-                   currencySymbolFromSession(request.userAnswers, currencyConfig.currencyConfig)
-                  )
-            )
-          ),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, formAction(mode), backLink(mode), currencySymbol))),
         value =>
           for {
-            userAnswers <- Future.fromTry(request.userAnswers.set(TotalVatClaimPage, value))
+            userAnswers <- Future.fromTry(request.userAnswers.set(ImportTotalVatClaimPage, value))
             _           <- sessionRepository.set(userAnswers)
-          } yield {
-            val totalVatPaid: BigDecimal = userAnswers.get(TotalVatPaidPage).getOrElse(BigDecimal(0))
-            if (value > totalVatPaid) {
-              Redirect(controllers.warning.routes.VatClaimWarningController.onPageLoad(mode))
-            } else {
-              Redirect(navigator.nextPage(TotalVatClaimPage, mode, userAnswers))
-            }
-          }
+          } yield Redirect(navigator.nextPage(ImportTotalVatClaimPage, mode, userAnswers))
       )
   }
 
