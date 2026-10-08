@@ -25,10 +25,11 @@
     govukSummaryList: GovukSummaryList,
     govukRadios: GovukRadios,
     govukDetails : GovukDetails,
+    govukErrorSummary: GovukErrorSummary,
     mainErrorSummary: MainErrorSummary
 )
 
-@(form: Form[_], summaryList: Seq[SummaryListRow], numberOfItems: Int, totalVatClaim: BigDecimal)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], summaryList: Seq[SummaryListRow], totalItems: Int, totalVatClaim: BigDecimal)(implicit request: Request[_], messages: Messages)
 @content = {
     <p class = "govuk-body">@messages("purchaseImportSummary.details.list")</p>
     <ul class = "govuk-list govuk-list--bullet">
@@ -36,12 +37,20 @@
         <li>@messages("purchaseImportSummary.details.list2")</li>
     </ul>
 }
+@isError = @{form.error("value").isDefined}
+@itemLabel = @{
+    if (totalItems > 1) {
+        "Items"
+    } else {
+        "Item"
+    }
+}
 
-@layout(pageTitle = titleNoForm(messages("purchaseImportSummary.title", numberOfItems)), showBackLink = false, useFullGrid = true) {
-    @formHelper(action = controllers.routes.PurchaseImportSummaryController.onSubmit, Symbol("autoComplete") -> "off") {
+@layout(pageTitle = title(form, messages("purchaseImportSummary.title", totalItems, itemLabel)), showBackLink = false, useFullGrid = true) {
+    @formHelper(action = controllers.routes.PurchaseImportSummaryController.onSubmit) {
         @mainErrorSummary(form)
         <span class="govuk-caption-l">@messages("purchaseImportSummary.caption")</span>
-        <h1 class="govuk-heading-l">@messages("purchaseImportSummary.heading", numberOfItems)</h1>
+        <h1 class="govuk-heading-l">@messages("purchaseImportSummary.heading", totalItems, itemLabel)</h1>
         <p class = "govuk-body">@messages("purchaseImportSummary.p1", totalVatClaim)</p>
 
         @govukDetails(Details(
@@ -50,7 +59,6 @@
         ))
 
         @govukSummaryList(SummaryList(rows = summaryList))
-
         @govukRadios(
             RadiosViewModel(
                 field  = form("value"),
@@ -61,7 +69,6 @@
                 )
             )
         )
-
         @govukButton(ButtonViewModel(messages("site.continue")))
     }
 }

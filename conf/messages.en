@@ -475,8 +475,8 @@ describeItemsOnInvoice.error.length = Item description must be 255 characters or
 describeItemsOnInvoice.checkYourAnswersLabel = Purchase description
 describeItemsOnInvoice.change.hidden = Change purchase description
 
-purchaseImportSummary.title = You have added {0} items to this claim
-purchaseImportSummary.heading = You have added {0} items to this claim
+purchaseImportSummary.title = You have added {0} {1} to this claim
+purchaseImportSummary.heading = You have added {0} {1} to this claim
 purchaseImportSummary.caption = Purchases and imports
 purchaseImportSummary.p1 = The total amount of VAT you are claiming on this application is {0}.
 purchaseImportSummary.details.summary = Minimum VAT claim limits
