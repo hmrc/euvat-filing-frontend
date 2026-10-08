@@ -19,7 +19,7 @@ package controllers.warning
 import controllers.actions.*
 import controllers.purchase.routes
 import models.Mode
-import pages.{TotalPurchaseAmountBeforeVatPage, TotalVatPaidPage}
+import pages.purchase.{TotalPurchaseAmountBeforeVatPage, TotalVatPaidPage}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}

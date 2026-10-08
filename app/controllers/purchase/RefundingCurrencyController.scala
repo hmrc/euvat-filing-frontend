@@ -21,7 +21,8 @@ import forms.RefundingCurrencyFormProvider
 import models.requests.DataRequest
 import models.{CheckMode, Mode, NormalMode, RefundingCurrency, UserAnswers}
 import navigation.Navigator
-import pages.{ClaimDetailsAmendedPage, ClaimDetailsCompletedPage, CurrencyChangedPage, RefundingCurrencyPage, SimplifiedInvoiceVatRegCheckPage}
+import pages.{ClaimDetailsAmendedPage, ClaimDetailsCompletedPage}
+import pages.purchase.{CurrencyChangedPage, RefundingCurrencyPage, SimplifiedInvoiceVatRegCheckPage}
 import play.api.Logger
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}

@@ -24,7 +24,8 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.TryValues.*
 import org.scalatestplus.mockito.MockitoSugar
-import pages.*
+import pages.purchase.*
+import pages.claim.RefundingCountryPage
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call

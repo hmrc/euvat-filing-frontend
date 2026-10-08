@@ -28,7 +28,7 @@ import play.api.mvc.Results
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.CheckYourStateDetailsPage
+import pages.claim.CheckYourStateDetailsPage
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.libs.json.Json

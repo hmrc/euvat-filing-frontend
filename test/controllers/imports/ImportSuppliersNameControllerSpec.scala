@@ -23,7 +23,8 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.ImportSuppliersNamePage
+import pages.imports
+import pages.imports.{ImportSuppliersNamePage, SadReferenceCheckPage, SadReferenceNumberPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -84,10 +85,10 @@ class ImportSuppliersNameControllerSpec extends SpecBase with MockitoSugar {
 
     "must show back link to SadReferenceNumber when SadReference was yes and number present" in {
       val userAnswers = UserAnswers(userAnswersId)
-        .set(pages.SadReferenceCheckPage, true)
+        .set(SadReferenceCheckPage, true)
         .success
         .value
-        .set(pages.SadReferenceNumberPage, "ABC123")
+        .set(SadReferenceNumberPage, "ABC123")
         .success
         .value
 
@@ -103,7 +104,7 @@ class ImportSuppliersNameControllerSpec extends SpecBase with MockitoSugar {
 
     "must show back link to SadReferenceCheck when SadReference was yes but number missing" in {
       val userAnswers = UserAnswers(userAnswersId)
-        .set(pages.SadReferenceCheckPage, true)
+        .set(imports.SadReferenceCheckPage, true)
         .success
         .value
 
@@ -119,7 +120,7 @@ class ImportSuppliersNameControllerSpec extends SpecBase with MockitoSugar {
 
     "must show back link to ImportDetailsInfo when SadReference was no" in {
       val userAnswers = UserAnswers(userAnswersId)
-        .set(pages.SadReferenceCheckPage, false)
+        .set(imports.SadReferenceCheckPage, false)
         .success
         .value
 

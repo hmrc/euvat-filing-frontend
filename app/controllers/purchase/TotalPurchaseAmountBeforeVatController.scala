@@ -21,7 +21,8 @@ import forms.purchase.TotalPurchaseAmountBeforeVatFormProvider
 import models.requests.DataRequest
 import models.{CheckMode, Mode, NormalMode, SupplierTaxNumber, UserAnswers}
 import navigation.Navigator
-import pages.*
+import pages.claim.RefundingCountryPage
+import pages.purchase.*
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}

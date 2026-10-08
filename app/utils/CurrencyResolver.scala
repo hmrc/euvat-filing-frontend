@@ -17,7 +17,7 @@
 package utils
 
 import models.UserAnswers
-import pages.RefundingCurrencyPage
+import pages.purchase.RefundingCurrencyPage
 
 object CurrencyResolver {
 

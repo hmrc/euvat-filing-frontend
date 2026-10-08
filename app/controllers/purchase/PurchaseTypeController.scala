@@ -18,11 +18,13 @@ package controllers.purchase
 
 import controllers.actions.*
 import forms.purchase.PurchaseTypeFormProvider
+import models.*
 import models.requests.{AddPurchaseRequest, DataRequest}
 import models.responses.AddPurchaseResponse
-import models.*
 import navigation.Navigator
-import pages.*
+import pages.QuestionPage
+import pages.claim.CountryChangedPage
+import pages.purchase.*
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}

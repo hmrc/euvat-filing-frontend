@@ -22,7 +22,7 @@ import forms.RefundingCurrencyFormProvider
 import models.requests.DataRequest
 import models.{Mode, RefundingCurrency}
 import navigation.Navigator
-import pages.ImportCurrencyPage
+import pages.imports.ImportCurrencyPage
 import play.api.Logger
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}

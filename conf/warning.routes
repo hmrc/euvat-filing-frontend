@@ -3,15 +3,15 @@ POST        /same-refund-period                         controllers.warning.Peri
 GET         /change-same-refund-period                  controllers.warning.PeriodOverlapWarningController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-same-refund-period                  controllers.warning.PeriodOverlapWarningController.onSubmit(mode: Mode = CheckMode)
 
-GET         /start-date                                 controllers.warning.ConfirmRefundPeriodStartDateController.onPageLoad(mode: Mode = NormalMode)
-POST        /start-date                                 controllers.warning.ConfirmRefundPeriodStartDateController.onSubmit(mode: Mode = NormalMode)
-GET         /change-start-date                          controllers.warning.ConfirmRefundPeriodStartDateController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-start-date                          controllers.warning.ConfirmRefundPeriodStartDateController.onSubmit(mode: Mode = CheckMode)
+GET         /start-date                                 controllers.warning.RefundPeriodStartDateWarningController.onPageLoad(mode: Mode = NormalMode)
+POST        /start-date                                 controllers.warning.RefundPeriodStartDateWarningController.onSubmit(mode: Mode = NormalMode)
+GET         /change-start-date                          controllers.warning.RefundPeriodStartDateWarningController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-start-date                          controllers.warning.RefundPeriodStartDateWarningController.onSubmit(mode: Mode = CheckMode)
 
-GET         /end-date                                   controllers.warning.ConfirmRefundPeriodEndDateController.onPageLoad(mode: Mode = NormalMode)
-POST        /end-date                                   controllers.warning.ConfirmRefundPeriodEndDateController.onSubmit(mode: Mode = NormalMode)
-GET         /change-end-date                            controllers.warning.ConfirmRefundPeriodEndDateController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-end-date                            controllers.warning.ConfirmRefundPeriodEndDateController.onSubmit(mode: Mode = CheckMode)
+GET         /end-date                                   controllers.warning.RefundPeriodEndDateWarningController.onPageLoad(mode: Mode = NormalMode)
+POST        /end-date                                   controllers.warning.RefundPeriodEndDateWarningController.onSubmit(mode: Mode = NormalMode)
+GET         /change-end-date                            controllers.warning.RefundPeriodEndDateWarningController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-end-date                            controllers.warning.RefundPeriodEndDateWarningController.onSubmit(mode: Mode = CheckMode)
 
 GET         /item-details                               controllers.warning.PurchaseWarningController.onPageLoad(mode: Mode = NormalMode)
 POST        /item-details                               controllers.warning.PurchaseWarningController.onSubmit(mode: Mode = NormalMode)

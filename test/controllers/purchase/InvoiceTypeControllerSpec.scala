@@ -22,7 +22,8 @@ import models.{CheckMode, Fuel, InvoiceType, NormalMode, Other, SupplierTaxNumbe
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.*
+import pages.claim.RefundingCountryPage
+import pages.purchase.*
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -281,7 +282,7 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
         .set(PurchaseSubTypePage, "10.99")
         .success
         .value
-        .set(pages.RefundingCountryPage, "BE")
+        .set(RefundingCountryPage, "BE")
         .success
         .value
 

@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.claim.BusinessActivityTwoFormProvider
 import models.{Mode, NormalMode}
 import navigation.Navigator
-import pages.{BusinessActivityCodePage, BusinessActivityCodeThreePage, BusinessActivityCodeTwoPage, BusinessActivityTwoPage}
+import pages.claim.{BusinessActivityCodePage, BusinessActivityCodeThreePage, BusinessActivityCodeTwoPage, BusinessActivityTwoPage}
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}

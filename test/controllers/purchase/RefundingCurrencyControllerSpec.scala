@@ -23,7 +23,9 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{RefundingCountryPage, RefundingCurrencyPage, SimplifiedInvoiceVatRegCheckPage}
+import pages.ClaimDetailsCompletedPage
+import pages.claim.{RefundingCountryNamePage, RefundingCountryPage}
+import pages.purchase.{RefundingCurrencyPage, SimplifiedInvoiceVatRegCheckPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -200,7 +202,7 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must resolve country code from delimited RefundingCountryNamePage format on GET" in {
-      val userAnswers = emptyUserAnswers.set(pages.RefundingCountryNamePage, "BG,Bulgaria").success.value
+      val userAnswers = emptyUserAnswers.set(RefundingCountryNamePage, "BG,Bulgaria").success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -228,7 +230,7 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must resolve country code from delimited RefundingCountryNamePage format on POST error" in {
-      val userAnswers = emptyUserAnswers.set(pages.RefundingCountryNamePage, "BG,Bulgaria").success.value
+      val userAnswers = emptyUserAnswers.set(RefundingCountryNamePage, "BG,Bulgaria").success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -248,13 +250,13 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val ua = emptyUserAnswers
-        .set(pages.RefundingCountryPage, "EE")
+        .set(RefundingCountryPage, "EE")
         .success
         .value
-        .set(pages.RefundingCurrencyPage, "EEK")
+        .set(RefundingCurrencyPage, "EEK")
         .success
         .value
-        .set(pages.ClaimDetailsCompletedPage, true)
+        .set(ClaimDetailsCompletedPage, true)
         .success
         .value
 
@@ -281,13 +283,13 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val ua = emptyUserAnswers
-        .set(pages.RefundingCountryPage, "EE")
+        .set(RefundingCountryPage, "EE")
         .success
         .value
-        .set(pages.RefundingCurrencyPage, "EUR")
+        .set(RefundingCurrencyPage, "EUR")
         .success
         .value
-        .set(pages.ClaimDetailsCompletedPage, true)
+        .set(ClaimDetailsCompletedPage, true)
         .success
         .value
 
@@ -311,7 +313,7 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val ua = emptyUserAnswers
-        .set(pages.RefundingCountryPage, "EE")
+        .set(RefundingCountryPage, "EE")
         .success
         .value
 

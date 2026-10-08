@@ -23,7 +23,9 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{ImportCurrencyPage, RefundingCountryPage, RefundingCurrencyPage}
+import pages.claim.RefundingCountryPage
+import pages.purchase.RefundingCurrencyPage
+import pages.imports.ImportCurrencyPage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest

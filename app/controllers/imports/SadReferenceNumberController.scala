@@ -18,9 +18,9 @@ package controllers.imports
 
 import controllers.actions.*
 import forms.imports.SadReferenceNumberFormProvider
-import pages.SadReferenceNumberPage
 import navigation.Navigator
 import models.{Mode, NormalMode}
+import pages.imports.SadReferenceNumberPage
 
 import javax.inject.Inject
 import play.api.data.Form

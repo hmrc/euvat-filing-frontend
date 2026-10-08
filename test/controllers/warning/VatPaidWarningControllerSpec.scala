@@ -19,7 +19,7 @@ package controllers.warning
 import base.SpecBase
 import controllers.warning.routes
 import models.{CheckMode, NormalMode}
-import pages.{TotalPurchaseAmountBeforeVatPage, TotalVatPaidPage}
+import pages.purchase.{TotalPurchaseAmountBeforeVatPage, TotalVatPaidPage}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.warning.VatPaidWarningView

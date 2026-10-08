@@ -17,10 +17,10 @@
 package navigation
 
 import models.{CheckMode, Mode, NormalMode, Other, UserAnswers}
-import pages.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage, SadReferenceCheckPage}
 import play.api.mvc.Call
 import utils.{ConfigPurchaseOrImportMapping, CountryCode, CurrencyConfig}
 import controllers.imports.routes as importsRoutes
+import pages.imports.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage, SadReferenceCheckPage}
 import utils.PurchaseOrImportHelpers.isNoneSelection
 
 import javax.inject.{Inject, Singleton}

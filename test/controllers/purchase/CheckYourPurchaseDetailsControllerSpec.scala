@@ -18,26 +18,26 @@ package controllers.purchase
 
 import base.SpecBase
 import controllers.routes
-import models.{Fuel, InvoiceType}
-import org.mockito.ArgumentMatchers.any
-import org.mockito.{ArgumentCaptor, Mockito}
-import org.mockito.Mockito.*
-import org.scalatestplus.mockito.MockitoSugar
 import models.requests.UpdatePurchaseRequest
+import models.responses.{AddPurchaseResponse, UpdatePurchaseResponse}
+import models.{Fuel, InvoiceType, SupplierAddress}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.*
+import org.mockito.{ArgumentCaptor, Mockito}
+import org.scalatestplus.mockito.MockitoSugar
+import pages.purchase.*
+import pages.claim.RefundingCountryPage
+import play.api.{Application, Configuration}
 import play.api.inject.bind
-import play.api.Configuration
-import utils.{Currency, CurrencyConfig}
-import models.SupplierAddress
-import java.time.LocalDate
+import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
 import services.EuVatRefundsService
+import utils.{Currency, CurrencyConfig}
+
+import java.time.LocalDate
 import scala.concurrent.Future
-import pages.*
-import models.responses.AddPurchaseResponse
-import play.api.libs.json.Json
-import models.responses.UpdatePurchaseResponse
 
 class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar {
 
@@ -246,7 +246,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
       val application = applicationBuilder(userAnswers = Some(ua)).build()
 
       running(application) {
-        implicit val app = application
+        implicit val app: Application = application
         val request = FakeRequest(GET, controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad().url)
         val result = route(application, request).value
         val body = contentAsString(result)

@@ -21,6 +21,9 @@ import com.typesafe.config.ConfigFactory
 import controllers.purchase.routes as purchaseRoutes
 import models.*
 import pages.*
+import pages.claim.{CountryChangedPage, RefundingCountryNamePage, RefundingCountryPage}
+import pages.purchase.*
+import pages.warning.SupplierVatRegistrationWarningPage
 import play.api.Configuration
 import utils.{ConfigPurchaseOrImportMapping, CurrencyConfig}
 
@@ -161,10 +164,10 @@ class PurchaseNavigatorSpec extends SpecBase {
 
       "must go from SimplifiedInvoiceVatRegCheckPage to RefundingCurrencyController if no selected and the country has more than one currency" in {
         val ua = userAnswers
-          .set(pages.SimplifiedInvoiceVatRegCheckPage, false)
+          .set(SimplifiedInvoiceVatRegCheckPage, false)
           .success
           .value
-          .set(pages.RefundingCountryPage, "EE")
+          .set(RefundingCountryPage, "EE")
           .success
           .value
         navigator.navigateFromSimplifiedInvoiceVatRegCheckPage(NormalMode)(ua) mustBe
@@ -176,7 +179,7 @@ class PurchaseNavigatorSpec extends SpecBase {
           .set(SimplifiedInvoiceVatRegCheckPage, false)
           .success
           .value
-          .set(pages.RefundingCountryPage, "AT")
+          .set(RefundingCountryPage, "AT")
           .success
           .value
         navigator.navigateFromSimplifiedInvoiceVatRegCheckPage(NormalMode)(ua) mustBe
@@ -341,10 +344,10 @@ class PurchaseNavigatorSpec extends SpecBase {
 
       "must go from SimplifiedInvoiceVatRegCheckPage to RefundingCurrencyController in CheckMode if no selected and the country has more than one currency" in {
         val ua = userAnswers
-          .set(pages.SimplifiedInvoiceVatRegCheckPage, false)
+          .set(SimplifiedInvoiceVatRegCheckPage, false)
           .success
           .value
-          .set(pages.RefundingCountryPage, "EE")
+          .set(RefundingCountryPage, "EE")
           .success
           .value
         navigator.navigateFromSimplifiedInvoiceVatRegCheckPage(CheckMode)(ua) mustBe
@@ -387,7 +390,7 @@ class PurchaseNavigatorSpec extends SpecBase {
       }
 
       "must go from RefundingCurrencyPage to RefundPeriodController in CheckMode if CountryChangedPage is true" in {
-        val ua = userAnswers.set(pages.CountryChangedPage, true).success.value
+        val ua = userAnswers.set(CountryChangedPage, true).success.value
         navigator.navigateFromRefundingCurrencyPage(CheckMode)(ua) mustBe
           purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
       }
@@ -399,10 +402,10 @@ class PurchaseNavigatorSpec extends SpecBase {
 
       "must go from RefundingCurrencyPage to TotalPurchaseAmountBeforeVatController in CheckMode when country is EE and currency changed" in {
         val ua = userAnswers
-          .set(pages.RefundingCountryPage, "EE")
+          .set(RefundingCountryPage, "EE")
           .success
           .value
-          .set(pages.CurrencyChangedPage, true)
+          .set(CurrencyChangedPage, true)
           .success
           .value
 

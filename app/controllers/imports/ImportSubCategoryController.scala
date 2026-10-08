@@ -22,7 +22,7 @@ import forms.PurchaseOrImportSubTypeFormProvider
 import models.requests.DataRequest
 import models.{Mode, PurchaseOrImportType}
 import navigation.Navigator
-import pages.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage}
+import pages.imports.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}

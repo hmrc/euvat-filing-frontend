@@ -18,7 +18,7 @@ package controllers.claim
 
 import base.SpecBase
 import controllers.claim.routes
-import pages.{BusinessActivityCodePage, BusinessActivityCodeThreePage, BusinessActivityCodeTwoPage}
+import pages.claim.{BusinessActivityCodePage, BusinessActivityCodeThreePage, BusinessActivityCodeTwoPage}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.claim.BusinessActivityThreeView

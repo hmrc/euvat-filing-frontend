@@ -22,7 +22,8 @@ import forms.purchase.SimplifiedInvoiceVatRegCheckFormProvider
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{PurchaseTypePage, RefundingCountryPage, SimplifiedInvoiceVatRegCheckPage, SupplierAddressPage, SupplierVatRegistrationNumberPage}
+import pages.claim.RefundingCountryPage
+import pages.purchase.{PurchaseTypePage, SimplifiedInvoiceVatRegCheckPage, SupplierAddressPage, SupplierVatRegistrationNumberPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call

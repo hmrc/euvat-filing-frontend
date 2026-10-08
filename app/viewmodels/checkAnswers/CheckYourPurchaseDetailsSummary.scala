@@ -18,7 +18,8 @@ package viewmodels.checkAnswers
 
 import controllers.purchase.routes
 import models.{CheckMode, PurchaseOrImportType, UserAnswers}
-import pages.*
+import pages.claim.{RefundingCountryNamePage, RefundingCountryPage}
+import pages.purchase.*
 import play.api.i18n.{Lang, Messages}
 import play.api.mvc.RequestHeader
 import utils.{ConfigPurchaseOrImportMapping, MountPrefix}
@@ -236,7 +237,7 @@ object CheckYourPurchaseDetailsSummary {
     }
 
   def rowVatPaid(answers: UserAnswers, maybeSymbol: Option[String])(implicit messages: Messages): Option[Row] =
-    answers.get(pages.TotalVatPaidPage).map { amt =>
+    answers.get(TotalVatPaidPage).map { amt =>
       val url = routes.TotalVatPaidController.onPageLoad(CheckMode).url
       val formattedNumber = f"$amt%,1.2f".replace(".00", "")
       val display = maybeSymbol.map(_ + formattedNumber).getOrElse(formattedNumber)

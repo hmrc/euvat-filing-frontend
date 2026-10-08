@@ -24,7 +24,9 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.*
+import pages.PurchaseOrImportPage
+import pages.purchase.*
+import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -36,13 +38,13 @@ import scala.concurrent.Future
 
 class PurchaseOrImportControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRoute = Call("GET", "/foo")
+  def onwardRoute: Call = Call("GET", "/foo")
 
   lazy val purchaseOrImportRoute: String = routes.PurchaseOrImportController.onPageLoad.url
   lazy val backLinkCall: Call = routes.BeforeYouStartController.onPageLoad()
 
   val formProvider = new PurchaseOrImportFormProvider()
-  val form = formProvider()
+  val form: Form[PurchaseOrImport] = formProvider()
 
   "PurchaseOrImport Controller" - {
 

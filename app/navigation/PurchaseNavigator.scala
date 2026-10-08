@@ -18,7 +18,7 @@ package navigation
 
 import controllers.purchase.routes as purchaseRoutes
 import models.{CheckMode, InvoiceType, Mode, NormalMode, PurchaseOrImportType, SupplierTaxNumber, UserAnswers}
-import pages.*
+import pages.purchase.*
 import play.api.mvc.Call
 import utils.{ConfigPurchaseOrImportMapping, CountryCode, CurrencyConfig}
 

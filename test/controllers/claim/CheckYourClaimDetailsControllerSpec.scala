@@ -23,7 +23,9 @@ import models.{ContactDetails, RefundPeriod, RefundingLanguage}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar
-import pages.*
+import pages.{ClaimDetailsAmendedPage, ClaimDetailsCompletedPage}
+import pages.claim.*
+import pages.purchase.*
 import play.api.inject.bind
 import play.api.test.CSRFTokenHelper.*
 import play.api.test.FakeRequest

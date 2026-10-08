@@ -23,7 +23,8 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.*
+import pages.claim.RefundingCountryPage
+import pages.purchase.*
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -33,7 +34,6 @@ import repositories.SessionRepository
 import views.html.purchase.InvoiceNumberView
 
 import scala.concurrent.Future
-import pages.{PurchaseTypePage, RefundingCountryPage, SupplierTaxNumberPage}
 
 class InvoiceNumberControllerSpec extends SpecBase with MockitoSugar {
 

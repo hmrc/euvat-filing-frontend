@@ -21,7 +21,8 @@ import models.{Fuel, NormalMode, Other, RefundingLanguage, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.{times, verify}
-import pages.{DescribeItemsOnImportDocPage, ImportSubCodePage, ImportTypePage, RefundingCountryPage, RefundingLanguagePage}
+import pages.claim.{RefundingCountryPage, RefundingLanguagePage}
+import pages.imports.{DescribeItemsOnImportDocPage, ImportSubCodePage, ImportTypePage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest

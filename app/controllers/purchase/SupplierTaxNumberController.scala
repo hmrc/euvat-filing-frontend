@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.purchase.SupplierTaxNumberFormProvider
 import models.{CheckMode, InvoiceType, Mode, NormalMode, SupplierTaxNumber}
 import navigation.Navigator
-import pages.{InvoiceTypePage, SupplierTaxIdentifierNumberPage, SupplierTaxNumberPage, SupplierVatRegistrationNumberPage}
+import pages.purchase.*
 import play.api.Logger
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}

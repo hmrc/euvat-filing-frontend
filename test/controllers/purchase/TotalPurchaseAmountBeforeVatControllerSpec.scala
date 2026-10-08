@@ -18,12 +18,13 @@ package controllers.purchase
 
 import base.SpecBase
 import forms.purchase.TotalPurchaseAmountBeforeVatFormProvider
-import models.{CheckMode, Fuel, NormalMode, PurchaseOrImportType, SupplierTaxNumber, UserAnswers}
+import models.{CheckMode, Fuel, InvoiceType, NormalMode, PurchaseOrImportType, SupplierTaxNumber, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.*
+import pages.claim.RefundingCountryPage
+import pages.purchase.*
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -355,13 +356,13 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
     "back link should navigate correctly for implemented supplier-tax cases" - {
       "Germany + SimplifiedInvoice + taxIdentifier -> supplier tax identifier page" in {
         val userAnswers = UserAnswers(userAnswersId)
-          .set(pages.RefundingCountryPage, "DE")
+          .set(RefundingCountryPage, "DE")
           .success
           .value
-          .set(pages.InvoiceTypePage, models.InvoiceType.SimplifiedInvoice)
+          .set(InvoiceTypePage, InvoiceType.SimplifiedInvoice)
           .success
           .value
-          .set(pages.SupplierTaxNumberPage, models.SupplierTaxNumber.Taxidentifiernumber)
+          .set(SupplierTaxNumberPage, SupplierTaxNumber.Taxidentifiernumber)
           .success
           .value
 
@@ -382,13 +383,13 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
 
       "Germany + StandardInvoice + taxIdentifier -> supplier tax identifier page" in {
         val userAnswers = UserAnswers(userAnswersId)
-          .set(pages.RefundingCountryPage, "DE")
+          .set(RefundingCountryPage, "DE")
           .success
           .value
-          .set(pages.InvoiceTypePage, models.InvoiceType.StandardInvoice)
+          .set(InvoiceTypePage, InvoiceType.StandardInvoice)
           .success
           .value
-          .set(pages.SupplierTaxNumberPage, models.SupplierTaxNumber.Taxidentifiernumber)
+          .set(SupplierTaxNumberPage, SupplierTaxNumber.Taxidentifiernumber)
           .success
           .value
 

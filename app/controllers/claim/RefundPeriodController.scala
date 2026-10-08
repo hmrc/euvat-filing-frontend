@@ -23,7 +23,8 @@ import models.requests.{DataRequest, LatestApplicationRequest}
 import models.responses.TraderKnownFactsResponse
 import models.{Mode, RefundPeriod, UserAnswers}
 import navigation.Navigator
-import pages.*
+import pages.{ClaimDetailsAmendedPage, ClaimDetailsCompletedPage}
+import pages.claim.{CountryChangedPage, RefundPeriodPage}
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -187,7 +188,7 @@ class RefundPeriodController @Inject() (
         updatedAnswer1 <- Future.fromTry(request.userAnswers.set(TraderKnownFactsQuery, traderResponse))
         updatedAnswer2 <- Future.fromTry(updatedAnswer1.set(RefundPeriodPage, refundPeriod))
         _              <- sessionRepository.set(updatedAnswer2)
-      } yield Redirect(controllers.warning.routes.ConfirmRefundPeriodStartDateController.onPageLoad(mode))
+      } yield Redirect(controllers.warning.routes.RefundPeriodStartDateWarningController.onPageLoad(mode))
     } else {
       checkEndDateNotInPast(vrn, traderResponse, startDate, endDate, mode)
     }
@@ -208,7 +209,7 @@ class RefundPeriodController @Inject() (
       for {
         updatedUserAnswers <- updateUserAnswers(traderResponse, refundPeriod)
         _                  <- sessionRepository.set(updatedUserAnswers)
-      } yield Redirect(controllers.warning.routes.ConfirmRefundPeriodEndDateController.onPageLoad(mode))
+      } yield Redirect(controllers.warning.routes.RefundPeriodEndDateWarningController.onPageLoad(mode))
     } else {
       checkOverlappingPeriod(vrn, traderResponse, startDate, endDate, mode)
     }

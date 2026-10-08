@@ -17,19 +17,19 @@
 package controllers.purchase
 
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
+import models.requests.UpdatePurchaseRequest
+import models.responses.AddPurchaseResponse
 import models.{InvoiceType, PurchaseOrImportType}
-import pages.*
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import pages.purchase.*
 import play.api.Logging
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import queries.{ClaimApplicationResponseQuery, InvoiceNumberFlagQuery, UpdateSequenceNumberQuery}
 import repositories.SessionRepository
 import services.EuVatRefundsService
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import models.requests.UpdatePurchaseRequest
-import models.responses.AddPurchaseResponse
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import utils.{ConfigPurchaseOrImportMapping, CountryCode, CurrencyConfig}
 import viewmodels.checkAnswers.CheckYourPurchaseDetailsSummary
 import views.html.purchase.CheckYourPurchaseDetailsView
@@ -123,7 +123,7 @@ class CheckYourPurchaseDetailsController @Inject() (
           .get(SimplifiedInvoiceVatRegCheckPage)
           .map(_.toString)
           .orElse {
-            request.userAnswers.get(pages.InvoiceTypePage).map {
+            request.userAnswers.get(InvoiceTypePage).map {
               case models.InvoiceType.SimplifiedInvoice => "true"
               case _                                    => "false"
             }

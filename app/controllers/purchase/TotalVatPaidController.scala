@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.purchase.TotalVatPaidFormProvider
 import models.{CheckMode, Mode, NormalMode}
 import navigation.Navigator
-import pages.{TotalPurchaseAmountBeforeVatPage, TotalVatPaidPage}
+import pages.purchase.{TotalPurchaseAmountBeforeVatPage, TotalVatPaidPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}

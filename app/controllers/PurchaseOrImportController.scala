@@ -20,7 +20,8 @@ import controllers.actions.*
 import forms.PurchaseOrImportFormProvider
 import models.{NormalMode, PurchaseOrImport, UserAnswers}
 import navigation.Navigator
-import pages.*
+import pages.PurchaseOrImportPage
+import pages.purchase.*
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}

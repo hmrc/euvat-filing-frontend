@@ -22,6 +22,10 @@ import controllers.purchase.routes as purchaseRoutes
 import models.*
 import models.PurchaseOrImport.{Import, Purchase}
 import pages.*
+import pages.purchase.*
+import pages.claim.{BusinessActivityCodeThreePage, BusinessActivityPage, BusinessActivityTwoPage, CheckYourStateDetailsPage, ContactDetailsPage, RefundPeriodPage, RefundingCountryPage, RefundingLanguagePage}
+import pages.imports.{DescribeItemsOnImportDocPage, ImportCurrencyPage, ImportDetailsInfoPage, ImportSubCategoryPage, ImportSubCodePage, ImportSuppliersNamePage, ImportTotalVatClaimPage, ImportTypePage, SadReferenceCheckPage, SadReferenceNumberPage, TotalAmountWithoutVatPage, TotalVatPaidImportPage}
+import pages.purchase.DescribeItemsOnInvoicePage
 import play.api.mvc.Call
 
 import javax.inject.{Inject, Singleton}

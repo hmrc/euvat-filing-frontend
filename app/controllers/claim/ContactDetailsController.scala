@@ -20,7 +20,7 @@ import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierA
 import forms.claim.ContactDetailsFormProvider
 import models.{Mode, NormalMode}
 import navigation.Navigator
-import pages.ContactDetailsPage
+import pages.claim.ContactDetailsPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository

@@ -22,7 +22,7 @@ import forms.DescribeItemsFormProvider
 import models.requests.DataRequest
 import models.*
 import navigation.Navigator
-import pages.{DescribeItemsOnImportDocPage, ImportSubCodePage, ImportTypePage}
+import pages.imports.{DescribeItemsOnImportDocPage, ImportSubCodePage, ImportTypePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents, Result}

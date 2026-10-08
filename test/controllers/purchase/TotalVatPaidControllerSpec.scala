@@ -23,7 +23,7 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{PurchaseTypePage, TotalPurchaseAmountBeforeVatPage, TotalVatClaimPage, TotalVatPaidPage}
+import pages.purchase.{PurchaseTypePage, TotalPurchaseAmountBeforeVatPage, TotalVatClaimPage, TotalVatPaidPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call

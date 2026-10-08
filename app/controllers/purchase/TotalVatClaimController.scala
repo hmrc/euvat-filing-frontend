@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.purchase.TotalVatClaimFormProvider
 import models.{CheckMode, Mode, NormalMode}
 import navigation.Navigator
-import pages.{TotalVatClaimPage, TotalVatPaidPage}
+import pages.purchase.{TotalVatClaimPage, TotalVatPaidPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}

@@ -22,7 +22,7 @@ import forms.SuppliersNameFormProvider
 import models.{Mode, NormalMode}
 import models.requests.DataRequest
 import navigation.Navigator
-import pages.ImportSuppliersNamePage
+import pages.imports.ImportSuppliersNamePage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}

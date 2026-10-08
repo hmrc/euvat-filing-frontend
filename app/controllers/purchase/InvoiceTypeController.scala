@@ -17,19 +17,18 @@
 package controllers.purchase
 
 import controllers.actions.*
-import controllers.helpers.PurchaseBackLinkHelper
 import forms.purchase.InvoiceTypeFormProvider
 import models.requests.DataRequest
 import models.{CheckMode, InvoiceType, Mode, NormalMode, Other, PurchaseOrImportType, UserAnswers}
 import navigation.Navigator
-import pages.*
+import pages.purchase.*
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.{ConfigPurchaseOrImportMapping, CountryCode}
+import utils.{ConfigPurchaseOrImportMapping, CountryCode, PurchaseOrImportHelpers}
 import views.html.purchase.InvoiceTypeView
 
 import javax.inject.Inject
@@ -62,11 +61,11 @@ class InvoiceTypeController @Inject() (
       routes.CheckYourPurchaseDetailsController.onPageLoad()
     } else {
       if (!isOther) {
-        PurchaseBackLinkHelper.computeBackTarget(NormalMode)
+        PurchaseOrImportHelpers.computeBackTarget(NormalMode)
       } else if (parentIsNone || childIsNone) {
         routes.DescribeItemsOnInvoiceController.onPageLoad(NormalMode)
       } else {
-        PurchaseBackLinkHelper.computeBackTarget(NormalMode)
+        PurchaseOrImportHelpers.computeBackTarget(NormalMode)
       }
     }
   }

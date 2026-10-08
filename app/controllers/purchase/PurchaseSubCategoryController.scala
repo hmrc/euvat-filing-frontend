@@ -21,7 +21,8 @@ import forms.PurchaseOrImportSubTypeFormProvider
 import models.requests.DataRequest
 import models.{CheckMode, Mode, NormalMode, PurchaseOrImportSubCategoryType, PurchaseOrImportType, UserAnswers}
 import navigation.Navigator
-import pages.*
+import pages.purchase.*
+import pages.claim.CountryChangedPage
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}

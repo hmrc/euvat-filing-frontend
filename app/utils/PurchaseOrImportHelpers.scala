@@ -16,10 +16,15 @@
 
 package utils
 
+import controllers.purchase.routes
 import forms.PurchaseOrImportSubTypeFormProvider
-import models.{RefundingCurrency, UserAnswers}
+import models.PurchaseOrImportSubCategoryType.{defaultSlugFor, purchaseOrImportSubCategoryUrlSlugFor}
+import models.requests.DataRequest
+import models.{Mode, PurchaseOrImportSubCategoryType, PurchaseOrImportType, RefundingCurrency, UserAnswers}
+import pages.purchase.{PurchaseSubCategoryPage, PurchaseSubTypePage, PurchaseTypePage}
 import play.api.data.Form
 import play.api.i18n.Messages
+import play.api.mvc.Call
 import queries.Settable
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
@@ -94,4 +99,30 @@ object PurchaseOrImportHelpers {
               disabled        = false,
               attributes      = Map.empty
             )
+
+  def computeBackTarget(mode: Mode)(implicit request: DataRequest[?]): Call = {
+    val maybePurchaseTypeSlug = request.userAnswers.get(PurchaseTypePage).map(PurchaseOrImportType.urlSlugForPurchaseType)
+    val maybeParentCode = request.userAnswers.get(PurchaseSubTypePage)
+    val maybeChildCode = request.userAnswers.get(PurchaseSubCategoryPage)
+    lazy val purchaseType = maybePurchaseTypeSlug
+      .flatMap(urlSlug => PurchaseOrImportType.values.find(PurchaseOrImportType.urlSlugForPurchaseType(_) == urlSlug))
+
+    (maybePurchaseTypeSlug, maybeParentCode, maybeChildCode) match {
+      case (Some(urlSlug), None, Some(child)) if child.contains(".") && purchaseType.isDefined =>
+        val parentKey = purchaseType.get.toString
+
+        purchaseOrImportSubCategoryUrlSlugFor(parentKey, child)
+          .orElse(purchaseOrImportSubCategoryUrlSlugFor(parentKey, child.split("\\.").head))
+          .orElse(defaultSlugFor(parentKey))
+          .map(urlSlug => Call("GET", s"${MountPrefix.getFromRequest}/$urlSlug"))
+          .getOrElse(routes.PurchaseTypeController.onPageLoad(mode))
+      case (Some(_), Some(parent), Some(_)) if purchaseType.isDefined =>
+        val slugPath = PurchaseOrImportSubCategoryType.pathFor(purchaseType.get.toString, parent)
+        Call("GET", s"${MountPrefix.getFromRequest}/$slugPath")
+      case (Some(slug), Some(_), None) =>
+        Call("GET", s"${MountPrefix.getFromRequest}/$slug")
+      case _ => routes.PurchaseTypeController.onPageLoad(mode)
+    }
+  }
+
 }

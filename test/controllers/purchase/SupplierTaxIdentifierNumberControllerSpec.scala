@@ -19,13 +19,15 @@ package controllers.purchase
 import base.SpecBase
 import forms.purchase.SupplierTaxIdentifierNumberFormProvider
 import models.responses.{AddPurchaseResponse, ApplicationResponse, SupplierTaxIdentifierCountResponse}
-import models.{CheckMode, NormalMode, UserAnswers}
+import models.{CheckMode, NormalMode, SupplierTaxNumber, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{AddPurchaseResponsePage, InvoiceNumberPage, SupplierTaxIdentifierNumberPage, TotalPurchaseAmountBeforeVatPage}
+import pages.claim.RefundingCountryPage
+import pages.purchase.*
+import pages.warning.SupplierTaxIdentifierWarningPage
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -194,7 +196,7 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
 
         val captor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository, org.mockito.Mockito.times(2)).set(captor.capture())
-        captor.getAllValues.get(1).get(pages.SupplierTaxIdentifierWarningPage) mustBe Some(true)
+        captor.getAllValues.get(1).get(SupplierTaxIdentifierWarningPage) mustBe Some(true)
       }
     }
 
@@ -212,10 +214,10 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
         .set(InvoiceNumberPage, "INV123")
         .success
         .value
-        .set(pages.SupplierTaxNumberPage, models.SupplierTaxNumber.Taxidentifiernumber)
+        .set(SupplierTaxNumberPage, SupplierTaxNumber.Taxidentifiernumber)
         .success
         .value
-        .set(pages.RefundingCountryPage, "DE")
+        .set(RefundingCountryPage, "DE")
         .success
         .value
 
@@ -239,7 +241,7 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
         redirectLocation(result).value mustEqual routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode).url
         val captor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository, org.mockito.Mockito.times(1)).set(captor.capture())
-        captor.getAllValues.get(0).get(pages.SupplierTaxIdentifierWarningPage) mustBe None
+        captor.getAllValues.get(0).get(SupplierTaxIdentifierWarningPage) mustBe None
       }
     }
 
