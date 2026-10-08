@@ -21,22 +21,21 @@
 @this(
     layout: templates.Layout,
     formHelper: FormWithCSRF,
-    govukErrorSummary: GovukErrorSummary,
     govukInput: GovukInput,
     govukButton: GovukButton,
     mainErrorSummary: MainErrorSummary
 )
 
-@(form: Form[_], mode: Mode, call: Call, currencySymbol: String)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, submitCall: Call, call: Call, currencySymbol: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("totalVatClaim.title")), backLinkUrl = Some(call.url)) {
 
-    @formHelper(action = controllers.purchase.routes.TotalVatClaimController.onSubmit(mode), Symbol("autoComplete") -> "off") {
+    @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
 
         @mainErrorSummary(form)
 
+        <span class="govuk-caption-l">@messages("purchase.caption")</span>
         <h1 class="govuk-heading-l">
-            <span class="govuk-caption-l">@messages("purchase.caption")</span>
             @messages("totalVatClaim.heading")
         </h1>
         <p class="govuk-body-m">@messages("totalVatClaim.p1")</p>

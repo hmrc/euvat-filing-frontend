@@ -74,7 +74,4 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
       case _          => importsRoutes.ImportDetailsInfoController.onPageLoad(mode)
     }
 
-  def navigateFromTotalAmountWithoutVatPage(mode: Mode)(userAnswers: UserAnswers): Call =
-    importsRoutes.TotalVatPaidImportController.onPageLoad(mode)
-
 }
