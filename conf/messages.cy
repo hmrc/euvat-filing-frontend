@@ -607,7 +607,7 @@ removeItem.title = Remove item
 removeItem.heading = Remove item
 removeItem.list1 = Type
 removeItem.list2 = VAT claim
-removeItem.value = Not provided // TODO: if item "incomplete" show this msg instead of the amount
+removeItem.value = Not provided
 removeItem.legend = Are you sure you want to remove this item?
 removeItem.error.required = Select yes if you want to remove this item
 
