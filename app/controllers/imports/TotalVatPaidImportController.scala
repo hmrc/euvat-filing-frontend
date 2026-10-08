@@ -66,7 +66,10 @@ class TotalVatPaidImportController @Inject() (
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, formAction(mode), backLink(mode), "import.caption", "totalVatPaidImport.p1", prefix, currencyName))),
+        formWithErrors =>
+          Future.successful(
+            BadRequest(view(formWithErrors, formAction(mode), backLink(mode), "import.caption", "totalVatPaidImport.p1", prefix, currencyName))
+          ),
         value =>
           for {
             userAnswers <- Future.fromTry(request.userAnswers.set(TotalVatPaidImportPage, value))

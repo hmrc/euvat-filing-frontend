@@ -49,11 +49,19 @@ class TotalVatPaidControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request = FakeRequest(GET, url)
         val result = route(application, request).value
-        val view = application.injector.instanceOf[PurchaseOrImportTotalVatPaidView ]
+        val view = application.injector.instanceOf[PurchaseOrImportTotalVatPaidView]
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, routes.TotalVatPaidController.onSubmit(NormalMode), routes. TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode), "purchase.caption", "totalVatPaid.p1", "€", "Euro")(
+          view(
+            form,
+            routes.TotalVatPaidController.onSubmit(NormalMode),
+            routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode),
+            "purchase.caption",
+            "totalVatPaid.p1",
+            "€",
+            "Euro"
+          )(
             request,
             messages(application)
           ).toString
@@ -67,11 +75,19 @@ class TotalVatPaidControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request = FakeRequest(GET, routes.TotalVatPaidController.onPageLoad(CheckMode).url)
         val result = route(application, request).value
-        val view = application.injector.instanceOf[PurchaseOrImportTotalVatPaidView ]
+        val view = application.injector.instanceOf[PurchaseOrImportTotalVatPaidView]
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, routes.TotalVatPaidController.onSubmit(CheckMode), routes.CheckYourPurchaseDetailsController.onPageLoad(), "purchase.caption", "totalVatPaid.p1", "€", "Euro")(
+          view(
+            form,
+            routes.TotalVatPaidController.onSubmit(CheckMode),
+            routes.CheckYourPurchaseDetailsController.onPageLoad(),
+            "purchase.caption",
+            "totalVatPaid.p1",
+            "€",
+            "Euro"
+          )(
             request,
             messages(application)
           ).toString
@@ -86,11 +102,19 @@ class TotalVatPaidControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request = FakeRequest(GET, url)
         val result = route(application, request).value
-        val view = application.injector.instanceOf[PurchaseOrImportTotalVatPaidView ]
+        val view = application.injector.instanceOf[PurchaseOrImportTotalVatPaidView]
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form.fill(BigDecimal("12.34")), routes.TotalVatPaidController.onSubmit(NormalMode), routes. TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode), "purchase.caption", "totalVatPaid.p1", "€", "Euro")(
+          view(
+            form.fill(BigDecimal("12.34")),
+            routes.TotalVatPaidController.onSubmit(NormalMode),
+            routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode),
+            "purchase.caption",
+            "totalVatPaid.p1",
+            "€",
+            "Euro"
+          )(
             request,
             messages(application)
           ).toString
@@ -151,12 +175,20 @@ class TotalVatPaidControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("value", ""))
 
         val boundForm = form.bind(Map("value" -> ""))
-        val view = application.injector.instanceOf[PurchaseOrImportTotalVatPaidView ]
+        val view = application.injector.instanceOf[PurchaseOrImportTotalVatPaidView]
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(boundForm, routes.TotalVatPaidController.onSubmit(NormalMode), routes. TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode), "purchase.caption", "totalVatPaid.p1", "€", "Euro")(
+          view(
+            boundForm,
+            routes.TotalVatPaidController.onSubmit(NormalMode),
+            routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode),
+            "purchase.caption",
+            "totalVatPaid.p1",
+            "€",
+            "Euro"
+          )(
             request,
             messages(application)
           ).toString

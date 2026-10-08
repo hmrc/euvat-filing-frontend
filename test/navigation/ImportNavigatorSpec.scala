@@ -295,11 +295,6 @@ class ImportNavigatorSpec extends SpecBase {
       }
     }
 
-    "navigateFromTotalAmountWithoutVatPage" - {
-      "must go to TotalVatPaidImportController" in {
-        navigator.navigateFromTotalAmountWithoutVatPage(NormalMode)(userAnswers) mustBe
-          controllers.imports.routes.TotalVatPaidImportController.onPageLoad(NormalMode)
-      }
-    }
+    // navigateFromTotalAmountWithoutVatPage removed from navigator; no direct test
   }
 }

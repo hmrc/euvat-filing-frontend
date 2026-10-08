@@ -72,9 +72,10 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case ImportSuppliersNamePage   => _ => importRoutes.ImportSupplierAddressController.onPageLoad(NormalMode)
     case ImportCurrencyPage        => _ => importRoutes.TotalAmountWithoutVatController.onPageLoad(NormalMode)
     case ImportSupplierAddressPage => userAnswers => importNavigator.navigateToCurrencyOrNextPage(NormalMode)(userAnswers)
-    case TotalAmountWithoutVatPage => userAnswers => importNavigator.navigateFromTotalAmountWithoutVatPage(NormalMode)(userAnswers)
-    case TotalVatPaidImportPage            => _ => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO : replace with Total Vat Claim RA5.9 controller once built
-    case _                                 => _ => controllers.routes.IndexController.onPageLoad()
+    case TotalAmountWithoutVatPage => _ => controllers.imports.routes.TotalVatPaidImportController.onPageLoad(NormalMode)
+    case TotalVatPaidImportPage    => _ => controllers.imports.routes.TotalVatClaimController.onPageLoad(NormalMode)
+    case ImportTotalVatClaimPage   => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
+    case _                         => _ => controllers.routes.IndexController.onPageLoad()
   }
 
   private val checkRoutes: Page => UserAnswers => Call = {
@@ -112,16 +113,17 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case ImportDetailsInfoPage     => _ => importRoutes.ImportSuppliersNameController.onPageLoad(CheckMode)
     case ImportSuppliersNamePage   => userAnswers => importNavigator.navigateToCurrencyOrNextPage(CheckMode)(userAnswers)
     case ImportCurrencyPage        => _ => importRoutes.TotalAmountWithoutVatController.onPageLoad(CheckMode)
-    case TotalAmountWithoutVatPage => userAnswers => importNavigator.navigateFromTotalAmountWithoutVatPage(CheckMode)(userAnswers)
-    case TotalVatPaidImportPage            => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
+    case TotalAmountWithoutVatPage => _ => controllers.imports.routes.TotalVatPaidImportController.onPageLoad(CheckMode)
+    case TotalVatPaidImportPage    => _ => controllers.imports.routes.TotalVatClaimController.onPageLoad(CheckMode)
+    case ImportTotalVatClaimPage   => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
     case ImportSupplierAddressPage         => userAnswers => importNavigator.navigateToCurrencyOrNextPage(CheckMode)(userAnswers)
-    case _                                 => _ => controllers.routes.IndexController.onPageLoad()
+    case _                         => _ => controllers.routes.IndexController.onPageLoad()
   }
 
   private def navigateFromPurchaseOrImportPage(userAnswers: UserAnswers): Call =
-      userAnswers.get(PurchaseOrImportPage) match {
-        case Some(Purchase) => purchaseRoutes.PurchaseTypeController.onPageLoad(NormalMode)
-        case Some(Import)   => importRoutes.ImportTypeController.onPageLoad(NormalMode)
-        case None           => controllers.routes.JourneyRecoveryController.onPageLoad()
-      }
+    userAnswers.get(PurchaseOrImportPage) match {
+      case Some(Purchase) => purchaseRoutes.PurchaseTypeController.onPageLoad(NormalMode)
+      case Some(Import)   => importRoutes.ImportTypeController.onPageLoad(NormalMode)
+      case None           => controllers.routes.JourneyRecoveryController.onPageLoad()
+    }
 }
