@@ -134,7 +134,7 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
   private def navigateFromRemoveItemPage(userAnswers: UserAnswers): Call =
     (userAnswers.get(RemoveItemPage), userAnswers.get(IsLastItemQuery)) match {
         case (Some(true), Some(true))   => controllers.routes.TaskListDashboardController.onPageLoad()
-        case (Some(_), _)               => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: replace with PurchaseImportSummaryController once DTR-7247 is merged to main
+        case (Some(_), _)               => controllers.routes.PurchaseImportSummaryController.onPageLoad
         case _                          => controllers.routes.TaskListDashboardController.onPageLoad()
     }
 

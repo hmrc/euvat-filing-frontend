@@ -27,7 +27,7 @@
 
 @layout(pageTitle = title(form, messages("removeItem.title")), backLinkUrl = Some(call.url)) {
 
-    @formHelper(action = controllers.routes.RemoveItemController.onSubmit(), Symbol("autoComplete") -> "off") {
+    @formHelper(action = controllers.routes.RemoveItemController.onSubmit, Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
