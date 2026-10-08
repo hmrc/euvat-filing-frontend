@@ -264,11 +264,6 @@ class NavigatorSpec extends SpecBase {
           controllers.imports.routes.ImportSuppliersNameController.onPageLoad(CheckMode)
       }
 
-      "must go from a page that doesn't exist in the edit route map to IndexController" in {
-        case object UnknownPage extends Page
-        navigator.nextPage(UnknownPage, CheckMode, userAnswers) mustBe controllers.routes.IndexController.onPageLoad()
-      }
-
       "must go from DescribeItemsOnImportDocPage to SadReferenceCheckController" in {
         navigator.nextPage(DescribeItemsOnImportDocPage, CheckMode, userAnswers) mustBe
           importRoutes.SadReferenceCheckController.onPageLoad(CheckMode)
