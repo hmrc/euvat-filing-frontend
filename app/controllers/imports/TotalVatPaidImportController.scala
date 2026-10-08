@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package controllers.purchase
+package controllers.imports
 
 import controllers.actions.*
-import forms.purchase.TotalVatPaidFormProvider
-import models.{CheckMode, Mode, NormalMode}
+import forms.imports.TotalVatPaidImportFormProvider
+import javax.inject.Inject
+import models.Mode
 import navigation.Navigator
-import pages.{TotalPurchaseAmountBeforeVatPage, TotalVatPaidPage}
+import pages.TotalVatPaidImportPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
@@ -30,10 +31,9 @@ import utils.ControllerHelpers.*
 import utils.CurrencyConfig
 import views.html.PurchaseOrImportTotalVatPaidView
 
-import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class TotalVatPaidController @Inject() (
+class TotalVatPaidImportController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
   navigator: Navigator,
@@ -41,7 +41,7 @@ class TotalVatPaidController @Inject() (
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  formProvider: TotalVatPaidFormProvider,
+  formProvider: TotalVatPaidImportFormProvider,
   val controllerComponents: MessagesControllerComponents,
   view: PurchaseOrImportTotalVatPaidView
 )(implicit ec: ExecutionContext)
@@ -50,18 +50,15 @@ class TotalVatPaidController @Inject() (
 
   val form: Form[BigDecimal] = formProvider()
 
-  private def backLink(mode: Mode) = if (mode == CheckMode) {
-    routes.CheckYourPurchaseDetailsController.onPageLoad()
-  } else {
-    routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
-  }
+  private def backLink(mode: Mode): Call =
+    controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad(mode)
 
-  private def formAction(mode: Mode): Call = routes.TotalVatPaidController.onSubmit(mode)
+  private def formAction(mode: Mode): Call = routes.TotalVatPaidImportController.onSubmit(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = request.userAnswers.get(TotalVatPaidPage).fold(form)(form.fill)
+    val preparedForm = request.userAnswers.get(TotalVatPaidImportPage).fold(form)(form.fill)
     val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)
-    Ok(view(preparedForm, formAction(mode), backLink(mode), "purchase.caption", "totalVatPaid.p1", prefix, currencyName))
+    Ok(view(preparedForm, formAction(mode), backLink(mode), "import.caption", "totalVatPaidImport.p1", prefix, currencyName))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -69,20 +66,12 @@ class TotalVatPaidController @Inject() (
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, formAction(mode), backLink(mode), "purchase.caption", "totalVatPaid.p1", prefix, currencyName))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, formAction(mode), backLink(mode), "import.caption", "totalVatPaidImport.p1", prefix, currencyName))),
         value =>
           for {
-            userAnswers <- Future.fromTry(request.userAnswers.set(TotalVatPaidPage, value))
+            userAnswers <- Future.fromTry(request.userAnswers.set(TotalVatPaidImportPage, value))
             _           <- sessionRepository.set(userAnswers)
-          } yield {
-            val amountBeforeVat: BigDecimal = userAnswers.get(TotalPurchaseAmountBeforeVatPage).getOrElse(BigDecimal(0))
-            if (value > amountBeforeVat) {
-              Redirect(controllers.warning.routes.VatPaidWarningController.onPageLoad(mode))
-            } else {
-              Redirect(navigator.nextPage(TotalVatPaidPage, mode, userAnswers))
-            }
-          }
+          } yield Redirect(navigator.nextPage(TotalVatPaidImportPage, mode, userAnswers))
       )
   }
-
 }

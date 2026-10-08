@@ -27,19 +27,19 @@
     govukButton: GovukButton
 )
 
-@(form: Form[_], mode: Mode, call: Call, prefix: String, currencyName: String)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], submitCall: Call, backLink: Call, captionKey: String, paragraphKey: String, prefix: String, currencyName: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("totalVatPaid.title")), backLinkUrl = Some(call.url)) {
+@layout(pageTitle = title(form, messages("totalVatPaid.title")), backLinkUrl = Some(backLink.url)) {
 
-    @formHelper(action = controllers.purchase.routes.TotalVatPaidController.onSubmit(mode), Symbol("autoComplete") -> "off") {
+    @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
 
         @mainErrorSummary(form, Map.empty)
 
+        <span class="govuk-caption-l">@messages(captionKey)</span>
         <h1 class="govuk-heading-l">
-            <span class="govuk-caption-l">@messages("purchase.caption")</span>
             @messages("totalVatPaid.heading")
         </h1>
-        <div id="total-vat-paid" class="govuk-body">@Html(messages("totalVatPaid.p1"))</div>
+        <p id="total-vat-paid" class="govuk-body">@Html(messages(paragraphKey))</p>
 
         @govukInput(
             InputViewModel(

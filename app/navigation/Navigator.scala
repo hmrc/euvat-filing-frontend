@@ -73,7 +73,8 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case ImportCurrencyPage        => _ => importRoutes.TotalAmountWithoutVatController.onPageLoad(NormalMode)
     case ImportSupplierAddressPage => userAnswers => importNavigator.navigateToCurrencyOrNextPage(NormalMode)(userAnswers)
     case TotalAmountWithoutVatPage => userAnswers => importNavigator.navigateFromTotalAmountWithoutVatPage(NormalMode)(userAnswers)
-    case _                         => _ => controllers.routes.IndexController.onPageLoad()
+    case TotalVatPaidImportPage            => _ => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO : replace with Total Vat Claim RA5.9 controller once built
+    case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 
   private val checkRoutes: Page => UserAnswers => Call = {
@@ -106,19 +107,21 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case ImportSubCategoryPage             => userAnswers => importNavigator.navigateFromImportSubCategoryPage(CheckMode)(userAnswers)
     case DescribeItemsOnImportDocPage      => _ => importRoutes.SadReferenceCheckController.onPageLoad(CheckMode)
     case SadReferenceCheckPage             => userAnswers => importNavigator.navigateFromSadReferenceCheckPage(CheckMode)(userAnswers)
-    case SadReferenceNumberPage            => _ => importRoutes.ImportSuppliersNameController.onPageLoad(CheckMode) // TODO: import date page goes here
-    case ImportDetailsInfoPage             => _ => importRoutes.ImportSuppliersNameController.onPageLoad(CheckMode)
-    case ImportSuppliersNamePage           => userAnswers => importNavigator.navigateToCurrencyOrNextPage(CheckMode)(userAnswers)
-    case ImportCurrencyPage                => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
+    case SadReferenceNumberPage =>
+      userAnswers => importNavigator.navigateFromSadReferenceNumberPage(CheckMode)(userAnswers) // TODO: import date page goes here
+    case ImportDetailsInfoPage     => _ => importRoutes.ImportSuppliersNameController.onPageLoad(CheckMode)
+    case ImportSuppliersNamePage   => userAnswers => importNavigator.navigateToCurrencyOrNextPage(CheckMode)(userAnswers)
+    case ImportCurrencyPage        => _ => importRoutes.TotalAmountWithoutVatController.onPageLoad(CheckMode)
+    case TotalAmountWithoutVatPage => userAnswers => importNavigator.navigateFromTotalAmountWithoutVatPage(CheckMode)(userAnswers)
+    case TotalVatPaidImportPage            => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
     case ImportSupplierAddressPage         => userAnswers => importNavigator.navigateToCurrencyOrNextPage(CheckMode)(userAnswers)
     case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 
   private def navigateFromPurchaseOrImportPage(userAnswers: UserAnswers): Call =
-    userAnswers.get(PurchaseOrImportPage) match {
-      case Some(Purchase) => purchaseRoutes.PurchaseTypeController.onPageLoad(NormalMode)
-      case Some(Import)   => importRoutes.ImportTypeController.onPageLoad(NormalMode)
-      case None           => controllers.routes.JourneyRecoveryController.onPageLoad()
-    }
-
+      userAnswers.get(PurchaseOrImportPage) match {
+        case Some(Purchase) => purchaseRoutes.PurchaseTypeController.onPageLoad(NormalMode)
+        case Some(Import)   => importRoutes.ImportTypeController.onPageLoad(NormalMode)
+        case None           => controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
 }
