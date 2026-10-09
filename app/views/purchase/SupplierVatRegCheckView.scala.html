@@ -26,9 +26,9 @@
 
 @isError = @{form.error("value").isDefined}
 
-@layout(pageTitle = title(form, messages("simplifiedInvoiceVatRegCheck.title")), backLinkUrl = Some(call.url)) {
+@layout(pageTitle = title(form, messages("supplierVatRegCheck.title")), backLinkUrl = Some(call.url)) {
 
-    @formHelper(action = controllers.purchase.routes.SimplifiedInvoiceVatRegCheckController.onSubmit(mode), Symbol("autoComplete") -> "off") {
+    @formHelper(action = controllers.purchase.routes.SupplierVatRegCheckController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
@@ -40,7 +40,7 @@
                 RadiosViewModel(
                     field = form("value"),
                     legend = Legend(
-                        content = Text(messages("simplifiedInvoiceVatRegCheck.heading")),
+                        content = Text(messages("supplierVatRegCheck.heading")),
                         classes = "govuk-fieldset__legend--l",
                         isPageHeading = true
                     ),
@@ -56,7 +56,7 @@
                             content = Text(messages("site.no"))
                             )
                         )
-                ).withHint(HintViewModel(messages("simplifiedInvoiceVatRegCheck.hint")))
+                ).withHint(HintViewModel(messages("supplierVatRegCheck.hint")))
             )
         </div>
 

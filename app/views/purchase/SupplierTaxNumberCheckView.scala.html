@@ -27,11 +27,11 @@
     govukButton: GovukButton
 )
 
-@(form: Form[SupplierTaxNumber], mode: Mode, call: Call, isSimplifiedInvoice: Boolean)(implicit request: Request[_], messages: Messages)
+@(form: Form[SupplierTaxNumberCheck], mode: Mode, call: Call, isSimplifiedInvoice: Boolean)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = views.ViewUtils.title(form, messages("supplierTaxNumber.title")), backLinkUrl = Some(call.url)) {
+@layout(pageTitle = views.ViewUtils.title(form, messages("supplierTaxNumberCheck.title")), backLinkUrl = Some(call.url)) {
 
-    @formHelper(action = controllers.purchase.routes.SupplierTaxNumberController.onSubmit(mode)) {
+    @formHelper(action = controllers.purchase.routes.SupplierTaxNumberCheckController.onSubmit(mode)) {
 
         @mainErrorSummary(form, Map("value" -> "value_0"))
 
@@ -43,14 +43,14 @@
                     RadioItem(
                         id = Some("value_0"),
                         value = Some("vatRegistrationNumber"),
-                        content = Text(messages("supplierTaxNumber.vatRegistrationNumber")),
-                        hint = Some(Hint(content = Text(messages("supplierTaxNumber.vatRegistrationNumber.hint"))))
+                        content = Text(messages("supplierTaxNumberCheck.vatRegistrationNumber")),
+                        hint = Some(Hint(content = Text(messages("supplierTaxNumberCheck.vatRegistrationNumber.hint"))))
                     ),
                     RadioItem(
                         id = Some("value_1"),
                         value = Some("taxIdentifierNumber"),
-                        content = Text(messages("supplierTaxNumber.taxIdentifierNumber")),
-                        hint = Some(Hint(content = Text(messages("supplierTaxNumber.taxIdentifierNumber.hint"))))
+                        content = Text(messages("supplierTaxNumberCheck.taxIdentifierNumber")),
+                        hint = Some(Hint(content = Text(messages("supplierTaxNumberCheck.taxIdentifierNumber.hint"))))
                     )
                 )
 
@@ -60,7 +60,7 @@
                         RadioItem(
                             id = Some("value_2"),
                             value = Some("neither"),
-                            content = Text(messages("supplierTaxNumber.neither"))
+                            content = Text(messages("supplierTaxNumberCheck.neither"))
                         )
                     )
                 }   else baseItems
@@ -69,7 +69,7 @@
                     RadiosViewModel(
                         field = form("value"),
                         legend = Legend(
-                            content = Text(messages("supplierTaxNumber.heading")),
+                            content = Text(messages("supplierTaxNumberCheck.heading")),
                             classes = "govuk-fieldset__legend--l",
                             isPageHeading = true
                         ),

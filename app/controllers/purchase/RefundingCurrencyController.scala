@@ -22,7 +22,7 @@ import models.requests.DataRequest
 import models.{CheckMode, Mode, NormalMode, RefundingCurrency, UserAnswers}
 import navigation.Navigator
 import pages.{ClaimDetailsAmendedPage, ClaimDetailsCompletedPage}
-import pages.purchase.{CurrencyChangedPage, RefundingCurrencyPage, SimplifiedInvoiceVatRegCheckPage}
+import pages.purchase.{CurrencyChangedPage, RefundingCurrencyPage, SupplierVatRegCheckPage}
 import play.api.Logger
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -61,8 +61,8 @@ class RefundingCurrencyController @Inject() (
     mode match {
       case CheckMode => routes.CheckYourPurchaseDetailsController.onPageLoad()
       case _ =>
-        if (userAnswers.get(SimplifiedInvoiceVatRegCheckPage).contains(false)) {
-          routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode)
+        if (userAnswers.get(SupplierVatRegCheckPage).contains(false)) {
+          routes.SupplierVatRegCheckController.onPageLoad(NormalMode)
         } else {
           routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode)
         }

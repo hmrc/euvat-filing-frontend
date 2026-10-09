@@ -130,12 +130,12 @@ class PurchaseOrImportControllerSpec extends SpecBase with MockitoSugar {
         savedAnswers.get(InvoiceNumberPage) mustBe None
         savedAnswers.get(InvoiceDatePage) mustBe None
         savedAnswers.get(RefundingCurrencyPage) mustBe None
-        savedAnswers.get(SimplifiedInvoiceVatRegCheckPage) mustBe None
+        savedAnswers.get(SupplierVatRegCheckPage) mustBe None
         savedAnswers.get(SuppliersNamePage) mustBe None
         savedAnswers.get(SupplierAddressPage) mustBe None
         savedAnswers.get(SupplierVatRegistrationNumberPage) mustBe None
         savedAnswers.get(SupplierTaxIdentifierNumberPage) mustBe None
-        savedAnswers.get(SupplierTaxNumberPage) mustBe None
+        savedAnswers.get(SupplierTaxNumberCheckPage) mustBe None
         savedAnswers.get(TotalPurchaseAmountBeforeVatPage) mustBe None
         savedAnswers.get(TotalVatPaidPage) mustBe None
         savedAnswers.get(TotalVatClaimPage) mustBe None

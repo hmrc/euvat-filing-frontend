@@ -113,7 +113,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
       }
     }
 
-    "should use explicit SimplifiedInvoiceVatRegCheckPage when present (true)" in {
+    "should use explicit SupplierVatRegCheckPage when present (true)" in {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val captor: ArgumentCaptor[UpdatePurchaseRequest] = ArgumentCaptor.forClass(classOf[UpdatePurchaseRequest])
@@ -128,7 +128,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
         .set(PurchaseSubTypePage, "1.2")
         .success
         .value
-        .set(SimplifiedInvoiceVatRegCheckPage, true)
+        .set(SupplierVatRegCheckPage, true)
         .success
         .value
         .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber = 3, updateSequenceNumber = 3))
@@ -153,7 +153,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
       }
     }
 
-    "should use explicit SimplifiedInvoiceVatRegCheckPage when present (false)" in {
+    "should use explicit SupplierVatRegCheckPage when present (false)" in {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val captor: ArgumentCaptor[UpdatePurchaseRequest] = ArgumentCaptor.forClass(classOf[UpdatePurchaseRequest])
@@ -168,7 +168,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
         .set(PurchaseSubTypePage, "1.2")
         .success
         .value
-        .set(SimplifiedInvoiceVatRegCheckPage, false)
+        .set(SupplierVatRegCheckPage, false)
         .success
         .value
         .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber = 4, updateSequenceNumber = 4))

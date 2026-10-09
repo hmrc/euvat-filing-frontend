@@ -191,7 +191,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return OK and the correct view for a GET when simplified invoice check exists with value Yes and back link to TotalVatPaid" in {
-      val userAnswers = emptyUserAnswers.set(SimplifiedInvoiceVatRegCheckPage, true).success.value
+      val userAnswers = emptyUserAnswers.set(SupplierVatRegCheckPage, true).success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {

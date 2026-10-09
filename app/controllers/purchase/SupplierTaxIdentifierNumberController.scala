@@ -61,7 +61,7 @@ class SupplierTaxIdentifierNumberController @Inject() (
     mode match {
       case CheckMode if hasInvoiceNumber => routes.InvoiceNumberController.onPageLoad(CheckMode)
       case CheckMode                     => routes.CheckYourPurchaseDetailsController.onPageLoad()
-      case _                             => routes.SupplierTaxNumberController.onPageLoad(NormalMode)
+      case _                             => routes.SupplierTaxNumberCheckController.onPageLoad(NormalMode)
     }
   }
 

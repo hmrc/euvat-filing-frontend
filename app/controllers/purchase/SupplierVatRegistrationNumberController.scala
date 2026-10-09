@@ -63,8 +63,8 @@ class SupplierVatRegistrationNumberController @Inject() (
     mode match {
       case CheckMode if hasInvoiceNumber => routes.InvoiceNumberController.onPageLoad(CheckMode)
       case CheckMode                     => routes.CheckYourPurchaseDetailsController.onPageLoad()
-      case _ if isGermany                => routes.SupplierTaxNumberController.onPageLoad(NormalMode)
-      case _ if isSimplified             => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode)
+      case _ if isGermany                => routes.SupplierTaxNumberCheckController.onPageLoad(NormalMode)
+      case _ if isSimplified             => routes.SupplierVatRegCheckController.onPageLoad(NormalMode)
       case _                             => routes.SupplierAddressController.onPageLoad(NormalMode)
     }
   }

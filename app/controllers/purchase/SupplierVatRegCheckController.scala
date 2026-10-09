@@ -17,30 +17,30 @@
 package controllers.purchase
 
 import controllers.actions.*
-import forms.purchase.SimplifiedInvoiceVatRegCheckFormProvider
+import forms.purchase.SupplierVatRegCheckFormProvider
 import models.{CheckMode, Mode, NormalMode}
 import navigation.Navigator
-import pages.purchase.{SimplifiedInvoiceVatRegCheckPage, SupplierVatRegistrationNumberPage}
+import pages.purchase.{SupplierVatRegCheckPage, SupplierVatRegistrationNumberPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.*
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.purchase.SimplifiedInvoiceVatRegCheckView
+import views.html.purchase.SupplierVatRegCheckView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class SimplifiedInvoiceVatRegCheckController @Inject() (
-  override val messagesApi: MessagesApi,
-  sessionRepository: SessionRepository,
-  navigator: Navigator,
-  identify: IdentifierAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
-  formProvider: SimplifiedInvoiceVatRegCheckFormProvider,
-  val controllerComponents: MessagesControllerComponents,
-  view: SimplifiedInvoiceVatRegCheckView
+class SupplierVatRegCheckController @Inject()(
+                                               override val messagesApi: MessagesApi,
+                                               sessionRepository: SessionRepository,
+                                               navigator: Navigator,
+                                               identify: IdentifierAction,
+                                               getData: DataRetrievalAction,
+                                               requireData: DataRequiredAction,
+                                               formProvider: SupplierVatRegCheckFormProvider,
+                                               val controllerComponents: MessagesControllerComponents,
+                                               view: SupplierVatRegCheckView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
@@ -53,7 +53,7 @@ class SimplifiedInvoiceVatRegCheckController @Inject() (
   }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = request.userAnswers.get(SimplifiedInvoiceVatRegCheckPage).fold(form)(form.fill)
+    val preparedForm = request.userAnswers.get(SupplierVatRegCheckPage).fold(form)(form.fill)
     Ok(view(preparedForm, mode, backLink(mode)))
   }
 
@@ -63,11 +63,11 @@ class SimplifiedInvoiceVatRegCheckController @Inject() (
       .fold(
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)))),
         value =>
-          if (mode == CheckMode && request.userAnswers.isAnswerUnchanged(SimplifiedInvoiceVatRegCheckPage, value)) {
+          if (mode == CheckMode && request.userAnswers.isAnswerUnchanged(SupplierVatRegCheckPage, value)) {
             Future.successful(Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad()))
           } else {
             for {
-              answers <- Future.fromTry(request.userAnswers.set(SimplifiedInvoiceVatRegCheckPage, value))
+              answers <- Future.fromTry(request.userAnswers.set(SupplierVatRegCheckPage, value))
               updatedAnswers <- if (value) {
                                   Future.successful(answers)
                                 } else {
@@ -78,7 +78,7 @@ class SimplifiedInvoiceVatRegCheckController @Inject() (
               if (mode == CheckMode && !value) {
                 Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
               } else {
-                Redirect(navigator.nextPage(SimplifiedInvoiceVatRegCheckPage, mode, answers))
+                Redirect(navigator.nextPage(SupplierVatRegCheckPage, mode, answers))
               }
             }
           }

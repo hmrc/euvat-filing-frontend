@@ -17,15 +17,14 @@
 package forms.purchase
 
 import forms.mappings.Mappings
-import models.SupplierTaxNumber
 import play.api.data.Form
 
 import javax.inject.Inject
 
-class SupplierTaxNumberFormProvider @Inject() extends Mappings {
+class SupplierVatRegCheckFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[SupplierTaxNumber] =
+  def apply(): Form[Boolean] =
     Form(
-      "value" -> enumerable[SupplierTaxNumber]("supplierTaxNumber.error.required")
+      "value" -> boolean("supplierVatRegCheck.error.required")
     )
 }

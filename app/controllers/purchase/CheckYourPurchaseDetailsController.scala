@@ -120,7 +120,7 @@ class CheckYourPurchaseDetailsController @Inject() (
           case _                                                                          => None
         }
         val simplifiedInvoiceIndicator: Option[String] = request.userAnswers
-          .get(SimplifiedInvoiceVatRegCheckPage)
+          .get(SupplierVatRegCheckPage)
           .map(_.toString)
           .orElse {
             request.userAnswers.get(InvoiceTypePage).map {

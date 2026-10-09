@@ -102,11 +102,11 @@ class InvoiceTypeController @Inject() (
     if (mode == CheckMode) {
       val countryOpt = CountryCode.findCountryCode(updatedAnswers)
       countryOpt match {
-        case Some("DE") => Redirect(routes.SupplierTaxNumberController.onPageLoad(CheckMode))
+        case Some("DE") => Redirect(routes.SupplierTaxNumberCheckController.onPageLoad(CheckMode))
         case _ =>
           value match {
             case InvoiceType.StandardInvoice   => Redirect(routes.SupplierVatRegistrationNumberController.onPageLoad(CheckMode))
-            case InvoiceType.SimplifiedInvoice => Redirect(routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(CheckMode))
+            case InvoiceType.SimplifiedInvoice => Redirect(routes.SupplierVatRegCheckController.onPageLoad(CheckMode))
           }
       }
     } else {

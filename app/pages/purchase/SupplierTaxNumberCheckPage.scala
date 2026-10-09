@@ -16,12 +16,13 @@
 
 package pages.purchase
 
+import models.SupplierTaxNumberCheck
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-case object SimplifiedInvoiceVatRegCheckPage extends QuestionPage[Boolean] {
+case object SupplierTaxNumberCheckPage extends QuestionPage[SupplierTaxNumberCheck] {
 
   override def path: JsPath = JsPath \ toString
 
-  override def toString: String = "simplifiedInvoiceVatRegCheck"
+  override def toString: String = "supplierTaxNumberCheck"
 }

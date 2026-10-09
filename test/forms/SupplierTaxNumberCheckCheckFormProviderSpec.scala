@@ -17,23 +17,23 @@
 package forms
 
 import forms.behaviours.OptionFieldBehaviours
-import forms.purchase.SupplierTaxNumberFormProvider
-import models.SupplierTaxNumber
+import forms.purchase.SupplierTaxNumberCheckFormProvider
+import models.SupplierTaxNumberCheck
 import play.api.data.FormError
 
-class SupplierTaxNumberFormProviderSpec extends OptionFieldBehaviours {
+class SupplierTaxNumberCheckCheckFormProviderSpec extends OptionFieldBehaviours {
 
-  val form = new SupplierTaxNumberFormProvider()()
+  val form = new SupplierTaxNumberCheckFormProvider()()
 
   ".value" - {
 
     val fieldName = "value"
-    val requiredKey = "supplierTaxNumber.error.required"
+    val requiredKey = "supplierTaxNumberCheck.error.required"
 
-    behave like optionsField[SupplierTaxNumber](
+    behave like optionsField[SupplierTaxNumberCheck](
       form,
       fieldName,
-      validValues  = SupplierTaxNumber.values,
+      validValues  = SupplierTaxNumberCheck.values,
       invalidError = FormError(fieldName, "error.invalid")
     )
 

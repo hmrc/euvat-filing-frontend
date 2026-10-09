@@ -18,28 +18,28 @@ package controllers.purchase
 
 import base.SpecBase
 import models.*
-import forms.purchase.SimplifiedInvoiceVatRegCheckFormProvider
+import forms.purchase.SupplierVatRegCheckFormProvider
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.claim.RefundingCountryPage
-import pages.purchase.{PurchaseTypePage, SimplifiedInvoiceVatRegCheckPage, SupplierAddressPage, SupplierVatRegistrationNumberPage}
+import pages.purchase.{PurchaseTypePage, SupplierAddressPage, SupplierVatRegCheckPage, SupplierVatRegistrationNumberPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.purchase.SimplifiedInvoiceVatRegCheckView
+import views.html.purchase.SupplierVatRegCheckView
 
 import scala.concurrent.Future
 
-class SimplifiedInvoiceVatRegCheckControllerSpec extends SpecBase with MockitoSugar {
+class SupplierVatRegCheckControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute: Call = Call("GET", "/foo")
-  val formProvider = new SimplifiedInvoiceVatRegCheckFormProvider()
+  val formProvider = new SupplierVatRegCheckFormProvider()
   val form: Form[Boolean] = formProvider()
-  lazy val simplifiedInvoiceVatRegCheckRoute: String = routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode).url
+  lazy val supplierVatRegCheckRoute: String = routes.SupplierVatRegCheckController.onPageLoad(NormalMode).url
   private lazy val backLink: Call = routes.SupplierAddressController.onPageLoad(NormalMode)
 
   val userAnswersWithAddress: UserAnswers = emptyUserAnswers
@@ -47,15 +47,15 @@ class SimplifiedInvoiceVatRegCheckControllerSpec extends SpecBase with MockitoSu
     .success
     .value
 
-  "SimplifiedInvoiceVatRegCheck Controller" - {
+  "SupplierVatRegCheckController" - {
 
     "must return OK and the correct view for a GET" in {
       val application = applicationBuilder(userAnswers = Some(userAnswersWithAddress)).build()
 
       running(application) {
-        val request = FakeRequest(GET, simplifiedInvoiceVatRegCheckRoute)
+        val request = FakeRequest(GET, supplierVatRegCheckRoute)
         val result = route(application, request).value
-        val view = application.injector.instanceOf[SimplifiedInvoiceVatRegCheckView]
+        val view = application.injector.instanceOf[SupplierVatRegCheckView]
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(view(form, NormalMode, backLink)(request, messages(application)).toString)
@@ -66,9 +66,9 @@ class SimplifiedInvoiceVatRegCheckControllerSpec extends SpecBase with MockitoSu
       val application = applicationBuilder(userAnswers = Some(userAnswersWithAddress)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(CheckMode).url)
+        val request = FakeRequest(GET, routes.SupplierVatRegCheckController.onPageLoad(CheckMode).url)
         val result = route(application, request).value
-        val view = application.injector.instanceOf[SimplifiedInvoiceVatRegCheckView]
+        val view = application.injector.instanceOf[SupplierVatRegCheckView]
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
@@ -78,12 +78,12 @@ class SimplifiedInvoiceVatRegCheckControllerSpec extends SpecBase with MockitoSu
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
-      val userAnswers = userAnswersWithAddress.set(SimplifiedInvoiceVatRegCheckPage, true).success.value
+      val userAnswers = userAnswersWithAddress.set(SupplierVatRegCheckPage, true).success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, simplifiedInvoiceVatRegCheckRoute)
-        val view = application.injector.instanceOf[SimplifiedInvoiceVatRegCheckView]
+        val request = FakeRequest(GET, supplierVatRegCheckRoute)
+        val view = application.injector.instanceOf[SupplierVatRegCheckView]
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -97,7 +97,7 @@ class SimplifiedInvoiceVatRegCheckControllerSpec extends SpecBase with MockitoSu
       val application = applicationBuilder(userAnswers = Some(userAnswersWithAddress)).build()
 
       running(application) {
-        val request = FakeRequest(GET, simplifiedInvoiceVatRegCheckRoute)
+        val request = FakeRequest(GET, supplierVatRegCheckRoute)
         val result = route(application, request).value
         status(result) mustEqual OK
       }
@@ -116,7 +116,7 @@ class SimplifiedInvoiceVatRegCheckControllerSpec extends SpecBase with MockitoSu
 
       running(application) {
         val request =
-          FakeRequest(POST, simplifiedInvoiceVatRegCheckRoute)
+          FakeRequest(POST, supplierVatRegCheckRoute)
             .withFormUrlEncodedBody(("value", "true"))
 
         val result = route(application, request).value
@@ -139,7 +139,7 @@ class SimplifiedInvoiceVatRegCheckControllerSpec extends SpecBase with MockitoSu
 
       running(application) {
         val request =
-          FakeRequest(POST, simplifiedInvoiceVatRegCheckRoute)
+          FakeRequest(POST, supplierVatRegCheckRoute)
             .withFormUrlEncodedBody(("value", "false"))
 
         val result = route(application, request).value
@@ -150,7 +150,7 @@ class SimplifiedInvoiceVatRegCheckControllerSpec extends SpecBase with MockitoSu
     }
 
     "must redirect to Supplier VAT entry when in CheckMode and Yes selected for purchase journey" in {
-      val userAnswers = userAnswersWithAddress.set(SimplifiedInvoiceVatRegCheckPage, true).success.value
+      val userAnswers = userAnswersWithAddress.set(SupplierVatRegCheckPage, true).success.value
       val mockSessionRepository = mock[repositories.SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
@@ -159,7 +159,7 @@ class SimplifiedInvoiceVatRegCheckControllerSpec extends SpecBase with MockitoSu
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.SimplifiedInvoiceVatRegCheckController.onSubmit(CheckMode).url)
+        val request = FakeRequest(POST, routes.SupplierVatRegCheckController.onSubmit(CheckMode).url)
           .withFormUrlEncodedBody(("value", "true"))
 
         val result = route(application, request).value
@@ -173,7 +173,7 @@ class SimplifiedInvoiceVatRegCheckControllerSpec extends SpecBase with MockitoSu
         .set(PurchaseTypePage, Fuel)
         .success
         .value
-        .set(SimplifiedInvoiceVatRegCheckPage, true)
+        .set(SupplierVatRegCheckPage, true)
         .success
         .value
 
@@ -185,7 +185,7 @@ class SimplifiedInvoiceVatRegCheckControllerSpec extends SpecBase with MockitoSu
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.SimplifiedInvoiceVatRegCheckController.onSubmit(models.CheckMode).url)
+        val request = FakeRequest(POST, routes.SupplierVatRegCheckController.onSubmit(models.CheckMode).url)
           .withFormUrlEncodedBody(("value", "true"))
 
         val result = route(application, request).value
@@ -197,7 +197,7 @@ class SimplifiedInvoiceVatRegCheckControllerSpec extends SpecBase with MockitoSu
 
     "must redirect to Currency page for country Estonia if NO selected" in {
       val userAnswers = emptyUserAnswers
-        .set(SimplifiedInvoiceVatRegCheckPage, false)
+        .set(SupplierVatRegCheckPage, false)
         .success
         .value
         .set(RefundingCountryPage, "EE")
@@ -212,7 +212,7 @@ class SimplifiedInvoiceVatRegCheckControllerSpec extends SpecBase with MockitoSu
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.SimplifiedInvoiceVatRegCheckController.onSubmit(NormalMode).url)
+        val request = FakeRequest(POST, routes.SupplierVatRegCheckController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody(("value", "false"))
 
         val result = route(application, request).value
@@ -230,7 +230,7 @@ class SimplifiedInvoiceVatRegCheckControllerSpec extends SpecBase with MockitoSu
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.SimplifiedInvoiceVatRegCheckController.onSubmit(CheckMode).url)
+        val request = FakeRequest(POST, routes.SupplierVatRegCheckController.onSubmit(CheckMode).url)
           .withFormUrlEncodedBody(("value", "false"))
 
         val result = route(application, request).value
@@ -241,7 +241,7 @@ class SimplifiedInvoiceVatRegCheckControllerSpec extends SpecBase with MockitoSu
         org.mockito.Mockito.verify(mockSessionRepository).set(captor.capture())
         val saved = captor.getValue
         saved.get(SupplierVatRegistrationNumberPage) mustBe None
-        saved.get(SimplifiedInvoiceVatRegCheckPage) mustBe Some(false)
+        saved.get(SupplierVatRegCheckPage) mustBe Some(false)
       }
     }
 
@@ -250,11 +250,11 @@ class SimplifiedInvoiceVatRegCheckControllerSpec extends SpecBase with MockitoSu
 
       running(application) {
         val request =
-          FakeRequest(POST, simplifiedInvoiceVatRegCheckRoute)
+          FakeRequest(POST, supplierVatRegCheckRoute)
             .withFormUrlEncodedBody(("value", ""))
 
         val boundForm = form.bind(Map("value" -> ""))
-        val view = application.injector.instanceOf[SimplifiedInvoiceVatRegCheckView]
+        val view = application.injector.instanceOf[SupplierVatRegCheckView]
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
@@ -266,7 +266,7 @@ class SimplifiedInvoiceVatRegCheckControllerSpec extends SpecBase with MockitoSu
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(GET, simplifiedInvoiceVatRegCheckRoute)
+        val request = FakeRequest(GET, supplierVatRegCheckRoute)
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
@@ -278,7 +278,7 @@ class SimplifiedInvoiceVatRegCheckControllerSpec extends SpecBase with MockitoSu
 
       running(application) {
         val request =
-          FakeRequest(POST, simplifiedInvoiceVatRegCheckRoute)
+          FakeRequest(POST, supplierVatRegCheckRoute)
             .withFormUrlEncodedBody(("value", "true"))
 
         val result = route(application, request).value

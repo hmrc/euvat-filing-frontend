@@ -25,7 +25,7 @@ import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.ClaimDetailsCompletedPage
 import pages.claim.{RefundingCountryNamePage, RefundingCountryPage}
-import pages.purchase.{RefundingCurrencyPage, SimplifiedInvoiceVatRegCheckPage}
+import pages.purchase.{RefundingCurrencyPage, SupplierVatRegCheckPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -45,7 +45,7 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
 
   "RefundingCurrency Controller" - {
     "must show back link to the supplier VAT registration number page in NormalMode if vat reg check is selected Yes" in {
-      val userAnswers = userAnswersWithEstonia.set(SimplifiedInvoiceVatRegCheckPage, true).success.value
+      val userAnswers = userAnswersWithEstonia.set(SupplierVatRegCheckPage, true).success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -58,7 +58,7 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must show back link to the Simplified invoice vat reg check page in NormalMode if it was selected No" in {
-      val userAnswers = userAnswersWithEstonia.set(SimplifiedInvoiceVatRegCheckPage, false).success.value
+      val userAnswers = userAnswersWithEstonia.set(SupplierVatRegCheckPage, false).success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -66,7 +66,7 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) must include(routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode).url)
+        contentAsString(result) must include(routes.SupplierVatRegCheckController.onPageLoad(NormalMode).url)
       }
     }
 

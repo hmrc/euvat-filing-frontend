@@ -312,16 +312,16 @@ suppliersName.checkYourAnswersLabel = Supplier name
 suppliersName.change.hidden = Change supplier name
 suppliersName.import.hint = Find the supplier’s name on the import document
 
-supplierTaxNumber.title = Select the supplier tax numbers shown on the invoice
-supplierTaxNumber.heading = Select the supplier tax numbers shown on the invoice
-supplierTaxNumber.vatRegistrationNumber = VAT registration number (also known as Umsatzsteuer-Identifikationsnummer)
-supplierTaxNumber.vatRegistrationNumber.hint = This is usually 11 characters and starts with DE, for example DE123456789
-supplierTaxNumber.taxIdentifierNumber = Tax identifier number (also known as Steuernummer)
-supplierTaxNumber.taxIdentifierNumber.hint = This is 10 or 11 digits, for example 12/345/67890
-supplierTaxNumber.error.required = Select the supplier tax numbers shown on the invoice
-supplierTaxNumber.neither = I do not have any of these on the invoice
-supplierTaxNumber.checkYourAnswersLabel = Supplier tax numbers
-supplierTaxNumber.change.hidden = Change supplier tax numbers
+supplierTaxNumberCheck.title = Select the supplier tax numbers shown on the invoice
+supplierTaxNumberCheck.heading = Select the supplier tax numbers shown on the invoice
+supplierTaxNumberCheck.vatRegistrationNumber = VAT registration number (also known as Umsatzsteuer-Identifikationsnummer)
+supplierTaxNumberCheck.vatRegistrationNumber.hint = This is usually 11 characters and starts with DE, for example DE123456789
+supplierTaxNumberCheck.taxIdentifierNumber = Tax identifier number (also known as Steuernummer)
+supplierTaxNumberCheck.taxIdentifierNumber.hint = This is 10 or 11 digits, for example 12/345/67890
+supplierTaxNumberCheck.error.required = Select the supplier tax numbers shown on the invoice
+supplierTaxNumberCheck.neither = I do not have any of these on the invoice
+supplierTaxNumberCheck.checkYourAnswersLabel = Supplier tax numbers
+supplierTaxNumberCheck.change.hidden = Change supplier tax numbers
 
 supplierVatRegistrationNumber.title = What is the supplier’s VAT registration number?
 supplierVatRegistrationNumber.heading = What is the supplier’s VAT registration number?
@@ -417,12 +417,12 @@ invoiceNumber.error.invalid = Enter a valid invoice number
 invoiceNumber.checkYourAnswersLabel = Invoice number
 invoiceNumber.change.hidden = Change the invoice number
 
-simplifiedInvoiceVatRegCheck.title = Does the simplified invoice contain the supplier’s VAT registration number?
-simplifiedInvoiceVatRegCheck.heading = Does the simplified invoice contain the supplier’s VAT registration number?
-simplifiedInvoiceVatRegCheck.hint = This can be up to 12 characters and may start with a 2-letter EU country code. For example, FR123456789
-simplifiedInvoiceVatRegCheck.error.required = Select yes if the simplified invoice contains the supplier’s VAT registration number
-simplifiedInvoiceVatRegCheck.checkYourAnswersLabel = Supplier VAT registration check
-simplifiedInvoiceVatRegCheck.change.hidden = Change supplier VAT registration check
+supplierVatRegCheck.title = Does the simplified invoice contain the supplier’s VAT registration number?
+supplierVatRegCheck.heading = Does the simplified invoice contain the supplier’s VAT registration number?
+supplierVatRegCheck.hint = This can be up to 12 characters and may start with a 2-letter EU country code. For example, FR123456789
+supplierVatRegCheck.error.required = Select yes if the simplified invoice contains the supplier’s VAT registration number
+supplierVatRegCheck.checkYourAnswersLabel = Supplier VAT registration check
+supplierVatRegCheck.change.hidden = Change supplier VAT registration check
 
 purchaseType.title = Purchase type
 purchaseType.heading = Purchase type

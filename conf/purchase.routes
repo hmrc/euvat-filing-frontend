@@ -98,15 +98,15 @@ POST       /supplier-address                                controllers.purchase
 GET        /change-supplier-address                         controllers.purchase.SupplierAddressController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-supplier-address                         controllers.purchase.SupplierAddressController.onSubmit(mode: Mode = CheckMode)
 
-GET        /supplier-vat-registration-check                 controllers.purchase.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode: Mode = NormalMode)
-POST       /supplier-vat-registration-check                 controllers.purchase.SimplifiedInvoiceVatRegCheckController.onSubmit(mode: Mode = NormalMode)
-GET        /change-supplier-vat-registration-check          controllers.purchase.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode: Mode = CheckMode)
-POST       /change-supplier-vat-registration-check          controllers.purchase.SimplifiedInvoiceVatRegCheckController.onSubmit(mode: Mode = CheckMode)
+GET        /supplier-vat-registration-check                 controllers.purchase.SupplierVatRegCheckController.onPageLoad(mode: Mode = NormalMode)
+POST       /supplier-vat-registration-check                 controllers.purchase.SupplierVatRegCheckController.onSubmit(mode: Mode = NormalMode)
+GET        /change-supplier-vat-registration-check          controllers.purchase.SupplierVatRegCheckController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-supplier-vat-registration-check          controllers.purchase.SupplierVatRegCheckController.onSubmit(mode: Mode = CheckMode)
 
-GET        /supplier-tax-number-check                       controllers.purchase.SupplierTaxNumberController.onPageLoad(mode: Mode = NormalMode)
-POST       /supplier-tax-number-check                       controllers.purchase.SupplierTaxNumberController.onSubmit(mode: Mode = NormalMode)
-GET        /change-supplier-tax-number-check                controllers.purchase.SupplierTaxNumberController.onPageLoad(mode: Mode = CheckMode)
-POST       /change-supplier-tax-number-check                controllers.purchase.SupplierTaxNumberController.onSubmit(mode: Mode = CheckMode)
+GET        /supplier-tax-number-check                       controllers.purchase.SupplierTaxNumberCheckController.onPageLoad(mode: Mode = NormalMode)
+POST       /supplier-tax-number-check                       controllers.purchase.SupplierTaxNumberCheckController.onSubmit(mode: Mode = NormalMode)
+GET        /change-supplier-tax-number-check                controllers.purchase.SupplierTaxNumberCheckController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-supplier-tax-number-check                controllers.purchase.SupplierTaxNumberCheckController.onSubmit(mode: Mode = CheckMode)
 
 GET        /supplier-vat-registration                       controllers.purchase.SupplierVatRegistrationNumberController.onPageLoad(mode: Mode = NormalMode)
 POST       /supplier-vat-registration                       controllers.purchase.SupplierVatRegistrationNumberController.onSubmit(mode: Mode = NormalMode)

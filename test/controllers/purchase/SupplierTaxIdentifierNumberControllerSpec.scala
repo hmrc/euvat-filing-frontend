@@ -19,7 +19,7 @@ package controllers.purchase
 import base.SpecBase
 import forms.purchase.SupplierTaxIdentifierNumberFormProvider
 import models.responses.{AddPurchaseResponse, ApplicationResponse, SupplierTaxIdentifierCountResponse}
-import models.{CheckMode, NormalMode, SupplierTaxNumber, UserAnswers}
+import models.{CheckMode, NormalMode, SupplierTaxNumberCheck, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
@@ -57,7 +57,7 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
         val view = application.injector.instanceOf[SupplierTaxIdentifierNumberView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, routes.SupplierTaxNumberController.onPageLoad(NormalMode))(
+        contentAsString(result) mustEqual view(form, NormalMode, routes.SupplierTaxNumberCheckController.onPageLoad(NormalMode))(
           request,
           messages(application)
         ).toString
@@ -113,7 +113,7 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode, routes.SupplierTaxNumberController.onPageLoad(NormalMode))(
+        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode, routes.SupplierTaxNumberCheckController.onPageLoad(NormalMode))(
           request,
           messages(application)
         ).toString
@@ -214,7 +214,7 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
         .set(InvoiceNumberPage, "INV123")
         .success
         .value
-        .set(SupplierTaxNumberPage, SupplierTaxNumber.Taxidentifiernumber)
+        .set(SupplierTaxNumberCheckPage, SupplierTaxNumberCheck.TaxIdentifierNumber)
         .success
         .value
         .set(RefundingCountryPage, "DE")
@@ -295,7 +295,7 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, routes.SupplierTaxNumberController.onPageLoad(NormalMode))(
+        contentAsString(result) mustEqual view(boundForm, NormalMode, routes.SupplierTaxNumberCheckController.onPageLoad(NormalMode))(
           request,
           messages(application)
         ).toString
@@ -315,7 +315,7 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, routes.SupplierTaxNumberController.onPageLoad(NormalMode))(
+        contentAsString(result) mustEqual view(boundForm, NormalMode, routes.SupplierTaxNumberCheckController.onPageLoad(NormalMode))(
           request,
           messages(application)
         ).toString

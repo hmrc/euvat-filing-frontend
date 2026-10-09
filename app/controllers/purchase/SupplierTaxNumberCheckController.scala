@@ -17,8 +17,8 @@
 package controllers.purchase
 
 import controllers.actions.*
-import forms.purchase.SupplierTaxNumberFormProvider
-import models.{CheckMode, InvoiceType, Mode, NormalMode, SupplierTaxNumber}
+import forms.purchase.SupplierTaxNumberCheckFormProvider
+import models.{CheckMode, InvoiceType, Mode, NormalMode, SupplierTaxNumberCheck}
 import navigation.Navigator
 import pages.purchase.*
 import play.api.Logger
@@ -28,26 +28,26 @@ import play.api.mvc.*
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ControllerHelpers.*
-import views.html.purchase.SupplierTaxNumberView
+import views.html.purchase.SupplierTaxNumberCheckView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class SupplierTaxNumberController @Inject() (
-  override val messagesApi: MessagesApi,
-  sessionRepository: SessionRepository,
-  navigator: Navigator,
-  identify: IdentifierAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
-  formProvider: SupplierTaxNumberFormProvider,
-  val controllerComponents: MessagesControllerComponents,
-  view: SupplierTaxNumberView
+class SupplierTaxNumberCheckController @Inject()(
+                                                  override val messagesApi: MessagesApi,
+                                                  sessionRepository: SessionRepository,
+                                                  navigator: Navigator,
+                                                  identify: IdentifierAction,
+                                                  getData: DataRetrievalAction,
+                                                  requireData: DataRequiredAction,
+                                                  formProvider: SupplierTaxNumberCheckFormProvider,
+                                                  val controllerComponents: MessagesControllerComponents,
+                                                  view: SupplierTaxNumberCheckView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
-  val form: Form[SupplierTaxNumber] = formProvider()
+  val form: Form[SupplierTaxNumberCheck] = formProvider()
   private val logger = Logger(getClass)
 
   private def backLink(mode: Mode): Call = if (mode == CheckMode) {
@@ -57,7 +57,7 @@ class SupplierTaxNumberController @Inject() (
   }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = request.userAnswers.get(SupplierTaxNumberPage).fold(form)(form.fill)
+    val preparedForm = request.userAnswers.get(SupplierTaxNumberCheckPage).fold(form)(form.fill)
     val isSimplifiedInvoice: Boolean = request.userAnswers.get(InvoiceTypePage).contains(InvoiceType.SimplifiedInvoice)
     Ok(view(preparedForm, mode, backLink(mode), isSimplifiedInvoice))
   }
@@ -70,18 +70,18 @@ class SupplierTaxNumberController @Inject() (
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode), isSimplifiedInvoice))),
         value =>
           for {
-            userAnswers <- Future.fromTry(request.userAnswers.set(SupplierTaxNumberPage, value))
+            userAnswers <- Future.fromTry(request.userAnswers.set(SupplierTaxNumberCheckPage, value))
             updatedAnswers <- value match {
-                                case SupplierTaxNumber.Vatregistrationnumber => Future.fromTry(userAnswers.remove(SupplierTaxIdentifierNumberPage))
-                                case SupplierTaxNumber.Taxidentifiernumber   => Future.fromTry(userAnswers.remove(SupplierVatRegistrationNumberPage))
-                                case SupplierTaxNumber.Neither =>
+                                case SupplierTaxNumberCheck.VatRegistrationNumber => Future.fromTry(userAnswers.remove(SupplierTaxIdentifierNumberPage))
+                                case SupplierTaxNumberCheck.TaxIdentifierNumber   => Future.fromTry(userAnswers.remove(SupplierVatRegistrationNumberPage))
+                                case SupplierTaxNumberCheck.Neither =>
                                   for {
                                     vatAnswers <- Future.fromTry(userAnswers.remove(SupplierVatRegistrationNumberPage))
                                     tidAnswers <- Future.fromTry(vatAnswers.remove(SupplierTaxIdentifierNumberPage))
                                   } yield tidAnswers
                               }
             _ <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(SupplierTaxNumberPage, mode, updatedAnswers))
+          } yield Redirect(navigator.nextPage(SupplierTaxNumberCheckPage, mode, updatedAnswers))
       )
   }
 

@@ -17,8 +17,8 @@
 package controllers.purchase
 
 import base.SpecBase
-import forms.purchase.SupplierTaxNumberFormProvider
-import models.{CheckMode, InvoiceType, NormalMode, SupplierTaxNumber, UserAnswers}
+import forms.purchase.SupplierTaxNumberCheckFormProvider
+import models.{CheckMode, InvoiceType, NormalMode, SupplierTaxNumberCheck, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -31,20 +31,20 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.purchase.SupplierTaxNumberView
+import views.html.purchase.SupplierTaxNumberCheckView
 
 import scala.concurrent.Future
 
-class SupplierTaxNumberControllerSpec extends SpecBase with MockitoSugar {
+class SupplierTaxNumberCheckControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute: Call = Call("GET", "/foo")
-  lazy val supplierTaxNumberRoute: String = routes.SupplierTaxNumberController.onPageLoad(NormalMode).url
-  val formProvider = new SupplierTaxNumberFormProvider()
-  val form: Form[SupplierTaxNumber] = formProvider()
+  lazy val supplierTaxNumberRoute: String = routes.SupplierTaxNumberCheckController.onPageLoad(NormalMode).url
+  val formProvider = new SupplierTaxNumberCheckFormProvider()
+  val form: Form[SupplierTaxNumberCheck] = formProvider()
   def backLink: Call = routes.SupplierAddressController.onPageLoad(NormalMode)
   def germanUserAnswers: UserAnswers = UserAnswers(userAnswersId).set(RefundingCountryPage, "DE").success.value
 
-  "SupplierTaxNumber Controller" - {
+  "SupplierTaxNumberCheck Controller" - {
 
     "must return OK and the correct view for a GET" in {
       val application = applicationBuilder(userAnswers = Some(germanUserAnswers)).build()
@@ -52,7 +52,7 @@ class SupplierTaxNumberControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request = FakeRequest(GET, supplierTaxNumberRoute)
         val result = route(application, request).value
-        val view = application.injector.instanceOf[SupplierTaxNumberView]
+        val view = application.injector.instanceOf[SupplierTaxNumberCheckView]
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
@@ -65,9 +65,9 @@ class SupplierTaxNumberControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(germanUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.SupplierTaxNumberController.onPageLoad(CheckMode).url)
+        val request = FakeRequest(GET, routes.SupplierTaxNumberCheckController.onPageLoad(CheckMode).url)
         val result = route(application, request).value
-        val view = application.injector.instanceOf[SupplierTaxNumberView]
+        val view = application.injector.instanceOf[SupplierTaxNumberCheckView]
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
@@ -85,7 +85,7 @@ class SupplierTaxNumberControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request = FakeRequest(GET, supplierTaxNumberRoute)
         val result = route(application, request).value
-        val view = application.injector.instanceOf[SupplierTaxNumberView]
+        val view = application.injector.instanceOf[SupplierTaxNumberCheckView]
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
@@ -95,17 +95,17 @@ class SupplierTaxNumberControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
-      val userAnswers = germanUserAnswers.set(SupplierTaxNumberPage, SupplierTaxNumber.values.head).success.value
+      val userAnswers = germanUserAnswers.set(SupplierTaxNumberCheckPage, SupplierTaxNumberCheck.values.head).success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, supplierTaxNumberRoute)
-        val view = application.injector.instanceOf[SupplierTaxNumberView]
+        val view = application.injector.instanceOf[SupplierTaxNumberCheckView]
         val result = route(application, request).value
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form.fill(SupplierTaxNumber.values.head), NormalMode, backLink, isSimplifiedInvoice = false)(
+          view(form.fill(SupplierTaxNumberCheck.values.head), NormalMode, backLink, isSimplifiedInvoice = false)(
             request,
             messages(application)
           ).toString
@@ -128,7 +128,7 @@ class SupplierTaxNumberControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, supplierTaxNumberRoute)
-            .withFormUrlEncodedBody(("value", SupplierTaxNumber.values.head.toString))
+            .withFormUrlEncodedBody(("value", SupplierTaxNumberCheck.values.head.toString))
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
@@ -152,7 +152,7 @@ class SupplierTaxNumberControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, supplierTaxNumberRoute)
-            .withFormUrlEncodedBody(("value", SupplierTaxNumber.values.head.toString))
+            .withFormUrlEncodedBody(("value", SupplierTaxNumberCheck.values.head.toString))
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
@@ -172,7 +172,7 @@ class SupplierTaxNumberControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("value", "invalid value"))
 
         val boundForm = form.bind(Map("value" -> "invalid value"))
-        val view = application.injector.instanceOf[SupplierTaxNumberView]
+        val view = application.injector.instanceOf[SupplierTaxNumberCheckView]
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
@@ -190,7 +190,7 @@ class SupplierTaxNumberControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("value", "invalid value"))
 
         val boundForm = form.bind(Map("value" -> "invalid value"))
-        val view = application.injector.instanceOf[SupplierTaxNumberView]
+        val view = application.injector.instanceOf[SupplierTaxNumberCheckView]
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
@@ -217,7 +217,7 @@ class SupplierTaxNumberControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, supplierTaxNumberRoute)
-            .withFormUrlEncodedBody(("value", SupplierTaxNumber.values.head.toString))
+            .withFormUrlEncodedBody(("value", SupplierTaxNumberCheck.values.head.toString))
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
@@ -226,13 +226,13 @@ class SupplierTaxNumberControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to Check Your Purchase Details when data unchanged in CheckMode" in {
-      val userAnswers = germanUserAnswers.set(SupplierTaxNumberPage, SupplierTaxNumber.Vatregistrationnumber).success.value
+      val userAnswers = germanUserAnswers.set(SupplierTaxNumberCheckPage, SupplierTaxNumberCheck.VatRegistrationNumber).success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request =
-          FakeRequest(POST, routes.SupplierTaxNumberController.onSubmit(CheckMode).url)
-            .withFormUrlEncodedBody(("value", SupplierTaxNumber.Vatregistrationnumber.toString))
+          FakeRequest(POST, routes.SupplierTaxNumberCheckController.onSubmit(CheckMode).url)
+            .withFormUrlEncodedBody(("value", SupplierTaxNumberCheck.VatRegistrationNumber.toString))
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
@@ -241,7 +241,7 @@ class SupplierTaxNumberControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to Check Your Purchase Details when selecting Neither in CheckMode" in {
-      val userAnswers = germanUserAnswers.set(SupplierTaxNumberPage, SupplierTaxNumber.Vatregistrationnumber).success.value
+      val userAnswers = germanUserAnswers.set(SupplierTaxNumberCheckPage, SupplierTaxNumberCheck.VatRegistrationNumber).success.value
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
@@ -254,8 +254,8 @@ class SupplierTaxNumberControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, routes.SupplierTaxNumberController.onSubmit(CheckMode).url)
-            .withFormUrlEncodedBody(("value", SupplierTaxNumber.Neither.toString))
+          FakeRequest(POST, routes.SupplierTaxNumberCheckController.onSubmit(CheckMode).url)
+            .withFormUrlEncodedBody(("value", SupplierTaxNumberCheck.Neither.toString))
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
@@ -277,8 +277,8 @@ class SupplierTaxNumberControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, routes.SupplierTaxNumberController.onSubmit(CheckMode).url)
-            .withFormUrlEncodedBody(("value", SupplierTaxNumber.Taxidentifiernumber.toString))
+          FakeRequest(POST, routes.SupplierTaxNumberCheckController.onSubmit(CheckMode).url)
+            .withFormUrlEncodedBody(("value", SupplierTaxNumberCheck.TaxIdentifierNumber.toString))
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
@@ -300,8 +300,8 @@ class SupplierTaxNumberControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, routes.SupplierTaxNumberController.onSubmit(CheckMode).url)
-            .withFormUrlEncodedBody(("value", SupplierTaxNumber.Vatregistrationnumber.toString))
+          FakeRequest(POST, routes.SupplierTaxNumberCheckController.onSubmit(CheckMode).url)
+            .withFormUrlEncodedBody(("value", SupplierTaxNumberCheck.VatRegistrationNumber.toString))
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER

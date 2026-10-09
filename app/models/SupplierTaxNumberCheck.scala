@@ -20,28 +20,28 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 
-sealed trait SupplierTaxNumber
+sealed trait SupplierTaxNumberCheck
 
-object SupplierTaxNumber extends Enumerable.Implicits {
+object SupplierTaxNumberCheck extends Enumerable.Implicits {
 
-  case object Vatregistrationnumber extends WithName("vatRegistrationNumber") with SupplierTaxNumber
-  case object Taxidentifiernumber   extends WithName("taxIdentifierNumber") with SupplierTaxNumber
-  case object Neither               extends WithName("neither") with SupplierTaxNumber
+  case object VatRegistrationNumber extends WithName("vatRegistrationNumber") with SupplierTaxNumberCheck
+  case object TaxIdentifierNumber   extends WithName("taxIdentifierNumber") with SupplierTaxNumberCheck
+  case object Neither               extends WithName("neither") with SupplierTaxNumberCheck
 
-  val values: Seq[SupplierTaxNumber] = Seq(
-    Vatregistrationnumber,
-    Taxidentifiernumber,
+  val values: Seq[SupplierTaxNumberCheck] = Seq(
+    VatRegistrationNumber,
+    TaxIdentifierNumber,
     Neither
   )
 
   def options(implicit messages: Messages): Seq[RadioItem] = values.zipWithIndex.map { case (value, index) =>
     RadioItem(
-      content = Text(messages(s"supplierTaxNumber.${value.toString}")),
+      content = Text(messages(s"supplierTaxNumberCheck.${value.toString}")),
       value   = Some(value.toString),
       id      = Some(s"value_$index")
     )
   }
 
-  implicit val enumerable: Enumerable[SupplierTaxNumber] =
+  implicit val enumerable: Enumerable[SupplierTaxNumberCheck] =
     Enumerable(values.map(v => v.toString -> v)*)
 }

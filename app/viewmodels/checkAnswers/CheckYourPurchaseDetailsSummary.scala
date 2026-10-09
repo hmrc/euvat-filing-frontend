@@ -190,11 +190,11 @@ object CheckYourPurchaseDetailsSummary {
     }
 
   def rowSupplierVatRegCheck(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
-    answers.get(SimplifiedInvoiceVatRegCheckPage).map { v =>
-      val url = routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(CheckMode).url
-      (messages("simplifiedInvoiceVatRegCheck.checkYourAnswersLabel"),
+    answers.get(SupplierVatRegCheckPage).map { v =>
+      val url = routes.SupplierVatRegCheckController.onPageLoad(CheckMode).url
+      (messages("supplierVatRegCheck.checkYourAnswersLabel"),
        Some(if (v) messages("site.yes") else messages("site.no")),
-       Seq((url, "site.change", "simplifiedInvoiceVatRegCheck.change.hidden"))
+       Seq((url, "site.change", "supplierVatRegCheck.change.hidden"))
       )
     }
 
@@ -256,28 +256,28 @@ object CheckYourPurchaseDetailsSummary {
     answers
       .get(SupplierVatRegistrationNumberPage)
       .map { _num =>
-        val url = routes.SupplierTaxNumberController.onPageLoad(CheckMode).url
-        (messages("supplierTaxNumber.checkYourAnswersLabel"),
+        val url = routes.SupplierTaxNumberCheckController.onPageLoad(CheckMode).url
+        (messages("supplierTaxNumberCheck.checkYourAnswersLabel"),
          Some(messages("supplierVatRegistrationNumber.checkYourAnswersLabel")),
          Seq((url, "site.change", "supplierVatRegistrationNumber.change.hidden"))
         )
       }
       .orElse(
         answers.get(SupplierTaxIdentifierNumberPage).map { _num =>
-          val url = routes.SupplierTaxNumberController.onPageLoad(CheckMode).url
-          (messages("supplierTaxNumber.checkYourAnswersLabel"),
+          val url = routes.SupplierTaxNumberCheckController.onPageLoad(CheckMode).url
+          (messages("supplierTaxNumberCheck.checkYourAnswersLabel"),
            Some(messages("supplierTaxIdentifierNumber.checkYourAnswersLabel")),
            Seq((url, "site.change", "supplierTaxIdentifierNumber.change.hidden"))
           )
         }
       )
       .orElse(
-        answers.get(SupplierTaxNumberPage) match {
-          case Some(models.SupplierTaxNumber.Neither) =>
+        answers.get(SupplierTaxNumberCheckPage) match {
+          case Some(models.SupplierTaxNumberCheck.Neither) =>
             Some(
-              (messages("supplierTaxNumber.checkYourAnswersLabel"),
+              (messages("supplierTaxNumberCheck.checkYourAnswersLabel"),
                Some(messages("site.notProvided")),
-               Seq((routes.SupplierTaxNumberController.onPageLoad(CheckMode).url, "site.change", "supplierTaxNumber.change.hidden"))
+               Seq((routes.SupplierTaxNumberCheckController.onPageLoad(CheckMode).url, "site.change", "supplierTaxNumberCheck.change.hidden"))
               )
             )
           case _ => None
