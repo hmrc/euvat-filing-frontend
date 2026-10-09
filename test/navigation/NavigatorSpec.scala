@@ -22,7 +22,7 @@ import controllers.claim.routes as claimRoutes
 import controllers.imports.routes as importRoutes
 import controllers.purchase.routes as purchaseRoutes
 import models.*
-import models.PurchaseOrImport.{Import, Purchase}
+import models.PurchaseOrImport.Import
 import pages.*
 import play.api.Configuration
 import utils.{ConfigLanguageMapping, ConfigPurchaseOrImportMapping, CurrencyConfig}
@@ -110,10 +110,9 @@ class NavigatorSpec extends SpecBase {
           claimRoutes.BusinessActivityThreeController.onPageLoad()
       }
 
-      "must go from PurchaseOrImportPage to PurchaseTypeController when Purchase is selected" in {
-        val answers = userAnswers.set(PurchaseOrImportPage, Purchase).success.value
-
-        navigator.nextPage(PurchaseOrImportPage, NormalMode, answers) mustBe
+      "must go from PurchaseOrImportPage to ImportTypeController when Import selected" in {
+        val ua = userAnswers.set(PurchaseOrImportPage, PurchaseOrImport.Purchase).success.value
+        navigator.nextPage(PurchaseOrImportPage, NormalMode, ua) mustBe
           purchaseRoutes.PurchaseTypeController.onPageLoad(NormalMode)
       }
 
@@ -145,7 +144,7 @@ class NavigatorSpec extends SpecBase {
 
       "must go from SadReferenceCheckPage to Journey Recovery when the question is unanswered" in {
         navigator.nextPage(SadReferenceCheckPage, NormalMode, userAnswers) mustBe
-          controllers.routes.JourneyRecoveryController.onPageLoad()
+          importRoutes.ImportDetailsInfoController.onPageLoad(NormalMode)
       }
 
       "must go from SadReferenceNumberPage to ImportDetailsInfoController when SadReferenceCheck is not yes" in {

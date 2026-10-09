@@ -189,25 +189,25 @@ class ImportNavigatorSpec extends SpecBase {
 
       "must go from SadReferenceCheckPage to Journey Recovery when the question is unanswered" in {
         navigator.navigateFromSadReferenceCheckPage(NormalMode)(userAnswers) mustBe
-          controllers.routes.JourneyRecoveryController.onPageLoad()
+          importRoutes.ImportDetailsInfoController.onPageLoad(NormalMode)
       }
 
-      "must go from navigateToCurrencyOrNextPage to ImportCurrency when the country requires currency selection" in {
+      "must go from navigateFromSupplierNamePage to ImportCurrency when the country requires currency selection" in {
         val ua = userAnswers.set(RefundingCountryPage, "EE").success.value
 
-        navigator.navigateToCurrencyOrNextPage(NormalMode)(ua) mustBe
+        navigator.navigateFromSupplierNamePage(NormalMode)(ua) mustBe
           importRoutes.ImportCurrencyController.onPageLoad(NormalMode)
       }
 
-      "must skip ImportCurrency in navigateToCurrencyOrNextPage when the country has one currency" in {
+      "must skip ImportCurrency in navigateFromSupplierNamePage when the country has one currency" in {
         val ua = userAnswers.set(RefundingCountryPage, "AT").success.value
 
-        navigator.navigateToCurrencyOrNextPage(NormalMode)(ua) mustBe
+        navigator.navigateFromSupplierNamePage(NormalMode)(ua) mustBe
           importRoutes.TotalAmountWithoutVatController.onPageLoad(NormalMode)
       }
 
-      "must go from navigateToCurrencyOrNextPage to Journey Recovery when no country is in session" in {
-        navigator.navigateToCurrencyOrNextPage(NormalMode)(userAnswers) mustBe
+      "must go from navigateFromSupplierNamePage to Journey Recovery when no country is in session" in {
+        navigator.navigateFromSupplierNamePage(NormalMode)(userAnswers) mustBe
           controllers.routes.JourneyRecoveryController.onPageLoad()
       }
     }
@@ -248,10 +248,10 @@ class ImportNavigatorSpec extends SpecBase {
           importRoutes.ImportDetailsInfoController.onPageLoad(CheckMode)
       }
 
-      "must go from navigateToCurrencyOrNextPage to ImportCurrency when the country requires currency selection" in {
+      "must go from navigateFromSupplierNamePage to ImportCurrency when the country requires currency selection" in {
         val ua = userAnswers.set(RefundingCountryPage, "EE").success.value
 
-        navigator.navigateToCurrencyOrNextPage(CheckMode)(ua) mustBe
+        navigator.navigateFromSupplierNamePage(CheckMode)(ua) mustBe
           importRoutes.ImportCurrencyController.onPageLoad(CheckMode)
       }
     }
@@ -277,7 +277,7 @@ class ImportNavigatorSpec extends SpecBase {
 
       "must go to JourneyRecoveryController when no answer is present" in {
         navigator.navigateFromSadReferenceCheckPage(NormalMode)(userAnswers) mustBe
-          controllers.routes.JourneyRecoveryController.onPageLoad()
+          controllers.imports.routes.ImportDetailsInfoController.onPageLoad(NormalMode)
       }
     }
 

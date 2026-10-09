@@ -16,12 +16,12 @@
 
 package navigation
 
-import models.{CheckMode, Mode, NormalMode, Other, UserAnswers}
+import controllers.imports.routes as importsRoutes
+import models.{Mode, Other, UserAnswers}
 import pages.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage, SadReferenceCheckPage}
 import play.api.mvc.Call
-import utils.{ConfigPurchaseOrImportMapping, CountryCode, CurrencyConfig}
-import controllers.imports.routes as importsRoutes
 import utils.PurchaseOrImportHelpers.isNoneSelection
+import utils.{ConfigPurchaseOrImportMapping, CountryCode, CurrencyConfig}
 
 import javax.inject.{Inject, Singleton}
 
@@ -32,12 +32,9 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
     (userAnswers.get(ImportTypePage), CountryCode.findCountryCode(userAnswers)) match {
       case (Some(importType), Some(country)) if configPurchaseOrImportMapping.selectableSubcodes(country, importType.toString).isDefined =>
         importsRoutes.ImportSubCodeController.onPageLoad(importType.toString)
-      case (Some(Other), Some(_)) =>
-        importsRoutes.DescribeItemsOnImportDocController.onPageLoad(mode)
-      case (Some(_), Some(_)) =>
-        importsRoutes.SadReferenceCheckController.onPageLoad(mode)
-      case _ =>
-        controllers.routes.JourneyRecoveryController.onPageLoad()
+      case (Some(Other), Some(_)) => importsRoutes.DescribeItemsOnImportDocController.onPageLoad(mode)
+      case (Some(_), Some(_))     => importsRoutes.SadReferenceCheckController.onPageLoad(mode)
+      case _                      => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
   def navigateFromImportSubCodePage(mode: Mode)(userAnswers: UserAnswers): Call =
@@ -47,10 +44,8 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
       case (Some(importType), Some(subCode), Some(country))
           if configPurchaseOrImportMapping.subcategoriesFor(country, importType.toString, subCode).nonEmpty =>
         importsRoutes.ImportSubCategoryController.onPageLoad(mode)
-      case (_, Some(_), _) =>
-        importsRoutes.SadReferenceCheckController.onPageLoad(mode)
-      case _ =>
-        controllers.routes.JourneyRecoveryController.onPageLoad()
+      case (_, Some(_), _) => importsRoutes.SadReferenceCheckController.onPageLoad(mode)
+      case _               => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
   def navigateFromImportSubCategoryPage(mode: Mode)(userAnswers: UserAnswers): Call =
@@ -61,12 +56,11 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
 
   def navigateFromSadReferenceCheckPage(mode: Mode)(userAnswers: UserAnswers): Call =
     userAnswers.get(SadReferenceCheckPage) match {
-      case Some(true)  => importsRoutes.SadReferenceNumberController.onPageLoad(mode)
-      case Some(false) => importsRoutes.ImportDetailsInfoController.onPageLoad(mode)
-      case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
+      case Some(true) => importsRoutes.SadReferenceNumberController.onPageLoad(mode)
+      case _          => importsRoutes.ImportDetailsInfoController.onPageLoad(mode)
     }
 
-  def navigateToCurrencyOrNextPage(mode: Mode)(userAnswers: UserAnswers): Call =
+  def navigateFromSupplierNamePage(mode: Mode)(userAnswers: UserAnswers): Call =
     CountryCode.findCountryCode(userAnswers) match {
       case Some(countryCode) if currencyConfig.requiresCurrencySelection(countryCode) =>
         importsRoutes.ImportCurrencyController.onPageLoad(mode)

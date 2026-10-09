@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package pages
+package forms
 
-import models.SupplierTaxNumber
-import play.api.libs.json.JsPath
+import forms.mappings.Mappings
+import play.api.data.Form
 
-case object SupplierTaxNumberPage extends QuestionPage[SupplierTaxNumber] {
+import javax.inject.Inject
 
-  override def path: JsPath = JsPath \ toString
+class PurchaseImportSummaryFormProvider @Inject() extends Mappings {
 
-  override def toString: String = "supplierTaxNumber"
+  def apply(): Form[Boolean] =
+    Form(
+      "value" -> boolean("purchaseImportSummary.error.required")
+    )
 }
