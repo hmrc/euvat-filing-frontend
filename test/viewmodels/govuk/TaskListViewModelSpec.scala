@@ -17,7 +17,7 @@
 package viewmodels.govuk
 
 import base.SpecBase
-import pages.{ClaimDetailsCompletedPage, PurchaseImportSummaryPage}
+import pages.PurchaseImportSummaryPage
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
 import viewmodels.TaskListViewModel

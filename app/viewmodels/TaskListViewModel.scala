@@ -17,7 +17,7 @@
 package viewmodels
 
 import models.UserAnswers
-import pages.{ClaimDetailsCompletedPage, PurchaseImportSummaryPage}
+import pages.PurchaseImportSummaryPage
 import play.api.i18n.Messages
 import queries.ClaimDetailsCompletedQuery
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
