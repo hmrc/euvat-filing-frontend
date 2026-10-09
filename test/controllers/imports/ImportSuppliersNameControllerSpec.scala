@@ -31,7 +31,7 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.PurchaseOrImportSuppliersNameView
+import views.html.purchasesOrImports.PurchaseOrImportSuppliersNameView
 
 import scala.concurrent.Future
 

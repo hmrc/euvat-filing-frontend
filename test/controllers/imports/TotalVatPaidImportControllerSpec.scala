@@ -30,7 +30,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import play.api.data.Form
 import repositories.SessionRepository
-import views.html.PurchaseOrImportTotalVatPaidView
+import views.html.purchasesOrImports.PurchaseOrImportTotalVatPaidView
 
 import scala.concurrent.Future
 

@@ -28,7 +28,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import queries.Settable
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.PurchaseOrImportView
+import views.html.purchasesOrImports.PurchaseOrImportView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

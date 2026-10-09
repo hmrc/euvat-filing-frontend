@@ -33,7 +33,7 @@ import play.api.mvc.{Call, Request}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.PurchaseOrImportDescribeItemsView
+import views.html.purchasesOrImports.PurchaseOrImportDescribeItemsView
 
 import scala.concurrent.Future
 

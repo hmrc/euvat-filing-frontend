@@ -36,7 +36,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import utils.{ConfigPurchaseOrImportMapping, CountryCode, MountPrefix}
-import views.html.PurchaseOrImportTypeView
+import views.html.purchasesOrImports.PurchaseOrImportTypeView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

@@ -28,7 +28,7 @@ import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ControllerHelpers.currencySymbolFromSession
 import utils.CurrencyConfig
-import views.html.PurchaseOrImportTotalVatClaimView
+import views.html.purchasesOrImports.PurchaseOrImportTotalVatClaimView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

@@ -31,7 +31,7 @@ import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.PurchaseOrImportHelpers.*
 import utils.{ConfigPurchaseOrImportMapping, CountryCode}
-import views.html.PurchaseOrImportSubTypeView
+import views.html.purchasesOrImports.PurchaseOrImportSubTypeView
 import views.html.imports.SadReferenceCheckView
 
 import javax.inject.Inject

@@ -30,7 +30,7 @@ import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.PurchaseOrImportHelpers.isNoneSelection
 import utils.{ConfigPurchaseOrImportMapping, CountryCode}
-import views.html.PurchaseOrImportDescribeItemsView
+import views.html.purchasesOrImports.PurchaseOrImportDescribeItemsView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

@@ -34,7 +34,7 @@ import play.api.test.Helpers.*
 import queries.ClaimApplicationResponseQuery
 import repositories.SessionRepository
 import utils.ConfigPurchaseOrImportMapping
-import views.html.PurchaseOrImportTypeView
+import views.html.purchasesOrImports.PurchaseOrImportTypeView
 
 import scala.concurrent.Future
 

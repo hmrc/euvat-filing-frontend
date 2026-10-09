@@ -32,7 +32,7 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.PurchaseOrImportTotalVatClaimView
+import views.html.purchasesOrImports.PurchaseOrImportTotalVatClaimView
 
 import scala.concurrent.Future
 
