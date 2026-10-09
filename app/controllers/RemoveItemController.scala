@@ -19,7 +19,7 @@ package controllers
 import controllers.actions._
 import forms.RemoveItemFormProvider
 import javax.inject.Inject
-import models.NormalMode
+import models.{NormalMode, UserAnswers}
 import navigation.Navigator
 import play.api.data.Form
 import pages.RemoveItemPage
@@ -48,7 +48,7 @@ class RemoveItemController @Inject()(
 
   private def backLink: Call = routes.PurchaseImportSummaryController.onPageLoad
 
-  private def extractSummaryData(userAnswers: models.UserAnswers)(implicit messages: Messages): (String, String) = {
+  private def extractSummaryData(userAnswers: UserAnswers)(implicit messages: Messages): (String, String) = {
     ("Purchase", "€53")
   }
 
