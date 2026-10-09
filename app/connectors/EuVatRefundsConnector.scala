@@ -99,4 +99,10 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
       .execute[HttpResponse]
   }
 
+  def deletePurchase(request: DeletePurchaseRequest)(implicit hc: HeaderCarrier): Future[DeletePurchaseResponse] =
+    http
+      .delete(url"$euVatRefundsBaseUrl/delete-purchase")
+      .withBody(Json.toJson(request))
+      .execute[DeletePurchaseResponse]
+
 }

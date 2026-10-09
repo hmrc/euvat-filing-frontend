@@ -263,4 +263,28 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
       }
     }
   }
+
+  "EuVatRefundsService.deletePurchase" - {
+
+    val request = DeletePurchaseRequest(applicationId = 123456L, itemNumber = 4, updateSequenceNumber = 7)
+    val expectedResponse = DeletePurchaseResponse(updateSequenceNumber = 8)
+
+    "should return the delete purchase response from the connector" in {
+      when(mockConnector.deletePurchase(any())(any()))
+        .thenReturn(Future.successful(expectedResponse))
+
+      service.deletePurchase(request)(hc).futureValue mustEqual expectedResponse
+    }
+
+    "should propagate an exception from the connector" in {
+      val failure = new RuntimeException("Connector failed")
+
+      when(mockConnector.deletePurchase(any())(any()))
+        .thenReturn(Future.failed(failure))
+
+      whenReady(service.deletePurchase(request).failed) { ex =>
+        ex mustEqual failure
+      }
+    }
+  }
 }

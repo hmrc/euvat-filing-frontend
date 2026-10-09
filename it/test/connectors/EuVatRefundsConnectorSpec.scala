@@ -376,4 +376,41 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
     }
   }
 
+  "EuVatRefundsConnector.deletePurchase" should {
+    val request = DeletePurchaseRequest(applicationId = 123456L, itemNumber = 4, updateSequenceNumber = 7)
+    val expectedResponse = DeletePurchaseResponse(updateSequenceNumber = 8)
+
+    "call the delete endpoint with JSON body and return the expected response" in {
+      reset(mockHttp, mockRequestBuilder)
+
+      when(mockHttp.delete(any())(any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.execute[DeletePurchaseResponse](any(), any()))
+        .thenReturn(Future.successful(expectedResponse))
+
+      val result = connector.deletePurchase(request).futureValue
+
+      result shouldBe expectedResponse
+
+      verify(mockHttp).delete(url"$baseUrl/delete-purchase")
+      val bodyCaptor: ArgumentCaptor[JsValue] = ArgumentCaptor.forClass(classOf[JsValue])
+      verify(mockRequestBuilder).withBody(bodyCaptor.capture())(any(), any(), any())
+      bodyCaptor.getValue shouldBe Json.toJson(request)
+      verify(mockRequestBuilder).execute[DeletePurchaseResponse](any(), any())
+    }
+
+    "propagate failures from the HTTP client" in {
+      val failure = new RuntimeException("boom")
+
+      when(mockHttp.delete(any())(any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.execute[DeletePurchaseResponse](any(), any()))
+        .thenReturn(Future.failed(failure))
+
+      whenReady(connector.deletePurchase(request).failed) { ex =>
+        ex shouldBe failure
+      }
+    }
+  }
+
 }
