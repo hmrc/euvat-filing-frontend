@@ -27,15 +27,12 @@
 
 @(form: Form[_], mode: Mode, call: Call)(implicit request: Request[_], messages: Messages)
 
-@isError = @{form.error("value").isDefined}
-
 @layout(pageTitle = title(form, messages("importDetailsInfo.title")), backLinkUrl = Some(call.url)) {
 
     @formHelper(action = routes.ImportDetailsInfoController.onSubmit(mode)) {
 
         @mainErrorSummary(form, Map("value" -> "value"))
 
-        <div class="govuk-form-group @if(isError){govuk-form-group--error}">
             <span class="govuk-caption-l">@messages("import.caption")</span>
 
             <h1 class="govuk-heading-l">@messages("importDetailsInfo.heading")</h1>
@@ -57,7 +54,6 @@
                 value = form("value").value,
                 errorMessage = form("value").error.map(err => ErrorMessage(content = Text(messages(err.message, err.args*)), visuallyHiddenText = Some(messages("error.prefix"))))
             ))
-        </div>
 
         @govukButton(
             ButtonViewModel(messages("site.continue"))
