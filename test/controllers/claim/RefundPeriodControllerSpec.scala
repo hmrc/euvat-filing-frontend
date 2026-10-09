@@ -25,13 +25,13 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{ClaimDetailsCompletedPage, RefundPeriodPage}
+import pages.RefundPeriodPage
 import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import queries.TraderKnownFactsQuery
+import queries.{ClaimDetailsCompletedQuery, TraderKnownFactsQuery}
 import repositories.SessionRepository
 import views.html.claim.RefundPeriodView
 
@@ -823,7 +823,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must set ClaimDetailsAmendedPage to true when refund period is changed and ClaimDetailsCompletedPage is true" in {
+      "must set ClaimDetailsAmendedQuery to true when refund period is changed and ClaimDetailsCompletedQuery is true" in {
         when(mockEuVatRefundsService.retrieveTraderKnownFacts()(any()))
           .thenReturn(Future.successful(TraderKnownFactsResponse(123, tradeClass = Some(baCode1))))
         when(mockEuVatRefundsService.getLatestApplications(any())(any()))
@@ -833,7 +833,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
         when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
         val ua = emptyUserAnswers
-          .set(ClaimDetailsCompletedPage, true)
+          .set(ClaimDetailsCompletedQuery, true)
           .success
           .value
 
@@ -857,7 +857,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must NOT set ClaimDetailsAmendedPage when refund period is unchanged" in {
+      "must NOT set ClaimDetailsAmendedQuery when refund period is unchanged" in {
         when(mockEuVatRefundsService.retrieveTraderKnownFacts()(any()))
           .thenReturn(Future.successful(TraderKnownFactsResponse(123, tradeClass = Some(baCode1))))
         when(mockEuVatRefundsService.getLatestApplications(any())(any()))
@@ -875,7 +875,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
           .set(pages.RefundPeriodPage, existingPeriod)
           .success
           .value
-          .set(pages.ClaimDetailsCompletedPage, true)
+          .set(ClaimDetailsCompletedQuery, true)
           .success
           .value
 
@@ -899,7 +899,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must NOT set ClaimDetailsAmendedPage when ClaimDetailsCompletedPage is not set" in {
+      "must NOT set ClaimDetailsAmendedQuery when ClaimDetailsCompletedQuery is not set" in {
         when(mockEuVatRefundsService.retrieveTraderKnownFacts()(any()))
           .thenReturn(Future.successful(TraderKnownFactsResponse(123, tradeClass = Some(baCode1))))
         when(mockEuVatRefundsService.getLatestApplications(any())(any()))

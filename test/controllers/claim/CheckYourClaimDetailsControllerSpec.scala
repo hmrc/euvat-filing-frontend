@@ -18,7 +18,7 @@ package controllers.claim
 
 import base.SpecBase
 import controllers.claim.routes
-import models.responses.{ApplicationResponse, LatestApplication}
+import models.responses.{ApplicationResponse, LatestApplication, UpdateApplicationDetailsResponse}
 import models.{ContactDetails, RefundPeriod, RefundingLanguage}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
@@ -28,6 +28,7 @@ import play.api.inject.bind
 import play.api.test.CSRFTokenHelper.*
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import queries.{ClaimApplicationResponseQuery, ClaimDetailsAmendedQuery, ClaimDetailsCompletedQuery, UpdateSequenceNumberQuery}
 import repositories.SessionRepository
 import viewmodels.govuk.SummaryListFluency
 
@@ -37,6 +38,35 @@ import scala.concurrent.Future
 class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluency with MockitoSugar {
 
   "Check Your Answers Controller" - {
+
+    lazy val amendedAnswers = emptyUserAnswers
+      .set(ClaimDetailsCompletedQuery, true)
+      .success
+      .value
+      .set(ClaimDetailsAmendedQuery, true)
+      .success
+      .value
+      .set(ClaimApplicationResponseQuery, ApplicationResponse(123, "GB123456789", 10))
+      .success
+      .value
+      .set(UpdateSequenceNumberQuery, 10)
+      .success
+      .value
+      .set(RefundingCountryPage, "DE")
+      .success
+      .value
+      .set(RefundingLanguagePage, RefundingLanguage.English)
+      .success
+      .value
+      .set(RefundPeriodPage, RefundPeriod.apply(LocalDateTime.of(2025, 4, 1, 10, 10, 10, 10), LocalDateTime.of(2025, 12, 31, 23, 2, 10, 10)))
+      .success
+      .value
+      .set(ContactDetailsPage, ContactDetails("test@email.com", Some("07123456789")))
+      .success
+      .value
+      .set(BusinessActivityCodePage, "9999")
+      .success
+      .value
 
     "must return OK and the correct view for a GET" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
@@ -48,12 +78,12 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
       }
     }
 
-    "must redirect to the task list on submit and set ClaimDetailsCompletedPage to true" in {
+    "must redirect to the task list on submit and set ClaimDetailsCompletedQuery to true" in {
       val ua = emptyUserAnswers
         .set(RefundingCountryPage, "BE")
         .success
         .value
-        .set(ClaimDetailsCompletedPage, true)
+        .set(ClaimDetailsCompletedQuery, true)
         .success
         .value
         .set(RefundingCurrencyPage, "eur")
@@ -95,7 +125,7 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
         .set(RefundingCountryPage, "BE")
         .success
         .value
-        .set(ClaimDetailsCompletedPage, true)
+        .set(ClaimDetailsCompletedQuery, true)
         .success
         .value
         .set(RefundingCurrencyPage, "eur")
@@ -268,8 +298,8 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
       }
     }
 
-    "must render post submission view when ClaimDetailsCompletedPage is true" in {
-      val ua = emptyUserAnswers.set(ClaimDetailsCompletedPage, true).success.value
+    "must render post submission view when ClaimDetailsCompletedQuery is true" in {
+      val ua = emptyUserAnswers.set(ClaimDetailsCompletedQuery, true).success.value
 
       val application = applicationBuilder(userAnswers = Some(ua)).build()
 
@@ -282,7 +312,7 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
       }
     }
 
-    "must render pre submission view when ClaimDetailsCompletedPage is not set" in {
+    "must render pre submission view when ClaimDetailsCompletedQuery is not set" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -294,12 +324,12 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
       }
     }
 
-    "must show Save and continue button when ClaimDetailsAmendedPage is true" in {
+    "must show Save and continue button when ClaimDetailsAmendedQuery is true" in {
       val ua = emptyUserAnswers
-        .set(ClaimDetailsCompletedPage, true)
+        .set(ClaimDetailsCompletedQuery, true)
         .success
         .value
-        .set(ClaimDetailsAmendedPage, true)
+        .set(ClaimDetailsAmendedQuery, true)
         .success
         .value
 
@@ -314,8 +344,8 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
       }
     }
 
-    "must show Continue button when post submission and ClaimDetailsAmendedPage is not set" in {
-      val ua = emptyUserAnswers.set(ClaimDetailsCompletedPage, true).success.value
+    "must show Continue button when post submission and ClaimDetailsAmendedQuery is not set" in {
+      val ua = emptyUserAnswers.set(ClaimDetailsCompletedQuery, true).success.value
 
       val application = applicationBuilder(userAnswers = Some(ua)).build()
 
@@ -330,7 +360,7 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
 
     "must NOT call createApplication or sessionRepository when post-submission and not amended" in {
       val mockSessionRepository = mock[SessionRepository]
-      val ua = emptyUserAnswers.set(ClaimDetailsCompletedPage, true).success.value
+      val ua = emptyUserAnswers.set(ClaimDetailsCompletedQuery, true).success.value
 
       val application = applicationBuilder(userAnswers = Some(ua))
         .overrides(
@@ -346,42 +376,14 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
       }
     }
 
-    "must call createApplication when post-submission and amended" in {
+    "must call updateApplicationDetails and not createApplication when post-submission and amended" in {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-      when(mockEuVatRefundsService.createApplication(any())(any()))
-        .thenReturn(Future.successful(ApplicationResponse(123, "GB123456789", 10)))
+      when(mockEuVatRefundsService.updateApplicationDetails(any())(any()))
+        .thenReturn(Future.successful(UpdateApplicationDetailsResponse(12)))
 
-      val ua = emptyUserAnswers
-        .set(ClaimDetailsCompletedPage, true)
-        .success
-        .value
-        .set(ClaimDetailsAmendedPage, true)
-        .success
-        .value
-        .set(RefundingCountryPage, "DE")
-        .success
-        .value
-        .set(RefundingCurrencyPage, "eur")
-        .success
-        .value
-        .set(RefundingLanguagePage, RefundingLanguage.English)
-        .success
-        .value
-        .set(RefundPeriodPage, RefundPeriod.apply(LocalDateTime.of(2025, 4, 1, 10, 10, 10, 10), LocalDateTime.of(2025, 12, 31, 23, 2, 10, 10)))
-        .success
-        .value
-        .set(ContactDetailsPage, ContactDetails("test@email.com", Some("07123456789")))
-        .success
-        .value
-        .set(BusinessActivityCodePage, "9999")
-        .success
-        .value
-
-      val application = applicationBuilder(userAnswers = Some(ua))
-        .overrides(
-          bind[SessionRepository].toInstance(mockSessionRepository)
-        )
+      val application = applicationBuilder(userAnswers = Some(amendedAnswers))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
         .build()
 
       running(application) {
@@ -389,47 +391,20 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        verify(mockEuVatRefundsService, times(1)).createApplication(any())(any())
+        redirectLocation(result).value mustEqual controllers.routes.TaskListDashboardController.onPageLoad().url
+        verify(mockEuVatRefundsService, times(1)).updateApplicationDetails(any())(any())
+        verify(mockEuVatRefundsService, never()).createApplication(any())(any())
       }
     }
 
-    "must clear ClaimDetailsAmendedPage on submit when post submission" in {
+    "must save the new update sequence number and clear ClaimDetailsAmendedQuery after updating" in {
       val mockSessionRepository = mock[SessionRepository]
-
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-      when(mockEuVatRefundsService.createApplication(any())(any()))
-        .thenReturn(Future.successful(ApplicationResponse(123, "GB123456789", 10)))
+      when(mockEuVatRefundsService.updateApplicationDetails(any())(any()))
+        .thenReturn(Future.successful(UpdateApplicationDetailsResponse(12)))
 
-      val ua = emptyUserAnswers
-        .set(ClaimDetailsCompletedPage, true)
-        .success
-        .value
-        .set(ClaimDetailsAmendedPage, true)
-        .success
-        .value
-        .set(RefundingCountryPage, "DE")
-        .success
-        .value
-        .set(RefundingCurrencyPage, "eur")
-        .success
-        .value
-        .set(RefundingLanguagePage, RefundingLanguage.English)
-        .success
-        .value
-        .set(RefundPeriodPage, RefundPeriod.apply(LocalDateTime.of(2025, 4, 1, 10, 10, 10, 10), LocalDateTime.of(2025, 12, 31, 23, 2, 10, 10)))
-        .success
-        .value
-        .set(ContactDetailsPage, ContactDetails("test@email.com", Some("07123456789")))
-        .success
-        .value
-        .set(BusinessActivityCodePage, "9999")
-        .success
-        .value
-
-      val application = applicationBuilder(userAnswers = Some(ua))
-        .overrides(
-          bind[SessionRepository].toInstance(mockSessionRepository)
-        )
+      val application = applicationBuilder(userAnswers = Some(amendedAnswers))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
         .build()
 
       running(application) {
@@ -442,7 +417,45 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
         val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
         val saved = captor.getValue
-        saved.get(ClaimDetailsAmendedPage).isDefined mustBe false
+        saved.get(UpdateSequenceNumberQuery) mustBe Some(12)
+        saved.get(ClaimDetailsAmendedQuery).isDefined mustBe false
+      }
+    }
+
+    "must redirect to JourneyRecovery when updateApplicationDetails fails" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockEuVatRefundsService.updateApplicationDetails(any())(any()))
+        .thenReturn(Future.failed(new RuntimeException("boom")))
+
+      val application = applicationBuilder(userAnswers = Some(amendedAnswers))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.CheckYourClaimDetailsController.onSubmit().url)
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        verify(mockSessionRepository, never()).set(any())
+      }
+    }
+
+    "must redirect to JourneyRecovery and not call the service when the claim application response is missing" in {
+      val mockSessionRepository = mock[SessionRepository]
+      val ua = amendedAnswers.remove(ClaimApplicationResponseQuery).success.value
+
+      val application = applicationBuilder(userAnswers = Some(ua))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.CheckYourClaimDetailsController.onSubmit().url)
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        verify(mockEuVatRefundsService, never()).updateApplicationDetails(any())(any())
       }
     }
   }

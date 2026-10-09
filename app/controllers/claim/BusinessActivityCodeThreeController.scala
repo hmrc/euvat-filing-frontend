@@ -25,6 +25,7 @@ import play.api.Logger
 import play.api.data.FormError
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import queries.{ClaimDetailsAmendedQuery, ClaimDetailsCompletedQuery}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ControllerHelpers.*
@@ -105,8 +106,8 @@ class BusinessActivityCodeThreeController @Inject() (
               }
               for {
                 updatedAnswers <- Future.fromTry(baseAnswers.set(BusinessActivityCodeThreePage, value))
-                updatedAnswers2 <- if (isChanged && updatedAnswers.get(ClaimDetailsCompletedPage).contains(true))
-                                     Future.fromTry(updatedAnswers.set(ClaimDetailsAmendedPage, true))
+                updatedAnswers2 <- if (isChanged && updatedAnswers.get(ClaimDetailsCompletedQuery).contains(true))
+                                     Future.fromTry(updatedAnswers.set(ClaimDetailsAmendedQuery, true))
                                    else
                                      Future.successful(updatedAnswers)
                 _ <- sessionRepository.set(updatedAnswers2)

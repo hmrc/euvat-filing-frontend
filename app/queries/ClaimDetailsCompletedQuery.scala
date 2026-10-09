@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package pages
+package queries
 
 import play.api.libs.json.JsPath
 
-case object ClaimDetailsAmendedPage extends QuestionPage[Boolean] {
-  override def path: JsPath = JsPath \ toString
-  override def toString: String = "claimDetailsAmended"
+case object ClaimDetailsCompletedQuery extends Gettable[Boolean] with Settable[Boolean] {
+  override def path: JsPath = JsPath \ "claimDetailsCompleted"
 }

@@ -24,7 +24,7 @@ import pages.{BusinessActivityCodePage, BusinessActivityCodeThreePage, BusinessA
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
-import queries.TraderKnownFactsQuery
+import queries.{ClaimDetailsAmendedQuery, ClaimDetailsCompletedQuery, TraderKnownFactsQuery}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.claim.BusinessActivityView
@@ -79,8 +79,8 @@ class BusinessActivityController @Inject() (
                               val remove1 = updateAnswer2.remove(BusinessActivityCodeTwoPage)
                               Future.fromTry(remove1.flatMap(_.remove(BusinessActivityCodeThreePage)))
                             }
-            finalAnswers2 <- if (isChanged && request.userAnswers.get(pages.ClaimDetailsCompletedPage).contains(true)) {
-                               Future.fromTry(finalAnswers.set(pages.ClaimDetailsAmendedPage, true))
+            finalAnswers2 <- if (isChanged && request.userAnswers.get(ClaimDetailsCompletedQuery).contains(true)) {
+                               Future.fromTry(finalAnswers.set(ClaimDetailsAmendedQuery, true))
                              } else {
                                Future.successful(finalAnswers)
                              }

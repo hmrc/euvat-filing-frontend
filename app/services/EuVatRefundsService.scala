@@ -61,4 +61,7 @@ class EuVatRefundsService @Inject() (euVatRefundsConnector: EuVatRefundsConnecto
   def getPurchaseImportList(request: PurchaseImportListRequest)(implicit hc: HeaderCarrier): Future[PurchaseImportListResponse] = {
     euVatRefundsConnector.getPurchaseImportList(request)
   }
+
+  def updateApplicationDetails(request: UpdateApplicationDetailsRequest)(implicit hc: HeaderCarrier): Future[UpdateApplicationDetailsResponse] =
+    euVatRefundsConnector.updateApplicationDetails(request)
 }

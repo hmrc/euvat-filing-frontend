@@ -76,6 +76,12 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
       .execute[SupplierVrnCountResponse]
   }
 
+  def updateApplicationDetails(request: UpdateApplicationDetailsRequest)(implicit hc: HeaderCarrier): Future[UpdateApplicationDetailsResponse] =
+    http
+      .put(url"$euVatRefundsBaseUrl/update-application-details")
+      .withBody(Json.toJson(request))
+      .execute[UpdateApplicationDetailsResponse]
+
   def getSupplierTaxIdentifierCount(
     request: SupplierTaxIdentifierCountRequest
   )(implicit hc: HeaderCarrier): Future[SupplierTaxIdentifierCountResponse] = {
