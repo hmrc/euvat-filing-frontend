@@ -19,6 +19,7 @@ package navigation
 import controllers.claim.routes as claimRoutes
 import controllers.imports.routes as importRoutes
 import controllers.purchase.routes as purchaseRoutes
+import controllers.routes
 import models.*
 import models.PurchaseOrImport.{Import, Purchase}
 import pages.*
@@ -133,9 +134,9 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
 
   private def navigateFromRemoveItemPage(userAnswers: UserAnswers): Call =
     (userAnswers.get(RemoveItemPage), userAnswers.get(IsLastItemQuery)) match {
-        case (Some(true), Some(true))   => controllers.routes.TaskListDashboardController.onPageLoad()
-        case (Some(_), _)               => controllers.routes.PurchaseImportSummaryController.onPageLoad
-        case _                          => controllers.routes.TaskListDashboardController.onPageLoad()
+        case (Some(true), Some(true))   => routes.TaskListDashboardController.onPageLoad()
+        case (Some(_), _)               => routes.PurchaseImportSummaryController.onPageLoad
+        case _                          => routes.TaskListDashboardController.onPageLoad()
     }
 
 }
