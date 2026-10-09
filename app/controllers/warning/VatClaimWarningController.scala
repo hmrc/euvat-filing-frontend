@@ -20,7 +20,7 @@ import controllers.actions.*
 import controllers.purchase.routes
 import models.Mode
 import models.requests.DataRequest
-import pages.*
+import pages.purchase.{TotalVatClaimPage, TotalVatPaidPage}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}

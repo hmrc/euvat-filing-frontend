@@ -18,7 +18,8 @@ package viewmodels.checkAnswers
 
 import controllers.claim.routes
 import models.{CheckMode, UserAnswers}
-import pages.*
+import pages.ClaimDetailsCompletedPage
+import pages.claim.*
 import play.api.i18n.{Lang, Messages}
 import utils.DateTimeFormats.shortMonthYearFormat
 

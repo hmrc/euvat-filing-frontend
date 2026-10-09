@@ -18,9 +18,9 @@ package utils
 
 import base.SpecBase
 import com.typesafe.config.ConfigFactory
+import pages.claim.RefundingCountryPage
+import pages.purchase.RefundingCurrencyPage
 import play.api.Configuration
-import utils.CurrencyConfig
-import pages.RefundingCurrencyPage
 
 class CurrencyResolverSpec extends SpecBase {
 
@@ -37,7 +37,7 @@ class CurrencyResolverSpec extends SpecBase {
       val mapping = new CurrencyConfig(cfg)
 
       val ua = emptyUserAnswers
-        .set(pages.RefundingCountryPage, "BG")
+        .set(RefundingCountryPage, "BG")
         .success
         .value
         .set(RefundingCurrencyPage, "BGN")

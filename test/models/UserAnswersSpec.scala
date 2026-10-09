@@ -18,8 +18,7 @@ package models
 
 import base.SpecBase
 import play.api.libs.json.Json
-import pages.SuppliersNamePage
-import pages.TotalVatPaidPage
+import pages.purchase.{SuppliersNamePage, TotalVatPaidPage}
 
 class UserAnswersSpec extends SpecBase {
 

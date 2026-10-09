@@ -22,13 +22,13 @@ import forms.SuppliersNameFormProvider
 import models.{Mode, NormalMode}
 import models.requests.DataRequest
 import navigation.Navigator
-import pages.ImportSuppliersNamePage
+import pages.imports.ImportSuppliersNamePage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.PurchaseOrImportSuppliersNameView
+import views.html.purchasesOrImports.PurchaseOrImportSuppliersNameView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

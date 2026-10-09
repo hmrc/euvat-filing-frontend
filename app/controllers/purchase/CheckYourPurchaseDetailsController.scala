@@ -20,7 +20,8 @@ import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierA
 import models.requests.UpdatePurchaseRequest
 import models.responses.AddPurchaseResponse
 import models.{InvoiceType, PurchaseOrImportType}
-import pages.*
+import pages.PurchaseImportSummaryPage
+import pages.purchase.*
 import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -118,10 +119,10 @@ class CheckYourPurchaseDetailsController @Inject() (
           case _                                                                          => None
         }
         val simplifiedInvoiceIndicator: Option[String] = request.userAnswers
-          .get(SimplifiedInvoiceVatRegCheckPage)
+          .get(SupplierVatRegCheckPage)
           .map(_.toString)
           .orElse {
-            request.userAnswers.get(pages.InvoiceTypePage).map {
+            request.userAnswers.get(InvoiceTypePage).map {
               case models.InvoiceType.SimplifiedInvoice => "true"
               case _                                    => "false"
             }

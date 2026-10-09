@@ -23,7 +23,8 @@ import navigation.FakeNavigator
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.RefundPeriodPage
+import pages.claim.RefundPeriodPage
+import pages.purchase.*
 import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -81,7 +82,7 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
 
       "must populate the view correctly on a GET when the question has previously been answered" in {
         val userAnswers = emptyUserAnswers
-          .set(pages.InvoiceDatePage, LocalDate.of(2025, 4, 15))
+          .set(InvoiceDatePage, LocalDate.of(2025, 4, 15))
           .success
           .value
 
@@ -350,10 +351,10 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
           .set(RefundPeriodPage, savedPeriod)
           .success
           .value
-          .set(pages.PurchaseTypePage, Fuel)
+          .set(PurchaseTypePage, Fuel)
           .success
           .value
-          .set(pages.InvoiceDatePage, LocalDate.of(2025, 4, 15))
+          .set(InvoiceDatePage, LocalDate.of(2025, 4, 15))
           .success
           .value
 
@@ -389,10 +390,10 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
           .set(RefundPeriodPage, savedPeriod)
           .success
           .value
-          .set(pages.PurchaseTypePage, Fuel)
+          .set(PurchaseTypePage, Fuel)
           .success
           .value
-          .set(pages.InvoiceDatePage, LocalDate.of(2025, 4, 15))
+          .set(InvoiceDatePage, LocalDate.of(2025, 4, 15))
           .success
           .value
 
@@ -421,7 +422,7 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
           val captor = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
           org.mockito.Mockito.verify(mockSessionRepository).set(captor.capture())
           val saved = captor.getValue
-          saved.get(pages.InvoiceDatePage) mustBe Some(LocalDate.of(2025, 4, 16))
+          saved.get(InvoiceDatePage) mustBe Some(LocalDate.of(2025, 4, 16))
         }
       }
     }

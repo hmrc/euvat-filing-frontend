@@ -22,7 +22,8 @@ import models.requests.{DataRequest, SupplierTaxIdentifierCountRequest}
 import models.responses.{AddPurchaseResponse, SupplierTaxIdentifierCountResponse}
 import models.{CheckMode, Mode, NormalMode}
 import navigation.Navigator
-import pages.*
+import pages.purchase.*
+import pages.warning.SupplierTaxIdentifierWarningPage
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -60,7 +61,7 @@ class SupplierTaxIdentifierNumberController @Inject() (
     mode match {
       case CheckMode if hasInvoiceNumber => routes.InvoiceNumberController.onPageLoad(CheckMode)
       case CheckMode                     => routes.CheckYourPurchaseDetailsController.onPageLoad()
-      case _                             => routes.SupplierTaxNumberController.onPageLoad(NormalMode)
+      case _                             => routes.SupplierTaxNumberCheckController.onPageLoad(NormalMode)
     }
   }
 

@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.purchase.TotalVatClaimFormProvider
 import models.{Mode, UserAnswers}
 import navigation.Navigator
-import pages.ImportTotalVatClaimPage
+import pages.imports.ImportTotalVatClaimPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
@@ -28,7 +28,7 @@ import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ControllerHelpers.currencySymbolFromSession
 import utils.CurrencyConfig
-import views.html.PurchaseOrImportTotalVatClaimView
+import views.html.purchasesOrImports.PurchaseOrImportTotalVatClaimView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

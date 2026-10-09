@@ -24,7 +24,8 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.*
+import pages.claim.RefundingCountryPage
+import pages.purchase.*
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -96,7 +97,7 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
         val view = application.injector.instanceOf[SupplierVatRegistrationNumberView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, routes.SupplierTaxNumberController.onPageLoad(NormalMode), true)(
+        contentAsString(result) mustEqual view(form, NormalMode, routes.SupplierTaxNumberCheckController.onPageLoad(NormalMode), true)(
           request,
           messages(application)
         ).toString
@@ -120,7 +121,7 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
         val view = application.injector.instanceOf[SupplierVatRegistrationNumberView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode), false)(
+        contentAsString(result) mustEqual view(form, NormalMode, routes.SupplierVatRegCheckController.onPageLoad(NormalMode), false)(
           request,
           messages(application)
         ).toString
@@ -162,7 +163,7 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
 
           withClue(s"failed for country code: $countryCode") {
             status(result) mustEqual OK
-            contentAsString(result) mustEqual view(form, NormalMode, routes.SupplierTaxNumberController.onPageLoad(NormalMode), true)(
+            contentAsString(result) mustEqual view(form, NormalMode, routes.SupplierTaxNumberCheckController.onPageLoad(NormalMode), true)(
               request,
               messages(application)
             ).toString

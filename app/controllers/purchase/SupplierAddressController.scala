@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.purchase.SupplierAddressFormProvider
 import models.{CheckMode, Mode, NormalMode, SupplierAddress}
 import navigation.Navigator
-import pages.{PurchaseTypePage, SupplierAddressPage}
+import pages.purchase.{PurchaseTypePage, SupplierAddressPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}

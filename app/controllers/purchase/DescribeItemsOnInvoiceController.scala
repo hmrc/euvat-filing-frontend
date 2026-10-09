@@ -21,14 +21,14 @@ import forms.DescribeItemsFormProvider
 import models.requests.DataRequest
 import models.*
 import navigation.Navigator
-import pages.*
+import pages.purchase.{DescribeItemsArrivedFromCheckYourAnswersPage, DescribeItemsOnInvoicePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.{ConfigPurchaseOrImportMapping, CountryCode}
-import views.html.PurchaseOrImportDescribeItemsView
+import views.html.purchasesOrImports.PurchaseOrImportDescribeItemsView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -75,8 +75,8 @@ class DescribeItemsOnInvoiceController @Inject() (
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     val preparedForm = request.userAnswers.get(DescribeItemsOnInvoicePage).fold(form)(form.fill)
 
-    if (mode == CheckMode && !request.userAnswers.get(pages.DescribeItemsArrivedFromCheckYourAnswersPage).contains(true)) {
-      val markedTry = request.userAnswers.set(pages.DescribeItemsArrivedFromCheckYourAnswersPage, true)
+    if (mode == CheckMode && !request.userAnswers.get(DescribeItemsArrivedFromCheckYourAnswersPage).contains(true)) {
+      val markedTry = request.userAnswers.set(DescribeItemsArrivedFromCheckYourAnswersPage, true)
       Future.fromTry(markedTry).flatMap { updated =>
         sessionRepository.set(updated).map(_ => Ok(renderView(preparedForm, mode)))
       }

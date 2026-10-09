@@ -18,11 +18,12 @@ package controllers.purchase
 
 import base.SpecBase
 import forms.purchase.InvoiceTypeFormProvider
-import models.{CheckMode, Fuel, InvoiceType, NormalMode, Other, SupplierTaxNumber, Transport, UserAnswers}
+import models.{CheckMode, Fuel, InvoiceType, NormalMode, Other, SupplierTaxNumberCheck, Transport, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.*
+import pages.claim.RefundingCountryPage
+import pages.purchase.*
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -281,7 +282,7 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
         .set(PurchaseSubTypePage, "10.99")
         .success
         .value
-        .set(pages.RefundingCountryPage, "BE")
+        .set(RefundingCountryPage, "BE")
         .success
         .value
 
@@ -334,10 +335,10 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
         .set(InvoiceTypePage, InvoiceType.StandardInvoice)
         .success
         .value
-        .set(SupplierTaxNumberCheckPage, SupplierTaxNumber.Vatregistrationnumber)
+        .set(SupplierTaxNumberCheckPage, SupplierTaxNumberCheck.VatRegistrationNumber)
         .success
         .value
-        .set(SimplifiedInvoiceVatRegCheckPage, true)
+        .set(SupplierVatRegCheckPage, true)
         .success
         .value
 
@@ -355,8 +356,8 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
         verify(mockSessionRepository).set(captor.capture())
         val saved = captor.getValue
 
-        saved.get(SupplierTaxNumberCheckPage) mustBe Some(SupplierTaxNumber.Vatregistrationnumber)
-        saved.get(SimplifiedInvoiceVatRegCheckPage) mustBe Some(true)
+        saved.get(SupplierTaxNumberCheckPage) mustBe Some(SupplierTaxNumberCheck.VatRegistrationNumber)
+        saved.get(SupplierVatRegCheckPage) mustBe Some(true)
         saved.get(InvoiceTypePage) mustBe Some(InvoiceType.SimplifiedInvoice)
       }
     }
@@ -438,15 +439,13 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to SimplifiedInvoiceVatRegCheck in CheckMode when submitted value changes" in {
+    "must redirect to SupplierVatRegCheck in CheckMode when submitted value changes" in {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
           .build()
 
       running(application) {
@@ -456,7 +455,7 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(CheckMode).url
+        redirectLocation(result).value mustEqual routes.SupplierVatRegCheckController.onPageLoad(CheckMode).url
       }
     }
 
@@ -466,9 +465,7 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
           .build()
 
       running(application) {

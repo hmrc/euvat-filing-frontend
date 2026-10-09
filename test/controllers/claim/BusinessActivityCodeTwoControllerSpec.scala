@@ -24,7 +24,8 @@ import navigation.FakeNavigator
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.BusinessActivityCodeTwoPage
+import pages.claim
+import pages.claim.{BusinessActivityCodePage, BusinessActivityCodeThreePage, BusinessActivityCodeTwoPage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -148,7 +149,7 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return a Bad Request and duplicate error when submitted code matches first business activity" in {
-      val userAnswers = emptyUserAnswers.set(pages.BusinessActivityCodePage, "4920").success.value
+      val userAnswers = emptyUserAnswers.set(BusinessActivityCodePage, "4920").success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -165,8 +166,8 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
 
     "must return a Bad Request and duplicate error when submitted code matches third business activity" in {
       val userAnswers = emptyUserAnswers
-        .set(pages.BusinessActivityCodePage, "4920")
-        .flatMap(_.set(pages.BusinessActivityCodeThreePage, "7777"))
+        .set(claim.BusinessActivityCodePage, "4920")
+        .flatMap(_.set(BusinessActivityCodeThreePage, "7777"))
         .success
         .value
 
@@ -219,7 +220,7 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val ua = emptyUserAnswers
-        .set(pages.BusinessActivityCodeTwoPage, "1234")
+        .set(claim.BusinessActivityCodeTwoPage, "1234")
         .success
         .value
         .set(pages.ClaimDetailsCompletedPage, true)
@@ -249,7 +250,7 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val ua = emptyUserAnswers
-        .set(pages.BusinessActivityCodeTwoPage, "1234")
+        .set(claim.BusinessActivityCodeTwoPage, "1234")
         .success
         .value
         .set(pages.ClaimDetailsCompletedPage, true)

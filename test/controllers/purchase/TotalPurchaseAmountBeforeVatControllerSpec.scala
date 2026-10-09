@@ -18,12 +18,13 @@ package controllers.purchase
 
 import base.SpecBase
 import forms.purchase.TotalPurchaseAmountBeforeVatFormProvider
-import models.{CheckMode, Fuel, NormalMode, PurchaseOrImportType, SupplierTaxNumber, UserAnswers}
+import models.{CheckMode, Fuel, InvoiceType, NormalMode, PurchaseOrImportType, SupplierTaxNumberCheck, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.*
+import pages.claim.RefundingCountryPage
+import pages.purchase.*
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -53,7 +54,7 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode), "€", "Euro")(
+          view(form, NormalMode, routes.SupplierVatRegCheckController.onPageLoad(NormalMode), "€", "Euro")(
             request,
             messages(application)
           ).toString
@@ -89,7 +90,7 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
         val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, routes.SupplierTaxNumberController.onPageLoad(NormalMode), "€", "Euro")(
+        contentAsString(result) mustEqual view(form, NormalMode, routes.SupplierTaxNumberCheckController.onPageLoad(NormalMode), "€", "Euro")(
           request,
           messages(application)
         ).toString
@@ -106,7 +107,7 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
         val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode), "€", "Euro")(
+        contentAsString(result) mustEqual view(form, NormalMode, routes.SupplierVatRegCheckController.onPageLoad(NormalMode), "€", "Euro")(
           request,
           messages(application)
         ).toString
@@ -124,7 +125,7 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode), "€", "Euro")(
+          view(form, NormalMode, routes.SupplierVatRegCheckController.onPageLoad(NormalMode), "€", "Euro")(
             request,
             messages(application)
           ).toString
@@ -143,7 +144,7 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form.fill(BigDecimal("12.34")), NormalMode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode), "€", "Euro")(
+          view(form.fill(BigDecimal("12.34")), NormalMode, routes.SupplierVatRegCheckController.onPageLoad(NormalMode), "€", "Euro")(
             request,
             messages(application)
           ).toString
@@ -188,7 +189,7 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
 
         status(result) mustEqual BAD_REQUEST
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(boundForm, NormalMode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode), "€", "Euro")(
+          view(boundForm, NormalMode, routes.SupplierVatRegCheckController.onPageLoad(NormalMode), "€", "Euro")(
             request,
             messages(application)
           ).toString
@@ -300,7 +301,7 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode), "€", "Euro")(
+          view(form, NormalMode, routes.SupplierVatRegCheckController.onPageLoad(NormalMode), "€", "Euro")(
             request,
             messages(application)
           ).toString
@@ -326,9 +327,9 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode), "лв", "Bulgarian Lev")(request,
-                                                                                                                              messages(application)
-                                                                                                                             ).toString
+          view(form, NormalMode, routes.SupplierVatRegCheckController.onPageLoad(NormalMode), "лв", "Bulgarian Lev")(request,
+                                                                                                                     messages(application)
+                                                                                                                    ).toString
         )
       }
     }
@@ -355,13 +356,13 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
     "back link should navigate correctly for implemented supplier-tax cases" - {
       "Germany + SimplifiedInvoice + taxIdentifier -> supplier tax identifier page" in {
         val userAnswers = UserAnswers(userAnswersId)
-          .set(pages.RefundingCountryPage, "DE")
+          .set(RefundingCountryPage, "DE")
           .success
           .value
-          .set(pages.InvoiceTypePage, models.InvoiceType.SimplifiedInvoice)
+          .set(InvoiceTypePage, InvoiceType.SimplifiedInvoice)
           .success
           .value
-          .set(pages.SupplierTaxNumberCheckPage, models.SupplierTaxNumber.Taxidentifiernumber)
+          .set(SupplierTaxNumberCheckPage, SupplierTaxNumberCheck.TaxIdentifierNumber)
           .success
           .value
 
@@ -382,13 +383,13 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
 
       "Germany + StandardInvoice + taxIdentifier -> supplier tax identifier page" in {
         val userAnswers = UserAnswers(userAnswersId)
-          .set(pages.RefundingCountryPage, "DE")
+          .set(RefundingCountryPage, "DE")
           .success
           .value
-          .set(pages.InvoiceTypePage, models.InvoiceType.StandardInvoice)
+          .set(InvoiceTypePage, InvoiceType.StandardInvoice)
           .success
           .value
-          .set(pages.SupplierTaxNumberCheckPage, models.SupplierTaxNumber.Taxidentifiernumber)
+          .set(SupplierTaxNumberCheckPage, SupplierTaxNumberCheck.TaxIdentifierNumber)
           .success
           .value
 

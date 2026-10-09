@@ -17,8 +17,8 @@
 package navigation
 
 import controllers.purchase.routes as purchaseRoutes
-import models.{CheckMode, InvoiceType, Mode, NormalMode, PurchaseOrImportType, SupplierTaxNumber, UserAnswers}
-import pages.*
+import models.{CheckMode, InvoiceType, Mode, NormalMode, PurchaseOrImportType, SupplierTaxNumberCheck, UserAnswers}
+import pages.purchase.*
 import play.api.mvc.Call
 import utils.{ConfigPurchaseOrImportMapping, CountryCode, CurrencyConfig}
 
@@ -68,17 +68,17 @@ class PurchaseNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchas
 
   def navigateFromSupplierAddressPage(mode: Mode)(userAnswers: UserAnswers): Call = {
     CountryCode.findCountryCode(userAnswers) match {
-      case Some("DE") => purchaseRoutes.SupplierTaxNumberController.onPageLoad(mode)
+      case Some("DE") => purchaseRoutes.SupplierTaxNumberCheckController.onPageLoad(mode)
       case _ =>
         userAnswers.get(InvoiceTypePage) match {
           case Some(InvoiceType.StandardInvoice) => purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(mode)
-          case _                                 => purchaseRoutes.SimplifiedInvoiceVatRegCheckController.onPageLoad(mode)
+          case _                                 => purchaseRoutes.SupplierVatRegCheckController.onPageLoad(mode)
         }
     }
   }
 
-  def navigateFromSimplifiedInvoiceVatRegCheckPage(mode: Mode)(userAnswers: UserAnswers): Call =
-    userAnswers.get(SimplifiedInvoiceVatRegCheckPage) match {
+  def navigateFromSupplierVatRegCheckPage(mode: Mode)(userAnswers: UserAnswers): Call =
+    userAnswers.get(SupplierVatRegCheckPage) match {
       case Some(true) => purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(mode)
       case _ =>
         CountryCode.findCountryCode(userAnswers) match {
@@ -90,9 +90,9 @@ class PurchaseNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchas
 
   def navigateFromSupplierTaxNumberCheckPage(mode: Mode)(userAnswers: UserAnswers): Call =
     userAnswers.get(SupplierTaxNumberCheckPage) match {
-      case Some(SupplierTaxNumber.Vatregistrationnumber) => purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(mode)
-      case Some(SupplierTaxNumber.Taxidentifiernumber)   => purchaseRoutes.SupplierTaxIdentifierNumberController.onPageLoad(mode)
-      case Some(SupplierTaxNumber.Neither) =>
+      case Some(SupplierTaxNumberCheck.VatRegistrationNumber) => purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(mode)
+      case Some(SupplierTaxNumberCheck.TaxIdentifierNumber)   => purchaseRoutes.SupplierTaxIdentifierNumberController.onPageLoad(mode)
+      case Some(SupplierTaxNumberCheck.Neither) =>
         if (mode == CheckMode) {
           purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
         } else {

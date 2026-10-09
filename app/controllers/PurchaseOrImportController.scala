@@ -20,14 +20,15 @@ import controllers.actions.*
 import forms.PurchaseOrImportFormProvider
 import models.{NormalMode, PurchaseOrImport, UserAnswers}
 import navigation.Navigator
-import pages.*
+import pages.PurchaseOrImportPage
+import pages.purchase.*
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import queries.Settable
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.PurchaseOrImportView
+import views.html.purchasesOrImports.PurchaseOrImportView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -85,7 +86,7 @@ class PurchaseOrImportController @Inject() (
     InvoiceTypePage,
     InvoiceNumberPage,
     InvoiceDatePage,
-    SimplifiedInvoiceVatRegCheckPage,
+    SupplierVatRegCheckPage,
     SuppliersNamePage,
     SupplierAddressPage,
     SupplierVatRegistrationNumberPage,

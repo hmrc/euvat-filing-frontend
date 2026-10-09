@@ -22,6 +22,9 @@ import controllers.purchase.routes as purchaseRoutes
 import models.*
 import models.PurchaseOrImport.{Import, Purchase}
 import pages.*
+import pages.claim.*
+import pages.imports.*
+import pages.purchase.*
 import play.api.mvc.Call
 
 import javax.inject.{Inject, Singleton}
@@ -52,7 +55,7 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case InvoiceDatePage                   => _ => purchaseRoutes.SuppliersNameController.onPageLoad(NormalMode)
     case SuppliersNamePage                 => _ => purchaseRoutes.SupplierAddressController.onPageLoad(NormalMode)
     case SupplierAddressPage               => userAnswers => purchaseNavigator.navigateFromSupplierAddressPage(NormalMode)(userAnswers)
-    case SimplifiedInvoiceVatRegCheckPage  => userAnswers => purchaseNavigator.navigateFromSimplifiedInvoiceVatRegCheckPage(NormalMode)(userAnswers)
+    case SupplierVatRegCheckPage           => userAnswers => purchaseNavigator.navigateFromSupplierVatRegCheckPage(NormalMode)(userAnswers)
     case SupplierTaxNumberCheckPage        => userAnswers => purchaseNavigator.navigateFromSupplierTaxNumberCheckPage(NormalMode)(userAnswers)
     case SupplierVatRegistrationNumberPage => userAnswers => purchaseNavigator.navigateFromSupplierVatRegistrationPage()(userAnswers)
     case SupplierTaxIdentifierNumberPage   => userAnswers => purchaseNavigator.navigateFromSupplierTaxIdentifierNumberPage()(userAnswers)
@@ -92,7 +95,7 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case InvoiceDatePage                   => _ => purchaseRoutes.SuppliersNameController.onPageLoad(CheckMode)
     case SuppliersNamePage                 => _ => purchaseRoutes.SupplierAddressController.onPageLoad(CheckMode)
     case SupplierAddressPage               => userAnswers => purchaseNavigator.navigateFromSupplierAddressPage(CheckMode)(userAnswers)
-    case SimplifiedInvoiceVatRegCheckPage  => userAnswers => purchaseNavigator.navigateFromSimplifiedInvoiceVatRegCheckPage(CheckMode)(userAnswers)
+    case SupplierVatRegCheckPage           => userAnswers => purchaseNavigator.navigateFromSupplierVatRegCheckPage(CheckMode)(userAnswers)
     case SupplierTaxNumberCheckPage        => userAnswers => purchaseNavigator.navigateFromSupplierTaxNumberCheckPage(CheckMode)(userAnswers)
     case SupplierVatRegistrationNumberPage => userAnswers => purchaseNavigator.navigateFromSupplierVatRegistrationPage()(userAnswers)
     case SupplierTaxIdentifierNumberPage   => userAnswers => purchaseNavigator.navigateFromSupplierTaxIdentifierNumberPage()(userAnswers)

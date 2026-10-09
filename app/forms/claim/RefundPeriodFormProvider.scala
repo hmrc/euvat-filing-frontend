@@ -16,7 +16,6 @@
 
 package forms.claim
 
-import forms.claim.RefundPeriodData
 import forms.mappings.{Mappings, YearMonthFormatter}
 import play.api.data.Form
 import play.api.data.Forms.{mapping, of}

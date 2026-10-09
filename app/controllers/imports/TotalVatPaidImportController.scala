@@ -21,7 +21,7 @@ import forms.imports.TotalVatPaidImportFormProvider
 import javax.inject.Inject
 import models.Mode
 import navigation.Navigator
-import pages.TotalVatPaidImportPage
+import pages.imports.TotalVatPaidImportPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
@@ -29,7 +29,7 @@ import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ControllerHelpers.*
 import utils.CurrencyConfig
-import views.html.PurchaseOrImportTotalVatPaidView
+import views.html.purchasesOrImports.PurchaseOrImportTotalVatPaidView
 
 import scala.concurrent.{ExecutionContext, Future}
 

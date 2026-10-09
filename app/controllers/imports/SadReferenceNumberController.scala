@@ -18,9 +18,9 @@ package controllers.imports
 
 import controllers.actions.*
 import forms.imports.SadReferenceNumberFormProvider
-import models.Mode
+import models.{Mode, NormalMode}
 import navigation.Navigator
-import pages.SadReferenceNumberPage
+import pages.imports.SadReferenceNumberPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}

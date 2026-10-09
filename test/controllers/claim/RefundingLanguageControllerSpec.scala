@@ -20,10 +20,12 @@ import base.SpecBase
 import com.typesafe.config.ConfigFactory
 import controllers.claim.routes
 import forms.claim.RefundingLanguageFormProvider
+import models.RefundingLanguage
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{RefundingCountryNamePage, RefundingCountryPage, RefundingLanguagePage}
+import pages.ClaimDetailsCompletedPage
+import pages.claim.{RefundingCountryNamePage, RefundingCountryPage, RefundingLanguagePage}
 import play.api.Configuration
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -219,10 +221,10 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val ua = emptyUserAnswers
-        .set(pages.RefundingCountryPage, "BE")
+        .set(RefundingCountryPage, "BE")
         .success
         .value
-        .set(pages.RefundingLanguagePage, models.RefundingLanguage.French)
+        .set(RefundingLanguagePage, models.RefundingLanguage.French)
         .success
         .value
         .set(pages.ClaimDetailsCompletedPage, true)
@@ -252,13 +254,13 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val ua = emptyUserAnswers
-        .set(pages.RefundingCountryPage, "BE")
+        .set(RefundingCountryPage, "BE")
         .success
         .value
-        .set(pages.RefundingLanguagePage, models.RefundingLanguage.English)
+        .set(RefundingLanguagePage, RefundingLanguage.English)
         .success
         .value
-        .set(pages.ClaimDetailsCompletedPage, true)
+        .set(ClaimDetailsCompletedPage, true)
         .success
         .value
 
@@ -285,7 +287,7 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val ua = emptyUserAnswers
-        .set(pages.RefundingCountryPage, "BE")
+        .set(RefundingCountryPage, "BE")
         .success
         .value
 

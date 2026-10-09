@@ -20,7 +20,8 @@ import base.SpecBase
 import models.{Fuel, NormalMode, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.{times, verify}
-import pages.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage, RefundingCountryPage}
+import pages.claim.RefundingCountryPage
+import pages.imports.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage}
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*

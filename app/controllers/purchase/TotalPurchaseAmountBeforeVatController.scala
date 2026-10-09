@@ -19,9 +19,10 @@ package controllers.purchase
 import controllers.actions.*
 import forms.purchase.TotalPurchaseAmountBeforeVatFormProvider
 import models.requests.DataRequest
-import models.{CheckMode, Mode, NormalMode, SupplierTaxNumber, UserAnswers}
+import models.{CheckMode, Mode, NormalMode, SupplierTaxNumberCheck, UserAnswers}
 import navigation.Navigator
-import pages.*
+import pages.claim.RefundingCountryPage
+import pages.purchase.*
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
@@ -53,15 +54,15 @@ class TotalPurchaseAmountBeforeVatController @Inject() (
 
   private def germanyBackLink(userAnswers: UserAnswers): Call =
     userAnswers.get(SupplierTaxNumberCheckPage) match {
-      case Some(SupplierTaxNumber.Vatregistrationnumber) => routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode)
-      case Some(SupplierTaxNumber.Taxidentifiernumber)   => routes.SupplierTaxIdentifierNumberController.onPageLoad(NormalMode)
-      case _                                             => routes.SupplierTaxNumberController.onPageLoad(NormalMode)
+      case Some(SupplierTaxNumberCheck.VatRegistrationNumber) => routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode)
+      case Some(SupplierTaxNumberCheck.TaxIdentifierNumber)   => routes.SupplierTaxIdentifierNumberController.onPageLoad(NormalMode)
+      case _                                                  => routes.SupplierTaxNumberCheckController.onPageLoad(NormalMode)
     }
 
   private def defaultBackLink(userAnswers: UserAnswers): Call =
     userAnswers.get(SupplierVatRegistrationNumberPage) match {
       case Some(_) => routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode)
-      case None    => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode)
+      case None    => routes.SupplierVatRegCheckController.onPageLoad(NormalMode)
     }
 
   private def backLink(mode: Mode)(userAnswers: UserAnswers): Call = {

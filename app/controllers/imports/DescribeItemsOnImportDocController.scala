@@ -22,7 +22,7 @@ import forms.DescribeItemsFormProvider
 import models.requests.DataRequest
 import models.*
 import navigation.Navigator
-import pages.{DescribeItemsOnImportDocPage, ImportSubCodePage, ImportTypePage}
+import pages.imports.{DescribeItemsOnImportDocPage, ImportSubCodePage, ImportTypePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents, Result}
@@ -30,7 +30,7 @@ import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.PurchaseOrImportHelpers.isNoneSelection
 import utils.{ConfigPurchaseOrImportMapping, CountryCode}
-import views.html.PurchaseOrImportDescribeItemsView
+import views.html.purchasesOrImports.PurchaseOrImportDescribeItemsView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

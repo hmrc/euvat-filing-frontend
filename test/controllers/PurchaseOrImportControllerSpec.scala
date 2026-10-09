@@ -24,14 +24,15 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.*
+import pages.PurchaseOrImportPage
+import pages.purchase.*
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.PurchaseOrImportView
+import views.html.purchasesOrImports.PurchaseOrImportView
 
 import scala.concurrent.Future
 
@@ -119,7 +120,7 @@ class PurchaseOrImportControllerSpec extends SpecBase with MockitoSugar {
         savedAnswers.get(InvoiceNumberPage) mustBe None
         savedAnswers.get(InvoiceDatePage) mustBe None
         savedAnswers.get(RefundingCurrencyPage) mustBe None
-        savedAnswers.get(SimplifiedInvoiceVatRegCheckPage) mustBe None
+        savedAnswers.get(SupplierVatRegCheckPage) mustBe None
         savedAnswers.get(SuppliersNamePage) mustBe None
         savedAnswers.get(SupplierAddressPage) mustBe None
         savedAnswers.get(SupplierVatRegistrationNumberPage) mustBe None

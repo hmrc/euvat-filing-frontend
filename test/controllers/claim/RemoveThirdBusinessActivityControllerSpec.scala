@@ -23,7 +23,7 @@ import models.NormalMode
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{BusinessActivityCodeThreePage, BusinessActivityCodeTwoPage, BusinessActivityTwoPage}
+import pages.claim.{BusinessActivityCodeThreePage, BusinessActivityCodeTwoPage, BusinessActivityTwoPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.test.FakeRequest

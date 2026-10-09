@@ -309,16 +309,23 @@ suppliersName.checkYourAnswersLabel = Supplier name
 suppliersName.change.hidden = Change supplier name
 suppliersName.import.hint = Find the supplier’s name on the import document
 
-supplierTaxNumber.title = Select the supplier tax numbers shown on the invoice
-supplierTaxNumber.heading = Select the supplier tax numbers shown on the invoice
-supplierTaxNumber.vatRegistrationNumber = VAT registration number (also known as Umsatzsteuer-Identifikationsnummer)
-supplierTaxNumber.vatRegistrationNumber.hint = This is usually 11 characters and starts with DE, for example DE123456789
-supplierTaxNumber.taxIdentifierNumber = Tax identifier number (also known as Steuernummer)
-supplierTaxNumber.taxIdentifierNumber.hint = This is 10 or 11 digits, for example 12/345/67890
-supplierTaxNumber.error.required = Select the supplier tax numbers shown on the invoice
-supplierTaxNumber.neither = I do not have any of these on the invoice
-supplierTaxNumber.checkYourAnswersLabel = Supplier tax numbers
-supplierTaxNumber.change.hidden = Change supplier tax numbers
+supplierTaxNumberCheck.title = Select the supplier tax numbers shown on the invoice
+supplierTaxNumberCheck.heading = Select the supplier tax numbers shown on the invoice
+supplierTaxNumberCheck.vatRegistrationNumber = VAT registration number (also known as Umsatzsteuer-Identifikationsnummer)
+supplierTaxNumberCheck.vatRegistrationNumber.hint = This is usually 11 characters and starts with DE, for example DE123456789
+supplierTaxNumberCheck.taxIdentifierNumber = Tax identifier number (also known as Steuernummer)
+supplierTaxNumberCheck.taxIdentifierNumber.hint = This is 10 or 11 digits, for example 12/345/67890
+supplierTaxNumberCheck.error.required = Select the supplier tax numbers shown on the invoice
+supplierTaxNumberCheck.neither = I do not have any of these on the invoice
+supplierTaxNumberCheck.checkYourAnswersLabel = Supplier tax numbers
+supplierTaxNumberCheck.change.hidden = Change supplier tax numbers
+
+supplierVatRegCheck.title = Does the simplified invoice contain the supplier’s VAT registration number?
+supplierVatRegCheck.heading = Does the simplified invoice contain the supplier’s VAT registration number?
+supplierVatRegCheck.hint = This can be up to 12 characters and may start with a 2-letter EU country code. For example, FR123456789
+supplierVatRegCheck.error.required = Select yes if the simplified invoice contains the supplier’s VAT registration number
+supplierVatRegCheck.checkYourAnswersLabel = Supplier VAT registration check
+supplierVatRegCheck.change.hidden = Change supplier VAT registration check
 
 supplierVatRegistrationNumber.title = What is the supplier’s VAT registration number?
 supplierVatRegistrationNumber.heading = What is the supplier’s VAT registration number?
@@ -413,13 +420,6 @@ invoiceNumber.error.length = The invoice number must be {0} characters or less
 invoiceNumber.error.invalid = Enter a valid invoice number
 invoiceNumber.checkYourAnswersLabel = Invoice number
 invoiceNumber.change.hidden = Change the invoice number
-
-simplifiedInvoiceVatRegCheck.title = Does the simplified invoice contain the supplier’s VAT registration number?
-simplifiedInvoiceVatRegCheck.heading = Does the simplified invoice contain the supplier’s VAT registration number?
-simplifiedInvoiceVatRegCheck.hint = This can be up to 12 characters and may start with a 2-letter EU country code. For example, FR123456789
-simplifiedInvoiceVatRegCheck.error.required = Select yes if the simplified invoice contains the supplier’s VAT registration number
-simplifiedInvoiceVatRegCheck.checkYourAnswersLabel = Supplier VAT registration check
-simplifiedInvoiceVatRegCheck.change.hidden = Change supplier VAT registration check
 
 purchaseType.title = Purchase type
 purchaseType.heading = Purchase type
@@ -563,19 +563,19 @@ import.refundingCurrency.error.required = Select a currency for this import
 totalVatPaidImport.p1 = If this amount is not on your import document, you’ll need to calculate it. Use the standard VAT rate of the country you’re claiming from.
 
 # Warning messages
-confirmRefundPeriodStartDate.title = Are you sure the refund period start date is correct?
-confirmRefundPeriodStartDate.heading = Are you sure the refund period start date is correct?
-confirmRefundPeriodStartDate.paragraph = You’ve told us the refund period start date is {0}. The refund period start date cannot be before {1}.
-confirmRefundPeriodStartDate.warning = If you submit a claim with inaccurate information, it may be rejected.
-confirmRefundPeriodStartDate.button = Yes, this is correct
-confirmRefundPeriodStartDate.link = No, change the start date
+refundPeriodStartDateWarning.title = Are you sure the refund period start date is correct?
+refundPeriodStartDateWarning.heading = Are you sure the refund period start date is correct?
+refundPeriodStartDateWarning.paragraph = You’ve told us the refund period start date is {0}. The refund period start date cannot be before {1}.
+refundPeriodStartDateWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
+refundPeriodStartDateWarning.button = Yes, this is correct
+refundPeriodStartDateWarning.link = No, change the start date
 
-confirmRefundPeriodEndDate.title = Are you sure the refund period end date is correct?
-confirmRefundPeriodEndDate.heading = Are you sure the refund period end date is correct?
-confirmRefundPeriodEndDate.paragraph = You’ve told us the refund period end date is {0}. The refund period end date must be in the past.
-confirmRefundPeriodEndDate.warning = If you submit a claim with inaccurate information, it may be rejected.
-confirmRefundPeriodEndDate.button = Yes, this is correct
-confirmRefundPeriodEndDate.link = No, change the end date
+refundPeriodEndDateWarning.title = Are you sure the refund period end date is correct?
+refundPeriodEndDateWarning.heading = Are you sure the refund period end date is correct?
+refundPeriodEndDateWarning.paragraph = You’ve told us the refund period end date is {0}. The refund period end date must be in the past.
+refundPeriodEndDateWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
+refundPeriodEndDateWarning.button = Yes, this is correct
+refundPeriodEndDateWarning.link = No, change the end date
 
 periodOverlapWarning.title = Are you sure the refund period is correct?
 periodOverlapWarning.heading = Are you sure the refund period is correct?

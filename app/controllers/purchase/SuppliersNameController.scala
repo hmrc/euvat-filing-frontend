@@ -20,13 +20,13 @@ import controllers.actions.*
 import forms.SuppliersNameFormProvider
 import models.{CheckMode, Mode, NormalMode}
 import navigation.Navigator
-import pages.SuppliersNamePage
+import pages.purchase.SuppliersNamePage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.PurchaseOrImportSuppliersNameView
+import views.html.purchasesOrImports.PurchaseOrImportSuppliersNameView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

@@ -18,12 +18,13 @@ package controllers.purchase
 
 import base.SpecBase
 import forms.purchase.InvoiceNumberFormProvider
-import models.{CheckMode, NormalMode, SupplierTaxNumber, UserAnswers}
+import models.{CheckMode, NormalMode, SupplierTaxNumberCheck, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.*
+import pages.claim.RefundingCountryPage
+import pages.purchase.*
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -182,9 +183,7 @@ class InvoiceNumberControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request =
-          FakeRequest(POST, invoiceNumberRoute)
-            .withFormUrlEncodedBody(("value", "answer"))
+        val request = FakeRequest(POST, invoiceNumberRoute).withFormUrlEncodedBody(("value", "answer"))
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
@@ -206,9 +205,7 @@ class InvoiceNumberControllerSpec extends SpecBase with MockitoSugar {
 
       val application =
         applicationBuilder(userAnswers = Some(ua))
-          .overrides(
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
           .build()
 
       running(application) {
@@ -235,15 +232,13 @@ class InvoiceNumberControllerSpec extends SpecBase with MockitoSugar {
         .set(SupplierVatRegistrationNumberPage, "123")
         .success
         .value
-        .set(SupplierTaxNumberCheckPage, SupplierTaxNumber.Vatregistrationnumber)
+        .set(SupplierTaxNumberCheckPage, SupplierTaxNumberCheck.VatRegistrationNumber)
         .success
         .value
 
       val application =
         applicationBuilder(userAnswers = Some(ua))
-          .overrides(
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
           .build()
 
       running(application) {
@@ -275,7 +270,7 @@ class InvoiceNumberControllerSpec extends SpecBase with MockitoSugar {
         .set(SupplierTaxIdentifierNumberPage, "123")
         .success
         .value
-        .set(SupplierTaxNumberCheckPage, SupplierTaxNumber.Taxidentifiernumber)
+        .set(SupplierTaxNumberCheckPage, SupplierTaxNumberCheck.TaxIdentifierNumber)
         .success
         .value
 

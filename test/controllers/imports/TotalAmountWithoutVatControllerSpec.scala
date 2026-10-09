@@ -22,7 +22,9 @@ import models.{CheckMode, NormalMode, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{RefundingCountryPage, RefundingCurrencyPage, SadReferenceCheckPage, SadReferenceNumberPage, TotalAmountWithoutVatPage}
+import pages.claim.RefundingCountryPage
+import pages.imports.{SadReferenceCheckPage, SadReferenceNumberPage, TotalAmountWithoutVatPage}
+import pages.purchase.RefundingCurrencyPage
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.test.FakeRequest
