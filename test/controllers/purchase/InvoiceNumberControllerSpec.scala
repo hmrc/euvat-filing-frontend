@@ -183,9 +183,7 @@ class InvoiceNumberControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request =
-          FakeRequest(POST, invoiceNumberRoute)
-            .withFormUrlEncodedBody(("value", "answer"))
+        val request = FakeRequest(POST, invoiceNumberRoute).withFormUrlEncodedBody(("value", "answer"))
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
@@ -207,9 +205,7 @@ class InvoiceNumberControllerSpec extends SpecBase with MockitoSugar {
 
       val application =
         applicationBuilder(userAnswers = Some(ua))
-          .overrides(
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
           .build()
 
       running(application) {
@@ -242,9 +238,7 @@ class InvoiceNumberControllerSpec extends SpecBase with MockitoSugar {
 
       val application =
         applicationBuilder(userAnswers = Some(ua))
-          .overrides(
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
           .build()
 
       running(application) {

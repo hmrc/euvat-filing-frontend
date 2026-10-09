@@ -22,3 +22,6 @@ POST        /purchases-imports/before-you-start         controllers.BeforeYouSta
 
 GET         /purchases-imports/select-item              controllers.PurchaseOrImportController.onPageLoad
 POST        /purchases-imports/select-item              controllers.PurchaseOrImportController.onSubmit
+
+GET         /purchases-imports/summary                  controllers.PurchaseImportSummaryController.onPageLoad
+POST        /purchases-imports/summary                  controllers.PurchaseImportSummaryController.onSubmit

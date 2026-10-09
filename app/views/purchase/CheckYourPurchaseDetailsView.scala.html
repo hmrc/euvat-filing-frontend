@@ -26,8 +26,8 @@
 @(sections: Seq[(String, Seq[(String, Option[String], Seq[(String, String, String)])])], isPostSubmission: Boolean, isAmended: Boolean)(implicit request: Request[_], messages: Messages)
 
 @layout(
-pageTitle = titleNoForm(messages(if(isPostSubmission) "checkYourPurchaseDetails.title" else "checkYourPurchaseDetails.title")),
-showBackLink = false
+    pageTitle = titleNoForm(messages(if(isPostSubmission) "checkYourPurchaseDetails.title" else "checkYourPurchaseDetails.title")),
+    showBackLink = false
 ) {
     <h1 class="govuk-heading-l">@messages(if(isPostSubmission) "checkYourPurchaseDetails.heading" else "checkYourPurchaseDetails.heading")</h1>
 

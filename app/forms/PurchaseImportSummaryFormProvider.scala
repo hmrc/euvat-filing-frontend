@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-package queries
+package forms
 
-import models.responses.ApplicationResponse
-import pages.QuestionPage
-import play.api.libs.json.JsPath
+import forms.mappings.Mappings
+import play.api.data.Form
 
-case object ClaimApplicationResponseQuery extends QuestionPage[ApplicationResponse] {
-  override def path: JsPath = JsPath \ toString
-  override def toString: String = "claimApplicationResponse"
+import javax.inject.Inject
+
+class PurchaseImportSummaryFormProvider @Inject() extends Mappings {
+
+  def apply(): Form[Boolean] =
+    Form(
+      "value" -> boolean("purchaseImportSummary.error.required")
+    )
 }

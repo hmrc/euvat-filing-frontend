@@ -56,7 +56,7 @@ class TotalPurchaseAmountBeforeVatController @Inject() (
     userAnswers.get(SupplierTaxNumberCheckPage) match {
       case Some(SupplierTaxNumberCheck.VatRegistrationNumber) => routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode)
       case Some(SupplierTaxNumberCheck.TaxIdentifierNumber)   => routes.SupplierTaxIdentifierNumberController.onPageLoad(NormalMode)
-      case _                                             => routes.SupplierTaxNumberCheckController.onPageLoad(NormalMode)
+      case _                                                  => routes.SupplierTaxNumberCheckController.onPageLoad(NormalMode)
     }
 
   private def defaultBackLink(userAnswers: UserAnswers): Call =

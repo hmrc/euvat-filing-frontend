@@ -33,16 +33,16 @@ import views.html.purchase.SupplierTaxNumberCheckView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class SupplierTaxNumberCheckController @Inject()(
-                                                  override val messagesApi: MessagesApi,
-                                                  sessionRepository: SessionRepository,
-                                                  navigator: Navigator,
-                                                  identify: IdentifierAction,
-                                                  getData: DataRetrievalAction,
-                                                  requireData: DataRequiredAction,
-                                                  formProvider: SupplierTaxNumberCheckFormProvider,
-                                                  val controllerComponents: MessagesControllerComponents,
-                                                  view: SupplierTaxNumberCheckView
+class SupplierTaxNumberCheckController @Inject() (
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  navigator: Navigator,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: SupplierTaxNumberCheckFormProvider,
+  val controllerComponents: MessagesControllerComponents,
+  view: SupplierTaxNumberCheckView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
@@ -71,15 +71,16 @@ class SupplierTaxNumberCheckController @Inject()(
         value =>
           for {
             userAnswers <- Future.fromTry(request.userAnswers.set(SupplierTaxNumberCheckPage, value))
-            updatedAnswers <- value match {
-                                case SupplierTaxNumberCheck.VatRegistrationNumber => Future.fromTry(userAnswers.remove(SupplierTaxIdentifierNumberPage))
-                                case SupplierTaxNumberCheck.TaxIdentifierNumber   => Future.fromTry(userAnswers.remove(SupplierVatRegistrationNumberPage))
-                                case SupplierTaxNumberCheck.Neither =>
-                                  for {
-                                    vatAnswers <- Future.fromTry(userAnswers.remove(SupplierVatRegistrationNumberPage))
-                                    tidAnswers <- Future.fromTry(vatAnswers.remove(SupplierTaxIdentifierNumberPage))
-                                  } yield tidAnswers
-                              }
+            updatedAnswers <-
+              value match {
+                case SupplierTaxNumberCheck.VatRegistrationNumber => Future.fromTry(userAnswers.remove(SupplierTaxIdentifierNumberPage))
+                case SupplierTaxNumberCheck.TaxIdentifierNumber   => Future.fromTry(userAnswers.remove(SupplierVatRegistrationNumberPage))
+                case SupplierTaxNumberCheck.Neither =>
+                  for {
+                    vatAnswers <- Future.fromTry(userAnswers.remove(SupplierVatRegistrationNumberPage))
+                    tidAnswers <- Future.fromTry(vatAnswers.remove(SupplierTaxIdentifierNumberPage))
+                  } yield tidAnswers
+              }
             _ <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(SupplierTaxNumberCheckPage, mode, updatedAnswers))
       )

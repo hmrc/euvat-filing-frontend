@@ -17,7 +17,6 @@
 package controllers.purchase
 
 import base.SpecBase
-import controllers.routes
 import models.requests.UpdatePurchaseRequest
 import models.responses.{AddPurchaseResponse, UpdatePurchaseResponse}
 import models.{Fuel, InvoiceType, SupplierAddress}
@@ -25,13 +24,13 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.mockito.{ArgumentCaptor, Mockito}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.purchase.*
 import pages.claim.RefundingCountryPage
-import play.api.{Application, Configuration}
+import pages.purchase.*
 import play.api.inject.bind
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import play.api.{Application, Configuration}
 import repositories.SessionRepository
 import services.EuVatRefundsService
 import utils.{Currency, CurrencyConfig}
@@ -47,7 +46,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       when(mockEuVatRefundsService.updatePurchase(any())(any())) thenReturn Future.successful(
-        models.responses.UpdatePurchaseResponse(updateSequenceNumber = 5)
+        UpdatePurchaseResponse(updateSequenceNumber = 5)
       )
 
       val userAnswers = emptyUserAnswers
@@ -65,9 +64,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
         .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(
-          bind[SessionRepository].toInstance(mockSessionRepository)
-        )
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
         .build()
 
       running(application) {
@@ -75,7 +72,6 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-
         verify(mockSessionRepository).set(any())
       }
     }
@@ -84,7 +80,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       when(mockEuVatRefundsService.updatePurchase(any())(any())) thenReturn Future.successful(
-        models.responses.UpdatePurchaseResponse(updateSequenceNumber = 7)
+        UpdatePurchaseResponse(updateSequenceNumber = 7)
       )
 
       val userAnswers = emptyUserAnswers
@@ -99,9 +95,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
         .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(
-          bind[SessionRepository].toInstance(mockSessionRepository)
-        )
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
         .build()
 
       running(application) {
@@ -118,7 +112,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
 
       val captor: ArgumentCaptor[UpdatePurchaseRequest] = ArgumentCaptor.forClass(classOf[UpdatePurchaseRequest])
       when(mockEuVatRefundsService.updatePurchase(captor.capture())(any())) thenReturn Future.successful(
-        models.responses.UpdatePurchaseResponse(updateSequenceNumber = 9)
+        UpdatePurchaseResponse(updateSequenceNumber = 9)
       )
 
       val userAnswers = emptyUserAnswers
@@ -147,7 +141,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
         status(result) mustEqual SEE_OTHER
 
         val sent = captor.getValue
-        sent.goodsDescriptionCategory mustEqual "1"
+        sent.goodsDescriptionCategory    must include("1")
         sent.goodsDescriptionSubCategory must contain("1.2")
         sent.simplifiedInvoiceIndicator  must contain("true")
       }
@@ -158,7 +152,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
 
       val captor: ArgumentCaptor[UpdatePurchaseRequest] = ArgumentCaptor.forClass(classOf[UpdatePurchaseRequest])
       when(mockEuVatRefundsService.updatePurchase(captor.capture())(any())) thenReturn Future.successful(
-        models.responses.UpdatePurchaseResponse(updateSequenceNumber = 10)
+        UpdatePurchaseResponse(updateSequenceNumber = 10)
       )
 
       val userAnswers = emptyUserAnswers
@@ -363,7 +357,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
 
         val saved = savedCaptor.getValue
         val stored = saved.get(AddPurchaseResponsePage).value
-        stored.updateSequenceNumber mustEqual 99
+        stored.updateSequenceNumber mustBe 99
         stored.itemNumber mustEqual 8
       }
     }

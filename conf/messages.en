@@ -16,6 +16,7 @@ site.save.continue = Save and continue
 site.warning = Warning
 site.notProvided = Not provided
 site.none = None
+site.add = Add details
 
 date.day = Day
 date.month = Month
@@ -55,19 +56,15 @@ import.caption = Import details
 
 taskListDashboard.title = Make a claim for an EU VAT refund
 taskListDashboard.heading = Make a claim for an EU VAT refund
-taskListDashboard.listItem1 = Add claim details
-taskListDashboard.listItem2 = Add a purchase
-taskListDashboard.listItem3 = Add an import
-taskListDashboard.listItem4 = Add supporting documents
-taskListDashboard.listItem5 = Add bank details
-taskListDashboard.listItem6 = Submit claim
+taskListDashboard.listItem1 = Claim details
+taskListDashboard.listItem2 = Purchases and imports
+taskListDashboard.listItem3 = Supporting documents
+taskListDashboard.listItem4 = Bank details
+taskListDashboard.listItem5 = Submit claim
 taskListDashboard.status1 = Not yet started
 taskListDashboard.status2 = Cannot start yet
 taskListDashboard.status3 = Completed
-taskListDashboard.listItem1.completed = View claim details
 taskListDashboard.dashboardLink = Return to Claim an EU VAT refund
-taskListDashboard.errorSummary1 = There is a problem
-taskListDashboard.errorSummary2 = Select add claim details to start a claim
 taskListDashboard.deleteLink = Delete this claim
 
 refundingCountry.title = Which EU member state are you claiming back VAT from?
@@ -323,6 +320,13 @@ supplierTaxNumberCheck.neither = I do not have any of these on the invoice
 supplierTaxNumberCheck.checkYourAnswersLabel = Supplier tax numbers
 supplierTaxNumberCheck.change.hidden = Change supplier tax numbers
 
+supplierVatRegCheck.title = Does the simplified invoice contain the supplier’s VAT registration number?
+supplierVatRegCheck.heading = Does the simplified invoice contain the supplier’s VAT registration number?
+supplierVatRegCheck.hint = This can be up to 12 characters and may start with a 2-letter EU country code. For example, FR123456789
+supplierVatRegCheck.error.required = Select yes if the simplified invoice contains the supplier’s VAT registration number
+supplierVatRegCheck.checkYourAnswersLabel = Supplier VAT registration check
+supplierVatRegCheck.change.hidden = Change supplier VAT registration check
+
 supplierVatRegistrationNumber.title = What is the supplier’s VAT registration number?
 supplierVatRegistrationNumber.heading = What is the supplier’s VAT registration number?
 supplierVatRegistrationNumber.hint = This can be up to 12 characters and may start with a 2-letter EU country code. For example, FR123456789
@@ -417,13 +421,6 @@ invoiceNumber.error.invalid = Enter a valid invoice number
 invoiceNumber.checkYourAnswersLabel = Invoice number
 invoiceNumber.change.hidden = Change the invoice number
 
-supplierVatRegCheck.title = Does the simplified invoice contain the supplier’s VAT registration number?
-supplierVatRegCheck.heading = Does the simplified invoice contain the supplier’s VAT registration number?
-supplierVatRegCheck.hint = This can be up to 12 characters and may start with a 2-letter EU country code. For example, FR123456789
-supplierVatRegCheck.error.required = Select yes if the simplified invoice contains the supplier’s VAT registration number
-supplierVatRegCheck.checkYourAnswersLabel = Supplier VAT registration check
-supplierVatRegCheck.change.hidden = Change supplier VAT registration check
-
 purchaseType.title = Purchase type
 purchaseType.heading = Purchase type
 purchaseType.h2 = What category best describes the item on your invoice?
@@ -477,6 +474,22 @@ describeItemsOnInvoice.error.required = Enter a description of the items on your
 describeItemsOnInvoice.error.length = Item description must be 255 characters or less
 describeItemsOnInvoice.checkYourAnswersLabel = Purchase description
 describeItemsOnInvoice.change.hidden = Change purchase description
+
+purchaseImportSummary.title = You have added {0} {1} to this claim
+purchaseImportSummary.heading = You have added {0} {1} to this claim
+purchaseImportSummary.caption = Purchases and imports
+purchaseImportSummary.p1 = The total amount of VAT you are claiming on this application is {0}.
+purchaseImportSummary.details.summary = Minimum VAT claim limits
+purchaseImportSummary.details.list = The minimum amount for a claim is:
+purchaseImportSummary.details.list1 = €400 (or the national currency equal) if your application is for 3 months or more
+purchaseImportSummary.details.list2 = €50 (or the national currency equal) if your application is less than 3 months
+purchaseImportSummary.add.item = Do you need to add another item?
+purchaseImportSummary.incomplete.add.hidden = to incomplete {0} for {1}
+purchaseImportSummary.incomplete.remove.hidden = incomplete {0} for {1}
+purchaseImportSummary.complete.change.hidden = {0} for {1} with a VAT claim of {2}
+purchaseImportSummary.complete.remove.hidden = {0} for {1} with a VAT claim of {2}
+purchaseImportSummary.error.required = Select yes if you need to add another item
+purchaseImportSummary.error.incomplete = You must add details to the incomplete items or remove them before you can continue
 
 importType.title = Which category best describes the item on your import document?
 importType.heading = Which category best describes the item on your import document?
@@ -550,19 +563,19 @@ import.refundingCurrency.error.required = Select a currency for this import
 totalVatPaidImport.p1 = If this amount is not on your import document, you’ll need to calculate it. Use the standard VAT rate of the country you’re claiming from.
 
 # Warning messages
-confirmRefundPeriodStartDate.title = Are you sure the refund period start date is correct?
-confirmRefundPeriodStartDate.heading = Are you sure the refund period start date is correct?
-confirmRefundPeriodStartDate.paragraph = You’ve told us the refund period start date is {0}. The refund period start date cannot be before {1}.
-confirmRefundPeriodStartDate.warning = If you submit a claim with inaccurate information, it may be rejected.
-confirmRefundPeriodStartDate.button = Yes, this is correct
-confirmRefundPeriodStartDate.link = No, change the start date
+refundPeriodStartDateWarning.title = Are you sure the refund period start date is correct?
+refundPeriodStartDateWarning.heading = Are you sure the refund period start date is correct?
+refundPeriodStartDateWarning.paragraph = You’ve told us the refund period start date is {0}. The refund period start date cannot be before {1}.
+refundPeriodStartDateWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
+refundPeriodStartDateWarning.button = Yes, this is correct
+refundPeriodStartDateWarning.link = No, change the start date
 
-confirmRefundPeriodEndDate.title = Are you sure the refund period end date is correct?
-confirmRefundPeriodEndDate.heading = Are you sure the refund period end date is correct?
-confirmRefundPeriodEndDate.paragraph = You’ve told us the refund period end date is {0}. The refund period end date must be in the past.
-confirmRefundPeriodEndDate.warning = If you submit a claim with inaccurate information, it may be rejected.
-confirmRefundPeriodEndDate.button = Yes, this is correct
-confirmRefundPeriodEndDate.link = No, change the end date
+refundPeriodEndDateWarning.title = Are you sure the refund period end date is correct?
+refundPeriodEndDateWarning.heading = Are you sure the refund period end date is correct?
+refundPeriodEndDateWarning.paragraph = You’ve told us the refund period end date is {0}. The refund period end date must be in the past.
+refundPeriodEndDateWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
+refundPeriodEndDateWarning.button = Yes, this is correct
+refundPeriodEndDateWarning.link = No, change the end date
 
 periodOverlapWarning.title = Are you sure the refund period is correct?
 periodOverlapWarning.heading = Are you sure the refund period is correct?

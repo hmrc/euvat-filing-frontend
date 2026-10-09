@@ -27,7 +27,7 @@ import java.time.LocalDateTime
 
 class RefundPeriodEndDateWarningControllerSpec extends SpecBase {
 
-  "ConfirmRefundPeriodEndDate Controller" - {
+  "RefundPeriodEndDateWarning Controller" - {
     "must return OK and the correct view for a GET in NormalMode" in {
       val refundPeriod = RefundPeriod(
         startDate = LocalDateTime.of(2024, 3, 1, 0, 0),

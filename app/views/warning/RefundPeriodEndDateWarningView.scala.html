@@ -27,20 +27,20 @@
 
 @(endDate: String, call: Call, mode: Mode)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("confirmRefundPeriodEndDate.title")), backLinkUrl = Some(call.url)) {
+@layout(pageTitle = titleNoForm(messages("refundPeriodEndDateWarning.title")), backLinkUrl = Some(call.url)) {
     @formHelper(action = controllers.warning.routes.RefundPeriodEndDateWarningController.onSubmit(mode)) {
 
-        <h1 class="govuk-heading-l">@messages("confirmRefundPeriodEndDate.heading")</h1>
-        <p class="govuk-body">@messages("confirmRefundPeriodEndDate.paragraph", endDate)</p>
+        <h1 class="govuk-heading-l">@messages("refundPeriodEndDateWarning.heading")</h1>
+        <p class="govuk-body">@messages("refundPeriodEndDateWarning.paragraph", endDate)</p>
 
     @govukWarningText(WarningText(
         iconFallbackText = Some(messages("site.warning")),
-        content = Text(messages("confirmRefundPeriodEndDate.warning"))
+        content = Text(messages("refundPeriodEndDateWarning.warning"))
     ))
 
     <div class="govuk-button-group">
-        @govukButton(ButtonViewModel(messages("confirmRefundPeriodEndDate.button")))
-        <a class="govuk-link" href="@call.url">@messages("confirmRefundPeriodEndDate.link")</a>
+        @govukButton(ButtonViewModel(messages("refundPeriodEndDateWarning.button")))
+        <a class="govuk-link" href="@call.url">@messages("refundPeriodEndDateWarning.link")</a>
     </div>
     }
 }

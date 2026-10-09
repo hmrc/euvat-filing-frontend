@@ -404,7 +404,6 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request = FakeRequest(GET, invoiceTypeRoute)
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
@@ -446,9 +445,7 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
           .build()
 
       running(application) {
@@ -468,9 +465,7 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
           .build()
 
       running(application) {

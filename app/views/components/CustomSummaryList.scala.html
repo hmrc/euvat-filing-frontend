@@ -18,43 +18,44 @@
 @(rows: Seq[(String, Option[String], Seq[(String, String, String)])])(implicit messages: Messages)
 @import play.twirl.api.Html
 @import play.twirl.api.HtmlFormat
+
 <dl class="govuk-summary-list">
     @for((key, value, links) <- rows) {
-    <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">
-            @key
-        </dt>
-        <dd class="govuk-summary-list__value">
-            @defining(value.map { v =>
-                val normalized = v.replaceAll("(?i)<br\\s*/?>", "\n")
-                Html(HtmlFormat.escape(normalized).toString.replace("\n", "<br/>"))
-            }.getOrElse(Html(""))) { renderedValue =>
-                @renderedValue
-            }
-        </dd>
-        <dd class="govuk-summary-list__actions">
-            @if(links.nonEmpty) {
-            @if(links.size > 1) {
-            <ul class="govuk-summary-list__actions-list">
-                @for((url, linkText, hiddenKey) <- links) {
-                <li class="govuk-summary-list__actions-list-item">
-                    <a class="govuk-link" href="@url">
-                        <span aria-hidden="true">@messages(linkText)</span>
-                        <span class="govuk-visually-hidden">@messages(hiddenKey)</span>
-                    </a>
-                </li>
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                @key
+            </dt>
+            <dd class="govuk-summary-list__value">
+                @defining(value.map { v =>
+                    val normalized = v.replaceAll("(?i)<br\\s*/?>", "\n")
+                    Html(HtmlFormat.escape(normalized).toString.replace("\n", "<br/>"))
+                }.getOrElse(Html(""))) { renderedValue =>
+                    @renderedValue
                 }
-            </ul>
-            } else {
-                @for((url, linkText, hiddenKey) <- links) {
-                    <a class="govuk-link" href="@url" aria-label="@messages(hiddenKey)">
-                        <span aria-hidden="true">@messages(linkText)</span>
-                        <span class="govuk-visually-hidden">@messages(hiddenKey)</span>
-                    </a>
+            </dd>
+            <dd class="govuk-summary-list__actions">
+                @if(links.nonEmpty) {
+                    @if(links.size > 1) {
+                        <ul class="govuk-summary-list__actions-list">
+                            @for((url, linkText, hiddenKey) <- links) {
+                                <li class="govuk-summary-list__actions-list-item">
+                                    <a class="govuk-link" href="@url">
+                                        <span aria-hidden="true">@messages(linkText)</span>
+                                        <span class="govuk-visually-hidden">@messages(hiddenKey)</span>
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    } else {
+                        @for((url, linkText, hiddenKey) <- links) {
+                            <a class="govuk-link" href="@url" aria-label="@messages(hiddenKey)">
+                                <span aria-hidden="true">@messages(linkText)</span>
+                                <span class="govuk-visually-hidden">@messages(hiddenKey)</span>
+                            </a>
+                        }
                     }
                 }
-            }
-        </dd>
-    </div>
+            </dd>
+        </div>
     }
 </dl>

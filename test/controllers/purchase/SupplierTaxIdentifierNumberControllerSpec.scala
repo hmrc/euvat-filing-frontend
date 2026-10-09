@@ -226,9 +226,7 @@ class SupplierTaxIdentifierNumberControllerSpec extends SpecBase with MockitoSug
 
       val application =
         applicationBuilder(userAnswers = Some(ua))
-          .overrides(
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
           .build()
 
       running(application) {

@@ -39,6 +39,14 @@ object PurchaseOrImportType extends Enumerable.Implicits:
     Other        -> "10"
   )
 
+  val codeToType: Map[String, String] = Map(
+    "1"  -> "Fuel",
+    "3"  -> "Transport costs",
+    "7"  -> "Food, drink and restaurant services",
+    "9"  -> "Luxuries, entertainment and hospitality",
+    "10" -> "Other"
+  )
+
   val urlSlugForPurchaseType: Map[PurchaseOrImportType, String] = Map(
     Fuel         -> "fuel-use",
     Transport    -> "transport-cost",

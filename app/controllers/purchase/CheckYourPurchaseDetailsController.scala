@@ -20,6 +20,7 @@ import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierA
 import models.requests.UpdatePurchaseRequest
 import models.responses.AddPurchaseResponse
 import models.{InvoiceType, PurchaseOrImportType}
+import pages.PurchaseImportSummaryPage
 import pages.purchase.*
 import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -59,11 +60,10 @@ class CheckYourPurchaseDetailsController @Inject() (
       answers <- Future.fromTry(request.userAnswers.set(InvoiceNumberFlagQuery, false))
       _       <- sessionRepository.set(answers)
     } yield {
-      lazy val currencyList =
-        CountryCode
-          .findCountryCode(request.userAnswers)
-          .map(currencyConfig.currencyConfig(_))
-          .getOrElse(currencyConfig.default)
+      lazy val currencyList = CountryCode
+        .findCountryCode(request.userAnswers)
+        .map(currencyConfig.currencyConfig(_))
+        .getOrElse(currencyConfig.default)
 
       val (maybeCurrencyDisplayName, maybeCurrencySymbol): (Option[String], Option[String]) =
         request.userAnswers
@@ -75,14 +75,13 @@ class CheckYourPurchaseDetailsController @Inject() (
 
       Ok(
         view(
-          CheckYourPurchaseDetailsSummary
-            .sections(
-              request.userAnswers,
-              maybeCurrencyDisplayName,
-              maybeCurrencySymbol,
-              configPurchaseMapping,
-              currencyList.size > 1
-            ),
+          CheckYourPurchaseDetailsSummary.sections(
+            request.userAnswers,
+            maybeCurrencyDisplayName,
+            maybeCurrencySymbol,
+            configPurchaseMapping,
+            currencyList.size > 1
+          ),
           isPostSubmission = false,
           isAmended        = false
         )
@@ -171,8 +170,9 @@ class CheckYourPurchaseDetailsController @Inject() (
             for {
               updatedAnswers1 <- Future.fromTry(request.userAnswers.set(AddPurchaseResponsePage, updatedAddResp))
               updatedAnswers2 <- Future.fromTry(updatedAnswers1.set(UpdateSequenceNumberQuery, resp.updateSequenceNumber))
-              _               <- sessionRepository.set(updatedAnswers2)
-            } yield Redirect(controllers.routes.TaskListDashboardController.onPageLoad())
+              updatedAnswers3 <- Future.fromTry(updatedAnswers2.remove(PurchaseImportSummaryPage))
+              _               <- sessionRepository.set(updatedAnswers3)
+            } yield Redirect(controllers.routes.PurchaseImportSummaryController.onPageLoad)
           }
           .recover { case ex =>
             logger.error("Error updating purchase details", ex)

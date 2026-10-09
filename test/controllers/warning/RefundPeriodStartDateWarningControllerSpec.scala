@@ -44,7 +44,7 @@ class RefundPeriodStartDateWarningControllerSpec extends SpecBase {
       override protected def today: LocalDate = fixedToday
     }
 
-  "ConfirmRefundPeriodStartDate Controller" - {
+  "RefundPeriodStartDateWarning Controller" - {
 
     "must return OK and the correct view for a GET" in {
 

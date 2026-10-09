@@ -26,7 +26,7 @@
     mainErrorSummary: MainErrorSummary
 )
 
-@(form: Form[_], mode: Mode, submitCall: Call, call: Call, currencySymbol: String)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, submitCall: Call, call: Call, captionKey: String, currencySymbol: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("totalVatClaim.title")), backLinkUrl = Some(call.url)) {
 
@@ -34,7 +34,7 @@
 
         @mainErrorSummary(form)
 
-        <span class="govuk-caption-l">@messages("purchase.caption")</span>
+        <span class="govuk-caption-l">@messages(captionKey)</span>
         <h1 class="govuk-heading-l">
             @messages("totalVatClaim.heading")
         </h1>
