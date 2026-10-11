@@ -594,6 +594,7 @@ removeItem.list1 = Type
 removeItem.list2 = VAT claim
 removeItem.value = Not provided
 removeItem.legend = Are you sure you want to remove this item?
+removeItem.notProvided = Not provided
 removeItem.error.required = Select yes if you want to remove this item
 
 # Warning messages
