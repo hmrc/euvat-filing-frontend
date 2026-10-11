@@ -25,6 +25,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryListRow, V
 import utils.{ControllerHelpers, Currency}
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
+import controllers.routes
 
 object PurchaseImportListSummary {
 
@@ -42,7 +43,7 @@ object PurchaseImportListSummary {
         else { "Import" }
 
         if (vatClaim == 0) {
-          displaySummaryListRow(itemType, category)
+          displaySummaryListRow(itemNumber, itemType, category)
         } else {
           val currencySymbol = ControllerHelpers.currencySymbolFromSession(userAnswers, config)
           displaySummaryListRow(itemType, category, currencySymbol, vatClaim, false)
@@ -58,6 +59,7 @@ object PurchaseImportListSummary {
                                    )(implicit
     messages: Messages
   ): SummaryListRow = {
+    val removeUrl = s"${routes.RemoveItemController.onPageLoad.url}?itemNumber=$itemNumber"
     SummaryListRowViewModel(
       key = itemType + " (" + category + ")",
       value = if (vatClaim == 0) {
@@ -70,7 +72,7 @@ object PurchaseImportListSummary {
           ActionItemViewModel("site.add", "#").withVisuallyHiddenText(
             messages("purchaseImportSummary.incomplete.add.hidden", itemType, category)
           ),
-          ActionItemViewModel("site.remove", "#").withVisuallyHiddenText(
+          ActionItemViewModel("site.remove", removeUrl).withVisuallyHiddenText(
             messages("purchaseImportSummary.incomplete.remove.hidden", itemType, category)
           )
         )
@@ -79,7 +81,7 @@ object PurchaseImportListSummary {
           ActionItemViewModel("site.change", "#").withVisuallyHiddenText(
             messages("purchaseImportSummary.complete.change.hidden", itemType, category, currencySymbol + vatClaim)
           ),
-          ActionItemViewModel("site.remove", "#").withVisuallyHiddenText(
+          ActionItemViewModel("site.remove", removeUrl).withVisuallyHiddenText(
             messages("purchaseImportSummary.complete.remove.hidden", itemType, category, currencySymbol + vatClaim)
           )
         )
