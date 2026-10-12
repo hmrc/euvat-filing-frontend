@@ -28,7 +28,7 @@ import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ControllerHelpers.currencySymbolFromSession
 import utils.CurrencyConfig
-import views.html.purchase.TotalVatClaimView
+import views.html.PurchaseOrImportTotalVatClaimView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -43,7 +43,7 @@ class TotalVatClaimController @Inject() (
   formProvider: TotalVatClaimFormProvider,
   currencyConfig: CurrencyConfig,
   val controllerComponents: MessagesControllerComponents,
-  view: TotalVatClaimView
+  view: PurchaseOrImportTotalVatClaimView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
@@ -56,10 +56,12 @@ class TotalVatClaimController @Inject() (
     routes.TotalVatPaidController.onPageLoad(NormalMode)
   }
 
+  private def formAction(mode: Mode): Call = routes.TotalVatClaimController.onSubmit(mode)
+
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(TotalVatClaimPage).fold(form)(form.fill)
     val currencySymbol = currencySymbolFromSession(request.userAnswers, currencyConfig.currencyConfig)
-    Ok(view(preparedForm, mode, backLink(mode), currencySymbol))
+    Ok(view(preparedForm, mode, formAction(mode), backLink(mode), "purchase.caption", currencySymbol))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -68,7 +70,15 @@ class TotalVatClaimController @Inject() (
       .fold(
         formWithErrors =>
           Future.successful(
-            BadRequest(view(formWithErrors, mode, backLink(mode), currencySymbolFromSession(request.userAnswers, currencyConfig.currencyConfig)))
+            BadRequest(
+              view(formWithErrors,
+                   mode,
+                   formAction(mode),
+                   backLink(mode),
+                   "purchase.caption",
+                   currencySymbolFromSession(request.userAnswers, currencyConfig.currencyConfig)
+                  )
+            )
           ),
         value =>
           for {

@@ -88,8 +88,8 @@ class PurchaseNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchas
         }
     }
 
-  def navigateFromSupplierTaxNumberPage(mode: Mode)(userAnswers: UserAnswers): Call =
-    userAnswers.get(SupplierTaxNumberPage) match {
+  def navigateFromSupplierTaxNumberCheckPage(mode: Mode)(userAnswers: UserAnswers): Call =
+    userAnswers.get(SupplierTaxNumberCheckPage) match {
       case Some(SupplierTaxNumber.Vatregistrationnumber) => purchaseRoutes.SupplierVatRegistrationNumberController.onPageLoad(mode)
       case Some(SupplierTaxNumber.Taxidentifiernumber)   => purchaseRoutes.SupplierTaxIdentifierNumberController.onPageLoad(mode)
       case Some(SupplierTaxNumber.Neither) =>

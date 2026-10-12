@@ -334,7 +334,7 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
         .set(InvoiceTypePage, InvoiceType.StandardInvoice)
         .success
         .value
-        .set(SupplierTaxNumberPage, SupplierTaxNumber.Vatregistrationnumber)
+        .set(SupplierTaxNumberCheckPage, SupplierTaxNumber.Vatregistrationnumber)
         .success
         .value
         .set(SimplifiedInvoiceVatRegCheckPage, true)
@@ -355,7 +355,7 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
         verify(mockSessionRepository).set(captor.capture())
         val saved = captor.getValue
 
-        saved.get(SupplierTaxNumberPage) mustBe Some(SupplierTaxNumber.Vatregistrationnumber)
+        saved.get(SupplierTaxNumberCheckPage) mustBe Some(SupplierTaxNumber.Vatregistrationnumber)
         saved.get(SimplifiedInvoiceVatRegCheckPage) mustBe Some(true)
         saved.get(InvoiceTypePage) mustBe Some(InvoiceType.SimplifiedInvoice)
       }
@@ -403,7 +403,6 @@ class InvoiceTypeControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request = FakeRequest(GET, invoiceTypeRoute)
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }

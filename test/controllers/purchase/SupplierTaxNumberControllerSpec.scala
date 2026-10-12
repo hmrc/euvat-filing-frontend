@@ -94,7 +94,7 @@ class SupplierTaxNumberControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
-      val userAnswers = germanUserAnswers.set(SupplierTaxNumberPage, SupplierTaxNumber.values.head).success.value
+      val userAnswers = germanUserAnswers.set(SupplierTaxNumberCheckPage, SupplierTaxNumber.values.head).success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -225,7 +225,7 @@ class SupplierTaxNumberControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to Check Your Purchase Details when data unchanged in CheckMode" in {
-      val userAnswers = germanUserAnswers.set(SupplierTaxNumberPage, SupplierTaxNumber.Vatregistrationnumber).success.value
+      val userAnswers = germanUserAnswers.set(SupplierTaxNumberCheckPage, SupplierTaxNumber.Vatregistrationnumber).success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -240,7 +240,7 @@ class SupplierTaxNumberControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to Check Your Purchase Details when selecting Neither in CheckMode" in {
-      val userAnswers = germanUserAnswers.set(SupplierTaxNumberPage, SupplierTaxNumber.Vatregistrationnumber).success.value
+      val userAnswers = germanUserAnswers.set(SupplierTaxNumberCheckPage, SupplierTaxNumber.Vatregistrationnumber).success.value
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 

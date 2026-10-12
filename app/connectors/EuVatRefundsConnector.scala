@@ -42,16 +42,10 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
   }
 
   def getLatestApplications(request: LatestApplicationRequest)(implicit hc: HeaderCarrier): Future[LatestApplicationResponse] = {
-    val bodyJson = Json.toJson(request)
-    logger.info(s"EuVatRefundsConnector POST $euVatRefundsBaseUrl/get-latest-application body=$bodyJson")
     http
       .post(url"$euVatRefundsBaseUrl/get-latest-application")
-      .withBody(bodyJson)
+      .withBody(Json.toJson(request))
       .execute[LatestApplicationResponse]
-      .map { resp =>
-        logger.info(s"EuVatRefundsConnector response: ${Json.toJson(resp)}")
-        resp
-      }
   }
 
   def createApplication(request: ApplicationRequest)(implicit hc: HeaderCarrier): Future[ApplicationResponse] = {
@@ -61,6 +55,20 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
       .execute[ApplicationResponse]
   }
 
+  def addPurchase(request: AddPurchaseRequest)(implicit hc: HeaderCarrier): Future[AddPurchaseResponse] = {
+    http
+      .post(url"$euVatRefundsBaseUrl/add-purchase")
+      .withBody(Json.toJson(request))
+      .execute[AddPurchaseResponse]
+  }
+
+  def updatePurchase(request: UpdatePurchaseRequest)(implicit hc: HeaderCarrier): Future[UpdatePurchaseResponse] = {
+    http
+      .put(url"$euVatRefundsBaseUrl/update-purchase-details")
+      .withBody(Json.toJson(request))
+      .execute[UpdatePurchaseResponse]
+  }
+
   def getSupplierVrnCount(request: SupplierVrnCountRequest)(implicit hc: HeaderCarrier): Future[SupplierVrnCountResponse] = {
     http
       .post(url"$euVatRefundsBaseUrl/get-supplier-vrn-count")
@@ -68,37 +76,27 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
       .execute[SupplierVrnCountResponse]
   }
 
-  def addPurchase(request: AddPurchaseRequest)(implicit hc: HeaderCarrier): Future[AddPurchaseResponse] =
+  def getSupplierTaxIdentifierCount(
+    request: SupplierTaxIdentifierCountRequest
+  )(implicit hc: HeaderCarrier): Future[SupplierTaxIdentifierCountResponse] = {
     http
-      .post(url"$euVatRefundsBaseUrl/add-purchase")
+      .post(url"$euVatRefundsBaseUrl/get-supplier-taxIdentifier-count")
       .withBody(Json.toJson(request))
-      .execute[AddPurchaseResponse]
+      .execute[SupplierTaxIdentifierCountResponse]
+  }
 
-  def updatePurchase(request: UpdatePurchaseRequest)(implicit hc: HeaderCarrier): Future[UpdatePurchaseResponse] =
+  def getPurchaseImportList(request: PurchaseImportListRequest)(implicit hc: HeaderCarrier): Future[PurchaseImportListResponse] = {
     http
-      .put(url"$euVatRefundsBaseUrl/update-purchase-details")
+      .post(url"$euVatRefundsBaseUrl/get-purchases-and-imports")
       .withBody(Json.toJson(request))
-      .execute[UpdatePurchaseResponse]
+      .execute[PurchaseImportListResponse]
+  }
 
-  def deleteApplication(request: DeleteApplicationRequest)(implicit hc: HeaderCarrier): Future[HttpResponse] =
+  def deleteApplication(request: DeleteApplicationRequest)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     http
       .delete(url"$euVatRefundsBaseUrl/delete-application")
       .withBody(Json.toJson(request))
       .execute[HttpResponse]
-
-  def getSupplierTaxIdentifierCount(
-    request: SupplierTaxIdentifierCountRequest
-  )(implicit hc: HeaderCarrier): Future[SupplierTaxIdentifierCountResponse] = {
-    val bodyJson = Json.toJson(request)
-    logger.info(s"EuVatRefundsConnector POST $euVatRefundsBaseUrl/get-supplier-taxIdentifier-count body=$bodyJson")
-    http
-      .post(url"$euVatRefundsBaseUrl/get-supplier-taxIdentifier-count")
-      .withBody(bodyJson)
-      .execute[SupplierTaxIdentifierCountResponse]
-      .map { resp =>
-        logger.info(s"EuVatRefundsConnector response: ${Json.toJson(resp)}")
-        resp
-      }
   }
 
 }

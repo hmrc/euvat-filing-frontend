@@ -17,7 +17,6 @@
 package controllers.imports
 
 import controllers.actions.*
-import controllers.imports.routes
 import forms.PurchaseOrImportSubTypeFormProvider
 import forms.imports.SadReferenceCheckFormProvider
 import models.requests.DataRequest

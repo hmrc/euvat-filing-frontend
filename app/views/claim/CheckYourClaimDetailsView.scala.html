@@ -20,7 +20,7 @@
     layout: templates.Layout,
     formHelper: FormWithCSRF,
     govukButton: GovukButton,
-    customSummaryList: views.html.components.CustomSummaryList
+    customSummaryList: CustomSummaryList
 )
 
 @(sections: Seq[(String, Seq[(String, Option[String], Seq[(String, String, String)])])], isPostSubmission: Boolean, isAmended: Boolean)(implicit request: Request[_], messages: Messages)

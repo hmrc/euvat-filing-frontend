@@ -16,6 +16,7 @@ site.save.continue = Save and continue
 site.warning = Warning
 site.notProvided = Not provided
 site.none = None
+site.add = Add details
 
 date.day = Day
 date.month = Month
@@ -55,19 +56,15 @@ import.caption = Import details
 
 taskListDashboard.title = Make a claim for an EU VAT refund
 taskListDashboard.heading = Make a claim for an EU VAT refund
-taskListDashboard.listItem1 = Add claim details
-taskListDashboard.listItem2 = Add a purchase
-taskListDashboard.listItem3 = Add an import
-taskListDashboard.listItem4 = Add supporting documents
-taskListDashboard.listItem5 = Add bank details
-taskListDashboard.listItem6 = Submit claim
+taskListDashboard.listItem1 = Claim details
+taskListDashboard.listItem2 = Purchases and imports
+taskListDashboard.listItem3 = Supporting documents
+taskListDashboard.listItem4 = Bank details
+taskListDashboard.listItem5 = Submit claim
 taskListDashboard.status1 = Not yet started
 taskListDashboard.status2 = Cannot start yet
 taskListDashboard.status3 = Completed
-taskListDashboard.listItem1.completed = View claim details
 taskListDashboard.dashboardLink = Return to Claim an EU VAT refund
-taskListDashboard.errorSummary1 = There is a problem
-taskListDashboard.errorSummary2 = Select add claim details to start a claim
 taskListDashboard.deleteLink = Delete this claim
 
 refundingCountry.title = Which EU member state are you claiming back VAT from?
@@ -477,6 +474,22 @@ describeItemsOnInvoice.error.required = Enter a description of the items on your
 describeItemsOnInvoice.error.length = Item description must be 255 characters or less
 describeItemsOnInvoice.checkYourAnswersLabel = Purchase description
 describeItemsOnInvoice.change.hidden = Change purchase description
+
+purchaseImportSummary.title = You have added {0} {1} to this claim
+purchaseImportSummary.heading = You have added {0} {1} to this claim
+purchaseImportSummary.caption = Purchases and imports
+purchaseImportSummary.p1 = The total amount of VAT you are claiming on this application is {0}.
+purchaseImportSummary.details.summary = Minimum VAT claim limits
+purchaseImportSummary.details.list = The minimum amount for a claim is:
+purchaseImportSummary.details.list1 = €400 (or the national currency equal) if your application is for 3 months or more
+purchaseImportSummary.details.list2 = €50 (or the national currency equal) if your application is less than 3 months
+purchaseImportSummary.add.item = Do you need to add another item?
+purchaseImportSummary.incomplete.add.hidden = to incomplete {0} for {1}
+purchaseImportSummary.incomplete.remove.hidden = incomplete {0} for {1}
+purchaseImportSummary.complete.change.hidden = {0} for {1} with a VAT claim of {2}
+purchaseImportSummary.complete.remove.hidden = {0} for {1} with a VAT claim of {2}
+purchaseImportSummary.error.required = Select yes if you need to add another item
+purchaseImportSummary.error.incomplete = You must add details to the incomplete items or remove them before you can continue
 
 importType.title = Which category best describes the item on your import document?
 importType.heading = Which category best describes the item on your import document?
