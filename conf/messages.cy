@@ -268,8 +268,8 @@ checkYourStateDetails.yes = Yes, delete this claim
 checkYourStateDetails.no = No, return to claim
 checkYourStateDetails.error.required = Select yes if you want to delete this claim
 
-checkYourPurchaseDetails.title = Check your purchase details
-checkYourPurchaseDetails.heading = Check your purchase details
+checkYourPurchaseDetails.title = Check your answers
+checkYourPurchaseDetails.heading = Check your answers
 checkYourPurchaseDetails.refundingCurrency.label = Currency
 checkYourPurchaseDetails.refundingCurrency.change.hidden = Change currency
 
@@ -352,7 +352,7 @@ invoiceType.simplifiedInvoice = Simplified invoice
 invoiceType.simplifiedInvoice.hint = These are usually till receipts for lower-value purchases
 invoiceType.error.required = Select an invoice type
 invoiceType.change.hidden = Change invoice type
-invoiceType.checkYourAnswersLabel = Invoice type
+invoiceType.checkYourAnswersLabel = Type
 
 invoiceNumber.title = Invoice number
 invoiceNumber.heading = Invoice number
@@ -386,7 +386,7 @@ suppliersName.heading = What is the supplier’s name?
 suppliersName.hint = Find the supplier’s name on the invoice or receipt
 suppliersName.error.required = Enter a supplier’s name
 suppliersName.error.length = The supplier’s name must be 35 characters or less
-suppliersName.checkYourAnswersLabel = Supplier name
+suppliersName.checkYourAnswersLabel = Name
 suppliersName.change.hidden = Change supplier name
 suppliersName.import.hint = Find the supplier’s name on the import document
 
@@ -427,7 +427,7 @@ supplierVatRegistrationNumber.hint.germany = Enter the supplier’s VAT registra
 supplierVatRegistrationNumber.error.required = Enter the supplier’s VAT registration number
 supplierVatRegistrationNumber.error.invalid = Enter the supplier’s VAT registration number in the correct format
 supplierVatRegistrationNumber.error.length = Supplier’s VAT registration number must be 12 characters or less
-supplierVatRegistrationNumber.checkYourAnswersLabel = Supplier VAT registration number
+supplierVatRegistrationNumber.checkYourAnswersLabel = VAT registration number
 supplierVatRegistrationNumber.change.hidden = Change supplier VAT registration number
 
 supplierTaxIdentifierNumber.title = What is the supplier’s tax identifier number?
@@ -435,7 +435,7 @@ supplierTaxIdentifierNumber.heading = What is the supplier’s tax identifier nu
 supplierTaxIdentifierNumber.hint = This is 10 or 11 digits, for example 12/345/67890
 supplierTaxIdentifierNumber.error.required = Enter the supplier’s tax identifier number
 supplierTaxIdentifierNumber.error.length = Supplier’s tax identifier number cannot be more than 20 characters
-supplierTaxIdentifierNumber.checkYourAnswersLabel = Supplier’s tax identifier number
+supplierTaxIdentifierNumber.checkYourAnswersLabel = TAX identifier number
 supplierTaxIdentifierNumber.change.hidden = Change supplier’s tax identifier number
 
 totalPurchaseAmountBeforeVat.title = Total purchase amount before VAT
