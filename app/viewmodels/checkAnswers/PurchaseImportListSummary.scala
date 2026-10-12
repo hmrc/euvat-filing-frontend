@@ -52,8 +52,8 @@ object PurchaseImportListSummary {
       }
   }
 
-  private def displaySummaryListRow(itemNumber: Int, itemType: String, category: String, currencySymbol: String = "", vatClaim: BigDecimal = 0)(implicit
-    messages: Messages
+  private def displaySummaryListRow(itemNumber: Int, itemType: String, category: String, currencySymbol: String = "", vatClaim: BigDecimal = 0)(
+    implicit messages: Messages
   ): SummaryListRow = {
     val removeUrl = s"${routes.RemoveItemController.onPageLoad.url}?itemNumber=$itemNumber"
     SummaryListRowViewModel(
