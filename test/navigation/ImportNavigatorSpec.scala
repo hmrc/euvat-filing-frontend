@@ -193,24 +193,33 @@ class ImportNavigatorSpec extends SpecBase {
           importRoutes.ImportDetailsInfoController.onPageLoad(NormalMode)
       }
 
-      "must go from navigateFromSupplierNamePage to ImportCurrency when the country requires currency selection" in {
-        val ua = userAnswers.set(RefundingCountryPage, "EE").success.value
+      "must go to ImportCurrencyController when the country requires currency selection" in {
+        val answers =
+          userAnswers
+            .set(RefundingCountryPage, "EE")
+            .success
+            .value
 
-        navigator.navigateFromSupplierNamePage(NormalMode)(ua) mustBe
-          importRoutes.ImportCurrencyController.onPageLoad(NormalMode)
+        navigator.navigateToCurrencyOrNextPage(NormalMode)(answers) mustBe
+          importsRoutes.ImportCurrencyController.onPageLoad(NormalMode)
       }
 
-      "must skip ImportCurrency in navigateFromSupplierNamePage when the country has one currency" in {
-        val ua = userAnswers.set(RefundingCountryPage, "AT").success.value
+      "must skip ImportCurrencyController when the country has one currency" in {
+        val answers =
+          userAnswers
+            .set(RefundingCountryPage, "AT")
+            .success
+            .value
 
-        navigator.navigateFromSupplierNamePage(NormalMode)(ua) mustBe
-          importRoutes.TotalAmountWithoutVatController.onPageLoad(NormalMode)
+        navigator.navigateToCurrencyOrNextPage(NormalMode)(answers) mustBe
+          importsRoutes.TotalAmountWithoutVatController.onPageLoad(NormalMode)
       }
 
-      "must go from navigateFromSupplierNamePage to Journey Recovery when no country is in session" in {
-        navigator.navigateFromSupplierNamePage(NormalMode)(userAnswers) mustBe
+      "must go to JourneyRecoveryController when no country is in session" in {
+        navigator.navigateToCurrencyOrNextPage(NormalMode)(userAnswers) mustBe
           controllers.routes.JourneyRecoveryController.onPageLoad()
       }
+
     }
 
     "in Check mode" - {
@@ -247,13 +256,6 @@ class ImportNavigatorSpec extends SpecBase {
 
         navigator.navigateFromSadReferenceCheckPage(CheckMode)(ua) mustBe
           importRoutes.ImportDetailsInfoController.onPageLoad(CheckMode)
-      }
-
-      "must go from navigateFromSupplierNamePage to ImportCurrency when the country requires currency selection" in {
-        val ua = userAnswers.set(RefundingCountryPage, "EE").success.value
-
-        navigator.navigateFromSupplierNamePage(CheckMode)(ua) mustBe
-          importRoutes.ImportCurrencyController.onPageLoad(CheckMode)
       }
     }
 
