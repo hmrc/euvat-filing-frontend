@@ -35,7 +35,7 @@ import views.html.imports.ImportSupplierAddressView
 
 import scala.concurrent.Future
 
-class ImportSupplierAddressControllerSpec extends SpecBase with MockitoSugar {
+class complete  extends SpecBase with MockitoSugar {
 
   private val onwardRoute = Call("GET", "/foo")
 
@@ -410,8 +410,8 @@ class ImportSupplierAddressControllerSpec extends SpecBase with MockitoSugar {
 
         contentAsString(result) must include(
           messages(application)(
-            "supplierAddress.error.line1.maxLength",
-            messages(application)("supplierAddress.line1.label"),
+            "import.supplierAddress.error.line1.maxLength",
+            messages(application)("import.supplierAddress.line1.label"),
             messages(application)("supplierAddress.error.maxLength")
           )
         )
@@ -438,7 +438,7 @@ class ImportSupplierAddressControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual BAD_REQUEST
 
         contentAsString(result) must include(
-          messages(application)("supplierAddress.error.country.required")
+          messages(application)("import.supplierAddress.error.country.required")
         )
       }
     }
@@ -463,7 +463,7 @@ class ImportSupplierAddressControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual BAD_REQUEST
 
         contentAsString(result) must include(
-          messages(application)("supplierAddress.error.country.invalid")
+          messages(application)("import.supplierAddress.error.country.invalid")
         )
       }
     }

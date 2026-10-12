@@ -54,10 +54,14 @@ class ImportSupplierAddressFormProvider @Inject() (
 
   private val validCountry: Constraint[String] =
     Constraint { countryCode =>
-      if (config.supplierCountries.contains(countryCode)) {
+      val code = countryCode.trim
+
+      if (code.isEmpty) {
+        Valid
+      } else if (config.supplierCountries.contains(code)) {
         Valid
       } else {
-        Invalid("supplierAddress.error.country.invalid")
+        Invalid("import.supplierAddress.error.country.invalid")
       }
     }
 
@@ -68,16 +72,16 @@ class ImportSupplierAddressFormProvider @Inject() (
           text("supplierAddress.error.line1.required")
             .verifying(
               fieldMaxLengthConstraint(
-                "supplierAddress.line1.label",
-                "supplierAddress.error.line1.maxLength"
+                "import.supplierAddress.line1.label",
+                "import.supplierAddress.error.line1.maxLength"
               )
             ),
         "addressLine2" ->
           optional(
             text().verifying(
               fieldMaxLengthConstraint(
-                "supplierAddress.line2.label.short",
-                "supplierAddress.error.line2.maxLength"
+                "import.supplierAddress.line2.label.short",
+                "import.supplierAddress.error.line2.maxLength"
               )
             )
           ),
@@ -85,13 +89,13 @@ class ImportSupplierAddressFormProvider @Inject() (
           optional(
             text().verifying(
               fieldMaxLengthConstraint(
-                "supplierAddress.line3.label.short",
-                "supplierAddress.error.line3.maxLength"
+                "import.supplierAddress.line3.label.short",
+                "import.supplierAddress.error.line3.maxLength"
               )
             )
           ),
         "country" ->
-          text("supplierAddress.error.country.required")
+          text("import.supplierAddress.error.country.required")
             .verifying(validCountry)
       )(ImportSupplierAddress.apply)(o => Some(Tuple.fromProductTyped(o)))
     )

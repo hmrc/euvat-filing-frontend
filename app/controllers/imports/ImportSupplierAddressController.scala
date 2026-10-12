@@ -70,8 +70,30 @@ class ImportSupplierAddressController @Inject() (
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async { implicit request =>
+
+      val submittedData: Map[String, String] =
+        request.body
+          .asFormUrlEncoded
+          .getOrElse(Map.empty)
+          .view
+          .mapValues(_.headOption.getOrElse(""))
+          .toMap
+
+      val selectedCountry =
+        submittedData.getOrElse("country", "").trim
+
+      val typedCountry =
+        submittedData.getOrElse("countryTyped", "").trim
+
+      val dataToBind =
+        if (selectedCountry.isEmpty && typedCountry.nonEmpty) {
+          submittedData.updated("country", typedCountry)
+        } else {
+          submittedData
+        }
+
       form
-        .bindFromRequest()
+        .bind(dataToBind)
         .fold(
           formWithErrors =>
             Future.successful(
@@ -87,8 +109,11 @@ class ImportSupplierAddressController @Inject() (
           value =>
             for {
               updatedAnswers <- Future.fromTry(
-                                  request.userAnswers.set(ImportSupplierAddressPage, value)
-                                )
+                request.userAnswers.set(
+                  ImportSupplierAddressPage,
+                  value
+                )
+              )
               _ <- sessionRepository.set(updatedAnswers)
             } yield Redirect(
               navigator.nextPage(

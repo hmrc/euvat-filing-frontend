@@ -59,7 +59,7 @@
     </h1>
 
     <p class="govuk-body">
-      @messages("supplierAddress.lead")
+      @messages("import.supplierAddress.lead")
     </p>
 
     @govukInput(
@@ -90,10 +90,10 @@
       @govukSelect(
         Select(
           id = form("country").id + "-input",
-          name = "country",
+          name = "value",
           classes = TwoThirds.toString,
           label = Label(
-            content = Text(messages("supplierAddress.country.label"))
+            content = Text(messages("import.supplierAddress.country.label"))
           ),
           items =
             Seq(
