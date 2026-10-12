@@ -18,8 +18,8 @@ package controllers.purchase
 
 import controllers.actions.*
 import forms.DescribeItemsFormProvider
-import models.requests.DataRequest
 import models.*
+import models.requests.DataRequest
 import navigation.Navigator
 import pages.purchase.{DescribeItemsArrivedFromCheckYourAnswersPage, DescribeItemsOnInvoicePage}
 import play.api.data.Form

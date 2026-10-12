@@ -52,7 +52,7 @@ object PurchaseOrImportType extends Enumerable.Implicits:
     Transport    -> "transport-cost",
     FoodAndDrink -> "food-drink-restaurant-cost",
     Luxuries     -> "luxury-entertainment-hospitality-cost",
-    Other        -> "purchase-type-other"
+    Other        -> "other"
   )
 
   val valueFromUrlSlug: Map[String, String] = urlSlugForPurchaseType.map((k, v) => (v, k.toString))

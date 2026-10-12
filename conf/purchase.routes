@@ -23,10 +23,10 @@ POST       /luxury-entertainment-hospitality-cost           controllers.purchase
 GET        /change-luxury-entertainment-hospitality-cost    controllers.purchase.PurchaseSubTypeController.onPageLoad(purchaseTypeSlug: String = "luxury-entertainment-hospitality-cost", mode: Mode = CheckMode)
 POST       /change-luxury-entertainment-hospitality-cost    controllers.purchase.PurchaseSubTypeController.onSubmit(purchaseTypeSlug: String = "luxury-entertainment-hospitality-cost", mode: Mode = CheckMode)
 
-GET        /other                                           controllers.purchase.PurchaseSubTypeController.onPageLoad(purchaseTypeSlug: String = "purchase-type-other", mode: Mode = NormalMode)
-POST       /other                                           controllers.purchase.PurchaseSubTypeController.onSubmit(purchaseTypeSlug: String = "purchase-type-other", mode: Mode = NormalMode)
-GET        /change-other                                    controllers.purchase.PurchaseSubTypeController.onPageLoad(purchaseTypeSlug: String = "purchase-type-other", mode: Mode = CheckMode)
-POST       /change-other                                    controllers.purchase.PurchaseSubTypeController.onSubmit(purchaseTypeSlug: String = "purchase-type-other", mode: Mode = CheckMode)
+GET        /other                                           controllers.purchase.PurchaseSubTypeController.onPageLoad(purchaseTypeSlug: String = "other", mode: Mode = NormalMode)
+POST       /other                                           controllers.purchase.PurchaseSubTypeController.onSubmit(purchaseTypeSlug: String = "other", mode: Mode = NormalMode)
+GET        /change-other                                    controllers.purchase.PurchaseSubTypeController.onPageLoad(purchaseTypeSlug: String = "other", mode: Mode = CheckMode)
+POST       /change-other                                    controllers.purchase.PurchaseSubTypeController.onSubmit(purchaseTypeSlug: String = "other", mode: Mode = CheckMode)
 
 GET        /fuel-type                                       controllers.purchase.PurchaseSubCategoryController.onPageLoad(mode: Mode = NormalMode)
 POST       /fuel-type                                       controllers.purchase.PurchaseSubCategoryController.onSubmit(mode: Mode = NormalMode)

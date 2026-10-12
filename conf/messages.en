@@ -445,7 +445,7 @@ purchase.subType.fuel-use = Fuel use
 purchase.subType.transport-cost = Transport cost type
 purchase.subType.food-drink-restaurant-cost = Food, drink or restaurant cost type
 purchase.subType.luxury-entertainment-hospitality-cost = Luxury, entertainment or hospitality cost type
-purchase.subType.purchase-type-other = Other purchase type
+purchase.subType.other = Other purchase type
 purchase.subType.change.hidden = Change sub type
 
 purchase.subCategory.fuel-type = Fuel type

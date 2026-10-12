@@ -16,11 +16,10 @@
 
 package navigation
 
-import models.{CheckMode, Mode, NormalMode, Other, UserAnswers}
-import play.api.mvc.Call
-import utils.{ConfigPurchaseOrImportMapping, CountryCode, CurrencyConfig}
 import controllers.imports.routes as importsRoutes
+import models.{Mode, Other, UserAnswers}
 import pages.imports.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage, SadReferenceCheckPage}
+import play.api.mvc.Call
 import utils.PurchaseOrImportHelpers.isNoneSelection
 import utils.{ConfigPurchaseOrImportMapping, CountryCode, CurrencyConfig}
 

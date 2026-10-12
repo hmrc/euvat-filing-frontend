@@ -23,9 +23,8 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.purchase.*
 import pages.claim.{CountryChangedPage, RefundingCountryNamePage, RefundingCountryPage}
-import pages.purchase.{DescribeItemsArrivedFromCheckYourAnswersPage, DescribeItemsOnInvoicePage}
+import pages.purchase.*
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -258,7 +257,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, controllers.purchase.routes.PurchaseSubTypeController.onSubmit("purchase-type-other", models.CheckMode).url)
+        val request = FakeRequest(POST, controllers.purchase.routes.PurchaseSubTypeController.onSubmit("other", models.CheckMode).url)
           .withFormUrlEncodedBody(("value", "1"))
 
         val result = route(application, request).value
@@ -394,7 +393,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, controllers.purchase.routes.PurchaseSubTypeController.onSubmit("purchase-type-other", models.CheckMode).url)
+        val request = FakeRequest(POST, controllers.purchase.routes.PurchaseSubTypeController.onSubmit("other", models.CheckMode).url)
           .withFormUrlEncodedBody(("value", "10.6"))
 
         val result = route(application, request).value
