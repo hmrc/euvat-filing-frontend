@@ -26,7 +26,7 @@ import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.*
-import queries.{IsLastItemQuery, ClaimApplicationResponseQuery, RemoveItemNumberQuery}
+import queries.{ClaimApplicationResponseQuery, IsLastItemQuery, RemoveItemNumberQuery}
 import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -36,43 +36,46 @@ import views.html.RemoveItemView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class RemoveItemController @Inject()(
-      override val messagesApi: MessagesApi,
-      sessionRepository: SessionRepository,
-      navigator: Navigator,
-      identify: IdentifierAction,
-      getData: DataRetrievalAction,
-      requireData: DataRequiredAction,
-      formProvider: RemoveItemFormProvider,
-      euVatRefundsService: EuVatRefundsService,
-      currencyConfig: CurrencyConfig,
-      val controllerComponents: MessagesControllerComponents,
-      view: RemoveItemView
-)(implicit ec: ExecutionContext) extends FrontendBaseController with Logging with I18nSupport {
+class RemoveItemController @Inject() (
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  navigator: Navigator,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: RemoveItemFormProvider,
+  euVatRefundsService: EuVatRefundsService,
+  currencyConfig: CurrencyConfig,
+  val controllerComponents: MessagesControllerComponents,
+  view: RemoveItemView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with Logging
+    with I18nSupport {
 
   val form: Form[Boolean] = formProvider()
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-      request.getQueryString("itemNumber").flatMap(_.toIntOption) match {
-        case Some(itemNumber) => saveItemNumberAndReload(itemNumber)
-        case None             => renderPage(formToRender = form, badRequest = false)
+    request.getQueryString("itemNumber").flatMap(_.toIntOption) match {
+      case Some(itemNumber) => saveItemNumberAndReload(itemNumber)
+      case None             => renderPage(formToRender = form, badRequest = false)
 
     }
   }
 
   def onSubmit: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-           form
-            .bindFromRequest()
-            .fold(
-              formWithErrors => renderPage(formToRender = formWithErrors, badRequest = true),
-            value => saveAndRedirect(value)
-            )
+    form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => renderPage(formToRender = formWithErrors, badRequest = true),
+        value => saveAndRedirect(value)
+      )
   }
 
   private def renderPage(formToRender: Form[Boolean], badRequest: Boolean)(implicit request: DataRequest[AnyContent]): Future[Result] =
     withItem(request.userAnswers) { (item, _) =>
       val (itemType, vatClaim) = summaryValues(item)
-      val page                 = view(formToRender, itemType, vatClaim, backLink)
+      val page = view(formToRender, itemType, vatClaim, backLink)
       Future.successful(if (badRequest) BadRequest(page) else Ok(page))
     }
 
@@ -88,7 +91,7 @@ class RemoveItemController @Inject()(
   private def saveItemNumberAndReload(itemNumber: Int)(implicit request: DataRequest[AnyContent]): Future[Result] =
     for {
       updatedAnswers <- Future.fromTry(request.userAnswers.set(RemoveItemNumberQuery, itemNumber))
-      _               <- sessionRepository.set(updatedAnswers)
+      _              <- sessionRepository.set(updatedAnswers)
     } yield Redirect(routes.RemoveItemController.onPageLoad)
 
   private def withItem(userAnswers: UserAnswers)(f: (PurchaseImport, Boolean) => Future[Result])(implicit
@@ -101,10 +104,10 @@ class RemoveItemController @Inject()(
           .flatMap { response =>
             val items = response.purchaseImportList
             items
-               .find(_.itemNumber == itemNumber)
-               .fold(recoveryPage(s"Item $itemNumber not found")) { item =>
-                 f(item, items.size == 1)
-               }
+              .find(_.itemNumber == itemNumber)
+              .fold(recoveryPage(s"Item $itemNumber not found")) { item =>
+                f(item, items.size == 1)
+              }
           }
       case _ =>
         recoveryPage("Missing or invalid applicationId or itemNumber")
@@ -113,7 +116,7 @@ class RemoveItemController @Inject()(
   private def summaryValues(item: PurchaseImport)(implicit request: DataRequest[AnyContent]): (String, String) = {
     val itemType = if (item.itemType == "P") "Purchase" else "Import"
     val vatClaim =
-      if(isIncomplete(item)) messagesApi.preferred(request)("removeItem.notProvided")
+      if (isIncomplete(item)) messagesApi.preferred(request)("removeItem.notProvided")
       else {
         val currencySymbol = ControllerHelpers.currencySymbolFromSession(request.userAnswers, currencyConfig.currencyConfig)
         s"$currencySymbol${item.deductibleVatAmount}"
