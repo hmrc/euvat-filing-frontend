@@ -17,141 +17,194 @@
 package controllers
 
 import base.SpecBase
-import forms.RemoveItemFormProvider
-import models.{NormalMode, UserAnswers}
-import navigation.{FakeNavigator, Navigator}
+import models.{UserAnswers, PurchaseImport}
+import models.responses.{ApplicationResponse, PurchaseImportListResponse}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import org.scalatestplus.mockito.MockitoSugar
-import pages.RemoveItemPage
 import play.api.inject.bind
-import play.api.mvc.Call
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
+import queries.{ClaimApplicationResponseQuery, RemoveItemNumberQuery}
 import repositories.SessionRepository
-import views.html.RemoveItemView
 
 import scala.concurrent.Future
 
-class RemoveItemControllerSpec extends SpecBase with MockitoSugar {
-
-  def onwardRoute = Call("GET", "/foo")
-
-  val formProvider = new RemoveItemFormProvider()
-  val form = formProvider()
-
-  lazy val removeItemRoute = routes.RemoveItemController.onPageLoad(NormalMode).url
+class RemoveItemControllerSpec extends SpecBase {
 
   "RemoveItem Controller" - {
 
-    "must return OK and the correct view for a GET" in {
+    def purchaseImport(itemNumber: Int, itemType: String, deductibleVatAmount: BigDecimal): PurchaseImport =
+     PurchaseImport(
+         itemNumber                  = itemNumber,
+         itemType                    = itemType,
+         goodsDescriptionCategory    = "1",
+         goodsDescriptionSubCategory = Some("1.2.3"),
+         currencyCode                = "EU",
+         taxableAmount               = BigDecimal(300),
+         vatAmount                   = BigDecimal(200),
+         deductibleVatAmount         = deductibleVatAmount
+     )
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+    val completePurchase = purchaseImport(itemNumber = 1, itemType = "P", deductibleVatAmount = BigDecimal(100))
+    val incompleteImport = purchaseImport(itemNumber = 2, itemType = "I", deductibleVatAmount = BigDecimal(0))
 
-      running(application) {
-        val request = FakeRequest(GET, removeItemRoute)
+    val twoItemsResponse = PurchaseImportListResponse(
+      totalItems         = 2,
+      totalVatClaims     = BigDecimal(100),
+      purchaseImportList = List(completePurchase, incompleteImport)
+    )
 
-        val result = route(application, request).value
+    val oneItemResponse = PurchaseImportListResponse(
+      totalItems         = 1,
+      totalVatClaims     = BigDecimal(100),
+      purchaseImportList = List(completePurchase)
+    )
 
-        val view = application.injector.instanceOf[RemoveItemView]
+    def userAnswersWithItem(itemNumber: Int): UserAnswers =
+      emptyUserAnswers
+         .set(ClaimApplicationResponseQuery, ApplicationResponse(111, "App1", 1))
+         .success
+         .value
+         .set(RemoveItemNumberQuery, itemNumber)
+         .success
+         .value
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
-      }
-    }
+     lazy val removeItemRoute = routes.RemoveItemController.onPageLoad.url
+     lazy val submitRoute     = routes.RemoveItemController.onSubmit.url
 
-    "must populate the view correctly on a GET when the question has previously been answered" in {
+       "save the item number from the url and reload the page" in {
+         when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+         val userAnswers = emptyUserAnswers.set(ClaimApplicationResponseQuery, ApplicationResponse(111, "App1", 1)).success.value
+         val application = applicationBuilder(userAnswers = Some(userAnswers))
+           .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+           .build()
 
-      val userAnswers = UserAnswers(userAnswersId).set(RemoveItemPage, true).success.value
+         running(application) {
+           val request = FakeRequest(GET, s"$removeItemRoute?itemNumber=1")
+           val result = route(application, request).value
+           status(result) mustEqual SEE_OTHER
+           redirectLocation(result).value mustEqual removeItemRoute
+         }
+       }
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+       "return OK and show the type and VAT claim for a complete item" in{
+         when(mockEuVatRefundsService.getPurchaseImportList(any())(any())).thenReturn(Future.successful(twoItemsResponse))
+         val application = applicationBuilder(userAnswers = Some(userAnswersWithItem(1))).build()
 
-      running(application) {
-        val request = FakeRequest(GET, removeItemRoute)
+         running(application) {
+           val request = FakeRequest(GET, removeItemRoute)
+           val result  = route(application, request).value
+           status(result) mustEqual OK
+           contentAsString(result) must include("Purchase")
+           contentAsString(result) must include("100")
+         }
+       }
 
-        val view = application.injector.instanceOf[RemoveItemView]
+       "show Not provided for an incomplete item" in {
+         when(mockEuVatRefundsService.getPurchaseImportList(any())(any())).thenReturn(Future.successful(twoItemsResponse))
+         val application = applicationBuilder(userAnswers = Some(userAnswersWithItem(2))).build()
 
-        val result = route(application, request).value
+         running(application) {
+           val request = FakeRequest(GET, removeItemRoute)
+           val result  = route(application, request).value
+           status(result) mustEqual OK
+           contentAsString(result) must include("Import")
+           contentAsString(result) must include(messages(application)("removeItem.notProvided"))
+         }
+       }
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(true), NormalMode)(request, messages(application)).toString
-      }
-    }
+       "redirect to JourneyRecovery when the item is not found" in {
+         when(mockEuVatRefundsService.getPurchaseImportList(any())(any())).thenReturn(Future.successful(twoItemsResponse))
+         val application = applicationBuilder(userAnswers = Some(userAnswersWithItem(99))).build()
 
-    "must redirect to the next page when valid data is submitted" in {
+          running(application) {
+            val request = FakeRequest(GET, removeItemRoute)
+            val result  = route(application, request).value
+            status(result) mustEqual SEE_OTHER
+            redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+          }
+       }
 
-      val mockSessionRepository = mock[SessionRepository]
+       "redirect to Journey Recovery when there is no item number in the session" in {
+         val userAnswers = emptyUserAnswers.set(ClaimApplicationResponseQuery, ApplicationResponse(111, "App1", 1)).success.value
+         val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+         running(application) {
+           val request = FakeRequest(GET, removeItemRoute)
+           val result  = route(application, request).value
+           status(result) mustEqual SEE_OTHER
+           redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+         }
+       }
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
-          .build()
+       "redirect to Journey Recovery when no existing data is found" in {
+         val application = applicationBuilder(userAnswers = None).build()
 
-      running(application) {
-        val request =
-          FakeRequest(POST, removeItemRoute)
-            .withFormUrlEncodedBody(("value", "true"))
+         running(application) {
+           val request = FakeRequest(GET, removeItemRoute)
+           val result  = route(application, request).value
+           status(result) mustEqual SEE_OTHER
+           redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+         }
+       }
 
-        val result = route(application, request).value
+       "redirect to the summary page when the user selects yes and other items remain" in {
+         when(mockEuVatRefundsService.getPurchaseImportList(any())(any())).thenReturn(Future.successful(twoItemsResponse))
+         when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+         val application = applicationBuilder(userAnswers = Some(userAnswersWithItem(1)))
+           .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+           .build()
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
-      }
-    }
+         running(application) {
+           val request = FakeRequest(POST, submitRoute).withFormUrlEncodedBody("value" -> "true")
+           val result  = route(application, request).value
+           status(result) mustEqual SEE_OTHER
+           redirectLocation(result).value mustEqual routes.PurchaseImportSummaryController.onPageLoad.url
+         }
+       }
 
-    "must return a Bad Request and errors when invalid data is submitted" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+       "redirect to the task list when the user selects yes and it's the only item" in {
+         when(mockEuVatRefundsService.getPurchaseImportList(any())(any())).thenReturn(Future.successful(oneItemResponse))
+         when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+         val application = applicationBuilder(userAnswers = Some(userAnswersWithItem(1)))
+           .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+           .build()
 
-      running(application) {
-        val request =
-          FakeRequest(POST, removeItemRoute)
-            .withFormUrlEncodedBody(("value", ""))
+         running(application) {
+           val request = FakeRequest(POST, submitRoute).withFormUrlEncodedBody("value" -> "true")
+           val result  = route(application, request).value
+           status(result) mustEqual SEE_OTHER
+           redirectLocation(result).value mustEqual routes.TaskListDashboardController.onPageLoad().url
+         }
+       }
 
-        val boundForm = form.bind(Map("value" -> ""))
+        "redirect to the summary page when the user selects no" in {
+          when(mockEuVatRefundsService.getPurchaseImportList(any())(any())).thenReturn(Future.successful(oneItemResponse))
+          when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+          val application = applicationBuilder(userAnswers = Some(userAnswersWithItem(1)))
+            .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+            .build()
 
-        val view = application.injector.instanceOf[RemoveItemView]
+          running(application) {
+            val request = FakeRequest(POST, submitRoute).withFormUrlEncodedBody("value" -> "false")
+            val result  = route(application, request).value
+            status(result) mustEqual SEE_OTHER
+            redirectLocation(result).value mustEqual routes.PurchaseImportSummaryController.onPageLoad.url
+          }
+        }
 
-        val result = route(application, request).value
+         "redirect BAD REQUEST when no answer is submitted" in {
+           when(mockEuVatRefundsService.getPurchaseImportList(any())(any())).thenReturn(Future.successful(twoItemsResponse))
+           val application = applicationBuilder(userAnswers = Some(userAnswersWithItem(1))).build()
 
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
-      }
-    }
-
-    "must redirect to Journey Recovery for a GET if no existing data is found" in {
-
-      val application = applicationBuilder(userAnswers = None).build()
-
-      running(application) {
-        val request = FakeRequest(GET, removeItemRoute)
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
-      }
-    }
-
-    "must redirect to Journey Recovery for a POST if no existing data is found" in {
-
-      val application = applicationBuilder(userAnswers = None).build()
-
-      running(application) {
-        val request =
-          FakeRequest(POST, removeItemRoute)
-            .withFormUrlEncodedBody(("value", "true"))
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
-      }
-    }
+           running(application) {
+             val request = FakeRequest(POST, submitRoute).withFormUrlEncodedBody()
+             val result  = route(application, request).value
+             status(result) mustEqual BAD_REQUEST
+             contentAsString(result) must include(messages(application)("removeItem.error.required"))
+           }
+         }
   }
 }
+
