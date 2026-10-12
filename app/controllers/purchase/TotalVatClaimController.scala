@@ -61,7 +61,7 @@ class TotalVatClaimController @Inject() (
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(TotalVatClaimPage).fold(form)(form.fill)
     val currencySymbol = currencySymbolFromSession(request.userAnswers, currencyConfig.currencyConfig)
-    Ok(view(preparedForm, mode, formAction(mode), backLink(mode), currencySymbol))
+    Ok(view(preparedForm, mode, formAction(mode), backLink(mode), "purchase.caption", currencySymbol))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -75,6 +75,7 @@ class TotalVatClaimController @Inject() (
                    mode,
                    formAction(mode),
                    backLink(mode),
+                   "purchase.caption",
                    currencySymbolFromSession(request.userAnswers, currencyConfig.currencyConfig)
                   )
             )

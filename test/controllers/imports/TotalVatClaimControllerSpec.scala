@@ -52,9 +52,10 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual OK
         val expectedBack = controllers.imports.routes.TotalVatPaidImportController.onPageLoad(NormalMode)
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, controllers.imports.routes.TotalVatClaimController.onSubmit(NormalMode), expectedBack, "€")(request,
-                                                                                                                             messages(application)
-                                                                                                                            ).toString
+          view(form, NormalMode, controllers.imports.routes.TotalVatClaimController.onSubmit(NormalMode), expectedBack, "import.caption", "€")(
+            request,
+            messages(application)
+          ).toString
         )
       }
     }
@@ -80,12 +81,14 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual OK
         val expectedBack = controllers.imports.routes.TotalVatPaidImportController.onPageLoad(NormalMode)
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form.fill(BigDecimal("12.34")),
-               NormalMode,
-               controllers.imports.routes.TotalVatClaimController.onSubmit(NormalMode),
-               expectedBack,
-               "лв"
-              )(request, messages(application)).toString
+          view(
+            form.fill(BigDecimal("12.34")),
+            NormalMode,
+            controllers.imports.routes.TotalVatClaimController.onSubmit(NormalMode),
+            expectedBack,
+            "import.caption",
+            "лв"
+          )(request, messages(application)).toString
         )
       }
     }

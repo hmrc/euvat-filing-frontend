@@ -17,7 +17,7 @@
 package utils
 
 import models.UserAnswers
-import pages.RefundingCurrencyPage
+import pages.{ImportCurrencyPage, RefundingCurrencyPage}
 
 object CurrencyResolver {
 
@@ -38,9 +38,11 @@ object CurrencyResolver {
       .findCountryCode(userAnswers)
       .flatMap { countryCode =>
         val currencies = config(countryCode)
+
         val selected = userAnswers
-          .get(RefundingCurrencyPage)
-          .flatMap(code => currencies.find(_._2 == code))
+          .get(ImportCurrencyPage)
+          .flatMap(code => currencies.find(_.code == code))
+          .orElse(userAnswers.get(RefundingCurrencyPage).flatMap(code => currencies.find(_.code == code)))
 
         selected.orElse(currencies.headOption).map { case Currency(name, _, symbol) => (humanizeName(name), symbol) }
       }

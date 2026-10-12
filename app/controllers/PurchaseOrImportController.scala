@@ -90,7 +90,7 @@ class PurchaseOrImportController @Inject() (
     SupplierAddressPage,
     SupplierVatRegistrationNumberPage,
     SupplierTaxIdentifierNumberPage,
-    SupplierTaxNumberPage,
+    SupplierTaxNumberCheckPage,
     TotalPurchaseAmountBeforeVatPage,
     TotalVatPaidPage,
     TotalVatClaimPage

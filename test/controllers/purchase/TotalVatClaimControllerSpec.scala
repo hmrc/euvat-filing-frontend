@@ -55,7 +55,10 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, routes.TotalVatClaimController.onSubmit(NormalMode), backLink, "€")(request, messages(application)).toString
+          view(form, NormalMode, routes.TotalVatClaimController.onSubmit(NormalMode), backLink, "purchase.caption", "€")(
+            request,
+            messages(application)
+          ).toString
         )
       }
     }
@@ -70,7 +73,14 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, CheckMode, routes.TotalVatClaimController.onSubmit(CheckMode), routes.CheckYourPurchaseDetailsController.onPageLoad(), "€")(
+          view(
+            form,
+            CheckMode,
+            routes.TotalVatClaimController.onSubmit(CheckMode),
+            routes.CheckYourPurchaseDetailsController.onPageLoad(),
+            "purchase.caption",
+            "€"
+          )(
             request,
             messages(application)
           ).toString
@@ -89,9 +99,17 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form.fill(validAnswer), NormalMode, routes.TotalVatClaimController.onSubmit(NormalMode), backLink, "€")(request,
-                                                                                                                       messages(application)
-                                                                                                                      ).toString
+          view(
+            form.fill(validAnswer),
+            NormalMode,
+            routes.TotalVatClaimController.onSubmit(NormalMode),
+            backLink,
+            "purchase.caption",
+            "€"
+          )(
+            request,
+            messages(application)
+          ).toString
         )
       }
     }
@@ -188,7 +206,10 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
         status(result) mustEqual BAD_REQUEST
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(boundForm, NormalMode, routes.TotalVatClaimController.onSubmit(NormalMode), backLink, "€")(request, messages(application)).toString
+          view(boundForm, NormalMode, routes.TotalVatClaimController.onSubmit(NormalMode), backLink, "purchase.caption", "€")(
+            request,
+            messages(application)
+          ).toString
         )
       }
     }
@@ -355,7 +376,10 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
       val result = route(application, request).value
       status(result) mustEqual OK
       normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-        view(form, NormalMode, routes.TotalVatClaimController.onSubmit(NormalMode), backLink, "kr")(request, messages(application)).toString
+        view(form, NormalMode, routes.TotalVatClaimController.onSubmit(NormalMode), backLink, "purchase.caption", "kr")(
+          request,
+          messages(application)
+        ).toString
       )
     }
   }
@@ -377,7 +401,10 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
       val result = route(application, request).value
       status(result) mustEqual OK
       normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-        view(form, NormalMode, routes.TotalVatClaimController.onSubmit(NormalMode), backLink, "€")(request, messages(application)).toString
+        view(form, NormalMode, routes.TotalVatClaimController.onSubmit(NormalMode), backLink, "purchase.caption", "€")(
+          request,
+          messages(application)
+        ).toString
       )
     }
   }
@@ -400,7 +427,10 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
       val result = route(application, request).value
       status(result) mustEqual BAD_REQUEST
       normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-        view(boundForm, NormalMode, routes.TotalVatClaimController.onSubmit(NormalMode), backLink, "kr")(request, messages(application)).toString
+        view(boundForm, NormalMode, routes.TotalVatClaimController.onSubmit(NormalMode), backLink, "purchase.caption", "kr")(
+          request,
+          messages(application)
+        ).toString
       )
     }
   }

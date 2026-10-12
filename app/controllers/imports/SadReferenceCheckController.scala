@@ -21,18 +21,17 @@ import forms.imports.SadReferenceCheckFormProvider
 import models.NormalMode
 import pages.SadReferenceCheckPage
 import models.requests.DataRequest
+import models.{Mode, NormalMode, Other}
 import navigation.Navigator
-import models.{Mode, NormalMode}
-
-import javax.inject.Inject
+import pages.SadReferenceCheckPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
-import models.{Mode, NormalMode, Other}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.imports.SadReferenceCheckView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class SadReferenceCheckController @Inject() (
@@ -50,6 +49,7 @@ class SadReferenceCheckController @Inject() (
     with I18nSupport {
 
   val form: Form[Boolean] = formProvider()
+  private def backLink(mode: Mode): Call = routes.ImportSubCategoryController.onPageLoad(mode)
 
   private def computeBackLink(implicit request: DataRequest[AnyContent]): Call = {
     val answers = request.userAnswers

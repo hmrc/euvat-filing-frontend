@@ -361,7 +361,7 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
           .set(pages.InvoiceTypePage, models.InvoiceType.SimplifiedInvoice)
           .success
           .value
-          .set(pages.SupplierTaxNumberPage, models.SupplierTaxNumber.Taxidentifiernumber)
+          .set(pages.SupplierTaxNumberCheckPage, models.SupplierTaxNumber.Taxidentifiernumber)
           .success
           .value
 
@@ -388,7 +388,7 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
           .set(pages.InvoiceTypePage, models.InvoiceType.StandardInvoice)
           .success
           .value
-          .set(pages.SupplierTaxNumberPage, models.SupplierTaxNumber.Taxidentifiernumber)
+          .set(pages.SupplierTaxNumberCheckPage, models.SupplierTaxNumber.Taxidentifiernumber)
           .success
           .value
 
