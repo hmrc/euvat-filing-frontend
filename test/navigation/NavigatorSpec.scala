@@ -28,6 +28,7 @@ import pages.claim.*
 import pages.imports.*
 import pages.purchase.*
 import play.api.Configuration
+import queries.IsLastItemQuery
 import utils.{ConfigLanguageMapping, ConfigPurchaseOrImportMapping, CurrencyConfig}
 
 class NavigatorSpec extends SpecBase {
@@ -229,6 +230,39 @@ class NavigatorSpec extends SpecBase {
       "must go from TotalVatPaidImportPage to TotalVatClaimController" in {
         navigator.nextPage(TotalVatPaidImportPage, NormalMode, userAnswers) mustBe
           controllers.imports.routes.TotalVatClaimController.onPageLoad(NormalMode)
+      }
+
+      "must go from RemoveItemPage to TaskListDashboardController when 'Yes' and it's the last item" in {
+        val answers = userAnswers.set(RemoveItemPage, true).success.value.set(IsLastItemQuery, true).success.value
+
+        navigator.nextPage(RemoveItemPage, NormalMode, answers) mustBe
+          controllers.routes.TaskListDashboardController.onPageLoad()
+      }
+
+      "must go from RemoveItemPage to PurchaseImportSummaryController when 'No' " in {
+        val answers = userAnswers.set(RemoveItemPage, false).success.value.set(IsLastItemQuery, true).success.value
+
+        navigator.nextPage(RemoveItemPage, NormalMode, answers) mustBe
+          controllers.routes.PurchaseImportSummaryController.onPageLoad
+      }
+
+      "must go from RemoveItemPage to PurchaseImportSummaryController when 'Yes' and it's not the last item" in {
+        val answers = userAnswers.set(RemoveItemPage, true).success.value.set(IsLastItemQuery, false).success.value
+
+        navigator.nextPage(RemoveItemPage, NormalMode, answers) mustBe
+          controllers.routes.PurchaseImportSummaryController.onPageLoad
+      }
+
+      "must go from RemoveItemPage to PurchaseImportSummaryController when 'Yes' and last item is unknown" in {
+        val answers = userAnswers.set(RemoveItemPage, true).success.value
+
+        navigator.nextPage(RemoveItemPage, NormalMode, answers) mustBe
+          controllers.routes.PurchaseImportSummaryController.onPageLoad
+      }
+
+      "must go from RemoveItemPage to Journey Recovery when there is no answer " in {
+        navigator.nextPage(RemoveItemPage, NormalMode, userAnswers) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from a page that doesn't exist in the route map to Index" in {

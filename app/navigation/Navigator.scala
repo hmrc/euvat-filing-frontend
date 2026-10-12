@@ -134,9 +134,9 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
 
   private def navigateFromRemoveItemPage(userAnswers: UserAnswers): Call =
     (userAnswers.get(RemoveItemPage), userAnswers.get(IsLastItemQuery)) match {
-        case (Some(true), Some(true))   => routes.TaskListDashboardController.onPageLoad()
-        case (Some(_), _)               => routes.PurchaseImportSummaryController.onPageLoad
-        case _                          => routes.TaskListDashboardController.onPageLoad()
+      case (Some(true), Some(true)) => routes.TaskListDashboardController.onPageLoad()
+      case (Some(_), _)             => routes.PurchaseImportSummaryController.onPageLoad
+      case _                        => routes.JourneyRecoveryController.onPageLoad()
     }
 
 }
