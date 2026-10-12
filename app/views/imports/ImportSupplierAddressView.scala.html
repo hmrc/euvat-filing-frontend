@@ -71,7 +71,7 @@
         label = LabelViewModel(messages("supplierAddress.line1.label"))
       )
       .withWidth(Full)
-      .withAutocomplete("addressLine1")
+      .withAutocomplete("address-line1")
     )
 
     @govukInput(
@@ -80,7 +80,7 @@
         label = LabelViewModel(messages("supplierAddress.line2.label"))
       )
       .withWidth(Full)
-      .withAutocomplete("addressLine2")
+      .withAutocomplete("address-line2")
     )
 
     @govukInput(
@@ -89,7 +89,7 @@
         label = LabelViewModel(messages("supplierAddress.line3.label"))
       )
       .withWidth(Full)
-      .withAutocomplete("addressLine3")
+      .withAutocomplete("address-line3")
 )
 
     <div class="govuk-form-group @if(isCountryError){govuk-form-group--error}">
@@ -120,7 +120,6 @@
                 },
           attributes = Map(
             "data-ac-typed" -> "#countryTyped",
-            "data-ac-heading" -> "#supplier-address-heading",
             "data-ac-input-classes" -> "govuk-input govuk-!-width-full"
           ),
           errorMessage = form.error("country").map { error =>
