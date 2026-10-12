@@ -24,6 +24,7 @@ import models.{Mode, NormalMode}
 import pages.imports.ImportSupplierAddressPage
 import play.api.i18n.I18nSupport
 import play.api.mvc.*
+import play.api.data.FormError
 import navigation.Navigator
 import repositories.SessionRepository
 import views.html.imports.ImportSupplierAddressView
@@ -70,42 +71,54 @@ class ImportSupplierAddressController @Inject() (
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async { implicit request =>
-
-      val submittedData: Map[String, String] =
-        request.body
-          .asFormUrlEncoded
-          .getOrElse(Map.empty)
-          .view
-          .mapValues(_.headOption.getOrElse(""))
-          .toMap
-
-      val selectedCountry =
-        submittedData.getOrElse("country", "").trim
-
-      val typedCountry =
-        submittedData.getOrElse("countryTyped", "").trim
-
-      val dataToBind =
-        if (selectedCountry.isEmpty && typedCountry.nonEmpty) {
-          submittedData.updated("country", typedCountry)
-        } else {
-          submittedData
-        }
-
       form
-        .bind(dataToBind)
+        .bindFromRequest()
         .fold(
-          formWithErrors =>
-            Future.successful(
-              BadRequest(
-                view(
-                  formWithErrors,
-                  config.supplierCountries,
-                  mode,
-                  backLink
+          formWithErrors => {
+         
+
+              val typed =
+                request.body
+                  .asFormUrlEncoded
+                  .flatMap(_.get("countryTyped").flatMap(_.headOption))
+                  .getOrElse("")
+
+              val hasRequiredCountryError =
+                formWithErrors.errors.exists { error =>
+                  error.key == "country" &&
+                    error.message == "import.supplierAddress.error.country.required"
+                }
+
+              val adjustedForm =
+                if (typed.trim.nonEmpty && hasRequiredCountryError) {
+                  val filtered =
+                    formWithErrors.errors.filterNot { error =>
+                      error.key == "country" &&
+                        error.message == "import.supplierAddress.error.country.required"
+                    }
+
+                  formWithErrors.copy(
+                    errors = filtered :+
+                      FormError(
+                        "country",
+                        "import.supplierAddress.error.country.invalid"
+                      )
+                  )
+                } else {
+                  formWithErrors
+                }
+
+              Future.successful(
+                BadRequest(
+                  view(
+                    adjustedForm,
+                    config.supplierCountries,
+                    mode,
+                    backLink
+                  )
                 )
               )
-            ),
+            },
           value =>
             for {
               updatedAnswers <- Future.fromTry(

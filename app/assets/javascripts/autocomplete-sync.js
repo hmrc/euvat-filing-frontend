@@ -83,7 +83,7 @@
 */
 (function () {
   var AC_INPUT_SEL = '.accessible-autocomplete__input, .autocomplete__input, input[role="combobox"], input[id$="-input"]';
-  var SELECT_SEL = 'select[name="value"], select[id$="-input"]';
+  var SELECT_SEL = 'select[name="value"], select[id$="-input"], select[name="country"], select[id$="-input-select"]';
   var initialized = new WeakSet();
 
   function toArray(nl) { return Array.prototype.slice.call(nl || []); }

@@ -54,11 +54,9 @@ class ImportSupplierAddressFormProvider @Inject() (
 
   private val validCountry: Constraint[String] =
     Constraint { countryCode =>
-      val code = countryCode.trim
-
-      if (code.isEmpty) {
+      if (countryCode.trim.isEmpty) {
         Valid
-      } else if (config.supplierCountries.contains(code)) {
+      } else if (config.supplierCountries.contains(countryCode)) {
         Valid
       } else {
         Invalid("import.supplierAddress.error.country.invalid")
@@ -72,7 +70,7 @@ class ImportSupplierAddressFormProvider @Inject() (
           text("supplierAddress.error.line1.required")
             .verifying(
               fieldMaxLengthConstraint(
-                "import.supplierAddress.line1.label",
+                "import.supplierAddress.line1.label.short",
                 "import.supplierAddress.error.line1.maxLength"
               )
             ),

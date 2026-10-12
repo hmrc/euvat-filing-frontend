@@ -53,8 +53,11 @@
       )
     )
 
+    <span class="govuk-caption-l">
+      @messages("import.caption")
+    </span>
+
     <h1 class="govuk-heading-l">
-      <span class="govuk-caption-l">@messages("import.caption")</span>
       @messages("supplierAddress.heading")
     </h1>
 
@@ -68,6 +71,7 @@
         label = LabelViewModel(messages("supplierAddress.line1.label"))
       )
       .withWidth(Full)
+      .withAutocomplete("addressLine1")
     )
 
     @govukInput(
@@ -76,6 +80,7 @@
         label = LabelViewModel(messages("supplierAddress.line2.label"))
       )
       .withWidth(Full)
+      .withAutocomplete("addressLine2")
     )
 
     @govukInput(
@@ -84,14 +89,15 @@
         label = LabelViewModel(messages("supplierAddress.line3.label"))
       )
       .withWidth(Full)
-    )
+      .withAutocomplete("addressLine3")
+)
 
     <div class="govuk-form-group @if(isCountryError){govuk-form-group--error}">
       @govukSelect(
         Select(
           id = form("country").id + "-input",
-          name = "value",
-          classes = TwoThirds.toString,
+          name = "country",
+          classes = Full.toString,
           label = Label(
             content = Text(messages("import.supplierAddress.country.label"))
           ),
@@ -114,7 +120,8 @@
                 },
           attributes = Map(
             "data-ac-typed" -> "#countryTyped",
-            "data-ac-input-classes" -> "govuk-input govuk-!-width-two-thirds"
+            "data-ac-heading" -> "#supplier-address-heading",
+            "data-ac-input-classes" -> "govuk-input govuk-!-width-full"
           ),
           errorMessage = form.error("country").map { error =>
             ErrorMessage(
