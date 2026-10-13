@@ -60,12 +60,11 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
       case _          => importsRoutes.ImportDetailsInfoController.onPageLoad(mode)
     }
 
-  def navigateFromSupplierNamePage(mode: Mode)(userAnswers: UserAnswers): Call =
+  def navigateFromSupplierAddressPage(mode: Mode)(userAnswers: UserAnswers): Call =
     CountryCode.findCountryCode(userAnswers) match {
       case Some(countryCode) if currencyConfig.requiresCurrencySelection(countryCode) =>
         importsRoutes.ImportCurrencyController.onPageLoad(mode)
-      case Some(_) => importsRoutes.TotalAmountWithoutVatController.onPageLoad(mode) // TODO: next import page
-      case None    => controllers.routes.JourneyRecoveryController.onPageLoad()
+      case _ => importsRoutes.TotalAmountWithoutVatController.onPageLoad(mode)
     }
 
 }
