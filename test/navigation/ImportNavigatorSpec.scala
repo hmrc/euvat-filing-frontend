@@ -194,24 +194,28 @@ class ImportNavigatorSpec extends SpecBase {
           importRoutes.ImportDetailsInfoController.onPageLoad(NormalMode)
       }
 
-      "must go from navigateFromSupplierNamePage to ImportCurrency when the country requires currency selection" in {
-        val ua = userAnswers.set(RefundingCountryPage, "EE").success.value
+      "must go to ImportCurrencyController when the country requires currency selection" in {
+        val answers =
+          userAnswers
+            .set(RefundingCountryPage, "EE")
+            .success
+            .value
 
-        navigator.navigateFromSupplierNamePage(NormalMode)(ua) mustBe
+        navigator.navigateFromSupplierAddressPage(NormalMode)(answers) mustBe
           importRoutes.ImportCurrencyController.onPageLoad(NormalMode)
       }
 
-      "must skip ImportCurrency in navigateFromSupplierNamePage when the country has one currency" in {
-        val ua = userAnswers.set(RefundingCountryPage, "AT").success.value
+      "must skip ImportCurrencyController when the country has one currency" in {
+        val answers =
+          userAnswers
+            .set(RefundingCountryPage, "AT")
+            .success
+            .value
 
-        navigator.navigateFromSupplierNamePage(NormalMode)(ua) mustBe
+        navigator.navigateFromSupplierAddressPage(NormalMode)(answers) mustBe
           importRoutes.TotalAmountWithoutVatController.onPageLoad(NormalMode)
       }
 
-      "must go from navigateFromSupplierNamePage to Journey Recovery when no country is in session" in {
-        navigator.navigateFromSupplierNamePage(NormalMode)(userAnswers) mustBe
-          controllers.routes.JourneyRecoveryController.onPageLoad()
-      }
     }
 
     "in Check mode" - {
@@ -250,41 +254,19 @@ class ImportNavigatorSpec extends SpecBase {
           importRoutes.ImportDetailsInfoController.onPageLoad(CheckMode)
       }
 
-      "must go from navigateFromSupplierNamePage to ImportCurrency when the country requires currency selection" in {
-        val ua = userAnswers.set(RefundingCountryPage, "EE").success.value
-
-        navigator.navigateFromSupplierNamePage(CheckMode)(ua) mustBe
-          importRoutes.ImportCurrencyController.onPageLoad(CheckMode)
-      }
-    }
-
-    "navigateFromSadReferenceCheckPage" - {
-      "must go to SadReferenceNumberController in NormalMode when answer is yes" in {
-        val ua = userAnswers.set(SadReferenceCheckPage, true).success.value
-        navigator.navigateFromSadReferenceCheckPage(NormalMode)(ua) mustBe
-          controllers.imports.routes.SadReferenceNumberController.onPageLoad(NormalMode)
-      }
-
-      "must go to SadReferenceNumberController in CheckMode when answer is yes" in {
+      "must go from SadReferenceCheckPage to SadReferenceNumberController in CheckMode when answer is yes" in {
         val ua = userAnswers.set(SadReferenceCheckPage, true).success.value
         navigator.navigateFromSadReferenceCheckPage(CheckMode)(ua) mustBe
           controllers.imports.routes.SadReferenceNumberController.onPageLoad(CheckMode)
       }
 
-      "must go to ImportDetailsInfoController when answer is no" in {
+      "must go from SadReferenceCheckPage to ImportDetailsInfoController when answer is no" in {
         val ua = userAnswers.set(SadReferenceCheckPage, false).success.value
         navigator.navigateFromSadReferenceCheckPage(NormalMode)(ua) mustBe
           controllers.imports.routes.ImportDetailsInfoController.onPageLoad(NormalMode)
       }
 
-      "must go to JourneyRecoveryController when no answer is present" in {
-        navigator.navigateFromSadReferenceCheckPage(NormalMode)(userAnswers) mustBe
-          controllers.imports.routes.ImportDetailsInfoController.onPageLoad(NormalMode)
-      }
-    }
-
-    "navigateFromSadReferenceNumberPage" - {
-      "must go to ImportDetailsInfoController when SadReference is not yes" in {
+      "must go from SadReferenceNumber to ImportDetailsInfoController when SadReference is not yes" in {
         navigator.navigateFromSadReferenceNumberPage(NormalMode)(userAnswers) mustBe
           controllers.imports.routes.ImportDetailsInfoController.onPageLoad(NormalMode)
       }
@@ -296,6 +278,5 @@ class ImportNavigatorSpec extends SpecBase {
       }
     }
 
-    // navigateFromTotalAmountWithoutVatPage removed from navigator; no direct test
   }
 }

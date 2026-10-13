@@ -66,6 +66,7 @@ class ConfigSpec extends SpecBase {
         "timeout-dialog.countdown"                         -> 120,
         "mongodb.timeToLiveInSeconds"                      -> 900,
         "eu.member-states"                                 -> Map("UK" -> "United Kingdom", "DE" -> "Germany"),
+        "supplier-countryCode"                             -> Map("AF" -> "AFGHANISTAN", "IN" -> "INDIA"),
         "allowlist.refund.amend.vrns"                      -> Seq.empty,
         "allowlist.refund.create.vrns"                     -> Seq.empty,
         "refund.start.earliest.month"                      -> 1,
