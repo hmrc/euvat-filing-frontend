@@ -33,16 +33,11 @@
 
 @isCountryError = @{form.error("country").isDefined}
 
-@layout(
-  pageTitle = views.ViewUtils.title(form, "supplierAddress.title"),
-  backLinkUrl = Some(call.url)
-) {
-
+@layout(pageTitle = views.ViewUtils.title(form, "supplierAddress.title"),backLinkUrl = Some(call.url)) {
   @formHelper(
     action = controllers.imports.routes.ImportSupplierAddressController.onSubmit(mode),
     Symbol("novalidate") -> "novalidate"
   ) {
-
     @mainErrorSummary(
       form,
       Map(
@@ -53,17 +48,9 @@
       )
     )
 
-    <span class="govuk-caption-l">
-      @messages("import.caption")
-    </span>
-
-    <h1 class="govuk-heading-l">
-      @messages("supplierAddress.heading")
-    </h1>
-
-    <p class="govuk-body">
-      @messages("import.supplierAddress.lead")
-    </p>
+    <span class="govuk-caption-l">@messages("import.caption")</span>
+    <h1 class="govuk-heading-l">@messages("supplierAddress.heading")</h1>
+    <p class="govuk-body">@messages("import.supplierAddress.lead")</p>
 
     @govukInput(
       InputViewModel(
@@ -90,7 +77,7 @@
       )
       .withWidth(Full)
       .withAutocomplete("address-line3")
-)
+    )
 
     <div class="govuk-form-group @if(isCountryError){govuk-form-group--error}">
       @govukSelect(
@@ -143,8 +130,6 @@
 
     <input type="hidden" id="countryTyped" name="countryTyped" value="">
 
-    @govukButton(
-      ButtonViewModel(messages("site.continue"))
-    )
+    @govukButton(ButtonViewModel(messages("site.continue")))
   }
 }
