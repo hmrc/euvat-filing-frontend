@@ -284,7 +284,7 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from ImportSuppliersNamePage to ImportSupplierAddressController in NormalMode" in {
-        navigator.nextPage(ImportSuppliersNamePage, NormalMode, userAnswers) mustBe
+        navigator.nextPage(ImportSuppliersNamePage, CheckMode, userAnswers) mustBe
           importRoutes.ImportSupplierAddressController.onPageLoad(CheckMode)
       }
 

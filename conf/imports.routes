@@ -85,8 +85,8 @@ POST       /change-supplier-name                        controllers.imports.Impo
 
 GET        /supplier-address                            controllers.imports.ImportSupplierAddressController.onPageLoad(mode: Mode = NormalMode)
 POST       /supplier-address                            controllers.imports.ImportSupplierAddressController.onSubmit(mode: Mode = NormalMode)
-GET        /supplier-address                            controllers.imports.ImportSupplierAddressController.onPageLoad(mode: Mode = CheckMode)
-POST       /supplier-address                            controllers.imports.ImportSupplierAddressController.onSubmit(mode: Mode = CheckMode)
+GET        /change-supplier-address                     controllers.imports.ImportSupplierAddressController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-supplier-address                     controllers.imports.ImportSupplierAddressController.onSubmit(mode: Mode = CheckMode)
 
 GET        /currency                                    controllers.imports.ImportCurrencyController.onPageLoad(mode:Mode = NormalMode)
 POST       /currency                                    controllers.imports.ImportCurrencyController.onSubmit(mode:Mode = NormalMode)
