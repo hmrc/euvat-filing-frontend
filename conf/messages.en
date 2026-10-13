@@ -387,6 +387,17 @@ supplierAddress.error.maxLength.withLabel = {0} {1}
 supplierAddress.checkYourAnswersLabel=Supplier address
 supplierAddress.change.hidden = Change supplier address
 
+import.supplierAddress.lead = Enter the supplier’s address as it appears on the import document.
+import.supplierAddress.country.label = Country
+import.supplierAddress.line1.label.short=Address line 1
+import.supplierAddress.line2.label.short=Address line 2
+import.supplierAddress.line3.label.short=Address line 3
+import.supplierAddress.error.line1.maxLength={0} {1}
+import.supplierAddress.error.line2.maxLength={0} {1}
+import.supplierAddress.error.line3.maxLength={0} {1}
+import.supplierAddress.error.country.required=Select a country
+import.supplierAddress.error.country.invalid=Select a valid country
+
 invoiceDate.title = What is the invoice date?
 invoiceDate.heading = What is the invoice date?
 invoiceDate.hint = For example, 27 3 2025

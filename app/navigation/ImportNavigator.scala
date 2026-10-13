@@ -60,7 +60,7 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
       case _          => importsRoutes.ImportDetailsInfoController.onPageLoad(mode)
     }
 
-  def navigateFromSupplierNamePage(mode: Mode)(userAnswers: UserAnswers): Call =
+  def navigateToCurrencyOrNextPage(mode: Mode)(userAnswers: UserAnswers): Call =
     CountryCode.findCountryCode(userAnswers) match {
       case Some(countryCode) if currencyConfig.requiresCurrencySelection(countryCode) =>
         importsRoutes.ImportCurrencyController.onPageLoad(mode)

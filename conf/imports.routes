@@ -98,6 +98,12 @@ POST       /total-vat-paid                                                      
 GET        /change-total-vat-paid                                                controllers.imports.TotalVatPaidImportController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-total-vat-paid                                                controllers.imports.TotalVatPaidImportController.onSubmit(mode: Mode = CheckMode)
 
+
+GET         /supplier-address                                            controllers.imports.ImportSupplierAddressController.onPageLoad(mode: Mode = NormalMode)
+POST        /supplier-address                                            controllers.imports.ImportSupplierAddressController.onSubmit(mode: Mode = NormalMode)
+GET         /supplier-address                                            controllers.imports.ImportSupplierAddressController.onPageLoad(mode: Mode = CheckMode)
+POST        /supplier-address                                            controllers.imports.ImportSupplierAddressController.onSubmit(mode: Mode = CheckMode)
+
 GET         /total-vat-claim                                                     controllers.imports.TotalVatClaimController.onPageLoad(mode: Mode = NormalMode)
 POST        /total-vat-claim                                                     controllers.imports.TotalVatClaimController.onSubmit(mode: Mode = NormalMode)
 GET         /change-total-vat-claim                                              controllers.imports.TotalVatClaimController.onPageLoad(mode: Mode = CheckMode)
