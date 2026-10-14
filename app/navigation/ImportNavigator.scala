@@ -67,10 +67,4 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
       case _ => importsRoutes.TotalAmountWithoutVatController.onPageLoad(mode)
     }
 
-  def navigateFromSadReferenceNumberPage(mode: Mode)(userAnswers: UserAnswers): Call =
-    userAnswers.get(SadReferenceCheckPage) match {
-      case Some(true) => importsRoutes.ImportSuppliersNameController.onPageLoad(mode)
-      case _          => importsRoutes.ImportDetailsInfoController.onPageLoad(mode)
-    }
-
 }
