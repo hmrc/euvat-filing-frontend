@@ -18,7 +18,7 @@ package navigation
 
 import controllers.imports.routes as importsRoutes
 import models.{Mode, Other, UserAnswers}
-import pages.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage, SadReferenceCheckPage}
+import pages.imports.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage, SadReferenceCheckPage}
 import play.api.mvc.Call
 import utils.PurchaseOrImportHelpers.isNoneSelection
 import utils.{ConfigPurchaseOrImportMapping, CountryCode, CurrencyConfig}

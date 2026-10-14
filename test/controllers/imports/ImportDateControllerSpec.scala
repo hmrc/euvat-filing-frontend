@@ -23,13 +23,13 @@ import navigation.FakeNavigator
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{ImportDatePage, SadReferenceCheckPage}
+import pages.imports.{ImportDatePage, SadReferenceCheckPage}
 import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import views.html.PurchaseOrImportDateView
+import views.html.purchasesOrImports.PurchaseOrImportDateView
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -123,7 +123,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
           .set(SadReferenceCheckPage, false)
           .success
           .value
-          .set(pages.ImportDatePage, LocalDate.of(2025, 3, 14))
+          .set(ImportDatePage, LocalDate.of(2025, 3, 14))
           .success
           .value
 
@@ -425,7 +425,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
       }
 
       "must persist and redirect to ImportSuppliersNameController when in CheckMode and import date unchanged" in {
-        val userAnswers = emptyUserAnswers.set(pages.ImportDatePage, LocalDate.of(2025, 3, 14)).success.value
+        val userAnswers = emptyUserAnswers.set(ImportDatePage, LocalDate.of(2025, 3, 14)).success.value
 
         val mockSessionRepository = mock[repositories.SessionRepository]
         when(mockSessionRepository.set(any())) thenReturn scala.concurrent.Future.successful(true)
@@ -480,7 +480,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
           val captor = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
           org.mockito.Mockito.verify(mockSessionRepository).set(captor.capture())
           val saved = captor.getValue
-          saved.get(pages.ImportDatePage) mustBe Some(LocalDate.of(2025, 3, 16))
+          saved.get(ImportDatePage) mustBe Some(LocalDate.of(2025, 3, 16))
         }
       }
     }

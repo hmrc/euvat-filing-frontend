@@ -20,7 +20,7 @@ import base.SpecBase
 import models.{CheckMode, NormalMode}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import pages.TotalPurchaseAmountBeforeVatPage
+import pages.purchase.TotalPurchaseAmountBeforeVatPage
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*

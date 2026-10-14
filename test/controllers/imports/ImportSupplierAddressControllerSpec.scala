@@ -24,7 +24,7 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.RefundingCountryPage
+import pages.claim.RefundingCountryPage
 import pages.imports.ImportSupplierAddressPage
 import play.api.inject.bind
 import play.api.mvc.Call

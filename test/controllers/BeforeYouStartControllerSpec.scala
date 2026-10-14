@@ -26,7 +26,7 @@ import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.BeforeYouStartView
+import views.html.purchasesOrImports.BeforeYouStartView
 
 import scala.concurrent.Future
 

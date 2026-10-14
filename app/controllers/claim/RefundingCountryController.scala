@@ -22,7 +22,8 @@ import forms.claim.RefundingCountryFormProvider
 import models.requests.LatestApplicationRequest
 import models.{Mode, RefundingLanguage, UserAnswers}
 import navigation.Navigator
-import pages.*
+import pages.claim.{CountryChangedPage, RefundingCountryNamePage, RefundingCountryPage, RefundingLanguagePage}
+import pages.purchase.*
 import play.api.Logging
 import play.api.data.{Form, FormError}
 import play.api.i18n.{I18nSupport, MessagesApi}

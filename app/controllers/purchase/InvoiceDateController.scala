@@ -21,13 +21,13 @@ import forms.purchase.InvoiceDateFormProvider
 import models.requests.DataRequest
 import models.{CheckMode, Mode, NormalMode}
 import navigation.Navigator
-import pages.InvoiceDatePage
+import pages.purchase.InvoiceDatePage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.*
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.PurchaseOrImportDateView
+import views.html.purchasesOrImports.PurchaseOrImportDateView
 
 import java.time.LocalDate
 import javax.inject.Inject

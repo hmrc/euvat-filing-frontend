@@ -21,7 +21,9 @@ import forms.purchase.SupplierVatRegistrationNumberFormProvider
 import models.requests.{DataRequest, SupplierVrnCountRequest}
 import models.{CheckMode, InvoiceType, Mode, NormalMode, UserAnswers}
 import navigation.Navigator
-import pages.*
+import pages.claim.RefundingCountryPage
+import pages.purchase.*
+import pages.warning.SupplierVatRegistrationWarningPage
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -61,8 +63,8 @@ class SupplierVatRegistrationNumberController @Inject() (
     mode match {
       case CheckMode if hasInvoiceNumber => routes.InvoiceNumberController.onPageLoad(CheckMode)
       case CheckMode                     => routes.CheckYourPurchaseDetailsController.onPageLoad()
-      case _ if isGermany                => routes.SupplierTaxNumberController.onPageLoad(NormalMode)
-      case _ if isSimplified             => routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode)
+      case _ if isGermany                => routes.SupplierTaxNumberCheckController.onPageLoad(NormalMode)
+      case _ if isSimplified             => routes.SupplierVatRegCheckController.onPageLoad(NormalMode)
       case _                             => routes.SupplierAddressController.onPageLoad(NormalMode)
     }
   }

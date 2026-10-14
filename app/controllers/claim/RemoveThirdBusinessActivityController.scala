@@ -21,6 +21,7 @@ import forms.claim.RemoveBusinessActivityFormProvider
 import models.{CheckMode, Mode, NormalMode}
 import navigation.Navigator
 import pages.*
+import pages.claim.{BusinessActivityCodeThreePage, BusinessActivityTwoPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository

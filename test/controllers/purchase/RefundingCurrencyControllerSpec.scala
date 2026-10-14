@@ -23,12 +23,14 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{RefundingCountryPage, RefundingCurrencyPage, SimplifiedInvoiceVatRegCheckPage}
+import pages.claim.{RefundingCountryNamePage, RefundingCountryPage}
+import pages.purchase.{RefundingCurrencyPage, SupplierVatRegCheckPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import queries.{ClaimDetailsAmendedQuery, ClaimDetailsCompletedQuery}
 import repositories.SessionRepository
 
 import scala.concurrent.Future
@@ -43,7 +45,7 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
 
   "RefundingCurrency Controller" - {
     "must show back link to the supplier VAT registration number page in NormalMode if vat reg check is selected Yes" in {
-      val userAnswers = userAnswersWithEstonia.set(SimplifiedInvoiceVatRegCheckPage, true).success.value
+      val userAnswers = userAnswersWithEstonia.set(SupplierVatRegCheckPage, true).success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -56,7 +58,7 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must show back link to the Simplified invoice vat reg check page in NormalMode if it was selected No" in {
-      val userAnswers = userAnswersWithEstonia.set(SimplifiedInvoiceVatRegCheckPage, false).success.value
+      val userAnswers = userAnswersWithEstonia.set(SupplierVatRegCheckPage, false).success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -64,7 +66,7 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) must include(routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode).url)
+        contentAsString(result) must include(routes.SupplierVatRegCheckController.onPageLoad(NormalMode).url)
       }
     }
 
@@ -200,7 +202,7 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must resolve country code from delimited RefundingCountryNamePage format on GET" in {
-      val userAnswers = emptyUserAnswers.set(pages.RefundingCountryNamePage, "BG,Bulgaria").success.value
+      val userAnswers = emptyUserAnswers.set(RefundingCountryNamePage, "BG,Bulgaria").success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -228,7 +230,7 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must resolve country code from delimited RefundingCountryNamePage format on POST error" in {
-      val userAnswers = emptyUserAnswers.set(pages.RefundingCountryNamePage, "BG,Bulgaria").success.value
+      val userAnswers = emptyUserAnswers.set(RefundingCountryNamePage, "BG,Bulgaria").success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -240,6 +242,95 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual BAD_REQUEST
         contentAsString(result) must include("Bulgarian Lev (лв)")
+      }
+    }
+
+    "must set ClaimDetailsAmendedPage to true when currency is changed and ClaimDetailsCompletedPage is true" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val ua = emptyUserAnswers
+        .set(RefundingCountryPage, "EE")
+        .success
+        .value
+        .set(RefundingCurrencyPage, "EEK")
+        .success
+        .value
+        .set(ClaimDetailsCompletedQuery, true)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(ua))
+        .overrides(bind[repositories.SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.RefundingCurrencyController.onSubmit(CheckMode).url)
+          .withFormUrlEncodedBody(("value", "euro"))
+
+        val result = route(application, request).value
+        status(result) mustEqual SEE_OTHER
+
+        import org.mockito.ArgumentCaptor
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(mockSessionRepository, times(1)).set(captor.capture())
+      }
+    }
+
+    "must NOT set ClaimDetailsAmendedPage when currency is unchanged" in {
+      val mockSessionRepository = mock[repositories.SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val ua = emptyUserAnswers
+        .set(RefundingCountryPage, "EE")
+        .success
+        .value
+        .set(RefundingCurrencyPage, "EUR")
+        .success
+        .value
+        .set(ClaimDetailsCompletedQuery, true)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(ua))
+        .overrides(bind[repositories.SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.RefundingCurrencyController.onSubmit(CheckMode).url)
+          .withFormUrlEncodedBody(("value", "euro"))
+
+        val result = route(application, request).value
+        status(result) mustEqual SEE_OTHER
+
+        verify(mockSessionRepository, times(0)).set(any())
+      }
+    }
+
+    "must NOT set ClaimDetailsAmendedPage when ClaimDetailsCompletedPage is not set" in {
+      val mockSessionRepository = mock[repositories.SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val ua = emptyUserAnswers
+        .set(RefundingCountryPage, "EE")
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(ua))
+        .overrides(bind[repositories.SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.RefundingCurrencyController.onSubmit(NormalMode).url)
+          .withFormUrlEncodedBody(("value", "euro"))
+
+        val result = route(application, request).value
+        status(result) mustEqual SEE_OTHER
+
+        import org.mockito.ArgumentCaptor
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(mockSessionRepository, times(1)).set(captor.capture())
+        captor.getValue.get(ClaimDetailsAmendedQuery).isDefined mustBe false
       }
     }
   }

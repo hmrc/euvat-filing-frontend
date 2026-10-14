@@ -23,7 +23,8 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.*
+import pages.claim.{CountryChangedPage, RefundingCountryNamePage, RefundingCountryPage}
+import pages.purchase.*
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -256,7 +257,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, controllers.purchase.routes.PurchaseSubTypeController.onSubmit("purchase-type-other", models.CheckMode).url)
+        val request = FakeRequest(POST, controllers.purchase.routes.PurchaseSubTypeController.onSubmit("other", models.CheckMode).url)
           .withFormUrlEncodedBody(("value", "1"))
 
         val result = route(application, request).value
@@ -368,19 +369,19 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())) thenReturn scala.concurrent.Future.successful(true)
 
       val userAnswers = emptyUserAnswers
-        .set(pages.RefundingCountryPage, "DE")
+        .set(RefundingCountryPage, "DE")
         .success
         .value
-        .set(pages.PurchaseTypePage, models.Other)
+        .set(PurchaseTypePage, models.Other)
         .success
         .value
-        .set(pages.PurchaseSubTypePage, "10.99")
+        .set(PurchaseSubTypePage, "10.99")
         .success
         .value
-        .set(pages.DescribeItemsOnInvoicePage, "previous purchase description")
+        .set(DescribeItemsOnInvoicePage, "previous purchase description")
         .success
         .value
-        .set(pages.DescribeItemsArrivedFromCheckYourAnswersPage, true)
+        .set(DescribeItemsArrivedFromCheckYourAnswersPage, true)
         .success
         .value
 
@@ -392,7 +393,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, controllers.purchase.routes.PurchaseSubTypeController.onSubmit("purchase-type-other", models.CheckMode).url)
+        val request = FakeRequest(POST, controllers.purchase.routes.PurchaseSubTypeController.onSubmit("other", models.CheckMode).url)
           .withFormUrlEncodedBody(("value", "10.6"))
 
         val result = route(application, request).value
@@ -404,9 +405,9 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
         verify(mockSessionRepository, times(1)).set(captor.capture())
         val saved = captor.getValue
 
-        saved.get(pages.PurchaseSubTypePage) mustBe Some("10.6")
-        saved.get(pages.DescribeItemsOnInvoicePage) mustBe None
-        saved.get(pages.DescribeItemsArrivedFromCheckYourAnswersPage) mustBe None
+        saved.get(PurchaseSubTypePage) mustBe Some("10.6")
+        saved.get(DescribeItemsOnInvoicePage) mustBe None
+        saved.get(DescribeItemsArrivedFromCheckYourAnswersPage) mustBe None
       }
     }
 
@@ -526,7 +527,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, "/file-eu-vat/purchase/purchase-type-other")
+        val request = FakeRequest(GET, "/file-eu-vat/purchase/other")
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -636,7 +637,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, "/file-eu-vat/purchase/purchase-type-other")
+        val request = FakeRequest(GET, "/file-eu-vat/purchase/other")
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
