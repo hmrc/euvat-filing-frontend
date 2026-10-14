@@ -23,16 +23,20 @@
     customSummaryList: views.html.components.CustomSummaryList
 )
 
-@(sections: Seq[(String, Seq[(String, Option[String], Seq[(String, String, String)])])], isPostSubmission: Boolean, isAmended: Boolean)(implicit request: Request[_], messages: Messages)
+@(sections: Seq[(String, Seq[(String, Option[String], Seq[(String, String, String)])])], fromAction: Call, pageType: String, isPostSubmission: Boolean, isAmended: Boolean)(implicit request: Request[_], messages: Messages)
 
 @layout(
-    pageTitle = titleNoForm(messages(if(isPostSubmission) "checkYourPurchaseDetails.title" else "checkYourPurchaseDetails.title")),
+    pageTitle = titleNoForm(messages(if(isPostSubmission) s"${pageType}.title" else s"${pageType}.title")),
     showBackLink = false
 ) {
-    <span class="govuk-caption-l">@messages("purchase.caption")</span>
-    <h1 class="govuk-heading-l">@messages(if(isPostSubmission) "checkYourPurchaseDetails.heading" else "checkYourPurchaseDetails.heading")</h1>
+    <h1 class="govuk-heading-l">
+        @if(pageType == "changeYourPurchaseDetails") {
+            <span class="govuk-caption-l">@messages("purchase.caption")</span>
+        }
+        @messages(if(isPostSubmission) s"${pageType}.heading" else s"${pageType}.heading")
+    </h1>
 
-    @formHelper(action = controllers.purchase.routes.CheckYourPurchaseDetailsController.onSubmit(), Symbol("autoComplete") -> "off") {
+    @formHelper(action = fromAction, Symbol("autoComplete") -> "off") {
         @for((labelKey, rows) <- sections) {
             <div class="govuk-!-margin-bottom-9">
                 <h2 class="govuk-heading-m govuk-!-margin-bottom-2">@messages(labelKey)</h2>
@@ -41,8 +45,13 @@
         }
 
         @govukButton(ButtonViewModel(messages(
-            if(isPostSubmission && !isAmended) "site.continue"
-            else "site.save.continue"
+            if (pageType == "checkYourPurchaseDetails") {
+                if (isPostSubmission && !isAmended) "site.continue" else "site.save.continue"
+            } else if (pageType == "changeYourPurchaseDetails") {
+                if (!isPostSubmission && !isAmended) "site.continue" else "site.save.continue"
+            } else {
+                "site.continue"
+            }
         )))
     }
 }
