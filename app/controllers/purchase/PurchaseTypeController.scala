@@ -241,7 +241,7 @@ class PurchaseTypeController @Inject() (
   ): Future[Result] =
     Future.fromTry(userAnswersTry).flatMap { persistedAnswers =>
       sessionRepository.set(persistedAnswers).flatMap { _ =>
-        if (persistedAnswers.get(AddPurchaseResponsePage).isEmpty && persistedAnswers.get(queries.ClaimApplicationResponseQuery).isDefined) {
+        if (persistedAnswers.get(queries.ClaimApplicationResponseQuery).isDefined) {
           addPurchaseAndPersist(persistedAnswers, value, mode)
         } else if (mode == CheckMode) {
           handleCheckModePostPersist(persistedAnswers, value)
@@ -413,7 +413,7 @@ class PurchaseTypeController @Inject() (
         val purchaseRequest = AddPurchaseRequest(
           applicationId            = claimResponse.applicationId,
           goodsDescriptionCategory = PurchaseOrImportType.codes(purchaseType),
-          updateSequenceNumber     = claimResponse.updateSeqNumber
+          updateSequenceNumber     = answers.get(UpdateSequenceNumberQuery).getOrElse(claimResponse.updateSeqNumber)
         )
 
         def persistAddPurchaseResponseAndRedirect(response: AddPurchaseResponse): Future[Result] =
