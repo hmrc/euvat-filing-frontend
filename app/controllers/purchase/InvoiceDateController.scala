@@ -21,7 +21,7 @@ import forms.purchase.InvoiceDateFormProvider
 import models.requests.DataRequest
 import models.{CheckMode, Mode, NormalMode}
 import navigation.Navigator
-import pages.InvoiceDatePage
+import pages.purchase.InvoiceDatePage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.*

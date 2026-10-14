@@ -21,7 +21,8 @@ import com.typesafe.config.ConfigFactory
 import controllers.imports.routes as importRoutes
 import models.*
 import pages.*
-import controllers.imports.routes as importsRoutes
+import pages.claim.RefundingCountryPage
+import pages.imports.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage, SadReferenceCheckPage}
 import play.api.Configuration
 import utils.{ConfigPurchaseOrImportMapping, CurrencyConfig}
 
@@ -195,13 +196,13 @@ class ImportNavigatorSpec extends SpecBase {
       "must go from SuppliersAddress to ImportCurrencyController when the country requires currency selection" in {
         val answers = userAnswers.set(RefundingCountryPage, "EE").success.value
         navigator.navigateFromSupplierAddressPage(NormalMode)(answers) mustBe
-          importsRoutes.ImportCurrencyController.onPageLoad(NormalMode)
+          importRoutes.ImportCurrencyController.onPageLoad(NormalMode)
       }
 
       "must from SuppliersAddress to TotalAmountWithoutVat page when the country has one currency" in {
         val answers = userAnswers.set(RefundingCountryPage, "AT").success.value
         navigator.navigateFromSupplierAddressPage(NormalMode)(answers) mustBe
-          importsRoutes.TotalAmountWithoutVatController.onPageLoad(NormalMode)
+          importRoutes.TotalAmountWithoutVatController.onPageLoad(NormalMode)
       }
     }
 
@@ -239,13 +240,13 @@ class ImportNavigatorSpec extends SpecBase {
       "must go from SuppliersAddress to ImportCurrencyController when the country requires currency selection" in {
         val answers = userAnswers.set(RefundingCountryPage, "EE").success.value
         navigator.navigateFromSupplierAddressPage(CheckMode)(answers) mustBe
-          importsRoutes.ImportCurrencyController.onPageLoad(CheckMode)
+          importRoutes.ImportCurrencyController.onPageLoad(CheckMode)
       }
 
       "must from SuppliersAddress to TotalAmountWithoutVat page when the country has one currency" in {
         val answers = userAnswers.set(RefundingCountryPage, "AT").success.value
         navigator.navigateFromSupplierAddressPage(CheckMode)(answers) mustBe
-          importsRoutes.TotalAmountWithoutVatController.onPageLoad(CheckMode)
+          importRoutes.TotalAmountWithoutVatController.onPageLoad(CheckMode)
       }
     }
 

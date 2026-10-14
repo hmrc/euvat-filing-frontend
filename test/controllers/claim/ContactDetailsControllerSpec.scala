@@ -25,7 +25,8 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
-import pages.ContactDetailsPage
+import pages.claim
+import pages.claim.ContactDetailsPage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -223,7 +224,7 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
         when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
         val ua = emptyUserAnswers
-          .set(pages.ContactDetailsPage, models.ContactDetails("existing@email.com", None))
+          .set(claim.ContactDetailsPage, models.ContactDetails("existing@email.com", None))
           .success
           .value
           .set(pages.ClaimDetailsCompletedPage, true)
@@ -255,7 +256,7 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
         when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
         val ua = emptyUserAnswers
-          .set(pages.ContactDetailsPage, models.ContactDetails("test@email.com", None))
+          .set(claim.ContactDetailsPage, models.ContactDetails("test@email.com", None))
           .success
           .value
           .set(pages.ClaimDetailsCompletedPage, true)

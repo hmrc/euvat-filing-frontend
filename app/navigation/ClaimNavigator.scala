@@ -18,7 +18,7 @@ package navigation
 
 import controllers.claim.routes as claimRoutes
 import models.{CheckMode, Mode, NormalMode, UserAnswers}
-import pages.{BusinessActivityPage, BusinessActivityTwoPage, CheckYourStateDetailsPage, CountryChangedPage}
+import pages.claim.{BusinessActivityPage, BusinessActivityTwoPage, CheckYourStateDetailsPage, CountryChangedPage}
 import play.api.mvc.Call
 import utils.{ConfigLanguageMapping, CountryCode}
 

@@ -18,12 +18,13 @@ package controllers.purchase
 
 import base.SpecBase
 import forms.PurchaseOrImportSubTypeFormProvider
-import models.Fuel
+import models.{CheckMode, Fuel}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.*
+import pages.purchase.*
+import pages.claim.{CountryChangedPage, RefundingCountryNamePage, RefundingCountryPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.test.FakeRequest
@@ -73,12 +74,12 @@ class PurchaseSubCategoryControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val url = controllers.purchase.routes.PurchaseSubCategoryController.onPageLoad(models.CheckMode).url
+        val url = controllers.purchase.routes.PurchaseSubCategoryController.onPageLoad(CheckMode).url
         val request = FakeRequest(GET, url)
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) must include("change-cost-for-publicity-purposes")
+        contentAsString(result) must include("change-fuel")
       }
     }
 

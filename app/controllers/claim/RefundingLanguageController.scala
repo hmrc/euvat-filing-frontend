@@ -21,6 +21,7 @@ import forms.claim.RefundingLanguageFormProvider
 import models.{Mode, RefundingLanguage}
 import navigation.Navigator
 import pages.*
+import pages.claim.RefundingLanguagePage
 import play.api.Logger
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}

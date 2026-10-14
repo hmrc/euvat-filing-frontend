@@ -25,7 +25,8 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{never, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{PurchaseTypePage, RefundingCountryPage}
+import pages.claim.{CountryChangedPage, RefundingCountryPage}
+import pages.purchase.*
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -33,7 +34,7 @@ import play.api.test.Helpers.*
 import queries.ClaimApplicationResponseQuery
 import repositories.SessionRepository
 import utils.ConfigPurchaseOrImportMapping
-import views.html.PurchaseOrImportTypeView
+import views.html.purchasesOrImports.PurchaseOrImportTypeView
 
 import scala.concurrent.Future
 
@@ -82,13 +83,13 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
       }
 
       val userAnswers = emptyUserAnswers
-        .set(pages.PurchaseTypePage, Other)
+        .set(PurchaseTypePage, Other)
         .success
         .value
-        .set(pages.DescribeItemsArrivedFromCheckYourAnswersPage, true)
+        .set(DescribeItemsArrivedFromCheckYourAnswersPage, true)
         .success
         .value
-        .set(pages.RefundingCountryPage, "EE")
+        .set(RefundingCountryPage, "EE")
         .success
         .value
 
@@ -166,7 +167,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return OK and the correct view for a GET when country is Germany with back link to SupplierTaxIdentifierNumber" in {
-      val userAnswers = emptyUserAnswers.set(pages.RefundingCountryPage, "DE").success.value
+      val userAnswers = emptyUserAnswers.set(RefundingCountryPage, "DE").success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -190,7 +191,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return OK and the correct view for a GET when simplified invoice check exists with value Yes and back link to TotalVatPaid" in {
-      val userAnswers = emptyUserAnswers.set(pages.SimplifiedInvoiceVatRegCheckPage, true).success.value
+      val userAnswers = emptyUserAnswers.set(SupplierVatRegCheckPage, true).success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -339,10 +340,10 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         .thenReturn(Future.successful(AddPurchaseResponse(1, 2)))
 
       val userAnswers = emptyUserAnswers
-        .set(pages.RefundingCountryPage, "LT")
+        .set(RefundingCountryPage, "LT")
         .success
         .value
-        .set(queries.ClaimApplicationResponseQuery, ApplicationResponse(134, "GB123134", 1))
+        .set(ClaimApplicationResponseQuery, ApplicationResponse(134, "GB123134", 1))
         .success
         .value
 
@@ -372,7 +373,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         override def subcodesFor(country: String, parentKey: String) = Seq(("1", "purchase.sub.fuel.1"))
       }
 
-      val userAnswers = emptyUserAnswers.set(pages.RefundingCountryPage, "DE").success.value
+      val userAnswers = emptyUserAnswers.set(RefundingCountryPage, "DE").success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
@@ -399,10 +400,10 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
       val userAnswers = emptyUserAnswers
-        .set(pages.PurchaseTypePage, Fuel)
+        .set(PurchaseTypePage, Fuel)
         .success
         .value
-        .set(pages.DescribeItemsOnInvoicePage, "details")
+        .set(DescribeItemsOnInvoicePage, "details")
         .success
         .value
         .set(ClaimApplicationResponseQuery, ApplicationResponse(134, "GB123134", 1))
@@ -460,12 +461,12 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         verify(mockSessionRepository, times(2)).set(captor.capture())
         val savedAnswers = captor.getAllValues.get(1)
 
-        savedAnswers.get(pages.AddPurchaseResponsePage).value mustEqual addResp
+        savedAnswers.get(AddPurchaseResponsePage).value mustEqual addResp
       }
     }
 
     "must short-circuit to purchase CYA in CheckMode when value unchanged" in {
-      val userAnswers = emptyUserAnswers.set(pages.PurchaseTypePage, Fuel).success.value
+      val userAnswers = emptyUserAnswers.set(PurchaseTypePage, Fuel).success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -513,7 +514,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         override def subcodesFor(country: String, parentKey: String) = Seq(("1", "purchase.sub.fuel.1"))
       }
 
-      val userAnswers = emptyUserAnswers.set(pages.DescribeItemsArrivedFromCheckYourAnswersPage, true).success.value
+      val userAnswers = emptyUserAnswers.set(DescribeItemsArrivedFromCheckYourAnswersPage, true).success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
@@ -541,10 +542,10 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
       val userAnswers = emptyUserAnswers
-        .set(pages.PurchaseTypePage, Fuel)
+        .set(PurchaseTypePage, Fuel)
         .success
         .value
-        .set(pages.DescribeItemsArrivedFromCheckYourAnswersPage, true)
+        .set(DescribeItemsArrivedFromCheckYourAnswersPage, true)
         .success
         .value
 
@@ -571,16 +572,16 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
       val userAnswers = emptyUserAnswers
-        .set(pages.PurchaseTypePage, models.Other)
+        .set(PurchaseTypePage, Other)
         .success
         .value
-        .set(pages.PurchaseSubTypePage, "10.99")
+        .set(PurchaseSubTypePage, "10.99")
         .success
         .value
-        .set(pages.DescribeItemsOnInvoicePage, "details")
+        .set(DescribeItemsOnInvoicePage, "details")
         .success
         .value
-        .set(pages.DescribeItemsArrivedFromCheckYourAnswersPage, true)
+        .set(DescribeItemsArrivedFromCheckYourAnswersPage, true)
         .success
         .value
 
@@ -605,16 +606,16 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
       val userAnswers = emptyUserAnswers
-        .set(pages.PurchaseTypePage, models.Other)
+        .set(PurchaseTypePage, models.Other)
         .success
         .value
-        .set(pages.PurchaseSubTypePage, "1.99")
+        .set(PurchaseSubTypePage, "1.99")
         .success
         .value
-        .set(pages.DescribeItemsOnInvoicePage, "details")
+        .set(DescribeItemsOnInvoicePage, "details")
         .success
         .value
-        .set(pages.DescribeItemsArrivedFromCheckYourAnswersPage, true)
+        .set(DescribeItemsArrivedFromCheckYourAnswersPage, true)
         .success
         .value
 
@@ -642,13 +643,13 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
       val userAnswers = emptyUserAnswers
-        .set(pages.PurchaseTypePage, Fuel)
+        .set(PurchaseTypePage, Fuel)
         .success
         .value
-        .set(pages.DescribeItemsArrivedFromCheckYourAnswersPage, true)
+        .set(DescribeItemsArrivedFromCheckYourAnswersPage, true)
         .success
         .value
-        .set(pages.PurchaseSubTypeArrivedFromCheckYourAnswersPage, true)
+        .set(PurchaseSubTypeArrivedFromCheckYourAnswersPage, true)
         .success
         .value
 
@@ -674,7 +675,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
-      val userAnswers = emptyUserAnswers.set(pages.RefundingCountryPage, "LT").success.value
+      val userAnswers = emptyUserAnswers.set(RefundingCountryPage, "LT").success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
@@ -705,19 +706,19 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
       }
 
       val userAnswers = emptyUserAnswers
-        .set(pages.RefundingCountryPage, "LT")
+        .set(RefundingCountryPage, "LT")
         .success
         .value
-        .set(pages.PurchaseTypePage, models.Other)
+        .set(PurchaseTypePage, models.Other)
         .success
         .value
-        .set(pages.PurchaseSubTypePage, "10.99")
+        .set(PurchaseSubTypePage, "10.99")
         .success
         .value
-        .set(pages.DescribeItemsOnInvoicePage, "old details")
+        .set(DescribeItemsOnInvoicePage, "old details")
         .success
         .value
-        .set(pages.DescribeItemsArrivedFromCheckYourAnswersPage, true)
+        .set(DescribeItemsArrivedFromCheckYourAnswersPage, true)
         .success
         .value
 
@@ -741,8 +742,8 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         verify(mockSessionRepository, times(2)).set(captor.capture())
         val savedAfterFlagCleanup = captor.getAllValues.get(1)
 
-        savedAfterFlagCleanup.get(pages.DescribeItemsArrivedFromCheckYourAnswersPage) mustBe None
-        savedAfterFlagCleanup.get(pages.DescribeItemsOnInvoicePage) mustBe None
+        savedAfterFlagCleanup.get(DescribeItemsArrivedFromCheckYourAnswersPage) mustBe None
+        savedAfterFlagCleanup.get(DescribeItemsOnInvoicePage) mustBe None
       }
     }
 
@@ -754,7 +755,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         override def subcodesFor(country: String, parentKey: String) = Seq(("1", "purchase.sub.fuel.1"))
       }
 
-      val userAnswers = emptyUserAnswers.set(pages.PurchaseSubCategoryArrivedFromCheckYourAnswersPage, true).success.value
+      val userAnswers = emptyUserAnswers.set(PurchaseSubCategoryArrivedFromCheckYourAnswersPage, true).success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
@@ -786,10 +787,10 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
       val userAnswers = emptyUserAnswers
-        .set(pages.PurchaseTypePage, Fuel)
+        .set(PurchaseTypePage, Fuel)
         .success
         .value
-        .set(pages.PurchaseSubCategoryArrivedFromCheckYourAnswersPage, true)
+        .set(PurchaseSubCategoryArrivedFromCheckYourAnswersPage, true)
         .success
         .value
 
@@ -819,7 +820,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         override def subcodesFor(country: String, parentKey: String) = Seq(("1", "purchase.sub.fuel.1"))
       }
 
-      val userAnswers = emptyUserAnswers.set(pages.PurchaseSubTypeArrivedFromCheckYourAnswersPage, true).success.value
+      val userAnswers = emptyUserAnswers.set(PurchaseSubTypeArrivedFromCheckYourAnswersPage, true).success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
@@ -848,10 +849,10 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
       val userAnswers = emptyUserAnswers
-        .set(pages.PurchaseTypePage, Fuel)
+        .set(PurchaseTypePage, Fuel)
         .success
         .value
-        .set(pages.PurchaseSubTypeArrivedFromCheckYourAnswersPage, true)
+        .set(PurchaseSubTypeArrivedFromCheckYourAnswersPage, true)
         .success
         .value
 
@@ -878,22 +879,22 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())).thenReturn(scala.concurrent.Future.successful(true))
 
       val userAnswers = emptyUserAnswers
-        .set(pages.PurchaseTypePage, Fuel)
+        .set(PurchaseTypePage, Fuel)
         .success
         .value
-        .set(pages.PurchaseSubTypePage, "1")
+        .set(PurchaseSubTypePage, "1")
         .success
         .value
-        .set(pages.PurchaseSubTypeLabelPage, "lbl")
+        .set(PurchaseSubTypeLabelPage, "lbl")
         .success
         .value
-        .set(pages.PurchaseSubCategoryPage, "1.1")
+        .set(PurchaseSubCategoryPage, "1.1")
         .success
         .value
-        .set(pages.PurchaseSubCategoryLabelPage, "lbl2")
+        .set(PurchaseSubCategoryLabelPage, "lbl2")
         .success
         .value
-        .set(pages.CountryChangedPage, true)
+        .set(CountryChangedPage, true)
         .success
         .value
 
@@ -910,12 +911,12 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         val captor = org.mockito.ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
         val saved = captor.getValue
-        saved.get(pages.PurchaseTypePage) mustBe None
-        saved.get(pages.PurchaseSubTypePage) mustBe None
-        saved.get(pages.PurchaseSubTypeLabelPage) mustBe None
-        saved.get(pages.PurchaseSubCategoryPage) mustBe None
-        saved.get(pages.PurchaseSubCategoryLabelPage) mustBe None
-        saved.get(pages.CountryChangedPage) mustBe None
+        saved.get(PurchaseTypePage) mustBe None
+        saved.get(PurchaseSubTypePage) mustBe None
+        saved.get(PurchaseSubTypeLabelPage) mustBe None
+        saved.get(PurchaseSubCategoryPage) mustBe None
+        saved.get(PurchaseSubCategoryLabelPage) mustBe None
+        saved.get(CountryChangedPage) mustBe None
       }
     }
 
@@ -978,7 +979,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         val captor = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
         val saved = captor.getValue
-        saved.get(pages.DescribeItemsOnInvoicePage) mustBe None
+        saved.get(DescribeItemsOnInvoicePage) mustBe None
       }
     }
 

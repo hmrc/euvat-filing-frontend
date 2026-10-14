@@ -24,7 +24,9 @@ import controllers.purchase.routes as purchaseRoutes
 import models.*
 import models.PurchaseOrImport.Import
 import pages.*
+import pages.claim.*
 import pages.imports.*
+import pages.purchase.*
 import play.api.Configuration
 import utils.{ConfigLanguageMapping, ConfigPurchaseOrImportMapping, CurrencyConfig}
 
@@ -96,7 +98,7 @@ class NavigatorSpec extends SpecBase {
 
     "in Normal mode" - {
       "must go from RefundPeriodPage to ContactDetailsController" in {
-        navigator.nextPage(pages.RefundPeriodPage, NormalMode, userAnswers) mustBe
+        navigator.nextPage(RefundPeriodPage, NormalMode, userAnswers) mustBe
           claimRoutes.ContactDetailsController.onPageLoad(NormalMode)
       }
 
@@ -237,7 +239,7 @@ class NavigatorSpec extends SpecBase {
 
     "in Check mode" - {
       "must go from RefundPeriodPage to CheckYourClaimDetailsController" in {
-        navigator.nextPage(pages.RefundPeriodPage, CheckMode, userAnswers) mustBe
+        navigator.nextPage(claim.RefundPeriodPage, CheckMode, userAnswers) mustBe
           claimRoutes.CheckYourClaimDetailsController.onPageLoad()
       }
 
@@ -324,7 +326,7 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from ImportSuppliersNamePage to ImportSupplierAddressController in NormalMode" in {
-        navigator.nextPage(ImportSuppliersNamePage, NormalMode, userAnswers) mustBe
+        navigator.nextPage(ImportSuppliersNamePage, CheckMode, userAnswers) mustBe
           importRoutes.ImportSupplierAddressController.onPageLoad(CheckMode)
       }
 

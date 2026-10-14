@@ -27,7 +27,8 @@ import org.mockito.Mockito.{times, verify, when}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.mockito.MockitoSugar
-import pages.BusinessActivityPage
+import pages.claim
+import pages.claim.BusinessActivityPage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -189,7 +190,7 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar with Sca
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val ua = emptyUserAnswers
-        .set(pages.BusinessActivityPage, false)
+        .set(claim.BusinessActivityPage, false)
         .success
         .value
         .set(pages.ClaimDetailsCompletedPage, true)
@@ -219,7 +220,7 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar with Sca
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val ua = emptyUserAnswers
-        .set(pages.BusinessActivityPage, true)
+        .set(claim.BusinessActivityPage, true)
         .success
         .value
         .set(pages.ClaimDetailsCompletedPage, true)

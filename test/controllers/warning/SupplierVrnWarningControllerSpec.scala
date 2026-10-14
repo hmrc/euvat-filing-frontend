@@ -20,7 +20,8 @@ import base.SpecBase
 import models.{CheckMode, NormalMode}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
-import pages.TotalPurchaseAmountBeforeVatPage
+import pages.purchase.TotalPurchaseAmountBeforeVatPage
+import pages.claim.RefundingCountryPage
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -95,7 +96,7 @@ class SupplierVrnWarningControllerSpec extends SpecBase {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
-      val userAnswers = emptyUserAnswers.set(pages.RefundingCountryPage, "FR").success.value
+      val userAnswers = emptyUserAnswers.set(RefundingCountryPage, "FR").success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
@@ -114,7 +115,7 @@ class SupplierVrnWarningControllerSpec extends SpecBase {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
-      val userAnswers = emptyUserAnswers.set(pages.RefundingCountryPage, "EE").success.value
+      val userAnswers = emptyUserAnswers.set(RefundingCountryPage, "EE").success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
@@ -134,7 +135,7 @@ class SupplierVrnWarningControllerSpec extends SpecBase {
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
       val userAnswers = emptyUserAnswers
-        .set(pages.RefundingCountryPage, "FR")
+        .set(RefundingCountryPage, "FR")
         .success
         .value
         .set(TotalPurchaseAmountBeforeVatPage, 123)

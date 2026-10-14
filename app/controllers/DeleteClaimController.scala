@@ -21,7 +21,7 @@ import controllers.actions.*
 import forms.DeleteClaimFormProvider
 import models.requests.DeleteApplicationRequest
 import navigation.Navigator
-import pages.{RefundPeriodPage, RefundingCountryNamePage}
+import pages.claim.{RefundPeriodPage, RefundingCountryNamePage}
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Lang, Messages, MessagesApi}

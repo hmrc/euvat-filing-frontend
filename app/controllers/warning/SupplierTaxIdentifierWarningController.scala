@@ -19,7 +19,8 @@ package controllers.warning
 import controllers.actions.*
 import controllers.purchase.routes
 import models.{CheckMode, Mode, NormalMode}
-import pages.*
+import pages.purchase.TotalPurchaseAmountBeforeVatPage
+import pages.warning.SupplierTaxIdentifierWarningPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController

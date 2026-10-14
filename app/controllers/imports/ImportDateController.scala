@@ -21,7 +21,7 @@ import forms.imports.ImportDateFormProvider
 import models.requests.DataRequest
 import models.{CheckMode, Mode, NormalMode}
 import navigation.{ImportNavigator, Navigator}
-import pages.{ImportDatePage, SadReferenceCheckPage}
+import pages.imports.{ImportDatePage, SadReferenceCheckPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.*
