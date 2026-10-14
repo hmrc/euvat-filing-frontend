@@ -273,6 +273,9 @@ checkYourPurchaseDetails.heading = Check your answers
 checkYourPurchaseDetails.refundingCurrency.label = Currency
 checkYourPurchaseDetails.refundingCurrency.change.hidden = Change currency
 
+changeYourPurchaseDetails.title = Change your answers
+changeYourPurchaseDetails.heading = Change your answers
+
 purchase.checkYourPurchase.purchaseCategory = Purchase category
 purchase.checkYourPurchase.invoiceDetails = Invoice details
 purchase.checkYourPurchase.supplierDetails = Supplier details
