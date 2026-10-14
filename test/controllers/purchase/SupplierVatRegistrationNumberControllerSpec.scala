@@ -21,6 +21,7 @@ import forms.purchase.SupplierVatRegistrationNumberFormProvider
 import models.responses.{AddPurchaseResponse, ApplicationResponse, SupplierVrnCountResponse}
 import models.{CheckMode, InvoiceType, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -211,6 +212,43 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
+      }
+    }
+
+    "must persist simplified invoice VAT check as true when a non-Germany simplified invoice saves a VAT registration number" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      when(mockEuVatRefundsService.getSupplierVrnCount(any())(any()))
+        .thenReturn(Future.successful(SupplierVrnCountResponse(0)))
+
+      val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+      val simplifiedAnswers = seededAnswers
+        .set(RefundingCountryPage, "FR")
+        .success
+        .value
+        .set(InvoiceTypePage, InvoiceType.SimplifiedInvoice)
+        .success
+        .value
+
+      val application =
+        applicationBuilder(userAnswers = Some(simplifiedAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, supplierVatRegistrationNumberRoute)
+            .withFormUrlEncodedBody(("value", "FR123456789"))
+
+        val result = route(application, request).value
+        status(result) mustEqual SEE_OTHER
+
+        org.mockito.Mockito.verify(mockSessionRepository).set(captor.capture())
+        captor.getValue.get(SupplierVatRegCheckPage) mustBe Some(true)
       }
     }
 
