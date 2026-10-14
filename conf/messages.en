@@ -54,6 +54,8 @@ purchase.caption = Purchase details
 purchasesAndImports.caption = Purchases and imports
 import.caption = Import details
 
+purchaseOrImportDate.hint = For example, 27 3 2025
+
 taskListDashboard.title = Make a claim for an EU VAT refund
 taskListDashboard.heading = Make a claim for an EU VAT refund
 taskListDashboard.listItem1 = Claim details
@@ -387,9 +389,19 @@ supplierAddress.error.maxLength.withLabel = {0} {1}
 supplierAddress.checkYourAnswersLabel=Supplier address
 supplierAddress.change.hidden = Change supplier address
 
+import.supplierAddress.lead = Enter the supplier’s address as it appears on the import document.
+import.supplierAddress.country.label = Country
+import.supplierAddress.line1.label.short=Address line 1
+import.supplierAddress.line2.label.short=Address line 2
+import.supplierAddress.line3.label.short=Address line 3
+import.supplierAddress.error.line1.maxLength={0} {1}
+import.supplierAddress.error.line2.maxLength={0} {1}
+import.supplierAddress.error.line3.maxLength={0} {1}
+import.supplierAddress.error.country.required=Select a country
+import.supplierAddress.error.country.invalid=Select a valid country
+
 invoiceDate.title = What is the invoice date?
 invoiceDate.heading = What is the invoice date?
-invoiceDate.hint = For example, 27 3 2025
 invoiceDate.error.invalid = Enter a valid date
 invoiceDate.error.invalid.day = Enter a valid day
 invoiceDate.error.invalid.month = Enter a valid month
@@ -561,6 +573,20 @@ import.refundingCurrency.heading = Which currency do you want to use for this im
 import.refundingCurrency.error.required = Select a currency for this import
 
 totalVatPaidImport.p1 = If this amount is not on your import document, you’ll need to calculate it. Use the standard VAT rate of the country you’re claiming from.
+
+importDate.title = When is the import date?
+importDate.heading = When is the import date?
+importDate.error.invalid = Enter a date in the correct format
+importDate.error.invalid.day = Enter a day in the correct format
+importDate.error.invalid.month = Enter a month in the correct format
+importDate.error.invalid.year = Enter a year in the correct format
+importDate.error.invalid.two = Enter a {0} and {1} in the correct format
+importDate.error.required = Enter a {0}
+importDate.error.required.all = Enter a date
+importDate.error.required.two = Enter a {0} and {1}
+importDate.error.past = The import date must be in the past
+importDate.checkYourAnswersLabel = Import date
+importDate.change.hidden = Change import date
 
 # Warning messages
 confirmRefundPeriodStartDate.title = Are you sure the refund period start date is correct?

@@ -22,6 +22,7 @@ import controllers.purchase.routes as purchaseRoutes
 import models.*
 import models.PurchaseOrImport.{Import, Purchase}
 import pages.*
+import pages.imports.*
 import play.api.mvc.Call
 
 import javax.inject.{Inject, Singleton}
@@ -65,12 +66,14 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case ImportSubCategoryPage             => userAnswers => importNavigator.navigateFromImportSubCategoryPage(NormalMode)(userAnswers)
     case DescribeItemsOnImportDocPage      => _ => importRoutes.SadReferenceCheckController.onPageLoad(NormalMode)
     case SadReferenceCheckPage             => userAnswers => importNavigator.navigateFromSadReferenceCheckPage(NormalMode)(userAnswers)
-    case SadReferenceNumberPage            => userAnswers => importNavigator.navigateFromSadReferenceNumberPage(NormalMode)(userAnswers)
-    case ImportDetailsInfoPage             => _ => importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode)
-    case ImportSuppliersNamePage           => userAnswers => importNavigator.navigateFromSupplierNamePage(NormalMode)(userAnswers)
+    case SadReferenceNumberPage            => _ => importRoutes.ImportDateController.onPageLoad(NormalMode)
+    case ImportDetailsInfoPage             => _ => importRoutes.ImportDateController.onPageLoad(NormalMode)
+    case ImportDatePage                    => _ => importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode)
+    case ImportSuppliersNamePage           => _ => importRoutes.ImportSupplierAddressController.onPageLoad(NormalMode)
+    case ImportSupplierAddressPage         => userAnswers => importNavigator.navigateFromSupplierAddressPage(NormalMode)(userAnswers)
     case ImportCurrencyPage                => _ => importRoutes.TotalAmountWithoutVatController.onPageLoad(NormalMode)
-    case TotalAmountWithoutVatPage         => _ => controllers.imports.routes.TotalVatPaidImportController.onPageLoad(NormalMode)
-    case TotalVatPaidImportPage            => _ => controllers.imports.routes.TotalVatClaimController.onPageLoad(NormalMode)
+    case TotalAmountWithoutVatPage         => _ => importRoutes.TotalVatPaidImportController.onPageLoad(NormalMode)
+    case TotalVatPaidImportPage            => _ => importRoutes.TotalVatClaimController.onPageLoad(NormalMode)
     case ImportTotalVatClaimPage           => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
     case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
@@ -105,9 +108,11 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case ImportSubCategoryPage             => userAnswers => importNavigator.navigateFromImportSubCategoryPage(CheckMode)(userAnswers)
     case DescribeItemsOnImportDocPage      => _ => importRoutes.SadReferenceCheckController.onPageLoad(CheckMode)
     case SadReferenceCheckPage             => userAnswers => importNavigator.navigateFromSadReferenceCheckPage(CheckMode)(userAnswers)
-    case SadReferenceNumberPage            => userAnswers => importNavigator.navigateFromSadReferenceNumberPage(CheckMode)(userAnswers)
-    case ImportDetailsInfoPage             => _ => importRoutes.ImportSuppliersNameController.onPageLoad(CheckMode)
-    case ImportSuppliersNamePage           => userAnswers => importNavigator.navigateFromSupplierNamePage(CheckMode)(userAnswers)
+    case SadReferenceNumberPage            => _ => importRoutes.ImportDateController.onPageLoad(CheckMode)
+    case ImportDetailsInfoPage             => _ => importRoutes.ImportDateController.onPageLoad(CheckMode)
+    case ImportDatePage                    => _ => importRoutes.ImportSuppliersNameController.onPageLoad(CheckMode)
+    case ImportSuppliersNamePage           => _ => importRoutes.ImportSupplierAddressController.onPageLoad(CheckMode)
+    case ImportSupplierAddressPage         => userAnswers => importNavigator.navigateFromSupplierAddressPage(CheckMode)(userAnswers)
     case ImportCurrencyPage                => _ => importRoutes.TotalAmountWithoutVatController.onPageLoad(CheckMode)
     case TotalAmountWithoutVatPage         => _ => controllers.imports.routes.TotalVatPaidImportController.onPageLoad(CheckMode)
     case TotalVatPaidImportPage            => _ => controllers.imports.routes.TotalVatClaimController.onPageLoad(CheckMode)
