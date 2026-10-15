@@ -22,7 +22,7 @@ import models.requests.DataRequest
 import javax.inject.Inject
 import models.Mode
 import navigation.Navigator
-import pages.{ImportDetailsInfoPage, SadReferenceCheckPage, SadReferenceNumberPage}
+import pages.imports.{ImportDetailsInfoPage, SadReferenceCheckPage, SadReferenceNumberPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository

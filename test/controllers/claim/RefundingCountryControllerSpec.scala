@@ -22,12 +22,13 @@ import controllers.claim.routes
 import forms.claim.RefundingCountryFormProvider
 import models.requests.LatestApplicationRequest
 import models.responses.{LatestApplication, LatestApplicationResponse}
-import models.{Fuel, NormalMode}
+import models.{Fuel, NormalMode, RefundingLanguage}
 import navigation.FakeNavigator
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.RefundingCountryNamePage
+import pages.claim.*
+import pages.purchase.*
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.CSRFTokenHelper.*
@@ -247,16 +248,16 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
         val saved = captor.getValue
-        saved.get(pages.RefundingLanguagePage).isDefined mustBe true
+        saved.get(RefundingLanguagePage).isDefined mustBe true
       }
     }
 
     "must clear previously stored language when country is changed" in {
       val starting = emptyUserAnswers
-        .set(pages.RefundingCountryPage, "BG")
+        .set(RefundingCountryPage, "BG")
         .success
         .value
-        .set(pages.RefundingLanguagePage, models.RefundingLanguage.Bulgarian)
+        .set(RefundingLanguagePage, models.RefundingLanguage.Bulgarian)
         .success
         .value
 
@@ -279,31 +280,31 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
         val saved = captor.getValue
-        saved.get(pages.RefundingLanguagePage).isDefined mustBe false
+        saved.get(RefundingLanguagePage).isDefined mustBe false
       }
     }
 
     "must clear purchase selections when country is changed" in {
       val starting = emptyUserAnswers
-        .set(pages.RefundingCountryPage, "BG")
+        .set(RefundingCountryPage, "BG")
         .success
         .value
-        .set(pages.PurchaseTypePage, Fuel)
+        .set(PurchaseTypePage, Fuel)
         .success
         .value
-        .set(pages.PurchaseSubTypePage, "1.1")
+        .set(PurchaseSubTypePage, "1.1")
         .success
         .value
-        .set(pages.PurchaseSubTypeLabelPage, "Fuel label")
+        .set(PurchaseSubTypeLabelPage, "Fuel label")
         .success
         .value
-        .set(pages.PurchaseSubCategoryPage, "1.1.1")
+        .set(PurchaseSubCategoryPage, "1.1.1")
         .success
         .value
-        .set(pages.PurchaseSubCategoryLabelPage, "Fuel sub label")
+        .set(PurchaseSubCategoryLabelPage, "Fuel sub label")
         .success
         .value
-        .set(pages.DescribeItemsOnInvoicePage, "Fuel and transport details")
+        .set(DescribeItemsOnInvoicePage, "Fuel and transport details")
         .success
         .value
 
@@ -324,12 +325,12 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         verify(mockSessionRepository, times(1)).set(captor.capture())
         val saved = captor.getValue
 
-        saved.get(pages.PurchaseTypePage).isDefined mustBe false
-        saved.get(pages.PurchaseSubTypePage).isDefined mustBe false
-        saved.get(pages.PurchaseSubTypeLabelPage).isDefined mustBe false
-        saved.get(pages.PurchaseSubCategoryPage).isDefined mustBe false
-        saved.get(pages.PurchaseSubCategoryLabelPage).isDefined mustBe false
-        saved.get(pages.DescribeItemsOnInvoicePage).isDefined mustBe false
+        saved.get(PurchaseTypePage).isDefined mustBe false
+        saved.get(PurchaseSubTypePage).isDefined mustBe false
+        saved.get(PurchaseSubTypeLabelPage).isDefined mustBe false
+        saved.get(PurchaseSubCategoryPage).isDefined mustBe false
+        saved.get(PurchaseSubCategoryLabelPage).isDefined mustBe false
+        saved.get(DescribeItemsOnInvoicePage).isDefined mustBe false
       }
     }
 
@@ -394,10 +395,10 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
 
     "must set CountryChangedPage to true when country is changed in CheckMode" in {
       val starting = emptyUserAnswers
-        .set(pages.RefundingCountryPage, "BG")
+        .set(RefundingCountryPage, "BG")
         .success
         .value
-        .set(pages.RefundingLanguagePage, models.RefundingLanguage.Bulgarian)
+        .set(RefundingLanguagePage, RefundingLanguage.Bulgarian)
         .success
         .value
 
@@ -416,16 +417,16 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
         val saved = captor.getValue
-        saved.get(pages.CountryChangedPage) mustBe Some(true)
+        saved.get(CountryChangedPage) mustBe Some(true)
       }
     }
 
     "must clear currency when country is changed" in {
       val starting = emptyUserAnswers
-        .set(pages.RefundingCountryPage, "BG")
+        .set(RefundingCountryPage, "BG")
         .success
         .value
-        .set(pages.RefundingCurrencyPage, "BGN")
+        .set(RefundingCurrencyPage, "BGN")
         .success
         .value
 
@@ -444,7 +445,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
         val saved = captor.getValue
-        saved.get(pages.RefundingCurrencyPage).isDefined mustBe false
+        saved.get(RefundingCurrencyPage).isDefined mustBe false
       }
     }
 
@@ -464,7 +465,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
         val saved = captor.getValue
-        saved.get(pages.RefundingCurrencyPage) mustBe Some("CZK")
+        saved.get(RefundingCurrencyPage) mustBe Some("CZK")
       }
     }
 
@@ -484,7 +485,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
         val saved = captor.getValue
-        saved.get(pages.RefundingCurrencyPage) mustBe Some("EUR")
+        saved.get(RefundingCurrencyPage) mustBe Some("EUR")
       }
     }
 
@@ -543,8 +544,8 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         verify(mockSessionRepository, times(1)).set(captor.capture())
         val saved = captor.getValue
 
-        saved.get(pages.RefundingCountryPage) mustBe Some("AT")
-        saved.get(pages.RefundingCountryNamePage) mustBe Some("Austria")
+        saved.get(RefundingCountryPage) mustBe Some("AT")
+        saved.get(RefundingCountryNamePage) mustBe Some("Austria")
       }
     }
 

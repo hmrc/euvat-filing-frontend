@@ -18,11 +18,13 @@ package controllers.purchase
 
 import controllers.actions.*
 import forms.purchase.PurchaseTypeFormProvider
+import models.*
 import models.requests.{AddPurchaseRequest, DataRequest}
 import models.responses.AddPurchaseResponse
-import models.*
 import navigation.Navigator
-import pages.*
+import pages.QuestionPage
+import pages.claim.CountryChangedPage
+import pages.purchase.*
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -34,7 +36,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import utils.{ConfigPurchaseOrImportMapping, CountryCode, MountPrefix}
-import views.html.PurchaseOrImportTypeView
+import views.html.purchasesOrImports.PurchaseOrImportTypeView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

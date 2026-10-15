@@ -21,7 +21,7 @@ import controllers.imports.routes as importRoutes
 import forms.imports.TotalAmountWithoutVatFormProvider
 import models.Mode
 import navigation.Navigator
-import pages.{SadReferenceCheckPage, SadReferenceNumberPage, TotalAmountWithoutVatPage}
+import pages.imports.{SadReferenceCheckPage, SadReferenceNumberPage, TotalAmountWithoutVatPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}

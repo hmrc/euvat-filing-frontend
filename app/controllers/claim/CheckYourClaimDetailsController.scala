@@ -21,6 +21,7 @@ import models.UserAnswers
 import models.requests.{ApplicationRequest, LatestApplicationRequest}
 import models.responses.ApplicationResponse
 import pages.*
+import pages.claim.{BusinessActivityCodePage, BusinessActivityCodeThreePage, BusinessActivityCodeTwoPage, ContactDetailsPage, RefundPeriodPage, RefundingCountryPage, RefundingLanguagePage}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.*

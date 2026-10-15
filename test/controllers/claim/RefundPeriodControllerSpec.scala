@@ -17,7 +17,6 @@
 package controllers.claim
 
 import base.SpecBase
-import controllers.claim.routes
 import forms.claim.{RefundPeriodData, RefundPeriodFormProvider}
 import models.responses.{LatestApplication, LatestApplicationResponse, TraderKnownFactsResponse}
 import models.{CheckMode, NormalMode, RefundPeriod, UserAnswers}
@@ -25,7 +24,8 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{ClaimDetailsCompletedPage, RefundPeriodPage}
+import pages.ClaimDetailsCompletedPage
+import pages.claim.{CountryChangedPage, RefundPeriodPage, RefundingCountryPage}
 import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -36,7 +36,7 @@ import repositories.SessionRepository
 import views.html.claim.RefundPeriodView
 
 import java.time.format.DateTimeFormatter
-import java.time.{LocalDate, LocalDateTime, YearMonth}
+import java.time.{LocalDate, LocalDateTime}
 import scala.concurrent.Future
 
 class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
@@ -127,7 +127,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
       }
 
       "must use RefundingLanguageController as back link when country has one currency" in {
-        val userAnswers = emptyUserAnswers.set(pages.RefundingCountryPage, "AT").success.value
+        val userAnswers = emptyUserAnswers.set(RefundingCountryPage, "AT").success.value
         val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
         running(application) {
@@ -253,11 +253,11 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.ConfirmRefundPeriodStartDateController.onPageLoad(NormalMode).url
+          redirectLocation(result).value mustEqual controllers.warning.routes.RefundPeriodStartDateWarningController.onPageLoad(NormalMode).url
         }
       }
 
-      "must redirect to ConfirmRefundPeriodStartDateController in CheckMode if start date is before the earliest permitted date" in {
+      "must redirect to RefundPeriodStartDateWarningController in CheckMode if start date is before the earliest permitted date" in {
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(bind[RefundPeriodFormProvider].toInstance(formProviderAfterSept30))
           .build()
@@ -273,11 +273,11 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.ConfirmRefundPeriodStartDateController.onPageLoad(CheckMode).url
+          redirectLocation(result).value mustEqual controllers.warning.routes.RefundPeriodStartDateWarningController.onPageLoad(CheckMode).url
         }
       }
 
-      "must redirect to ConfirmRefundPeriodEndDateController if end date is not in the past" in {
+      "must redirect to RefundPeriodEndDateWarningController if end date is not in the past" in {
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
         running(application) {
@@ -291,11 +291,11 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.ConfirmRefundPeriodEndDateController.onPageLoad(NormalMode).url
+          redirectLocation(result).value mustEqual controllers.warning.routes.RefundPeriodEndDateWarningController.onPageLoad(NormalMode).url
         }
       }
 
-      "must redirect to ConfirmRefundPeriodEndDateController in CheckMode if end date is not in the past" in {
+      "must redirect to RefundPeriodEndDateWarningController in CheckMode if end date is not in the past" in {
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
         running(application) {
@@ -309,11 +309,11 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.ConfirmRefundPeriodEndDateController.onPageLoad(CheckMode).url
+          redirectLocation(result).value mustEqual controllers.warning.routes.RefundPeriodEndDateWarningController.onPageLoad(CheckMode).url
         }
       }
 
-      "must not redirect to ConfirmRefundPeriodEndDateController if end date is in the current month" in {
+      "must not redirect to RefundPeriodEndDateWarningController if end date is in the current month" in {
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
         running(application) {
@@ -327,7 +327,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.ConfirmRefundPeriodEndDateController.onPageLoad(NormalMode).url
+          redirectLocation(result).value mustEqual controllers.warning.routes.RefundPeriodEndDateWarningController.onPageLoad(NormalMode).url
         }
       }
 
@@ -373,7 +373,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual controllers.claim.routes.ConfirmRefundPeriodStartDateController.onPageLoad(NormalMode).url
+          redirectLocation(result).value mustEqual controllers.warning.routes.RefundPeriodStartDateWarningController.onPageLoad(NormalMode).url
         }
       }
 
@@ -798,7 +798,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
         when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
         val userAnswers = emptyUserAnswers
-          .set(pages.CountryChangedPage, true)
+          .set(CountryChangedPage, true)
           .success
           .value
 
@@ -872,7 +872,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
         )
 
         val ua = emptyUserAnswers
-          .set(pages.RefundPeriodPage, existingPeriod)
+          .set(RefundPeriodPage, existingPeriod)
           .success
           .value
           .set(pages.ClaimDetailsCompletedPage, true)
@@ -945,7 +945,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
             val result = route(application, request).value
 
             status(result) mustEqual SEE_OTHER
-            redirectLocation(result).value mustEqual routes.ConfirmRefundPeriodStartDateController.onPageLoad(NormalMode).url
+            redirectLocation(result).value mustEqual controllers.warning.routes.RefundPeriodStartDateWarningController.onPageLoad(NormalMode).url
           }
         }
 
@@ -996,7 +996,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
             val result = route(application, request).value
 
             status(result) mustEqual SEE_OTHER
-            redirectLocation(result).value mustEqual routes.ConfirmRefundPeriodStartDateController.onPageLoad(NormalMode).url
+            redirectLocation(result).value mustEqual controllers.warning.routes.RefundPeriodStartDateWarningController.onPageLoad(NormalMode).url
           }
         }
 
@@ -1027,7 +1027,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
             val result = route(application, request).value
 
             status(result) mustEqual SEE_OTHER
-            redirectLocation(result).value mustEqual routes.ConfirmRefundPeriodStartDateController.onPageLoad(NormalMode).url
+            redirectLocation(result).value mustEqual controllers.warning.routes.RefundPeriodStartDateWarningController.onPageLoad(NormalMode).url
           }
         }
       }
@@ -1055,7 +1055,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
             val result = route(application, request).value
 
             status(result) mustEqual SEE_OTHER
-            redirectLocation(result).value mustEqual routes.ConfirmRefundPeriodStartDateController.onPageLoad(NormalMode).url
+            redirectLocation(result).value mustEqual controllers.warning.routes.RefundPeriodStartDateWarningController.onPageLoad(NormalMode).url
             verify(mockEuVatRefundsService, times(0)).getLatestApplications(any())(any())
           }
         }

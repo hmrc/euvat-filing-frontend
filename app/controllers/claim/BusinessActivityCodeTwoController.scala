@@ -21,6 +21,7 @@ import forms.claim.BusinessActivityCodeTwoFormProvider
 import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import navigation.Navigator
 import pages.*
+import pages.claim.{BusinessActivityCodePage, BusinessActivityCodeThreePage, BusinessActivityCodeTwoPage, BusinessActivityThreePage}
 import play.api.data.FormError
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}

@@ -16,7 +16,7 @@
 
 package viewmodels
 
-import models.UserAnswers
+import models.{NormalMode, UserAnswers}
 import pages.{ClaimDetailsCompletedPage, PurchaseImportSummaryPage}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
@@ -112,8 +112,8 @@ class TaskListViewModel @Inject() () {
       title  = TaskListItemTitle(content = Text(messages("taskListDashboard.listItem1"))),
       status = if (claimDetailsDone) completedStatus else notStartedStatus,
       href = Some(
-        if (claimDetailsDone) { "/file-eu-vat/claim-details" }
-        else { controllers.claim.routes.RefundingCountryController.onPageLoad(models.NormalMode).url }
+        if (claimDetailsDone) { controllers.claim.routes.CheckYourClaimDetailsController.onPageLoad().url }
+        else { controllers.claim.routes.RefundingCountryController.onPageLoad(NormalMode).url }
       )
     )
   }

@@ -23,7 +23,8 @@ import navigation.FakeNavigator
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.BusinessActivityCodeThreePage
+import pages.claim
+import pages.claim.{BusinessActivityCodePage, BusinessActivityCodeThreePage, BusinessActivityCodeTwoPage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -153,8 +154,8 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
 
     "must return a Bad Request and duplicate error when submitted code matches second business activity" in {
       val userAnswers = emptyUserAnswers
-        .set(pages.BusinessActivityCodePage, "4920")
-        .flatMap(_.set(pages.BusinessActivityCodeTwoPage, "2534"))
+        .set(BusinessActivityCodePage, "4920")
+        .flatMap(_.set(BusinessActivityCodeTwoPage, "2534"))
         .success
         .value
 
@@ -175,8 +176,8 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
 
     "must return a Bad Request and duplicate error when submitted code matches first business activity" in {
       val userAnswers = emptyUserAnswers
-        .set(pages.BusinessActivityCodePage, "4920")
-        .flatMap(_.set(pages.BusinessActivityCodeTwoPage, "2534"))
+        .set(claim.BusinessActivityCodePage, "4920")
+        .flatMap(_.set(claim.BusinessActivityCodeTwoPage, "2534"))
         .success
         .value
 
@@ -199,13 +200,13 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val ua = emptyUserAnswers
-        .set(pages.BusinessActivityCodePage, "7020")
+        .set(claim.BusinessActivityCodePage, "7020")
         .success
         .value
-        .set(pages.BusinessActivityCodeTwoPage, "1234")
+        .set(claim.BusinessActivityCodeTwoPage, "1234")
         .success
         .value
-        .set(pages.BusinessActivityCodeThreePage, "5678")
+        .set(claim.BusinessActivityCodeThreePage, "5678")
         .success
         .value
         .set(pages.ClaimDetailsCompletedPage, true)
@@ -235,13 +236,13 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val ua = emptyUserAnswers
-        .set(pages.BusinessActivityCodePage, "7020")
+        .set(claim.BusinessActivityCodePage, "7020")
         .success
         .value
-        .set(pages.BusinessActivityCodeTwoPage, "1234")
+        .set(claim.BusinessActivityCodeTwoPage, "1234")
         .success
         .value
-        .set(pages.BusinessActivityCodeThreePage, "5678")
+        .set(claim.BusinessActivityCodeThreePage, "5678")
         .success
         .value
         .set(pages.ClaimDetailsCompletedPage, true)
@@ -271,10 +272,10 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val ua = emptyUserAnswers
-        .set(pages.BusinessActivityCodePage, "7020")
+        .set(claim.BusinessActivityCodePage, "7020")
         .success
         .value
-        .set(pages.BusinessActivityCodeTwoPage, "1234")
+        .set(claim.BusinessActivityCodeTwoPage, "1234")
         .success
         .value
 

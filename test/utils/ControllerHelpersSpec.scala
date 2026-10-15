@@ -22,7 +22,8 @@ import models.requests.DataRequest
 import models.{CheckMode, Fuel, NormalMode, PurchaseOrImportType}
 import org.mockito.ArgumentMatchers.any as anyA
 import org.mockito.Mockito.{never, times, verify, when}
-import pages.*
+import pages.claim.RefundingCountryPage
+import pages.purchase.*
 import play.api.mvc.Call
 import play.api.mvc.Results.*
 import play.api.test.FakeRequest
@@ -90,10 +91,10 @@ class ControllerHelpersSpec extends SpecBase {
   "shortCircuitPersistAndThen" - {
     "short-circuits to purchase CYA when in CheckMode and value unchanged" in {
       val ua = emptyUserAnswers
-        .set(pages.PurchaseTypePage, Fuel)
+        .set(PurchaseTypePage, Fuel)
         .success
         .value
-        .set(pages.TotalVatPaidPage, BigDecimal(10))
+        .set(TotalVatPaidPage, BigDecimal(10))
         .success
         .value
 
@@ -103,7 +104,7 @@ class ControllerHelpersSpec extends SpecBase {
       val fut = ControllerHelpers.shortCircuit[
         BigDecimal
       ](
-        pages.TotalVatPaidPage,
+        TotalVatPaidPage,
         BigDecimal(10),
         CheckMode,
         ua,
@@ -131,7 +132,7 @@ class ControllerHelpersSpec extends SpecBase {
       val fut = ControllerHelpers.shortCircuit[
         BigDecimal
       ](
-        pages.TotalVatPaidPage,
+        TotalVatPaidPage,
         BigDecimal(20),
         CheckMode,
         ua,
@@ -158,7 +159,7 @@ class ControllerHelpersSpec extends SpecBase {
       val fut = ControllerHelpers.shortCircuit[
         BigDecimal
       ](
-        pages.TotalVatPaidPage,
+        TotalVatPaidPage,
         BigDecimal(20),
         NormalMode,
         ua,
@@ -282,7 +283,7 @@ class ControllerHelpersSpec extends SpecBase {
 
   "currencyNameAndPrefix" - {
     "returns configured name and prefix" in {
-      val updatedUA = emptyUserAnswers.set(pages.RefundingCountryPage, "XX").success.value
+      val updatedUA = emptyUserAnswers.set(RefundingCountryPage, "XX").success.value
       implicit val request: DataRequest[?] = DataRequest(FakeRequest("GET", "/"), userAnswersId, "", "", updatedUA)
 
       val conf = play.api.Configuration(

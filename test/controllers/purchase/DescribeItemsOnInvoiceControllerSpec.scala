@@ -24,7 +24,8 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.mockito.{ArgumentCaptor, Mockito}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.DescribeItemsOnInvoicePage
+import pages.purchase
+import pages.purchase.{DescribeItemsArrivedFromCheckYourAnswersPage, DescribeItemsOnInvoicePage}
 import play.api.Application
 import play.api.data.Form
 import play.api.inject.bind
@@ -32,7 +33,7 @@ import play.api.mvc.{Call, Request}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.PurchaseOrImportDescribeItemsView
+import views.html.purchasesOrImports.PurchaseOrImportDescribeItemsView
 
 import scala.concurrent.Future
 
@@ -101,7 +102,7 @@ class DescribeItemsOnInvoiceControllerSpec extends SpecBase with MockitoSugar {
 
         val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         Mockito.verify(mockSessionRepository, Mockito.times(1)).set(captor.capture())
-        captor.getValue.get(pages.DescribeItemsArrivedFromCheckYourAnswersPage).value mustBe true
+        captor.getValue.get(DescribeItemsArrivedFromCheckYourAnswersPage).value mustBe true
       }
     }
 
@@ -109,7 +110,7 @@ class DescribeItemsOnInvoiceControllerSpec extends SpecBase with MockitoSugar {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
-      val userAnswers = emptyUserAnswers.set(pages.DescribeItemsArrivedFromCheckYourAnswersPage, true).success.value
+      val userAnswers = emptyUserAnswers.set(purchase.DescribeItemsArrivedFromCheckYourAnswersPage, true).success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
