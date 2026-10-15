@@ -17,16 +17,17 @@
 package controllers.warning
 
 import controllers.actions.*
-import controllers.purchase.routes
-import models.Mode
-import pages.purchase.{TotalPurchaseAmountBeforeVatPage, TotalVatPaidPage}
+import controllers.{imports, purchase}
+import models.{Mode, PurchaseOrImport}
 import pages.*
+import pages.imports.{TotalAmountWithoutVatPage, TotalVatPaidImportPage}
+import pages.purchase.{TotalPurchaseAmountBeforeVatPage, TotalVatPaidPage}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.*
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ControllerHelpers.*
-import utils.CurrencyConfig
+import utils.{Currency, CurrencyConfig}
 import views.html.warning.VatPaidWarningView
 
 import javax.inject.Inject
@@ -45,10 +46,19 @@ class VatPaidWarningController @Inject() (
     with Logging {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    (request.userAnswers.get(TotalVatPaidPage), request.userAnswers.get(TotalPurchaseAmountBeforeVatPage)) match {
-      case (Some(totalVatPaid), Some(_)) =>
-        val currencySymbol = currencySymbolFromSession(request.userAnswers, currencyConfig.currencyConfig)
-        Ok(view(routes.TotalVatPaidController.onPageLoad(mode), mode, currencySymbol, totalVatPaid))
+    val userAnswers = request.userAnswers
+
+    val totalVatPaidPage = userAnswers.get(TotalVatPaidPage)
+    val totalPurchaseAmountBeforeVatPage = userAnswers.get(TotalPurchaseAmountBeforeVatPage)
+    val totalImportVatPaidPage = userAnswers.get(TotalVatPaidImportPage)
+    val totalAmountWithoutVatPage = userAnswers.get(TotalAmountWithoutVatPage)
+    val currencySymbol = currencySymbolFromSession(request.userAnswers, currencyConfig.currencyConfig)
+
+    (totalVatPaidPage, totalPurchaseAmountBeforeVatPage, totalImportVatPaidPage, totalAmountWithoutVatPage) match {
+      case (Some(totalVatPaid), Some(_), None, None) =>
+        Ok(view(purchase.routes.TotalVatPaidController.onPageLoad(mode), mode, currencySymbol, totalVatPaid))
+      case (None, None, Some(totalImportVatPaid), Some(_)) =>
+        Ok(view(imports.routes.TotalVatPaidImportController.onPageLoad(mode), mode, currencySymbol, totalImportVatPaid))
       case _ =>
         logger.warn("Missing session data")
         Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
@@ -56,6 +66,14 @@ class VatPaidWarningController @Inject() (
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    Redirect(navigator.nextPage(TotalVatPaidPage, mode, request.userAnswers))
+    request.userAnswers.get(PurchaseOrImportPage) match {
+      case Some(PurchaseOrImport.Purchase) =>
+        Redirect(navigator.nextPage(TotalVatPaidPage, mode, request.userAnswers))
+      case Some(PurchaseOrImport.Import) =>
+        Redirect(navigator.nextPage(TotalVatPaidImportPage, mode, request.userAnswers))
+      case _ =>
+        logger.warn(s"Missing session data $PurchaseOrImportPage")
+        Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+    }
   }
 }
