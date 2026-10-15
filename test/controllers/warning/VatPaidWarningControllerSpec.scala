@@ -38,7 +38,11 @@ class VatPaidWarningControllerSpec extends SpecBase {
         val result = route(application, request).value
         val view = application.injector.instanceOf[VatPaidWarningView]
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(controllers.purchase.routes.TotalVatPaidController.onPageLoad(NormalMode), NormalMode)(
+        contentAsString(result) mustEqual view(controllers.purchase.routes.TotalVatPaidController.onPageLoad(NormalMode),
+        NormalMode,
+        "€",
+        BigDecimal(999)
+        )(
           request,
           messages(application)
         ).toString

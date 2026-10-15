@@ -636,7 +636,7 @@ supplierTaxIdentifierWarning.confirm = Yes, this is correct
 
 vatPaidWarning.title = Are you sure the amount of VAT you paid is correct?
 vatPaidWarning.heading = Are you sure the amount of VAT you paid is correct?
-vatPaidWarning.p = The amount of VAT you paid must be less than the purchase amount before VAT.
+vatPaidWarning.p = You’ve told us the amount of VAT paid is {0}. The VAT paid must be less than the amount without VAT.
 vatPaidWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
 vatPaidWarning.yes = Yes, this is correct
 vatPaidWarning.no = No, change the VAT amount
