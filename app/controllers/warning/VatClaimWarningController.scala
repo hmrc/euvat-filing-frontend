@@ -18,7 +18,11 @@ package controllers.warning
 
 import controllers.actions.*
 import controllers.purchase.routes
+import controllers.imports.routes as importRoutes
 import models.Mode
+import models.PurchaseOrImport.{Import, Purchase}
+import pages.PurchaseOrImportPage
+import pages.imports.{ImportTotalVatClaimPage, TotalVatPaidImportPage}
 import models.requests.DataRequest
 import pages.purchase.{TotalVatClaimPage, TotalVatPaidPage}
 import play.api.Logging
@@ -45,10 +49,21 @@ class VatClaimWarningController @Inject() (
     with Logging {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    (request.userAnswers.get(TotalVatPaidPage), request.userAnswers.get(TotalVatClaimPage)) match {
-      case (Some(_), Some(totalVatClaiming)) =>
-        val currencySymbol = currencySymbolFromSession(request.userAnswers, currencyConfig.currencyConfig)
-        okView(routes.TotalVatClaimController.onPageLoad(mode), mode, currencySymbol, totalVatClaiming)
+    val answers = request.userAnswers
+
+    val journeyAnswers = answers.get(PurchaseOrImportPage) match {
+      case Some(Purchase) =>
+        (answers.get(TotalVatPaidPage), answers.get(TotalVatClaimPage), routes.TotalVatClaimController.onPageLoad(mode))
+      case Some(Import) =>
+        (answers.get(TotalVatPaidImportPage), answers.get(ImportTotalVatClaimPage), importRoutes.TotalVatClaimController.onPageLoad(mode))
+      case None =>
+        (None, None, controllers.routes.JourneyRecoveryController.onPageLoad())
+    }
+
+    journeyAnswers match {
+      case (Some(_), Some(totalVatClaiming), changeLink) =>
+        val currencySymbol = currencySymbolFromSession(answers, currencyConfig.currencyConfig)
+        okView(changeLink, mode, currencySymbol, totalVatClaiming)
 
       case _ =>
         logger.warn("Missing session data")
@@ -57,7 +72,11 @@ class VatClaimWarningController @Inject() (
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    Redirect(navigator.nextPage(TotalVatClaimPage, mode, request.userAnswers))
+    request.userAnswers.get(PurchaseOrImportPage) match {
+      case Some(Purchase) => Redirect(navigator.nextPage(TotalVatClaimPage, mode, request.userAnswers))
+      case Some(Import)   => Redirect(navigator.nextPage(ImportTotalVatClaimPage, mode, request.userAnswers))
+      case None           => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+    }
   }
 
   private def okView(returnCall: Call, mode: Mode, currencySymbol: String, totalVatClaiming: BigDecimal)(implicit request: DataRequest[?]) =
