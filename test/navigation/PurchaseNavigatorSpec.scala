@@ -80,7 +80,7 @@ class PurchaseNavigatorSpec extends SpecBase {
 
         val ua = userAnswers.set(RefundingCountryPage, "AT").success.value.set(PurchaseTypePage, Fuel).success.value
         nav.navigateFromPurchaseTypePage(NormalMode)(ua) mustBe
-          play.api.mvc.Call("GET", s"/${PurchaseOrImportType.urlSlugForPurchaseType(Fuel)}")
+          purchaseRoutes.PurchaseSubTypeController.onPageLoad(PurchaseOrImportType.urlSlugForPurchaseType(Fuel), NormalMode)
       }
 
       "must go from PurchaseTypePage to InvoiceTypeController when mapping is empty for country" in {
@@ -111,7 +111,7 @@ class PurchaseNavigatorSpec extends SpecBase {
 
         val ua = userAnswers.set(RefundingCountryNamePage, "Austria").success.value.set(PurchaseTypePage, Fuel).success.value
         nav.navigateFromPurchaseTypePage(NormalMode)(ua) mustBe
-          play.api.mvc.Call("GET", s"/${PurchaseOrImportType.urlSlugForPurchaseType(Fuel)}")
+          purchaseRoutes.PurchaseSubTypeController.onPageLoad(PurchaseOrImportType.urlSlugForPurchaseType(Fuel), NormalMode)
       }
 
       "must go from PurchaseTypePage to InvoiceTypeController when country stored as name-only and mapping empty" in {
