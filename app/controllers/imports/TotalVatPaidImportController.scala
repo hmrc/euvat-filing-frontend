@@ -18,10 +18,11 @@ package controllers.imports
 
 import controllers.actions.*
 import forms.imports.TotalVatPaidImportFormProvider
+
 import javax.inject.Inject
-import models.Mode
+import models.{Mode, UserAnswers}
 import navigation.Navigator
-import pages.imports.TotalVatPaidImportPage
+import pages.imports.{TotalAmountWithoutVatPage, TotalVatPaidImportPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
@@ -74,7 +75,14 @@ class TotalVatPaidImportController @Inject() (
           for {
             userAnswers <- Future.fromTry(request.userAnswers.set(TotalVatPaidImportPage, value))
             _           <- sessionRepository.set(userAnswers)
-          } yield Redirect(navigator.nextPage(TotalVatPaidImportPage, mode, userAnswers))
+          } yield {
+            val totalAmountWithoutVat = userAnswers.get(TotalAmountWithoutVatPage).getOrElse(BigDecimal(0))
+            if (value < totalAmountWithoutVat) {
+              Redirect(navigator.nextPage(TotalVatPaidImportPage, mode, userAnswers))
+            } else {
+              Redirect(controllers.warning.routes.VatPaidWarningController.onPageLoad(mode))
+            }
+          }
       )
   }
 }

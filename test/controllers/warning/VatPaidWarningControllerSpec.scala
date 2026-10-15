@@ -17,8 +17,12 @@
 package controllers.warning
 
 import base.SpecBase
-import controllers.warning.routes
-import models.{CheckMode, NormalMode}
+import controllers.imports
+import controllers.purchase
+import controllers.warning
+import models.{CheckMode, NormalMode, PurchaseOrImport}
+import pages.PurchaseOrImportPage
+import pages.imports.{TotalAmountWithoutVatPage, TotalVatPaidImportPage}
 import pages.purchase.{TotalPurchaseAmountBeforeVatPage, TotalVatPaidPage}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -26,36 +30,64 @@ import views.html.warning.VatPaidWarningView
 
 class VatPaidWarningControllerSpec extends SpecBase {
 
+  private val vatPaid = BigDecimal("999")
+  private val totalAmount = BigDecimal("1000")
+
   "VatPaidWarningController Controller" - {
 
-    "must return OK and the correct view for a GET in NormalMode" in {
-      val answers = emptyUserAnswers.set(TotalPurchaseAmountBeforeVatPage, BigDecimal("1000")).success.value
-      val userAnswers = answers.set(TotalVatPaidPage, BigDecimal("999")).success.value
+    "must return OK and the correct view for a GET on a Purchase in NormalMode" in {
+      val answers = emptyUserAnswers.set(TotalPurchaseAmountBeforeVatPage, totalAmount).success.value
+      val userAnswers = answers.set(TotalVatPaidPage, vatPaid).success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.VatPaidWarningController.onPageLoad(NormalMode).url)
+        val request = FakeRequest(GET, warning.routes.VatPaidWarningController.onPageLoad(NormalMode).url)
         val result = route(application, request).value
         val view = application.injector.instanceOf[VatPaidWarningView]
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(controllers.purchase.routes.TotalVatPaidController.onPageLoad(NormalMode),
-        NormalMode,
-        "€",
-        BigDecimal(999)
-        )(
+        contentAsString(result) mustEqual view(purchase.routes.TotalVatPaidController.onPageLoad(NormalMode), NormalMode, "€", vatPaid)(
           request,
           messages(application)
         ).toString
       }
     }
 
-    "must return OK and the correct view for a GET in NormalMode with pre-populate form" in {
-      val answers = emptyUserAnswers.set(TotalPurchaseAmountBeforeVatPage, BigDecimal("120.99")).success.value
-      val userAnswers = answers.set(TotalVatPaidPage, BigDecimal("120")).success.value
+    "must return OK and the correct view for a GET on an Import in NormalMode" in {
+      val answers = emptyUserAnswers.set(TotalAmountWithoutVatPage, totalAmount).success.value
+      val userAnswers = answers.set(TotalVatPaidImportPage, vatPaid).success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.VatPaidWarningController.onPageLoad(NormalMode).url)
+        val request = FakeRequest(GET, warning.routes.VatPaidWarningController.onPageLoad(NormalMode).url)
+        val result = route(application, request).value
+        val view = application.injector.instanceOf[VatPaidWarningView]
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(imports.routes.TotalVatPaidImportController.onPageLoad(NormalMode), NormalMode, "€", vatPaid)(
+          request,
+          messages(application)
+        ).toString
+      }
+    }
+
+    "must return OK and the correct view for a GET on a Purchase in NormalMode with pre-populate form" in {
+      val answers = emptyUserAnswers.set(TotalPurchaseAmountBeforeVatPage, totalAmount).success.value
+      val userAnswers = answers.set(TotalVatPaidPage, vatPaid).success.value
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, warning.routes.VatPaidWarningController.onPageLoad(NormalMode).url)
+        val result = route(application, request).value
+        status(result) mustEqual OK
+      }
+    }
+
+    "must return OK and the correct view for a GET on an Import in NormalMode with pre-populate form" in {
+      val answers = emptyUserAnswers.set(TotalAmountWithoutVatPage, totalAmount).success.value
+      val userAnswers = answers.set(TotalVatPaidImportPage, vatPaid).success.value
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, warning.routes.VatPaidWarningController.onPageLoad(NormalMode).url)
         val result = route(application, request).value
         status(result) mustEqual OK
       }
@@ -65,32 +97,58 @@ class VatPaidWarningControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.VatPaidWarningController.onPageLoad(NormalMode).url)
+        val request = FakeRequest(GET, warning.routes.VatPaidWarningController.onPageLoad(NormalMode).url)
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 
-    "must redirect to next page on submit in NormalMode" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+    "must redirect to next page on submit for Purchase in NormalMode" in {
+      val userAnswers = emptyUserAnswers.set(PurchaseOrImportPage, PurchaseOrImport.Purchase).success.value
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.VatPaidWarningController.onSubmit(NormalMode).url)
+        val request = FakeRequest(POST, warning.routes.VatPaidWarningController.onSubmit(NormalMode).url)
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.purchase.routes.TotalVatClaimController.onPageLoad(NormalMode).url
+        redirectLocation(result).value mustEqual purchase.routes.TotalVatClaimController.onPageLoad(NormalMode).url
       }
     }
 
-    "must redirect to next page on submit in CheckMode" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+    "must redirect to next page on submit for Import in NormalMode" in {
+      val userAnswers = emptyUserAnswers.set(PurchaseOrImportPage, PurchaseOrImport.Import).success.value
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.VatPaidWarningController.onSubmit(CheckMode).url)
+        val request = FakeRequest(POST, warning.routes.VatPaidWarningController.onSubmit(NormalMode).url)
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.purchase.routes.TotalVatClaimController.onPageLoad(CheckMode).url
+        redirectLocation(result).value mustEqual imports.routes.TotalVatClaimController.onPageLoad(NormalMode).url
+      }
+    }
+
+    "must redirect to next page on submit for Purchase in CheckMode" in {
+      val userAnswers = emptyUserAnswers.set(PurchaseOrImportPage, PurchaseOrImport.Purchase).success.value
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(POST, warning.routes.VatPaidWarningController.onSubmit(CheckMode).url)
+        val result = route(application, request).value
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual purchase.routes.TotalVatClaimController.onPageLoad(CheckMode).url
+      }
+    }
+
+    "must redirect to next page on submit for Import in CheckMode" in {
+      val userAnswers = emptyUserAnswers.set(PurchaseOrImportPage, PurchaseOrImport.Import).success.value
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(POST, warning.routes.VatPaidWarningController.onSubmit(CheckMode).url)
+        val result = route(application, request).value
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual imports.routes.TotalVatClaimController.onPageLoad(CheckMode).url
       }
     }
   }
