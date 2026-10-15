@@ -20,10 +20,13 @@ import controllers.actions.*
 import controllers.purchase.routes
 import models.Mode
 import pages.purchase.{TotalPurchaseAmountBeforeVatPage, TotalVatPaidPage}
+import pages.*
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.*
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.ControllerHelpers.*
+import utils.CurrencyConfig
 import views.html.warning.VatPaidWarningView
 
 import javax.inject.Inject
@@ -33,6 +36,7 @@ class VatPaidWarningController @Inject() (
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
+  currencyConfig: CurrencyConfig,
   val controllerComponents: MessagesControllerComponents,
   navigator: navigation.Navigator,
   view: VatPaidWarningView
@@ -42,7 +46,9 @@ class VatPaidWarningController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     (request.userAnswers.get(TotalVatPaidPage), request.userAnswers.get(TotalPurchaseAmountBeforeVatPage)) match {
-      case (Some(_), Some(_)) => Ok(view(routes.TotalVatPaidController.onPageLoad(mode), mode))
+      case (Some(totalVatPaid), Some(_)) =>
+        val currencySymbol = currencySymbolFromSession(request.userAnswers, currencyConfig.currencyConfig)
+        Ok(view(routes.TotalVatPaidController.onPageLoad(mode), mode, currencySymbol, totalVatPaid))
       case _ =>
         logger.warn("Missing session data")
         Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
