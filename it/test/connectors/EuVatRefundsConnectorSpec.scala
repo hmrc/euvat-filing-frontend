@@ -308,7 +308,7 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
           itemType                    = "P",
           goodsDescriptionCategory    = "1",
           goodsDescriptionSubCategory = Some("1.2.3"),
-          currencyCode                = "EU",
+          currencyCode                = Some("EU"),
           taxableAmount               = BigDecimal(300),
           vatAmount                   = BigDecimal(200),
           deductibleVatAmount         = BigDecimal(100)
@@ -318,7 +318,7 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
           itemType                    = "I",
           goodsDescriptionCategory    = "7",
           goodsDescriptionSubCategory = Some("7.9"),
-          currencyCode                = "EU",
+          currencyCode                = Some("EU"),
           taxableAmount               = BigDecimal(456),
           vatAmount                   = BigDecimal(345),
           deductibleVatAmount         = BigDecimal(234)
@@ -379,26 +379,26 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
   "EuVatRefundsConnector.updateApplicationDetails" should {
 
     val updateRequest = UpdateApplicationDetailsRequest(
-      applicationId = 133,
-      applicationLanguage = "en",
-      refundingCountry = "LV",
-      periodStartDate = LocalDateTime.of(2011, 6, 1, 0, 0),
-      periodEndDate = LocalDateTime.of(2011, 10, 31, 23, 59, 59),
-      applicantEmailAddress = "test@hotmail.com",
-      applicantPhoneNumber = None,
-      representativeCountry = None,
+      applicationId              = 133,
+      applicationLanguage        = "en",
+      refundingCountry           = "LV",
+      periodStartDate            = LocalDateTime.of(2011, 6, 1, 0, 0),
+      periodEndDate              = LocalDateTime.of(2011, 10, 31, 23, 59, 59),
+      applicantEmailAddress      = "test@hotmail.com",
+      applicantPhoneNumber       = None,
+      representativeCountry      = None,
       representativeEmailAddress = None,
-      representativePhoneNumber = None,
-      bankAccountOwnerName = None,
-      bankAccountOwnerType = None,
-      ibanCode = None,
-      bicCode = None,
-      bankAccountCurrencyCode = None,
-      businessActivityCode2 = None,
-      businessActivityCode3 = None,
-      cipherText = None,
-      encryptionStatus = None,
-      updateSequenceNumber = 30
+      representativePhoneNumber  = None,
+      bankAccountOwnerName       = None,
+      bankAccountOwnerType       = None,
+      ibanCode                   = None,
+      bicCode                    = None,
+      bankAccountCurrencyCode    = None,
+      businessActivityCode2      = None,
+      businessActivityCode3      = None,
+      cipherText                 = None,
+      encryptionStatus           = None,
+      updateSequenceNumber       = 30
     )
 
     val expectedResponse = UpdateApplicationDetailsResponse(updateSequenceNumber = 32)

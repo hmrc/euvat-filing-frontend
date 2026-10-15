@@ -241,8 +241,8 @@ class PurchaseTypeController @Inject() (
   ): Future[Result] =
     Future.fromTry(userAnswersTry).flatMap { persistedAnswers =>
       sessionRepository.set(persistedAnswers).flatMap { _ =>
-        if (persistedAnswers.get(ClaimApplicationResponseQuery).isDefined) {
-          addPurchaseAndPersist(persistedAnswers, value, mode)
+        if (persistedAnswers.get(ClaimApplicationResponseQuery).isDefined && mode == NormalMode) {
+          addPurchaseAndPersist(persistedAnswers, value, NormalMode)
         } else if (mode == CheckMode) {
           handleCheckModePostPersist(persistedAnswers, value)
         } else {
