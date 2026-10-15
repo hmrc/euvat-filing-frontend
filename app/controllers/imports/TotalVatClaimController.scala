@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.purchase.TotalVatClaimFormProvider
 import models.{Mode, UserAnswers}
 import navigation.Navigator
-import pages.imports.ImportTotalVatClaimPage
+import pages.imports.{ImportTotalVatClaimPage, TotalVatPaidImportPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
@@ -71,8 +71,14 @@ class TotalVatClaimController @Inject() (
           for {
             userAnswers <- Future.fromTry(request.userAnswers.set(ImportTotalVatClaimPage, value))
             _           <- sessionRepository.set(userAnswers)
-          } yield Redirect(navigator.nextPage(ImportTotalVatClaimPage, mode, userAnswers))
+          } yield {
+            val totalVatPaid: BigDecimal = userAnswers.get(TotalVatPaidImportPage).getOrElse(BigDecimal(0))
+            if (value > totalVatPaid) {
+              Redirect(controllers.warning.routes.VatClaimWarningController.onPageLoad(mode))
+            } else {
+              Redirect(navigator.nextPage(ImportTotalVatClaimPage, mode, userAnswers))
+            }
+          }
       )
   }
-
 }
