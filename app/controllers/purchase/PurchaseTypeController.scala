@@ -241,7 +241,7 @@ class PurchaseTypeController @Inject() (
   ): Future[Result] =
     Future.fromTry(userAnswersTry).flatMap { persistedAnswers =>
       sessionRepository.set(persistedAnswers).flatMap { _ =>
-        if (persistedAnswers.get(queries.ClaimApplicationResponseQuery).isDefined) {
+        if (persistedAnswers.get(ClaimApplicationResponseQuery).isDefined) {
           addPurchaseAndPersist(persistedAnswers, value, mode)
         } else if (mode == CheckMode) {
           handleCheckModePostPersist(persistedAnswers, value)
@@ -402,8 +402,7 @@ class PurchaseTypeController @Inject() (
     purchaseType: PurchaseOrImportType,
     mode: Mode
   )(implicit request: DataRequest[?]): Future[Result] = {
-    implicit val hc: HeaderCarrier =
-      HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     answers
       .get(ClaimApplicationResponseQuery)
       .fold {
