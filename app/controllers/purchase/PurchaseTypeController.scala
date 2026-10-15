@@ -420,7 +420,9 @@ class PurchaseTypeController @Inject() (
             updatedAnswers1 <- Future.fromTry(answers.set(AddPurchaseResponsePage, response))
             updatedAnswers2 <- Future.fromTry(updatedAnswers1.set(UpdateSequenceNumberQuery, response.updateSequenceNumber))
             _               <- sessionRepository.set(updatedAnswers2)
-          } yield redirectWithPrefix(navigator.nextPage(PurchaseTypePage, mode, updatedAnswers2))(request)
+          } yield {
+            redirectWithPrefix(navigator.nextPage(PurchaseTypePage, mode, updatedAnswers2))(request)
+          }
 
         euVatRefundsService
           .addPurchase(purchaseRequest)

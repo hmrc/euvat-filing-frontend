@@ -264,7 +264,7 @@ class PurchaseNavigatorSpec extends SpecBase {
 
         val ua = userAnswers.set(RefundingCountryPage, "AT").success.value.set(PurchaseTypePage, Fuel).success.value
         nav.navigateFromPurchaseTypePage(CheckMode)(ua) mustBe
-          play.api.mvc.Call("GET", s"/${PurchaseOrImportType.urlSlugForPurchaseType(Fuel)}")
+          purchaseRoutes.PurchaseSubTypeController.onPageLoad(PurchaseOrImportType.urlSlugForPurchaseType(Fuel), CheckMode)
       }
 
       "must go from PurchaseTypePage to CheckYourPurchaseDetailsController when mapping is empty for country" in {
