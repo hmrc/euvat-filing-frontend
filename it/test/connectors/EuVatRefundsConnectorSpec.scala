@@ -295,6 +295,55 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
         ex shouldBe failure
       }
     }
+
+    "EuVatRefundsConnector.getPurchaseDetails" should {
+      val expectedResponse = PurchaseDetailResponse(
+        goodsDescriptionCode = Some("1"),
+        goodsDescriptionSubCode = Some("1.2"),
+        goodsDescriptionText = Some("Fuel"),
+        simplifiedInvoiceIndicator = Some("false"),
+        supplierName = Some("Supplier"),
+        supplierAddressLine1 = Some("Line 1"),
+        supplierAddressLine2 = None,
+        supplierAddressLine3 = None,
+        supplierVatNumber = Some("FR123"),
+        supplierTaxIdentifier = None,
+        invoiceDate = None,
+        invoiceNumber = Some("INV-1"),
+        currencyCode = Some("EUR"),
+        taxableAmount = Some(BigDecimal(100)),
+        vatAmount = Some(BigDecimal(20)),
+        deductibleVatAmount = Some(BigDecimal(10)),
+        updateSequenceNumber = Some(1)
+      )
+
+      "call the correct URL and return the expected response" in {
+        reset(mockHttp, mockRequestBuilder)
+
+        when(mockHttp.get(any())(any())).thenReturn(mockRequestBuilder)
+        when(mockRequestBuilder.execute[PurchaseDetailResponse](any(), any()))
+          .thenReturn(Future.successful(expectedResponse))
+
+        val result = connector.getPurchaseDetails(123L, 4).futureValue
+
+        result shouldBe expectedResponse
+
+        verify(mockHttp).get(url"$baseUrl/get-purchase-details/123/4")
+        verify(mockRequestBuilder).execute[PurchaseDetailResponse](any(), any())
+      }
+
+      "propagate failures from the HTTP client" in {
+        val failure = new RuntimeException("boom")
+
+        when(mockHttp.get(any())(any())).thenReturn(mockRequestBuilder)
+        when(mockRequestBuilder.execute[PurchaseDetailResponse](any(), any()))
+          .thenReturn(Future.failed(failure))
+
+        whenReady(connector.getPurchaseDetails(123L, 4).failed) { ex =>
+          ex shouldBe failure
+        }
+      }
+    }
   }
 
   "EuVatRefundsConnector.getPurchaseImportList" should {

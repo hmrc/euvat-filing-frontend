@@ -82,6 +82,7 @@ class SupplierVatRegistrationNumberController @Inject() (
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     val isGermany = request.userAnswers.get(RefundingCountryPage).exists(_.equalsIgnoreCase("DE"))
+    val isSimplified = request.userAnswers.get(InvoiceTypePage).contains(InvoiceType.SimplifiedInvoice)
     form
       .bindFromRequest()
       .fold(
@@ -93,8 +94,14 @@ class SupplierVatRegistrationNumberController @Inject() (
                 .getSupplierVrnCount(vrnCountRequest)
                 .flatMap { response =>
                   for {
-                    userAnswers    <- Future.fromTry(request.userAnswers.set(SupplierVatRegistrationNumberPage, value))
-                    updatedAnswers <- Future.fromTry(userAnswers.remove(SupplierVatRegistrationWarningPage))
+                    userAnswers <- Future.fromTry(request.userAnswers.set(SupplierVatRegistrationNumberPage, value))
+                    vatCheckAnswers <-
+                      if (!isGermany && isSimplified && value.trim.nonEmpty) {
+                        Future.fromTry(userAnswers.set(SupplierVatRegCheckPage, true))
+                      } else {
+                        Future.successful(userAnswers)
+                      }
+                    updatedAnswers <- Future.fromTry(vatCheckAnswers.remove(SupplierVatRegistrationWarningPage))
                     _              <- sessionRepository.set(updatedAnswers)
                   } yield {
                     if (response.duplicateCount > 0) {
