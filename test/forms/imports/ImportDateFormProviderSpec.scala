@@ -157,7 +157,7 @@ class ImportDateFormProviderSpec extends AnyFreeSpec with Matchers with ScalaChe
 
     "must fail for invalid combination (31 Feb) and highlight day" in {
       val result = form.bind(Map("value.day" -> "31", "value.month" -> "Feb", "value.year" -> "2025"))
-      result.errors must contain(FormError("value", "importDate.error.invalid.day", List.empty))
+      result.errors must contain(FormError("value", "importDate.error.invalid.day", List(messages("date.error.day"))))
     }
 
     "must fail when all fields are invalid and show generic invalid message" in {
