@@ -29,7 +29,7 @@ import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import views.html.PurchaseOrImportDateView
+import views.html.purchasesOrImports.PurchaseOrImportDateView
 
 import java.time.LocalDate
 import scala.concurrent.Future

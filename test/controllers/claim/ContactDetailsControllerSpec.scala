@@ -31,6 +31,7 @@ import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import queries.{ClaimDetailsAmendedQuery, ClaimDetailsCompletedQuery}
 import repositories.SessionRepository
 import views.html.claim.ContactDetailsView
 
@@ -219,7 +220,7 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
         }
       }
 
-      "must set ClaimDetailsAmendedPage to true when contact details are changed and ClaimDetailsCompletedPage is true" in {
+      "must set ClaimDetailsAmendedQuery to true when contact details are changed and ClaimDetailsCompletedQuery is true" in {
         val mockSessionRepository = mock[repositories.SessionRepository]
         when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
@@ -227,7 +228,7 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
           .set(claim.ContactDetailsPage, models.ContactDetails("existing@email.com", None))
           .success
           .value
-          .set(pages.ClaimDetailsCompletedPage, true)
+          .set(ClaimDetailsCompletedQuery, true)
           .success
           .value
 
@@ -247,11 +248,11 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
           import org.mockito.ArgumentCaptor
           val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
           verify(mockSessionRepository, times(1)).set(captor.capture())
-          captor.getValue.get(pages.ClaimDetailsAmendedPage) mustBe Some(true)
+          captor.getValue.get(ClaimDetailsAmendedQuery) mustBe Some(true)
         }
       }
 
-      "must NOT set ClaimDetailsAmendedPage when contact details are unchanged" in {
+      "must NOT set ClaimDetailsAmendedQuery when contact details are unchanged" in {
         val mockSessionRepository = mock[repositories.SessionRepository]
         when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
@@ -259,7 +260,7 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
           .set(claim.ContactDetailsPage, models.ContactDetails("test@email.com", None))
           .success
           .value
-          .set(pages.ClaimDetailsCompletedPage, true)
+          .set(ClaimDetailsCompletedQuery, true)
           .success
           .value
 
@@ -279,11 +280,11 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
           import org.mockito.ArgumentCaptor
           val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
           verify(mockSessionRepository, times(1)).set(captor.capture())
-          captor.getValue.get(pages.ClaimDetailsAmendedPage).isDefined mustBe false
+          captor.getValue.get(ClaimDetailsAmendedQuery).isDefined mustBe false
         }
       }
 
-      "must NOT set ClaimDetailsAmendedPage when ClaimDetailsCompletedPage is not set" in {
+      "must NOT set ClaimDetailsAmendedQuery when ClaimDetailsCompletedQuery is not set" in {
         val mockSessionRepository = mock[repositories.SessionRepository]
         when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
@@ -303,7 +304,7 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
           import org.mockito.ArgumentCaptor
           val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
           verify(mockSessionRepository, times(1)).set(captor.capture())
-          captor.getValue.get(pages.ClaimDetailsAmendedPage).isDefined mustBe false
+          captor.getValue.get(ClaimDetailsAmendedQuery).isDefined mustBe false
         }
       }
     }

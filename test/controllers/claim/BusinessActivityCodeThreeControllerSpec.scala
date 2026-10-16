@@ -29,6 +29,7 @@ import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import queries.{ClaimDetailsAmendedQuery, ClaimDetailsCompletedQuery}
 import views.html.claim.BusinessActivityCodeThreeView
 
 import scala.concurrent.Future
@@ -195,7 +196,7 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
       }
     }
 
-    "must set ClaimDetailsAmendedPage to true when third SIC code is changed and ClaimDetailsCompletedPage is true" in {
+    "must set ClaimDetailsAmendedQuery to true when third SIC code is changed and ClaimDetailsCompletedQuery is true" in {
       val mockSessionRepository = mock[repositories.SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
@@ -209,7 +210,7 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
         .set(claim.BusinessActivityCodeThreePage, "5678")
         .success
         .value
-        .set(pages.ClaimDetailsCompletedPage, true)
+        .set(ClaimDetailsCompletedQuery, true)
         .success
         .value
 
@@ -227,11 +228,11 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
         import org.mockito.ArgumentCaptor
         val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
-        captor.getValue.get(pages.ClaimDetailsAmendedPage) mustBe Some(true)
+        captor.getValue.get(ClaimDetailsAmendedQuery) mustBe Some(true)
       }
     }
 
-    "must NOT set ClaimDetailsAmendedPage when third SIC code is unchanged" in {
+    "must NOT set ClaimDetailsAmendedQuery when third SIC code is unchanged" in {
       val mockSessionRepository = mock[repositories.SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
@@ -245,7 +246,7 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
         .set(claim.BusinessActivityCodeThreePage, "5678")
         .success
         .value
-        .set(pages.ClaimDetailsCompletedPage, true)
+        .set(ClaimDetailsCompletedQuery, true)
         .success
         .value
 
@@ -263,11 +264,11 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
         import org.mockito.ArgumentCaptor
         val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
-        captor.getValue.get(pages.ClaimDetailsAmendedPage).isDefined mustBe false
+        captor.getValue.get(ClaimDetailsAmendedQuery).isDefined mustBe false
       }
     }
 
-    "must NOT set ClaimDetailsAmendedPage when ClaimDetailsCompletedPage is not set" in {
+    "must NOT set ClaimDetailsAmendedQuery when ClaimDetailsCompletedQuery is not set" in {
       val mockSessionRepository = mock[repositories.SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
@@ -293,7 +294,7 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
         import org.mockito.ArgumentCaptor
         val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
-        captor.getValue.get(pages.ClaimDetailsAmendedPage).isDefined mustBe false
+        captor.getValue.get(ClaimDetailsAmendedQuery).isDefined mustBe false
       }
     }
   }

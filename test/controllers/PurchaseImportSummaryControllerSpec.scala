@@ -46,7 +46,7 @@ class PurchaseImportSummaryControllerSpec extends SpecBase {
           itemType                    = "P",
           goodsDescriptionCategory    = "1",
           goodsDescriptionSubCategory = Some("1.2.3"),
-          currencyCode                = "EU",
+          currencyCode                = Some("EU"),
           taxableAmount               = BigDecimal(300),
           vatAmount                   = BigDecimal(200),
           deductibleVatAmount         = BigDecimal(100)
@@ -56,7 +56,7 @@ class PurchaseImportSummaryControllerSpec extends SpecBase {
           itemType                    = "I",
           goodsDescriptionCategory    = "7",
           goodsDescriptionSubCategory = Some("7.9"),
-          currencyCode                = "EU",
+          currencyCode                = Some("EU"),
           taxableAmount               = BigDecimal(456),
           vatAmount                   = BigDecimal(345),
           deductibleVatAmount         = BigDecimal(234)
@@ -123,7 +123,7 @@ class PurchaseImportSummaryControllerSpec extends SpecBase {
             itemType                    = "P",
             goodsDescriptionCategory    = "1",
             goodsDescriptionSubCategory = Some("1.2.3"),
-            currencyCode                = "EU",
+            currencyCode                = Some("EU"),
             taxableAmount               = BigDecimal(300),
             vatAmount                   = BigDecimal(200),
             deductibleVatAmount         = BigDecimal(100)
@@ -133,7 +133,7 @@ class PurchaseImportSummaryControllerSpec extends SpecBase {
             itemType                    = "I",
             goodsDescriptionCategory    = "7",
             goodsDescriptionSubCategory = None,
-            currencyCode                = "",
+            currencyCode                = None,
             taxableAmount               = 0,
             vatAmount                   = 0,
             deductibleVatAmount         = 0

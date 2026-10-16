@@ -241,8 +241,8 @@ class PurchaseTypeController @Inject() (
   ): Future[Result] =
     Future.fromTry(userAnswersTry).flatMap { persistedAnswers =>
       sessionRepository.set(persistedAnswers).flatMap { _ =>
-        if (persistedAnswers.get(AddPurchaseResponsePage).isEmpty && persistedAnswers.get(queries.ClaimApplicationResponseQuery).isDefined) {
-          addPurchaseAndPersist(persistedAnswers, value, mode)
+        if (persistedAnswers.get(ClaimApplicationResponseQuery).isDefined && mode == NormalMode) {
+          addPurchaseAndPersist(persistedAnswers, value, NormalMode)
         } else if (mode == CheckMode) {
           handleCheckModePostPersist(persistedAnswers, value)
         } else {
@@ -402,8 +402,7 @@ class PurchaseTypeController @Inject() (
     purchaseType: PurchaseOrImportType,
     mode: Mode
   )(implicit request: DataRequest[?]): Future[Result] = {
-    implicit val hc: HeaderCarrier =
-      HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     answers
       .get(ClaimApplicationResponseQuery)
       .fold {
@@ -413,7 +412,7 @@ class PurchaseTypeController @Inject() (
         val purchaseRequest = AddPurchaseRequest(
           applicationId            = claimResponse.applicationId,
           goodsDescriptionCategory = PurchaseOrImportType.codes(purchaseType),
-          updateSequenceNumber     = claimResponse.updateSeqNumber
+          updateSequenceNumber     = answers.get(UpdateSequenceNumberQuery).getOrElse(claimResponse.updateSeqNumber)
         )
 
         def persistAddPurchaseResponseAndRedirect(response: AddPurchaseResponse): Future[Result] =
@@ -421,7 +420,9 @@ class PurchaseTypeController @Inject() (
             updatedAnswers1 <- Future.fromTry(answers.set(AddPurchaseResponsePage, response))
             updatedAnswers2 <- Future.fromTry(updatedAnswers1.set(UpdateSequenceNumberQuery, response.updateSequenceNumber))
             _               <- sessionRepository.set(updatedAnswers2)
-          } yield redirectWithPrefix(navigator.nextPage(PurchaseTypePage, mode, updatedAnswers2))(request)
+          } yield {
+            redirectWithPrefix(navigator.nextPage(PurchaseTypePage, mode, updatedAnswers2))(request)
+          }
 
         euVatRefundsService
           .addPurchase(purchaseRequest)

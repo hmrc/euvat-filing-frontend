@@ -23,11 +23,12 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{ClaimDetailsCompletedPage, QuestionPage}
+import pages.QuestionPage
 import play.api.inject.bind
 import play.api.libs.json.{JsPath, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import queries.ClaimDetailsCompletedQuery
 import repositories.SessionRepository
 
 import scala.concurrent.Future
@@ -76,7 +77,7 @@ class TaskListDashboardControllerSpec extends SpecBase with MockitoSugar {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
-      val userAnswers = emptyUserAnswers.set(ClaimDetailsCompletedPage, true).success.value
+      val userAnswers = emptyUserAnswers.set(ClaimDetailsCompletedQuery, true).success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
@@ -176,7 +177,7 @@ class TaskListDashboardControllerSpec extends SpecBase with MockitoSugar {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
-      val userAnswers = emptyUserAnswers.set(ClaimDetailsCompletedPage, true).success.value
+      val userAnswers = emptyUserAnswers.set(ClaimDetailsCompletedQuery, true).success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(bind[SessionRepository].toInstance(mockSessionRepository))

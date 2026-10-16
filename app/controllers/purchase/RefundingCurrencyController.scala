@@ -21,7 +21,6 @@ import forms.RefundingCurrencyFormProvider
 import models.requests.DataRequest
 import models.{CheckMode, Mode, NormalMode, RefundingCurrency, UserAnswers}
 import navigation.Navigator
-import pages.{ClaimDetailsAmendedPage, ClaimDetailsCompletedPage}
 import pages.purchase.{CurrencyChangedPage, RefundingCurrencyPage, SupplierVatRegCheckPage}
 import play.api.Logger
 import play.api.data.Form
@@ -153,14 +152,8 @@ class RefundingCurrencyController @Inject() (
               purchaseCYA,
               None
             ) { (answersAfterSet: UserAnswers) =>
-              val maybeAmendedTry =
-                if (isChanged && request.userAnswers.get(ClaimDetailsCompletedPage).contains(true))
-                  answersAfterSet.set(ClaimDetailsAmendedPage, true)
-                else Success(answersAfterSet)
-
-              val maybeCurrencyChangedTry = maybeAmendedTry.flatMap { ua =>
-                if (isChanged) ua.set(CurrencyChangedPage, true) else Success(ua)
-              }
+              val maybeCurrencyChangedTry =
+                if (isChanged) answersAfterSet.set(CurrencyChangedPage, true) else Success(answersAfterSet)
 
               Future
                 .fromTry(maybeCurrencyChangedTry)

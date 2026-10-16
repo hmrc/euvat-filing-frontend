@@ -263,4 +263,50 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
       }
     }
   }
+
+  "EuVatRefundsService.updateApplicationDetails" - {
+
+    val request = UpdateApplicationDetailsRequest(
+      applicationId              = 133,
+      applicationLanguage        = "en",
+      refundingCountry           = "LV",
+      periodStartDate            = LocalDateTime.of(2011, 6, 1, 0, 0),
+      periodEndDate              = LocalDateTime.of(2011, 10, 31, 23, 59, 59),
+      applicantEmailAddress      = "test@hotmail.com",
+      applicantPhoneNumber       = None,
+      representativeCountry      = None,
+      representativeEmailAddress = None,
+      representativePhoneNumber  = None,
+      bankAccountOwnerName       = None,
+      bankAccountOwnerType       = None,
+      ibanCode                   = None,
+      bicCode                    = None,
+      bankAccountCurrencyCode    = None,
+      businessActivityCode2      = None,
+      businessActivityCode3      = None,
+      cipherText                 = None,
+      encryptionStatus           = None,
+      updateSequenceNumber       = 30
+    )
+
+    val expectedResponse = UpdateApplicationDetailsResponse(updateSequenceNumber = 32)
+
+    "should return the update application details response from the connector" in {
+      when(mockConnector.updateApplicationDetails(any())(any()))
+        .thenReturn(Future.successful(expectedResponse))
+
+      service.updateApplicationDetails(request)(hc).futureValue mustEqual expectedResponse
+    }
+
+    "should propagate an exception from the connector" in {
+      val failure = new RuntimeException("Connector failed")
+
+      when(mockConnector.updateApplicationDetails(any())(any()))
+        .thenReturn(Future.failed(failure))
+
+      whenReady(service.updateApplicationDetails(request).failed) { ex =>
+        ex mustEqual failure
+      }
+    }
+  }
 }
