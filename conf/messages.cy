@@ -34,6 +34,8 @@ error.title.prefix = Error:
 error.prefix = Error
 error.summary.title = There is a problem
 
+purchaseOrImportDate.hint = For example, 27 3 2025
+
 journeyRecovery.continue.title = Sorry, there is a problem with the service
 journeyRecovery.continue.heading = Sorry, there is a problem with the service
 journeyRecovery.continue.guidance = [Add content to explain how to proceed.]
@@ -530,7 +532,6 @@ importDetailsInfo.error.length = Import document details must be 255 characters 
 
 importDate.title = When is the import date?
 importDate.heading = When is the import date?
-importDate.hint = For example, 27 3 2025
 importDate.error.invalid = Enter a date in the correct format
 importDate.error.invalid.day = Enter a day in the correct format
 importDate.error.invalid.month = Enter a month in the correct format
@@ -543,19 +544,20 @@ importDate.error.past = The import date must be in the past
 importDate.checkYourAnswersLabel = Import date
 importDate.change.hidden = Change import date
 
-importDate.title = When is the import date?
-importDate.heading = When is the import date?
-importDate.error.invalid = Enter a date in the correct format
-importDate.error.invalid.day = Enter a day in the correct format
-importDate.error.invalid.month = Enter a month in the correct format
-importDate.error.invalid.year = Enter a year in the correct format
-importDate.error.invalid.two = Enter a {0} and {1} in the correct format
-importDate.error.required = Enter a {0}
-importDate.error.required.all = Enter a date
-importDate.error.required.two = Enter a {0} and {1}
-importDate.error.past = The import date must be in the past
-importDate.checkYourAnswersLabel = Import date
-importDate.change.hidden = Change import date
+import.refundingCurrency.title = Which currency do you want to use for this import?
+import.refundingCurrency.heading = Which currency do you want to use for this import?
+import.refundingCurrency.error.required = Select a currency for this import
+
+import.supplierAddress.lead = Enter the supplier’s address as it appears on the import document.
+import.supplierAddress.country.label = Country
+import.supplierAddress.line1.label.short=Address line 1
+import.supplierAddress.line2.label.short=Address line 2
+import.supplierAddress.line3.label.short=Address line 3
+import.supplierAddress.error.line1.maxLength={0} {1}
+import.supplierAddress.error.line2.maxLength={0} {1}
+import.supplierAddress.error.line3.maxLength={0} {1}
+import.supplierAddress.error.country.required=Select a country
+import.supplierAddress.error.country.invalid=Select a valid country
 
 purchaseOrImportDate.hint = For example, 27 3 2025
 
