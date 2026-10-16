@@ -27,7 +27,7 @@
     @formHelper(action = controllers.warning.routes.VatPaidWarningController.onSubmit(mode)) {
 
         <h1 class="govuk-heading-l">@messages("vatPaidWarning.heading")</h1>
-        <p class="govuk-body">@messages("vatPaidWarning.p", currencySymbol+vatPaid)</p>
+        <p class="govuk-body">@messages("vatPaidWarning.p", currencySymbol + setScale(vatPaid))</p>
 
         @govukWarningText(WarningText(
             iconFallbackText = Some("Warning"),

@@ -33,4 +33,6 @@ object ViewUtils {
   def errorPrefix(form: Form[?])(implicit messages: Messages): String = {
     if (form.hasErrors || form.hasGlobalErrors) messages("error.title.prefix") else ""
   }
+
+  def setScale(amount: BigDecimal)(implicit messages: Messages): BigDecimal = amount.setScale(2, BigDecimal.RoundingMode.HALF_UP)
 }
