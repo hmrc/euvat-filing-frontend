@@ -34,8 +34,6 @@ error.title.prefix = Error:
 error.prefix = Error
 error.summary.title = There is a problem
 
-purchaseOrImportDate.hint = For example, 27 3 2025
-
 journeyRecovery.continue.title = Sorry, there is a problem with the service
 journeyRecovery.continue.heading = Sorry, there is a problem with the service
 journeyRecovery.continue.guidance = [Add content to explain how to proceed.]
@@ -382,6 +380,8 @@ invoiceDate.error.past = The invoice date must be in the past
 invoiceDate.error.outsideRefundPeriod = The invoice date must be within the refund period
 invoiceDate.checkYourAnswersLabel = Invoice date
 invoiceDate.change.hidden = Change invoice date
+
+purchaseOrImportDate.hint = For example, 27 3 2025
 
 suppliersName.title = What is the supplier’s name?
 suppliersName.heading = What is the supplier’s name?

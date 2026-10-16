@@ -39,7 +39,7 @@ class RemoveItemControllerSpec extends SpecBase {
         itemType                    = itemType,
         goodsDescriptionCategory    = "1",
         goodsDescriptionSubCategory = Some("1.2.3"),
-        currencyCode                = "EU",
+        currencyCode                = Some("EU"),
         taxableAmount               = BigDecimal(300),
         vatAmount                   = BigDecimal(200),
         deductibleVatAmount         = deductibleVatAmount
