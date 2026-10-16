@@ -17,10 +17,11 @@
 package viewmodels.govuk
 
 import base.SpecBase
-import pages.{ClaimDetailsCompletedPage, PurchaseImportSummaryPage}
+import pages.PurchaseImportSummaryPage
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
 import viewmodels.TaskListViewModel
+import queries.ClaimDetailsCompletedQuery
 
 class TaskListViewModelSpec extends SpecBase {
   implicit val messages: Messages = stubMessages()
@@ -73,7 +74,7 @@ class TaskListViewModelSpec extends SpecBase {
     }
 
     "when claim details are completed" - {
-      val answers = emptyUserAnswers.set(ClaimDetailsCompletedPage, true).success.value
+      val answers = emptyUserAnswers.set(ClaimDetailsCompletedQuery, true).success.value
 
       "must return 5 items" in {
         val taskList = viewModel.buildTaskList(answers)
@@ -135,7 +136,7 @@ class TaskListViewModelSpec extends SpecBase {
       }
 
       "must return true when claim details are completed" in {
-        val answers = emptyUserAnswers.set(ClaimDetailsCompletedPage, true).success.value
+        val answers = emptyUserAnswers.set(ClaimDetailsCompletedQuery, true).success.value
         viewModel.showDeleteLink(answers) mustBe true
       }
     }

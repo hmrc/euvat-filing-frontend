@@ -118,7 +118,7 @@ class ImportSubCodeControllerSpec extends SpecBase {
         val result = route(application, FakeRequest(GET, otherRoute)).value
 
         status(result) mustEqual OK
-        contentAsString(result) must include(messages(application)("singleAdministrativeDocumentReferenceNumberAvailable.heading"))
+        contentAsString(result) must include(messages(application)("sadReferenceCheck.heading"))
       }
     }
 
@@ -129,7 +129,7 @@ class ImportSubCodeControllerSpec extends SpecBase {
         val result = route(application, FakeRequest(GET, fuelRoute)).value
 
         status(result) mustEqual OK
-        contentAsString(result) must include(messages(application)("singleAdministrativeDocumentReferenceNumberAvailable.heading"))
+        contentAsString(result) must include(messages(application)("sadReferenceCheck.heading"))
       }
     }
 
@@ -141,7 +141,7 @@ class ImportSubCodeControllerSpec extends SpecBase {
         val result = route(application, FakeRequest(GET, fuelRoute)).value
 
         status(result) mustEqual OK
-        contentAsString(result) must include(messages(application)("singleAdministrativeDocumentReferenceNumberAvailable.heading"))
+        contentAsString(result) must include(messages(application)("sadReferenceCheck.heading"))
       }
     }
 
@@ -153,7 +153,7 @@ class ImportSubCodeControllerSpec extends SpecBase {
         val result = route(application, FakeRequest(GET, fuelRoute)).value
 
         status(result) mustEqual OK
-        contentAsString(result) must include(messages(application)("singleAdministrativeDocumentReferenceNumberAvailable.heading"))
+        contentAsString(result) must include(messages(application)("sadReferenceCheck.heading"))
       }
     }
 

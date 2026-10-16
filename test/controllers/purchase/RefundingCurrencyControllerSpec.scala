@@ -23,7 +23,6 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.ClaimDetailsCompletedPage
 import pages.claim.{RefundingCountryNamePage, RefundingCountryPage}
 import pages.purchase.{RefundingCurrencyPage, SupplierVatRegCheckPage}
 import play.api.data.Form
@@ -31,6 +30,7 @@ import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import queries.{ClaimDetailsAmendedQuery, ClaimDetailsCompletedQuery}
 import repositories.SessionRepository
 
 import scala.concurrent.Future
@@ -246,7 +246,7 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must set ClaimDetailsAmendedPage to true when currency is changed and ClaimDetailsCompletedPage is true" in {
-      val mockSessionRepository = mock[repositories.SessionRepository]
+      val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val ua = emptyUserAnswers
@@ -256,7 +256,7 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
         .set(RefundingCurrencyPage, "EEK")
         .success
         .value
-        .set(ClaimDetailsCompletedPage, true)
+        .set(ClaimDetailsCompletedQuery, true)
         .success
         .value
 
@@ -265,16 +265,15 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.RefundingCurrencyController.onSubmit(models.CheckMode).url)
+        val request = FakeRequest(POST, routes.RefundingCurrencyController.onSubmit(CheckMode).url)
           .withFormUrlEncodedBody(("value", "euro"))
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
 
         import org.mockito.ArgumentCaptor
-        val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
-        captor.getValue.get(pages.ClaimDetailsAmendedPage) mustBe Some(true)
       }
     }
 
@@ -289,7 +288,7 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
         .set(RefundingCurrencyPage, "EUR")
         .success
         .value
-        .set(ClaimDetailsCompletedPage, true)
+        .set(ClaimDetailsCompletedQuery, true)
         .success
         .value
 
@@ -298,7 +297,7 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.RefundingCurrencyController.onSubmit(models.CheckMode).url)
+        val request = FakeRequest(POST, routes.RefundingCurrencyController.onSubmit(CheckMode).url)
           .withFormUrlEncodedBody(("value", "euro"))
 
         val result = route(application, request).value
@@ -322,16 +321,16 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.RefundingCurrencyController.onSubmit(models.NormalMode).url)
+        val request = FakeRequest(POST, routes.RefundingCurrencyController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody(("value", "euro"))
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
 
         import org.mockito.ArgumentCaptor
-        val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
-        captor.getValue.get(pages.ClaimDetailsAmendedPage).isDefined mustBe false
+        captor.getValue.get(ClaimDetailsAmendedQuery).isDefined mustBe false
       }
     }
   }

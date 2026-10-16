@@ -24,13 +24,13 @@ import models.RefundingLanguage
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.ClaimDetailsCompletedPage
 import pages.claim.{RefundingCountryNamePage, RefundingCountryPage, RefundingLanguagePage}
 import play.api.Configuration
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import queries.{ClaimDetailsAmendedQuery, ClaimDetailsCompletedQuery}
 import repositories.SessionRepository
 import utils.ConfigLanguageMapping
 import views.html.claim.RefundingLanguageView
@@ -216,7 +216,7 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must set ClaimDetailsAmendedPage to true when language is changed and ClaimDetailsCompletedPage is true" in {
+    "must set ClaimDetailsAmendedQuery to true when language is changed and ClaimDetailsCompletedQuery is true" in {
       val mockSessionRepository = mock[repositories.SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
@@ -227,7 +227,7 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
         .set(RefundingLanguagePage, models.RefundingLanguage.French)
         .success
         .value
-        .set(pages.ClaimDetailsCompletedPage, true)
+        .set(ClaimDetailsCompletedQuery, true)
         .success
         .value
 
@@ -245,11 +245,11 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
         import org.mockito.ArgumentCaptor
         val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
-        captor.getValue.get(pages.ClaimDetailsAmendedPage) mustBe Some(true)
+        captor.getValue.get(ClaimDetailsAmendedQuery) mustBe Some(true)
       }
     }
 
-    "must NOT set ClaimDetailsAmendedPage when language is unchanged" in {
+    "must NOT set ClaimDetailsAmendedQuery when language is unchanged" in {
       val mockSessionRepository = mock[repositories.SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
@@ -260,7 +260,7 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
         .set(RefundingLanguagePage, RefundingLanguage.English)
         .success
         .value
-        .set(ClaimDetailsCompletedPage, true)
+        .set(ClaimDetailsCompletedQuery, true)
         .success
         .value
 
@@ -278,11 +278,11 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
         import org.mockito.ArgumentCaptor
         val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
-        captor.getValue.get(pages.ClaimDetailsAmendedPage).isDefined mustBe false
+        captor.getValue.get(ClaimDetailsAmendedQuery).isDefined mustBe false
       }
     }
 
-    "must NOT set ClaimDetailsAmendedPage when ClaimDetailsCompletedPage is not set" in {
+    "must NOT set ClaimDetailsAmendedQuery when ClaimDetailsCompletedQuery is not set" in {
       val mockSessionRepository = mock[repositories.SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
@@ -305,7 +305,7 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
         import org.mockito.ArgumentCaptor
         val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
-        captor.getValue.get(pages.ClaimDetailsAmendedPage).isDefined mustBe false
+        captor.getValue.get(ClaimDetailsAmendedQuery).isDefined mustBe false
       }
     }
   }

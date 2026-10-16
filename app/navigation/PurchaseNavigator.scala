@@ -30,7 +30,7 @@ class PurchaseNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchas
     (userAnswers.get(PurchaseTypePage), CountryCode.findCountryCode(userAnswers)) match {
       case (Some(purchaseTypeCode), Some(country)) =>
         if (configPurchaseOrImportMapping.subcodesFor(country, purchaseTypeCode.toString).nonEmpty) {
-          Call("GET", s"/${PurchaseOrImportType.urlSlugForPurchaseType(purchaseTypeCode)}")
+          purchaseRoutes.PurchaseSubTypeController.onPageLoad(PurchaseOrImportType.urlSlugForPurchaseType(purchaseTypeCode), mode)
         } else {
           mode match {
             case CheckMode => purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
