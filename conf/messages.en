@@ -362,7 +362,7 @@ invoiceNumber.p1 = You can only use an invoice number once. Your claim may be re
 invoiceNumber.error.required = Enter an invoice number
 invoiceNumber.error.length = The invoice number must be {0} characters or less
 invoiceNumber.error.invalid = Enter a valid invoice number
-invoiceNumber.checkYourAnswersLabel = Invoice number
+invoiceNumber.checkYourAnswersLabel = Number
 invoiceNumber.change.hidden = Change the invoice number
 
 invoiceDate.title = What is the invoice date?
@@ -378,7 +378,7 @@ invoiceDate.error.required.all = Enter a date
 invoiceDate.error.required.two = Enter a {0} and {1}
 invoiceDate.error.past = The invoice date must be in the past
 invoiceDate.error.outsideRefundPeriod = The invoice date must be within the refund period
-invoiceDate.checkYourAnswersLabel = Invoice date
+invoiceDate.checkYourAnswersLabel = Date
 invoiceDate.change.hidden = Change invoice date
 
 suppliersName.title = What is the supplier’s name?
@@ -399,7 +399,7 @@ supplierAddress.line3.label = Address line 3 (optional)
 supplierAddress.error.line1.required = Enter address line 1, typically the building and street
 supplierAddress.error.maxLength = must be 35 characters or less
 supplierAddress.error.maxLength.withLabel = {0} {1}
-supplierAddress.checkYourAnswersLabel=Supplier address
+supplierAddress.checkYourAnswersLabel = Address
 supplierAddress.change.hidden = Change supplier address
 
 supplierTaxNumberCheck.title = Select the supplier tax numbers shown on the invoice
@@ -417,8 +417,8 @@ supplierVatRegCheck.title = Does the simplified invoice contain the supplier’s
 supplierVatRegCheck.heading = Does the simplified invoice contain the supplier’s VAT registration number?
 supplierVatRegCheck.hint = This can be up to 12 characters and may start with a 2-letter EU country code. For example, FR123456789
 supplierVatRegCheck.error.required = Select yes if the simplified invoice contains the supplier’s VAT registration number
-supplierVatRegCheck.checkYourAnswersLabel = Supplier VAT registration check
-supplierVatRegCheck.change.hidden = Change supplier VAT registration check
+supplierVatRegCheck.checkYourAnswersLabel = VAT registration
+supplierVatRegCheck.change.hidden = Change supplier VAT registration
 
 supplierVatRegistrationNumber.title = What is the supplier’s VAT registration number?
 supplierVatRegistrationNumber.heading = What is the supplier’s VAT registration number?
@@ -541,6 +541,8 @@ importDate.error.past = The import date must be in the past
 importDate.checkYourAnswersLabel = Import date
 importDate.change.hidden = Change import date
 
+purchaseOrImportDate.hint = For example, 27 3 2025
+
 totalAmountWithoutVat.title = Total amount without VAT
 totalAmountWithoutVat.heading = Total amount without VAT
 totalAmountWithoutVat.inset = The currency for this claim is in {0} ({1}). For import documents in any other currency, you must convert the amounts before adding them to your claim. Use the <a href="https://data.ecb.europa.eu/currency-converter" class="govuk-link" rel="noreferrer noopener" target="_blank">European Central Bank currency converter (opens in a new tab)</a>.
@@ -569,8 +571,6 @@ import.supplierAddress.error.country.invalid=Select a valid country
 import.refundingCurrency.title = Which currency do you want to use for this import?
 import.refundingCurrency.heading = Which currency do you want to use for this import?
 import.refundingCurrency.error.required = Select a currency for this import
-
-purchaseOrImportDate.hint = For example, 27 3 2025
 
 purchaseImportSummary.title = You have added {0} {1} to this claim
 purchaseImportSummary.heading = You have added {0} {1} to this claim
