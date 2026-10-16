@@ -362,7 +362,7 @@ invoiceNumber.p1 = You can only use an invoice number once. Your claim may be re
 invoiceNumber.error.required = Enter an invoice number
 invoiceNumber.error.length = The invoice number must be {0} characters or less
 invoiceNumber.error.invalid = Enter a valid invoice number
-invoiceNumber.checkYourAnswersLabel = Number
+invoiceNumber.checkYourAnswersLabel = Invoice number
 invoiceNumber.change.hidden = Change the invoice number
 
 invoiceDate.title = What is the invoice date?
@@ -378,7 +378,7 @@ invoiceDate.error.required.all = Enter a date
 invoiceDate.error.required.two = Enter a {0} and {1}
 invoiceDate.error.past = The invoice date must be in the past
 invoiceDate.error.outsideRefundPeriod = The invoice date must be within the refund period
-invoiceDate.checkYourAnswersLabel = Date
+invoiceDate.checkYourAnswersLabel = Invoice date
 invoiceDate.change.hidden = Change invoice date
 
 suppliersName.title = What is the supplier’s name?
@@ -399,7 +399,7 @@ supplierAddress.line3.label = Address line 3 (optional)
 supplierAddress.error.line1.required = Enter address line 1, typically the building and street
 supplierAddress.error.maxLength = must be 35 characters or less
 supplierAddress.error.maxLength.withLabel = {0} {1}
-supplierAddress.checkYourAnswersLabel = Address
+supplierAddress.checkYourAnswersLabel=Supplier address
 supplierAddress.change.hidden = Change supplier address
 
 supplierTaxNumberCheck.title = Select the supplier tax numbers shown on the invoice
@@ -417,7 +417,7 @@ supplierVatRegCheck.title = Does the simplified invoice contain the supplier’s
 supplierVatRegCheck.heading = Does the simplified invoice contain the supplier’s VAT registration number?
 supplierVatRegCheck.hint = This can be up to 12 characters and may start with a 2-letter EU country code. For example, FR123456789
 supplierVatRegCheck.error.required = Select yes if the simplified invoice contains the supplier’s VAT registration number
-supplierVatRegCheck.checkYourAnswersLabel = VAT registration
+supplierVatRegCheck.checkYourAnswersLabel = Supplier VAT registration check
 supplierVatRegCheck.change.hidden = Change supplier VAT registration check
 
 supplierVatRegistrationNumber.title = What is the supplier’s VAT registration number?
@@ -435,7 +435,7 @@ supplierTaxIdentifierNumber.heading = What is the supplier’s tax identifier nu
 supplierTaxIdentifierNumber.hint = This is 10 or 11 digits, for example 12/345/67890
 supplierTaxIdentifierNumber.error.required = Enter the supplier’s tax identifier number
 supplierTaxIdentifierNumber.error.length = Supplier’s tax identifier number cannot be more than 20 characters
-supplierTaxIdentifierNumber.checkYourAnswersLabel = TAX identifier number
+supplierTaxIdentifierNumber.checkYourAnswersLabel = Tax identifier number
 supplierTaxIdentifierNumber.change.hidden = Change supplier’s tax identifier number
 
 totalPurchaseAmountBeforeVat.title = Total purchase amount before VAT
@@ -445,7 +445,7 @@ totalPurchaseAmountBeforeVat.inset = The currency for this claim is in {0} ({1})
 totalPurchaseAmountBeforeVat.p1 = This is the purchase amount before VAT is added. If your invoice does not show this amount, you’ll need to <a href="https://www.gov.uk/charge-reclaim-record-vat" class="govuk-link" target="_blank" rel="noreferrer noopener">calculate it (opens in a new tab)</a>.
 totalPurchaseAmountBeforeVat.hint = For example, {0}150 or {0}120.45
 totalPurchaseAmountBeforeVat.checkYourAnswersLabel = Amount without VAT
-totalPurchaseAmountBeforeVat.change.hidden = Total purchase amount before VAT
+totalPurchaseAmountBeforeVat.change.hidden = Total purchase amount without VAT
 totalPurchaseAmountBeforeVat.error.nonNumeric = Enter the total purchase amount before VAT in the correct format
 totalPurchaseAmountBeforeVat.error.required = Enter the total purchase amount before VAT
 totalPurchaseAmountBeforeVat.error.aboveMaximum = Total purchase amount before VAT must be between -999,999,999.99 and 999,999,999.99
