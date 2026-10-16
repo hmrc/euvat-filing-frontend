@@ -31,6 +31,7 @@ import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ControllerHelpers.*
 import utils.CurrencyConfig
+import controllers.routes.JourneyRecoveryController
 import views.html.warning.VatClaimWarningView
 
 import javax.inject.Inject
@@ -57,7 +58,7 @@ class VatClaimWarningController @Inject() (
       case Some(Import) =>
         (answers.get(TotalVatPaidImportPage), answers.get(ImportTotalVatClaimPage), importRoutes.TotalVatClaimController.onPageLoad(mode))
       case None =>
-        (None, None, controllers.routes.JourneyRecoveryController.onPageLoad())
+        (None, None, JourneyRecoveryController.onPageLoad())
     }
 
     journeyAnswers match {
@@ -67,7 +68,7 @@ class VatClaimWarningController @Inject() (
 
       case _ =>
         logger.warn("Missing session data")
-        Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+        Redirect(JourneyRecoveryController.onPageLoad())
     }
   }
 
@@ -75,7 +76,7 @@ class VatClaimWarningController @Inject() (
     request.userAnswers.get(PurchaseOrImportPage) match {
       case Some(Purchase) => Redirect(navigator.nextPage(TotalVatClaimPage, mode, request.userAnswers))
       case Some(Import)   => Redirect(navigator.nextPage(ImportTotalVatClaimPage, mode, request.userAnswers))
-      case None           => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+      case None           => Redirect(JourneyRecoveryController.onPageLoad())
     }
   }
 

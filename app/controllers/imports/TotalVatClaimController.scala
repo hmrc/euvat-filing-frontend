@@ -29,6 +29,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ControllerHelpers.currencySymbolFromSession
 import utils.CurrencyConfig
 import views.html.purchasesOrImports.PurchaseOrImportTotalVatClaimView
+import controllers.warning.routes as warningRoutes
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -74,7 +75,7 @@ class TotalVatClaimController @Inject() (
           } yield {
             val totalVatPaid: BigDecimal = userAnswers.get(TotalVatPaidImportPage).getOrElse(BigDecimal(0))
             if (value > totalVatPaid) {
-              Redirect(controllers.warning.routes.VatClaimWarningController.onPageLoad(mode))
+              Redirect(warningRoutes.VatClaimWarningController.onPageLoad(mode))
             } else {
               Redirect(navigator.nextPage(ImportTotalVatClaimPage, mode, userAnswers))
             }
