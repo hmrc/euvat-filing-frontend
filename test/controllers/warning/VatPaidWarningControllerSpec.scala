@@ -32,10 +32,11 @@ class VatPaidWarningControllerSpec extends SpecBase {
 
   private val vatPaid = BigDecimal("999")
   private val totalAmount = BigDecimal("1000")
+  private val Currency = "€"
 
   "VatPaidWarningController Controller" - {
 
-    "must return OK and the correct view for a GET on a Purchase in NormalMode" in {
+    "must return OK and the correct view with the VAT amount showing 2 decimal digits for a GET on a Purchase in NormalMode" in {
       val answers = emptyUserAnswers.set(TotalPurchaseAmountBeforeVatPage, totalAmount).success.value
       val userAnswers = answers.set(TotalVatPaidPage, vatPaid).success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
@@ -45,14 +46,17 @@ class VatPaidWarningControllerSpec extends SpecBase {
         val result = route(application, request).value
         val view = application.injector.instanceOf[VatPaidWarningView]
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(purchase.routes.TotalVatPaidController.onPageLoad(NormalMode), NormalMode, "€", vatPaid)(
+
+        val stringContent = contentAsString(result)
+        contentAsString(result) mustEqual view(purchase.routes.TotalVatPaidController.onPageLoad(NormalMode), NormalMode, Currency, vatPaid)(
           request,
           messages(application)
         ).toString
+        stringContent must include(Currency + vatPaid.setScale(2, BigDecimal.RoundingMode.HALF_UP).toString)
       }
     }
 
-    "must return OK and the correct view for a GET on an Import in NormalMode" in {
+    "must return OK and the correct view with the VAT amount showing 2 decimal digits for a GET on an Import in NormalMode" in {
       val answers = emptyUserAnswers.set(TotalAmountWithoutVatPage, totalAmount).success.value
       val userAnswers = answers.set(TotalVatPaidImportPage, vatPaid).success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
@@ -62,10 +66,13 @@ class VatPaidWarningControllerSpec extends SpecBase {
         val result = route(application, request).value
         val view = application.injector.instanceOf[VatPaidWarningView]
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(imports.routes.TotalVatPaidImportController.onPageLoad(NormalMode), NormalMode, "€", vatPaid)(
+
+        val stringContent = contentAsString(result)
+        stringContent mustEqual view(imports.routes.TotalVatPaidImportController.onPageLoad(NormalMode), NormalMode, Currency, vatPaid)(
           request,
           messages(application)
         ).toString
+        stringContent must include(Currency + vatPaid.setScale(2, BigDecimal.RoundingMode.HALF_UP).toString)
       }
     }
 
