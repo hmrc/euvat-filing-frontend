@@ -34,8 +34,6 @@ error.title.prefix = Error:
 error.prefix = Error
 error.summary.title = There is a problem
 
-purchaseOrImportDate.hint = For example, 27 3 2025
-
 journeyRecovery.continue.title = Sorry, there is a problem with the service
 journeyRecovery.continue.heading = Sorry, there is a problem with the service
 journeyRecovery.continue.guidance = [Add content to explain how to proceed.]
@@ -543,6 +541,8 @@ importDate.error.required.two = Enter a {0} and {1}
 importDate.error.past = The import date must be in the past
 importDate.checkYourAnswersLabel = Import date
 importDate.change.hidden = Change import date
+
+purchaseOrImportDate.hint = For example, 27 3 2025
 
 import.refundingCurrency.title = Which currency do you want to use for this import?
 import.refundingCurrency.heading = Which currency do you want to use for this import?
