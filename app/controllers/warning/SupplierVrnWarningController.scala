@@ -20,7 +20,8 @@ import controllers.actions.*
 import controllers.purchase.routes
 import models.{CheckMode, Mode, NormalMode}
 import navigation.Navigator
-import pages.{SupplierVatRegistrationWarningPage, TotalPurchaseAmountBeforeVatPage}
+import pages.purchase.TotalPurchaseAmountBeforeVatPage
+import pages.warning.SupplierVatRegistrationWarningPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository

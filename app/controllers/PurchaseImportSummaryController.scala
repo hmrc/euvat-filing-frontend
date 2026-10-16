@@ -32,7 +32,7 @@ import services.EuVatRefundsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.CurrencyConfig
 import viewmodels.checkAnswers.PurchaseImportListSummary
-import views.html.PurchaseImportSummaryView
+import views.html.purchasesOrImports.PurchaseImportSummaryView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

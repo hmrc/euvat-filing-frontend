@@ -24,11 +24,13 @@ import navigation.FakeNavigator
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.BusinessActivityCodeTwoPage
+import pages.claim
+import pages.claim.{BusinessActivityCodePage, BusinessActivityCodeThreePage, BusinessActivityCodeTwoPage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import queries.{ClaimDetailsAmendedQuery, ClaimDetailsCompletedQuery}
 import views.html.claim.BusinessActivityCodeTwoView
 
 import scala.concurrent.Future
@@ -148,7 +150,7 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return a Bad Request and duplicate error when submitted code matches first business activity" in {
-      val userAnswers = emptyUserAnswers.set(pages.BusinessActivityCodePage, "4920").success.value
+      val userAnswers = emptyUserAnswers.set(BusinessActivityCodePage, "4920").success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -165,8 +167,8 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
 
     "must return a Bad Request and duplicate error when submitted code matches third business activity" in {
       val userAnswers = emptyUserAnswers
-        .set(pages.BusinessActivityCodePage, "4920")
-        .flatMap(_.set(pages.BusinessActivityCodeThreePage, "7777"))
+        .set(claim.BusinessActivityCodePage, "4920")
+        .flatMap(_.set(BusinessActivityCodeThreePage, "7777"))
         .success
         .value
 
@@ -214,15 +216,15 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must set ClaimDetailsAmendedPage to true when second SIC code is changed and ClaimDetailsCompletedPage is true" in {
+    "must set ClaimDetailsAmendedQuery to true when second SIC code is changed and ClaimDetailsCompletedQuery is true" in {
       val mockSessionRepository = mock[repositories.SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val ua = emptyUserAnswers
-        .set(pages.BusinessActivityCodeTwoPage, "1234")
+        .set(claim.BusinessActivityCodeTwoPage, "1234")
         .success
         .value
-        .set(pages.ClaimDetailsCompletedPage, true)
+        .set(ClaimDetailsCompletedQuery, true)
         .success
         .value
 
@@ -240,19 +242,19 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
         import org.mockito.ArgumentCaptor
         val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
-        captor.getValue.get(pages.ClaimDetailsAmendedPage) mustBe Some(true)
+        captor.getValue.get(ClaimDetailsAmendedQuery) mustBe Some(true)
       }
     }
 
-    "must NOT set ClaimDetailsAmendedPage when second SIC code is unchanged" in {
+    "must NOT set ClaimDetailsAmendedQuery when second SIC code is unchanged" in {
       val mockSessionRepository = mock[repositories.SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val ua = emptyUserAnswers
-        .set(pages.BusinessActivityCodeTwoPage, "1234")
+        .set(claim.BusinessActivityCodeTwoPage, "1234")
         .success
         .value
-        .set(pages.ClaimDetailsCompletedPage, true)
+        .set(ClaimDetailsCompletedQuery, true)
         .success
         .value
 
@@ -270,11 +272,11 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
         import org.mockito.ArgumentCaptor
         val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
-        captor.getValue.get(pages.ClaimDetailsAmendedPage).isDefined mustBe false
+        captor.getValue.get(ClaimDetailsAmendedQuery).isDefined mustBe false
       }
     }
 
-    "must NOT set ClaimDetailsAmendedPage when ClaimDetailsCompletedPage is not set" in {
+    "must NOT set ClaimDetailsAmendedQuery when ClaimDetailsCompletedQuery is not set" in {
       val mockSessionRepository = mock[repositories.SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
@@ -292,7 +294,7 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
         import org.mockito.ArgumentCaptor
         val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
-        captor.getValue.get(pages.ClaimDetailsAmendedPage).isDefined mustBe false
+        captor.getValue.get(ClaimDetailsAmendedQuery).isDefined mustBe false
       }
     }
   }

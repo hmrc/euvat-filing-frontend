@@ -17,12 +17,13 @@
 package utils
 
 import models.UserAnswers
+import pages.claim.{RefundingCountryNamePage, RefundingCountryPage}
 
 object CountryCode {
 
   def findCountryCode(userAnswers: UserAnswers): Option[String] = {
-    userAnswers.get(pages.RefundingCountryPage).orElse {
-      userAnswers.get(pages.RefundingCountryNamePage).map { stored =>
+    userAnswers.get(RefundingCountryPage).orElse {
+      userAnswers.get(RefundingCountryNamePage).map { stored =>
         stored.split(",", 2).headOption.getOrElse(stored)
       }
     }

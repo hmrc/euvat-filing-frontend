@@ -21,7 +21,7 @@ import forms.RefundingCurrencyFormProvider
 import models.requests.DataRequest
 import models.{CheckMode, Mode, NormalMode, RefundingCurrency, UserAnswers}
 import navigation.Navigator
-import pages.{ClaimDetailsAmendedPage, ClaimDetailsCompletedPage, CurrencyChangedPage, RefundingCurrencyPage, SimplifiedInvoiceVatRegCheckPage}
+import pages.purchase.{CurrencyChangedPage, RefundingCurrencyPage, SupplierVatRegCheckPage}
 import play.api.Logger
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -31,7 +31,7 @@ import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.*
-import views.html.RefundingCurrencyView
+import views.html.purchasesOrImports.RefundingCurrencyView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -60,8 +60,8 @@ class RefundingCurrencyController @Inject() (
     mode match {
       case CheckMode => routes.CheckYourPurchaseDetailsController.onPageLoad()
       case _ =>
-        if (userAnswers.get(SimplifiedInvoiceVatRegCheckPage).contains(false)) {
-          routes.SimplifiedInvoiceVatRegCheckController.onPageLoad(NormalMode)
+        if (userAnswers.get(SupplierVatRegCheckPage).contains(false)) {
+          routes.SupplierVatRegCheckController.onPageLoad(NormalMode)
         } else {
           routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode)
         }
@@ -152,14 +152,8 @@ class RefundingCurrencyController @Inject() (
               purchaseCYA,
               None
             ) { (answersAfterSet: UserAnswers) =>
-              val maybeAmendedTry =
-                if (isChanged && request.userAnswers.get(ClaimDetailsCompletedPage).contains(true))
-                  answersAfterSet.set(ClaimDetailsAmendedPage, true)
-                else Success(answersAfterSet)
-
-              val maybeCurrencyChangedTry = maybeAmendedTry.flatMap { ua =>
-                if (isChanged) ua.set(CurrencyChangedPage, true) else Success(ua)
-              }
+              val maybeCurrencyChangedTry =
+                if (isChanged) answersAfterSet.set(CurrencyChangedPage, true) else Success(answersAfterSet)
 
               Future
                 .fromTry(maybeCurrencyChangedTry)

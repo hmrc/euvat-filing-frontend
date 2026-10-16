@@ -259,10 +259,24 @@ checkYourClaimDetails.paragraph = You cannot change the refunding EU member stat
 checkYourClaimDetails.claimDetails.title = Claim details
 checkYourClaimDetails.claimDetails.heading = Claim details
 
+checkYourStateDetails.title = EU member state details
+checkYourStateDetails.heading = EU member state details
+checkYourStateDetails.p1 = You cannot change the refunding EU member state for an existing claim.
+checkYourStateDetails.p2 = If you want to claim a VAT refund from a different EU member state, you must delete this claim and start a new one. Any existing claim details will not be saved.
+checkYourStateDetails.legend = Do you want to delete this claim and start a new one for a different EU member state?
+checkYourStateDetails.yes = Yes, delete this claim
+checkYourStateDetails.no = No, return to claim
+checkYourStateDetails.error.required = Select yes if you want to delete this claim
+
 checkYourPurchaseDetails.title = Check your purchase details
 checkYourPurchaseDetails.heading = Check your purchase details
 checkYourPurchaseDetails.refundingCurrency.label = Currency
 checkYourPurchaseDetails.refundingCurrency.change.hidden = Change currency
+
+purchase.checkYourPurchase.purchaseCategory = Purchase category
+purchase.checkYourPurchase.invoiceDetails = Invoice details
+purchase.checkYourPurchase.supplierDetails = Supplier details
+purchase.checkYourPurchase.purchaseAmounts = Purchase amounts
 
 deleteClaim.title = Delete claim
 deleteClaim.heading = Delete claim
@@ -288,6 +302,46 @@ purchaseOrImport.purchase = Purchase
 purchaseOrImport.import = Import
 purchaseOrImport.error.required = Select an item you want to add to this claim
 
+purchaseType.title = Purchase type
+purchaseType.heading = Purchase type
+purchaseType.h2 = What category best describes the item on your invoice?
+purchaseType.p1 = If your invoice includes items that fall under more than one category (for example, a hotel bill including both accommodation and meals), you must either select:
+purchaseType.li1 = ‘Other’ and give a description of the items
+purchaseType.li2 = the category that relates to the highest-value item
+purchaseType.fuel = Fuel
+purchaseType.transport = Transport costs
+purchaseType.foodAndDrink = Food, drink and restaurant services
+purchaseType.luxuries = Luxuries, entertainment and hospitality
+purchaseType.other = Other
+purchaseType.error.required = Select the type of purchase
+purchaseType.checkYourAnswersLabel = Purchase type
+purchaseType.change.hidden = Change purchase type
+
+purchase.subType.fuel-use = Fuel use
+purchase.subType.transport-cost = Transport cost type
+purchase.subType.food-drink-restaurant-cost = Food, drink or restaurant cost type
+purchase.subType.luxury-entertainment-hospitality-cost = Luxury, entertainment or hospitality cost type
+purchase.subType.other = Other purchase type
+purchase.subType.change.hidden = Change sub type
+
+purchase.subCategory.fuel-type = Fuel type
+purchase.subCategory.fuel-type-or-vehicle = Fuel or vehicle type
+purchase.subCategory.vehicle-use = Vehicle use
+purchase.subCategory.what-transport-cost = Additional transport cost type
+purchase.subCategory.who-food-drink-for = Food and drink for
+purchase.subCategory.cost-for-publicity-purposes = Cost for publicity purposes
+purchase.subCategory.property-purchase-type = Property purchase type
+purchase.subCategory.property-cost-type = Property cost type
+purchase.subCategory.change.hidden = Change sub category
+
+describeItemsOnInvoice.title = Describe the items on your invoice
+describeItemsOnInvoice.heading = Describe the items on your invoice
+describeItemsOnInvoice.hint = List each item and the exact amount you paid for it. Include the currency shown on the invoice. For example, an invoice including €150 for fuel and €50 for transport costs.
+describeItemsOnInvoice.error.required = Enter a description of the items on your invoice
+describeItemsOnInvoice.error.length = Item description must be 255 characters or less
+describeItemsOnInvoice.checkYourAnswersLabel = Purchase description
+describeItemsOnInvoice.change.hidden = Change purchase description
+
 invoiceType.title = Invoice type
 invoiceType.heading = Invoice type
 invoiceType.lead = You will need a valid VAT invoice or receipt. You cannot use statements, orders, letters, emails or other general correspondence to claim VAT.
@@ -300,6 +354,33 @@ invoiceType.error.required = Select an invoice type
 invoiceType.change.hidden = Change invoice type
 invoiceType.checkYourAnswersLabel = Invoice type
 
+invoiceNumber.title = Invoice number
+invoiceNumber.heading = Invoice number
+invoiceNumber.h2 = What is the invoice number?
+invoiceNumber.hint = Invoice numbers are a set of letters or numbers usually found at the top or bottom of the invoice
+invoiceNumber.p1 = You can only use an invoice number once. Your claim may be rejected if you enter the same number twice.
+invoiceNumber.error.required = Enter an invoice number
+invoiceNumber.error.length = The invoice number must be {0} characters or less
+invoiceNumber.error.invalid = Enter a valid invoice number
+invoiceNumber.checkYourAnswersLabel = Invoice number
+invoiceNumber.change.hidden = Change the invoice number
+
+invoiceDate.title = What is the invoice date?
+invoiceDate.heading = What is the invoice date?
+invoiceDate.hint = For example, 27 3 2025
+invoiceDate.error.invalid = Enter a valid date
+invoiceDate.error.invalid.day = Enter a valid day
+invoiceDate.error.invalid.month = Enter a valid month
+invoiceDate.error.invalid.year = Enter a valid year
+invoiceDate.error.invalid.two = Enter a valid {0} and {1}
+invoiceDate.error.required = Enter a {0}
+invoiceDate.error.required.all = Enter a date
+invoiceDate.error.required.two = Enter a {0} and {1}
+invoiceDate.error.past = The invoice date must be in the past
+invoiceDate.error.outsideRefundPeriod = The invoice date must be within the refund period
+invoiceDate.checkYourAnswersLabel = Invoice date
+invoiceDate.change.hidden = Change invoice date
+
 suppliersName.title = What is the supplier’s name?
 suppliersName.heading = What is the supplier’s name?
 suppliersName.hint = Find the supplier’s name on the invoice or receipt
@@ -309,16 +390,35 @@ suppliersName.checkYourAnswersLabel = Supplier name
 suppliersName.change.hidden = Change supplier name
 suppliersName.import.hint = Find the supplier’s name on the import document
 
-supplierTaxNumber.title = Select the supplier tax numbers shown on the invoice
-supplierTaxNumber.heading = Select the supplier tax numbers shown on the invoice
-supplierTaxNumber.vatRegistrationNumber = VAT registration number (also known as Umsatzsteuer-Identifikationsnummer)
-supplierTaxNumber.vatRegistrationNumber.hint = This is usually 11 characters and starts with DE, for example DE123456789
-supplierTaxNumber.taxIdentifierNumber = Tax identifier number (also known as Steuernummer)
-supplierTaxNumber.taxIdentifierNumber.hint = This is 10 or 11 digits, for example 12/345/67890
-supplierTaxNumber.error.required = Select the supplier tax numbers shown on the invoice
-supplierTaxNumber.neither = I do not have any of these on the invoice
-supplierTaxNumber.checkYourAnswersLabel = Supplier tax numbers
-supplierTaxNumber.change.hidden = Change supplier tax numbers
+supplierAddress.title = What is the supplier’s address?
+supplierAddress.heading = What is the supplier’s address?
+supplierAddress.lead = Enter the supplier’s address as it appears on the invoice or receipt.
+supplierAddress.line1.label = Address line 1
+supplierAddress.line2.label = Address line 2 (optional)
+supplierAddress.line3.label = Address line 3 (optional)
+supplierAddress.error.line1.required = Enter address line 1, typically the building and street
+supplierAddress.error.maxLength = must be 35 characters or less
+supplierAddress.error.maxLength.withLabel = {0} {1}
+supplierAddress.checkYourAnswersLabel=Supplier address
+supplierAddress.change.hidden = Change supplier address
+
+supplierTaxNumberCheck.title = Select the supplier tax numbers shown on the invoice
+supplierTaxNumberCheck.heading = Select the supplier tax numbers shown on the invoice
+supplierTaxNumberCheck.vatRegistrationNumber = VAT registration number (also known as Umsatzsteuer-Identifikationsnummer)
+supplierTaxNumberCheck.vatRegistrationNumber.hint = This is usually 11 characters and starts with DE, for example DE123456789
+supplierTaxNumberCheck.taxIdentifierNumber = Tax identifier number (also known as Steuernummer)
+supplierTaxNumberCheck.taxIdentifierNumber.hint = This is 10 or 11 digits, for example 12/345/67890
+supplierTaxNumberCheck.error.required = Select the supplier tax numbers shown on the invoice
+supplierTaxNumberCheck.neither = I do not have any of these on the invoice
+supplierTaxNumberCheck.checkYourAnswersLabel = Supplier tax numbers
+supplierTaxNumberCheck.change.hidden = Change supplier tax numbers
+
+supplierVatRegCheck.title = Does the simplified invoice contain the supplier’s VAT registration number?
+supplierVatRegCheck.heading = Does the simplified invoice contain the supplier’s VAT registration number?
+supplierVatRegCheck.hint = This can be up to 12 characters and may start with a 2-letter EU country code. For example, FR123456789
+supplierVatRegCheck.error.required = Select yes if the simplified invoice contains the supplier’s VAT registration number
+supplierVatRegCheck.checkYourAnswersLabel = Supplier VAT registration check
+supplierVatRegCheck.change.hidden = Change supplier VAT registration check
 
 supplierVatRegistrationNumber.title = What is the supplier’s VAT registration number?
 supplierVatRegistrationNumber.heading = What is the supplier’s VAT registration number?
@@ -375,122 +475,6 @@ totalVatClaim.error.nonNumeric =  Enter total VAT claim in the correct format
 totalVatClaim.error.aboveMaximum = Total VAT claim must be between -999,999,999.99 and 999,999,999.99
 totalVatClaim.change.hidden = Change VAT claim
 
-supplierAddress.title = What is the supplier’s address?
-supplierAddress.heading = What is the supplier’s address?
-supplierAddress.lead = Enter the supplier’s address as it appears on the invoice or receipt.
-supplierAddress.line1.label = Address line 1
-supplierAddress.line2.label = Address line 2 (optional)
-supplierAddress.line3.label = Address line 3 (optional)
-supplierAddress.error.line1.required = Enter address line 1, typically the building and street
-supplierAddress.error.maxLength = must be 35 characters or less
-supplierAddress.error.maxLength.withLabel = {0} {1}
-supplierAddress.checkYourAnswersLabel=Supplier address
-supplierAddress.change.hidden = Change supplier address
-
-invoiceDate.title = What is the invoice date?
-invoiceDate.heading = What is the invoice date?
-invoiceDate.hint = For example, 27 3 2025
-invoiceDate.error.invalid = Enter a valid date
-invoiceDate.error.invalid.day = Enter a valid day
-invoiceDate.error.invalid.month = Enter a valid month
-invoiceDate.error.invalid.year = Enter a valid year
-invoiceDate.error.invalid.two = Enter a valid {0} and {1}
-invoiceDate.error.required = Enter a {0}
-invoiceDate.error.required.all = Enter a date
-invoiceDate.error.required.two = Enter a {0} and {1}
-invoiceDate.error.past = The invoice date must be in the past
-invoiceDate.error.outsideRefundPeriod = The invoice date must be within the refund period
-invoiceDate.checkYourAnswersLabel = Invoice date
-invoiceDate.change.hidden = Change invoice date
-
-invoiceNumber.title = Invoice number
-invoiceNumber.heading = Invoice number
-invoiceNumber.h2 = What is the invoice number?
-invoiceNumber.hint = Invoice numbers are a set of letters or numbers usually found at the top or bottom of the invoice
-invoiceNumber.p1 = You can only use an invoice number once. Your claim may be rejected if you enter the same number twice.
-invoiceNumber.error.required = Enter an invoice number
-invoiceNumber.error.length = The invoice number must be {0} characters or less
-invoiceNumber.error.invalid = Enter a valid invoice number
-invoiceNumber.checkYourAnswersLabel = Invoice number
-invoiceNumber.change.hidden = Change the invoice number
-
-simplifiedInvoiceVatRegCheck.title = Does the simplified invoice contain the supplier’s VAT registration number?
-simplifiedInvoiceVatRegCheck.heading = Does the simplified invoice contain the supplier’s VAT registration number?
-simplifiedInvoiceVatRegCheck.hint = This can be up to 12 characters and may start with a 2-letter EU country code. For example, FR123456789
-simplifiedInvoiceVatRegCheck.error.required = Select yes if the simplified invoice contains the supplier’s VAT registration number
-simplifiedInvoiceVatRegCheck.checkYourAnswersLabel = Supplier VAT registration check
-simplifiedInvoiceVatRegCheck.change.hidden = Change supplier VAT registration check
-
-purchaseType.title = Purchase type
-purchaseType.heading = Purchase type
-purchaseType.h2 = What category best describes the item on your invoice?
-purchaseType.p1 = If your invoice includes items that fall under more than one category (for example, a hotel bill including both accommodation and meals), you must either select:
-purchaseType.li1 = ‘Other’ and give a description of the items
-purchaseType.li2 = the category that relates to the highest-value item
-purchaseType.fuel = Fuel
-purchaseType.transport = Transport costs
-purchaseType.foodAndDrink = Food, drink and restaurant services
-purchaseType.luxuries = Luxuries, entertainment and hospitality
-purchaseType.other = Other
-purchaseType.error.required = Select the type of purchase
-purchaseType.checkYourAnswersLabel = Purchase type
-purchaseType.change.hidden = Change purchase type
-
-purchase.checkYourPurchase.purchaseCategory = Purchase category
-purchase.checkYourPurchase.invoiceDetails = Invoice details
-purchase.checkYourPurchase.supplierDetails = Supplier details
-purchase.checkYourPurchase.purchaseAmounts = Purchase amounts
-
-purchase.subType.fuel-use = Fuel use
-purchase.subType.transport-cost = Transport cost type
-purchase.subType.food-drink-restaurant-cost = Food, drink or restaurant cost type
-purchase.subType.luxury-entertainment-hospitality-cost = Luxury, entertainment or hospitality cost type
-purchase.subType.purchase-type-other = Other purchase type
-purchase.subType.change.hidden = Change sub type
-
-purchase.subCategory.fuel-type = Fuel type
-purchase.subCategory.fuel-type-or-vehicle = Fuel or vehicle type
-purchase.subCategory.vehicle-use = Vehicle use
-purchase.subCategory.what-transport-cost = Additional transport cost type
-purchase.subCategory.who-food-drink-for = Food and drink for
-purchase.subCategory.cost-for-publicity-purposes = Cost for publicity purposes
-purchase.subCategory.property-purchase-type = Property purchase type
-purchase.subCategory.property-cost-type = Property cost type
-purchase.subCategory.change.hidden = Change sub category
-
-checkYourStateDetails.title = EU member state details
-checkYourStateDetails.heading = EU member state details
-checkYourStateDetails.p1 = You cannot change the refunding EU member state for an existing claim.
-checkYourStateDetails.p2 = If you want to claim a VAT refund from a different EU member state, you must delete this claim and start a new one. Any existing claim details will not be saved.
-checkYourStateDetails.legend = Do you want to delete this claim and start a new one for a different EU member state?
-checkYourStateDetails.yes = Yes, delete this claim
-checkYourStateDetails.no = No, return to claim
-checkYourStateDetails.error.required = Select yes if you want to delete this claim
-
-describeItemsOnInvoice.title = Describe the items on your invoice
-describeItemsOnInvoice.heading = Describe the items on your invoice
-describeItemsOnInvoice.hint = List each item and the exact amount you paid for it. Include the currency shown on the invoice. For example, an invoice including €150 for fuel and €50 for transport costs.
-describeItemsOnInvoice.error.required = Enter a description of the items on your invoice
-describeItemsOnInvoice.error.length = Item description must be 255 characters or less
-describeItemsOnInvoice.checkYourAnswersLabel = Purchase description
-describeItemsOnInvoice.change.hidden = Change purchase description
-
-purchaseImportSummary.title = You have added {0} {1} to this claim
-purchaseImportSummary.heading = You have added {0} {1} to this claim
-purchaseImportSummary.caption = Purchases and imports
-purchaseImportSummary.p1 = The total amount of VAT you are claiming on this application is {0}.
-purchaseImportSummary.details.summary = Minimum VAT claim limits
-purchaseImportSummary.details.list = The minimum amount for a claim is:
-purchaseImportSummary.details.list1 = €400 (or the national currency equal) if your application is for 3 months or more
-purchaseImportSummary.details.list2 = €50 (or the national currency equal) if your application is less than 3 months
-purchaseImportSummary.add.item = Do you need to add another item?
-purchaseImportSummary.incomplete.add.hidden = to incomplete {0} for {1}
-purchaseImportSummary.incomplete.remove.hidden = incomplete {0} for {1}
-purchaseImportSummary.complete.change.hidden = {0} for {1} with a VAT claim of {2}
-purchaseImportSummary.complete.remove.hidden = {0} for {1} with a VAT claim of {2}
-purchaseImportSummary.error.required = Select yes if you need to add another item
-purchaseImportSummary.error.incomplete = You must add details to the incomplete items or remove them before you can continue
-
 importType.title = Which category best describes the item on your import document?
 importType.heading = Which category best describes the item on your import document?
 importType.fuel = Fuel
@@ -522,11 +506,10 @@ describeItemsOnImportDoc.hint = You can give the details in your preferred langu
 describeItemsOnImportDoc.error.required = Enter a description of the items on your import document
 describeItemsOnImportDoc.error.length = Item description must be 255 characters or less
 
-singleAdministrativeDocumentReferenceNumberAvailable.title = Do you have a Single Administrative Document (SAD) reference number?
-singleAdministrativeDocumentReferenceNumberAvailable.heading = Do you have a Single Administrative Document (SAD) reference number?
-singleAdministrativeDocumentReferenceNumberAvailable.hint = You can usually find this at the top of the import document
-sadReference.error.required = Select yes if you have the Single Administrative Document (SAD) reference number
-singleAdministrativeDocumentReferenceNumberAvailable.error.required = Select yes if you have the Single Administrative Document (SAD) reference number
+sadReferenceCheck.title = Do you have a Single Administrative Document (SAD) reference number?
+sadReferenceCheck.heading = Do you have a Single Administrative Document (SAD) reference number?
+sadReferenceCheck.hint = You can usually find this at the top of the import document
+sadReferenceCheck.error.required = Select yes if you have the Single Administrative Document (SAD) reference number
 
 sadReferenceNumber.title = What is your Single Administrative Document (SAD) reference number?
 sadReferenceNumber.heading = What is your Single Administrative Document (SAD) reference number?
@@ -544,6 +527,20 @@ importDetailsInfo.label = Enter import document details
 importDetailsInfo.error.required = Enter import document details
 importDetailsInfo.error.length = Import document details must be 255 characters or less
 
+importDate.title = When is the import date?
+importDate.heading = When is the import date?
+importDate.error.invalid = Enter a date in the correct format
+importDate.error.invalid.day = Enter a day in the correct format
+importDate.error.invalid.month = Enter a month in the correct format
+importDate.error.invalid.year = Enter a year in the correct format
+importDate.error.invalid.two = Enter a {0} and {1} in the correct format
+importDate.error.required = Enter a {0}
+importDate.error.required.all = Enter a date
+importDate.error.required.two = Enter a {0} and {1}
+importDate.error.past = The import date must be in the past
+importDate.checkYourAnswersLabel = Import date
+importDate.change.hidden = Change import date
+
 totalAmountWithoutVat.title = Total amount without VAT
 totalAmountWithoutVat.heading = Total amount without VAT
 totalAmountWithoutVat.inset = The currency for this claim is in {0} ({1}). For import documents in any other currency, you must convert the amounts before adding them to your claim. Use the <a href="https://data.ecb.europa.eu/currency-converter" class="govuk-link" rel="noreferrer noopener" target="_blank">European Central Bank currency converter (opens in a new tab)</a>.
@@ -556,26 +553,56 @@ totalAmountWithoutVat.error.invalidNumeric = Enter the total amount without VAT 
 totalAmountWithoutVat.error.nonNumeric = Enter the total amount without VAT in the correct format
 totalAmountWithoutVat.error.aboveMaximum = Total amount without VAT must be between -999,999,999.99 and 999,999,999.99
 
+totalVatPaidImport.p1 = If this amount is not on your import document, you’ll need to calculate it. Use the standard VAT rate of the country you’re claiming from.
+
+import.supplierAddress.lead = Enter the supplier’s address as it appears on the import document.
+import.supplierAddress.country.label = Country
+import.supplierAddress.line1.label.short=Address line 1
+import.supplierAddress.line2.label.short=Address line 2
+import.supplierAddress.line3.label.short=Address line 3
+import.supplierAddress.error.line1.maxLength={0} {1}
+import.supplierAddress.error.line2.maxLength={0} {1}
+import.supplierAddress.error.line3.maxLength={0} {1}
+import.supplierAddress.error.country.required=Select a country
+import.supplierAddress.error.country.invalid=Select a valid country
+
 import.refundingCurrency.title = Which currency do you want to use for this import?
 import.refundingCurrency.heading = Which currency do you want to use for this import?
 import.refundingCurrency.error.required = Select a currency for this import
 
-totalVatPaidImport.p1 = If this amount is not on your import document, you’ll need to calculate it. Use the standard VAT rate of the country you’re claiming from.
+purchaseOrImportDate.hint = For example, 27 3 2025
+
+purchaseImportSummary.title = You have added {0} {1} to this claim
+purchaseImportSummary.heading = You have added {0} {1} to this claim
+purchaseImportSummary.caption = Purchases and imports
+purchaseImportSummary.p1 = The total amount of VAT you are claiming on this application is {0}.
+purchaseImportSummary.details.summary = Minimum VAT claim limits
+purchaseImportSummary.details.list = The minimum amount for a claim is:
+purchaseImportSummary.details.list1 = €400 (or the national currency equal) if your application is for 3 months or more
+purchaseImportSummary.details.list2 = €50 (or the national currency equal) if your application is less than 3 months
+purchaseImportSummary.add.item = Do you need to add another item?
+purchaseImportSummary.incomplete.add.hidden = to incomplete {0} for {1}
+purchaseImportSummary.incomplete.remove.hidden = incomplete {0} for {1}
+purchaseImportSummary.complete.change.hidden = {0} for {1} with a VAT claim of {2}
+purchaseImportSummary.complete.remove.hidden = {0} for {1} with a VAT claim of {2}
+purchaseImportSummary.error.required = Select yes if you need to add another item
+purchaseImportSummary.error.incomplete = You must add details to the incomplete items or remove them before you can continue
+
 
 # Warning messages
-confirmRefundPeriodStartDate.title = Are you sure the refund period start date is correct?
-confirmRefundPeriodStartDate.heading = Are you sure the refund period start date is correct?
-confirmRefundPeriodStartDate.paragraph = You’ve told us the refund period start date is {0}. The refund period start date cannot be before {1}.
-confirmRefundPeriodStartDate.warning = If you submit a claim with inaccurate information, it may be rejected.
-confirmRefundPeriodStartDate.button = Yes, this is correct
-confirmRefundPeriodStartDate.link = No, change the start date
+refundPeriodStartDateWarning.title = Are you sure the refund period start date is correct?
+refundPeriodStartDateWarning.heading = Are you sure the refund period start date is correct?
+refundPeriodStartDateWarning.paragraph = You’ve told us the refund period start date is {0}. The refund period start date cannot be before {1}.
+refundPeriodStartDateWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
+refundPeriodStartDateWarning.button = Yes, this is correct
+refundPeriodStartDateWarning.link = No, change the start date
 
-confirmRefundPeriodEndDate.title = Are you sure the refund period end date is correct?
-confirmRefundPeriodEndDate.heading = Are you sure the refund period end date is correct?
-confirmRefundPeriodEndDate.paragraph = You’ve told us the refund period end date is {0}. The refund period end date must be in the past.
-confirmRefundPeriodEndDate.warning = If you submit a claim with inaccurate information, it may be rejected.
-confirmRefundPeriodEndDate.button = Yes, this is correct
-confirmRefundPeriodEndDate.link = No, change the end date
+refundPeriodEndDateWarning.title = Are you sure the refund period end date is correct?
+refundPeriodEndDateWarning.heading = Are you sure the refund period end date is correct?
+refundPeriodEndDateWarning.paragraph = You’ve told us the refund period end date is {0}. The refund period end date must be in the past.
+refundPeriodEndDateWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
+refundPeriodEndDateWarning.button = Yes, this is correct
+refundPeriodEndDateWarning.link = No, change the end date
 
 periodOverlapWarning.title = Are you sure the refund period is correct?
 periodOverlapWarning.heading = Are you sure the refund period is correct?
@@ -609,7 +636,7 @@ supplierTaxIdentifierWarning.confirm = Yes, this is correct
 
 vatPaidWarning.title = Are you sure the amount of VAT you paid is correct?
 vatPaidWarning.heading = Are you sure the amount of VAT you paid is correct?
-vatPaidWarning.p = The amount of VAT you paid must be less than the purchase amount before VAT.
+vatPaidWarning.p = You’ve told us the amount of VAT paid is {0}. The VAT paid must be less than the amount without VAT.
 vatPaidWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
 vatPaidWarning.yes = Yes, this is correct
 vatPaidWarning.no = No, change the VAT amount

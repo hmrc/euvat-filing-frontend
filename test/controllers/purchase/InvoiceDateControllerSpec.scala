@@ -23,13 +23,14 @@ import navigation.FakeNavigator
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.RefundPeriodPage
+import pages.claim.RefundPeriodPage
+import pages.purchase.*
 import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import views.html.purchase.InvoiceDateView
+import views.html.purchasesOrImports.PurchaseOrImportDateView
 
 import java.time.{LocalDate, LocalDateTime}
 import scala.concurrent.Future
@@ -37,6 +38,11 @@ import scala.concurrent.Future
 class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
 
   val onwardRoute: Call = Call("GET", "/foo")
+
+  private def formAction(mode: Mode): Call = controllers.purchase.routes.InvoiceDateController.onSubmit(mode)
+  private val captionKey = "purchase.caption"
+  private val titleKey = "invoiceDate.title"
+  private val headingKey = "invoiceDate.heading"
 
   "InvoiceDate Controller" - {
 
@@ -47,15 +53,19 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
         running(application) {
           val request = FakeRequest(GET, routes.InvoiceDateController.onPageLoad(models.NormalMode).url)
           val result = route(application, request).value
-          val view = application.injector.instanceOf[InvoiceDateView]
+          val view = application.injector.instanceOf[PurchaseOrImportDateView]
           implicit val msgs: Messages = messages(application)
 
           status(result) mustEqual OK
           normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-            view(application.injector.instanceOf[InvoiceDateFormProvider].apply(),
-                 models.NormalMode,
-                 routes.InvoiceNumberController.onPageLoad(models.NormalMode)
-                )(request, msgs).toString
+            view(
+              application.injector.instanceOf[InvoiceDateFormProvider].apply(),
+              formAction(NormalMode),
+              routes.InvoiceNumberController.onPageLoad(models.NormalMode),
+              captionKey,
+              titleKey,
+              headingKey
+            )(request, msgs).toString
           )
         }
       }
@@ -66,22 +76,26 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
         running(application) {
           val request = FakeRequest(GET, routes.InvoiceDateController.onPageLoad(models.CheckMode).url)
           val result = route(application, request).value
-          val view = application.injector.instanceOf[InvoiceDateView]
+          val view = application.injector.instanceOf[PurchaseOrImportDateView]
           implicit val msgs: Messages = messages(application)
 
           status(result) mustEqual OK
           normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-            view(application.injector.instanceOf[InvoiceDateFormProvider].apply(),
-                 models.CheckMode,
-                 routes.CheckYourPurchaseDetailsController.onPageLoad()
-                )(request, msgs).toString
+            view(
+              application.injector.instanceOf[InvoiceDateFormProvider].apply(),
+              formAction(CheckMode),
+              routes.CheckYourPurchaseDetailsController.onPageLoad(),
+              captionKey,
+              titleKey,
+              headingKey
+            )(request, msgs).toString
           )
         }
       }
 
       "must populate the view correctly on a GET when the question has previously been answered" in {
         val userAnswers = emptyUserAnswers
-          .set(pages.InvoiceDatePage, LocalDate.of(2025, 4, 15))
+          .set(InvoiceDatePage, LocalDate.of(2025, 4, 15))
           .success
           .value
 
@@ -90,15 +104,18 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
         running(application) {
           val request = FakeRequest(GET, routes.InvoiceDateController.onPageLoad(models.NormalMode).url)
           val result = route(application, request).value
-          val view = application.injector.instanceOf[InvoiceDateView]
+          val view = application.injector.instanceOf[PurchaseOrImportDateView]
           implicit val msgs: Messages = messages(application)
 
           status(result) mustEqual OK
           normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
             view(
               application.injector.instanceOf[InvoiceDateFormProvider].apply().fill(LocalDate.of(2025, 4, 15)),
-              models.NormalMode,
-              routes.InvoiceNumberController.onPageLoad(models.NormalMode)
+              formAction(NormalMode),
+              routes.InvoiceNumberController.onPageLoad(models.NormalMode),
+              captionKey,
+              titleKey,
+              headingKey
             )(request, msgs).toString
           )
         }
@@ -350,10 +367,10 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
           .set(RefundPeriodPage, savedPeriod)
           .success
           .value
-          .set(pages.PurchaseTypePage, Fuel)
+          .set(PurchaseTypePage, Fuel)
           .success
           .value
-          .set(pages.InvoiceDatePage, LocalDate.of(2025, 4, 15))
+          .set(InvoiceDatePage, LocalDate.of(2025, 4, 15))
           .success
           .value
 
@@ -389,10 +406,10 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
           .set(RefundPeriodPage, savedPeriod)
           .success
           .value
-          .set(pages.PurchaseTypePage, Fuel)
+          .set(PurchaseTypePage, Fuel)
           .success
           .value
-          .set(pages.InvoiceDatePage, LocalDate.of(2025, 4, 15))
+          .set(InvoiceDatePage, LocalDate.of(2025, 4, 15))
           .success
           .value
 
@@ -421,7 +438,7 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
           val captor = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
           org.mockito.Mockito.verify(mockSessionRepository).set(captor.capture())
           val saved = captor.getValue
-          saved.get(pages.InvoiceDatePage) mustBe Some(LocalDate.of(2025, 4, 16))
+          saved.get(InvoiceDatePage) mustBe Some(LocalDate.of(2025, 4, 16))
         }
       }
     }

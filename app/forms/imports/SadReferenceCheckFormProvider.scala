@@ -25,7 +25,7 @@ class SadReferenceCheckFormProvider @Inject() extends Mappings {
 
   def apply(): Form[Boolean] =
     Form(
-      "value" -> boolean("sadReference.error.required")
+      "value" -> boolean("sadReferenceCheck.error.required")
     )
 
 }

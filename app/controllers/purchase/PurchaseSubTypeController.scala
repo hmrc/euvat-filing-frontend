@@ -21,7 +21,9 @@ import forms.PurchaseOrImportSubTypeFormProvider
 import models.requests.DataRequest
 import models.*
 import navigation.Navigator
-import pages.*
+import pages.purchase.*
+import pages.claim.CountryChangedPage
+import pages.purchase.{DescribeItemsArrivedFromCheckYourAnswersPage, DescribeItemsOnInvoicePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.*
@@ -30,7 +32,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.PurchaseOrImportHelpers.isNoneSelection
 import utils.{ConfigPurchaseOrImportMapping, ControllerHelpers, CountryCode, MountPrefix}
-import views.html.PurchaseOrImportSubTypeView
+import views.html.purchasesOrImports.PurchaseOrImportSubTypeView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

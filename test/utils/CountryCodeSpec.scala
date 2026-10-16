@@ -17,7 +17,7 @@
 package utils
 
 import base.SpecBase
-import pages.{RefundingCountryNamePage, RefundingCountryPage}
+import pages.claim.{RefundingCountryNamePage, RefundingCountryPage}
 
 class CountryCodeSpec extends SpecBase {
 

@@ -23,14 +23,14 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.SuppliersNamePage
+import pages.purchase.{PurchaseTypePage, SuppliersNamePage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.PurchaseOrImportSuppliersNameView
+import views.html.purchasesOrImports.PurchaseOrImportSuppliersNameView
 
 import scala.concurrent.Future
 
@@ -140,7 +140,7 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
 
     "must short-circuit to purchase CYA in CheckMode when value unchanged" in {
       val userAnswers = UserAnswers(userAnswersId)
-        .set(pages.PurchaseTypePage, Fuel)
+        .set(PurchaseTypePage, Fuel)
         .success
         .value
         .set(SuppliersNamePage, "same")
@@ -161,7 +161,7 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
 
     "must persist and redirect to CYA in CheckMode when value changed" in {
       val userAnswers = UserAnswers(userAnswersId)
-        .set(pages.PurchaseTypePage, Fuel)
+        .set(PurchaseTypePage, Fuel)
         .success
         .value
         .set(SuppliersNamePage, "old")

@@ -21,6 +21,7 @@ import com.typesafe.config.ConfigFactory
 import controllers.claim.routes as claimRoutes
 import models.*
 import pages.*
+import pages.claim.{BusinessActivityPage, BusinessActivityTwoPage, CheckYourStateDetailsPage, CountryChangedPage, RefundingCountryPage}
 import play.api.Configuration
 import utils.ConfigLanguageMapping
 

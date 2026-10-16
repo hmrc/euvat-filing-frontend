@@ -20,7 +20,8 @@ import base.SpecBase
 import models.{Fuel, NormalMode, Other, PurchaseOrImportType, Transport, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.{times, verify}
-import pages.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage, RefundingCountryPage}
+import pages.claim.RefundingCountryPage
+import pages.imports.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage}
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -117,7 +118,7 @@ class ImportSubCodeControllerSpec extends SpecBase {
         val result = route(application, FakeRequest(GET, otherRoute)).value
 
         status(result) mustEqual OK
-        contentAsString(result) must include(messages(application)("singleAdministrativeDocumentReferenceNumberAvailable.heading"))
+        contentAsString(result) must include(messages(application)("sadReferenceCheck.heading"))
       }
     }
 
@@ -128,7 +129,7 @@ class ImportSubCodeControllerSpec extends SpecBase {
         val result = route(application, FakeRequest(GET, fuelRoute)).value
 
         status(result) mustEqual OK
-        contentAsString(result) must include(messages(application)("singleAdministrativeDocumentReferenceNumberAvailable.heading"))
+        contentAsString(result) must include(messages(application)("sadReferenceCheck.heading"))
       }
     }
 
@@ -140,7 +141,7 @@ class ImportSubCodeControllerSpec extends SpecBase {
         val result = route(application, FakeRequest(GET, fuelRoute)).value
 
         status(result) mustEqual OK
-        contentAsString(result) must include(messages(application)("singleAdministrativeDocumentReferenceNumberAvailable.heading"))
+        contentAsString(result) must include(messages(application)("sadReferenceCheck.heading"))
       }
     }
 
@@ -152,7 +153,7 @@ class ImportSubCodeControllerSpec extends SpecBase {
         val result = route(application, FakeRequest(GET, fuelRoute)).value
 
         status(result) mustEqual OK
-        contentAsString(result) must include(messages(application)("singleAdministrativeDocumentReferenceNumberAvailable.heading"))
+        contentAsString(result) must include(messages(application)("sadReferenceCheck.heading"))
       }
     }
 

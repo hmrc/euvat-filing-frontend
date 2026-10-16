@@ -19,7 +19,7 @@ package controllers.warning
 import base.SpecBase
 import controllers.warning.routes
 import models.{CheckMode, NormalMode}
-import pages.{TotalPurchaseAmountBeforeVatPage, TotalVatPaidPage}
+import pages.purchase.{TotalPurchaseAmountBeforeVatPage, TotalVatPaidPage}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.warning.VatPaidWarningView
@@ -38,7 +38,11 @@ class VatPaidWarningControllerSpec extends SpecBase {
         val result = route(application, request).value
         val view = application.injector.instanceOf[VatPaidWarningView]
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(controllers.purchase.routes.TotalVatPaidController.onPageLoad(NormalMode), NormalMode)(
+        contentAsString(result) mustEqual view(controllers.purchase.routes.TotalVatPaidController.onPageLoad(NormalMode),
+        NormalMode,
+        "€",
+        BigDecimal(999)
+        )(
           request,
           messages(application)
         ).toString

@@ -20,6 +20,7 @@ import controllers.purchase.routes
 import models.requests.DataRequest
 import models.{CheckMode, Mode, UserAnswers}
 import pages.QuestionPage
+import pages.purchase.PurchaseTypePage
 import play.api.libs.json.{Format, Reads}
 import play.api.mvc.Results.*
 import play.api.mvc.{Call, Result}
@@ -76,7 +77,7 @@ object ControllerHelpers {
     sessionRepositoryOpt: Option[SessionRepository]
   )(onSaved: UserAnswers => Future[Result])(implicit fmt: Format[T], ec: ExecutionContext): Future[Result] = {
     val unchangedRedirect: Call =
-      if (mode == CheckMode && userAnswers.get(pages.PurchaseTypePage).isDefined) purchaseCya
+      if (mode == CheckMode && userAnswers.get(PurchaseTypePage).isDefined) purchaseCya
       else navigatorNext
 
     applyShortCircuit(page, newValue, mode, userAnswers, sessionRepositoryOpt, unchangedRedirect, onSaved)

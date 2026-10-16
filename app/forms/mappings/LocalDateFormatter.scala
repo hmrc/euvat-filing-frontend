@@ -50,7 +50,7 @@ private[mappings] class LocalDateFormatter(
         else if (day > ym.lengthOfMonth) {
           // Numbers individually look plausible (e.g., 30 Feb) but the date doesn't exist
           // Treat this as a day-specific error so the view can anchor to the day input.
-          val dayArgs = if (invalidKey.startsWith("invoiceDate")) List(messages("date.error.day")) ++ args else args
+          val dayArgs = if (usePerFieldKeys) List(messages("date.error.day")) ++ args else args
           Left(Seq(FormError(key, dayInvalidKey, dayArgs)))
         } else
           Try(LocalDate.of(year, month, day)) match {

@@ -21,10 +21,12 @@ import forms.claim.BusinessActivityCodeTwoFormProvider
 import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import navigation.Navigator
 import pages.*
+import pages.claim.{BusinessActivityCodePage, BusinessActivityCodeThreePage, BusinessActivityCodeTwoPage, BusinessActivityThreePage}
 import play.api.data.FormError
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import play.api.{Configuration, Logger}
+import queries.{ClaimDetailsAmendedQuery, ClaimDetailsCompletedQuery}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.claim.BusinessActivityCodeTwoView
@@ -113,8 +115,8 @@ class BusinessActivityCodeTwoController @Inject() (
             for {
               updatedAnswer1 <- Future.fromTry(baseAnswers.set(BusinessActivityCodeTwoPage, value))
               updatedAnswers <- Future.fromTry(updatedAnswer1.remove(BusinessActivityThreePage))
-              updatedAnswers2 <- if (isChanged && updatedAnswers.get(ClaimDetailsCompletedPage).contains(true))
-                                   Future.fromTry(updatedAnswers.set(ClaimDetailsAmendedPage, true))
+              updatedAnswers2 <- if (isChanged && updatedAnswers.get(ClaimDetailsCompletedQuery).contains(true))
+                                   Future.fromTry(updatedAnswers.set(ClaimDetailsAmendedQuery, true))
                                  else
                                    Future.successful(updatedAnswers)
               _ <- sessionRepository.set(updatedAnswers2)

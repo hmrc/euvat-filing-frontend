@@ -31,7 +31,7 @@
 
 @isError = @{form.error("value").isDefined}
 
-@layout(pageTitle = title(form, messages("singleAdministrativeDocumentReferenceNumberAvailable.title")), backLinkUrl = Some(call.url)) {
+@layout(pageTitle = title(form, messages("sadReferenceCheck.title")), backLinkUrl = Some(call.url)) {
 
     @formHelper(action = controllers.imports.routes.SadReferenceCheckController.onSubmit(models.NormalMode), Symbol("autoComplete") -> "off") {
 
@@ -44,7 +44,7 @@
                 RadiosViewModel(
                     field = form("value"),
                     legend = Legend(
-                        content = Text(messages("singleAdministrativeDocumentReferenceNumberAvailable.heading")),
+                        content = Text(messages("sadReferenceCheck.heading")),
                         classes = "govuk-fieldset__legend--l",
                         isPageHeading = true
                     ),
@@ -60,7 +60,7 @@
                             content = Text(messages("site.no"))
                         )
                     )
-                ).withHint(HintViewModel(messages("singleAdministrativeDocumentReferenceNumberAvailable.hint")).withId("value-hint"))
+                ).withHint(HintViewModel(messages("sadReferenceCheck.hint")).withId("value-hint"))
             )
         </div>
 

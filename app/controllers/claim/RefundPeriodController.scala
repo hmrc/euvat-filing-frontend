@@ -23,12 +23,12 @@ import models.requests.{DataRequest, LatestApplicationRequest}
 import models.responses.TraderKnownFactsResponse
 import models.{Mode, RefundPeriod, UserAnswers}
 import navigation.Navigator
-import pages.*
+import pages.claim.{CountryChangedPage, RefundPeriodPage}
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.*
-import queries.TraderKnownFactsQuery
+import queries.{ClaimDetailsAmendedQuery, ClaimDetailsCompletedQuery, TraderKnownFactsQuery}
 import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -140,8 +140,8 @@ class RefundPeriodController @Inject() (
       updatedWithRefundPeriod <- Future.fromTry(updatedWithKnownFacts.set(RefundPeriodPage, refundPeriod))
       updatedWithoutCountry   <- Future.fromTry(updatedWithRefundPeriod.remove(CountryChangedPage))
       finalAnswers <-
-        if (hasRefundPeriodChanged(updatedWithoutCountry, refundPeriod) && updatedWithoutCountry.get(ClaimDetailsCompletedPage).contains(true)) {
-          Future.fromTry(updatedWithoutCountry.set(ClaimDetailsAmendedPage, true))
+        if (hasRefundPeriodChanged(updatedWithoutCountry, refundPeriod) && updatedWithoutCountry.get(ClaimDetailsCompletedQuery).contains(true)) {
+          Future.fromTry(updatedWithoutCountry.set(ClaimDetailsAmendedQuery, true))
         } else {
           Future.successful(updatedWithoutCountry)
         }
@@ -187,7 +187,7 @@ class RefundPeriodController @Inject() (
         updatedAnswer1 <- Future.fromTry(request.userAnswers.set(TraderKnownFactsQuery, traderResponse))
         updatedAnswer2 <- Future.fromTry(updatedAnswer1.set(RefundPeriodPage, refundPeriod))
         _              <- sessionRepository.set(updatedAnswer2)
-      } yield Redirect(routes.ConfirmRefundPeriodStartDateController.onPageLoad(mode))
+      } yield Redirect(controllers.warning.routes.RefundPeriodStartDateWarningController.onPageLoad(mode))
     } else {
       checkEndDateNotInPast(vrn, traderResponse, startDate, endDate, mode)
     }
@@ -208,7 +208,7 @@ class RefundPeriodController @Inject() (
       for {
         updatedUserAnswers <- updateUserAnswers(traderResponse, refundPeriod)
         _                  <- sessionRepository.set(updatedUserAnswers)
-      } yield Redirect(routes.ConfirmRefundPeriodEndDateController.onPageLoad(mode))
+      } yield Redirect(controllers.warning.routes.RefundPeriodEndDateWarningController.onPageLoad(mode))
     } else {
       checkOverlappingPeriod(vrn, traderResponse, startDate, endDate, mode)
     }
@@ -238,8 +238,8 @@ class RefundPeriodController @Inject() (
             updatedAnswer1 <- Future.fromTry(request.userAnswers.set(TraderKnownFactsQuery, traderResponse))
             updatedAnswer2 <- Future.fromTry(updatedAnswer1.set(RefundPeriodPage, refundPeriod))
             updatedAnswer3 <-
-              if (hasRefundPeriodChanged(request.userAnswers, refundPeriod) && updatedAnswer2.get(ClaimDetailsCompletedPage).contains(true)) {
-                Future.fromTry(updatedAnswer2.set(ClaimDetailsAmendedPage, true))
+              if (hasRefundPeriodChanged(request.userAnswers, refundPeriod) && updatedAnswer2.get(ClaimDetailsCompletedQuery).contains(true)) {
+                Future.fromTry(updatedAnswer2.set(ClaimDetailsAmendedQuery, true))
               } else {
                 Future.successful(updatedAnswer2)
               }

@@ -24,12 +24,16 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.mockito.{ArgumentCaptor, Mockito}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.*
-import play.api.Application
+import pages.claim.RefundingCountryPage
+import pages.purchase.*
 import play.api.inject.bind
+import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import play.api.{Application, Configuration}
 import repositories.SessionRepository
+import services.EuVatRefundsService
+import utils.{Currency, CurrencyConfig}
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -103,7 +107,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
       }
     }
 
-    "should use explicit SimplifiedInvoiceVatRegCheckPage when present (true)" in {
+    "should use explicit SupplierVatRegCheckPage when present (true)" in {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val captor: ArgumentCaptor[UpdatePurchaseRequest] = ArgumentCaptor.forClass(classOf[UpdatePurchaseRequest])
@@ -118,7 +122,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
         .set(PurchaseSubTypePage, "1.2")
         .success
         .value
-        .set(SimplifiedInvoiceVatRegCheckPage, true)
+        .set(SupplierVatRegCheckPage, true)
         .success
         .value
         .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber = 3, updateSequenceNumber = 3))
@@ -143,7 +147,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
       }
     }
 
-    "should use explicit SimplifiedInvoiceVatRegCheckPage when present (false)" in {
+    "should use explicit SupplierVatRegCheckPage when present (false)" in {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val captor: ArgumentCaptor[UpdatePurchaseRequest] = ArgumentCaptor.forClass(classOf[UpdatePurchaseRequest])
@@ -158,7 +162,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
         .set(PurchaseSubTypePage, "1.2")
         .success
         .value
-        .set(SimplifiedInvoiceVatRegCheckPage, false)
+        .set(SupplierVatRegCheckPage, false)
         .success
         .value
         .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber = 4, updateSequenceNumber = 4))

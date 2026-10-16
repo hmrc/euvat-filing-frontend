@@ -18,7 +18,7 @@ package navigation
 
 import controllers.imports.routes as importsRoutes
 import models.{Mode, Other, UserAnswers}
-import pages.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage, SadReferenceCheckPage}
+import pages.imports.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage, SadReferenceCheckPage}
 import play.api.mvc.Call
 import utils.PurchaseOrImportHelpers.isNoneSelection
 import utils.{ConfigPurchaseOrImportMapping, CountryCode, CurrencyConfig}
@@ -60,18 +60,11 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
       case _          => importsRoutes.ImportDetailsInfoController.onPageLoad(mode)
     }
 
-  def navigateFromSupplierNamePage(mode: Mode)(userAnswers: UserAnswers): Call =
+  def navigateFromSupplierAddressPage(mode: Mode)(userAnswers: UserAnswers): Call =
     CountryCode.findCountryCode(userAnswers) match {
       case Some(countryCode) if currencyConfig.requiresCurrencySelection(countryCode) =>
         importsRoutes.ImportCurrencyController.onPageLoad(mode)
-      case Some(_) => importsRoutes.TotalAmountWithoutVatController.onPageLoad(mode) // TODO: next import page
-      case None    => controllers.routes.JourneyRecoveryController.onPageLoad()
-    }
-
-  def navigateFromSadReferenceNumberPage(mode: Mode)(userAnswers: UserAnswers): Call =
-    userAnswers.get(SadReferenceCheckPage) match {
-      case Some(true) => importsRoutes.ImportSuppliersNameController.onPageLoad(mode)
-      case _          => importsRoutes.ImportDetailsInfoController.onPageLoad(mode)
+      case _ => importsRoutes.TotalAmountWithoutVatController.onPageLoad(mode)
     }
 
 }
