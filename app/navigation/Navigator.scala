@@ -19,6 +19,7 @@ package navigation
 import controllers.claim.routes as claimRoutes
 import controllers.imports.routes as importRoutes
 import controllers.purchase.routes as purchaseRoutes
+import controllers.routes
 import models.*
 import models.PurchaseOrImport.{Import, Purchase}
 import pages.*
@@ -26,6 +27,7 @@ import pages.claim.*
 import pages.imports.*
 import pages.purchase.*
 import play.api.mvc.Call
+import queries.IsLastItemQuery
 
 import javax.inject.{Inject, Singleton}
 
@@ -77,6 +79,7 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case TotalAmountWithoutVatPage         => _ => importRoutes.TotalVatPaidImportController.onPageLoad(NormalMode)
     case TotalVatPaidImportPage            => _ => importRoutes.TotalVatClaimController.onPageLoad(NormalMode)
     case ImportTotalVatClaimPage           => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
+    case RemoveItemPage                    => userAnswers => navigateFromRemoveItemPage(userAnswers)
     case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 
@@ -128,4 +131,12 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
       case Some(Import)   => importRoutes.ImportTypeController.onPageLoad(NormalMode)
       case None           => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
+
+  private def navigateFromRemoveItemPage(userAnswers: UserAnswers): Call =
+    (userAnswers.get(RemoveItemPage), userAnswers.get(IsLastItemQuery)) match {
+      case (Some(true), Some(true)) => routes.TaskListDashboardController.onPageLoad()
+      case (Some(_), _)             => routes.PurchaseImportSummaryController.onPageLoad
+      case _                        => routes.JourneyRecoveryController.onPageLoad()
+    }
+
 }
