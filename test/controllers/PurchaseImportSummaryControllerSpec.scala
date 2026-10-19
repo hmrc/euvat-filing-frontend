@@ -153,7 +153,9 @@ class PurchaseImportSummaryControllerSpec extends SpecBase {
           "value" -> "false"
         )
         val result = route(application, request).value
-        status(result) mustEqual BAD_REQUEST
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.TaskListDashboardController.onPageLoad().url
+
       }
     }
 
