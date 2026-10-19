@@ -33,6 +33,7 @@ import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.{ConfigLanguageMapping, CountryCode}
+import java.time.temporal.ChronoUnit
 import views.html.claim.RefundPeriodView
 
 import java.time.format.DateTimeFormatter
@@ -196,6 +197,9 @@ class RefundPeriodController @Inject() (
   private def isEndDateNotInPast(endDate: LocalDateTime, today: LocalDate = LocalDate.now()): Boolean =
     !YearMonth.from(endDate).isBefore(YearMonth.from(today))
 
+  private def isRefundPeriodTooShort(startDate: LocalDateTime, endDate: LocalDateTime): Boolean =
+    !isEndDateNotInPast(endDate) && ChronoUnit.MONTHS.between(YearMonth.from(startDate), YearMonth.from(endDate)) < 2 && endDate.getMonthValue != 12
+
   private def checkEndDateNotInPast(
     vrn: String,
     traderResponse: TraderKnownFactsResponse,
@@ -213,6 +217,24 @@ class RefundPeriodController @Inject() (
       checkOverlappingPeriod(vrn, traderResponse, startDate, endDate, mode)
     }
   }
+
+   private def checkRefundPeriodTooShort(
+      vrn: String,
+      traderResponse: TraderKnownFactsResponse,
+      startDate: LocalDateTime,
+      endDate: LocalDateTime,
+      mode: Mode
+    )(using request: DataRequest[?], ec: ExecutionContext): Future[Result] = {
+      if (isRefundPeriodTooShort(startDate, endDate)) {
+        val refundPeriod = RefundPeriod(startDate, endDate)
+        for {
+          updatedUserAnswers <- updateUserAnswers(traderResponse, refundPeriod)
+          _                  <- sessionRepository.set(updatedUserAnswers)
+        } yield Redirect(controllers.warning.routes.RefundPeriodTooShortWarningController.onPageLoad(mode))
+      } else {
+        checkOverlappingPeriod(vrn, traderResponse, startDate, endDate, mode)
+      }
+    }
 
   private def checkOverlappingPeriod(
     vrn: String,
@@ -362,7 +384,7 @@ class RefundPeriodController @Inject() (
                   .orElse(vatDateValidation(value, startDate, endDate, traderResponse, baseForm))
 
                 validationResult match {
-                  case None                => checkEarliestStartDate(vrn, traderResponse, startDate, endDate, mode)
+                  case None                => checkRefundPeriodTooShort(vrn, traderResponse, startDate, endDate, mode)
                   case Some(formWithError) => renderError(formWithError, mode, isExemptForTrader)
                 }
             )

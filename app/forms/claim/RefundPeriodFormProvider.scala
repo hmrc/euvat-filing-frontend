@@ -21,8 +21,6 @@ import play.api.data.Form
 import play.api.data.Forms.{mapping, of}
 import play.api.data.validation.{Constraint, Invalid, Valid}
 import play.api.i18n.Messages
-
-import java.time.temporal.ChronoUnit
 import java.time.{LocalDate, YearMonth}
 import javax.inject.Inject
 
@@ -38,7 +36,6 @@ class RefundPeriodFormProvider @Inject() extends Mappings {
     case "refundPeriod.end.error.required" | "refundPeriod.end.error.afterVatDeRegDate" =>
       Set("end.month", "end.year")
     case "refundPeriod.error.startAndEndInSameYear"    => Set("start.year", "end.year")
-    case "refundPeriod.error.periodNotLessThan3Months" => Set("start.month", "end.month")
     case _                                             => Set.empty
   }
 
@@ -60,7 +57,6 @@ class RefundPeriodFormProvider @Inject() extends Mappings {
     val errorMappings = Map(
       "refundPeriod.error.startDateNotAfterEndDate"                -> "start",
       "refundPeriod.error.startAndEndInSameYear"                   -> "start",
-      "refundPeriod.error.periodNotLessThan3Months"                -> "start",
       "refundPeriod.start.error.after30Sept"                       -> "start",
       "refundPeriod.start.error.30SeptOrEarlier"                   -> "start",
       "refundPeriod.start.error.beforeVatRegDate.firstQuarter"     -> "start",
@@ -71,17 +67,9 @@ class RefundPeriodFormProvider @Inject() extends Mappings {
     val earliestPrefix = "refundPeriod.error.beforeEarliest"
     val latestPrefix = "refundPeriod.error.afterLatest"
     val hasFieldLevelErrors = form.errors.exists(e => e.key.contains("."))
-    val hasPeriodLengthError = form.errors.exists(_.message == "refundPeriod.error.periodNotLessThan3Months")
-    val filteredErrors = if (hasPeriodLengthError) {
-      form.errors.filterNot(e => e.message.startsWith(earliestPrefix) || e.message.startsWith(latestPrefix))
-    } else {
-      form.errors
-    }
+    val filteredErrors = form.errors
 
     val filteredAfterCutoff = if (suppressCutoff) {
-      val cutoffKeys = Set("refundPeriod.start.error.after30Sept", "refundPeriod.start.error.30SeptOrEarlier")
-      filteredErrors.filterNot(e => cutoffKeys.contains(e.message))
-    } else if (hasPeriodLengthError) {
       val cutoffKeys = Set("refundPeriod.start.error.after30Sept", "refundPeriod.start.error.30SeptOrEarlier")
       filteredErrors.filterNot(e => cutoffKeys.contains(e.message))
     } else filteredErrors
@@ -152,7 +140,6 @@ class RefundPeriodFormProvider @Inject() extends Mappings {
         }
       )
       .verifying("refundPeriod.error.startAndEndInSameYear", datesInSameYear(earliest))
-      .verifying("refundPeriod.error.periodNotLessThan3Months", periodLessThan3Months)
 
     Form(mapped)
   }
@@ -178,17 +165,6 @@ class RefundPeriodFormProvider @Inject() extends Mappings {
           } else {
             data.start.getYear == data.end.getYear
           }
-      }
-    }
-  }
-
-  private val periodLessThan3Months: RefundPeriodData => Boolean = { data =>
-    {
-      if (!data.start.isBefore(currentYearMonth) || !data.end.isBefore(currentYearMonth)) { true }
-      else if (data.start.isAfter(data.end)) { true }
-      else if (data.end.getMonthValue == 12) { true }
-      else {
-        ChronoUnit.MONTHS.between(data.start, data.end) >= 2
       }
     }
   }
