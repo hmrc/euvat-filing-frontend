@@ -611,8 +611,8 @@ periodOverlapWarning.warning = If you submit a claim with inaccurate information
 periodOverlapWarning.correct = Yes, this is correct
 periodOverlapWarning.backLink = No, change the refund period
 
-purchaseWarning.title = Are you sure these purchase details are correct?
-purchaseWarning.heading = Are you sure these purchase details are correct?
+purchaseWarning.title = Are you sure these details are correct?
+purchaseWarning.heading = Are you sure these details are correct?
 purchaseWarning.p = List each item and give a description if necessary.
 purchaseWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
 purchaseWarning.correct = Yes, this is correct
