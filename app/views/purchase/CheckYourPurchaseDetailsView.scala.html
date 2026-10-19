@@ -29,6 +29,7 @@
     pageTitle = titleNoForm(messages(if(isPostSubmission) "checkYourPurchaseDetails.title" else "checkYourPurchaseDetails.title")),
     showBackLink = false
 ) {
+    <span class="govuk-caption-l">@messages("purchase.caption")</span>
     <h1 class="govuk-heading-l">@messages(if(isPostSubmission) "checkYourPurchaseDetails.heading" else "checkYourPurchaseDetails.heading")</h1>
 
     @formHelper(action = controllers.purchase.routes.CheckYourPurchaseDetailsController.onSubmit(), Symbol("autoComplete") -> "off") {
