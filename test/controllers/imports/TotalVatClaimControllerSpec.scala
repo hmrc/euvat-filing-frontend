@@ -25,14 +25,13 @@ import org.scalatest.TryValues.*
 import org.scalatestplus.mockito.MockitoSugar
 import pages.claim.RefundingCountryPage
 import pages.purchase.RefundingCurrencyPage
-import pages.imports.ImportTotalVatClaimPage
+import pages.imports.{ImportTotalVatClaimPage, TotalVatPaidImportPage}
 import play.api.data.Form
 import play.api.inject.bind
-import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.purchasesOrImports.PurchaseOrImportTotalVatClaimView
+import views.html.PurchaseOrImportTotalVatClaimView
 
 import scala.concurrent.Future
 
@@ -40,7 +39,7 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
 
   val form: Form[BigDecimal] = new TotalVatClaimFormProvider()()
   lazy val totalVatClaimRoute: String = controllers.imports.routes.TotalVatClaimController.onPageLoad(NormalMode).url
-  lazy val backLink: Call = controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad(NormalMode)
+  lazy val backLink = controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad(NormalMode)
 
   "TotalVatClaim import controller" - {
 

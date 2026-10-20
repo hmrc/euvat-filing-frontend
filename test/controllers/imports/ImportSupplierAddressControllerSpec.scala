@@ -20,16 +20,16 @@ import base.SpecBase
 import config.FrontendAppConfig
 import forms.imports.ImportSupplierAddressFormProvider
 import models.{ImportSupplierAddress, NormalMode}
-import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.claim.RefundingCountryPage
+import pages.RefundingCountryPage
 import pages.imports.ImportSupplierAddressPage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import navigation.{FakeNavigator, Navigator}
 import repositories.SessionRepository
 import views.html.imports.ImportSupplierAddressView
 
@@ -58,17 +58,32 @@ class ImportSupplierAddressControllerSpec extends SpecBase with MockitoSugar {
   "Import SupplierAddress Controller" - {
 
     "must return OK and the correct view for a GET" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, pageLoadRoute)
-        val result = route(application, request).value
-        val view = application.injector.instanceOf[ImportSupplierAddressView]
-        val formProvider = application.injector.instanceOf[ImportSupplierAddressFormProvider]
-        val config = application.injector.instanceOf[FrontendAppConfig]
-        val form = formProvider()
+
+        val request =
+          FakeRequest(GET, pageLoadRoute)
+
+        val result =
+          route(application, request).value
+
+        val view =
+          application.injector.instanceOf[ImportSupplierAddressView]
+
+        val formProvider =
+          application.injector.instanceOf[ImportSupplierAddressFormProvider]
+
+        val config =
+          application.injector.instanceOf[FrontendAppConfig]
+
+        val form =
+          formProvider()
 
         status(result) mustEqual OK
+
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
           view(
             form,
@@ -81,31 +96,58 @@ class ImportSupplierAddressControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to Journey Recovery when no existing data is found on GET" in {
-      val application = applicationBuilder(userAnswers = None).build()
+
+      val application =
+        applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(GET, pageLoadRoute)
-        val result = route(application, request).value
+
+        val request =
+          FakeRequest(GET, pageLoadRoute)
+
+        val result =
+          route(application, request).value
 
         status(result) mustEqual SEE_OTHER
+
         redirectLocation(result).value mustEqual
           controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 
     "must populate the view with the saved value on GET" in {
-      val userAnswers = emptyUserAnswers.set(ImportSupplierAddressPage, supplierAddress).success.value
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      val userAnswers =
+        emptyUserAnswers
+          .set(ImportSupplierAddressPage, supplierAddress)
+          .success
+          .value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, pageLoadRoute)
-        val result = route(application, request).value
-        val view = application.injector.instanceOf[ImportSupplierAddressView]
-        val formProvider = application.injector.instanceOf[ImportSupplierAddressFormProvider]
-        val config = application.injector.instanceOf[FrontendAppConfig]
-        val form = formProvider().fill(supplierAddress)
+
+        val request =
+          FakeRequest(GET, pageLoadRoute)
+
+        val result =
+          route(application, request).value
+
+        val view =
+          application.injector.instanceOf[ImportSupplierAddressView]
+
+        val formProvider =
+          application.injector.instanceOf[ImportSupplierAddressFormProvider]
+
+        val config =
+          application.injector.instanceOf[FrontendAppConfig]
+
+        val form =
+          formProvider().fill(supplierAddress)
 
         status(result) mustEqual OK
+
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
           view(
             form,
@@ -118,87 +160,182 @@ class ImportSupplierAddressControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must persist the answer and redirect to import currency when the refunding country is Estonia" in {
-      val userAnswers = emptyUserAnswers.set(RefundingCountryPage, "EE").success.value
-      val mockSessionRepository = mock[SessionRepository]
-      when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
-        .build()
+      val userAnswers =
+        emptyUserAnswers
+          .set(RefundingCountryPage, "EE")
+          .success
+          .value
+
+      val mockSessionRepository =
+        mock[SessionRepository]
+
+      when(mockSessionRepository.set(any()))
+        .thenReturn(Future.successful(true))
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
 
       running(application) {
-        val request = FakeRequest(POST, submitRoute).withFormUrlEncodedBody(validFormData.toSeq*)
-        val result = route(application, request).value
+
+        val request =
+          FakeRequest(POST, submitRoute)
+            .withFormUrlEncodedBody(validFormData.toSeq*)
+
+        val result =
+          route(application, request).value
 
         status(result) mustEqual SEE_OTHER
+
         redirectLocation(result).value mustEqual
           controllers.imports.routes.ImportCurrencyController
             .onPageLoad(NormalMode)
             .url
 
-        verify(mockSessionRepository, times(1)).set(any())
+        verify(mockSessionRepository, times(1))
+          .set(any())
       }
     }
 
     "must persist the answer and redirect to total amount without VAT when the refunding country is not Estonia" in {
-      val userAnswers = emptyUserAnswers.set(RefundingCountryPage, "FR").success.value
-      val mockSessionRepository = mock[SessionRepository]
-      when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
-        .build()
+      val userAnswers =
+        emptyUserAnswers
+          .set(RefundingCountryPage, "FR")
+          .success
+          .value
+
+      val mockSessionRepository =
+        mock[SessionRepository]
+
+      when(mockSessionRepository.set(any()))
+        .thenReturn(Future.successful(true))
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
 
       running(application) {
-        val request = FakeRequest(POST, submitRoute).withFormUrlEncodedBody(validFormData.toSeq*)
-        val result = route(application, request).value
+
+        val request =
+          FakeRequest(POST, submitRoute)
+            .withFormUrlEncodedBody(validFormData.toSeq*)
+
+        val result =
+          route(application, request).value
+
         status(result) mustEqual SEE_OTHER
+
+//      TODO: Recheck once actual TotalAmountWithoutVatController route is available
 
         redirectLocation(result).value mustEqual
           controllers.imports.routes.TotalAmountWithoutVatController
             .onPageLoad(NormalMode)
             .url
 
-        verify(mockSessionRepository, times(1)).set(any())
+        verify(mockSessionRepository, times(1))
+          .set(any())
+      }
+    }
+
+    "must redirect to Journey Recovery when the refunding country is not available" in {
+
+      val mockSessionRepository =
+        mock[SessionRepository]
+
+      when(mockSessionRepository.set(any()))
+        .thenReturn(Future.successful(true))
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+
+        val request =
+          FakeRequest(POST, submitRoute)
+            .withFormUrlEncodedBody(validFormData.toSeq*)
+
+        val result =
+          route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+
+        redirectLocation(result).value mustEqual
+          controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 
     "must persist the answer and redirect to the next page when valid data is submitted" in {
-      val mockSessionRepository = mock[SessionRepository]
-      when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(
-          bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-          bind[SessionRepository].toInstance(mockSessionRepository)
-        )
-        .build()
+      val mockSessionRepository = mock[SessionRepository]
+
+      when(mockSessionRepository.set(any()))
+        .thenReturn(Future.successful(true))
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
 
       running(application) {
         val request = FakeRequest(POST, submitRoute).withFormUrlEncodedBody(validFormData.toSeq*)
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
+
         redirectLocation(result).value mustEqual onwardRoute.url
-        verify(mockSessionRepository, times(1)).set(any())
+
+        verify(mockSessionRepository, times(1))
+          .set(any())
       }
     }
 
     "must persist and redirect when only address line 1, country and optional lines omitted are submitted" in {
-      val userAnswers = emptyUserAnswers.set(RefundingCountryPage, "EE").success.value
-      val mockSessionRepository = mock[SessionRepository]
-      when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
-        .build()
+      val userAnswers =
+        emptyUserAnswers
+          .set(RefundingCountryPage, "EE")
+          .success
+          .value
+
+      val mockSessionRepository =
+        mock[SessionRepository]
+
+      when(mockSessionRepository.set(any()))
+        .thenReturn(Future.successful(true))
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
 
       running(application) {
-        val request = FakeRequest(POST, submitRoute).withFormUrlEncodedBody(
-          "addressLine1" -> "1 High Street",
-          "country"      -> "AF"
-        )
 
-        val result = route(application, request).value
+        val request =
+          FakeRequest(POST, submitRoute)
+            .withFormUrlEncodedBody(
+              "addressLine1" -> "1 High Street",
+              "country"      -> "AF"
+            )
+
+        val result =
+          route(application, request).value
+
         status(result) mustEqual SEE_OTHER
 
         redirectLocation(result).value mustEqual
@@ -206,37 +343,56 @@ class ImportSupplierAddressControllerSpec extends SpecBase with MockitoSugar {
             .onPageLoad(NormalMode)
             .url
 
-        verify(mockSessionRepository, times(1)).set(any())
+        verify(mockSessionRepository, times(1))
+          .set(any())
       }
     }
 
     "must return Bad Request and the required error when line1 is missing" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(POST, submitRoute).withFormUrlEncodedBody(
-          "addressLine1" -> "",
-          "country"      -> "AF"
-        )
 
-        val result = route(application, request).value
+        val request =
+          FakeRequest(POST, submitRoute)
+            .withFormUrlEncodedBody(
+              "addressLine1" -> "",
+              "country"      -> "AF"
+            )
+
+        val result =
+          route(application, request).value
+
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) must include(messages(application)("supplierAddress.error.line1.required"))
+
+        contentAsString(result) must include(
+          messages(application)("supplierAddress.error.line1.required")
+        )
       }
     }
 
     "must return Bad Request and the max-length error when line1 is longer than 35 characters" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val tooLong = "a" * 36
 
-        val request = FakeRequest(POST, submitRoute).withFormUrlEncodedBody(
-          "addressLine1" -> tooLong,
-          "country"      -> "AF"
-        )
+        val tooLong =
+          "a" * 36
 
-        val result = route(application, request).value
+        val request =
+          FakeRequest(POST, submitRoute)
+            .withFormUrlEncodedBody(
+              "addressLine1" -> tooLong,
+              "country"      -> "AF"
+            )
+
+        val result =
+          route(application, request).value
+
         status(result) mustEqual BAD_REQUEST
 
         contentAsString(result) must include(
@@ -250,43 +406,73 @@ class ImportSupplierAddressControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return Bad Request when country is missing" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(POST, submitRoute).withFormUrlEncodedBody(
-          "addressLine1" -> "1 High Street",
-          "country"      -> ""
-        )
 
-        val result = route(application, request).value
+        val request =
+          FakeRequest(POST, submitRoute)
+            .withFormUrlEncodedBody(
+              "addressLine1" -> "1 High Street",
+              "country"      -> ""
+            )
+
+        val result =
+          route(application, request).value
+
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) must include(messages(application)("import.supplierAddress.error.country.required"))
+
+        contentAsString(result) must include(
+          messages(application)("import.supplierAddress.error.country.required")
+        )
       }
     }
 
     "must return Bad Request when country is not in the supplier country list" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(POST, submitRoute).withFormUrlEncodedBody(
-          "addressLine1" -> "1 High Street",
-          "country"      -> "ZZ"
-        )
 
-        val result = route(application, request).value
+        val request =
+          FakeRequest(POST, submitRoute)
+            .withFormUrlEncodedBody(
+              "addressLine1" -> "1 High Street",
+              "country"      -> "ZZ"
+            )
+
+        val result =
+          route(application, request).value
+
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) must include(messages(application)("import.supplierAddress.error.country.invalid"))
+
+        contentAsString(result) must include(
+          messages(application)("import.supplierAddress.error.country.invalid")
+        )
       }
     }
 
     "must redirect to Journey Recovery when no existing data is found on POST" in {
-      val application = applicationBuilder(userAnswers = None).build()
+
+      val application =
+        applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(POST, submitRoute).withFormUrlEncodedBody(validFormData.toSeq*)
-        val result = route(application, request).value
+
+        val request =
+          FakeRequest(POST, submitRoute)
+            .withFormUrlEncodedBody(validFormData.toSeq*)
+
+        val result =
+          route(application, request).value
+
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+
+        redirectLocation(result).value mustEqual
+          controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
   }

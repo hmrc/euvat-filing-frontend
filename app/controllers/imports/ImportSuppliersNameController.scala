@@ -19,7 +19,7 @@ package controllers.imports
 import controllers.imports.routes as importRoutes
 import controllers.actions.*
 import forms.SuppliersNameFormProvider
-import models.{Mode, NormalMode}
+import models.{Mode, NormalMode, CheckMode}
 import models.requests.DataRequest
 import navigation.Navigator
 import pages.imports.ImportSuppliersNamePage
@@ -52,8 +52,16 @@ class ImportSuppliersNameController @Inject() (
   private def formAction(mode: Mode): Call = importRoutes.ImportSuppliersNameController.onSubmit(mode)
 
   // TODO: Implement a proper back link to import date instead of the generic journey recovery page.
-  private def backLink(mode: Mode)(implicit request: DataRequest[AnyContent]): Call =
-    controllers.routes.JourneyRecoveryController.onPageLoad()
+  private def backLink(mode: Mode)(
+    implicit request: DataRequest[AnyContent]
+  ): Call =
+    mode match {
+      case CheckMode =>
+        controllers.imports.routes.CheckYourImportDetailsController.onPageLoad()
+
+      case NormalMode =>
+        controllers.imports.routes.ImportDateController.onPageLoad(NormalMode)
+    }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(ImportSuppliersNamePage).fold(form)(form.fill)

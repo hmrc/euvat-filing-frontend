@@ -18,10 +18,12 @@ package controllers.imports
 
 import controllers.actions.*
 import forms.imports.SadReferenceCheckFormProvider
+import models.NormalMode
+import pages.imports.*
 import models.requests.DataRequest
 import models.{Mode, NormalMode, Other}
 import navigation.Navigator
-import pages.imports.*
+import pages.SadReferenceCheckPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
@@ -51,9 +53,9 @@ class SadReferenceCheckController @Inject() (
 
   private def computeBackLink(implicit request: DataRequest[AnyContent]): Call = {
     val answers = request.userAnswers
-    (answers.get(ImportTypePage), answers.get(ImportSubCodePage), answers.get(ImportSubCategoryPage)) match {
+    (answers.get(pages.ImportTypePage), answers.get(pages.ImportSubCodePage), answers.get(pages.ImportSubCategoryPage)) match {
       case (Some(_), _, Some(_)) => controllers.imports.routes.ImportSubCategoryController.onPageLoad(NormalMode)
-      case (Some(Other), _, _) if answers.get(DescribeItemsOnImportDocPage).isDefined =>
+      case (Some(Other), _, _) if answers.get(pages.DescribeItemsOnImportDocPage).isDefined =>
         controllers.imports.routes.DescribeItemsOnImportDocController.onPageLoad(NormalMode)
       case (Some(importType), Some(_), None) => controllers.imports.routes.ImportSubCodeController.onPageLoad(importType.toString)
       case _                                 => controllers.imports.routes.ImportTypeController.onPageLoad(NormalMode)

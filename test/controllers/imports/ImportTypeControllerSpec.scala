@@ -24,14 +24,14 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.imports.ImportTypePage
+import pages.imports.{ImportTypePage, ImportTypeChangedPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.purchasesOrImports.PurchaseOrImportTypeView
+import views.html.PurchaseOrImportTypeView
 
 import scala.concurrent.Future
 

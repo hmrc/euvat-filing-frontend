@@ -19,9 +19,9 @@ package controllers.imports
 import controllers.actions.*
 import controllers.imports.routes as importRoutes
 import forms.imports.TotalAmountWithoutVatFormProvider
-import models.Mode
+import models.{Mode, UserAnswers}
 import navigation.Navigator
-import pages.imports.{SadReferenceCheckPage, SadReferenceNumberPage, TotalAmountWithoutVatPage}
+import pages.imports.{TotalVatPaidImportPage, ImportAmountWithoutVatChangedPage, SadReferenceCheckPage, SadReferenceNumberPage, TotalAmountWithoutVatPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}

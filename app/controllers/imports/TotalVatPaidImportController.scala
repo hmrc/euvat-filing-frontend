@@ -21,7 +21,8 @@ import forms.imports.TotalVatPaidImportFormProvider
 import javax.inject.Inject
 import models.Mode
 import navigation.Navigator
-import pages.imports.TotalVatPaidImportPage
+import pages.*
+import pages.imports.*
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
@@ -29,9 +30,10 @@ import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ControllerHelpers.*
 import utils.CurrencyConfig
-import views.html.purchasesOrImports.PurchaseOrImportTotalVatPaidView
+import views.html.PurchaseOrImportTotalVatPaidView
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Success, Try}
 
 class TotalVatPaidImportController @Inject() (
   override val messagesApi: MessagesApi,

@@ -23,12 +23,17 @@ import models.requests.DataRequest
 import models.{Mode, PurchaseOrImportType}
 import navigation.Navigator
 import pages.imports.ImportTypePage
+import pages.{DescribeItemsOnImportDocPage, ImportSubCategoryPage, ImportSubCodePage, ImportTypePage}
+import pages.imports.ImportTypeChangedPage
+import pages.imports.ImportTypeChangedPage
+import queries.{ImportSubCategoryLabelQuery, ImportSubTypeLabelQuery}
+import scala.util.Success
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.purchasesOrImports.PurchaseOrImportTypeView
+import views.html.PurchaseOrImportTypeView
 
 import scala.concurrent.{ExecutionContext, Future}
 

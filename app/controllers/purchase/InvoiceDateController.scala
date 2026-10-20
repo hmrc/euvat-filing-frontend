@@ -21,7 +21,7 @@ import forms.purchase.InvoiceDateFormProvider
 import models.requests.DataRequest
 import models.{CheckMode, Mode, NormalMode}
 import navigation.Navigator
-import pages.purchase.InvoiceDatePage
+import pages.InvoiceDatePage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.*
@@ -42,7 +42,7 @@ class InvoiceDateController @Inject() (
   requireData: DataRequiredAction,
   formProvider: InvoiceDateFormProvider,
   val controllerComponents: MessagesControllerComponents,
-  view: PurchaseOrImportDateView
+  view: InvoiceDateView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
@@ -53,28 +53,22 @@ class InvoiceDateController @Inject() (
   } else {
     routes.InvoiceNumberController.onPageLoad(NormalMode)
   }
-  private def formAction(mode: Mode): Call = routes.InvoiceDateController.onSubmit(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(InvoiceDatePage).fold(form)(form.fill)
-    Ok(view(preparedForm, formAction(mode), backLink(mode), "purchase.caption", "invoiceDate.title", "invoiceDate.heading"))
+    Ok(view(preparedForm, mode, backLink(mode)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors =>
-          Future.successful(
-            BadRequest(view(formWithErrors, formAction(mode), backLink(mode), "purchase.caption", "invoiceDate.title", "invoiceDate.heading"))
-          ),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)))),
         value =>
           val today = java.time.LocalDate.now()
           if (value.isAfter(today)) {
             val errorForm = form.bindFromRequest().withError("value", "invoiceDate.error.past")
-            Future.successful(
-              BadRequest(view(errorForm, formAction(mode), backLink(mode), "purchase.caption", "invoiceDate.title", "invoiceDate.heading"))
-            )
+            Future.successful(BadRequest(view(errorForm, mode, backLink(mode))))
           } else {
             handleSubmission(value, mode)(request)
           }
