@@ -28,7 +28,7 @@ import queries.{ImportSubCategoryLabelQuery, ImportSubTypeLabelQuery}
 import repositories.SessionRepository
 
 class ImportSubCodeControllerSpec extends SpecBase {
-  private def fuelRoute = controllers.imports.routes.ImportSubCodeController.onPageLoad("fuel").url
+  private def fuelRoute = controllers.imports.routes.ImportSubCodeController.onPageLoad("fuel", NormalMode).url
   private def journeyRecoveryUrl = controllers.routes.JourneyRecoveryController.onPageLoad().url
   private def sadReferenceUrl = controllers.imports.routes.SadReferenceCheckController.onPageLoad(NormalMode).url
   private def taskListUrl = controllers.routes.TaskListDashboardController.onPageLoad().url
@@ -89,7 +89,7 @@ class ImportSubCodeControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers = Some(answers(Transport))).build()
 
       running(application) {
-        val transportRoute = controllers.imports.routes.ImportSubCodeController.onPageLoad("transport").url
+        val transportRoute = controllers.imports.routes.ImportSubCodeController.onPageLoad("transport", NormalMode).url
         val result = route(application, FakeRequest(GET, transportRoute)).value
 
         status(result) mustEqual OK
@@ -113,7 +113,7 @@ class ImportSubCodeControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers = Some(answers(Other))).build()
 
       running(application) {
-        val otherRoute = controllers.imports.routes.ImportSubCodeController.onPageLoad("other").url
+        val otherRoute = controllers.imports.routes.ImportSubCodeController.onPageLoad("other", NormalMode).url
         val result = route(application, FakeRequest(GET, otherRoute)).value
 
         status(result) mustEqual OK

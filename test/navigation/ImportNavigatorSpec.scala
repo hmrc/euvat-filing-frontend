@@ -21,6 +21,7 @@ import com.typesafe.config.ConfigFactory
 import controllers.imports.routes as importRoutes
 import models.*
 import pages.*
+import pages.imports.*
 import controllers.imports.routes as importsRoutes
 import play.api.Configuration
 import utils.{ConfigPurchaseOrImportMapping, CurrencyConfig}
@@ -91,8 +92,9 @@ class ImportNavigatorSpec extends SpecBase {
         }
         val ua = userAnswers.set(RefundingCountryPage, "BG").success.value.set(ImportTypePage, Fuel).success.value
 
-        navigatorWith(fakeConfig).navigateFromImportTypePage(NormalMode)(ua) mustBe
-          importRoutes.ImportSubCodeController.onPageLoad(Fuel.toString)
+        navigatorWith(fakeConfig)
+          .navigateFromImportTypePage(NormalMode)(ua) mustBe
+          importRoutes.ImportSubCodeController.onPageLoad(Fuel.toString, NormalMode)
       }
 
       "must go from ImportTypePage to SadReferenceCheck when the country has no sub codes for that type" in {
@@ -193,33 +195,41 @@ class ImportNavigatorSpec extends SpecBase {
           importRoutes.ImportDetailsInfoController.onPageLoad(NormalMode)
       }
 
-      "must go to ImportCurrencyController when the country requires currency selection" in {
-        val answers =
-          userAnswers
-            .set(RefundingCountryPage, "EE")
-            .success
-            .value
+      "must go from navigateToCurrencyOrNextPage to ImportCurrency when the country requires currency selection" in {
+        val ua = userAnswers.set(RefundingCountryPage, "EE").success.value
 
-        navigator.navigateToCurrencyOrNextPage(NormalMode)(answers) mustBe
-          importsRoutes.ImportCurrencyController.onPageLoad(NormalMode)
+        navigator.navigateToCurrencyOrNextPage(NormalMode)(ua) mustBe
+          importRoutes.ImportCurrencyController.onPageLoad(NormalMode)
       }
 
-      "must skip ImportCurrencyController when the country has one currency" in {
-        val answers =
-          userAnswers
-            .set(RefundingCountryPage, "AT")
-            .success
-            .value
+      "must skip ImportCurrency in navigateToCurrencyOrNextPage when the country has one currency" in {
+        val ua = userAnswers.set(RefundingCountryPage, "AT").success.value
 
-        navigator.navigateToCurrencyOrNextPage(NormalMode)(answers) mustBe
-          importsRoutes.TotalAmountWithoutVatController.onPageLoad(NormalMode)
+        navigator.navigateToCurrencyOrNextPage(NormalMode)(ua) mustBe
+          importRoutes.TotalAmountWithoutVatController.onPageLoad(NormalMode)
       }
 
-      "must go to JourneyRecoveryController when no country is in session" in {
+      "must go from navigateToCurrencyOrNextPage to Journey Recovery when no country is in session" in {
         navigator.navigateToCurrencyOrNextPage(NormalMode)(userAnswers) mustBe
           controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
+      "must go from ImportDatePage to SadReferenceNumberController in Normal Mode when SadReferencePage is true" in {
+        val ua = userAnswers.set(SadReferenceCheckPage, true).success.value
+        navigator.backLinkFromImportDatePage(NormalMode)(ua) mustBe
+          controllers.imports.routes.SadReferenceNumberController.onPageLoad(NormalMode)
+      }
+
+      "must go from ImportDatePage to ImportDetailsInfoController in Normal Mode when SadReferencePage is false" in {
+        val ua = userAnswers.set(SadReferenceCheckPage, false).success.value
+        navigator.backLinkFromImportDatePage(NormalMode)(ua) mustBe
+          controllers.imports.routes.ImportDetailsInfoController.onPageLoad(NormalMode)
+      }
+
+      "must go from ImportDatePage to Journey Recovery in Normal Mode when SadReferencePage is not answered" in {
+        navigator.backLinkFromImportDatePage(NormalMode)(userAnswers) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
     }
 
     "in Check mode" - {
@@ -257,46 +267,212 @@ class ImportNavigatorSpec extends SpecBase {
         navigator.navigateFromSadReferenceCheckPage(CheckMode)(ua) mustBe
           importRoutes.ImportDetailsInfoController.onPageLoad(CheckMode)
       }
+
+      "must go from navigateToCurrencyOrNextPage to ImportCurrency when the country requires currency selection" in {
+        val ua = userAnswers.set(RefundingCountryPage, "EE").success.value
+
+        navigator.navigateToCurrencyOrNextPage(CheckMode)(ua) mustBe
+          importRoutes.ImportCurrencyController.onPageLoad(CheckMode)
+      }
     }
 
     "navigateFromSadReferenceCheckPage" - {
-      "must go to SadReferenceNumberController in NormalMode when answer is yes" in {
-        val ua = userAnswers.set(SadReferenceCheckPage, true).success.value
-        navigator.navigateFromSadReferenceCheckPage(NormalMode)(ua) mustBe
-          controllers.imports.routes.SadReferenceNumberController.onPageLoad(NormalMode)
+
+      val navigator = navigatorWith(new ConfigPurchaseOrImportMapping())
+
+      "must go to SAD reference in NormalMode when the answer is Yes" in {
+        val answers = emptyUserAnswers
+          .set(SadReferenceCheckPage, true)
+          .success.value
+
+        navigator.navigateFromSadReferenceCheckPage(NormalMode)(answers) mustBe
+          controllers.imports.routes.SadReferenceNumberController
+            .onPageLoad(NormalMode)
       }
 
-      "must go to SadReferenceNumberController in CheckMode when answer is yes" in {
-        val ua = userAnswers.set(SadReferenceCheckPage, true).success.value
-        navigator.navigateFromSadReferenceCheckPage(CheckMode)(ua) mustBe
-          controllers.imports.routes.SadReferenceNumberController.onPageLoad(CheckMode)
+      "must go to document information in NormalMode when the answer is No" in {
+        val answers = emptyUserAnswers
+          .set(SadReferenceCheckPage, false)
+          .success.value
+
+        navigator.navigateFromSadReferenceCheckPage(NormalMode)(answers) mustBe
+          controllers.imports.routes.ImportDetailsInfoController
+            .onPageLoad(NormalMode)
       }
 
-      "must go to ImportDetailsInfoController when answer is no" in {
-        val ua = userAnswers.set(SadReferenceCheckPage, false).success.value
-        navigator.navigateFromSadReferenceCheckPage(NormalMode)(ua) mustBe
-          controllers.imports.routes.ImportDetailsInfoController.onPageLoad(NormalMode)
+      Seq(NormalMode, CheckMode).foreach { mode =>
+        s"must go to Journey Recovery when unanswered in $mode" in {
+          navigator.navigateFromSadReferenceCheckPage(mode)(
+            emptyUserAnswers
+          ) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
+        }
       }
 
-      "must go to JourneyRecoveryController when no answer is present" in {
-        navigator.navigateFromSadReferenceCheckPage(NormalMode)(userAnswers) mustBe
-          controllers.imports.routes.ImportDetailsInfoController.onPageLoad(NormalMode)
+      "must go to SAD reference in CheckMode when changed to Yes" in {
+        val answers = emptyUserAnswers
+          .set(SadReferenceCheckPage, true)
+          .flatMap(_.set(ImportSadChangedPage, true))
+          .success.value
+
+        navigator.navigateFromSadReferenceCheckPage(CheckMode)(answers) mustBe
+          controllers.imports.routes.SadReferenceNumberController
+            .onPageLoad(CheckMode)
+      }
+
+      "must go to document information in CheckMode when changed to No" in {
+        val answers = emptyUserAnswers
+          .set(SadReferenceCheckPage, false)
+          .flatMap(_.set(ImportSadChangedPage, true))
+          .success.value
+
+        navigator.navigateFromSadReferenceCheckPage(CheckMode)(answers) mustBe
+          controllers.imports.routes.ImportDetailsInfoController
+            .onPageLoad(CheckMode)
+      }
+
+      Seq(true, false).foreach { answer =>
+        s"must return unchanged SAD answer $answer to CYA in CheckMode" in {
+          val answers = emptyUserAnswers
+            .set(SadReferenceCheckPage, answer)
+            .flatMap(_.set(ImportSadChangedPage, false))
+            .success.value
+
+          navigator.navigateFromSadReferenceCheckPage(CheckMode)(answers) mustBe
+            controllers.imports.routes.CheckYourImportDetailsController
+              .onPageLoad()
+        }
       }
     }
 
     "navigateFromSadReferenceNumberPage" - {
-      "must go to ImportDetailsInfoController when SadReference is not yes" in {
-        navigator.navigateFromSadReferenceNumberPage(NormalMode)(userAnswers) mustBe
-          controllers.imports.routes.ImportDetailsInfoController.onPageLoad(NormalMode)
+
+      val navigator = navigatorWith(new ConfigPurchaseOrImportMapping())
+
+      "must go to Import date in NormalMode when SAD is Yes" in {
+        val answers = emptyUserAnswers
+          .set(SadReferenceCheckPage, true)
+          .flatMap(_.set(SadReferenceNumberPage, "SAD123"))
+          .success.value
+
+        navigator.navigateFromSadReferenceNumberPage(NormalMode)(answers) mustBe
+          controllers.imports.routes.ImportDateController.onPageLoad(NormalMode)
       }
 
-      "must go to ImportSuppliersNameController when SadReference is yes" in {
-        val ua = userAnswers.set(SadReferenceCheckPage, true).success.value
-        navigator.navigateFromSadReferenceNumberPage(NormalMode)(ua) mustBe
-          controllers.imports.routes.ImportSuppliersNameController.onPageLoad(NormalMode)
+      "must preserve the document information fallback in NormalMode when SAD is No" in {
+        val answers = emptyUserAnswers
+          .set(SadReferenceCheckPage, false)
+          .success.value
+
+        navigator.navigateFromSadReferenceNumberPage(NormalMode)(answers) mustBe
+          controllers.imports.routes.ImportDetailsInfoController
+            .onPageLoad(NormalMode)
+      }
+
+      "must preserve the document information fallback in NormalMode when SAD is missing" in {
+        navigator.navigateFromSadReferenceNumberPage(NormalMode)(
+          emptyUserAnswers
+        ) mustBe controllers.imports.routes.ImportDetailsInfoController
+          .onPageLoad(NormalMode)
+      }
+
+      "must return to CYA after a valid SAD reference submission in CheckMode" in {
+        val answers = emptyUserAnswers
+          .set(SadReferenceCheckPage, true)
+          .flatMap(_.set(SadReferenceNumberPage, "SAD123"))
+          .success.value
+
+        navigator.navigateFromSadReferenceNumberPage(CheckMode)(answers) mustBe
+          controllers.imports.routes.CheckYourImportDetailsController.onPageLoad()
       }
     }
 
-    // navigateFromTotalAmountWithoutVatPage removed from navigator; no direct test
+    "navigateFromTotalAmountWithoutVatPage" - {
+
+      val navigator = navigatorWith(new ConfigPurchaseOrImportMapping())
+
+      "must go to VAT paid in NormalMode when an amount exists" in {
+        val answers = emptyUserAnswers
+          .set(TotalAmountWithoutVatPage, BigDecimal("100"))
+          .success.value
+
+        navigator.navigateFromTotalAmountWithoutVatPage(NormalMode)(answers) mustBe
+          controllers.imports.routes.TotalVatPaidImportController
+            .onPageLoad(NormalMode)
+      }
+
+      "must go to VAT paid in CheckMode when the amount changed" in {
+        val answers = emptyUserAnswers
+          .set(TotalAmountWithoutVatPage, BigDecimal("100"))
+          .flatMap(_.set(ImportAmountWithoutVatChangedPage, true))
+          .success.value
+
+        navigator.navigateFromTotalAmountWithoutVatPage(CheckMode)(answers) mustBe
+          controllers.imports.routes.TotalVatPaidImportController
+            .onPageLoad(CheckMode)
+      }
+
+      "must return to CYA in CheckMode when the amount is unchanged" in {
+        val answers = emptyUserAnswers
+          .set(TotalAmountWithoutVatPage, BigDecimal("100"))
+          .flatMap(_.set(ImportAmountWithoutVatChangedPage, false))
+          .success.value
+
+        navigator.navigateFromTotalAmountWithoutVatPage(CheckMode)(answers) mustBe
+          controllers.imports.routes.CheckYourImportDetailsController.onPageLoad()
+      }
+
+      Seq(NormalMode, CheckMode).foreach { mode =>
+        s"must go to Journey Recovery when the amount is missing in $mode" in {
+          navigator.navigateFromTotalAmountWithoutVatPage(mode)(
+            emptyUserAnswers
+          ) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
+        }
+      }
+    }
+
+    "backLinkFromImportDatePage" - {
+
+      "must return to Import CYA in CheckMode regardless of the SAD answer" in {
+        val answers = Seq(
+          emptyUserAnswers,
+          emptyUserAnswers
+            .set(SadReferenceCheckPage, true)
+            .success.value,
+          emptyUserAnswers
+            .set(SadReferenceCheckPage, false)
+            .success.value
+        )
+
+        answers.foreach { userAnswers =>
+          navigator.backLinkFromImportDatePage(CheckMode)(userAnswers) mustBe
+            controllers.imports.routes.CheckYourImportDetailsController.onPageLoad()
+        }
+      }
+
+      "must return to SAD reference number in NormalMode when SAD is Yes" in {
+        val answers = emptyUserAnswers
+          .set(SadReferenceCheckPage, true)
+          .success.value
+
+        navigator.backLinkFromImportDatePage(NormalMode)(answers) mustBe
+          controllers.imports.routes.SadReferenceNumberController
+            .onPageLoad(NormalMode)
+      }
+
+      "must return to import document information in NormalMode when SAD is No" in {
+        val answers = emptyUserAnswers
+          .set(SadReferenceCheckPage, false)
+          .success.value
+
+        navigator.backLinkFromImportDatePage(NormalMode)(answers) mustBe
+          controllers.imports.routes.ImportDetailsInfoController
+            .onPageLoad(NormalMode)
+      }
+
+      "must return to Journey Recovery in NormalMode when the SAD answer is missing" in {
+        navigator.backLinkFromImportDatePage(NormalMode)(emptyUserAnswers) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+    }
   }
 }

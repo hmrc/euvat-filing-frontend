@@ -18,7 +18,7 @@ package controllers.imports
 
 import controllers.actions.*
 import forms.imports.SadReferenceNumberFormProvider
-import models.Mode
+import models.{CheckMode, Mode}
 import navigation.Navigator
 import pages.SadReferenceNumberPage
 import play.api.data.Form
@@ -50,19 +50,23 @@ class SadReferenceNumberController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(SadReferenceNumberPage).fold(form)(form.fill)
-    Ok(view(preparedForm, backLink(mode)))
+    Ok(view(preparedForm, backLink(mode), mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, backLink(mode)))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, backLink(mode), mode))),
         value =>
           for {
-            updated <- Future.fromTry(request.userAnswers.set(SadReferenceNumberPage, value))
-            _       <- sessionRepository.set(updated)
-          } yield Redirect(navigator.nextPage(SadReferenceNumberPage, mode, updated))
+            updated <- Future.fromTry(
+              request.userAnswers.set(SadReferenceNumberPage, value)
+            )
+            _ <- sessionRepository.set(updated)
+          } yield Redirect(
+            navigator.nextPage(SadReferenceNumberPage, mode, updated)
+          )
       )
   }
 

@@ -26,6 +26,7 @@ import models.PurchaseOrImport.Import
 import pages.*
 import pages.imports.*
 import play.api.Configuration
+import play.api.test.Helpers.running
 import utils.{ConfigLanguageMapping, ConfigPurchaseOrImportMapping, CurrencyConfig}
 
 class NavigatorSpec extends SpecBase {
@@ -129,6 +130,51 @@ class NavigatorSpec extends SpecBase {
           controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
+      "must go from DescribeItemsOnInvoicePage to InvoiceTypeController" in {
+        navigator.nextPage(DescribeItemsOnInvoicePage, NormalMode, userAnswers) mustBe
+          purchaseRoutes.InvoiceTypeController.onPageLoad(NormalMode)
+      }
+
+      "must go from InvoiceTypePage to InvoiceNumberController" in {
+        navigator.nextPage(InvoiceTypePage, NormalMode, userAnswers) mustBe
+          purchaseRoutes.InvoiceNumberController.onPageLoad(NormalMode)
+      }
+
+      "must go from InvoiceDatePage to SuppliersNameController" in {
+        navigator.nextPage(InvoiceDatePage, NormalMode, userAnswers) mustBe
+          purchaseRoutes.SuppliersNameController.onPageLoad(NormalMode)
+      }
+
+      "must go from SuppliersNamePage to SupplierAddressController" in {
+        navigator.nextPage(SuppliersNamePage, NormalMode, userAnswers) mustBe
+          purchaseRoutes.SupplierAddressController.onPageLoad(NormalMode)
+      }
+
+      "must go from SupplierTaxIdentifierNumberPage to TotalPurchaseAmountBeforeVatController" in {
+        navigator.nextPage(SupplierTaxIdentifierNumberPage, NormalMode, userAnswers) mustBe
+          purchaseRoutes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
+      }
+
+      "must go from TotalPurchaseAmountBeforeVatPage to TotalVatPaidController" in {
+        navigator.nextPage(TotalPurchaseAmountBeforeVatPage, NormalMode, userAnswers) mustBe
+          purchaseRoutes.TotalVatPaidController.onPageLoad(NormalMode)
+      }
+
+      "must go from TotalVatPaidPage to TotalVatClaimController" in {
+        navigator.nextPage(TotalVatPaidPage, NormalMode, userAnswers) mustBe
+          purchaseRoutes.TotalVatClaimController.onPageLoad(NormalMode)
+      }
+
+      "must go from TotalVatClaimPage to CheckYourPurchaseDetailsController" in {
+        navigator.nextPage(TotalVatClaimPage, NormalMode, userAnswers) mustBe
+          purchaseRoutes.CheckYourPurchaseDetailsController.onPageLoad()
+      }
+
+      "must go from DescribeItemsOnImportDocPage to SadReferenceCheckController" in {
+        navigator.nextPage(DescribeItemsOnImportDocPage, NormalMode, userAnswers) mustBe
+          importRoutes.SadReferenceCheckController.onPageLoad(NormalMode)
+      }
+
       "must go from SadReferenceCheckPage to SadReferenceNumberController when the user has a SAD reference" in {
         val answers = userAnswers.set(SadReferenceCheckPage, true).success.value
 
@@ -160,8 +206,8 @@ class NavigatorSpec extends SpecBase {
           importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode)
       }
 
-      "must go from ImportDetailsInfoPage to ImportSuppliersNameController" in {
-        navigator.nextPage(ImportDetailsInfoPage, NormalMode, userAnswers) mustBe
+      "must go from ImportDatePage to ImportSuppliersNameController" in {
+        navigator.nextPage(ImportDatePage, NormalMode, userAnswers) mustBe
           importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode)
       }
 
@@ -179,7 +225,7 @@ class NavigatorSpec extends SpecBase {
 
       "must go from TotalAmountWithoutVatPage to TotalVatPaidImportController" in {
         navigator.nextPage(TotalAmountWithoutVatPage, NormalMode, userAnswers) mustBe
-          controllers.imports.routes.TotalVatPaidImportController.onPageLoad(NormalMode)
+          importRoutes.TotalVatPaidImportController.onPageLoad(NormalMode)
       }
 
       "must go from TotalVatPaidImportPage to TotalVatClaimController" in {
@@ -191,9 +237,45 @@ class NavigatorSpec extends SpecBase {
         case object UnknownPage extends Page
         navigator.nextPage(UnknownPage, NormalMode, userAnswers) mustBe controllers.routes.IndexController.onPageLoad()
       }
+
+      "must go from ImportTotalVatClaimPage to Import CYA" in {
+        val application = applicationBuilder().build()
+
+        running(application) {
+          val navigator = application.injector.instanceOf[Navigator]
+
+          navigator.nextPage(ImportTotalVatClaimPage, NormalMode, emptyUserAnswers) mustBe controllers.imports.routes
+            .CheckYourImportDetailsController.onPageLoad()
+        }
+      }
     }
 
     "in Check mode" - {
+
+      "must return unchanged Import type to CYA in CheckMode" in {
+        val answers = emptyUserAnswers
+          .set(RefundingCountryPage, "EE")
+          .flatMap(_.set(ImportTypePage, Fuel))
+          .flatMap(_.set(ImportTypeChangedPage, false))
+          .success.value
+
+        navigatorWith(new ConfigPurchaseOrImportMapping())
+          .navigateFromImportTypePage(CheckMode)(answers) mustBe
+          controllers.imports.routes.CheckYourImportDetailsController.onPageLoad()
+      }
+
+      "must return unchanged sub-code to CYA in CheckMode" in {
+        val answers = emptyUserAnswers
+          .set(RefundingCountryPage, "EE")
+          .flatMap(_.set(ImportTypePage, Fuel))
+          .flatMap(_.set(ImportSubCodePage, "1.1"))
+          .flatMap(_.set(ImportSubCodeChangedPage, false))
+          .success.value
+
+        navigatorWith(new ConfigPurchaseOrImportMapping())
+          .navigateFromImportSubCodePage(CheckMode)(answers) mustBe
+          controllers.imports.routes.CheckYourImportDetailsController.onPageLoad()
+      }
 
       "must go from RefundPeriodPage to CheckYourClaimDetailsController" in {
         navigator.nextPage(pages.RefundPeriodPage, CheckMode, userAnswers) mustBe
@@ -269,6 +351,11 @@ class NavigatorSpec extends SpecBase {
           importRoutes.SadReferenceNumberController.onPageLoad(CheckMode)
       }
 
+      "must go from ImportDatePage to ImportSuppliersNameController" in {
+        navigator.nextPage(ImportDatePage, CheckMode, userAnswers) mustBe
+          importRoutes.CheckYourImportDetailsController.onPageLoad()
+      }
+
       "must go from SadReferenceNumberPage to ImportSuppliersNameController when SadReferenceCheck is yes" in {
         val answers = userAnswers.set(SadReferenceCheckPage, true).success.value
 
@@ -283,7 +370,7 @@ class NavigatorSpec extends SpecBase {
 
       "must go from ImportSuppliersNamePage to ImportSupplierAddressController in NormalMode" in {
         navigator.nextPage(ImportSuppliersNamePage, NormalMode, userAnswers) mustBe
-          importRoutes.ImportSupplierAddressController.onPageLoad(CheckMode)
+          importRoutes.ImportSupplierAddressController.onPageLoad(NormalMode)
       }
 
       "must delegate from ImportSupplierAddressPage to ImportNavigator in NormalMode" in {
@@ -320,12 +407,12 @@ class NavigatorSpec extends SpecBase {
 
       "must go from TotalAmountWithoutVatPage to TotalVatPaidImportController" in {
         navigator.nextPage(TotalAmountWithoutVatPage, CheckMode, userAnswers) mustBe
-          controllers.imports.routes.TotalVatPaidImportController.onPageLoad(CheckMode)
+          importRoutes.TotalVatPaidImportController.onPageLoad(CheckMode)
       }
 
       "must go from TotalVatPaidImportPage to TotalVatClaimController" in {
         navigator.nextPage(TotalVatPaidImportPage, CheckMode, userAnswers) mustBe
-          controllers.imports.routes.TotalVatClaimController.onPageLoad(CheckMode)
+          importRoutes.TotalVatClaimController.onPageLoad(CheckMode)
       }
 
       "must go from a page that doesn't exist in the edit route map to IndexController" in {
@@ -333,6 +420,61 @@ class NavigatorSpec extends SpecBase {
         navigator.nextPage(UnknownPage, CheckMode, userAnswers) mustBe controllers.routes.IndexController.onPageLoad()
       }
 
+      "must go from ImportTotalVatClaimPage to Import CYA" in {
+        val application = applicationBuilder().build()
+
+        running(application) {
+          val navigator = application.injector.instanceOf[Navigator]
+
+          navigator.nextPage(ImportTotalVatClaimPage, CheckMode, emptyUserAnswers) mustBe controllers.imports.routes
+            .CheckYourImportDetailsController.onPageLoad()
+        }
+      }
+
+      "must return from ImportDatePage to Import CYA" in {
+        val application = applicationBuilder().build()
+
+        running(application) {
+          val navigator = application.injector.instanceOf[Navigator]
+
+          navigator.nextPage(
+            ImportDatePage,
+            CheckMode,
+            emptyUserAnswers
+          ) mustBe controllers.imports.routes
+            .CheckYourImportDetailsController.onPageLoad()
+        }
+      }
+
+      "must return from ImportSuppliersNamePage to Import CYA" in {
+        val application = applicationBuilder().build()
+
+        running(application) {
+          val navigator = application.injector.instanceOf[Navigator]
+
+          navigator.nextPage(
+            ImportSuppliersNamePage,
+            CheckMode,
+            emptyUserAnswers
+          ) mustBe controllers.imports.routes
+            .CheckYourImportDetailsController.onPageLoad()
+        }
+      }
+
+      "must return from ImportSupplierAddressPage to Import CYA" in {
+        val application = applicationBuilder().build()
+
+        running(application) {
+          val navigator = application.injector.instanceOf[Navigator]
+
+          navigator.nextPage(
+            ImportSupplierAddressPage,
+            CheckMode,
+            emptyUserAnswers
+          ) mustBe controllers.imports.routes
+            .CheckYourImportDetailsController.onPageLoad()
+        }
+      }
     }
   }
 }

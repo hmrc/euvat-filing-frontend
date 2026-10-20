@@ -20,7 +20,8 @@ import controllers.actions.*
 import forms.purchase.TotalVatClaimFormProvider
 import models.{Mode, UserAnswers}
 import navigation.Navigator
-import pages.ImportTotalVatClaimPage
+import pages.{ImportTotalVatClaimPage, TotalVatPaidImportPage}
+import pages.imports.ImportVatClaimChangedPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
@@ -34,18 +35,18 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class TotalVatClaimController @Inject() (
-  override val messagesApi: MessagesApi,
-  sessionRepository: SessionRepository,
-  navigator: Navigator,
-  identify: IdentifierAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
-  formProvider: TotalVatClaimFormProvider,
-  currencyConfig: CurrencyConfig,
-  val controllerComponents: MessagesControllerComponents,
-  view: PurchaseOrImportTotalVatClaimView
-)(implicit ec: ExecutionContext)
-    extends FrontendBaseController
+                                          override val messagesApi: MessagesApi,
+                                          sessionRepository: SessionRepository,
+                                          navigator: Navigator,
+                                          identify: IdentifierAction,
+                                          getData: DataRetrievalAction,
+                                          requireData: DataRequiredAction,
+                                          formProvider: TotalVatClaimFormProvider,
+                                          currencyConfig: CurrencyConfig,
+                                          val controllerComponents: MessagesControllerComponents,
+                                          view: PurchaseOrImportTotalVatClaimView
+                                        )(implicit ec: ExecutionContext)
+  extends FrontendBaseController
     with I18nSupport {
 
   val form: Form[BigDecimal] = formProvider()
@@ -67,12 +68,20 @@ class TotalVatClaimController @Inject() (
       .fold(
         formWithErrors =>
           Future.successful(BadRequest(view(formWithErrors, mode, formAction(mode), backLink(mode), "import.caption", currencySymbol))),
-        value =>
-          for {
-            userAnswers <- Future.fromTry(request.userAnswers.set(ImportTotalVatClaimPage, value))
-            _           <- sessionRepository.set(userAnswers)
-          } yield Redirect(navigator.nextPage(ImportTotalVatClaimPage, mode, userAnswers))
+          value =>
+            val changed =
+              !request.userAnswers.isAnswerUnchanged(ImportTotalVatClaimPage, value)
+        
+            for {
+              updated <- Future.fromTry(
+                request.userAnswers
+                  .set(ImportTotalVatClaimPage, value)
+                  .flatMap(_.set(ImportVatClaimChangedPage, changed))
+              )
+              _ <- sessionRepository.set(updated)
+            } yield Redirect(
+              navigator.nextPage(ImportTotalVatClaimPage, mode, updated)
+            )
       )
   }
-
 }

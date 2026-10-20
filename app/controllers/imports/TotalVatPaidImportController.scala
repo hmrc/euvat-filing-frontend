@@ -19,9 +19,11 @@ package controllers.imports
 import controllers.actions.*
 import forms.imports.TotalVatPaidImportFormProvider
 import javax.inject.Inject
-import models.Mode
+import models.{Mode, UserAnswers}
 import navigation.Navigator
-import pages.TotalVatPaidImportPage
+import pages.{ImportTotalVatClaimPage, TotalAmountWithoutVatPage, TotalVatPaidImportPage}
+import pages.imports.ImportVatPaidChangedPage
+import scala.util.Success
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
@@ -32,6 +34,7 @@ import utils.CurrencyConfig
 import views.html.PurchaseOrImportTotalVatPaidView
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Success, Try}
 
 class TotalVatPaidImportController @Inject() (
   override val messagesApi: MessagesApi,
@@ -55,6 +58,16 @@ class TotalVatPaidImportController @Inject() (
 
   private def formAction(mode: Mode): Call = routes.TotalVatPaidImportController.onSubmit(mode)
 
+  private def clearVatClaimIfChanged(
+                                      answers: UserAnswers,
+                                      value: BigDecimal
+                                    ): Try[UserAnswers] =
+    if (answers.isAnswerUnchanged(TotalVatPaidImportPage, value)) {
+      Success(answers)
+    } else {
+      answers.remove(ImportTotalVatClaimPage)
+    }
+
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(TotalVatPaidImportPage).fold(form)(form.fill)
     val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)
@@ -70,11 +83,28 @@ class TotalVatPaidImportController @Inject() (
           Future.successful(
             BadRequest(view(formWithErrors, formAction(mode), backLink(mode), "import.caption", "totalVatPaidImport.p1", prefix, currencyName))
           ),
-        value =>
-          for {
-            userAnswers <- Future.fromTry(request.userAnswers.set(TotalVatPaidImportPage, value))
-            _           <- sessionRepository.set(userAnswers)
-          } yield Redirect(navigator.nextPage(TotalVatPaidImportPage, mode, userAnswers))
+          value =>
+            val changed =
+              !request.userAnswers.isAnswerUnchanged(TotalVatPaidImportPage, value)
+  
+            val clearedAnswers =
+              if (changed) {
+                request.userAnswers.remove(ImportTotalVatClaimPage)
+              } else {
+                Success(request.userAnswers)
+              }
+  
+            for {
+              cleared <- Future.fromTry(clearedAnswers)
+              updated <- Future.fromTry(
+                cleared
+                  .set(TotalVatPaidImportPage, value)
+                  .flatMap(_.set(ImportVatPaidChangedPage, changed))
+              )
+              _ <- sessionRepository.set(updated)
+            } yield Redirect(
+              navigator.nextPage(TotalVatPaidImportPage, mode, updated)
+            )
       )
   }
 }

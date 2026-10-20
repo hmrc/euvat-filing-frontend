@@ -78,7 +78,7 @@ class ImportSubCategoryController @Inject() (
       title,
       "import.caption",
       controllers.imports.routes.ImportSubCategoryController.onSubmit(mode),
-      controllers.imports.routes.ImportSubCodeController.onPageLoad(data.parentKey)
+      controllers.imports.routes.ImportSubCodeController.onPageLoad(data.parentKey, mode)
     )
   }
 

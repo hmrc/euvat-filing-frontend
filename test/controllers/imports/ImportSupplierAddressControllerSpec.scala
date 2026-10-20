@@ -35,7 +35,7 @@ import views.html.imports.ImportSupplierAddressView
 
 import scala.concurrent.Future
 
-class complete  extends SpecBase with MockitoSugar {
+class ImportSupplierAddressControllerSpec  extends SpecBase with MockitoSugar {
 
   private val onwardRoute = Call("GET", "/foo")
 
@@ -299,6 +299,7 @@ class complete  extends SpecBase with MockitoSugar {
           .build()
 
       running(application) {
+
 
         val request =
           FakeRequest(POST, submitRoute)

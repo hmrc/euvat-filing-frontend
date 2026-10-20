@@ -19,7 +19,8 @@ package controllers.imports
 import controllers.actions.*
 import forms.imports.SadReferenceCheckFormProvider
 import models.NormalMode
-import pages.SadReferenceCheckPage
+import pages.{SadReferenceCheckPage, ImportDetailsInfoPage, SadReferenceNumberPage}
+import pages.imports.ImportSadChangedPage
 import models.requests.DataRequest
 import models.{Mode, NormalMode, Other}
 import navigation.Navigator
@@ -33,6 +34,7 @@ import views.html.imports.SadReferenceCheckView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Success
 
 class SadReferenceCheckController @Inject() (
   override val messagesApi: MessagesApi,
@@ -51,32 +53,52 @@ class SadReferenceCheckController @Inject() (
   val form: Form[Boolean] = formProvider()
   private def backLink(mode: Mode): Call = routes.ImportSubCategoryController.onPageLoad(mode)
 
-  private def computeBackLink(implicit request: DataRequest[AnyContent]): Call = {
+  private def computeBackLink(mode:Mode)(implicit request: DataRequest[AnyContent]): Call = {
     val answers = request.userAnswers
     (answers.get(pages.ImportTypePage), answers.get(pages.ImportSubCodePage), answers.get(pages.ImportSubCategoryPage)) match {
       case (Some(_), _, Some(_)) => controllers.imports.routes.ImportSubCategoryController.onPageLoad(NormalMode)
       case (Some(Other), _, _) if answers.get(pages.DescribeItemsOnImportDocPage).isDefined =>
         controllers.imports.routes.DescribeItemsOnImportDocController.onPageLoad(NormalMode)
-      case (Some(importType), Some(_), None) => controllers.imports.routes.ImportSubCodeController.onPageLoad(importType.toString)
+      case (Some(importType), Some(_), None) => controllers.imports.routes.ImportSubCodeController.onPageLoad(importType.toString, mode)
       case _                                 => controllers.imports.routes.ImportTypeController.onPageLoad(NormalMode)
     }
   }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(SadReferenceCheckPage).fold(form)(form.fill)
-    Ok(view(preparedForm, computeBackLink))
+    Ok(view(preparedForm, computeBackLink(mode), mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, computeBackLink))),
-        value =>
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, computeBackLink(mode), mode))),
+        value => {
+          val changed =
+            !request.userAnswers.isAnswerUnchanged(SadReferenceCheckPage, value)
+
+          val clearedAnswers =
+            if (changed) {
+              request.userAnswers
+                .remove(SadReferenceNumberPage)
+                .flatMap(_.remove(ImportDetailsInfoPage))
+            } else {
+              Success(request.userAnswers)
+            }
+
           for {
-            updated <- Future.fromTry(request.userAnswers.set(SadReferenceCheckPage, value))
-            _       <- sessionRepository.set(updated)
-          } yield Redirect(navigator.nextPage(SadReferenceCheckPage, mode, updated))
+            cleared <- Future.fromTry(clearedAnswers)
+            updated <- Future.fromTry(
+              cleared
+                .set(SadReferenceCheckPage, value)
+                .flatMap(_.set(ImportSadChangedPage, changed))
+            )
+            _ <- sessionRepository.set(updated)
+          } yield Redirect(
+            navigator.nextPage(SadReferenceCheckPage, mode, updated)
+          )
+        }
       )
   }
 

@@ -19,9 +19,10 @@ package controllers.imports
 import controllers.actions.*
 import controllers.imports.routes as importRoutes
 import forms.imports.TotalAmountWithoutVatFormProvider
-import models.Mode
+import models.{Mode, UserAnswers}
 import navigation.Navigator
-import pages.{SadReferenceCheckPage, SadReferenceNumberPage, TotalAmountWithoutVatPage}
+import pages.{ImportTotalVatClaimPage, SadReferenceCheckPage, SadReferenceNumberPage, TotalAmountWithoutVatPage, TotalVatPaidImportPage}
+import pages.imports.ImportAmountWithoutVatChangedPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
@@ -33,6 +34,7 @@ import views.html.imports.TotalAmountWithoutVatView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Success, Try}
 
 class TotalAmountWithoutVatController @Inject() (
   override val messagesApi: MessagesApi,
@@ -58,6 +60,15 @@ class TotalAmountWithoutVatController @Inject() (
       case _ => importRoutes.ImportSuppliersNameController.onPageLoad(mode)
     }
 
+  private def clearDependentAmounts(answers: UserAnswers, value: BigDecimal): Try[UserAnswers] =
+    if (answers.isAnswerUnchanged(TotalAmountWithoutVatPage, value)) {
+      Success(answers)
+    } else {
+      answers
+        .remove(TotalVatPaidImportPage)
+        .flatMap(_.remove(ImportTotalVatClaimPage))
+    }
+
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(TotalAmountWithoutVatPage).fold(form)(form.fill)
     val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)
@@ -70,11 +81,26 @@ class TotalAmountWithoutVatController @Inject() (
       .bindFromRequest()
       .fold(
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)(request.userAnswers), prefix, currencyName))),
-        value =>
+        value => {
+          val changed =
+            !request.userAnswers.isAnswerUnchanged(TotalAmountWithoutVatPage, value)
+
           for {
-            updated <- Future.fromTry(request.userAnswers.set(TotalAmountWithoutVatPage, value))
-            _       <- sessionRepository.set(updated)
-          } yield Redirect(navigator.nextPage(TotalAmountWithoutVatPage, mode, updated))
+            cleared <- Future.fromTry(
+              clearDependentAmounts(request.userAnswers, value)
+            )
+            updated <- Future.fromTry(
+              cleared
+                .set(TotalAmountWithoutVatPage, value)
+                .flatMap(
+                  _.set(ImportAmountWithoutVatChangedPage, changed)
+                )
+            )
+            _ <- sessionRepository.set(updated)
+          } yield Redirect(
+            navigator.nextPage(TotalAmountWithoutVatPage, mode, updated)
+          )
+        }
       )
   }
 

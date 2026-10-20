@@ -23,7 +23,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.TryValues.*
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{ImportTotalVatClaimPage, RefundingCountryPage, RefundingCurrencyPage}
+import pages.{ImportTotalVatClaimPage, RefundingCountryPage, RefundingCurrencyPage, TotalVatPaidImportPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.test.FakeRequest
@@ -96,8 +96,12 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
     "must save a valid claim and continue to check purchase details" in {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val userAnswers = emptyUserAnswers
+        .set(TotalVatPaidImportPage, BigDecimal("1000"))
+        .success.value
+
       val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        applicationBuilder(userAnswers = Some(userAnswers))
           .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
           .build()
 
@@ -106,7 +110,7 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual controllers.imports.routes.CheckYourImportDetailsController.onPageLoad().url
         verify(mockSessionRepository).set(any())
       }
     }

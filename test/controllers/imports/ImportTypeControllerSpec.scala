@@ -19,12 +19,13 @@ package controllers.imports
 import base.SpecBase
 import controllers.routes
 import forms.ImportTypeFormProvider
-import models.{Fuel, NormalMode, PurchaseOrImportType, UserAnswers}
+import models.{CheckMode, Fuel, NormalMode, PurchaseOrImportType, Transport, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.ImportTypePage
+import pages.imports.ImportTypeChangedPage
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -149,6 +150,172 @@ class ImportTypeControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must save an unchanged Import type with a false flag and delegate in CheckMode" in {
+      val answers = emptyUserAnswers
+        .set(ImportTypePage, Fuel)
+        .success.value
+
+      val repository = mock[SessionRepository]
+
+      when(repository.set(any[UserAnswers]))
+        .thenReturn(Future.successful(true))
+
+      val expectedAnswers = answers
+        .set(ImportTypePage, Fuel)
+        .flatMap(_.set(ImportTypeChangedPage, false))
+        .success.value
+
+      val application = applicationBuilder(userAnswers = Some(answers))
+        .overrides(
+          bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+          bind[SessionRepository].toInstance(repository)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(
+          POST,
+          controllers.imports.routes.ImportTypeController.onSubmit(CheckMode).url
+        ).withFormUrlEncodedBody("value" -> Fuel.toString)
+
+        val result = route(application, request).value
+
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result).value mustBe onwardRoute.url
+
+        verify(repository).set(expectedAnswers)
+      }
+    }
+
+    "must save the changed Import type and use the navigator in CheckMode" in {
+      val answers = emptyUserAnswers
+        .set(ImportTypePage, Fuel)
+        .success.value
+
+      val repository = mock[SessionRepository]
+      when(repository.set(any[UserAnswers]))
+        .thenReturn(Future.successful(true))
+
+      val expectedAnswers = answers
+        .set(ImportTypePage, Transport)
+        .success.value
+
+      val application = applicationBuilder(userAnswers = Some(answers))
+        .overrides(
+          bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+          bind[SessionRepository].toInstance(repository)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(
+          POST,
+          controllers.imports.routes.ImportTypeController.onSubmit(CheckMode).url
+        ).withFormUrlEncodedBody("value" -> Transport.toString)
+
+        val result = route(application, request).value
+
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result).value mustBe onwardRoute.url
+
+        verify(repository).set(expectedAnswers)
+      }
+    }
+
+    "must save and use the navigator when no previous Import type exists in CheckMode" in {
+      val repository = mock[SessionRepository]
+      when(repository.set(any[UserAnswers]))
+        .thenReturn(Future.successful(true))
+
+      val initialAnswers = emptyUserAnswers
+
+      val expectedAnswers = initialAnswers
+        .set(ImportTypePage, Fuel)
+        .success.value
+
+      val application = applicationBuilder(userAnswers = Some(initialAnswers))
+        .overrides(
+          bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+          bind[SessionRepository].toInstance(repository)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(
+          POST,
+          controllers.imports.routes.ImportTypeController.onSubmit(CheckMode).url
+        ).withFormUrlEncodedBody("value" -> Fuel.toString)
+
+        val result = route(application, request).value
+
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result).value mustBe onwardRoute.url
+
+        verify(repository).set(expectedAnswers)
+      }
+    }
+
+    "must continue through the normal journey when Import type is unchanged in NormalMode" in {
+      val answers = emptyUserAnswers
+        .set(ImportTypePage, Fuel)
+        .success.value
+
+      val repository = mock[SessionRepository]
+      when(repository.set(any[UserAnswers]))
+        .thenReturn(Future.successful(true))
+
+      val expectedAnswers = answers
+        .set(ImportTypePage, Fuel)
+        .success.value
+
+      val application = applicationBuilder(userAnswers = Some(answers))
+        .overrides(
+          bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+          bind[SessionRepository].toInstance(repository)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(
+          POST,
+          controllers.imports.routes.ImportTypeController.onSubmit(NormalMode).url
+        ).withFormUrlEncodedBody("value" -> Fuel.toString)
+
+        val result = route(application, request).value
+
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result).value mustBe onwardRoute.url
+
+        verify(repository).set(expectedAnswers)
+      }
+    }
+
+    "must return Bad Request without saving when invalid data is submitted in CheckMode" in {
+      val answers = emptyUserAnswers
+        .set(ImportTypePage, Fuel)
+        .success.value
+
+      val repository = mock[SessionRepository]
+
+      val application = applicationBuilder(userAnswers = Some(answers))
+        .overrides(
+          bind[SessionRepository].toInstance(repository)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(
+          POST,
+          controllers.imports.routes.ImportTypeController.onSubmit(CheckMode).url
+        ).withFormUrlEncodedBody("value" -> "invalid value")
+
+        val result = route(application, request).value
+
+        status(result) mustBe BAD_REQUEST
+        verify(repository, never()).set(any[UserAnswers])
       }
     }
   }

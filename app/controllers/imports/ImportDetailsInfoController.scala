@@ -76,9 +76,13 @@ class ImportDetailsInfoController @Inject() (
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)))),
         value => {
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(ImportDetailsInfoPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(ImportDetailsInfoPage, mode, updatedAnswers))
+            updated <- Future.fromTry(
+              request.userAnswers.set(ImportDetailsInfoPage, value)
+            )
+            _ <- sessionRepository.set(updated)
+          } yield Redirect(
+            navigator.nextPage(ImportDetailsInfoPage, mode, updated)
+          )
         }
       )
   }

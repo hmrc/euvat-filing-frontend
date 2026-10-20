@@ -20,9 +20,10 @@ import controllers.actions.*
 import forms.PurchaseOrImportSubTypeFormProvider
 import forms.imports.SadReferenceCheckFormProvider
 import models.requests.DataRequest
-import models.{NormalMode, PurchaseOrImportType, UserAnswers}
+import models.{CheckMode, Mode, NormalMode, PurchaseOrImportType, UserAnswers}
 import navigation.Navigator
-import pages.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage}
+import pages.{DescribeItemsOnImportDocPage, ImportSubCategoryPage, ImportSubCodePage, ImportTypePage}
+import pages.imports.ImportSubCodeChangedPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -72,49 +73,85 @@ class ImportSubCodeController @Inject() (
     }
   }
 
-  private def renderView(importType: PurchaseOrImportType, options: Seq[(String, String)], form: Form[String])(implicit
+  private def renderView(importType: PurchaseOrImportType, options: Seq[(String, String)], form: Form[String], mode: Mode)(implicit
     request: DataRequest[AnyContent]
   ) = {
     val messages = request2Messages
+
+    val backLink = mode match {
+      case CheckMode =>
+        routes.CheckYourImportDetailsController.onPageLoad()
+
+      case NormalMode =>
+        routes.ImportTypeController.onPageLoad(NormalMode)
+    }
     view(
       form,
       radioItems(config, options),
       messages(s"importSubCode.$importType.title"),
       messages(s"importSubCode.$importType.heading"),
       "import.caption",
-      routes.ImportSubCodeController.onSubmit(importType.toString),
-      routes.ImportTypeController.onPageLoad(NormalMode)
+      routes.ImportSubCodeController.onSubmit(importType.toString, mode),
+      backLink
     )
   }
 
   private def clearSubCategoryIfChanged(answers: UserAnswers, value: String): Try[UserAnswers] =
-    if (answers.get(ImportSubCodePage).contains(value)) Success(answers)
-    else answers.remove(ImportSubCategoryPage).flatMap(_.remove(ImportSubCategoryLabelQuery))
+    if (answers.get(ImportSubCodePage).contains(value)) {
+      Success(answers)
+    } else {
+      answers
+        .remove(ImportSubCategoryPage)
+        .flatMap(_.remove(ImportSubCategoryLabelQuery))
+        .flatMap(_.remove(DescribeItemsOnImportDocPage))
+    }
 
-  def onPageLoad(importTypeKey: String): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+  def onPageLoad(importTypeKey: String, mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     withPageData(importTypeKey) { (importType, options) =>
       val form = preparedForm(formProvider, s"importSubCode.$importType.error.required", request.userAnswers.get(ImportSubCodePage))
-      Future.successful(Ok(renderView(importType, options, form)))
+      Future.successful(Ok(renderView(importType, options, form, mode)))
     }
   }
 
-  def onSubmit(importTypeKey: String): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+  def onSubmit(importTypeKey: String, mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     withPageData(importTypeKey) { (importType, options) =>
       formProvider(s"importSubCode.$importType.error.required")
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(renderView(importType, options, formWithErrors))),
-          value =>
-            if (allowedValues(options).contains(value)) {
-              val label = labelFor(value, options)
-              for {
-                cleared        <- Future.fromTry(clearSubCategoryIfChanged(request.userAnswers, value))
-                updatedAnswers <- Future.fromTry(setSelection(cleared, ImportSubCodePage, ImportSubTypeLabelQuery, value, label))
-                _              <- sessionRepository.set(updatedAnswers)
-              } yield Redirect(navigator.nextPage(ImportSubCodePage, NormalMode, updatedAnswers))
+          formWithErrors => Future.successful(BadRequest(renderView(importType, options, formWithErrors, mode))),
+          value => {
+            if (!allowedValues(options).contains(value)) {
+              Future.successful(
+                Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+              )
             } else {
-              Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+              val changed =
+                !request.userAnswers.isAnswerUnchanged(ImportSubCodePage, value)
+
+              val label = labelFor(value, options)
+
+              for {
+                cleared <- Future.fromTry(
+                  clearSubCategoryIfChanged(request.userAnswers, value)
+                )
+                selected <- Future.fromTry(
+                  setSelection(
+                    cleared,
+                    ImportSubCodePage,
+                    ImportSubTypeLabelQuery,
+                    value,
+                    label
+                  )
+                )
+                updated <- Future.fromTry(
+                  selected.set(ImportSubCodeChangedPage, changed)
+                )
+                _ <- sessionRepository.set(updated)
+              } yield Redirect(
+                navigator.nextPage(ImportSubCodePage, mode, updated)
+              )
             }
+          }
         )
     }
   }
