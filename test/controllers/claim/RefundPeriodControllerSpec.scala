@@ -17,6 +17,7 @@
 package controllers.claim
 
 import base.SpecBase
+import controllers.warning.routes.{PeriodOverlapWarningController, RefundPeriodEndDateWarningController, RefundPeriodStartDateWarningController, RefundPeriodTooShortWarningController}
 import forms.claim.{RefundPeriodData, RefundPeriodFormProvider}
 import models.responses.{LatestApplication, LatestApplicationResponse, TraderKnownFactsResponse}
 import models.{CheckMode, NormalMode, RefundPeriod, UserAnswers}
@@ -252,7 +253,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual controllers.warning.routes.RefundPeriodStartDateWarningController.onPageLoad(NormalMode).url
+          redirectLocation(result).value mustEqual RefundPeriodStartDateWarningController.onPageLoad(NormalMode).url
         }
       }
 
@@ -272,7 +273,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual controllers.warning.routes.RefundPeriodStartDateWarningController.onPageLoad(CheckMode).url
+          redirectLocation(result).value mustEqual RefundPeriodStartDateWarningController.onPageLoad(CheckMode).url
         }
       }
 
@@ -290,7 +291,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual controllers.warning.routes.RefundPeriodEndDateWarningController.onPageLoad(NormalMode).url
+          redirectLocation(result).value mustEqual RefundPeriodEndDateWarningController.onPageLoad(NormalMode).url
         }
       }
 
@@ -308,7 +309,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual controllers.warning.routes.RefundPeriodEndDateWarningController.onPageLoad(CheckMode).url
+          redirectLocation(result).value mustEqual RefundPeriodEndDateWarningController.onPageLoad(CheckMode).url
         }
       }
 
@@ -326,12 +327,18 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual controllers.warning.routes.RefundPeriodEndDateWarningController.onPageLoad(NormalMode).url
+          redirectLocation(result).value mustEqual RefundPeriodEndDateWarningController.onPageLoad(NormalMode).url
         }
       }
 
-      "must show minimum-length error when period is less than 3 months" in {
-        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+      "must redirect to too short warning when period is less than 3 months" in {
+        when(mockEuVatRefundsService.retrieveTraderKnownFacts()(any()))
+          .thenReturn(Future.successful(TraderKnownFactsResponse(123, tradeClass = Some(baCode1))))
+        when(mockEuVatRefundsService.getLatestApplications(any())(any())).thenReturn(Future.successful(LatestApplicationResponse(List.empty, 0)))
+        val userAnswersWithTrader = emptyUserAnswers.set(TraderKnownFactsQuery, trader).success.value
+        when(mockEuVatRefundsService.retrieveTraderKnownFacts()(any())).thenReturn(Future.successful(trader))
+        val application = applicationBuilder(userAnswers = Some(userAnswersWithTrader))
+          .overrides(bind[Navigator].toInstance(new FakeNavigator(onwardRoute)))
           .overrides(bind[RefundPeriodFormProvider].toInstance(formProviderAfterSept30))
           .build()
 
@@ -339,14 +346,14 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
           val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit(NormalMode).url)
             .withFormUrlEncodedBody(
               "start.month" -> "03",
-              "start.year"  -> "2024",
+              "start.year"  -> baseToday.getYear.toString,
               "end.month"   -> "04",
-              "end.year"    -> "2024"
+              "end.year"    -> baseToday.getYear.toString
             )
           val result = route(application, request).value
 
-          status(result) mustEqual BAD_REQUEST
-          contentAsString(result) must include(messages(application)("refundPeriod.error.periodNotLessThan3Months"))
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual RefundPeriodTooShortWarningController.onPageLoad(NormalMode).url
         }
       }
 
@@ -372,7 +379,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual controllers.warning.routes.RefundPeriodStartDateWarningController.onPageLoad(NormalMode).url
+          redirectLocation(result).value mustEqual RefundPeriodStartDateWarningController.onPageLoad(NormalMode).url
         }
       }
 
@@ -503,14 +510,22 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must show period-length error for exempt VRN when period is too short (Oct-Nov 2020)" in {
+      "must redirect to too short warning for exempt VRN when period is too short (Oct-Nov 2020)" in {
         val exemptVrn = 999900106
         val traderExempt = TraderKnownFactsResponse(exemptVrn, tradeClass = Some(baCode1))
 
         when(mockEuVatRefundsService.retrieveTraderKnownFacts()(any())).thenReturn(Future.successful(traderExempt))
-
+        when(mockSessionRepository.set(any[UserAnswers])).thenReturn(Future.successful(true))
         val userAnswersWithTrader = emptyUserAnswers.set(TraderKnownFactsQuery, traderExempt).success.value
-        val application = applicationBuilder(userAnswers = Some(userAnswersWithTrader)).build()
+        val application = applicationBuilder(userAnswers = Some(userAnswersWithTrader))
+          .configure(
+            "allowlist.refund.create.vrns" -> Seq("999900106"),
+            "refund.start.earliest.month"  -> 1,
+            "refund.start.earliest.year"   -> 2020,
+            "refund.start.latest.month"    -> 12,
+            "refund.start.latest.year"     -> 2020
+          )
+          .build()
 
         running(application) {
           val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit(NormalMode).url)
@@ -523,12 +538,8 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
 
           val result = route(application, request).value
 
-          status(result) mustBe BAD_REQUEST
-          val msgs = application.injector.instanceOf[play.api.i18n.MessagesApi]
-          val expected = msgs.preferred(FakeRequest()).apply("refundPeriod.error.periodNotLessThan3Months")
-          contentAsString(result) must include(expected)
-
-          contentAsString(result) must not include "Refund period start date cannot be before 1 January"
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual RefundPeriodTooShortWarningController.onPageLoad(NormalMode).url
         }
       }
 
@@ -732,7 +743,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
         when(mockEuVatRefundsService.retrieveTraderKnownFacts()(any())).thenReturn(Future.successful(trader))
 
         val application = applicationBuilder(userAnswers = Some(userAnswersWithTrader))
-          .overrides(bind[navigation.Navigator].toInstance(new FakeNavigator(onwardRoute)))
+          .overrides(bind[Navigator].toInstance(new FakeNavigator(onwardRoute)))
           .overrides(bind[RefundPeriodFormProvider].toInstance(formProviderAfterSept30))
           .build()
 
@@ -751,8 +762,14 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must show minimum-length error when start and end are equal" in {
-        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+      "must redirect to too short warning when start and end are equal" in {
+        when(mockEuVatRefundsService.retrieveTraderKnownFacts()(any()))
+          .thenReturn(Future.successful(TraderKnownFactsResponse(123, tradeClass = Some(baCode1))))
+        when(mockEuVatRefundsService.getLatestApplications(any())(any())).thenReturn(Future.successful(LatestApplicationResponse(List.empty, 0)))
+        val userAnswersWithTrader = emptyUserAnswers.set(TraderKnownFactsQuery, trader).success.value
+        when(mockEuVatRefundsService.retrieveTraderKnownFacts()(any())).thenReturn(Future.successful(trader))
+        val application = applicationBuilder(userAnswers = Some(userAnswersWithTrader))
+          .overrides(bind[Navigator].toInstance(new FakeNavigator(onwardRoute)))
           .overrides(bind[RefundPeriodFormProvider].toInstance(formProviderAfterSept30))
           .build()
 
@@ -760,14 +777,14 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
           val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit(NormalMode).url)
             .withFormUrlEncodedBody(
               "start.month" -> "03",
-              "start.year"  -> "2024",
+              "start.year"  -> baseToday.getYear.toString,
               "end.month"   -> "03",
-              "end.year"    -> "2024"
+              "end.year"    -> baseToday.getYear.toString
             )
           val result = route(application, request).value
 
-          status(result) mustEqual BAD_REQUEST
-          contentAsString(result) must include(messages(application)("refundPeriod.error.periodNotLessThan3Months"))
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual RefundPeriodTooShortWarningController.onPageLoad(NormalMode).url
         }
       }
 
@@ -944,7 +961,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
             val result = route(application, request).value
 
             status(result) mustEqual SEE_OTHER
-            redirectLocation(result).value mustEqual controllers.warning.routes.RefundPeriodStartDateWarningController.onPageLoad(NormalMode).url
+            redirectLocation(result).value mustEqual RefundPeriodStartDateWarningController.onPageLoad(NormalMode).url
           }
         }
 
@@ -959,7 +976,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
 
           val application = applicationBuilder(userAnswers = Some(userAnswersWithTrader))
             .overrides(
-              bind[navigation.Navigator].toInstance(new FakeNavigator(onwardRoute)),
+              bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
               bind[RefundPeriodFormProvider].toInstance(formProviderAfterSept30)
             )
             .build()
@@ -995,7 +1012,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
             val result = route(application, request).value
 
             status(result) mustEqual SEE_OTHER
-            redirectLocation(result).value mustEqual controllers.warning.routes.RefundPeriodStartDateWarningController.onPageLoad(NormalMode).url
+            redirectLocation(result).value mustEqual RefundPeriodStartDateWarningController.onPageLoad(NormalMode).url
           }
         }
 
@@ -1010,7 +1027,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
 
           val application = applicationBuilder(userAnswers = Some(userAnswersWithTrader))
             .overrides(
-              bind[navigation.Navigator].toInstance(new FakeNavigator(onwardRoute)),
+              bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
               bind[RefundPeriodFormProvider].toInstance(formProviderBeforeSept30)
             )
             .build()
@@ -1026,7 +1043,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
             val result = route(application, request).value
 
             status(result) mustEqual SEE_OTHER
-            redirectLocation(result).value mustEqual controllers.warning.routes.RefundPeriodStartDateWarningController.onPageLoad(NormalMode).url
+            redirectLocation(result).value mustEqual RefundPeriodStartDateWarningController.onPageLoad(NormalMode).url
           }
         }
       }
@@ -1054,7 +1071,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
             val result = route(application, request).value
 
             status(result) mustEqual SEE_OTHER
-            redirectLocation(result).value mustEqual controllers.warning.routes.RefundPeriodStartDateWarningController.onPageLoad(NormalMode).url
+            redirectLocation(result).value mustEqual RefundPeriodStartDateWarningController.onPageLoad(NormalMode).url
             verify(mockEuVatRefundsService, times(0)).getLatestApplications(any())(any())
           }
         }
@@ -1151,7 +1168,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
             val result = route(application, request).value
 
             status(result) mustEqual SEE_OTHER
-            redirectLocation(result).value mustEqual controllers.warning.routes.PeriodOverlapWarningController.onPageLoad(NormalMode).url
+            redirectLocation(result).value mustEqual PeriodOverlapWarningController.onPageLoad(NormalMode).url
           }
         }
 
@@ -1195,7 +1212,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
             val result = route(application, request).value
 
             status(result) mustEqual SEE_OTHER
-            redirectLocation(result).value mustEqual controllers.warning.routes.PeriodOverlapWarningController.onPageLoad(NormalMode).url
+            redirectLocation(result).value mustEqual PeriodOverlapWarningController.onPageLoad(NormalMode).url
           }
         }
 
@@ -1239,7 +1256,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
             val result = route(application, request).value
 
             status(result) mustEqual SEE_OTHER
-            redirectLocation(result).value mustEqual controllers.warning.routes.PeriodOverlapWarningController.onPageLoad(NormalMode).url
+            redirectLocation(result).value mustEqual PeriodOverlapWarningController.onPageLoad(NormalMode).url
           }
         }
       }
@@ -1260,7 +1277,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
 
           val application = applicationBuilder(userAnswers = Some(userAnswersWithTrader))
             .overrides(
-              bind[navigation.Navigator].toInstance(new FakeNavigator(onwardRoute)),
+              bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
               bind[RefundPeriodFormProvider].toInstance(formProviderBeforeSept30)
             )
             .build()
@@ -1297,7 +1314,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
 
           val application = applicationBuilder(userAnswers = Some(userAnswersWithTrader))
             .overrides(
-              bind[navigation.Navigator].toInstance(new FakeNavigator(onwardRoute)),
+              bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
               bind[RefundPeriodFormProvider].toInstance(formProviderBeforeSept30)
             )
             .build()
@@ -1336,7 +1353,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
 
           val application = applicationBuilder(userAnswers = Some(userAnswersWithTrader))
             .overrides(
-              bind[navigation.Navigator].toInstance(new FakeNavigator(onwardRoute)),
+              bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
               bind[RefundPeriodFormProvider].toInstance(formProviderBeforeSept30)
             )
             .build()
@@ -1365,7 +1382,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
 
           val application = applicationBuilder(userAnswers = Some(userAnswersWithTrader))
             .overrides(
-              bind[navigation.Navigator].toInstance(new FakeNavigator(onwardRoute)),
+              bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
               bind[RefundPeriodFormProvider].toInstance(formProviderBeforeSept30)
             )
             .build()

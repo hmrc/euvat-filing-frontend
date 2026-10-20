@@ -18,6 +18,7 @@ package controllers.claim
 
 import config.FrontendAppConfig
 import controllers.actions.*
+import controllers.warning.routes.RefundPeriodTooShortWarningController
 import forms.claim.{RefundPeriodData, RefundPeriodFormProvider}
 import models.requests.{DataRequest, LatestApplicationRequest}
 import models.responses.TraderKnownFactsResponse
@@ -218,23 +219,23 @@ class RefundPeriodController @Inject() (
     }
   }
 
-   private def checkRefundPeriodTooShort(
-      vrn: String,
-      traderResponse: TraderKnownFactsResponse,
-      startDate: LocalDateTime,
-      endDate: LocalDateTime,
-      mode: Mode
-    )(using request: DataRequest[?], ec: ExecutionContext): Future[Result] = {
-      if (isRefundPeriodTooShort(startDate, endDate)) {
-        val refundPeriod = RefundPeriod(startDate, endDate)
-        for {
-          updatedUserAnswers <- updateUserAnswers(traderResponse, refundPeriod)
-          _                  <- sessionRepository.set(updatedUserAnswers)
-        } yield Redirect(controllers.warning.routes.RefundPeriodTooShortWarningController.onPageLoad(mode))
-      } else {
-        checkOverlappingPeriod(vrn, traderResponse, startDate, endDate, mode)
-      }
+  private def checkRefundPeriodTooShort(
+    vrn: String,
+    traderResponse: TraderKnownFactsResponse,
+    startDate: LocalDateTime,
+    endDate: LocalDateTime,
+    mode: Mode
+  )(using request: DataRequest[?], ec: ExecutionContext): Future[Result] = {
+    if (isRefundPeriodTooShort(startDate, endDate)) {
+      val refundPeriod = RefundPeriod(startDate, endDate)
+      for {
+        updatedUserAnswers <- updateUserAnswers(traderResponse, refundPeriod)
+        _                  <- sessionRepository.set(updatedUserAnswers)
+      } yield Redirect(RefundPeriodTooShortWarningController.onPageLoad(mode))
+    } else {
+      checkEarliestStartDate(vrn, traderResponse, startDate, endDate, mode)
     }
+  }
 
   private def checkOverlappingPeriod(
     vrn: String,

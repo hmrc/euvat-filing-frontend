@@ -35,8 +35,8 @@ class RefundPeriodFormProvider @Inject() extends Mappings {
     case "refundPeriod.error.startDateNotAfterEndDate" => Set("start.month", "start.year", "end.month", "end.year")
     case "refundPeriod.end.error.required" | "refundPeriod.end.error.afterVatDeRegDate" =>
       Set("end.month", "end.year")
-    case "refundPeriod.error.startAndEndInSameYear"    => Set("start.year", "end.year")
-    case _                                             => Set.empty
+    case "refundPeriod.error.startAndEndInSameYear" => Set("start.year", "end.year")
+    case _                                          => Set.empty
   }
 
   private def highlightedFields(form: Form[RefundPeriodData]): Set[String] = {

@@ -18,6 +18,7 @@ package controllers.warning
 
 import controllers.actions.*
 import controllers.claim.routes
+import controllers.routes.JourneyRecoveryController
 import models.Mode
 import navigation.Navigator
 import pages.claim.RefundPeriodPage
@@ -27,21 +28,23 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.warning.RefundPeriodTooShortWarningView
 
-class RefundPeriodTooShortWarningController @Inject()(
-                                       override val messagesApi: MessagesApi,
-                                       identify: IdentifierAction,
-                                       getData: DataRetrievalAction,
-                                       requireData: DataRequiredAction,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       navigator: Navigator,
-                                       view: RefundPeriodTooShortWarningView
-                                     ) extends FrontendBaseController with I18nSupport {
+class RefundPeriodTooShortWarningController @Inject() (
+  override val messagesApi: MessagesApi,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  val controllerComponents: MessagesControllerComponents,
+  navigator: Navigator,
+  view: RefundPeriodTooShortWarningView
+) extends FrontendBaseController
+    with I18nSupport {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     request.userAnswers.get(RefundPeriodPage) match {
-      case None     => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-      case Some(_)  => val call = routes.RefundPeriodController.onPageLoad(mode)
-                       Ok(view(call, mode))
+      case None => Redirect(JourneyRecoveryController.onPageLoad())
+      case Some(_) =>
+        val call = routes.RefundPeriodController.onPageLoad(mode)
+        Ok(view(call, mode))
     }
   }
 
