@@ -21,7 +21,7 @@ import controllers.actions.*
 import forms.SuppliersNameFormProvider
 import models.{Mode, NormalMode}
 import models.requests.DataRequest
-import navigation.Navigator
+import navigation.{ImportNavigator, Navigator}
 import pages.imports.ImportSuppliersNamePage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -34,17 +34,18 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class ImportSuppliersNameController @Inject() (
-  override val messagesApi: MessagesApi,
-  sessionRepository: SessionRepository,
-  navigator: Navigator,
-  identify: IdentifierAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
-  formProvider: SuppliersNameFormProvider,
-  val controllerComponents: MessagesControllerComponents,
-  view: PurchaseOrImportSuppliersNameView
-)(implicit ec: ExecutionContext)
-    extends FrontendBaseController
+                                                override val messagesApi: MessagesApi,
+                                                sessionRepository: SessionRepository,
+                                                navigator: Navigator,
+                                                importNavigator: ImportNavigator,
+                                                identify: IdentifierAction,
+                                                getData: DataRetrievalAction,
+                                                requireData: DataRequiredAction,
+                                                formProvider: SuppliersNameFormProvider,
+                                                val controllerComponents: MessagesControllerComponents,
+                                                view: PurchaseOrImportSuppliersNameView
+                                              )(implicit ec: ExecutionContext)
+  extends FrontendBaseController
     with I18nSupport {
 
   val form: Form[String] = formProvider()
@@ -53,7 +54,7 @@ class ImportSuppliersNameController @Inject() (
 
   // TODO: Implement a proper back link to import date instead of the generic journey recovery page.
   private def backLink(mode: Mode)(implicit request: DataRequest[AnyContent]): Call =
-    controllers.routes.JourneyRecoveryController.onPageLoad()
+    importNavigator.backLinkFromImportSuppliersNamePage(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(ImportSuppliersNamePage).fold(form)(form.fill)

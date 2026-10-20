@@ -21,7 +21,7 @@ import forms.imports.ImportDetailsInfoFormProvider
 import models.requests.DataRequest
 import javax.inject.Inject
 import models.Mode
-import navigation.Navigator
+import navigation.{ImportNavigator, Navigator}
 import pages.imports.{ImportDetailsInfoPage, SadReferenceCheckPage, SadReferenceNumberPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -33,30 +33,24 @@ import play.api.data.Form
 import scala.concurrent.{ExecutionContext, Future}
 
 class ImportDetailsInfoController @Inject() (
-  override val messagesApi: MessagesApi,
-  sessionRepository: SessionRepository,
-  navigator: Navigator,
-  identify: IdentifierAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
-  formProvider: ImportDetailsInfoFormProvider,
-  val controllerComponents: MessagesControllerComponents,
-  view: ImportDetailsInfoView
-)(implicit ec: ExecutionContext)
-    extends FrontendBaseController
+                                              override val messagesApi: MessagesApi,
+                                              sessionRepository: SessionRepository,
+                                              navigator: Navigator,
+                                              importNavigator: ImportNavigator,
+                                              identify: IdentifierAction,
+                                              getData: DataRetrievalAction,
+                                              requireData: DataRequiredAction,
+                                              formProvider: ImportDetailsInfoFormProvider,
+                                              val controllerComponents: MessagesControllerComponents,
+                                              view: ImportDetailsInfoView
+                                            )(implicit ec: ExecutionContext)
+  extends FrontendBaseController
     with I18nSupport {
 
   val form: Form[String] = formProvider()
 
   private def backLink(mode: Mode)(implicit request: DataRequest[?]) =
-    request.userAnswers.get(SadReferenceCheckPage) match {
-      case Some(true) =>
-        request.userAnswers.get(SadReferenceNumberPage) match {
-          case Some(_) => controllers.imports.routes.SadReferenceNumberController.onPageLoad(mode)
-          case None    => controllers.imports.routes.SadReferenceCheckController.onPageLoad(mode)
-        }
-      case _ => controllers.imports.routes.SadReferenceCheckController.onPageLoad(mode)
-    }
+    importNavigator.backLinkFromImportDetailsInfoPage(mode)(request.userAnswers)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 

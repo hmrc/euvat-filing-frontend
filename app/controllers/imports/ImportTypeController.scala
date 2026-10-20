@@ -16,12 +16,16 @@
 
 package controllers.imports
 
+import pages.imports.*
+import queries.*
+import scala.util.Success
+
 import com.google.inject.Inject
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import forms.ImportTypeFormProvider
 import models.requests.DataRequest
 import models.{Mode, PurchaseOrImportType}
-import navigation.Navigator
+import navigation.{ImportNavigator, Navigator}
 import pages.imports.ImportTypePage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -33,22 +37,24 @@ import views.html.purchasesOrImports.PurchaseOrImportTypeView
 import scala.concurrent.{ExecutionContext, Future}
 
 class ImportTypeController @Inject() (
-  override val messagesApi: MessagesApi,
-  sessionRepository: SessionRepository,
-  navigator: Navigator,
-  identify: IdentifierAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
-  formProvider: ImportTypeFormProvider,
-  val controllerComponents: MessagesControllerComponents,
-  view: PurchaseOrImportTypeView
-)(implicit ec: ExecutionContext)
-    extends FrontendBaseController
+                                       override val messagesApi: MessagesApi,
+                                       sessionRepository: SessionRepository,
+                                       navigator: Navigator,
+                                       importNavigator: ImportNavigator,
+                                       identify: IdentifierAction,
+                                       getData: DataRetrievalAction,
+                                       requireData: DataRequiredAction,
+                                       formProvider: ImportTypeFormProvider,
+                                       val controllerComponents: MessagesControllerComponents,
+                                       view: PurchaseOrImportTypeView
+                                     )(implicit ec: ExecutionContext)
+  extends FrontendBaseController
     with I18nSupport {
 
   val form: Form[PurchaseOrImportType] = formProvider()
 
-  private def backLink(mode: Mode)(implicit request: DataRequest[?]) = controllers.routes.PurchaseOrImportController.onPageLoad
+  private def backLink(mode: Mode)(implicit request: DataRequest[?]) =
+    importNavigator.backLinkFromImportTypePage(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(ImportTypePage) match {
@@ -67,21 +73,33 @@ class ImportTypeController @Inject() (
           Future.successful(
             BadRequest(
               view(formWithErrors,
-                   mode,
-                   backLink(mode),
-                   routes.ImportTypeController.onSubmit(mode),
-                   "importType",
-                   "import.caption",
-                   false,
-                   legendKey = None
-                  )
+                mode,
+                backLink(mode),
+                routes.ImportTypeController.onSubmit(mode),
+                "importType",
+                "import.caption",
+                false,
+                legendKey = None
+              )
             )
           ),
-        value =>
+        value => {
+          val changed = !request.userAnswers.isAnswerUnchanged(ImportTypePage, value)
+          val cleared: scala.util.Try[models.UserAnswers] =
+            if (changed)
+              request.userAnswers
+                .remove(ImportSubCodePage)
+                .flatMap(_.remove(ImportSubTypeLabelQuery))
+                .flatMap(_.remove(ImportSubCategoryPage))
+                .flatMap(_.remove(ImportSubCategoryLabelQuery))
+                .flatMap(_.remove(DescribeItemsOnImportDocPage))
+            else Success(request.userAnswers)
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(ImportTypePage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(ImportTypePage, mode, updatedAnswers))
+            base    <- Future.fromTry(cleared)
+            updated <- Future.fromTry(base.set(ImportTypePage, value).flatMap(_.set(ImportTypeChangedPage, changed)))
+            _       <- sessionRepository.set(updated)
+          } yield Redirect(navigator.nextPage(ImportTypePage, mode, updated))
+        }
       )
   }
 }

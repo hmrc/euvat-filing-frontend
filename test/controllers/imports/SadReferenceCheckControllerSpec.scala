@@ -53,7 +53,9 @@ class SadReferenceCheckControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustBe OK
         contentAsString(result) must include("govuk-back-link")
-        contentAsString(result) must not include controllers.imports.routes.ImportSubCodeController.onPageLoad(models.Fuel.toString).url
+        contentAsString(result) must not include controllers.imports.routes.ImportSubCodeController
+          .onPageLoad(models.Fuel.toString, models.NormalMode)
+          .url
       }
     }
 

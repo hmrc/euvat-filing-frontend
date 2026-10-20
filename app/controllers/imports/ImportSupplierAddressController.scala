@@ -25,7 +25,7 @@ import pages.imports.ImportSupplierAddressPage
 import play.api.i18n.I18nSupport
 import play.api.mvc.*
 import play.api.data.FormError
-import navigation.Navigator
+import navigation.{ImportNavigator, Navigator}
 import repositories.SessionRepository
 import views.html.imports.ImportSupplierAddressView
 
@@ -33,23 +33,24 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class ImportSupplierAddressController @Inject() (
-  identify: IdentifierAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
-  formProvider: ImportSupplierAddressFormProvider,
-  sessionRepository: SessionRepository,
-  navigator: Navigator,
-  config: FrontendAppConfig,
-  val controllerComponents: MessagesControllerComponents,
-  view: ImportSupplierAddressView
-)(implicit ec: ExecutionContext)
-    extends BaseController
+                                                  identify: IdentifierAction,
+                                                  getData: DataRetrievalAction,
+                                                  requireData: DataRequiredAction,
+                                                  formProvider: ImportSupplierAddressFormProvider,
+                                                  sessionRepository: SessionRepository,
+                                                  navigator: Navigator,
+                                                  importNavigator: ImportNavigator,
+                                                  config: FrontendAppConfig,
+                                                  val controllerComponents: MessagesControllerComponents,
+                                                  view: ImportSupplierAddressView
+                                                )(implicit ec: ExecutionContext)
+  extends BaseController
     with I18nSupport {
 
   private val form = formProvider()
 
-  private def backLink: Call =
-    importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode)
+  private def backLink(mode: Mode): Call =
+    importNavigator.backLinkFromImportSupplierAddressPage(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData) { implicit request =>
@@ -64,7 +65,7 @@ class ImportSupplierAddressController @Inject() (
           preparedForm,
           config.supplierCountries,
           mode,
-          backLink
+          backLink(mode)
         )
       )
     }
@@ -75,50 +76,48 @@ class ImportSupplierAddressController @Inject() (
         .bindFromRequest()
         .fold(
           formWithErrors => {
-         
 
-              val typed =
-                request.body
-                  .asFormUrlEncoded
-                  .flatMap(_.get("countryTyped").flatMap(_.headOption))
-                  .getOrElse("")
+            val typed =
+              request.body.asFormUrlEncoded
+                .flatMap(_.get("countryTyped").flatMap(_.headOption))
+                .getOrElse("")
 
-              val hasRequiredCountryError =
-                formWithErrors.errors.exists { error =>
-                  error.key == "country" &&
-                    error.message == "import.supplierAddress.error.country.required"
-                }
+            val hasRequiredCountryError =
+              formWithErrors.errors.exists { error =>
+                error.key == "country" &&
+                  error.message == "import.supplierAddress.error.country.required"
+              }
 
-              val adjustedForm =
-                if (typed.trim.nonEmpty && hasRequiredCountryError) {
-                  val filtered =
-                    formWithErrors.errors.filterNot { error =>
-                      error.key == "country" &&
-                        error.message == "import.supplierAddress.error.country.required"
-                    }
+            val adjustedForm =
+              if (typed.trim.nonEmpty && hasRequiredCountryError) {
+                val filtered =
+                  formWithErrors.errors.filterNot { error =>
+                    error.key == "country" &&
+                      error.message == "import.supplierAddress.error.country.required"
+                  }
 
-                  formWithErrors.copy(
-                    errors = filtered :+
-                      FormError(
-                        "country",
-                        "import.supplierAddress.error.country.invalid"
-                      )
-                  )
-                } else {
-                  formWithErrors
-                }
+                formWithErrors.copy(
+                  errors = filtered :+
+                    FormError(
+                      "country",
+                      "import.supplierAddress.error.country.invalid"
+                    )
+                )
+              } else {
+                formWithErrors
+              }
 
-              Future.successful(
-                BadRequest(
-                  view(
-                    adjustedForm,
-                    config.supplierCountries,
-                    mode,
-                    backLink
-                  )
+            Future.successful(
+              BadRequest(
+                view(
+                  adjustedForm,
+                  config.supplierCountries,
+                  mode,
+                  backLink(mode)
                 )
               )
-            },
+            )
+          },
           value =>
             for {
               updatedAnswers <- Future.fromTry(

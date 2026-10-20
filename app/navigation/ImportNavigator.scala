@@ -17,54 +17,163 @@
 package navigation
 
 import controllers.imports.routes as importsRoutes
-import models.{Mode, Other, UserAnswers}
-import pages.imports.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage, SadReferenceCheckPage}
+import models.{CheckMode, Mode, NormalMode, Other, UserAnswers}
+import pages.imports.*
 import play.api.mvc.Call
 import utils.PurchaseOrImportHelpers.isNoneSelection
 import utils.{ConfigPurchaseOrImportMapping, CountryCode, CurrencyConfig}
-
 import javax.inject.{Inject, Singleton}
 
 @Singleton
 class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseOrImportMapping: ConfigPurchaseOrImportMapping) {
+  private def cya: Call = importsRoutes.CheckYourImportDetailsController.onPageLoad()
+  private def recovery: Call = controllers.routes.JourneyRecoveryController.onPageLoad()
+  private lazy val completion = new CheckYourImportDetailsNavigator(currencyConfig, configPurchaseOrImportMapping)
 
-  def navigateFromImportTypePage(mode: Mode)(userAnswers: UserAnswers): Call =
-    (userAnswers.get(ImportTypePage), CountryCode.findCountryCode(userAnswers)) match {
+  // Used only by import CheckMode routes; purchase and claim navigation are unaffected.
+  def continueImportEdit(answers: UserAnswers)(ordinary: => Call): Call =
+    if (answers.get(ImportMissingAnswersJourneyPage).contains(true)) completion.firstMissingPage(answers).getOrElse(cya)
+    else ordinary
+
+  def navigateFromImportTypePage(mode: Mode)(answers: UserAnswers): Call =
+    (answers.get(ImportTypePage), CountryCode.findCountryCode(answers)) match {
+      case (Some(_), Some(_)) if mode == CheckMode && !answers.get(ImportTypeChangedPage).contains(true) => cya
       case (Some(importType), Some(country)) if configPurchaseOrImportMapping.selectableSubcodes(country, importType.toString).isDefined =>
-        importsRoutes.ImportSubCodeController.onPageLoad(importType.toString)
+        importsRoutes.ImportSubCodeController.onPageLoad(importType.toString, mode)
       case (Some(Other), Some(_)) => importsRoutes.DescribeItemsOnImportDocController.onPageLoad(mode)
-      case (Some(_), Some(_))     => importsRoutes.SadReferenceCheckController.onPageLoad(mode)
-      case _                      => controllers.routes.JourneyRecoveryController.onPageLoad()
+      case (Some(_), Some(_))     => if (mode == CheckMode) cya else importsRoutes.SadReferenceCheckController.onPageLoad(mode)
+      case _                      => recovery
     }
 
-  def navigateFromImportSubCodePage(mode: Mode)(userAnswers: UserAnswers): Call =
-    (userAnswers.get(ImportTypePage), userAnswers.get(ImportSubCodePage), CountryCode.findCountryCode(userAnswers)) match {
-      case (Some(Other), Some(subCode), _) if isNoneSelection(subCode) =>
-        importsRoutes.DescribeItemsOnImportDocController.onPageLoad(mode)
-      case (Some(importType), Some(subCode), Some(country))
-          if configPurchaseOrImportMapping.subcategoriesFor(country, importType.toString, subCode).nonEmpty =>
+  def navigateFromImportSubCodePage(mode: Mode)(answers: UserAnswers): Call =
+    (answers.get(ImportTypePage), answers.get(ImportSubCodePage), CountryCode.findCountryCode(answers)) match {
+      case (Some(_), Some(_), Some(_)) if mode == CheckMode && !answers.get(ImportSubCodeChangedPage).contains(true) => cya
+      case (Some(Other), Some(code), Some(_)) if isNoneSelection(code) => importsRoutes.DescribeItemsOnImportDocController.onPageLoad(mode)
+      case (Some(importType), Some(code), Some(country))
+        if configPurchaseOrImportMapping.subcategoriesFor(country, importType.toString, code).nonEmpty =>
         importsRoutes.ImportSubCategoryController.onPageLoad(mode)
-      case (_, Some(_), _) => importsRoutes.SadReferenceCheckController.onPageLoad(mode)
-      case _               => controllers.routes.JourneyRecoveryController.onPageLoad()
+      case (Some(_), Some(_), Some(_)) => if (mode == CheckMode) cya else importsRoutes.SadReferenceCheckController.onPageLoad(mode)
+      case _                           => recovery
     }
 
-  def navigateFromImportSubCategoryPage(mode: Mode)(userAnswers: UserAnswers): Call =
-    userAnswers.get(ImportSubCategoryPage) match {
-      case Some(_) => importsRoutes.SadReferenceCheckController.onPageLoad(mode)
-      case None    => controllers.routes.JourneyRecoveryController.onPageLoad()
+  def navigateFromImportSubCategoryPage(mode: Mode)(answers: UserAnswers): Call =
+    answers.get(ImportSubCategoryPage) match {
+      case Some(_) => if (mode == CheckMode) cya else importsRoutes.SadReferenceCheckController.onPageLoad(mode)
+      case None    => recovery
     }
 
-  def navigateFromSadReferenceCheckPage(mode: Mode)(userAnswers: UserAnswers): Call =
-    userAnswers.get(SadReferenceCheckPage) match {
-      case Some(true) => importsRoutes.SadReferenceNumberController.onPageLoad(mode)
-      case _          => importsRoutes.ImportDetailsInfoController.onPageLoad(mode)
+  def navigateFromSadReferenceCheckPage(mode: Mode)(answers: UserAnswers): Call =
+    answers.get(SadReferenceCheckPage) match {
+      case None                                                                              => recovery
+      case Some(_) if mode == CheckMode && !answers.get(ImportSadChangedPage).contains(true) => cya
+      case Some(true)  => importsRoutes.SadReferenceNumberController.onPageLoad(mode)
+      case Some(false) => importsRoutes.ImportDetailsInfoController.onPageLoad(mode)
     }
 
-  def navigateFromSupplierAddressPage(mode: Mode)(userAnswers: UserAnswers): Call =
-    CountryCode.findCountryCode(userAnswers) match {
-      case Some(countryCode) if currencyConfig.requiresCurrencySelection(countryCode) =>
-        importsRoutes.ImportCurrencyController.onPageLoad(mode)
-      case _ => importsRoutes.TotalAmountWithoutVatController.onPageLoad(mode)
+  def navigateFromSupplierAddressPage(mode: Mode)(answers: UserAnswers): Call =
+    if (mode == CheckMode) cya
+    else
+      CountryCode.findCountryCode(answers) match {
+        case Some(country) if currencyConfig.requiresCurrencySelection(country) => importsRoutes.ImportCurrencyController.onPageLoad(mode)
+        case _                                                                  => importsRoutes.TotalAmountWithoutVatController.onPageLoad(mode)
+      }
+
+  def navigateFromImportCurrencyPage(mode: Mode)(answers: UserAnswers): Call =
+    if (mode == CheckMode && !answers.get(ImportCurrencyChangedPage).contains(true)) cya
+    else importsRoutes.TotalAmountWithoutVatController.onPageLoad(mode)
+
+  def navigateFromTotalAmountWithoutVatPage(mode: Mode)(answers: UserAnswers): Call =
+    answers.get(TotalAmountWithoutVatPage) match {
+      case None                                                                                           => recovery
+      case Some(_) if mode == CheckMode && !answers.get(ImportAmountWithoutVatChangedPage).contains(true) => cya
+      case Some(_) => importsRoutes.TotalVatPaidImportController.onPageLoad(mode)
     }
 
+  def navigateFromTotalVatPaidImportPage(mode: Mode)(answers: UserAnswers): Call =
+    answers.get(TotalVatPaidImportPage) match {
+      case None                                                                                  => recovery
+      case Some(_) if mode == CheckMode && !answers.get(ImportVatPaidChangedPage).contains(true) => cya
+      case Some(_) => importsRoutes.TotalVatClaimController.onPageLoad(mode)
+    }
+
+  def navigateFromImportTotalVatClaimPage(mode: Mode)(answers: UserAnswers): Call =
+    if (answers.get(ImportTotalVatClaimPage).isDefined) cya else recovery
+
+  def navigateFromCheckYourImportDetails(answers: UserAnswers): Call =
+    completion.navigateFromCheckYourImportDetails(answers)
+
+  def backLinkFromImportTypePage(mode: Mode): Call =
+    if (mode == CheckMode) importsRoutes.CheckYourImportDetailsController.onPageLoad() else controllers.routes.PurchaseOrImportController.onPageLoad
+
+  def backLinkFromImportDatePage(mode: Mode)(answers: UserAnswers): Call =
+    mode match {
+      case CheckMode => importsRoutes.CheckYourImportDetailsController.onPageLoad()
+      case NormalMode =>
+        answers.get(SadReferenceCheckPage) match {
+          case Some(true) => importsRoutes.SadReferenceNumberController.onPageLoad(NormalMode)
+          case _          => importsRoutes.ImportDetailsInfoController.onPageLoad(NormalMode)
+        }
+    }
+
+  def backLinkFromImportSuppliersNamePage(mode: Mode): Call =
+    if (mode == CheckMode) importsRoutes.CheckYourImportDetailsController.onPageLoad()
+    else importsRoutes.ImportDateController.onPageLoad(models.NormalMode)
+
+  def backLinkFromImportSupplierAddressPage(mode: Mode): Call =
+    if (mode == CheckMode) importsRoutes.CheckYourImportDetailsController.onPageLoad()
+    else
+      importsRoutes.ImportSuppliersNameController.onPageLoad(NormalMode)
+
+  def backLinkFromDescribeItemsOnImportDocPage(mode: Mode)(answers: UserAnswers): Call =
+    if (mode == CheckMode) importsRoutes.CheckYourImportDetailsController.onPageLoad()
+    else
+      answers.get(ImportSubCodePage) match {
+        case Some(_) => importsRoutes.ImportSubCodeController.onPageLoad(Other.toString, mode)
+        case None    => importsRoutes.ImportTypeController.onPageLoad(NormalMode)
+      }
+
+  def backLinkFromImportDetailsInfoPage(mode: Mode)(answers: UserAnswers): Call =
+    answers.get(SadReferenceCheckPage) match {
+      case Some(true) =>
+        answers.get(SadReferenceNumberPage) match {
+          case Some(_) => importsRoutes.SadReferenceNumberController.onPageLoad(mode)
+          case None    => importsRoutes.SadReferenceCheckController.onPageLoad(mode)
+        }
+      case _ => importsRoutes.SadReferenceCheckController.onPageLoad(mode)
+    }
+
+  def backLinkFromTotalAmountWithoutVatPage(mode: Mode)(answers: UserAnswers): Call =
+    CountryCode.findCountryCode(answers) match {
+      case Some(country) if currencyConfig.requiresCurrencySelection(country) => importsRoutes.ImportCurrencyController.onPageLoad(mode)
+      // TODO: Wire this to supplier address page when it is ready
+      case _ => importsRoutes.ImportSuppliersNameController.onPageLoad(mode)
+    }
+
+  def backLinkFromTotalVatPaidImportPage(mode: Mode): Call =
+    importsRoutes.TotalAmountWithoutVatController.onPageLoad(mode)
+
+  def backLinkFromImportTotalVatClaimPage(mode: Mode): Call =
+    importsRoutes.TotalVatPaidImportController.onPageLoad(mode)
+
+  def backLinkFromSadReferenceNumberPage(mode: Mode): Call =
+    importsRoutes.SadReferenceCheckController.onPageLoad(mode)
+
+  def backLinkFromSadReferenceCheckPage(mode: Mode)(answers: UserAnswers): Call =
+    if (mode == CheckMode) cya
+    else (answers.get(ImportTypePage), answers.get(ImportSubCodePage), answers.get(ImportSubCategoryPage)) match {
+      case (Some(_), _, Some(_)) => importsRoutes.ImportSubCategoryController.onPageLoad(NormalMode)
+      case (Some(Other), _, _) if answers.get(DescribeItemsOnImportDocPage).isDefined =>
+        importsRoutes.DescribeItemsOnImportDocController.onPageLoad(NormalMode)
+      case (Some(importType), Some(_), None) => importsRoutes.ImportSubCodeController.onPageLoad(importType.toString, mode)
+      case _                                 => importsRoutes.ImportTypeController.onPageLoad(NormalMode)
+    }
+
+  def backLinkFromImportSubCodePage(mode: Mode): Call =
+    if (mode == CheckMode) cya else importsRoutes.ImportTypeController.onPageLoad(NormalMode)
+
+  def backLinkFromImportSubCategoryPage(importTypeKey: String, mode: Mode): Call =
+    if (mode == CheckMode) cya else importsRoutes.ImportSubCodeController.onPageLoad(importTypeKey, mode)
+
+  def backLinkFromImportCurrencyPage(mode: Mode): Call =
+    if (mode == CheckMode) cya else importsRoutes.ImportSuppliersNameController.onPageLoad(mode)
 }

@@ -19,7 +19,7 @@ package controllers.imports
 import controllers.actions.*
 import forms.purchase.TotalVatClaimFormProvider
 import models.{Mode, UserAnswers}
-import navigation.Navigator
+import navigation.{ImportNavigator, Navigator}
 import pages.imports.ImportTotalVatClaimPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -34,23 +34,25 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class TotalVatClaimController @Inject() (
-  override val messagesApi: MessagesApi,
-  sessionRepository: SessionRepository,
-  navigator: Navigator,
-  identify: IdentifierAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
-  formProvider: TotalVatClaimFormProvider,
-  currencyConfig: CurrencyConfig,
-  val controllerComponents: MessagesControllerComponents,
-  view: PurchaseOrImportTotalVatClaimView
-)(implicit ec: ExecutionContext)
-    extends FrontendBaseController
+                                          override val messagesApi: MessagesApi,
+                                          sessionRepository: SessionRepository,
+                                          navigator: Navigator,
+                                          importNavigator: ImportNavigator,
+                                          identify: IdentifierAction,
+                                          getData: DataRetrievalAction,
+                                          requireData: DataRequiredAction,
+                                          formProvider: TotalVatClaimFormProvider,
+                                          currencyConfig: CurrencyConfig,
+                                          val controllerComponents: MessagesControllerComponents,
+                                          view: PurchaseOrImportTotalVatClaimView
+                                        )(implicit ec: ExecutionContext)
+  extends FrontendBaseController
     with I18nSupport {
 
   val form: Form[BigDecimal] = formProvider()
 
-  private def backLink(mode: Mode): Call = routes.TotalVatPaidImportController.onPageLoad(mode)
+  private def backLink(mode: Mode): Call =
+    importNavigator.backLinkFromImportTotalVatClaimPage(mode)
 
   private def formAction(mode: Mode): Call = routes.TotalVatClaimController.onSubmit(mode)
 

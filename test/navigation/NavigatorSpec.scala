@@ -191,7 +191,7 @@ class NavigatorSpec extends SpecBase {
 
       "must go from SadReferenceCheckPage to Journey Recovery when the question is unanswered" in {
         navigator.nextPage(SadReferenceCheckPage, NormalMode, userAnswers) mustBe
-          importRoutes.ImportDetailsInfoController.onPageLoad(NormalMode)
+          controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from SadReferenceNumberPage to ImportDateController" in {
@@ -222,12 +222,12 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from TotalAmountWithoutVatPage to TotalVatPaidImportController" in {
-        navigator.nextPage(TotalAmountWithoutVatPage, NormalMode, userAnswers) mustBe
+        navigator.nextPage(TotalAmountWithoutVatPage, NormalMode, userAnswers.set(TotalAmountWithoutVatPage, BigDecimal(100)).success.value) mustBe
           importRoutes.TotalVatPaidImportController.onPageLoad(NormalMode)
       }
 
       "must go from TotalVatPaidImportPage to TotalVatClaimController" in {
-        navigator.nextPage(TotalVatPaidImportPage, NormalMode, userAnswers) mustBe
+        navigator.nextPage(TotalVatPaidImportPage, NormalMode, userAnswers.set(TotalVatPaidImportPage, BigDecimal(20)).success.value) mustBe
           controllers.imports.routes.TotalVatClaimController.onPageLoad(NormalMode)
       }
 
@@ -290,21 +290,21 @@ class NavigatorSpec extends SpecBase {
 
       "must go from SadReferenceNumberPage to ImportDetailsInfoController in CheckMode" in {
         navigator.nextPage(SadReferenceNumberPage, CheckMode, userAnswers) mustBe
-          importRoutes.ImportDateController.onPageLoad(CheckMode)
+          importRoutes.CheckYourImportDetailsController.onPageLoad()
       }
 
       "must go from ImportDetailsInfoPage to ImportSuppliersNameController in CheckMode" in {
         navigator.nextPage(ImportDetailsInfoPage, CheckMode, userAnswers) mustBe
-          importRoutes.ImportDateController.onPageLoad(CheckMode)
+          importRoutes.CheckYourImportDetailsController.onPageLoad()
       }
 
       "must go from DescribeItemsOnImportDocPage to SadReferenceCheckController" in {
         navigator.nextPage(DescribeItemsOnImportDocPage, CheckMode, userAnswers) mustBe
-          importRoutes.SadReferenceCheckController.onPageLoad(CheckMode)
+          importRoutes.CheckYourImportDetailsController.onPageLoad()
       }
 
       "must go from SadReferenceCheckPage to SadReferenceNumberController when the user has a SAD reference" in {
-        val answers = userAnswers.set(SadReferenceCheckPage, true).success.value
+        val answers = userAnswers.set(SadReferenceCheckPage, true).flatMap(_.set(ImportSadChangedPage, true)).success.value
 
         navigator.nextPage(SadReferenceCheckPage, CheckMode, answers) mustBe
           importRoutes.SadReferenceNumberController.onPageLoad(CheckMode)
@@ -312,22 +312,22 @@ class NavigatorSpec extends SpecBase {
 
       "must go from SadReferenceNumberPage to ImportDateController" in {
         navigator.nextPage(SadReferenceNumberPage, CheckMode, userAnswers) mustBe
-          importRoutes.ImportDateController.onPageLoad(CheckMode)
+          importRoutes.CheckYourImportDetailsController.onPageLoad()
       }
 
       "must go from ImportDetailsInfoPage to ImportDateController" in {
         navigator.nextPage(ImportDetailsInfoPage, CheckMode, userAnswers) mustBe
-          importRoutes.ImportDateController.onPageLoad(CheckMode)
+          importRoutes.CheckYourImportDetailsController.onPageLoad()
       }
 
       "must go from ImportDatePage to ImportSuppliersNameController" in {
         navigator.nextPage(ImportDatePage, CheckMode, userAnswers) mustBe
-          importRoutes.ImportSuppliersNameController.onPageLoad(CheckMode)
+          importRoutes.CheckYourImportDetailsController.onPageLoad()
       }
 
       "must go from ImportSuppliersNamePage to ImportSupplierAddressController in NormalMode" in {
         navigator.nextPage(ImportSuppliersNamePage, CheckMode, userAnswers) mustBe
-          importRoutes.ImportSupplierAddressController.onPageLoad(CheckMode)
+          importRoutes.CheckYourImportDetailsController.onPageLoad()
       }
 
       "must delegate from ImportSupplierAddressPage to ImportNavigator in NormalMode" in {
@@ -353,17 +353,24 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from ImportCurrencyPage to TotalAmountWithoutVatController" in {
-        navigator.nextPage(ImportCurrencyPage, CheckMode, userAnswers) mustBe
+        navigator.nextPage(ImportCurrencyPage, CheckMode, userAnswers.set(ImportCurrencyChangedPage, true).success.value) mustBe
           importRoutes.TotalAmountWithoutVatController.onPageLoad(CheckMode)
       }
 
       "must go from TotalAmountWithoutVatPage to TotalVatPaidImportController" in {
-        navigator.nextPage(TotalAmountWithoutVatPage, CheckMode, userAnswers) mustBe
+        navigator.nextPage(
+          TotalAmountWithoutVatPage,
+          CheckMode,
+          userAnswers.set(TotalAmountWithoutVatPage, BigDecimal(100)).flatMap(_.set(ImportAmountWithoutVatChangedPage, true)).success.value
+        ) mustBe
           controllers.imports.routes.TotalVatPaidImportController.onPageLoad(CheckMode)
       }
 
       "must go from TotalVatPaidImportPage to TotalVatClaimController" in {
-        navigator.nextPage(TotalVatPaidImportPage, CheckMode, userAnswers) mustBe
+        navigator.nextPage(TotalVatPaidImportPage,
+          CheckMode,
+          userAnswers.set(TotalVatPaidImportPage, BigDecimal(20)).flatMap(_.set(ImportVatPaidChangedPage, true)).success.value
+        ) mustBe
           controllers.imports.routes.TotalVatClaimController.onPageLoad(CheckMode)
       }
 

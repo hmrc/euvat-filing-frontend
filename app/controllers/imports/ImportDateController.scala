@@ -34,31 +34,24 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class ImportDateController @Inject() (
-  override val messagesApi: MessagesApi,
-  sessionRepository: SessionRepository,
-  navigator: Navigator,
-  importNavigator: ImportNavigator,
-  identify: IdentifierAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
-  formProvider: ImportDateFormProvider,
-  val controllerComponents: MessagesControllerComponents,
-  view: PurchaseOrImportDateView
-)(implicit ec: ExecutionContext)
-    extends FrontendBaseController
+                                       override val messagesApi: MessagesApi,
+                                       sessionRepository: SessionRepository,
+                                       navigator: Navigator,
+                                       importNavigator: ImportNavigator,
+                                       identify: IdentifierAction,
+                                       getData: DataRetrievalAction,
+                                       requireData: DataRequiredAction,
+                                       formProvider: ImportDateFormProvider,
+                                       val controllerComponents: MessagesControllerComponents,
+                                       view: PurchaseOrImportDateView
+                                     )(implicit ec: ExecutionContext)
+  extends FrontendBaseController
     with I18nSupport {
 
   private def form(implicit messages: Messages) = formProvider()
 
   private def backLink(mode: Mode)(implicit request: DataRequest[?]): Call =
-    mode match {
-      case CheckMode => controllers.routes.JourneyRecoveryController.onPageLoad()
-      case NormalMode =>
-        request.userAnswers.get(SadReferenceCheckPage) match {
-          case Some(true) => controllers.imports.routes.SadReferenceNumberController.onPageLoad(NormalMode)
-          case _          => controllers.imports.routes.ImportDetailsInfoController.onPageLoad(NormalMode)
-        }
-    }
+    importNavigator.backLinkFromImportDatePage(mode)(request.userAnswers)
 
   private def formAction(mode: Mode): Call = routes.ImportDateController.onSubmit(mode)
 

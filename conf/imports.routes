@@ -3,20 +3,30 @@ POST       /category                                    controllers.imports.Impo
 GET        /change-category                             controllers.imports.ImportTypeController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-category                             controllers.imports.ImportTypeController.onSubmit(mode: Mode = CheckMode)
 
-GET        /fuel-use                                    controllers.imports.ImportSubCodeController.onPageLoad(importTypeKey: String = "fuel")
-POST       /fuel-use                                    controllers.imports.ImportSubCodeController.onSubmit(importTypeKey: String = "fuel")
+GET        /fuel-use                                    controllers.imports.ImportSubCodeController.onPageLoad(importTypeKey: String = "fuel", mode: Mode = NormalMode)
+GET        /change-fuel-use                             controllers.imports.ImportSubCodeController.onPageLoad(importTypeKey: String = "fuel", mode: Mode = CheckMode)
+POST       /fuel-use                                    controllers.imports.ImportSubCodeController.onSubmit(importTypeKey: String = "fuel", mode: Mode = NormalMode)
+POST       /change-fuel-use                             controllers.imports.ImportSubCodeController.onSubmit(importTypeKey: String = "fuel", mode: Mode = CheckMode)
 
-GET        /transport-cost                              controllers.imports.ImportSubCodeController.onPageLoad(importTypeKey: String = "transport")
-POST       /transport-cost                              controllers.imports.ImportSubCodeController.onSubmit(importTypeKey: String = "transport")
+GET        /transport-cost                              controllers.imports.ImportSubCodeController.onPageLoad(importTypeKey: String = "transport", mode: Mode = NormalMode)
+GET        /change-transport-cost                       controllers.imports.ImportSubCodeController.onPageLoad(importTypeKey: String = "transport", mode: Mode = CheckMode)
+POST       /transport-cost                              controllers.imports.ImportSubCodeController.onSubmit(importTypeKey: String = "transport", mode: Mode = NormalMode)
+POST       /change-transport-cost                       controllers.imports.ImportSubCodeController.onSubmit(importTypeKey: String = "transport", mode: Mode = CheckMode)
 
-GET        /food-drink-restaurant-cost                  controllers.imports.ImportSubCodeController.onPageLoad(importTypeKey: String = "foodAndDrink")
-POST       /food-drink-restaurant-cost                  controllers.imports.ImportSubCodeController.onSubmit(importTypeKey: String = "foodAndDrink")
+GET        /food-drink-restaurant-cost                  controllers.imports.ImportSubCodeController.onPageLoad(importTypeKey: String = "foodAndDrink", mode: Mode = NormalMode)
+GET        /change-food-drink-restaurant-cost           controllers.imports.ImportSubCodeController.onPageLoad(importTypeKey: String = "foodAndDrink", mode: Mode = CheckMode)
+POST       /food-drink-restaurant-cost                  controllers.imports.ImportSubCodeController.onSubmit(importTypeKey: String = "foodAndDrink", mode: Mode = NormalMode)
+POST       /change-food-drink-restaurant-cost           controllers.imports.ImportSubCodeController.onSubmit(importTypeKey: String = "foodAndDrink", mode: Mode = CheckMode)
 
-GET        /luxury-entertainment-hospitality-cost       controllers.imports.ImportSubCodeController.onPageLoad(importTypeKey: String = "luxuries")
-POST       /luxury-entertainment-hospitality-cost       controllers.imports.ImportSubCodeController.onSubmit(importTypeKey: String = "luxuries")
+GET        /luxury-entertainment-hospitality-cost           controllers.imports.ImportSubCodeController.onPageLoad(importTypeKey: String = "luxuries", mode: Mode = NormalMode)
+GET        /change-luxury-entertainment-hospitality-cost    controllers.imports.ImportSubCodeController.onPageLoad(importTypeKey: String = "luxuries", mode: Mode = CheckMode)
+POST       /luxury-entertainment-hospitality-cost           controllers.imports.ImportSubCodeController.onSubmit(importTypeKey: String = "luxuries", mode: Mode = NormalMode)
+POST       /change-luxury-entertainment-hospitality-cost    controllers.imports.ImportSubCodeController.onSubmit(importTypeKey: String = "luxuries", mode: Mode = CheckMode)
 
-GET        /other                                       controllers.imports.ImportSubCodeController.onPageLoad(importTypeKey: String = "other")
-POST       /other                                       controllers.imports.ImportSubCodeController.onSubmit(importTypeKey: String = "other")
+GET        /other                                       controllers.imports.ImportSubCodeController.onPageLoad(importTypeKey: String = "other", mode: Mode = NormalMode)
+GET        /change-other                                controllers.imports.ImportSubCodeController.onPageLoad(importTypeKey: String = "other", mode: Mode = CheckMode)
+POST       /other                                       controllers.imports.ImportSubCodeController.onSubmit(importTypeKey: String = "other", mode: Mode = NormalMode)
+POST       /change-other                                controllers.imports.ImportSubCodeController.onSubmit(importTypeKey: String = "other", mode: Mode = CheckMode)
 
 GET        /fuel-type                                   controllers.imports.ImportSubCategoryController.onPageLoad(mode: Mode = NormalMode)
 POST       /fuel-type                                   controllers.imports.ImportSubCategoryController.onSubmit(mode: Mode = NormalMode)
@@ -112,3 +122,6 @@ GET        /vat-claim                                   controllers.imports.Tota
 POST       /vat-claim                                   controllers.imports.TotalVatClaimController.onSubmit(mode: Mode = NormalMode)
 GET        /change-vat-claim                            controllers.imports.TotalVatClaimController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-vat-claim                            controllers.imports.TotalVatClaimController.onSubmit(mode: Mode = CheckMode)
+
+GET        /check-your-answers                          controllers.imports.CheckYourImportDetailsController.onPageLoad()
+POST       /check-your-answers                          controllers.imports.CheckYourImportDetailsController.onSubmit()
