@@ -37,3 +37,8 @@ GET         /vat-claim                                  controllers.warning.VatC
 POST        /vat-claim                                  controllers.warning.VatClaimWarningController.onSubmit(mode: Mode = NormalMode)
 GET         /change-vat-claim                           controllers.warning.VatClaimWarningController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-vat-claim                           controllers.warning.VatClaimWarningController.onSubmit(mode: Mode = CheckMode)
+
+GET         /sad-reference-number                       controllers.warning.SadReferenceNumberWarningController.onPageLoad(mode: Mode = NormalMode)
+POST        /sad-reference-number                       controllers.warning.SadReferenceNumberWarningController.onSubmit(mode: Mode = NormalMode)
+GET         /change-sad-reference-number                controllers.warning.SadReferenceNumberWarningController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-sad-reference-number                controllers.warning.SadReferenceNumberWarningController.onSubmit(mode: Mode = CheckMode)
