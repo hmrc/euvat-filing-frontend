@@ -51,7 +51,6 @@ class VatClaimWarningController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val answers = request.userAnswers
-
     val journeyAnswers = answers.get(PurchaseOrImportPage) match {
       case Some(Purchase) =>
         (answers.get(TotalVatPaidPage), answers.get(TotalVatClaimPage), routes.TotalVatClaimController.onPageLoad(mode))
@@ -65,7 +64,6 @@ class VatClaimWarningController @Inject() (
       case (Some(_), Some(totalVatClaiming), changeLink) =>
         val currencySymbol = currencySymbolFromSession(answers, currencyConfig.currencyConfig)
         okView(changeLink, mode, currencySymbol, totalVatClaiming)
-
       case _ =>
         logger.warn("Missing session data")
         Redirect(JourneyRecoveryController.onPageLoad())

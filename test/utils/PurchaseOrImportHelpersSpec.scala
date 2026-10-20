@@ -223,6 +223,6 @@ class PurchaseOrImportHelpersSpec extends SpecBase {
         result.url must startWith("/file-eu-vat/fuel-type")
       }
 
-    }    
+    }
   }
 }
