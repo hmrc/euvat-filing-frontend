@@ -215,7 +215,7 @@ class RefundPeriodController @Inject() (
         _                  <- sessionRepository.set(updatedUserAnswers)
       } yield Redirect(controllers.warning.routes.RefundPeriodEndDateWarningController.onPageLoad(mode))
     } else {
-      checkOverlappingPeriod(vrn, traderResponse, startDate, endDate, mode)
+      checkRefundPeriodTooShort(vrn, traderResponse, startDate, endDate, mode)
     }
   }
 
@@ -233,7 +233,7 @@ class RefundPeriodController @Inject() (
         _                  <- sessionRepository.set(updatedUserAnswers)
       } yield Redirect(RefundPeriodTooShortWarningController.onPageLoad(mode))
     } else {
-      checkEarliestStartDate(vrn, traderResponse, startDate, endDate, mode)
+      checkOverlappingPeriod(vrn, traderResponse, startDate, endDate, mode)
     }
   }
 
@@ -385,7 +385,7 @@ class RefundPeriodController @Inject() (
                   .orElse(vatDateValidation(value, startDate, endDate, traderResponse, baseForm))
 
                 validationResult match {
-                  case None                => checkRefundPeriodTooShort(vrn, traderResponse, startDate, endDate, mode)
+                  case None                => checkEarliestStartDate(vrn, traderResponse, startDate, endDate, mode)
                   case Some(formWithError) => renderError(formWithError, mode, isExemptForTrader)
                 }
             )

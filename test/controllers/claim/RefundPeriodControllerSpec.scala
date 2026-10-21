@@ -510,7 +510,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must redirect to too short warning for exempt VRN when period is too short (Oct-Nov 2020)" in {
+      "must redirect to start date warning before too short warning for exempt VRN (Oct-Nov 2020)" in {
         val exemptVrn = 999900106
         val traderExempt = TraderKnownFactsResponse(exemptVrn, tradeClass = Some(baCode1))
 
@@ -539,7 +539,7 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual RefundPeriodTooShortWarningController.onPageLoad(NormalMode).url
+          redirectLocation(result).value mustEqual RefundPeriodStartDateWarningController.onPageLoad(NormalMode).url
         }
       }
 
@@ -958,6 +958,26 @@ class RefundPeriodControllerSpec extends SpecBase with MockitoSugar {
                 "end.month"   -> "08",
                 "end.year"    -> safePastYear.toString
               )
+            val result = route(application, request).value
+
+            status(result) mustEqual SEE_OTHER
+            redirectLocation(result).value mustEqual RefundPeriodStartDateWarningController.onPageLoad(NormalMode).url
+          }
+        }
+
+        "must redirect to start date warning before too short warning when start date is before January of current year" in {
+          val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+            .overrides(bind[RefundPeriodFormProvider].toInstance(formProviderAfterSept30))
+            .build()
+
+          running(application) {
+            val request = FakeRequest(POST, routes.RefundPeriodController.onSubmit(NormalMode).url)
+               .withFormUrlEncodedBody(
+                 "start.month" -> "03",
+                 "start.year"  -> safePastYear.toString,
+                 "end.month"   -> "04",
+                 "end.year"    -> safePastYear.toString
+               )
             val result = route(application, request).value
 
             status(result) mustEqual SEE_OTHER
