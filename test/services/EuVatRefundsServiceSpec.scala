@@ -96,7 +96,6 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
   }
 
   "EuVatRefundsService.getSupplierVrnCount" - {
-
     val request = SupplierVrnCountRequest(
       applicationId = 133,
       itemNumber    = 4,
@@ -129,7 +128,6 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
   }
 
   "EuVatRefundsService.deleteApplication" - {
-
     "should delegate to connector and return Unit" in {
       val req = models.requests.DeleteApplicationRequest(123L, 1)
       when(mockConnector.deleteApplication(any())(any())).thenReturn(Future.successful(()))
@@ -152,7 +150,6 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
   }
 
   "EuVatRefundsService.addPurchase" - {
-
     val request = AddPurchaseRequest(
       applicationId              = 123456,
       goodsDescriptionCategory   = "1",
@@ -185,10 +182,8 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
 
     "should propagate an exception from the connector" in {
       val failure = new RuntimeException("Connector failed")
-
       when(mockConnector.addPurchase(any())(any()))
         .thenReturn(Future.failed(failure))
-
       whenReady(service.addPurchase(request).failed) { ex =>
         ex mustEqual failure
       }
@@ -196,7 +191,6 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
   }
 
   "EuVatRefundsService.updatePurchase" - {
-
     val updateRequest = models.requests.UpdatePurchaseRequest(
       applicationId               = 123L,
       itemNumber                  = 1,
@@ -224,16 +218,13 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
     "should return the update purchase response from the connector" in {
       when(mockConnector.updatePurchase(any())(any()))
         .thenReturn(Future.successful(expectedResponse))
-
       service.updatePurchase(updateRequest)(hc).futureValue mustEqual expectedResponse
     }
 
     "should propagate an exception from the connector" in {
       val failure = new RuntimeException("Connector failed")
-
       when(mockConnector.updatePurchase(any())(any()))
         .thenReturn(Future.failed(failure))
-
       whenReady(service.updatePurchase(updateRequest).failed) { ex =>
         ex mustEqual failure
       }
@@ -241,7 +232,6 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
   }
 
   "EuVatRefundsService.getSupplierTaxIdentifierCount" - {
-
     val request = SupplierTaxIdentifierCountRequest(applicationId = 123L, itemNumber = 1, taxIdentifier = "TAX123", invoiceNumber = "INV1")
     val expectedResponse = SupplierTaxIdentifierCountResponse(duplicateCount = 0)
 
@@ -254,18 +244,36 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
 
     "should propagate an exception from the connector" in {
       val failure = new RuntimeException("Connector failed")
-
       when(mockConnector.getSupplierTaxIdentifierCount(any())(any()))
         .thenReturn(Future.failed(failure))
-
       whenReady(service.getSupplierTaxIdentifierCount(request).failed) { ex =>
         ex mustEqual failure
       }
     }
   }
 
-  "EuVatRefundsService.updateApplicationDetails" - {
+  "EuVatRefundsService.deletePurchase" - {
+    val request = DeletePurchaseRequest(applicationId = 123456L, itemNumber = 4, updateSequenceNumber = 7)
+    val expectedResponse = DeletePurchaseResponse(updateSequenceNumber = 8)
 
+    "should return the delete purchase response from the connector" in {
+      when(mockConnector.deletePurchase(any())(any()))
+        .thenReturn(Future.successful(expectedResponse))
+
+      service.deletePurchase(request)(hc).futureValue mustEqual expectedResponse
+    }
+
+    "should propagate an exception from the connector" in {
+      val failure = new RuntimeException("Connector failed")
+      when(mockConnector.deletePurchase(any())(any()))
+        .thenReturn(Future.failed(failure))
+      whenReady(service.deletePurchase(request).failed) { ex =>
+        ex mustEqual failure
+      }
+    }
+  }
+
+  "EuVatRefundsService.updateApplicationDetails" - {
     val request = UpdateApplicationDetailsRequest(
       applicationId              = 133,
       applicationLanguage        = "en",
@@ -292,15 +300,11 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
     val expectedResponse = UpdateApplicationDetailsResponse(updateSequenceNumber = 32)
 
     "should return the update application details response from the connector" in {
+      val failure = new RuntimeException("Connector failed")
       when(mockConnector.updateApplicationDetails(any())(any()))
         .thenReturn(Future.successful(expectedResponse))
 
       service.updateApplicationDetails(request)(hc).futureValue mustEqual expectedResponse
-    }
-
-    "should propagate an exception from the connector" in {
-      val failure = new RuntimeException("Connector failed")
-
       when(mockConnector.updateApplicationDetails(any())(any()))
         .thenReturn(Future.failed(failure))
 
