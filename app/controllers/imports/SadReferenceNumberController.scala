@@ -19,7 +19,7 @@ package controllers.imports
 import controllers.actions.*
 import forms.imports.SadReferenceNumberFormProvider
 import models.{Mode, NormalMode}
-import navigation.Navigator
+import navigation.{ImportNavigator, Navigator}
 import pages.imports.SadReferenceNumberPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -32,32 +32,34 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class SadReferenceNumberController @Inject() (
-  override val messagesApi: MessagesApi,
-  sessionRepository: SessionRepository,
-  navigator: Navigator,
-  identify: IdentifierAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
-  formProvider: SadReferenceNumberFormProvider,
-  val controllerComponents: MessagesControllerComponents,
-  view: SadReferenceNumberView
-)(implicit ec: ExecutionContext)
-    extends FrontendBaseController
+                                               override val messagesApi: MessagesApi,
+                                               sessionRepository: SessionRepository,
+                                               navigator: Navigator,
+                                               importNavigator: ImportNavigator,
+                                               identify: IdentifierAction,
+                                               getData: DataRetrievalAction,
+                                               requireData: DataRequiredAction,
+                                               formProvider: SadReferenceNumberFormProvider,
+                                               val controllerComponents: MessagesControllerComponents,
+                                               view: SadReferenceNumberView
+                                             )(implicit ec: ExecutionContext)
+  extends FrontendBaseController
     with I18nSupport {
 
   val form: Form[String] = formProvider()
-  private def backLink(mode: Mode): Call = routes.SadReferenceCheckController.onPageLoad(mode)
+  private def backLink(mode: Mode): Call =
+    importNavigator.backLinkFromSadReferenceNumberPage(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(SadReferenceNumberPage).fold(form)(form.fill)
-    Ok(view(preparedForm, backLink(mode)))
+    Ok(view(preparedForm, backLink(mode), mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, backLink(mode)))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, backLink(mode), mode))),
         value =>
           for {
             updated <- Future.fromTry(request.userAnswers.set(SadReferenceNumberPage, value))

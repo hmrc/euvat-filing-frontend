@@ -21,8 +21,8 @@ import controllers.imports.routes as importRoutes
 import forms.RefundingCurrencyFormProvider
 import models.requests.DataRequest
 import models.{Mode, RefundingCurrency}
-import navigation.Navigator
-import pages.imports.ImportCurrencyPage
+import navigation.{ImportNavigator, Navigator}
+import pages.imports.*
 import play.api.Logger
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -36,20 +36,22 @@ import views.html.purchasesOrImports.RefundingCurrencyView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Success
 
 class ImportCurrencyController @Inject() (
-  override val messagesApi: MessagesApi,
-  sessionRepository: SessionRepository,
-  navigator: Navigator,
-  identify: IdentifierAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
-  formProvider: RefundingCurrencyFormProvider,
-  currencyConfig: CurrencyConfig,
-  val controllerComponents: MessagesControllerComponents,
-  view: RefundingCurrencyView
-)(implicit ec: ExecutionContext)
-    extends FrontendBaseController
+                                           override val messagesApi: MessagesApi,
+                                           sessionRepository: SessionRepository,
+                                           navigator: Navigator,
+                                           importNavigator: ImportNavigator,
+                                           identify: IdentifierAction,
+                                           getData: DataRetrievalAction,
+                                           requireData: DataRequiredAction,
+                                           formProvider: RefundingCurrencyFormProvider,
+                                           currencyConfig: CurrencyConfig,
+                                           val controllerComponents: MessagesControllerComponents,
+                                           view: RefundingCurrencyView
+                                         )(implicit ec: ExecutionContext)
+  extends FrontendBaseController
     with I18nSupport {
 
   private val messagePrefix = "import.refundingCurrency"
@@ -89,11 +91,21 @@ class ImportCurrencyController @Inject() (
                 case None =>
                   logger.warn(s"ImportCurrencyController.onSubmit - could not find currency code for ${value.toString}")
                   Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-                case Some(currencyCode) =>
+                case Some(currencyCode) => {
+                  val changed = !request.userAnswers.isAnswerUnchanged(ImportCurrencyPage, currencyCode)
+                  val cleared: scala.util.Try[models.UserAnswers] =
+                    if (changed)
+                      request.userAnswers
+                        .remove(TotalAmountWithoutVatPage)
+                        .flatMap(_.remove(TotalVatPaidImportPage))
+                        .flatMap(_.remove(ImportTotalVatClaimPage))
+                    else Success(request.userAnswers)
                   for {
-                    updatedAnswers <- Future.fromTry(request.userAnswers.set(ImportCurrencyPage, currencyCode))
-                    _              <- sessionRepository.set(updatedAnswers)
-                  } yield Redirect(navigator.nextPage(ImportCurrencyPage, mode, updatedAnswers))
+                    base    <- Future.fromTry(cleared)
+                    updated <- Future.fromTry(base.set(ImportCurrencyPage, currencyCode).flatMap(_.set(ImportCurrencyChangedPage, changed)))
+                    _       <- sessionRepository.set(updated)
+                  } yield Redirect(navigator.nextPage(ImportCurrencyPage, mode, updated))
+                }
               }
           )
     }
@@ -106,6 +118,6 @@ class ImportCurrencyController @Inject() (
       routes.ImportCurrencyController.onSubmit(mode),
       messagePrefix,
       "import.caption",
-      Some(importRoutes.ImportSuppliersNameController.onPageLoad(mode))
+      Some(importNavigator.backLinkFromImportCurrencyPage(mode))
     )
 }

@@ -16,11 +16,14 @@
 
 package controllers.imports
 
+import pages.imports.*
+import scala.util.Success
+
 import controllers.actions.*
 import forms.imports.TotalVatPaidImportFormProvider
 import javax.inject.Inject
 import models.Mode
-import navigation.Navigator
+import navigation.{ImportNavigator, Navigator}
 import pages.imports.TotalVatPaidImportPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -34,24 +37,25 @@ import views.html.purchasesOrImports.PurchaseOrImportTotalVatPaidView
 import scala.concurrent.{ExecutionContext, Future}
 
 class TotalVatPaidImportController @Inject() (
-  override val messagesApi: MessagesApi,
-  sessionRepository: SessionRepository,
-  navigator: Navigator,
-  currencyConfig: CurrencyConfig,
-  identify: IdentifierAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
-  formProvider: TotalVatPaidImportFormProvider,
-  val controllerComponents: MessagesControllerComponents,
-  view: PurchaseOrImportTotalVatPaidView
-)(implicit ec: ExecutionContext)
-    extends FrontendBaseController
+                                               override val messagesApi: MessagesApi,
+                                               sessionRepository: SessionRepository,
+                                               navigator: Navigator,
+                                               importNavigator: ImportNavigator,
+                                               currencyConfig: CurrencyConfig,
+                                               identify: IdentifierAction,
+                                               getData: DataRetrievalAction,
+                                               requireData: DataRequiredAction,
+                                               formProvider: TotalVatPaidImportFormProvider,
+                                               val controllerComponents: MessagesControllerComponents,
+                                               view: PurchaseOrImportTotalVatPaidView
+                                             )(implicit ec: ExecutionContext)
+  extends FrontendBaseController
     with I18nSupport {
 
   val form: Form[BigDecimal] = formProvider()
 
   private def backLink(mode: Mode): Call =
-    controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad(mode)
+    importNavigator.backLinkFromTotalVatPaidImportPage(mode)
 
   private def formAction(mode: Mode): Call = routes.TotalVatPaidImportController.onSubmit(mode)
 
@@ -70,11 +74,16 @@ class TotalVatPaidImportController @Inject() (
           Future.successful(
             BadRequest(view(formWithErrors, formAction(mode), backLink(mode), "import.caption", "totalVatPaidImport.p1", prefix, currencyName))
           ),
-        value =>
+        value => {
+          val changed = !request.userAnswers.isAnswerUnchanged(TotalVatPaidImportPage, value)
+          val cleared: scala.util.Try[models.UserAnswers] =
+            if (changed) request.userAnswers.remove(ImportTotalVatClaimPage) else Success(request.userAnswers)
           for {
-            userAnswers <- Future.fromTry(request.userAnswers.set(TotalVatPaidImportPage, value))
-            _           <- sessionRepository.set(userAnswers)
-          } yield Redirect(navigator.nextPage(TotalVatPaidImportPage, mode, userAnswers))
+            base    <- Future.fromTry(cleared)
+            updated <- Future.fromTry(base.set(TotalVatPaidImportPage, value).flatMap(_.set(ImportVatPaidChangedPage, changed)))
+            _       <- sessionRepository.set(updated)
+          } yield Redirect(navigator.nextPage(TotalVatPaidImportPage, mode, updated))
+        }
       )
   }
 }

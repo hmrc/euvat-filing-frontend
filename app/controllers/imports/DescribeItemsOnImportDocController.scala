@@ -21,7 +21,7 @@ import controllers.actions.*
 import forms.DescribeItemsFormProvider
 import models.requests.DataRequest
 import models.*
-import navigation.Navigator
+import navigation.{ImportNavigator, Navigator}
 import pages.imports.{DescribeItemsOnImportDocPage, ImportSubCodePage, ImportTypePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -36,29 +36,27 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class DescribeItemsOnImportDocController @Inject() (
-  override val messagesApi: MessagesApi,
-  sessionRepository: SessionRepository,
-  navigator: Navigator,
-  identify: IdentifierAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
-  formProvider: DescribeItemsFormProvider,
-  config: ConfigPurchaseOrImportMapping,
-  val controllerComponents: MessagesControllerComponents,
-  view: PurchaseOrImportDescribeItemsView
-)(implicit ec: ExecutionContext)
-    extends FrontendBaseController
+                                                     override val messagesApi: MessagesApi,
+                                                     sessionRepository: SessionRepository,
+                                                     navigator: Navigator,
+                                                     importNavigator: ImportNavigator,
+                                                     identify: IdentifierAction,
+                                                     getData: DataRetrievalAction,
+                                                     requireData: DataRequiredAction,
+                                                     formProvider: DescribeItemsFormProvider,
+                                                     config: ConfigPurchaseOrImportMapping,
+                                                     val controllerComponents: MessagesControllerComponents,
+                                                     view: PurchaseOrImportDescribeItemsView
+                                                   )(implicit ec: ExecutionContext)
+  extends FrontendBaseController
     with I18nSupport {
 
   private val messagePrefix = "describeItemsOnImportDoc"
 
   val form: Form[String] = formProvider(messagePrefix)
 
-  private def backLink(answers: UserAnswers): Call =
-    answers.get(ImportSubCodePage) match {
-      case Some(_) => importRoutes.ImportSubCodeController.onPageLoad(Other.toString)
-      case None    => importRoutes.ImportTypeController.onPageLoad(NormalMode)
-    }
+  private def backLink(answers: UserAnswers, mode: Mode): Call =
+    importNavigator.backLinkFromDescribeItemsOnImportDocPage(mode)(answers)
 
   private def submitCall(mode: Mode): Call = importRoutes.DescribeItemsOnImportDocController.onSubmit(mode)
 
@@ -76,12 +74,12 @@ class DescribeItemsOnImportDocController @Inject() (
 
   private def renderView(form: Form[String], mode: Mode)(implicit request: DataRequest[AnyContent]) =
     view(form,
-         submitCall(mode),
-         backLink(request.userAnswers),
-         messagePrefix,
-         "import.caption",
-         Some(messagesApi.preferred(request)(s"$messagePrefix.hint"))
-        )
+      submitCall(mode),
+      backLink(request.userAnswers, mode),
+      messagePrefix,
+      "import.caption",
+      Some(messagesApi.preferred(request)(s"$messagePrefix.hint"))
+    )
 
   private def withGuard(block: => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] =
     if (isReachable(request.userAnswers)) block

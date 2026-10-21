@@ -20,8 +20,8 @@ import controllers.actions.*
 import controllers.routes
 import forms.PurchaseOrImportSubTypeFormProvider
 import models.requests.DataRequest
-import models.{Mode, PurchaseOrImportType}
-import navigation.Navigator
+import models.{CheckMode, Mode, PurchaseOrImportType}
+import navigation.{ImportNavigator, Navigator}
 import pages.imports.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -37,18 +37,19 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class ImportSubCategoryController @Inject() (
-  override val messagesApi: MessagesApi,
-  sessionRepository: SessionRepository,
-  navigator: Navigator,
-  identify: IdentifierAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
-  formProvider: PurchaseOrImportSubTypeFormProvider,
-  config: ConfigPurchaseOrImportMapping,
-  val controllerComponents: MessagesControllerComponents,
-  view: PurchaseOrImportSubTypeView
-)(implicit ec: ExecutionContext)
-    extends FrontendBaseController
+                                              override val messagesApi: MessagesApi,
+                                              sessionRepository: SessionRepository,
+                                              navigator: Navigator,
+                                              importNavigator: ImportNavigator,
+                                              identify: IdentifierAction,
+                                              getData: DataRetrievalAction,
+                                              requireData: DataRequiredAction,
+                                              formProvider: PurchaseOrImportSubTypeFormProvider,
+                                              config: ConfigPurchaseOrImportMapping,
+                                              val controllerComponents: MessagesControllerComponents,
+                                              view: PurchaseOrImportSubTypeView
+                                            )(implicit ec: ExecutionContext)
+  extends FrontendBaseController
     with I18nSupport {
 
   private case class PageData(importType: PurchaseOrImportType, subCode: String, options: Seq[(String, String)]) {
@@ -78,7 +79,7 @@ class ImportSubCategoryController @Inject() (
       title,
       "import.caption",
       controllers.imports.routes.ImportSubCategoryController.onSubmit(mode),
-      controllers.imports.routes.ImportSubCodeController.onPageLoad(data.parentKey)
+      importNavigator.backLinkFromImportSubCategoryPage(data.parentKey, mode)
     )
   }
 
@@ -100,8 +101,8 @@ class ImportSubCategoryController @Inject() (
               val label = labelFor(value, data.options)
               for {
                 updatedAnswers <- Future.fromTry(
-                                    setSelection(request.userAnswers, ImportSubCategoryPage, ImportSubCategoryLabelQuery, value, label)
-                                  )
+                  setSelection(request.userAnswers, ImportSubCategoryPage, ImportSubCategoryLabelQuery, value, label)
+                )
                 _ <- sessionRepository.set(updatedAnswers)
               } yield Redirect(navigator.nextPage(ImportSubCategoryPage, mode, updatedAnswers))
             } else {

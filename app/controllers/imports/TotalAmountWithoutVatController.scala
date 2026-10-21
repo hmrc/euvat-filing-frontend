@@ -16,11 +16,14 @@
 
 package controllers.imports
 
+import pages.imports.*
+import scala.util.Success
+
 import controllers.actions.*
 import controllers.imports.routes as importRoutes
 import forms.imports.TotalAmountWithoutVatFormProvider
 import models.Mode
-import navigation.Navigator
+import navigation.{ImportNavigator, Navigator}
 import pages.imports.{SadReferenceCheckPage, SadReferenceNumberPage, TotalAmountWithoutVatPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -35,28 +38,25 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class TotalAmountWithoutVatController @Inject() (
-  override val messagesApi: MessagesApi,
-  sessionRepository: SessionRepository,
-  navigator: Navigator,
-  currencyConfig: CurrencyConfig,
-  identify: IdentifierAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
-  formProvider: TotalAmountWithoutVatFormProvider,
-  val controllerComponents: MessagesControllerComponents,
-  view: TotalAmountWithoutVatView
-)(implicit ec: ExecutionContext)
-    extends FrontendBaseController
+                                                  override val messagesApi: MessagesApi,
+                                                  sessionRepository: SessionRepository,
+                                                  navigator: Navigator,
+                                                  importNavigator: ImportNavigator,
+                                                  currencyConfig: CurrencyConfig,
+                                                  identify: IdentifierAction,
+                                                  getData: DataRetrievalAction,
+                                                  requireData: DataRequiredAction,
+                                                  formProvider: TotalAmountWithoutVatFormProvider,
+                                                  val controllerComponents: MessagesControllerComponents,
+                                                  view: TotalAmountWithoutVatView
+                                                )(implicit ec: ExecutionContext)
+  extends FrontendBaseController
     with I18nSupport {
 
   val form: Form[BigDecimal] = formProvider()
 
   private def backLink(mode: Mode)(userAnswers: models.UserAnswers): Call =
-    CountryCode.findCountryCode(userAnswers) match {
-      case Some(country) if currencyConfig.requiresCurrencySelection(country) => importRoutes.ImportCurrencyController.onPageLoad(mode)
-      // TODO: Wire this to supplier address page when it is ready
-      case _ => importRoutes.ImportSuppliersNameController.onPageLoad(mode)
-    }
+    importNavigator.backLinkFromTotalAmountWithoutVatPage(mode)(userAnswers)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(TotalAmountWithoutVatPage).fold(form)(form.fill)
@@ -70,11 +70,17 @@ class TotalAmountWithoutVatController @Inject() (
       .bindFromRequest()
       .fold(
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)(request.userAnswers), prefix, currencyName))),
-        value =>
+        value => {
+          val changed = !request.userAnswers.isAnswerUnchanged(TotalAmountWithoutVatPage, value)
+          val cleared: scala.util.Try[models.UserAnswers] =
+            if (changed) request.userAnswers.remove(TotalVatPaidImportPage).flatMap(_.remove(ImportTotalVatClaimPage))
+            else Success(request.userAnswers)
           for {
-            updated <- Future.fromTry(request.userAnswers.set(TotalAmountWithoutVatPage, value))
+            base    <- Future.fromTry(cleared)
+            updated <- Future.fromTry(base.set(TotalAmountWithoutVatPage, value).flatMap(_.set(ImportAmountWithoutVatChangedPage, changed)))
             _       <- sessionRepository.set(updated)
           } yield Redirect(navigator.nextPage(TotalAmountWithoutVatPage, mode, updated))
+        }
       )
   }
 

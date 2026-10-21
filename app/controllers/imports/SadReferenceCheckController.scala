@@ -16,11 +16,14 @@
 
 package controllers.imports
 
+import pages.imports.*
+import scala.util.Success
+
 import controllers.actions.*
 import forms.imports.SadReferenceCheckFormProvider
 import models.requests.DataRequest
 import models.{Mode, NormalMode, Other}
-import navigation.Navigator
+import navigation.{ImportNavigator, Navigator}
 import pages.imports.*
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -33,48 +36,45 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class SadReferenceCheckController @Inject() (
-  override val messagesApi: MessagesApi,
-  sessionRepository: SessionRepository,
-  navigator: Navigator,
-  identify: IdentifierAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
-  formProvider: SadReferenceCheckFormProvider,
-  val controllerComponents: MessagesControllerComponents,
-  view: SadReferenceCheckView
-)(implicit ec: ExecutionContext)
-    extends FrontendBaseController
+                                              override val messagesApi: MessagesApi,
+                                              sessionRepository: SessionRepository,
+                                              navigator: Navigator,
+                                              importNavigator: ImportNavigator,
+                                              identify: IdentifierAction,
+                                              getData: DataRetrievalAction,
+                                              requireData: DataRequiredAction,
+                                              formProvider: SadReferenceCheckFormProvider,
+                                              val controllerComponents: MessagesControllerComponents,
+                                              view: SadReferenceCheckView
+                                            )(implicit ec: ExecutionContext)
+  extends FrontendBaseController
     with I18nSupport {
 
   val form: Form[Boolean] = formProvider()
-  private def backLink(mode: Mode): Call = routes.ImportSubCategoryController.onPageLoad(mode)
 
-  private def computeBackLink(implicit request: DataRequest[AnyContent]): Call = {
-    val answers = request.userAnswers
-    (answers.get(ImportTypePage), answers.get(ImportSubCodePage), answers.get(ImportSubCategoryPage)) match {
-      case (Some(_), _, Some(_)) => controllers.imports.routes.ImportSubCategoryController.onPageLoad(NormalMode)
-      case (Some(Other), _, _) if answers.get(DescribeItemsOnImportDocPage).isDefined =>
-        controllers.imports.routes.DescribeItemsOnImportDocController.onPageLoad(NormalMode)
-      case (Some(importType), Some(_), None) => controllers.imports.routes.ImportSubCodeController.onPageLoad(importType.toString)
-      case _                                 => controllers.imports.routes.ImportTypeController.onPageLoad(NormalMode)
-    }
-  }
+  private def computeBackLink(mode: Mode)(implicit request: DataRequest[AnyContent]): Call =
+    importNavigator.backLinkFromSadReferenceCheckPage(mode)(request.userAnswers)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(SadReferenceCheckPage).fold(form)(form.fill)
-    Ok(view(preparedForm, computeBackLink))
+    Ok(view(preparedForm, computeBackLink(mode), mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, computeBackLink))),
-        value =>
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, computeBackLink(mode), mode))),
+        value => {
+          val changed = !request.userAnswers.isAnswerUnchanged(SadReferenceCheckPage, value)
+          val cleared: scala.util.Try[models.UserAnswers] =
+            if (changed) request.userAnswers.remove(SadReferenceNumberPage).flatMap(_.remove(ImportDetailsInfoPage)) else Success(request.userAnswers)
           for {
-            updated <- Future.fromTry(request.userAnswers.set(SadReferenceCheckPage, value))
+            base    <- Future.fromTry(cleared)
+            updated <- Future.fromTry(base.set(SadReferenceCheckPage, value).flatMap(_.set(ImportSadChangedPage, changed)))
             _       <- sessionRepository.set(updated)
           } yield Redirect(navigator.nextPage(SadReferenceCheckPage, mode, updated))
+        }
       )
   }
 
