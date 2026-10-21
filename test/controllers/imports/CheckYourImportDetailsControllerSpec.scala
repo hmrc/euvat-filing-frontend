@@ -193,7 +193,7 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
             actionLink.select(".govuk-visually-hidden").remove()
 
             actionLink.text() mustBe
-              messages(application)("checkYourImportDetails.add")
+              messages(application)("site.add")
           }
         }
         supplierRowFound mustBe true

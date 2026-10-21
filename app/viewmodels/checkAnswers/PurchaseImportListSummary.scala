@@ -63,7 +63,7 @@ object PurchaseImportListSummary {
       },
       actions = if (vatClaim == 0) {
         Seq(
-          ActionItemViewModel("site.add", "#").withVisuallyHiddenText(
+          ActionItemViewModel("site.addDetails", "#").withVisuallyHiddenText(
             messages("purchaseImportSummary.incomplete.add.hidden", itemType, category)
           ),
           ActionItemViewModel("site.remove", "#").withVisuallyHiddenText(

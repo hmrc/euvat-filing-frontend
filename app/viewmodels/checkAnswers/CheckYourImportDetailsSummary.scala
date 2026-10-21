@@ -28,7 +28,7 @@ object CheckYourImportDetailsSummary {
   type Row = (String, Option[String], Seq[(String, String, String)])
   type Section = (String, Seq[Row])
 
-  private val prefix = "importCheckYourImportDetails"
+  private val prefix = "checkYourImportDetails"
 
   private def subCategoryUrl(slug: String): String = {
     val typeUrl = routes.ImportTypeController.onPageLoad(CheckMode).url
@@ -48,7 +48,7 @@ object CheckYourImportDetailsSummary {
     (
       messages(s"$prefix.$labelKey.label"),
       Some(value.getOrElse(messages("site.notProvided"))),
-      Seq((url, if (action == "add") "checkYourImportDetails.add" else "site.change", s"$prefix.$labelKey.$action.hidden"))
+      Seq((url, if (action == "add") "site.add" else "site.change", s"$prefix.$labelKey.$action.hidden"))
     )
   }
 
@@ -84,7 +84,7 @@ object CheckYourImportDetailsSummary {
       Seq(
         (
           url,
-          if (action == "add") "checkYourImportDetails.add" else "site.change",
+          if (action == "add") "site.add" else "site.change",
           messages(s"$prefix.category.$action.hidden", label)
         )
       )

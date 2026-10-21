@@ -17,6 +17,7 @@ site.warning = Warning
 site.notProvided = Not provided
 site.none = None
 site.add = Add details
+site.addDetails = Add details
 
 date.day = Day
 date.month = Month
@@ -656,7 +657,7 @@ checkYourImportDetails.supplierDetails = Supplier details
 checkYourImportDetails.importAmounts = Import amounts
 checkYourImportDetails.category.change.hidden = Change {0}
 checkYourImportDetails.category.add.hidden = Add {0}
-checkYourImportDetails.importType.label = Import type
+checkYourImportDetails.importType.label = Type
 checkYourImportDetails.importType.change.hidden = Change import type
 checkYourImportDetails.importType.add.hidden = Add import type
 checkYourImportDetails.importDescription.label = Import description
@@ -695,4 +696,4 @@ checkYourImportDetails.vatPaid.add.hidden = Add vat paid
 checkYourImportDetails.vatClaim.label = VAT claim
 checkYourImportDetails.vatClaim.change.hidden = Change vat claim
 checkYourImportDetails.vatClaim.add.hidden = Add vat claim
-checkYourImportDetails.add = Add
+
