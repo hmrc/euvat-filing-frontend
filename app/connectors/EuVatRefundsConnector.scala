@@ -76,6 +76,14 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
       .execute[SupplierVrnCountResponse]
   }
 
+  def getDuplicateReferenceInformationCount(request: DuplicateReferenceInformationCountRequest)(implicit hc: HeaderCarrier): Future[DuplicateReferenceInformationCountResponse] = {
+    http
+      .post(url"$euVatRefundsBaseUrl/get-duplicate-reference-information-count")
+      .withBody(Json.toJson(request))
+      .execute[DuplicateReferenceInformationCountResponse]
+
+  }
+
   def updateApplicationDetails(request: UpdateApplicationDetailsRequest)(implicit hc: HeaderCarrier): Future[UpdateApplicationDetailsResponse] =
     http
       .put(url"$euVatRefundsBaseUrl/update-application-details")

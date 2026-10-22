@@ -61,6 +61,10 @@ class EuVatRefundsService @Inject() (euVatRefundsConnector: EuVatRefundsConnecto
     euVatRefundsConnector.getSupplierVrnCount(request)
   }
 
+  def getDuplicateReferenceInformationCount(request: DuplicateReferenceInformationCountRequest)(implicit hc: HeaderCarrier): Future[DuplicateReferenceInformationCountResponse] = {
+    euVatRefundsConnector.getDuplicateReferenceInformationCount(request)
+  }
+
   def getPurchaseImportList(request: PurchaseImportListRequest)(implicit hc: HeaderCarrier): Future[PurchaseImportListResponse] = {
     euVatRefundsConnector.getPurchaseImportList(request)
   }
