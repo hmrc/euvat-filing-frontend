@@ -641,9 +641,9 @@ vatPaidWarning.warning = If you submit a claim with inaccurate information, it m
 vatPaidWarning.yes = Yes, this is correct
 vatPaidWarning.no = No, change the VAT amount
 
-vatClaimWarning.title = Are you sure the amount of VAT you''re claiming is correct?
-vatClaimWarning.heading = Are you sure the amount of VAT you''re claiming is correct?
-vatClaimWarning.p = You''ve told us the amount of VAT you''re claiming is {0}. The amount you''re claiming cannot be more than the amount of VAT you paid.
+vatClaimWarning.title = Are you sure the amount of VAT you’re claiming is correct?
+vatClaimWarning.heading = Are you sure the amount of VAT you’re claiming is correct?
+vatClaimWarning.p = You’ve told us the amount of VAT you’re claiming is {0}. The amount you’re claiming cannot be more than the amount of VAT you paid.
 vatClaimWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
 vatClaimWarning.yes = Yes, this is correct
 vatClaimWarning.no = No, change the VAT claim amount
