@@ -18,6 +18,11 @@ POST        /item-details                               controllers.warning.Purc
 GET         /change-item-details                        controllers.warning.PurchaseWarningController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-item-details                        controllers.warning.PurchaseWarningController.onSubmit(mode: Mode = CheckMode)
 
+GET         /import-document-details                    controllers.warning.ImportDetailsWarningController.onPageLoad(mode: Mode = NormalMode)
+POST        /import-document-details                    controllers.warning.ImportDetailsWarningController.onSubmit(mode: Mode = NormalMode)
+GET         /change-import-document-details             controllers.warning.ImportDetailsWarningController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-import-document-details             controllers.warning.ImportDetailsWarningController.onSubmit(mode: Mode = CheckMode)
+
 GET         /supplier-tax-identifier                    controllers.warning.SupplierTaxIdentifierWarningController.onPageLoad(mode: Mode = NormalMode)
 POST        /supplier-tax-identifier                    controllers.warning.SupplierTaxIdentifierWarningController.onSubmit()
 GET         /change-supplier-tax-identifier             controllers.warning.SupplierTaxIdentifierWarningController.onPageLoad(mode: Mode = CheckMode)
