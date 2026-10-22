@@ -42,7 +42,7 @@ class ImportSuppliersNameControllerSpec extends SpecBase with MockitoSugar {
   val form: Form[String] = formProvider()
 
   lazy val suppliersNameRoute: String = routes.ImportSuppliersNameController.onPageLoad(NormalMode).url
-  private def backLink: Call = controllers.routes.JourneyRecoveryController.onPageLoad()
+  private def backLink: Call = routes.ImportDateController.onPageLoad(NormalMode)
   private def submitCall(mode: models.Mode): Call = routes.ImportSuppliersNameController.onSubmit(mode)
 
   "ImportSuppliersName Controller" - {
@@ -75,7 +75,7 @@ class ImportSuppliersNameControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, submitCall(CheckMode), controllers.routes.JourneyRecoveryController.onPageLoad(), "import.caption", "suppliersName.import.hint")(
+          view(form, submitCall(CheckMode), backLink, "import.caption", "suppliersName.import.hint")(
             request,
             messages(application)
           ).toString
