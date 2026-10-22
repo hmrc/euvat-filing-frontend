@@ -39,23 +39,31 @@ object PurchaseImportListSummary {
         val itemNumber = item.itemNumber
         val vatClaim = item.deductibleVatAmount
         val category = PurchaseOrImportType.codeToType.getOrElse(item.goodsDescriptionCategory, "Unknown")
+        val itemTypeCode = item.itemType
 
         val itemType = if (item.itemType == "P") { "Purchase" }
         else { "Import" }
 
         if (vatClaim == 0) {
-          displaySummaryListRow(itemNumber, itemType, category)
+          displaySummaryListRow(itemNumber, itemType, itemTypeCode, category)
         } else {
           val currencySymbol = ControllerHelpers.currencySymbolFromSession(userAnswers, config)
-          displaySummaryListRow(itemNumber, itemType, category, currencySymbol, vatClaim)
+          displaySummaryListRow(itemNumber, itemType, itemTypeCode, category, currencySymbol, vatClaim)
         }
       }
   }
 
-  private def displaySummaryListRow(itemNumber: Int, itemType: String, category: String, currencySymbol: String = "", vatClaim: BigDecimal = 0)(
+  private def displaySummaryListRow(
+    itemNumber: Int,
+    itemType: String,
+    itemTypeCode: String,
+    category: String,
+    currencySymbol: String = "",
+    vatClaim: BigDecimal = 0
+  )(
     implicit messages: Messages
   ): SummaryListRow = {
-    val removeUrl = s"${routes.RemoveItemController.onPageLoad.url}?itemNumber=$itemNumber"
+    val removeUrl = routes.RemoveItemController.onPageLoad(itemTypeCode, itemNumber).url
     SummaryListRowViewModel(
       key = itemType + " (" + category + ")",
       value = if (vatClaim == 0) {
