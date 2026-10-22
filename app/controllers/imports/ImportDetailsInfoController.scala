@@ -20,10 +20,17 @@ import controllers.actions.*
 import forms.imports.ImportDetailsInfoFormProvider
 import models.requests.DataRequest
 import javax.inject.Inject
-import models.Mode
+import models.{Mode, UserAnswers}
+import queries.ClaimApplicationResponseQuery
+import pages.purchase.AddPurchaseResponsePage
 import navigation.Navigator
+import services.EuVatRefundsService
+import controllers.warning.routes as warningRoutes
+import models.requests.DuplicateReferenceInformationCountRequest
+import controllers.routes.JourneyRecoveryController
 import pages.imports.{ImportDetailsInfoPage, SadReferenceCheckPage, SadReferenceNumberPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -40,11 +47,13 @@ class ImportDetailsInfoController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: ImportDetailsInfoFormProvider,
+  euVatRefundsService: EuVatRefundsService,
   val controllerComponents: MessagesControllerComponents,
   view: ImportDetailsInfoView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
   val form: Form[String] = formProvider()
 
@@ -74,12 +83,39 @@ class ImportDetailsInfoController @Inject() (
       .bindFromRequest()
       .fold(
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)))),
-        value => {
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(ImportDetailsInfoPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(ImportDetailsInfoPage, mode, updatedAnswers))
-        }
+        value =>
+          buildDuplicateReferenceInformationCountRequest(request.userAnswers) match {
+            case Some(countRequest) =>
+              euVatRefundsService
+                .getDuplicateReferenceInformationCount(countRequest)
+                .flatMap { response =>
+                  for {
+                    updatedAnswers <- Future.fromTry(request.userAnswers.set(ImportDetailsInfoPage, value))
+                    _              <- sessionRepository.set(updatedAnswers)
+                  } yield {
+                    if (response.count > 0) {
+                      Redirect(warningRoutes.ImportDetailsWarningController.onPageLoad(mode))
+                    } else {
+                      Redirect(navigator.nextPage(ImportDetailsInfoPage, mode, updatedAnswers))
+                    }
+                  }
+                }
+                .recover { case ex =>
+                  logger.error("error while retrieving duplicate reference information count", ex)
+                  Redirect(JourneyRecoveryController.onPageLoad())
+                }
+            case _ =>
+              logger.warn("Missing session data")
+              Future.successful(Redirect(JourneyRecoveryController.onPageLoad()))
+          }
       )
   }
+
+  private def buildDuplicateReferenceInformationCountRequest(answers: UserAnswers): Option[DuplicateReferenceInformationCountRequest] =
+    for {
+      applicationId <- answers.get(ClaimApplicationResponseQuery).map(_.applicationId)
+      itemNumber    <- answers.get(AddPurchaseResponsePage).map(_.itemNumber)
+    } yield DuplicateReferenceInformationCountRequest(applicationId, itemNumber)
+
+
 }
