@@ -26,5 +26,5 @@ POST        /purchases-imports/select-item              controllers.PurchaseOrIm
 GET         /purchases-imports/summary                  controllers.PurchaseImportSummaryController.onPageLoad
 POST        /purchases-imports/summary                  controllers.PurchaseImportSummaryController.onSubmit
 
-GET         /remove-item                                controllers.RemoveItemController.onPageLoad
-POST        /remove-item                                controllers.RemoveItemController.onSubmit
+GET         /purchases-imports/remove-item/:itemType/$itemNumber<[0-9]+>  controllers.RemoveItemController.onPageLoad(itemType: String, itemNumber: Int)
+POST        /purchases-imports/remove-item               controllers.RemoveItemController.onSubmit

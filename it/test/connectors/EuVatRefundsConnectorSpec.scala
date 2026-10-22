@@ -393,6 +393,76 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
     }
   }
 
+  "EuVatRefundsConnector.getImportDetails" should {
+
+    "call the item details URL and return the import details response" in {
+      reset(mockHttp, mockRequestBuilder)
+      val expectedResponse = ImportDetailsResponse(
+        applicationId              = 123,
+        itemNumber                  = 4,
+        issuingDate                 = "2026-10-21",
+        supplierName                = Some("Supplier"),
+        supplierAddressLine1        = Some("Address line 1"),
+        supplierAddressLine2        = None,
+        supplierAddressLine3        = None,
+        supplierCountryCode         = Some("FR"),
+        goodsDescriptionCategory    = "1",
+        currencyCode                = "EUR",
+        taxableAmount               = BigDecimal(300),
+        vatAmount                   = BigDecimal(200),
+        deductibleVatAmount         = BigDecimal(100),
+        hasSadReferenceNumber       = Some("N"),
+        sadReferenceNumber          = None,
+        referenceInformation        = None,
+        goodsDescriptionText        = Some("Import details"),
+        goodsDescriptionSubcategory = Some("1.2.3"),
+        updateSequenceNumber        = 7
+      )
+
+      when(mockHttp.get(any())(any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.execute[ImportDetailsResponse](any(), any())).thenReturn(Future.successful(expectedResponse))
+
+      connector.getImportDetails(123, 4).futureValue shouldBe expectedResponse
+      verify(mockHttp).get(url"$baseUrl/get-import-details/123/4")
+      verify(mockRequestBuilder).execute[ImportDetailsResponse](any(), any())
+    }
+  }
+
+  "EuVatRefundsConnector.getPurchaseDetails" should {
+
+    "call the item details URL and return the purchase details response" in {
+      reset(mockHttp, mockRequestBuilder)
+      val expectedResponse = PurchaseDetailsResponse(
+        applicationId              = 123,
+        itemNumber                  = 4,
+        goodsDescriptionCode        = "1",
+        goodsDescriptionSubCode     = "1.2.3",
+        goodsDescriptionText        = "Purchase details",
+        simplifiedInvoiceIndicator = "N",
+        supplierName                = "Supplier",
+        supplierAddressLine1        = "Address line 1",
+        supplierAddressLine2        = "Address line 2",
+        supplierAddressLine3        = "Address line 3",
+        supplierVatNumber           = "VAT123",
+        supplierTaxIdentifier       = "TAX123",
+        invoiceDate                 = "2026-10-21",
+        invoiceNumber               = "INV123",
+        currencyCode                = "EUR",
+        taxableAmount               = BigDecimal(300),
+        vatAmount                   = BigDecimal(200),
+        deductibleVatAmount         = BigDecimal(100),
+        updateSequenceNumber        = 7
+      )
+
+      when(mockHttp.get(any())(any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.execute[PurchaseDetailsResponse](any(), any())).thenReturn(Future.successful(expectedResponse))
+
+      connector.getPurchaseDetails(123, 4).futureValue shouldBe expectedResponse
+      verify(mockHttp).get(url"$baseUrl/get-purchase-details/123/4")
+      verify(mockRequestBuilder).execute[PurchaseDetailsResponse](any(), any())
+    }
+  }
+
   "EuVatRefundsConnector.deleteApplication" should {
 
     "call the delete endpoint with JSON body and return Unit" in {
@@ -413,6 +483,46 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
       verify(mockRequestBuilder).withBody(bodyCaptor.capture())(any(), any(), any())
       bodyCaptor.getValue shouldBe Json.toJson(req)
       verify(mockRequestBuilder).execute[Unit](any(), any())
+    }
+  }
+
+  "EuVatRefundsConnector.deletePurchase" should {
+
+    "call the purchase delete endpoint with the JSON body and return the sequence number" in {
+      reset(mockHttp, mockRequestBuilder)
+      val request = DeleteItemRequest(applicationId = 123, itemNumber = 4, updateSequenceNumber = 7)
+      val response = DeleteItemResponse(updateSequenceNumber = 8)
+
+      when(mockHttp.delete(any())(any())).thenReturn(mockRequestBuilder)
+      doReturn(mockRequestBuilder).when(mockRequestBuilder).withBody(any[JsValue]())(any(), any(), any())
+      doReturn(Future.successful(response)).when(mockRequestBuilder).execute[DeleteItemResponse](any(), any())
+
+      connector.deletePurchase(request).futureValue shouldBe response
+      verify(mockHttp).delete(url"$baseUrl/delete-purchase")
+      val bodyCaptor: ArgumentCaptor[JsValue] = ArgumentCaptor.forClass(classOf[JsValue])
+      verify(mockRequestBuilder).withBody(bodyCaptor.capture())(any(), any(), any())
+      bodyCaptor.getValue shouldBe Json.toJson(request)
+      verify(mockRequestBuilder).execute[DeleteItemResponse](any(), any())
+    }
+  }
+
+  "EuVatRefundsConnector.deleteImport" should {
+
+    "call the import delete endpoint with the JSON body and return the sequence number" in {
+      reset(mockHttp, mockRequestBuilder)
+      val request = DeleteItemRequest(applicationId = 123, itemNumber = 5, updateSequenceNumber = 9)
+      val response = DeleteItemResponse(updateSequenceNumber = 10)
+
+      when(mockHttp.delete(any())(any())).thenReturn(mockRequestBuilder)
+      doReturn(mockRequestBuilder).when(mockRequestBuilder).withBody(any[JsValue]())(any(), any(), any())
+      doReturn(Future.successful(response)).when(mockRequestBuilder).execute[DeleteItemResponse](any(), any())
+
+      connector.deleteImport(request).futureValue shouldBe response
+      verify(mockHttp).delete(url"$baseUrl/delete-import")
+      val bodyCaptor: ArgumentCaptor[JsValue] = ArgumentCaptor.forClass(classOf[JsValue])
+      verify(mockRequestBuilder).withBody(bodyCaptor.capture())(any(), any(), any())
+      bodyCaptor.getValue shouldBe Json.toJson(request)
+      verify(mockRequestBuilder).execute[DeleteItemResponse](any(), any())
     }
   }
 
