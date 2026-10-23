@@ -82,22 +82,36 @@ class SupplierVatRegistrationNumberController @Inject() (
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     val isGermany = request.userAnswers.get(RefundingCountryPage).exists(_.equalsIgnoreCase("DE"))
+    val isSimplified = request.userAnswers.get(InvoiceTypePage).contains(InvoiceType.SimplifiedInvoice)
     form
       .bindFromRequest()
       .fold(
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode), isGermany))),
         value =>
-          buildSupplierVrnCountRequest(request.userAnswers, value) match {
-            case Some(vrnCountRequest) =>
-              euVatRefundsService
-                .getSupplierVrnCount(vrnCountRequest)
-                .flatMap { response =>
+          buildSupplierVrnCountContext(request.userAnswers) match {
+            case Some((applicationId, itemNumber, maybeInvoiceNumber)) =>
+              val duplicateCount = maybeInvoiceNumber match {
+                case Some(invoiceNumber) =>
+                  euVatRefundsService
+                    .getSupplierVrnCount(SupplierVrnCountRequest(applicationId, itemNumber, value, invoiceNumber))
+                    .map(_.duplicateCount)
+                case None => Future.successful(0)
+              }
+
+              duplicateCount
+                .flatMap { count =>
                   for {
-                    userAnswers    <- Future.fromTry(request.userAnswers.set(SupplierVatRegistrationNumberPage, value))
-                    updatedAnswers <- Future.fromTry(userAnswers.remove(SupplierVatRegistrationWarningPage))
+                    userAnswers <- Future.fromTry(request.userAnswers.set(SupplierVatRegistrationNumberPage, value))
+                    vatCheckAnswers <-
+                      if (!isGermany && isSimplified && value.trim.nonEmpty) {
+                        Future.fromTry(userAnswers.set(SupplierVatRegCheckPage, true))
+                      } else {
+                        Future.successful(userAnswers)
+                      }
+                    updatedAnswers <- Future.fromTry(vatCheckAnswers.remove(SupplierVatRegistrationWarningPage))
                     _              <- sessionRepository.set(updatedAnswers)
                   } yield {
-                    if (response.duplicateCount > 0) {
+                    if (count > 0) {
                       Redirect(controllers.warning.routes.SupplierVrnWarningController.onPageLoad(mode))
                     } else {
                       Redirect(navigator.nextPage(SupplierVatRegistrationNumberPage, mode, updatedAnswers))
@@ -115,11 +129,10 @@ class SupplierVatRegistrationNumberController @Inject() (
       )
   }
 
-  private def buildSupplierVrnCountRequest(answers: UserAnswers, vatNumber: String): Option[SupplierVrnCountRequest] =
+  private def buildSupplierVrnCountContext(answers: UserAnswers): Option[(Long, Int, Option[String])] =
     for {
       applicationId <- answers.get(ClaimApplicationResponseQuery).map(_.applicationId)
       itemNumber    <- answers.get(AddPurchaseResponsePage).map(_.itemNumber)
-      invoiceNumber <- answers.get(InvoiceNumberPage)
-    } yield SupplierVrnCountRequest(applicationId, itemNumber, vatNumber, invoiceNumber)
+    } yield (applicationId, itemNumber, answers.get(InvoiceNumberPage).filter(_.trim.nonEmpty))
 
 }

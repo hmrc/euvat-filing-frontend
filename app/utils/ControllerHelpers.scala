@@ -21,9 +21,10 @@ import models.requests.DataRequest
 import models.{CheckMode, Mode, UserAnswers}
 import pages.QuestionPage
 import pages.purchase.PurchaseTypePage
-import play.api.libs.json.{Format, Reads}
+import play.api.libs.json.{Format, Reads, Writes}
 import play.api.mvc.Results.*
 import play.api.mvc.{Call, Result}
+import queries.Settable
 import repositories.SessionRepository
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -51,6 +52,17 @@ object ControllerHelpers {
   def compareWithPage(value: BigDecimal, page: pages.QuestionPage[BigDecimal], updated: UserAnswers)(
     cmp: (BigDecimal, BigDecimal) => Boolean
   ): Boolean = updated.get(page).exists(stored => cmp(value, stored))
+
+  def setIfPresent[A](userAnswersF: Future[UserAnswers], maybeValue: Option[A], page: Settable[A])(implicit
+    writes: Writes[A],
+    ec: ExecutionContext
+  ): Future[UserAnswers] =
+    userAnswersF.flatMap { userAnswers =>
+      maybeValue match {
+        case Some(value) => Future.fromTry(userAnswers.set(page, value))
+        case None        => Future.successful(userAnswers)
+      }
+    }
 
   def pathForSlug(slug: String, mode: Mode, prefix: String): String =
     if (mode == CheckMode) {
