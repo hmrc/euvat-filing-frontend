@@ -525,7 +525,7 @@ importDetailsInfo.bullet1 = port of import
 importDetailsInfo.bullet2 = document reference number
 importDetailsInfo.label = Enter import document details
 importDetailsInfo.error.required = Enter import document details
-importDetailsInfo.error.length = Import document details must be 255 characters or less#
+importDetailsInfo.error.length = Import document details must be 255 characters or less
 
 importDate.title = When is the import date?
 importDate.heading = When is the import date?
@@ -540,23 +540,6 @@ importDate.error.required.two = Enter a {0} and {1}
 importDate.error.past = The import date must be in the past
 importDate.checkYourAnswersLabel = Import date
 importDate.change.hidden = Change import date
-
-purchaseOrImportDate.hint = For example, 27 3 2025
-
-import.refundingCurrency.title = Which currency do you want to use for this import?
-import.refundingCurrency.heading = Which currency do you want to use for this import?
-import.refundingCurrency.error.required = Select a currency for this import
-
-import.supplierAddress.lead = Enter the supplier’s address as it appears on the import document.
-import.supplierAddress.country.label = Country
-import.supplierAddress.line1.label.short=Address line 1
-import.supplierAddress.line2.label.short=Address line 2
-import.supplierAddress.line3.label.short=Address line 3
-import.supplierAddress.error.line1.maxLength={0} {1}
-import.supplierAddress.error.line2.maxLength={0} {1}
-import.supplierAddress.error.line3.maxLength={0} {1}
-import.supplierAddress.error.country.required=Select a country
-import.supplierAddress.error.country.invalid=Select a valid country
 
 purchaseOrImportDate.hint = For example, 27 3 2025
 
@@ -604,14 +587,6 @@ purchaseImportSummary.complete.change.hidden = {0} for {1} with a VAT claim of {
 purchaseImportSummary.complete.remove.hidden = {0} for {1} with a VAT claim of {2}
 purchaseImportSummary.error.required = Select yes if you need to add another item
 purchaseImportSummary.error.incomplete = You must add details to the incomplete items or remove them before you can continue
-
-removeItem.title = Remove item
-removeItem.heading = Remove item
-removeItem.list1 = Type
-removeItem.list2 = VAT claim
-removeItem.legend = Are you sure you want to remove this item?
-removeItem.notProvided = Not provided
-removeItem.error.required = Select yes if you want to remove this item
 
 # Warning messages
 refundPeriodStartDateWarning.title = Are you sure the refund period start date is correct?
@@ -671,3 +646,11 @@ vatClaimWarning.p = You’ve told us the amount of VAT you’re claiming is {0}.
 vatClaimWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
 vatClaimWarning.yes = Yes, this is correct
 vatClaimWarning.no = No, change the VAT claim amount
+
+removeItem.title = Remove item
+removeItem.heading = Remove item
+removeItem.list1 = Type
+removeItem.list2 = VAT claim
+removeItem.legend = Are you sure you want to remove this item?
+removeItem.notProvided = Not provided
+removeItem.error.required = Select yes if you want to remove this item
