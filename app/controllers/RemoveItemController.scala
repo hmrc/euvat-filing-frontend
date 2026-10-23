@@ -26,7 +26,7 @@ import pages.RemoveItemPage
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.*
-import queries.{ClaimApplicationResponseQuery, IsLastItemQuery, PurchaseImportTotalItemsQuery, RemoveItemNumberQuery, RemoveItemTypeQuery, UpdateSequenceNumberQuery}
+import queries.{ClaimApplicationResponseQuery, PurchaseImportTotalItemsQuery, RemoveItemNumberQuery, RemoveItemTypeQuery, UpdateSequenceNumberQuery}
 import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -81,7 +81,7 @@ class RemoveItemController @Inject() (
     (getApplicationId(userAnswers), userAnswers.get(RemoveItemNumberQuery), userAnswers.get(RemoveItemTypeQuery)) match {
       case (Some(applicationId), Some(itemNumber), Some(itemType)) =>
         userAnswers.get(PurchaseImportTotalItemsQuery) match {
-          case Some(totalItems) =>
+          case Some(_) =>
             val selectedDetails: Future[Option[(BigDecimal, Int)]] = itemType match {
               case "I" =>
                 euVatRefundsService
@@ -94,7 +94,7 @@ class RemoveItemController @Inject() (
               case "P" =>
                 euVatRefundsService
                   .getPurchaseDetails(applicationId, itemNumber)
-                  .map(response => Some(response.deductibleVatAmount -> response.updateSequenceNumber))
+                  .map(response => Some(response.deductibleVatAmount.getOrElse(BigDecimal(0)) -> response.updateSequenceNumber))
                   .recover { case ex =>
                     logger.warn(s"Unable to retrieve purchase details for item $itemNumber", ex)
                     None
@@ -104,10 +104,9 @@ class RemoveItemController @Inject() (
 
             selectedDetails.flatMap {
               case Some((amount, sequenceNumber)) =>
-                val answersWithLastItem = userAnswers.set(IsLastItemQuery, totalItems == 1)
-                val answersWithSequence = answersWithLastItem.flatMap(_.set(UpdateSequenceNumberQuery, sequenceNumber))
+                val updatedAnswersTry = userAnswers.set(UpdateSequenceNumberQuery, sequenceNumber)
 
-                Future.fromTry(answersWithSequence).flatMap { updatedAnswers =>
+                Future.fromTry(updatedAnswersTry).flatMap { updatedAnswers =>
                   sessionRepository.set(updatedAnswers).map { _ =>
                     val (displayType, vatClaim) = summaryValues(itemType, amount, updatedAnswers)
                     val page = view(formToRender, displayType, vatClaim, backLink)
@@ -123,36 +122,39 @@ class RemoveItemController @Inject() (
     }
 
   private def saveAndRedirect(value: Boolean)(implicit request: DataRequest[AnyContent]): Future[Result] =
-    request.userAnswers.get(IsLastItemQuery) match {
-      case Some(isLastItem) if !value => saveChoiceAndRedirect(value, isLastItem, None)
-      case Some(isLastItem) =>
+    request.userAnswers.get(PurchaseImportTotalItemsQuery) match {
+      case Some(_) if !value => saveChoiceAndRedirect(value, None)
+      case Some(_) =>
         val updateSequenceNumber = request.userAnswers
           .get(UpdateSequenceNumberQuery)
           .orElse(request.userAnswers.get(ClaimApplicationResponseQuery).map(_.updateSeqNumber))
 
-        (getApplicationId(request.userAnswers), request.userAnswers.get(RemoveItemNumberQuery), request.userAnswers.get(RemoveItemTypeQuery), updateSequenceNumber) match {
+        (getApplicationId(request.userAnswers),
+         request.userAnswers.get(RemoveItemNumberQuery),
+         request.userAnswers.get(RemoveItemTypeQuery),
+         updateSequenceNumber
+        ) match {
           case (Some(applicationId), Some(itemNumber), Some("P"), Some(sequenceNumber)) =>
             val deleteRequest = DeleteItemRequest(applicationId, itemNumber, sequenceNumber)
-            deleteAndRedirect(euVatRefundsService.deletePurchase(deleteRequest), "Purchase", itemNumber, value, isLastItem)
+            deleteAndRedirect(euVatRefundsService.deletePurchase(deleteRequest), "Purchase", itemNumber, value)
           case (Some(applicationId), Some(itemNumber), Some("I"), Some(sequenceNumber)) =>
             val deleteRequest = DeleteItemRequest(applicationId, itemNumber, sequenceNumber)
-            deleteAndRedirect(euVatRefundsService.deleteImport(deleteRequest), "Import", itemNumber, value, isLastItem)
+            deleteAndRedirect(euVatRefundsService.deleteImport(deleteRequest), "Import", itemNumber, value)
           case _ =>
             recoveryPage("Missing or invalid applicationId, itemNumber, itemType or updateSequenceNumber for delete-item")
         }
       case None =>
-        recoveryPage("Missing last-item state for remove-item")
+        recoveryPage("Missing purchase/import total item count")
     }
 
-  private def saveChoiceAndRedirect(value: Boolean, isLastItem: Boolean, deleteResponse: Option[DeleteItemResponse])(implicit
+  private def saveChoiceAndRedirect(value: Boolean, deleteResponse: Option[DeleteItemResponse])(implicit
     request: DataRequest[AnyContent]
   ): Future[Result] =
     for {
       answersWithChoice <- Future.fromTry(request.userAnswers.set(RemoveItemPage, value))
-      answersWithLast   <- Future.fromTry(answersWithChoice.set(IsLastItemQuery, isLastItem))
       updatedAnswers <- deleteResponse match {
-                          case Some(response) => Future.fromTry(answersWithLast.set(UpdateSequenceNumberQuery, response.updateSequenceNumber))
-                          case None           => Future.successful(answersWithLast)
+                          case Some(response) => Future.fromTry(answersWithChoice.set(UpdateSequenceNumberQuery, response.updateSequenceNumber))
+                          case None           => Future.successful(answersWithChoice)
                         }
       _ <- sessionRepository.set(updatedAnswers)
     } yield Redirect(navigator.nextPage(RemoveItemPage, NormalMode, updatedAnswers))
@@ -161,11 +163,10 @@ class RemoveItemController @Inject() (
     deleteResult: Future[DeleteItemResponse],
     itemType: String,
     itemNumber: Int,
-    value: Boolean,
-    isLastItem: Boolean
+    value: Boolean
   )(implicit request: DataRequest[AnyContent]): Future[Result] =
     deleteResult
-      .flatMap(response => saveChoiceAndRedirect(value, isLastItem, Some(response)))
+      .flatMap(response => saveChoiceAndRedirect(value, Some(response)))
       .recover { case ex =>
         logger.error(s"Error deleting $itemType item $itemNumber", ex)
         Redirect(routes.JourneyRecoveryController.onPageLoad())

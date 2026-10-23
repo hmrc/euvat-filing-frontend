@@ -39,11 +39,8 @@ object PurchaseImportListSummary {
         val itemNumber = item.itemNumber
         val vatClaim = item.deductibleVatAmount
         val category = PurchaseOrImportType.codeToType.getOrElse(item.goodsDescriptionCategory, "Unknown")
-<<<<<<< HEAD
-=======
         val itemTypeCode = item.itemType
 
->>>>>>> e7f2f865 (DTR-8825 : RA3.3 - Delete Item(revisit))
         val itemType = if (item.itemType == "P") { "Purchase" }
         else { "Import" }
 
