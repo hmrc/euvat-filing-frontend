@@ -475,4 +475,44 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
     }
   }
 
+  "EuVatRefundsConnector.getSadReferenceCount" should {
+    val request = SadReferenceCountRequest(
+      applicationId = 133,
+      itemNumber = 4,
+      sadReferenceNumber = "12345"
+    )
+    val expectedResponse = SadReferenceCountResponse(duplicateCount = 1)
+
+    "call the correct URL and return the expected response" in {
+      reset(mockHttp, mockRequestBuilder)
+
+      when(mockHttp.post(any())(any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.execute[SadReferenceCountResponse](any(), any()))
+        .thenReturn(Future.successful(expectedResponse))
+
+      val result = connector.getSadReferenceCount(request).futureValue
+
+      result shouldBe expectedResponse
+
+      verify(mockHttp).post(url"$baseUrl/get-sad-reference-count")
+      verify(mockRequestBuilder).execute[SadReferenceCountResponse](any(), any())
+    }
+
+    "propagate failures from the HTTP client" in {
+      val failure = new RuntimeException("boom")
+
+      when(mockHttp.post(any())(any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.execute[SadReferenceCountResponse](any(), any()))
+        .thenReturn(Future.failed(failure))
+
+      val result = connector.getSadReferenceCount(request)
+
+      whenReady(result.failed) { ex =>
+        ex shouldBe failure
+      }
+    }
+  }
+
 }
