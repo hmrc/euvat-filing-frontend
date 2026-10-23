@@ -27,7 +27,7 @@ import pages.claim.*
 import pages.imports.*
 import pages.purchase.*
 import play.api.mvc.Call
-import queries.IsLastItemQuery
+import queries.PurchaseImportTotalItemsQuery
 
 import javax.inject.{Inject, Singleton}
 
@@ -133,10 +133,10 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     }
 
   private def navigateFromRemoveItemPage(userAnswers: UserAnswers): Call =
-    (userAnswers.get(RemoveItemPage), userAnswers.get(IsLastItemQuery)) match {
-      case (Some(true), Some(true)) => routes.TaskListDashboardController.onPageLoad()
-      case (Some(_), _)             => routes.PurchaseImportSummaryController.onPageLoad
-      case _                        => routes.JourneyRecoveryController.onPageLoad()
+    (userAnswers.get(RemoveItemPage), userAnswers.get(PurchaseImportTotalItemsQuery)) match {
+      case (Some(true), Some(1)) => routes.TaskListDashboardController.onPageLoad()
+      case (Some(_), _)          => routes.PurchaseImportSummaryController.onPageLoad
+      case _                     => routes.JourneyRecoveryController.onPageLoad()
     }
 
 }

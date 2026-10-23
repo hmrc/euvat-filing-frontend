@@ -60,8 +60,8 @@ object PurchaseImportListSummary {
     category: String,
     currencySymbol: String = "",
     vatClaim: BigDecimal = 0
-  )(
-    implicit messages: Messages
+  )(implicit
+    messages: Messages
   ): SummaryListRow = {
     val removeUrl = routes.RemoveItemController.onPageLoad(itemTypeCode, itemNumber).url
     SummaryListRowViewModel(

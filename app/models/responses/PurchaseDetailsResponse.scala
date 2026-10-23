@@ -18,25 +18,25 @@ package models.responses
 
 import play.api.libs.json.{Json, OFormat}
 
+import java.time.LocalDateTime
+
 case class PurchaseDetailsResponse(
-  applicationId: Long,
-  itemNumber: Int,
   goodsDescriptionCode: String,
-  goodsDescriptionSubCode: String,
-  goodsDescriptionText: String,
-  simplifiedInvoiceIndicator: String,
-  supplierName: String,
-  supplierAddressLine1: String,
-  supplierAddressLine2: String,
-  supplierAddressLine3: String,
-  supplierVatNumber: String,
-  supplierTaxIdentifier: String,
-  invoiceDate: String,
-  invoiceNumber: String,
-  currencyCode: String,
-  taxableAmount: BigDecimal,
-  vatAmount: BigDecimal,
-  deductibleVatAmount: BigDecimal,
+  goodsDescriptionSubCode: Option[String],
+  goodsDescriptionText: Option[String],
+  simplifiedInvoiceIndicator: Option[String],
+  supplierName: Option[String],
+  supplierAddressLine1: Option[String],
+  supplierAddressLine2: Option[String],
+  supplierAddressLine3: Option[String],
+  supplierVatNumber: Option[String],
+  supplierTaxIdentifier: Option[String],
+  invoiceDate: Option[LocalDateTime],
+  invoiceNumber: Option[String],
+  currencyCode: Option[String],
+  taxableAmount: Option[BigDecimal],
+  vatAmount: Option[BigDecimal],
+  deductibleVatAmount: Option[BigDecimal],
   updateSequenceNumber: Int
 )
 

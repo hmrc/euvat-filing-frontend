@@ -28,7 +28,7 @@ import pages.claim.*
 import pages.imports.*
 import pages.purchase.*
 import play.api.Configuration
-import queries.IsLastItemQuery
+import queries.PurchaseImportTotalItemsQuery
 import utils.{ConfigLanguageMapping, ConfigPurchaseOrImportMapping, CurrencyConfig}
 
 class NavigatorSpec extends SpecBase {
@@ -233,27 +233,45 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from RemoveItemPage to TaskListDashboardController when 'Yes' and it's the last item" in {
-        val answers = userAnswers.set(RemoveItemPage, true).success.value.set(IsLastItemQuery, true).success.value
+        val answers = userAnswers
+          .set(RemoveItemPage, true)
+          .success
+          .value
+          .set(PurchaseImportTotalItemsQuery, 1)
+          .success
+          .value
 
         navigator.nextPage(RemoveItemPage, NormalMode, answers) mustBe
           controllers.routes.TaskListDashboardController.onPageLoad()
       }
 
       "must go from RemoveItemPage to PurchaseImportSummaryController when 'No' " in {
-        val answers = userAnswers.set(RemoveItemPage, false).success.value.set(IsLastItemQuery, true).success.value
+        val answers = userAnswers
+          .set(RemoveItemPage, false)
+          .success
+          .value
+          .set(PurchaseImportTotalItemsQuery, 1)
+          .success
+          .value
 
         navigator.nextPage(RemoveItemPage, NormalMode, answers) mustBe
           controllers.routes.PurchaseImportSummaryController.onPageLoad
       }
 
       "must go from RemoveItemPage to PurchaseImportSummaryController when 'Yes' and it's not the last item" in {
-        val answers = userAnswers.set(RemoveItemPage, true).success.value.set(IsLastItemQuery, false).success.value
+        val answers = userAnswers
+          .set(RemoveItemPage, true)
+          .success
+          .value
+          .set(PurchaseImportTotalItemsQuery, 2)
+          .success
+          .value
 
         navigator.nextPage(RemoveItemPage, NormalMode, answers) mustBe
           controllers.routes.PurchaseImportSummaryController.onPageLoad
       }
 
-      "must go from RemoveItemPage to PurchaseImportSummaryController when 'Yes' and last item is unknown" in {
+      "must go from RemoveItemPage to PurchaseImportSummaryController when item count is missing" in {
         val answers = userAnswers.set(RemoveItemPage, true).success.value
 
         navigator.nextPage(RemoveItemPage, NormalMode, answers) mustBe
