@@ -349,7 +349,7 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
 
     val expectedResponse = SadReferenceCountResponse(duplicateCount = 1)
 
-    "should return the supplier VRN count from the connector" in {
+    "should return the SAD reference count from the connector" in {
       when(mockConnector.getSadReferenceCount(any())(any()))
         .thenReturn(Future.successful(expectedResponse))
 
