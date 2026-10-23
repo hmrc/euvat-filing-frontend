@@ -18,13 +18,18 @@ package controllers.imports
 
 import controllers.actions.*
 import forms.imports.SadReferenceNumberFormProvider
-import models.{Mode, NormalMode}
+import models.requests.SadReferenceCountRequest
+import models.{Mode, UserAnswers}
 import navigation.Navigator
+import pages.AddImportResponsePage
 import pages.imports.SadReferenceNumberPage
+import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
+import queries.ClaimApplicationResponseQuery
 import repositories.SessionRepository
+import services.EuVatRefundsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.imports.SadReferenceNumberView
 
@@ -40,9 +45,11 @@ class SadReferenceNumberController @Inject() (
   requireData: DataRequiredAction,
   formProvider: SadReferenceNumberFormProvider,
   val controllerComponents: MessagesControllerComponents,
+  euVatRefundsService: EuVatRefundsService,
   view: SadReferenceNumberView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
+    with Logging
     with I18nSupport {
 
   val form: Form[String] = formProvider()
@@ -59,11 +66,39 @@ class SadReferenceNumberController @Inject() (
       .fold(
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, backLink(mode)))),
         value =>
-          for {
-            updated <- Future.fromTry(request.userAnswers.set(SadReferenceNumberPage, value))
-            _       <- sessionRepository.set(updated)
-          } yield Redirect(navigator.nextPage(SadReferenceNumberPage, mode, updated))
+          buildSadReferenceCountRequest(request.userAnswers, value) match {
+
+            case Some(sadReferenceCountRequest) =>
+              euVatRefundsService
+                .getSadReferenceCount(sadReferenceCountRequest)
+                .flatMap { response =>
+                  for {
+
+                    updated <- Future.fromTry(request.userAnswers.set(SadReferenceNumberPage, value))
+                    _       <- sessionRepository.set(updated)
+                  } yield {
+                    if (response.duplicateCount > 0) {
+                      Redirect(controllers.warning.routes.SadReferenceNumberWarningController.onPageLoad(mode))
+                    } else {
+                      Redirect(navigator.nextPage(SadReferenceNumberPage, mode, updated))
+                    }
+                  }
+                }
+                .recover { case ex =>
+                  logger.error("Error while retrieving SAD reference count", ex)
+                  Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+                }
+            case _ =>
+              logger.warn("Missing session data")
+              Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+          }
       )
   }
+
+  private def buildSadReferenceCountRequest(answers: UserAnswers, sadReferenceNumber: String): Option[SadReferenceCountRequest] =
+    for {
+      applicationId <- answers.get(ClaimApplicationResponseQuery).map(_.applicationId)
+      itemNumber    <- answers.get(AddImportResponsePage).map(_.itemNumber)
+    } yield SadReferenceCountRequest(applicationId, itemNumber, sadReferenceNumber)
 
 }

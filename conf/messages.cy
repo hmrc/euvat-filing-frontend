@@ -647,3 +647,10 @@ vatClaimWarning.p = You’ve told us the amount of VAT you’re claiming is {0}.
 vatClaimWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
 vatClaimWarning.yes = Yes, this is correct
 vatClaimWarning.no = No, change the VAT claim amount
+
+sadReferenceNumberWarning.title = Are you sure the Single Administrative Document (SAD) reference number is correct?
+sadReferenceNumberWarning.heading = Are you sure the Single Administrative Document (SAD) reference number is correct?
+sadReferenceNumberWarning.p = You’ve already added an import with the same SAD reference number. Use a different SAD reference number for this import.
+sadReferenceNumberWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
+sadReferenceNumberWarning.correct = Yes, this is correct
+sadReferenceNumberWarning.backLink = No, change SAD reference number
