@@ -35,7 +35,8 @@ class ImportDetailsWarningController @Inject()(
                                      ) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-      Ok(view(routes.SadReferenceNumberController.onPageLoad(mode), mode))
+      val call = routes.ImportDetailsInfoController.onPageLoad(mode)
+      Ok(view(routes.SadReferenceNumberController.onPageLoad(mode), call, mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
