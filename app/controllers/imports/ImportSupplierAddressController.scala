@@ -75,58 +75,56 @@ class ImportSupplierAddressController @Inject() (
         .bindFromRequest()
         .fold(
           formWithErrors => {
-         
 
-              val typed =
-                request.body
-                  .asFormUrlEncoded
-                  .flatMap(_.get("countryTyped").flatMap(_.headOption))
-                  .getOrElse("")
+            val typed =
+              request.body.asFormUrlEncoded
+                .flatMap(_.get("countryTyped").flatMap(_.headOption))
+                .getOrElse("")
 
-              val hasRequiredCountryError =
-                formWithErrors.errors.exists { error =>
-                  error.key == "country" &&
+            val hasRequiredCountryError =
+              formWithErrors.errors.exists { error =>
+                error.key == "country" &&
+                error.message == "import.supplierAddress.error.country.required"
+              }
+
+            val adjustedForm =
+              if (typed.trim.nonEmpty && hasRequiredCountryError) {
+                val filtered =
+                  formWithErrors.errors.filterNot { error =>
+                    error.key == "country" &&
                     error.message == "import.supplierAddress.error.country.required"
-                }
+                  }
 
-              val adjustedForm =
-                if (typed.trim.nonEmpty && hasRequiredCountryError) {
-                  val filtered =
-                    formWithErrors.errors.filterNot { error =>
-                      error.key == "country" &&
-                        error.message == "import.supplierAddress.error.country.required"
-                    }
+                formWithErrors.copy(
+                  errors = filtered :+
+                    FormError(
+                      "country",
+                      "import.supplierAddress.error.country.invalid"
+                    )
+                )
+              } else {
+                formWithErrors
+              }
 
-                  formWithErrors.copy(
-                    errors = filtered :+
-                      FormError(
-                        "country",
-                        "import.supplierAddress.error.country.invalid"
-                      )
-                  )
-                } else {
-                  formWithErrors
-                }
-
-              Future.successful(
-                BadRequest(
-                  view(
-                    adjustedForm,
-                    config.supplierCountries,
-                    mode,
-                    backLink
-                  )
+            Future.successful(
+              BadRequest(
+                view(
+                  adjustedForm,
+                  config.supplierCountries,
+                  mode,
+                  backLink
                 )
               )
-            },
+            )
+          },
           value =>
             for {
               updatedAnswers <- Future.fromTry(
-                request.userAnswers.set(
-                  ImportSupplierAddressPage,
-                  value
-                )
-              )
+                                  request.userAnswers.set(
+                                    ImportSupplierAddressPage,
+                                    value
+                                  )
+                                )
               _ <- sessionRepository.set(updatedAnswers)
             } yield Redirect(
               navigator.nextPage(
