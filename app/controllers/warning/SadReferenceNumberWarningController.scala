@@ -46,7 +46,7 @@ class SadReferenceNumberWarningController @Inject() (
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     mode match {
       case NormalMode => Redirect(navigator.nextPage(SadReferenceNumberPage, NormalMode, request.userAnswers))
-      //TODO replace to RA5.10.1 - Check your answers (import details)
+      // TODO replace to RA5.10.1 - Check your answers (import details)
 //      case CheckMode => Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())
       case CheckMode => Redirect(routes.SadReferenceNumberController.onPageLoad(mode))
     }

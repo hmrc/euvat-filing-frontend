@@ -342,8 +342,8 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
   "EuVatRefundsService.getSadReferenceCount" - {
 
     val request = SadReferenceCountRequest(
-      applicationId = 133,
-      itemNumber = 4,
+      applicationId      = 133,
+      itemNumber         = 4,
       sadReferenceNumber = "500000881"
     )
 

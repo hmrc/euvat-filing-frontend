@@ -39,7 +39,7 @@ class SadReferenceNumberControllerSpec extends SpecBase with MockitoSugar {
   def onwardRoute: Call = Call("GET", "/foo")
   val formProvider = new forms.imports.SadReferenceNumberFormProvider()
   lazy val sadReferenceNumberRoute: String = routes.SadReferenceNumberController.onPageLoad(NormalMode).url
-  
+
   val seededAnswers: UserAnswers = emptyUserAnswers
     .set(ClaimApplicationResponseQuery, ApplicationResponse(134, "GB123134", 1))
     .success
@@ -200,23 +200,23 @@ class SadReferenceNumberControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to to the warning page when a duplicate is found in CheckMode" in {
-            val mockSessionRepository = mock[SessionRepository]
-            when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-            when(mockEuVatRefundsService.getSadReferenceCount(any())(any()))
-              .thenReturn(Future.successful(SadReferenceCountResponse(1)))
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      when(mockEuVatRefundsService.getSadReferenceCount(any())(any()))
+        .thenReturn(Future.successful(SadReferenceCountResponse(1)))
 
-            val application = applicationBuilder(userAnswers = Some(seededAnswers))
-              .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
-              .build()
+      val application = applicationBuilder(userAnswers = Some(seededAnswers))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
 
-            running(application) {
-              val request = FakeRequest(POST, routes.SadReferenceNumberController.onSubmit(CheckMode).url)
-                .withFormUrlEncodedBody(("value", "FR123456789"))
+      running(application) {
+        val request = FakeRequest(POST, routes.SadReferenceNumberController.onSubmit(CheckMode).url)
+          .withFormUrlEncodedBody(("value", "FR123456789"))
 
-              val result = route(application, request).value
-              status(result) mustEqual SEE_OTHER
-              redirectLocation(result).value mustEqual controllers.warning.routes.SadReferenceNumberWarningController.onPageLoad(CheckMode).url
-            }
+        val result = route(application, request).value
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.warning.routes.SadReferenceNumberWarningController.onPageLoad(CheckMode).url
+      }
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {

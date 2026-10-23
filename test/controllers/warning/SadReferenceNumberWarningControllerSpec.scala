@@ -102,7 +102,7 @@ class SadReferenceNumberWarningControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        //TODO replace to RA5.10.1 - Check your answers (import details)
+        // TODO replace to RA5.10.1 - Check your answers (import details)
 //        redirectLocation(result).value mustEqual controllers.imports.routes.CheckYourPurchaseDetailsController.onPageLoad().url
         redirectLocation(result).value mustEqual controllers.imports.routes.SadReferenceNumberController.onPageLoad(CheckMode).url
       }
