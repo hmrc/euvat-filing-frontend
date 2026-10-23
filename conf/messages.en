@@ -588,7 +588,6 @@ purchaseImportSummary.complete.remove.hidden = {0} for {1} with a VAT claim of {
 purchaseImportSummary.error.required = Select yes if you need to add another item
 purchaseImportSummary.error.incomplete = You must add details to the incomplete items or remove them before you can continue
 
-
 # Warning messages
 refundPeriodStartDateWarning.title = Are you sure the refund period start date is correct?
 refundPeriodStartDateWarning.heading = Are you sure the refund period start date is correct?
@@ -647,3 +646,11 @@ vatClaimWarning.p = You’ve told us the amount of VAT you’re claiming is {0}.
 vatClaimWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
 vatClaimWarning.yes = Yes, this is correct
 vatClaimWarning.no = No, change the VAT claim amount
+
+removeItem.title = Remove item
+removeItem.heading = Remove item
+removeItem.list1 = Type
+removeItem.list2 = VAT claim
+removeItem.legend = Are you sure you want to remove this item?
+removeItem.notProvided = Not provided
+removeItem.error.required = Select yes if you want to remove this item

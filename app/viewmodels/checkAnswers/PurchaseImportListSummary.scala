@@ -25,6 +25,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryListRow, V
 import utils.{ControllerHelpers, Currency}
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
+import controllers.routes
 
 object PurchaseImportListSummary {
 
@@ -38,22 +39,31 @@ object PurchaseImportListSummary {
         val itemNumber = item.itemNumber
         val vatClaim = item.deductibleVatAmount
         val category = PurchaseOrImportType.codeToType.getOrElse(item.goodsDescriptionCategory, "Unknown")
+        val itemTypeCode = item.itemType
 
         val itemType = if (item.itemType == "P") { "Purchase" }
         else { "Import" }
 
         if (vatClaim == 0) {
-          displaySummaryListRow(itemType, category)
+          displaySummaryListRow(itemNumber, itemType, itemTypeCode, category)
         } else {
           val currencySymbol = ControllerHelpers.currencySymbolFromSession(userAnswers, config)
-          displaySummaryListRow(itemType, category, currencySymbol, vatClaim)
+          displaySummaryListRow(itemNumber, itemType, itemTypeCode, category, currencySymbol, vatClaim)
         }
       }
   }
 
-  private def displaySummaryListRow(itemType: String, category: String, currencySymbol: String = "", vatClaim: BigDecimal = 0)(implicit
+  private def displaySummaryListRow(
+    itemNumber: Int,
+    itemType: String,
+    itemTypeCode: String,
+    category: String,
+    currencySymbol: String = "",
+    vatClaim: BigDecimal = 0
+  )(implicit
     messages: Messages
   ): SummaryListRow = {
+    val removeUrl = routes.RemoveItemController.onPageLoad(itemTypeCode, itemNumber).url
     SummaryListRowViewModel(
       key = itemType + " (" + category + ")",
       value = if (vatClaim == 0) {
@@ -66,7 +76,7 @@ object PurchaseImportListSummary {
           ActionItemViewModel("site.add", "#").withVisuallyHiddenText(
             messages("purchaseImportSummary.incomplete.add.hidden", itemType, category)
           ),
-          ActionItemViewModel("site.remove", "#").withVisuallyHiddenText(
+          ActionItemViewModel("site.remove", removeUrl).withVisuallyHiddenText(
             messages("purchaseImportSummary.incomplete.remove.hidden", itemType, category)
           )
         )
@@ -75,7 +85,7 @@ object PurchaseImportListSummary {
           ActionItemViewModel("site.change", "#").withVisuallyHiddenText(
             messages("purchaseImportSummary.complete.change.hidden", itemType, category, currencySymbol + vatClaim)
           ),
-          ActionItemViewModel("site.remove", "#").withVisuallyHiddenText(
+          ActionItemViewModel("site.remove", removeUrl).withVisuallyHiddenText(
             messages("purchaseImportSummary.complete.remove.hidden", itemType, category, currencySymbol + vatClaim)
           )
         )

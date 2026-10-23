@@ -26,7 +26,7 @@ import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import queries.ClaimApplicationResponseQuery
+import queries.{ClaimApplicationResponseQuery, PurchaseImportTotalItemsQuery}
 import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -77,10 +77,14 @@ class PurchaseImportSummaryController @Inject() (
     getApplicationId(userAnswers).fold(recoveryPage("Missing or invalid applicationId")) { applicationId =>
       service
         .getPurchaseImportList(PurchaseImportListRequest(applicationId))
-        .map { summaryResponse =>
-          val summaryListRows = PurchaseImportListSummary.rows(userAnswers, summaryResponse.purchaseImportList, currencyConfig.currencyConfig)
-          val page = view(formToRender, summaryListRows, summaryResponse.totalItems, summaryResponse.totalVatClaims)
-          if (badRequest) BadRequest(page) else Ok(page)
+        .flatMap { summaryResponse =>
+          Future.fromTry(userAnswers.set(PurchaseImportTotalItemsQuery, summaryResponse.totalItems)).flatMap { updatedAnswers =>
+            sessionRepository.set(updatedAnswers).map { _ =>
+              val summaryListRows = PurchaseImportListSummary.rows(updatedAnswers, summaryResponse.purchaseImportList, currencyConfig.currencyConfig)
+              val page = view(formToRender, summaryListRows, summaryResponse.totalItems, summaryResponse.totalVatClaims)
+              if (badRequest) BadRequest(page) else Ok(page)
+            }
+          }
         }
     }
   }
