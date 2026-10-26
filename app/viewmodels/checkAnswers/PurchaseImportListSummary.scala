@@ -32,7 +32,7 @@ object PurchaseImportListSummary {
     messages: Messages,
     request: DataRequest[?]
   ): Seq[SummaryListRow] = {
-    val (completeClaims, incompleteClaims) = list.partition(_.goodsDescriptionSubCategory.nonEmpty) // split between incomplete and complete items
+    val (completeClaims, incompleteClaims) = list.partition(_.deductibleVatAmount > 0) // split between incomplete and complete items
     (incompleteClaims ++ completeClaims) // display incomplete first and the completed ones
       .map { item =>
         val itemNumber = item.itemNumber
