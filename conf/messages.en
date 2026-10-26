@@ -625,6 +625,13 @@ purchaseWarning.warning = If you submit a claim with inaccurate information, it 
 purchaseWarning.correct = Yes, this is correct
 purchaseWarning.backLink = No, change details
 
+importDetailsWarning.title = Are you sure the import document information is correct?
+importDetailsWarning.heading = Are you sure the import document information is correct?
+importDetailsWarning.paragraph = You’ve already added an import using import document information. You can only do this once for each claim. Enter a Single Administrative Document (SAD) reference number instead.
+importDetailsWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
+importDetailsWarning.button = Yes, this is correct
+importDetailsWarning.link = No, add a new SAD reference number
+
 supplierVrnWarning.title = Are you sure the supplier’s VAT registration number is correct?
 supplierVrnWarning.heading = Are you sure the supplier’s VAT registration number is correct?
 supplierVrnWarning.p = You’ve already made a claim with the same supplier’s VAT registration number and invoice number. Use a different supplier’s VAT registration number or invoice number for this claim.
