@@ -36,15 +36,16 @@ object PurchaseImportListSummary {
     (incompleteClaims ++ completeClaims) // display incomplete first and the completed ones
       .map { item =>
         val itemNumber = item.itemNumber
+        val vatClaim = item.deductibleVatAmount
         val category = PurchaseOrImportType.codeToType.getOrElse(item.goodsDescriptionCategory, "Unknown")
         val itemType = if (item.itemType == "P") { "Purchase" }
         else { "Import" }
 
-        if (item.goodsDescriptionSubCategory.isEmpty) {
+        if (vatClaim == 0) {
           displaySummaryListRow(itemType, category)
         } else {
           val currencySymbol = ControllerHelpers.currencySymbolFromSession(userAnswers, config)
-          displaySummaryListRow(itemType, category, currencySymbol, item.deductibleVatAmount, false)
+          displaySummaryListRow(itemType, category, currencySymbol, vatClaim, false)
         }
       }
   }
