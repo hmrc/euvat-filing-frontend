@@ -161,7 +161,6 @@ refundPeriod.end.error.afterVatDeRegDate = Refund period end date must not be af
 refundPeriod.error.startDateNotAfterEndDate = Refund period start date must be earlier than the refund period end date
 refundPeriod.error.startAndEndInSameYear = Refund period start date and end date must be in the same calendar year
 refundPeriod.error.overlap = Refund period cannot overlap with another claim for the same EU member state.
-refundPeriod.error.periodNotLessThan3Months = Refund period must be at least 3 months long unless the period ends in December
 
 contactDetails.title = How should we contact you about this claim?
 contactDetails.heading = How should we contact you about this claim?
@@ -604,6 +603,13 @@ refundPeriodEndDateWarning.paragraph = You’ve told us the refund period end da
 refundPeriodEndDateWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
 refundPeriodEndDateWarning.button = Yes, this is correct
 refundPeriodEndDateWarning.link = No, change the end date
+
+refundPeriodTooShortWarning.title = Are you sure the refund period is correct?
+refundPeriodTooShortWarning.heading = Are you sure the refund period is correct?
+refundPeriodTooShortWarning.paragraph = You’ve told us the refund period is less than 3 months. The refund period must be at least 3 months long unless it ends in December.
+refundPeriodTooShortWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
+refundPeriodTooShortWarning.button = Yes, this is correct
+refundPeriodTooShortWarning.link = No, change the refund period
 
 periodOverlapWarning.title = Are you sure the refund period is correct?
 periodOverlapWarning.heading = Are you sure the refund period is correct?
