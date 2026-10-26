@@ -92,11 +92,18 @@ class TaskListViewModel @Inject() {
                                     ): TaskListItem = {
     TaskListItem(
       title = TaskListItemTitle(content = Text(messages("taskListDashboard.listItem2"))),
-      hint  = Some(Hint(content = Text("You must add details to the incomplete items or remove them to submit this claim"))),
+      hint = if (inCompleteRows) {
+        Some(Hint(content = Text("You must add details to the incomplete items or remove them to submit this claim")))
+      } else { None },
       status = if (claimDetailsDone) {
-        def inCompleteStatus =
-          TaskListItemStatus(content = Text(messages("taskListDashboard.status4")), classes = "<strong class='govuk-tag'>Incomplete</strong>")
-
+        def inCompleteStatus = TaskListItemStatus(tag =
+          Some(
+            Tag(
+              content = Text(messages("taskListDashboard.status4")),
+              classes = "govuk-tag--blue"
+            )
+          )
+        )
         answers.get(PurchaseImportSummaryPage) match {
           case Some(false) => if (inCompleteRows) inCompleteStatus else completedStatus
           case _           => notStartedStatus
