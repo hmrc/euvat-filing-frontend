@@ -26,7 +26,7 @@
 
 @(taskList: TaskList, showDeleteLink: Boolean)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("taskListDashboard.title")), backLinkUrl = Some("controllers.routes.TaskListDashboardController.redirectToManageClaim().url")) {
+@layout(pageTitle = titleNoForm(messages("taskListDashboard.title")), backLinkUrl = Some(controllers.routes.TaskListDashboardController.redirectToManageClaim().url)) {
 
     <h1 class="govuk-heading-l">@messages("taskListDashboard.heading")</h1>
 
