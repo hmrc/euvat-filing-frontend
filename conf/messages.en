@@ -269,8 +269,8 @@ checkYourStateDetails.yes = Yes, delete this claim
 checkYourStateDetails.no = No, return to claim
 checkYourStateDetails.error.required = Select yes if you want to delete this claim
 
-checkYourPurchaseDetails.title = Check your purchase details
-checkYourPurchaseDetails.heading = Check your purchase details
+checkYourPurchaseDetails.title = Check your answers
+checkYourPurchaseDetails.heading = Check your answers
 checkYourPurchaseDetails.refundingCurrency.label = Currency
 checkYourPurchaseDetails.refundingCurrency.change.hidden = Change currency
 
@@ -315,7 +315,7 @@ purchaseType.foodAndDrink = Food, drink and restaurant services
 purchaseType.luxuries = Luxuries, entertainment and hospitality
 purchaseType.other = Other
 purchaseType.error.required = Select the type of purchase
-purchaseType.checkYourAnswersLabel = Purchase type
+purchaseType.checkYourAnswersLabel = Type
 purchaseType.change.hidden = Change purchase type
 
 purchase.subType.fuel-use = Fuel use
@@ -353,7 +353,7 @@ invoiceType.simplifiedInvoice = Simplified invoice
 invoiceType.simplifiedInvoice.hint = These are usually till receipts for lower-value purchases
 invoiceType.error.required = Select an invoice type
 invoiceType.change.hidden = Change invoice type
-invoiceType.checkYourAnswersLabel = Invoice type
+invoiceType.checkYourAnswersLabel = Type
 
 invoiceNumber.title = Invoice number
 invoiceNumber.heading = Invoice number
@@ -363,7 +363,7 @@ invoiceNumber.p1 = You can only use an invoice number once. Your claim may be re
 invoiceNumber.error.required = Enter an invoice number
 invoiceNumber.error.length = The invoice number must be {0} characters or less
 invoiceNumber.error.invalid = Enter a valid invoice number
-invoiceNumber.checkYourAnswersLabel = Invoice number
+invoiceNumber.checkYourAnswersLabel = Number
 invoiceNumber.change.hidden = Change the invoice number
 
 invoiceDate.title = What is the invoice date?
@@ -379,7 +379,7 @@ invoiceDate.error.required.all = Enter a date
 invoiceDate.error.required.two = Enter a {0} and {1}
 invoiceDate.error.past = The invoice date must be in the past
 invoiceDate.error.outsideRefundPeriod = The invoice date must be within the refund period
-invoiceDate.checkYourAnswersLabel = Invoice date
+invoiceDate.checkYourAnswersLabel = Date
 invoiceDate.change.hidden = Change invoice date
 
 suppliersName.title = What is the supplier’s name?
@@ -387,7 +387,7 @@ suppliersName.heading = What is the supplier’s name?
 suppliersName.hint = Find the supplier’s name on the invoice or receipt
 suppliersName.error.required = Enter a supplier’s name
 suppliersName.error.length = The supplier’s name must be 35 characters or less
-suppliersName.checkYourAnswersLabel = Supplier name
+suppliersName.checkYourAnswersLabel = Name
 suppliersName.change.hidden = Change supplier name
 suppliersName.import.hint = Find the supplier’s name on the import document
 
@@ -400,7 +400,7 @@ supplierAddress.line3.label = Address line 3 (optional)
 supplierAddress.error.line1.required = Enter address line 1, typically the building and street
 supplierAddress.error.maxLength = must be 35 characters or less
 supplierAddress.error.maxLength.withLabel = {0} {1}
-supplierAddress.checkYourAnswersLabel=Supplier address
+supplierAddress.checkYourAnswersLabel = Address
 supplierAddress.change.hidden = Change supplier address
 
 supplierTaxNumberCheck.title = Select the supplier tax numbers shown on the invoice
@@ -418,8 +418,8 @@ supplierVatRegCheck.title = Does the simplified invoice contain the supplier’s
 supplierVatRegCheck.heading = Does the simplified invoice contain the supplier’s VAT registration number?
 supplierVatRegCheck.hint = This can be up to 12 characters and may start with a 2-letter EU country code. For example, FR123456789
 supplierVatRegCheck.error.required = Select yes if the simplified invoice contains the supplier’s VAT registration number
-supplierVatRegCheck.checkYourAnswersLabel = Supplier VAT registration check
-supplierVatRegCheck.change.hidden = Change supplier VAT registration check
+supplierVatRegCheck.checkYourAnswersLabel = VAT registration
+supplierVatRegCheck.change.hidden = Change supplier VAT registration
 
 supplierVatRegistrationNumber.title = What is the supplier’s VAT registration number?
 supplierVatRegistrationNumber.heading = What is the supplier’s VAT registration number?
@@ -428,7 +428,7 @@ supplierVatRegistrationNumber.hint.germany = Enter the supplier’s VAT registra
 supplierVatRegistrationNumber.error.required = Enter the supplier’s VAT registration number
 supplierVatRegistrationNumber.error.invalid = Enter the supplier’s VAT registration number in the correct format
 supplierVatRegistrationNumber.error.length = Supplier’s VAT registration number must be 12 characters or less
-supplierVatRegistrationNumber.checkYourAnswersLabel = Supplier VAT registration number
+supplierVatRegistrationNumber.checkYourAnswersLabel = VAT registration number
 supplierVatRegistrationNumber.change.hidden = Change supplier VAT registration number
 
 supplierTaxIdentifierNumber.title = What is the supplier’s tax identifier number?
@@ -436,7 +436,7 @@ supplierTaxIdentifierNumber.heading = What is the supplier’s tax identifier nu
 supplierTaxIdentifierNumber.hint = This is 10 or 11 digits, for example 12/345/67890
 supplierTaxIdentifierNumber.error.required = Enter the supplier’s tax identifier number
 supplierTaxIdentifierNumber.error.length = Supplier’s tax identifier number cannot be more than 20 characters
-supplierTaxIdentifierNumber.checkYourAnswersLabel = Supplier’s tax identifier number
+supplierTaxIdentifierNumber.checkYourAnswersLabel = Tax identifier number
 supplierTaxIdentifierNumber.change.hidden = Change supplier’s tax identifier number
 
 totalPurchaseAmountBeforeVat.title = Total purchase amount before VAT
@@ -445,8 +445,8 @@ totalPurchaseAmountBeforeVat.h2 = How much did the purchase cost before VAT?
 totalPurchaseAmountBeforeVat.inset = The currency for this claim is in {0} ({1}). For invoices in any other currency, you must convert the amounts before adding them to your claim. Use the <a href="https://data.ecb.europa.eu/currency-converter" class="govuk-link" rel="noreferrer noopener" target="_blank">European Central Bank currency converter (opens in a new tab).</a>
 totalPurchaseAmountBeforeVat.p1 = This is the purchase amount before VAT is added. If your invoice does not show this amount, you’ll need to <a href="https://www.gov.uk/charge-reclaim-record-vat" class="govuk-link" target="_blank" rel="noreferrer noopener">calculate it (opens in a new tab)</a>.
 totalPurchaseAmountBeforeVat.hint = For example, {0}150 or {0}120.45
-totalPurchaseAmountBeforeVat.checkYourAnswersLabel = Amount before VAT
-totalPurchaseAmountBeforeVat.change.hidden = Total purchase amount before VAT
+totalPurchaseAmountBeforeVat.checkYourAnswersLabel = Amount without VAT
+totalPurchaseAmountBeforeVat.change.hidden = Total purchase amount without VAT
 totalPurchaseAmountBeforeVat.error.nonNumeric = Enter the total purchase amount before VAT in the correct format
 totalPurchaseAmountBeforeVat.error.required = Enter the total purchase amount before VAT
 totalPurchaseAmountBeforeVat.error.aboveMaximum = Total purchase amount before VAT must be between -999,999,999.99 and 999,999,999.99
@@ -542,6 +542,8 @@ importDate.error.past = The import date must be in the past
 importDate.checkYourAnswersLabel = Import date
 importDate.change.hidden = Change import date
 
+purchaseOrImportDate.hint = For example, 27 3 2025
+
 totalAmountWithoutVat.title = Total amount without VAT
 totalAmountWithoutVat.heading = Total amount without VAT
 totalAmountWithoutVat.inset = The currency for this claim is in {0} ({1}). For import documents in any other currency, you must convert the amounts before adding them to your claim. Use the <a href="https://data.ecb.europa.eu/currency-converter" class="govuk-link" rel="noreferrer noopener" target="_blank">European Central Bank currency converter (opens in a new tab)</a>.
@@ -570,8 +572,6 @@ import.supplierAddress.error.country.invalid=Select a valid country
 import.refundingCurrency.title = Which currency do you want to use for this import?
 import.refundingCurrency.heading = Which currency do you want to use for this import?
 import.refundingCurrency.error.required = Select a currency for this import
-
-purchaseOrImportDate.hint = For example, 27 3 2025
 
 purchaseImportSummary.title = You have added {0} {1} to this claim
 purchaseImportSummary.heading = You have added {0} {1} to this claim
@@ -612,12 +612,12 @@ periodOverlapWarning.warning = If you submit a claim with inaccurate information
 periodOverlapWarning.correct = Yes, this is correct
 periodOverlapWarning.backLink = No, change the refund period
 
-purchaseWarning.title = Are you sure the purchase details are correct?
-purchaseWarning.heading = Are you sure the purchase details are correct?
-purchaseWarning.p = You have not described the items on your invoice. List each item and the exact amount you paid for it.
+purchaseWarning.title = Are you sure these details are correct?
+purchaseWarning.heading = Are you sure these details are correct?
+purchaseWarning.p = List each item and give a description if necessary.
 purchaseWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
 purchaseWarning.correct = Yes, this is correct
-purchaseWarning.backLink = No, change the purchase details
+purchaseWarning.backLink = No, change details
 
 supplierVrnWarning.title = Are you sure the supplier’s VAT registration number is correct?
 supplierVrnWarning.heading = Are you sure the supplier’s VAT registration number is correct?
@@ -642,9 +642,9 @@ vatPaidWarning.warning = If you submit a claim with inaccurate information, it m
 vatPaidWarning.yes = Yes, this is correct
 vatPaidWarning.no = No, change the VAT amount
 
-vatClaimWarning.title = Are you sure the amount of VAT you''re claiming is correct?
-vatClaimWarning.heading = Are you sure the amount of VAT you''re claiming is correct?
-vatClaimWarning.p = You''ve told us the amount of VAT you''re claiming is {0}. The amount you''re claiming cannot be more than the amount of VAT you paid.
+vatClaimWarning.title = Are you sure the amount of VAT you’re claiming is correct?
+vatClaimWarning.heading = Are you sure the amount of VAT you’re claiming is correct?
+vatClaimWarning.p = You’ve told us the amount of VAT you’re claiming is {0}. The amount you’re claiming cannot be more than the amount of VAT you paid.
 vatClaimWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
 vatClaimWarning.yes = Yes, this is correct
 vatClaimWarning.no = No, change the VAT claim amount
