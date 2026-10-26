@@ -33,40 +33,40 @@ class TaskListViewModelSpec extends SpecBase {
       val answers = emptyUserAnswers
 
       "must return 5 items" in {
-        val taskList = viewModel.buildTaskList(answers)
+        val taskList = viewModel.buildTaskList(answers, false)
         taskList.items.size mustEqual 5
       }
 
       "must show claim details as Not yet started with a link" in {
-        val taskList = viewModel.buildTaskList(answers)
+        val taskList = viewModel.buildTaskList(answers, false)
         val item = taskList.items.head
         item.href mustBe defined
         item.status.tag.map(_.content.asHtml.body) must contain("taskListDashboard.status1")
       }
 
       "must show purchase and import as Cannot start yet with no link" in {
-        val taskList = viewModel.buildTaskList(answers)
+        val taskList = viewModel.buildTaskList(answers, false)
         val item = taskList.items(1)
         item.href mustBe None
         item.status.content.asHtml.body mustBe "taskListDashboard.status2"
       }
 
       "must show supporting documents as Cannot start yet with no link" in {
-        val taskList = viewModel.buildTaskList(answers)
+        val taskList = viewModel.buildTaskList(answers, false)
         val item = taskList.items(2)
         item.href mustBe None
         item.status.content.asHtml.body mustBe "taskListDashboard.status2"
       }
 
       "must show bank details as Cannot start yet with no link" in {
-        val taskList = viewModel.buildTaskList(answers)
+        val taskList = viewModel.buildTaskList(answers, false)
         val item = taskList.items(3)
         item.href mustBe None
         item.status.content.asHtml.body mustBe "taskListDashboard.status2"
       }
 
       "must show Submit claim as Cannot start yet with no link" in {
-        val taskList = viewModel.buildTaskList(answers)
+        val taskList = viewModel.buildTaskList(answers, false)
         val item = taskList.items(4)
         item.href mustBe None
         item.status.content.asHtml.body mustBe "taskListDashboard.status2"
@@ -77,19 +77,19 @@ class TaskListViewModelSpec extends SpecBase {
       val answers = emptyUserAnswers.set(ClaimDetailsCompletedQuery, true).success.value
 
       "must return 5 items" in {
-        val taskList = viewModel.buildTaskList(answers)
+        val taskList = viewModel.buildTaskList(answers, false)
         taskList.items.size mustEqual 5
       }
 
       "must show claim details as Completed with a link" in {
-        val taskList = viewModel.buildTaskList(answers)
+        val taskList = viewModel.buildTaskList(answers, false)
         val item = taskList.items.head
         item.href mustBe defined
         item.status.content.asHtml.body must include("taskListDashboard.status3")
       }
 
       "must show purchase and import as Not yet started with a link" in {
-        val taskList = viewModel.buildTaskList(answers)
+        val taskList = viewModel.buildTaskList(answers, false)
         val item = taskList.items(1)
         item.href mustBe defined
         item.status.tag.map(_.content.asHtml.body) must contain("taskListDashboard.status1")
@@ -97,28 +97,28 @@ class TaskListViewModelSpec extends SpecBase {
 
       "must show purchase and import as completed with a link" in {
         val userAnswers = answers.set(PurchaseImportSummaryPage, false).success.value
-        val taskList = viewModel.buildTaskList(userAnswers)
+        val taskList = viewModel.buildTaskList(userAnswers, false)
         val item = taskList.items(1)
         item.href mustBe defined
         item.status.content.asHtml.body mustBe "taskListDashboard.status3"
       }
 
       "must show supporting documents as Not yet started with a link" in {
-        val taskList = viewModel.buildTaskList(answers)
+        val taskList = viewModel.buildTaskList(answers, false)
         val item = taskList.items(2)
         item.href mustBe defined
         item.status.tag.map(_.content.asHtml.body) must contain("taskListDashboard.status1")
       }
 
       "must show bank details as Not yet started with a link" in {
-        val taskList = viewModel.buildTaskList(answers)
+        val taskList = viewModel.buildTaskList(answers, false)
         val item = taskList.items(3)
         item.href mustBe defined
         item.status.tag.map(_.content.asHtml.body) must contain("taskListDashboard.status1")
       }
 
       "must show Submit claim as Cannot start yet with no link" in {
-        val taskList = viewModel.buildTaskList(answers)
+        val taskList = viewModel.buildTaskList(answers, false)
         val item = taskList.items(4)
         item.href mustBe None
         item.status.content.asHtml.body mustBe "taskListDashboard.status2"
@@ -126,7 +126,7 @@ class TaskListViewModelSpec extends SpecBase {
     }
 
     "must use the correct idPrefix" in {
-      val taskList = viewModel.buildTaskList(emptyUserAnswers)
+      val taskList = viewModel.buildTaskList(emptyUserAnswers, false)
       taskList.idPrefix mustEqual "make-a-claim-eu-vat-refund"
     }
 
