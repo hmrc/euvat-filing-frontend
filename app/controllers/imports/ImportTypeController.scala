@@ -23,33 +23,41 @@ import scala.util.Success
 import com.google.inject.Inject
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import forms.ImportTypeFormProvider
-import models.requests.DataRequest
-import models.{Mode, PurchaseOrImportType}
+import models.requests.{AddImportRequest, DataRequest}
+import models.{Mode, PurchaseOrImportType, UserAnswers}
 import navigation.{ImportNavigator, Navigator}
-import pages.imports.ImportTypePage
+import pages.{AddImportResponsePage}
+import pages.imports.{ImportTypePage}
+import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import queries.ClaimApplicationResponseQuery
 import repositories.SessionRepository
+import services.EuVatRefundsService
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.purchasesOrImports.PurchaseOrImportTypeView
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class ImportTypeController @Inject() (
-                                       override val messagesApi: MessagesApi,
-                                       sessionRepository: SessionRepository,
-                                       navigator: Navigator,
-                                       importNavigator: ImportNavigator,
-                                       identify: IdentifierAction,
-                                       getData: DataRetrievalAction,
-                                       requireData: DataRequiredAction,
-                                       formProvider: ImportTypeFormProvider,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       view: PurchaseOrImportTypeView
-                                     )(implicit ec: ExecutionContext)
-  extends FrontendBaseController
-    with I18nSupport {
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  navigator: Navigator,
+  importNavigator: ImportNavigator,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: ImportTypeFormProvider,
+  val controllerComponents: MessagesControllerComponents,
+  euVatRefundsService: EuVatRefundsService,
+  view: PurchaseOrImportTypeView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport
+    with Logging {
 
   val form: Form[PurchaseOrImportType] = formProvider()
 
@@ -98,8 +106,48 @@ class ImportTypeController @Inject() (
             base    <- Future.fromTry(cleared)
             updated <- Future.fromTry(base.set(ImportTypePage, value).flatMap(_.set(ImportTypeChangedPage, changed)))
             _       <- sessionRepository.set(updated)
-          } yield Redirect(navigator.nextPage(ImportTypePage, mode, updated))
-        }
+            result  <- addImportIfRequired(updated, value, mode)
+          } yield result
       )
+  }
+
+  private def addImportIfRequired(answers: UserAnswers, importType: PurchaseOrImportType, mode: Mode)(implicit
+    request: DataRequest[?]
+  ): Future[Result] =
+    if (answers.get(AddImportResponsePage).isEmpty && answers.get(ClaimApplicationResponseQuery).isDefined) {
+      addImportAndPersist(answers, importType, mode)
+    } else {
+      Future.successful(Redirect(navigator.nextPage(ImportTypePage, mode, answers)))
+    }
+
+  private def addImportAndPersist(answers: UserAnswers, importType: PurchaseOrImportType, mode: Mode)(implicit
+    request: DataRequest[?]
+  ): Future[Result] = {
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+    answers
+      .get(ClaimApplicationResponseQuery)
+      .fold {
+        logger.warn("Missing applicationId for addImport")
+        Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+      } { claimResponse =>
+        val importRequest = AddImportRequest(
+          applicationId            = claimResponse.applicationId,
+          goodsDescriptionCategory = PurchaseOrImportType.codes(importType),
+          updateSequenceNumber     = claimResponse.updateSeqNumber
+        )
+
+        euVatRefundsService
+          .addImport(importRequest)
+          .flatMap { response =>
+            for {
+              updatedAnswers <- Future.fromTry(answers.set(AddImportResponsePage, response))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(navigator.nextPage(ImportTypePage, mode, updatedAnswers))
+          }
+          .recover { case ex =>
+            logger.error("Error while adding the import", ex)
+            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+          }
+      }
   }
 }

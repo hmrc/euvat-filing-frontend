@@ -94,28 +94,9 @@ class PurchaseImportSummaryController @Inject() (
         if (value) {
           Future.successful(Redirect(routes.PurchaseOrImportController.onPageLoad))
         } else {
-          validateDeductibleVatAmounts(updatedAnswers, value)
+          Future.successful(Redirect(routes.TaskListDashboardController.onPageLoad()))
         }
     } yield result
-  }
-
-  private def validateDeductibleVatAmounts(updatedAnswers: UserAnswers, submittedValue: Boolean)(implicit
-    request: DataRequest[AnyContent]
-  ): Future[Result] = {
-    getApplicationId(updatedAnswers).fold(recoveryPage("Missing or invalid applicationId")) { applicationId =>
-      service
-        .getPurchaseImportList(PurchaseImportListRequest(applicationId))
-        .map { summaryResponse =>
-          val hasAnyZeroDeductibleVatAmount = summaryResponse.purchaseImportList.exists(_.deductibleVatAmount <= 0)
-          if (hasAnyZeroDeductibleVatAmount) {
-            val formWithError = form.fill(submittedValue).withError("", "purchaseImportSummary.error.incomplete")
-            val summaryListRows = PurchaseImportListSummary.rows(updatedAnswers, summaryResponse.purchaseImportList, currencyConfig.currencyConfig)
-            BadRequest(view(formWithError, summaryListRows, summaryResponse.totalItems, summaryResponse.totalVatClaims))
-          } else {
-            Redirect(routes.TaskListDashboardController.onPageLoad())
-          }
-        }
-    }
   }
 
   private def recoveryPage(msg: String): Future[Result] = {

@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.purchase.TotalVatClaimFormProvider
 import models.{Mode, UserAnswers}
 import navigation.{ImportNavigator, Navigator}
-import pages.imports.ImportTotalVatClaimPage
+import pages.imports.{ImportTotalVatClaimPage, TotalVatPaidImportPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
@@ -29,6 +29,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ControllerHelpers.currencySymbolFromSession
 import utils.CurrencyConfig
 import views.html.purchasesOrImports.PurchaseOrImportTotalVatClaimView
+import controllers.warning.routes as warningRoutes
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -73,8 +74,14 @@ class TotalVatClaimController @Inject() (
           for {
             userAnswers <- Future.fromTry(request.userAnswers.set(ImportTotalVatClaimPage, value))
             _           <- sessionRepository.set(userAnswers)
-          } yield Redirect(navigator.nextPage(ImportTotalVatClaimPage, mode, userAnswers))
+          } yield {
+            val totalVatPaid: BigDecimal = userAnswers.get(TotalVatPaidImportPage).getOrElse(BigDecimal(0))
+            if (value > totalVatPaid) {
+              Redirect(warningRoutes.VatClaimWarningController.onPageLoad(mode))
+            } else {
+              Redirect(navigator.nextPage(ImportTotalVatClaimPage, mode, userAnswers))
+            }
+          }
       )
   }
-
 }

@@ -18,20 +18,22 @@ package controllers.imports
 
 import base.SpecBase
 import forms.purchase.TotalVatClaimFormProvider
-import models.{NormalMode, UserAnswers}
+import models.{CheckMode, NormalMode, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.TryValues.*
 import org.scalatestplus.mockito.MockitoSugar
 import pages.claim.RefundingCountryPage
 import pages.purchase.RefundingCurrencyPage
-import pages.imports.ImportTotalVatClaimPage
+import pages.imports.{ImportTotalVatClaimPage, TotalVatPaidImportPage}
+import navigation.{FakeNavigator, Navigator}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
+import controllers.warning.routes as warningRoutes
 import views.html.purchasesOrImports.PurchaseOrImportTotalVatClaimView
 
 import scala.concurrent.Future
@@ -39,8 +41,9 @@ import scala.concurrent.Future
 class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
 
   val form: Form[BigDecimal] = new TotalVatClaimFormProvider()()
-  lazy val totalVatClaimRoute: String = controllers.imports.routes.TotalVatClaimController.onPageLoad(NormalMode).url
+  lazy val totalVatClaimRoute: String = routes.TotalVatClaimController.onPageLoad(NormalMode).url
   lazy val backLink: Call = controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad(NormalMode)
+  def onwardRoute: Call = Call("GET", "/foo")
 
   "TotalVatClaim import controller" - {
 
@@ -53,7 +56,7 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[PurchaseOrImportTotalVatClaimView]
 
         status(result) mustEqual OK
-        val expectedBack = controllers.imports.routes.TotalVatPaidImportController.onPageLoad(NormalMode)
+        val expectedBack = routes.TotalVatPaidImportController.onPageLoad(NormalMode)
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
           view(form, NormalMode, controllers.imports.routes.TotalVatClaimController.onSubmit(NormalMode), expectedBack, "import.caption", "€")(
             request,
@@ -82,12 +85,12 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[PurchaseOrImportTotalVatClaimView]
 
         status(result) mustEqual OK
-        val expectedBack = controllers.imports.routes.TotalVatPaidImportController.onPageLoad(NormalMode)
+        val expectedBack = routes.TotalVatPaidImportController.onPageLoad(NormalMode)
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
           view(
             form.fill(BigDecimal("12.34")),
             NormalMode,
-            controllers.imports.routes.TotalVatClaimController.onSubmit(NormalMode),
+            routes.TotalVatClaimController.onSubmit(NormalMode),
             expectedBack,
             "import.caption",
             "лв"
@@ -100,7 +103,7 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        applicationBuilder(userAnswers = Some(emptyUserAnswers.set(TotalVatPaidImportPage, BigDecimal(200)).success.value))
           .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
           .build()
 
@@ -110,6 +113,89 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.CheckYourImportDetailsController.onPageLoad().url
+        verify(mockSessionRepository).set(any())
+      }
+    }
+
+    "must redirect to the warning page if total vat claim is greater than total vat paid" in {
+      val userAnswers = emptyUserAnswers.set(TotalVatPaidImportPage, BigDecimal("100")).success.value
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+          .build()
+
+      running(application) {
+        val request = FakeRequest(POST, totalVatClaimRoute).withFormUrlEncodedBody(("value", "123.45"))
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual warningRoutes.VatClaimWarningController.onPageLoad(NormalMode).url
+        verify(mockSessionRepository).set(any())
+      }
+    }
+
+    "must not redirect to the warning page if total vat claim equals total vat paid" in {
+      val userAnswers = emptyUserAnswers.set(TotalVatPaidImportPage, BigDecimal("123.45")).success.value
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request = FakeRequest(POST, totalVatClaimRoute).withFormUrlEncodedBody(("value", "123.45"))
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+      }
+    }
+
+    "must not redirect to the warning page if total vat claim is less than total vat paid" in {
+      val userAnswers = emptyUserAnswers.set(TotalVatPaidImportPage, BigDecimal("200")).success.value
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request = FakeRequest(POST, totalVatClaimRoute).withFormUrlEncodedBody(("value", "123.45"))
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+      }
+    }
+
+    "must redirect to the warning page in CheckMode if total vat claim is greater than total vat paid" in {
+      val userAnswers = emptyUserAnswers.set(TotalVatPaidImportPage, BigDecimal("50")).success.value
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.TotalVatClaimController.onSubmit(CheckMode).url)
+          .withFormUrlEncodedBody(("value", "123.45"))
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual warningRoutes.VatClaimWarningController.onPageLoad(CheckMode).url
         verify(mockSessionRepository).set(any())
       }
     }
