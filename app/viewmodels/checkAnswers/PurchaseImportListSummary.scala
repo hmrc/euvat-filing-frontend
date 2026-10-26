@@ -32,26 +32,29 @@ object PurchaseImportListSummary {
     messages: Messages,
     request: DataRequest[?]
   ): Seq[SummaryListRow] = {
-    val (completeClaims, incompleteClaims) = list.partition(_.deductibleVatAmount > 0) // split between incomplete and complete items
+    val (completeClaims, incompleteClaims) = list.partition(_.goodsDescriptionSubCategory.nonEmpty) // split between incomplete and complete items
     (incompleteClaims ++ completeClaims) // display incomplete first and the completed ones
       .map { item =>
         val itemNumber = item.itemNumber
-        val vatClaim = item.deductibleVatAmount
         val category = PurchaseOrImportType.codeToType.getOrElse(item.goodsDescriptionCategory, "Unknown")
-
         val itemType = if (item.itemType == "P") { "Purchase" }
         else { "Import" }
 
-        if (vatClaim == 0) {
+        if (item.goodsDescriptionSubCategory.isEmpty) {
           displaySummaryListRow(itemType, category)
         } else {
           val currencySymbol = ControllerHelpers.currencySymbolFromSession(userAnswers, config)
-          displaySummaryListRow(itemType, category, currencySymbol, vatClaim)
+          displaySummaryListRow(itemType, category, currencySymbol, item.deductibleVatAmount, false)
         }
       }
   }
 
-  private def displaySummaryListRow(itemType: String, category: String, currencySymbol: String = "", vatClaim: BigDecimal = 0)(implicit
+  private def displaySummaryListRow(itemType: String,
+                                    category: String,
+                                    currencySymbol: String = "",
+                                    vatClaim: BigDecimal = 0,
+                                    incomplete: Boolean = true
+                                   )(implicit
     messages: Messages
   ): SummaryListRow = {
     SummaryListRowViewModel(
@@ -82,4 +85,5 @@ object PurchaseImportListSummary {
       }
     )
   }
+
 }

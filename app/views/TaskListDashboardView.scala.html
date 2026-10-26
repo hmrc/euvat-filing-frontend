@@ -15,6 +15,7 @@
  *@
 
 @import uk.gov.hmrc.govukfrontend.views.html.components.*
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.tasklist.TaskList
 @import _root_.models.NormalMode
 
 @this(
@@ -23,7 +24,7 @@
   govukTaskList : GovukTaskList
 )
 
-@(taskList: uk.gov.hmrc.govukfrontend.views.viewmodels.tasklist.TaskList, showDeleteLink: Boolean)(implicit request: Request[_], messages: Messages)
+@(taskList: TaskList, showDeleteLink: Boolean)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("taskListDashboard.title")), showBackLink = false) {
 
