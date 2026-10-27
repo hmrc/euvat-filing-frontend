@@ -17,21 +17,25 @@
 package controllers.imports
 
 import base.SpecBase
+import models.requests.UpdateImportRequest
+import models.responses.{AddImportResponse, ApplicationResponse, UpdateImportResponse}
 import models.{CheckMode, ImportSupplierAddress, Other, UserAnswers}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{never, verify, when}
+import org.mockito.Mockito.{never, times, verify, when}
+import pages.AddImportResponsePage
 import pages.claim.RefundingCountryPage
 import pages.imports.*
 import play.api.Application
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import queries.{ClaimApplicationResponseQuery, UpdateSequenceNumberQuery}
 import repositories.SessionRepository
 import utils.ConfigPurchaseOrImportMapping
 
-import java.time.LocalDate
+import java.time.{LocalDate, LocalDateTime}
 import scala.concurrent.Future
 
 class CheckYourImportDetailsControllerSpec extends SpecBase {
@@ -54,6 +58,14 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
       .flatMap(_.set(TotalAmountWithoutVatPage, BigDecimal(100)))
       .flatMap(_.set(TotalVatPaidImportPage, BigDecimal(20)))
       .flatMap(_.set(ImportTotalVatClaimPage, BigDecimal(10)))
+      .success
+      .value
+
+  // complete answers for an import that add-import has already created (itemNumber 4, sequence number 2)
+  private def savedAnswers: UserAnswers =
+    completeAnswers
+      .set(ClaimApplicationResponseQuery, ApplicationResponse(404, "GB001", 1))
+      .flatMap(_.set(AddImportResponsePage, AddImportResponse(itemNumber = 4, updateSequenceNumber = 2)))
       .success
       .value
 
@@ -226,29 +238,136 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
         captor.getValue.get(ImportMissingAnswersJourneyPage) mustBe Some(true)
         captor.getValue.get(ImportSuppliersNamePage) mustBe None
         captor.getValue.get(ImportTotalVatClaimPage) mustBe None
+
+        verify(mockEuVatRefundsService, never()).updateImport(any())(any())
       }
     }
 
-    "must redirect complete answers to the temporary Journey Recovery destination on POST" in {
+    "must update the import and redirect to the purchases and imports summary on POST when everything is answered" in {
       val repository = mock[SessionRepository]
-      val answers = completeAnswers
+      when(mockEuVatRefundsService.updateImport(any())(any()))
+        .thenReturn(Future.successful(UpdateImportResponse(updateSequenceNumber = 3)))
+      val application = buildApplication(Some(savedAnswers), repository)
+
+      running(application) {
+        val result = route(application, FakeRequest(POST, routes.CheckYourImportDetailsController.onSubmit().url)).value
+
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result).value mustBe controllers.routes.PurchaseImportSummaryController.onPageLoad.url
+
+        val requestCaptor = ArgumentCaptor.forClass(classOf[UpdateImportRequest])
+        verify(mockEuVatRefundsService).updateImport(requestCaptor.capture())(any())
+        requestCaptor.getValue mustBe UpdateImportRequest(
+          applicationId               = 404,
+          itemNumber                  = 4,
+          goodsDescriptionCategory    = "10",
+          goodsDescriptionSubCategory = None,
+          goodsDescriptionText        = Some("Imported equipment"),
+          hasSadReferenceNumber       = Some("Y"),
+          sadReferenceNumber          = Some("SAD123"),
+          referenceInformation        = None,
+          supplierName                = Some("Example Supplier"),
+          supplierAddressLine1        = Some("10 Street"),
+          supplierAddressLine2        = None,
+          supplierAddressLine3        = None,
+          supplierCountryCode         = Some("IN"),
+          issuingDate                 = Some(LocalDateTime.of(2026, 10, 1, 0, 0)),
+          currencyCode                = Some("EUR"),
+          taxableAmount               = Some(BigDecimal(100)),
+          vatAmount                   = Some(BigDecimal(20)),
+          deductibleVatAmount         = Some(BigDecimal(10)),
+          updateSequenceNumber        = 2
+        )
+
+        val answersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(repository, times(2)).set(answersCaptor.capture())
+        val saved = answersCaptor.getAllValues.get(1)
+        saved.get(AddImportResponsePage) mustBe Some(AddImportResponse(itemNumber = 4, updateSequenceNumber = 3))
+        saved.get(UpdateSequenceNumberQuery) mustBe Some(3)
+        saved.get(ImportMissingAnswersJourneyPage) mustBe None
+      }
+    }
+
+    "must prefer the latest application sequence number over the one returned by add-import" in {
+      val repository = mock[SessionRepository]
+      when(mockEuVatRefundsService.updateImport(any())(any())).thenReturn(Future.successful(UpdateImportResponse(8)))
+      val answers = savedAnswers.set(UpdateSequenceNumberQuery, 7).success.value
       val application = buildApplication(Some(answers), repository)
 
       running(application) {
-        val request =
-          FakeRequest(POST, routes.CheckYourImportDetailsController.onSubmit().url)
+        status(route(application, FakeRequest(POST, routes.CheckYourImportDetailsController.onSubmit().url)).value) mustBe SEE_OTHER
 
-        val result = route(application, request).value
+        val requestCaptor = ArgumentCaptor.forClass(classOf[UpdateImportRequest])
+        verify(mockEuVatRefundsService).updateImport(requestCaptor.capture())(any())
+        requestCaptor.getValue.updateSequenceNumber mustBe 7
+      }
+    }
+
+    "must send only the document information when there is no SAD reference" in {
+      val repository = mock[SessionRepository]
+      when(mockEuVatRefundsService.updateImport(any())(any())).thenReturn(Future.successful(UpdateImportResponse(3)))
+      // SadReferenceNumberPage still holds the earlier "Yes" answer and must not be sent
+      val answers = savedAnswers
+        .set(SadReferenceCheckPage, false)
+        .flatMap(_.set(ImportDetailsInfoPage, "Document 123"))
+        .success
+        .value
+      val application = buildApplication(Some(answers), repository)
+
+      running(application) {
+        status(route(application, FakeRequest(POST, routes.CheckYourImportDetailsController.onSubmit().url)).value) mustBe SEE_OTHER
+
+        val requestCaptor = ArgumentCaptor.forClass(classOf[UpdateImportRequest])
+        verify(mockEuVatRefundsService).updateImport(requestCaptor.capture())(any())
+        requestCaptor.getValue.hasSadReferenceNumber mustBe Some("N")
+        requestCaptor.getValue.sadReferenceNumber mustBe None
+        requestCaptor.getValue.referenceInformation mustBe Some("Document 123")
+      }
+    }
+
+    "must send the selected currency when one has been chosen" in {
+      val repository = mock[SessionRepository]
+      when(mockEuVatRefundsService.updateImport(any())(any())).thenReturn(Future.successful(UpdateImportResponse(3)))
+      val answers = savedAnswers.set(ImportCurrencyPage, "SEK").success.value
+      val application = buildApplication(Some(answers), repository)
+
+      running(application) {
+        status(route(application, FakeRequest(POST, routes.CheckYourImportDetailsController.onSubmit().url)).value) mustBe SEE_OTHER
+
+        val requestCaptor = ArgumentCaptor.forClass(classOf[UpdateImportRequest])
+        verify(mockEuVatRefundsService).updateImport(requestCaptor.capture())(any())
+        requestCaptor.getValue.currencyCode mustBe Some("SEK")
+      }
+    }
+
+    "must redirect to Journey Recovery and keep the answers when the backend call fails" in {
+      val repository = mock[SessionRepository]
+      when(mockEuVatRefundsService.updateImport(any())(any())).thenReturn(Future.failed(new RuntimeException("boom")))
+      val application = buildApplication(Some(savedAnswers), repository)
+
+      running(application) {
+        val result = route(application, FakeRequest(POST, routes.CheckYourImportDetailsController.onSubmit().url)).value
 
         status(result) mustBe SEE_OTHER
-        redirectLocation(result).value mustBe
-          controllers.routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
 
-        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
-        verify(repository).set(captor.capture())
+        // only the missing-answers flag was saved; the sequence number and item response are untouched
+        val answersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(repository, times(1)).set(answersCaptor.capture())
+        answersCaptor.getValue.get(AddImportResponsePage) mustBe Some(AddImportResponse(4, 2))
+      }
+    }
 
-        captor.getValue.get(ImportTotalVatClaimPage) mustBe
-          answers.get(ImportTotalVatClaimPage)
+    "must redirect to Journey Recovery without calling the backend when no import has been added" in {
+      val repository = mock[SessionRepository]
+      val application = buildApplication(Some(completeAnswers), repository)
+
+      running(application) {
+        val result = route(application, FakeRequest(POST, routes.CheckYourImportDetailsController.onSubmit().url)).value
+
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
+        verify(mockEuVatRefundsService, never()).updateImport(any())(any())
       }
     }
 

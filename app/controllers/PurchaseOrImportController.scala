@@ -21,11 +21,17 @@ import forms.PurchaseOrImportFormProvider
 import models.{NormalMode, PurchaseOrImport, UserAnswers}
 import navigation.Navigator
 import pages.PurchaseOrImportPage
+import pages.imports.{
+  AddImportResponsePage, DescribeItemsOnImportDocPage, ImportAmountWithoutVatChangedPage, ImportCurrencyChangedPage, ImportCurrencyPage, ImportDatePage,
+  ImportDetailsInfoPage, ImportMissingAnswersJourneyPage, ImportSadChangedPage, ImportSubCategoryPage, ImportSubCodePage, ImportSupplierAddressPage,
+  ImportSuppliersNamePage, ImportTotalVatClaimPage, ImportTypeChangedPage, ImportTypePage, SadReferenceCheckPage, SadReferenceNumberPage,
+  TotalAmountWithoutVatPage, TotalVatPaidImportPage
+}
 import pages.purchase.*
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import queries.Settable
+import queries.{ImportSubCategoryLabelQuery, ImportSubTypeLabelQuery, Settable}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.purchasesOrImports.PurchaseOrImportView
@@ -35,17 +41,17 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
 class PurchaseOrImportController @Inject() (
-  override val messagesApi: MessagesApi,
-  sessionRepository: SessionRepository,
-  navigator: Navigator,
-  identify: IdentifierAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
-  formProvider: PurchaseOrImportFormProvider,
-  val controllerComponents: MessagesControllerComponents,
-  view: PurchaseOrImportView
-)(implicit ec: ExecutionContext)
-    extends FrontendBaseController
+                                             override val messagesApi: MessagesApi,
+                                             sessionRepository: SessionRepository,
+                                             navigator: Navigator,
+                                             identify: IdentifierAction,
+                                             getData: DataRetrievalAction,
+                                             requireData: DataRequiredAction,
+                                             formProvider: PurchaseOrImportFormProvider,
+                                             val controllerComponents: MessagesControllerComponents,
+                                             view: PurchaseOrImportView
+                                           )(implicit ec: ExecutionContext)
+  extends FrontendBaseController
     with I18nSupport {
 
   val form: Form[PurchaseOrImport] = formProvider()
@@ -97,8 +103,35 @@ class PurchaseOrImportController @Inject() (
     TotalVatClaimPage
   )
 
+  // Without this a second import would open pre-filled with the previous import's answers, and the stale
+  // AddImportResponsePage would stop add-import being called for the new item.
+  private val importJourneyPages: List[Settable[_]] = List(
+    ImportTypePage,
+    ImportSubCodePage,
+    ImportSubTypeLabelQuery,
+    ImportSubCategoryPage,
+    ImportSubCategoryLabelQuery,
+    DescribeItemsOnImportDocPage,
+    SadReferenceCheckPage,
+    SadReferenceNumberPage,
+    ImportDetailsInfoPage,
+    ImportDatePage,
+    ImportSuppliersNamePage,
+    ImportSupplierAddressPage,
+    ImportCurrencyPage,
+    TotalAmountWithoutVatPage,
+    TotalVatPaidImportPage,
+    ImportTotalVatClaimPage,
+    AddImportResponsePage,
+    ImportMissingAnswersJourneyPage,
+    ImportTypeChangedPage,
+    ImportSadChangedPage,
+    ImportCurrencyChangedPage,
+    ImportAmountWithoutVatChangedPage
+  )
+
   private def clearPurchaseJourney(userAnswers: UserAnswers): Try[UserAnswers] =
-    purchaseJourneyPages.foldLeft(Try(userAnswers)) { (acc, page) =>
+    (purchaseJourneyPages ++ importJourneyPages).foldLeft(Try(userAnswers)) { (acc, page) =>
       acc.flatMap(_.remove(page))
     }
 }

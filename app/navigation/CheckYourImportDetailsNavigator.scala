@@ -169,7 +169,6 @@ class CheckYourImportDetailsNavigator @Inject()(
 
   def navigateFromCheckYourImportDetails(answers: UserAnswers): Call =
     firstMissingPage(answers).getOrElse(
-      // Temporary destination: claim save and summary are not implemented.
-      controllers.routes.JourneyRecoveryController.onPageLoad()
+      controllers.routes.PurchaseImportSummaryController.onPageLoad
     )
 }

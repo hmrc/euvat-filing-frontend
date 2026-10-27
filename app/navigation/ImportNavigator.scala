@@ -102,6 +102,9 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
   def navigateFromCheckYourImportDetails(answers: UserAnswers): Call =
     completion.navigateFromCheckYourImportDetails(answers)
 
+  def firstMissingImportPage(answers: UserAnswers): Option[Call] =
+    completion.firstMissingPage(answers)
+
   def backLinkFromImportTypePage(mode: Mode): Call =
     if (mode == CheckMode) importsRoutes.CheckYourImportDetailsController.onPageLoad() else controllers.routes.PurchaseOrImportController.onPageLoad
 

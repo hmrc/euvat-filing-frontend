@@ -47,9 +47,6 @@ class CheckYourImportDetailsNavigatorSpec extends SpecBase {
     "must accept optional address lines and a single implicit currency" in {
       navigator.firstMissingPage(complete) mustBe None
     }
-    "must use Journey Recovery as the temporary complete destination" in {
-      navigator.navigateFromCheckYourImportDetails(complete) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
-    }
     "must require category before all other missing answers" in {
       val answers = complete.remove(ImportTypePage).flatMap(_.remove(ImportSuppliersNamePage)).success.value
       navigator.firstMissingPage(answers) mustBe Some(routes.ImportTypeController.onPageLoad(CheckMode))
@@ -90,6 +87,10 @@ class CheckYourImportDetailsNavigatorSpec extends SpecBase {
     "must require VAT claim after the other steps are complete" in {
       navigator.firstMissingPage(complete.remove(ImportTotalVatClaimPage).success.value) mustBe
         Some(routes.TotalVatClaimController.onPageLoad(CheckMode))
+    }
+    "must navigate to purchases and imports summary when all answers are complete" in {
+      navigator.navigateFromCheckYourImportDetails(complete) mustBe
+        controllers.routes.PurchaseImportSummaryController.onPageLoad
     }
   }
 }

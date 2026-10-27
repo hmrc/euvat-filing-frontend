@@ -24,15 +24,13 @@ import com.google.inject.Inject
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import forms.ImportTypeFormProvider
 import models.requests.{AddImportRequest, DataRequest}
-import models.{Mode, PurchaseOrImportType, UserAnswers}
+import models.{Mode, NormalMode, PurchaseOrImportType, UserAnswers}
 import navigation.{ImportNavigator, Navigator}
-import pages.{AddImportResponsePage}
-import pages.imports.{ImportTypePage}
+import pages.imports.ImportTypePage
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import queries.ClaimApplicationResponseQuery
 import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.http.HeaderCarrier
@@ -52,8 +50,8 @@ class ImportTypeController @Inject() (
   requireData: DataRequiredAction,
   formProvider: ImportTypeFormProvider,
   val controllerComponents: MessagesControllerComponents,
-  euVatRefundsService: EuVatRefundsService,
-  view: PurchaseOrImportTypeView
+  view: PurchaseOrImportTypeView,
+  euVatRefundsService: EuVatRefundsService
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
@@ -108,46 +106,37 @@ class ImportTypeController @Inject() (
             _       <- sessionRepository.set(updated)
             result  <- addImportIfRequired(updated, value, mode)
           } yield result
+        }
       )
   }
 
-  private def addImportIfRequired(answers: UserAnswers, importType: PurchaseOrImportType, mode: Mode)(implicit
-    request: DataRequest[?]
-  ): Future[Result] =
-    if (answers.get(AddImportResponsePage).isEmpty && answers.get(ClaimApplicationResponseQuery).isDefined) {
-      addImportAndPersist(answers, importType, mode)
-    } else {
-      Future.successful(Redirect(navigator.nextPage(ImportTypePage, mode, answers)))
-    }
-
-  private def addImportAndPersist(answers: UserAnswers, importType: PurchaseOrImportType, mode: Mode)(implicit
-    request: DataRequest[?]
+  private def addImportIfRequired(answers: UserAnswers, importType: PurchaseOrImportType, mode: Mode)(implicit request: DataRequest[?]
   ): Future[Result] = {
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    answers
-      .get(ClaimApplicationResponseQuery)
-      .fold {
-        logger.warn("Missing applicationId for addImport")
-        Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-      } { claimResponse =>
-        val importRequest = AddImportRequest(
-          applicationId            = claimResponse.applicationId,
-          goodsDescriptionCategory = PurchaseOrImportType.codes(importType),
-          updateSequenceNumber     = claimResponse.updateSeqNumber
-        )
+    def onward(ua: UserAnswers): Result = Redirect(navigator.nextPage(ImportTypePage, mode, ua))
 
+    (mode, answers.get(ClaimApplicationResponseQuery), answers.get(AddImportResponsePage)) match {
+      case (NormalMode, Some(claim), None) =>
+        implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+        val addRequest = AddImportRequest(
+          applicationId            = claim.applicationId,
+          goodsDescriptionCategory = PurchaseOrImportType.codes(importType),
+          updateSequenceNumber     = answers.get(UpdateSequenceNumberQuery).getOrElse(claim.updateSeqNumber)
+        )
         euVatRefundsService
-          .addImport(importRequest)
+          .addImport(addRequest)
           .flatMap { response =>
             for {
-              updatedAnswers <- Future.fromTry(answers.set(AddImportResponsePage, response))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(ImportTypePage, mode, updatedAnswers))
+              withResponse <- Future.fromTry(answers.set(AddImportResponsePage, response))
+              withSequence <- Future.fromTry(withResponse.set(UpdateSequenceNumberQuery, response.updateSequenceNumber))
+              _            <- sessionRepository.set(withSequence)
+            } yield onward(withSequence)
           }
           .recover { case ex =>
             logger.error("Error while adding the import", ex)
             Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
           }
-      }
+      case _ =>
+        Future.successful(onward(answers))
+    }
   }
 }

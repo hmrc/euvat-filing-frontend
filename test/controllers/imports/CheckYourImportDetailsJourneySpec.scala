@@ -60,9 +60,9 @@ class CheckYourImportDetailsJourneySpec extends SpecBase {
   }
 
   "Import CYA journey" - {
-    "must send complete answers to the temporary destination" in {
+    "must send complete answers to purchases and imports summary" in {
       submit(complete, routes.CheckYourImportDetailsController.onSubmit(), Seq.empty,
-        controllers.routes.JourneyRecoveryController.onPageLoad()) { saved =>
+        controllers.routes.PurchaseImportSummaryController.onPageLoad) { saved =>
         saved.get(ImportTotalVatClaimPage) mustBe Some(BigDecimal(10))
       }
     }
