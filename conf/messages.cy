@@ -64,6 +64,7 @@ taskListDashboard.listItem5 = Submit claim
 taskListDashboard.status1 = Not yet started
 taskListDashboard.status2 = Cannot start yet
 taskListDashboard.status3 = Completed
+taskListDashboard.status4 = Incomplete
 taskListDashboard.dashboardLink = Return to claim an EU VAT refund
 taskListDashboard.deleteLink = Delete this claim
 
