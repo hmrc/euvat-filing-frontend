@@ -77,6 +77,7 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case TotalAmountWithoutVatPage         => userAnswers => importNavigator.navigateFromTotalAmountWithoutVatPage(NormalMode)(userAnswers)
     case TotalVatPaidImportPage            => userAnswers => importNavigator.navigateFromTotalVatPaidImportPage(NormalMode)(userAnswers)
     case ImportTotalVatClaimPage           => userAnswers => importNavigator.navigateFromImportTotalVatClaimPage(NormalMode)(userAnswers)
+    case CheckYourImportDetailsPage        => userAnswers => importNavigator.navigateFromCheckYourImportDetailsPage(userAnswers)
     case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 

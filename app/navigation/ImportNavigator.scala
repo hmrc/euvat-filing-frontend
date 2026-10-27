@@ -92,4 +92,7 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
 
   def navigateFromImportTotalVatClaimPage(mode: Mode)(answers: UserAnswers): Call =
     if (answers.get(ImportTotalVatClaimPage).isDefined) cya else recovery
+
+  def navigateFromCheckYourImportDetailsPage(answers: UserAnswers): Call =
+    controllers.routes.PurchaseImportSummaryController.onPageLoad
 }

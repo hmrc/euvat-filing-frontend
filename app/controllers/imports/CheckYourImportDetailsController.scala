@@ -64,10 +64,6 @@ class CheckYourImportDetailsController @Inject()(
     saveImport(request.userAnswers)
   }
 
-  /** Send the import details to euvat-refunds (update-importation-details), keep the new updateSequenceNumber and go to
-   * the purchases and imports summary. Like purchase, answers that are not given are sent as None; handling missing answers
-   * is done later.
-   */
   private def saveImport(answers: UserAnswers)(implicit request: DataRequest[?]): Future[Result] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
@@ -103,14 +99,11 @@ class CheckYourImportDetailsController @Inject()(
     def real(value: Option[String]): Option[String] =
       value.filter(v => v.trim.nonEmpty && v != ConfigPurchaseOrImportMapping.NoneValue)
 
-    // RA5.1.2 sub code and RA5.1.3 sub-category both go in goodsDescriptionSubCategory; the more specific one wins
     val subCategory = real(answers.get(ImportSubCategoryPage)).orElse(real(answers.get(ImportSubCodePage)))
 
-    // RA5.2.1: only the answer that belongs to the chosen route is sent, so an old answer cannot leak through
     val hasSad = answers.get(SadReferenceCheckPage)
     val address = answers.get(ImportSupplierAddressPage)
 
-    // single-currency countries never show the currency page, so fall back to that country's only currency
     val currencyCode = answers.get(ImportCurrencyPage).orElse {
       CountryCode
         .findCountryCode(answers)

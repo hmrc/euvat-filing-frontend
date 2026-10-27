@@ -281,4 +281,10 @@ class ImportNavigatorSpec extends SpecBase {
     }
   }
 
+  "ImportNavigator.navigateFromCheckYourImportDetailsPage" - {
+    "must go to the purchases and imports summary page" in {
+      navigator.navigateFromCheckYourImportDetailsPage(userAnswers) mustBe
+        controllers.routes.PurchaseImportSummaryController.onPageLoad
+    }
+  }
 }

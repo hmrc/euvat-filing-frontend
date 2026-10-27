@@ -125,6 +125,11 @@ class NavigatorSpec extends SpecBase {
           importRoutes.ImportTypeController.onPageLoad(NormalMode)
       }
 
+      "must go from CheckYourImportDetailsPage to the purchases and imports summary" in {
+        navigator.nextPage(CheckYourImportDetailsPage, NormalMode, userAnswers) mustBe
+          controllers.routes.PurchaseImportSummaryController.onPageLoad
+      }
+
       "must go from PurchaseOrImportPage to Journey Recovery when nothing is selected" in {
         navigator.nextPage(PurchaseOrImportPage, NormalMode, userAnswers) mustBe
           controllers.routes.JourneyRecoveryController.onPageLoad()
