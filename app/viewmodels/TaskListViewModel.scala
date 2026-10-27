@@ -21,16 +21,17 @@ import pages.PurchaseImportSummaryPage
 import play.api.i18n.Messages
 import queries.ClaimDetailsCompletedQuery
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 import uk.gov.hmrc.govukfrontend.views.viewmodels.tag.Tag
 import uk.gov.hmrc.govukfrontend.views.viewmodels.tasklist.{TaskList, TaskListItem, TaskListItemStatus, TaskListItemTitle}
 
 import javax.inject.Inject
 
-class TaskListViewModel @Inject() () {
+class TaskListViewModel @Inject() {
 
   def showDeleteLink(answers: UserAnswers): Boolean = answers.get(ClaimDetailsCompletedQuery).contains(true)
 
-  def buildTaskList(answers: UserAnswers)(implicit messages: Messages): TaskList = {
+  def buildTaskList(answers: UserAnswers, inCompleteRows: Boolean)(implicit messages: Messages): TaskList = {
     val claimDetailsDone = answers.get(ClaimDetailsCompletedQuery).contains(true)
     def notStartedStatus = TaskListItemStatus(tag = Some(Tag(content = Text(messages("taskListDashboard.status1")))))
     def cannotStartStatus =
@@ -38,7 +39,8 @@ class TaskListViewModel @Inject() () {
     def completedStatus = TaskListItemStatus(content = Text(messages("taskListDashboard.status3")))
 
     val claimDetailsItem = claimTaskList(messages, claimDetailsDone, notStartedStatus, completedStatus)
-    val purchaseImportItems = purchaseImportTaskList(answers, messages, claimDetailsDone, cannotStartStatus, notStartedStatus, completedStatus)
+    val purchaseImportItems =
+      purchaseImportTaskList(answers, messages, claimDetailsDone, cannotStartStatus, notStartedStatus, completedStatus, inCompleteRows)
     val supportingDocsItem = supportingDocItemList(messages, claimDetailsDone, notStartedStatus, cannotStartStatus)
     val bankDetailsItem = bankDetailsTaskList(messages, claimDetailsDone, notStartedStatus, cannotStartStatus)
     val submitClaimItem = submitClaimTaskList(messages, cannotStartStatus)
@@ -85,13 +87,25 @@ class TaskListViewModel @Inject() () {
                                      claimDetailsDone: Boolean,
                                      cannotStartStatus: TaskListItemStatus,
                                      notStartedStatus: TaskListItemStatus,
-                                     completedStatus: TaskListItemStatus
+                                     completedStatus: TaskListItemStatus,
+                                     inCompleteRows: Boolean
                                     ): TaskListItem = {
     TaskListItem(
       title = TaskListItemTitle(content = Text(messages("taskListDashboard.listItem2"))),
+      hint = if (inCompleteRows) {
+        Some(Hint(content = Text("You must add details to the incomplete items or remove them to submit this claim")))
+      } else { None },
       status = if (claimDetailsDone) {
+        def inCompleteStatus = TaskListItemStatus(tag =
+          Some(
+            Tag(
+              content = Text(messages("taskListDashboard.status4")),
+              classes = "govuk-tag--blue"
+            )
+          )
+        )
         answers.get(PurchaseImportSummaryPage) match {
-          case Some(false) => completedStatus
+          case Some(false) => if (inCompleteRows) inCompleteStatus else completedStatus
           case _           => notStartedStatus
         }
       } else { cannotStartStatus },

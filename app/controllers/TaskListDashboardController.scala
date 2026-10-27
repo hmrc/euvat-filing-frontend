@@ -43,10 +43,10 @@ class TaskListDashboardController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData).async { implicit request =>
+  def onPageLoad(inCompleteRows: Boolean = false): Action[AnyContent] = (identify andThen getData).async { implicit request =>
     implicit val messages: Messages = messagesApi.preferred(request)
     val originalAnswers = request.userAnswers.getOrElse(UserAnswers(request.userId))
-    val taskList = taskListViewModel.buildTaskList(originalAnswers)
+    val taskList = taskListViewModel.buildTaskList(originalAnswers, inCompleteRows)
     val deleteLink = taskListViewModel.showDeleteLink(originalAnswers)
     request.userAnswers match {
       case Some(_) => Future.successful(Ok(view(taskList, deleteLink)))

@@ -64,6 +64,7 @@ taskListDashboard.listItem5 = Submit claim
 taskListDashboard.status1 = Not yet started
 taskListDashboard.status2 = Cannot start yet
 taskListDashboard.status3 = Completed
+taskListDashboard.status4 = Incomplete
 taskListDashboard.dashboardLink = Return to claim an EU VAT refund
 taskListDashboard.deleteLink = Delete this claim
 
@@ -160,7 +161,6 @@ refundPeriod.end.error.afterVatDeRegDate = Refund period end date must not be af
 refundPeriod.error.startDateNotAfterEndDate = Refund period start date must be earlier than the refund period end date
 refundPeriod.error.startAndEndInSameYear = Refund period start date and end date must be in the same calendar year
 refundPeriod.error.overlap = Refund period cannot overlap with another claim for the same EU member state.
-refundPeriod.error.periodNotLessThan3Months = Refund period must be at least 3 months long unless the period ends in December
 
 contactDetails.title = How should we contact you about this claim?
 contactDetails.heading = How should we contact you about this claim?
@@ -604,6 +604,13 @@ refundPeriodEndDateWarning.warning = If you submit a claim with inaccurate infor
 refundPeriodEndDateWarning.button = Yes, this is correct
 refundPeriodEndDateWarning.link = No, change the end date
 
+refundPeriodTooShortWarning.title = Are you sure the refund period is correct?
+refundPeriodTooShortWarning.heading = Are you sure the refund period is correct?
+refundPeriodTooShortWarning.paragraph = You’ve told us the refund period is less than 3 months. The refund period must be at least 3 months long unless it ends in December.
+refundPeriodTooShortWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
+refundPeriodTooShortWarning.button = Yes, this is correct
+refundPeriodTooShortWarning.link = No, change the refund period
+
 periodOverlapWarning.title = Are you sure the refund period is correct?
 periodOverlapWarning.heading = Are you sure the refund period is correct?
 periodOverlapWarning.p = You’ve told us the refund period is the same used for another claim. The refund period must not overlap with another claim for the same EU member state.
@@ -617,6 +624,13 @@ purchaseWarning.p = List each item and give a description if necessary.
 purchaseWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
 purchaseWarning.correct = Yes, this is correct
 purchaseWarning.backLink = No, change details
+
+importDetailsWarning.title = Are you sure the import document information is correct?
+importDetailsWarning.heading = Are you sure the import document information is correct?
+importDetailsWarning.paragraph = You’ve already added an import using import document information. You can only do this once for each claim. Enter a Single Administrative Document (SAD) reference number instead.
+importDetailsWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
+importDetailsWarning.button = Yes, this is correct
+importDetailsWarning.link = No, add a new SAD reference number
 
 supplierVrnWarning.title = Are you sure the supplier’s VAT registration number is correct?
 supplierVrnWarning.heading = Are you sure the supplier’s VAT registration number is correct?
