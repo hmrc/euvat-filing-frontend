@@ -22,10 +22,11 @@ import scala.util.Success
 
 import com.google.inject.Inject
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
+import controllers.imports.routes as importRoutes
 import forms.ImportTypeFormProvider
 import models.requests.{AddImportRequest, DataRequest}
-import models.{Mode, NormalMode, PurchaseOrImportType, UserAnswers}
-import navigation.{ImportNavigator, Navigator}
+import models.{CheckMode, Mode, NormalMode, PurchaseOrImportType, UserAnswers}
+import navigation.Navigator
 import pages.imports.ImportTypePage
 import play.api.Logging
 import play.api.data.Form
@@ -41,26 +42,26 @@ import views.html.purchasesOrImports.PurchaseOrImportTypeView
 import scala.concurrent.{ExecutionContext, Future}
 
 class ImportTypeController @Inject() (
-  override val messagesApi: MessagesApi,
-  sessionRepository: SessionRepository,
-  navigator: Navigator,
-  importNavigator: ImportNavigator,
-  identify: IdentifierAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
-  formProvider: ImportTypeFormProvider,
-  val controllerComponents: MessagesControllerComponents,
-  view: PurchaseOrImportTypeView,
-  euVatRefundsService: EuVatRefundsService
-)(implicit ec: ExecutionContext)
-    extends FrontendBaseController
+                                       override val messagesApi: MessagesApi,
+                                       sessionRepository: SessionRepository,
+                                       navigator: Navigator,
+                                       identify: IdentifierAction,
+                                       getData: DataRetrievalAction,
+                                       requireData: DataRequiredAction,
+                                       formProvider: ImportTypeFormProvider,
+                                       val controllerComponents: MessagesControllerComponents,
+                                       view: PurchaseOrImportTypeView,
+                                       euVatRefundsService: EuVatRefundsService
+                                     )(implicit ec: ExecutionContext)
+  extends FrontendBaseController
     with I18nSupport
     with Logging {
 
   val form: Form[PurchaseOrImportType] = formProvider()
 
   private def backLink(mode: Mode)(implicit request: DataRequest[?]) =
-    importNavigator.backLinkFromImportTypePage(mode)
+    if (mode == CheckMode) importRoutes.CheckYourImportDetailsController.onPageLoad()
+    else controllers.routes.PurchaseOrImportController.onPageLoad
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(ImportTypePage) match {

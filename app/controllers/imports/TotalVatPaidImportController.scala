@@ -20,11 +20,12 @@ import pages.imports.*
 import scala.util.Success
 
 import controllers.actions.*
+import controllers.imports.routes as importRoutes
 import forms.imports.TotalVatPaidImportFormProvider
 
 import javax.inject.Inject
 import models.{Mode, UserAnswers}
-import navigation.{ImportNavigator, Navigator}
+import navigation.Navigator
 import pages.imports.{TotalAmountWithoutVatPage, TotalVatPaidImportPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -41,7 +42,6 @@ class TotalVatPaidImportController @Inject() (
                                                override val messagesApi: MessagesApi,
                                                sessionRepository: SessionRepository,
                                                navigator: Navigator,
-                                               importNavigator: ImportNavigator,
                                                currencyConfig: CurrencyConfig,
                                                identify: IdentifierAction,
                                                getData: DataRetrievalAction,
@@ -56,7 +56,7 @@ class TotalVatPaidImportController @Inject() (
   val form: Form[BigDecimal] = formProvider()
 
   private def backLink(mode: Mode): Call =
-    importNavigator.backLinkFromTotalVatPaidImportPage(mode)
+    importRoutes.TotalAmountWithoutVatController.onPageLoad(mode)
 
   private def formAction(mode: Mode): Call = routes.TotalVatPaidImportController.onSubmit(mode)
 

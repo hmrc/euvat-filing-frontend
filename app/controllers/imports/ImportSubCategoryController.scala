@@ -21,7 +21,7 @@ import controllers.routes
 import forms.PurchaseOrImportSubTypeFormProvider
 import models.requests.DataRequest
 import models.{CheckMode, Mode, PurchaseOrImportType}
-import navigation.{ImportNavigator, Navigator}
+import navigation.Navigator
 import pages.imports.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -40,7 +40,6 @@ class ImportSubCategoryController @Inject() (
                                               override val messagesApi: MessagesApi,
                                               sessionRepository: SessionRepository,
                                               navigator: Navigator,
-                                              importNavigator: ImportNavigator,
                                               identify: IdentifierAction,
                                               getData: DataRetrievalAction,
                                               requireData: DataRequiredAction,
@@ -79,7 +78,8 @@ class ImportSubCategoryController @Inject() (
       title,
       "import.caption",
       controllers.imports.routes.ImportSubCategoryController.onSubmit(mode),
-      importNavigator.backLinkFromImportSubCategoryPage(data.parentKey, mode)
+      if (mode == CheckMode) controllers.imports.routes.CheckYourImportDetailsController.onPageLoad()
+      else controllers.imports.routes.ImportSubCodeController.onPageLoad(data.parentKey, mode)
     )
   }
 

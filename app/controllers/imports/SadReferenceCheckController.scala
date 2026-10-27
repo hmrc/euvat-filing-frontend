@@ -20,10 +20,11 @@ import pages.imports.*
 import scala.util.Success
 
 import controllers.actions.*
+import controllers.imports.routes as importRoutes
 import forms.imports.SadReferenceCheckFormProvider
 import models.requests.DataRequest
-import models.{Mode, NormalMode, Other}
-import navigation.{ImportNavigator, Navigator}
+import models.{CheckMode, Mode, NormalMode, Other}
+import navigation.Navigator
 import pages.imports.*
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -39,7 +40,6 @@ class SadReferenceCheckController @Inject() (
                                               override val messagesApi: MessagesApi,
                                               sessionRepository: SessionRepository,
                                               navigator: Navigator,
-                                              importNavigator: ImportNavigator,
                                               identify: IdentifierAction,
                                               getData: DataRetrievalAction,
                                               requireData: DataRequiredAction,
@@ -53,7 +53,15 @@ class SadReferenceCheckController @Inject() (
   val form: Form[Boolean] = formProvider()
 
   private def computeBackLink(mode: Mode)(implicit request: DataRequest[AnyContent]): Call =
-    importNavigator.backLinkFromSadReferenceCheckPage(mode)(request.userAnswers)
+    if (mode == CheckMode) importRoutes.CheckYourImportDetailsController.onPageLoad()
+    else
+      (request.userAnswers.get(ImportTypePage), request.userAnswers.get(ImportSubCodePage), request.userAnswers.get(ImportSubCategoryPage)) match {
+        case (Some(_), _, Some(_)) => importRoutes.ImportSubCategoryController.onPageLoad(NormalMode)
+        case (Some(Other), _, _) if request.userAnswers.get(DescribeItemsOnImportDocPage).isDefined =>
+          importRoutes.DescribeItemsOnImportDocController.onPageLoad(NormalMode)
+        case (Some(importType), Some(_), None) => importRoutes.ImportSubCodeController.onPageLoad(importType.toString, mode)
+        case _                                 => importRoutes.ImportTypeController.onPageLoad(NormalMode)
+      }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(SadReferenceCheckPage).fold(form)(form.fill)

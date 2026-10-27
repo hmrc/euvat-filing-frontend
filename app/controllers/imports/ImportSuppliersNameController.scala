@@ -17,10 +17,11 @@
 package controllers.imports
 
 import controllers.actions.*
+import controllers.imports.routes as importRoutes
 import forms.SuppliersNameFormProvider
-import models.{Mode, NormalMode}
+import models.{CheckMode, Mode, NormalMode}
 import models.requests.DataRequest
-import navigation.{ImportNavigator, Navigator}
+import navigation.Navigator
 import pages.imports.ImportSuppliersNamePage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -36,7 +37,6 @@ class ImportSuppliersNameController @Inject() (
                                                 override val messagesApi: MessagesApi,
                                                 sessionRepository: SessionRepository,
                                                 navigator: Navigator,
-                                                importNavigator: ImportNavigator,
                                                 identify: IdentifierAction,
                                                 getData: DataRetrievalAction,
                                                 requireData: DataRequiredAction,
@@ -52,7 +52,8 @@ class ImportSuppliersNameController @Inject() (
   private def formAction(mode: Mode): Call = routes.ImportSuppliersNameController.onSubmit(mode)
 
   private def backLink(mode: Mode)(implicit request: DataRequest[AnyContent]): Call =
-    importNavigator.backLinkFromImportSuppliersNamePage(mode)
+    if (mode == CheckMode) importRoutes.CheckYourImportDetailsController.onPageLoad()
+    else importRoutes.ImportDateController.onPageLoad(NormalMode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(ImportSuppliersNamePage).fold(form)(form.fill)

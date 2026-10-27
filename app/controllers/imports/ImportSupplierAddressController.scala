@@ -20,12 +20,12 @@ import controllers.imports.routes as importRoutes
 import config.FrontendAppConfig
 import controllers.actions.*
 import forms.imports.ImportSupplierAddressFormProvider
-import models.{Mode, NormalMode}
+import models.{CheckMode, Mode, NormalMode}
 import pages.imports.ImportSupplierAddressPage
 import play.api.i18n.I18nSupport
 import play.api.mvc.*
 import play.api.data.FormError
-import navigation.{ImportNavigator, Navigator}
+import navigation.Navigator
 import repositories.SessionRepository
 import views.html.imports.ImportSupplierAddressView
 
@@ -39,7 +39,6 @@ class ImportSupplierAddressController @Inject() (
                                                   formProvider: ImportSupplierAddressFormProvider,
                                                   sessionRepository: SessionRepository,
                                                   navigator: Navigator,
-                                                  importNavigator: ImportNavigator,
                                                   config: FrontendAppConfig,
                                                   val controllerComponents: MessagesControllerComponents,
                                                   view: ImportSupplierAddressView
@@ -50,7 +49,8 @@ class ImportSupplierAddressController @Inject() (
   private val form = formProvider()
 
   private def backLink(mode: Mode): Call =
-    importNavigator.backLinkFromImportSupplierAddressPage(mode)
+    if (mode == CheckMode) importRoutes.CheckYourImportDetailsController.onPageLoad()
+    else importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData) { implicit request =>
@@ -121,11 +121,11 @@ class ImportSupplierAddressController @Inject() (
           value =>
             for {
               updatedAnswers <- Future.fromTry(
-                                  request.userAnswers.set(
-                                    ImportSupplierAddressPage,
-                                    value
-                                  )
-                                )
+                request.userAnswers.set(
+                  ImportSupplierAddressPage,
+                  value
+                )
+              )
               _ <- sessionRepository.set(updatedAnswers)
             } yield Redirect(
               navigator.nextPage(

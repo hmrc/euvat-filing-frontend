@@ -21,16 +21,16 @@ import controllers.imports.routes
 import models.{CheckMode, Fuel, ImportSupplierAddress, Other, UserAnswers}
 import pages.claim.RefundingCountryPage
 import pages.imports.*
-import navigation.CheckYourImportDetailsNavigator
+import navigation.ImportMissingAnswersNavigator
 import play.api.Configuration
 import utils.{ConfigPurchaseOrImportMapping, CurrencyConfig}
 import java.time.LocalDate
 
-class CheckYourImportDetailsNavigatorSpec extends SpecBase {
+class ImportMissingAnswersNavigatorSpec extends SpecBase {
   private val config = new ConfigPurchaseOrImportMapping(Configuration(
     "purchase-or-import-mapping" -> Map("AT" -> Seq("fuel|1.1|sub.fuel.1", "fuel|1.1.1|sub.fuel.1.1"))
   ))
-  private val navigator = new CheckYourImportDetailsNavigator(new CurrencyConfig(Configuration(
+  private val navigator = new ImportMissingAnswersNavigator(new CurrencyConfig(Configuration(
     "currency.mapping" -> Map("AT" -> Seq("euro|EUR|€"), "EE" -> Seq("euro|EUR|€", "estonianKroon|EEK|kr"))
   )), config)
   private def complete: UserAnswers = emptyUserAnswers.set(RefundingCountryPage, "AT")
@@ -43,7 +43,7 @@ class CheckYourImportDetailsNavigatorSpec extends SpecBase {
     .flatMap(_.set(TotalVatPaidImportPage, BigDecimal(20)))
     .flatMap(_.set(ImportTotalVatClaimPage, BigDecimal(10))).success.value
 
-  "CheckYourImportDetailsNavigator" - {
+  "ImportMissingAnswersNavigator" - {
     "must accept optional address lines and a single implicit currency" in {
       navigator.firstMissingPage(complete) mustBe None
     }

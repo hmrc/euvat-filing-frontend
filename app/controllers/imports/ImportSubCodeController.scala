@@ -19,11 +19,12 @@ package controllers.imports
 import pages.imports.*
 
 import controllers.actions.*
+import controllers.imports.routes as importRoutes
 import forms.PurchaseOrImportSubTypeFormProvider
 import forms.imports.SadReferenceCheckFormProvider
 import models.requests.DataRequest
-import models.{Mode, NormalMode, PurchaseOrImportType, UserAnswers}
-import navigation.{ImportNavigator, Navigator}
+import models.{CheckMode, Mode, NormalMode, PurchaseOrImportType, UserAnswers}
+import navigation.Navigator
 import pages.imports.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -44,7 +45,6 @@ class ImportSubCodeController @Inject() (
                                           override val messagesApi: MessagesApi,
                                           sessionRepository: SessionRepository,
                                           navigator: Navigator,
-                                          importNavigator: ImportNavigator,
                                           identify: IdentifierAction,
                                           getData: DataRetrievalAction,
                                           requireData: DataRequiredAction,
@@ -86,7 +86,8 @@ class ImportSubCodeController @Inject() (
       messages(s"importSubCode.$importType.heading"),
       "import.caption",
       routes.ImportSubCodeController.onSubmit(importType.toString, mode),
-      importNavigator.backLinkFromImportSubCodePage(mode)
+      if (mode == CheckMode) importRoutes.CheckYourImportDetailsController.onPageLoad()
+      else importRoutes.ImportTypeController.onPageLoad(NormalMode)
     )
   }
 

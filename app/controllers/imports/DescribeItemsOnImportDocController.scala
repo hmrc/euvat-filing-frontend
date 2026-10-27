@@ -21,7 +21,7 @@ import controllers.actions.*
 import forms.DescribeItemsFormProvider
 import models.requests.DataRequest
 import models.*
-import navigation.{ImportNavigator, Navigator}
+import navigation.Navigator
 import pages.imports.{DescribeItemsOnImportDocPage, ImportSubCodePage, ImportTypePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -39,7 +39,6 @@ class DescribeItemsOnImportDocController @Inject() (
                                                      override val messagesApi: MessagesApi,
                                                      sessionRepository: SessionRepository,
                                                      navigator: Navigator,
-                                                     importNavigator: ImportNavigator,
                                                      identify: IdentifierAction,
                                                      getData: DataRetrievalAction,
                                                      requireData: DataRequiredAction,
@@ -56,7 +55,12 @@ class DescribeItemsOnImportDocController @Inject() (
   val form: Form[String] = formProvider(messagePrefix)
 
   private def backLink(answers: UserAnswers, mode: Mode): Call =
-    importNavigator.backLinkFromDescribeItemsOnImportDocPage(mode)(answers)
+    if (mode == CheckMode) importRoutes.CheckYourImportDetailsController.onPageLoad()
+    else
+      answers.get(ImportSubCodePage) match {
+        case Some(_) => importRoutes.ImportSubCodeController.onPageLoad(Other.toString, mode)
+        case None    => importRoutes.ImportTypeController.onPageLoad(NormalMode)
+      }
 
   private def submitCall(mode: Mode): Call = importRoutes.DescribeItemsOnImportDocController.onSubmit(mode)
 

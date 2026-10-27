@@ -17,11 +17,12 @@
 package controllers.imports
 
 import controllers.actions.*
+import controllers.imports.routes as importRoutes
 import forms.imports.ImportDetailsInfoFormProvider
 import models.requests.DataRequest
 import javax.inject.Inject
 import models.Mode
-import navigation.{ImportNavigator, Navigator}
+import navigation.Navigator
 import pages.imports.{ImportDetailsInfoPage, SadReferenceCheckPage, SadReferenceNumberPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -36,7 +37,6 @@ class ImportDetailsInfoController @Inject() (
                                               override val messagesApi: MessagesApi,
                                               sessionRepository: SessionRepository,
                                               navigator: Navigator,
-                                              importNavigator: ImportNavigator,
                                               identify: IdentifierAction,
                                               getData: DataRetrievalAction,
                                               requireData: DataRequiredAction,
@@ -50,7 +50,14 @@ class ImportDetailsInfoController @Inject() (
   val form: Form[String] = formProvider()
 
   private def backLink(mode: Mode)(implicit request: DataRequest[?]) =
-    importNavigator.backLinkFromImportDetailsInfoPage(mode)(request.userAnswers)
+    request.userAnswers.get(SadReferenceCheckPage) match {
+      case Some(true) =>
+        request.userAnswers.get(SadReferenceNumberPage) match {
+          case Some(_) => importRoutes.SadReferenceNumberController.onPageLoad(mode)
+          case None    => importRoutes.SadReferenceCheckController.onPageLoad(mode)
+        }
+      case _ => importRoutes.SadReferenceCheckController.onPageLoad(mode)
+    }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 

@@ -25,10 +25,10 @@ import utils.PurchaseOrImportHelpers.{allowedValues, isNoneSelection}
 
 import javax.inject.Inject
 
-class CheckYourImportDetailsNavigator @Inject()(
-                                                  currencyConfig: CurrencyConfig,
-                                                  config: ConfigPurchaseOrImportMapping
-                                                ) {
+class ImportMissingAnswersNavigator @Inject()(
+                                               currencyConfig: CurrencyConfig,
+                                               config: ConfigPurchaseOrImportMapping
+                                             ) {
 
   private def nonBlank(value: Option[String]): Boolean =
     value.exists(_.trim.nonEmpty)

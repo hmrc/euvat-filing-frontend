@@ -23,7 +23,7 @@ import controllers.actions.*
 import controllers.imports.routes as importRoutes
 import forms.imports.TotalAmountWithoutVatFormProvider
 import models.Mode
-import navigation.{ImportNavigator, Navigator}
+import navigation.Navigator
 import pages.imports.{SadReferenceCheckPage, SadReferenceNumberPage, TotalAmountWithoutVatPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -41,7 +41,6 @@ class TotalAmountWithoutVatController @Inject() (
                                                   override val messagesApi: MessagesApi,
                                                   sessionRepository: SessionRepository,
                                                   navigator: Navigator,
-                                                  importNavigator: ImportNavigator,
                                                   currencyConfig: CurrencyConfig,
                                                   identify: IdentifierAction,
                                                   getData: DataRetrievalAction,
@@ -56,7 +55,11 @@ class TotalAmountWithoutVatController @Inject() (
   val form: Form[BigDecimal] = formProvider()
 
   private def backLink(mode: Mode)(userAnswers: models.UserAnswers): Call =
-    importNavigator.backLinkFromTotalAmountWithoutVatPage(mode)(userAnswers)
+    CountryCode.findCountryCode(userAnswers) match {
+      case Some(country) if currencyConfig.requiresCurrencySelection(country) => importRoutes.ImportCurrencyController.onPageLoad(mode)
+        // TODO: Wire this to supplier address page when it is ready
+      case _ => importRoutes.ImportSuppliersNameController.onPageLoad(mode)
+    }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(TotalAmountWithoutVatPage).fold(form)(form.fill)

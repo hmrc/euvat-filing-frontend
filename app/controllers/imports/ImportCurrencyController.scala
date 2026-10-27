@@ -20,8 +20,8 @@ import controllers.actions.*
 import controllers.imports.routes as importRoutes
 import forms.RefundingCurrencyFormProvider
 import models.requests.DataRequest
-import models.{Mode, RefundingCurrency}
-import navigation.{ImportNavigator, Navigator}
+import models.{CheckMode, Mode, RefundingCurrency}
+import navigation.Navigator
 import pages.imports.*
 import play.api.Logger
 import play.api.data.Form
@@ -42,7 +42,6 @@ class ImportCurrencyController @Inject() (
                                            override val messagesApi: MessagesApi,
                                            sessionRepository: SessionRepository,
                                            navigator: Navigator,
-                                           importNavigator: ImportNavigator,
                                            identify: IdentifierAction,
                                            getData: DataRetrievalAction,
                                            requireData: DataRequiredAction,
@@ -118,6 +117,9 @@ class ImportCurrencyController @Inject() (
       routes.ImportCurrencyController.onSubmit(mode),
       messagePrefix,
       "import.caption",
-      Some(importNavigator.backLinkFromImportCurrencyPage(mode))
+      Some(
+        if (mode == CheckMode) importRoutes.CheckYourImportDetailsController.onPageLoad()
+        else importRoutes.ImportSuppliersNameController.onPageLoad(mode)
+      )
     )
 }

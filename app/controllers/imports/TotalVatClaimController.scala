@@ -17,9 +17,10 @@
 package controllers.imports
 
 import controllers.actions.*
+import controllers.imports.routes as importRoutes
 import forms.purchase.TotalVatClaimFormProvider
 import models.{Mode, UserAnswers}
-import navigation.{ImportNavigator, Navigator}
+import navigation.Navigator
 import pages.imports.{ImportTotalVatClaimPage, TotalVatPaidImportPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -38,7 +39,6 @@ class TotalVatClaimController @Inject() (
                                           override val messagesApi: MessagesApi,
                                           sessionRepository: SessionRepository,
                                           navigator: Navigator,
-                                          importNavigator: ImportNavigator,
                                           identify: IdentifierAction,
                                           getData: DataRetrievalAction,
                                           requireData: DataRequiredAction,
@@ -53,7 +53,7 @@ class TotalVatClaimController @Inject() (
   val form: Form[BigDecimal] = formProvider()
 
   private def backLink(mode: Mode): Call =
-    importNavigator.backLinkFromImportTotalVatClaimPage(mode)
+    importRoutes.TotalVatPaidImportController.onPageLoad(mode)
 
   private def formAction(mode: Mode): Call = routes.TotalVatClaimController.onSubmit(mode)
 

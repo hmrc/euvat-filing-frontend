@@ -17,10 +17,11 @@
 package controllers.imports
 
 import controllers.actions.*
+import controllers.imports.routes as importRoutes
 import forms.imports.ImportDateFormProvider
 import models.requests.DataRequest
 import models.{CheckMode, Mode, NormalMode}
-import navigation.{ImportNavigator, Navigator}
+import navigation.Navigator
 import pages.imports.{ImportDatePage, SadReferenceCheckPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -37,7 +38,6 @@ class ImportDateController @Inject() (
                                        override val messagesApi: MessagesApi,
                                        sessionRepository: SessionRepository,
                                        navigator: Navigator,
-                                       importNavigator: ImportNavigator,
                                        identify: IdentifierAction,
                                        getData: DataRetrievalAction,
                                        requireData: DataRequiredAction,
@@ -51,7 +51,14 @@ class ImportDateController @Inject() (
   private def form(implicit messages: Messages) = formProvider()
 
   private def backLink(mode: Mode)(implicit request: DataRequest[?]): Call =
-    importNavigator.backLinkFromImportDatePage(mode)(request.userAnswers)
+    mode match {
+      case CheckMode => importRoutes.CheckYourImportDetailsController.onPageLoad()
+      case NormalMode =>
+        request.userAnswers.get(SadReferenceCheckPage) match {
+          case Some(true) => importRoutes.SadReferenceNumberController.onPageLoad(NormalMode)
+          case _          => importRoutes.ImportDetailsInfoController.onPageLoad(NormalMode)
+        }
+    }
 
   private def formAction(mode: Mode): Call = routes.ImportDateController.onSubmit(mode)
 

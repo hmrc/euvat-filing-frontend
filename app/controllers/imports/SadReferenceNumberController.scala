@@ -17,9 +17,10 @@
 package controllers.imports
 
 import controllers.actions.*
+import controllers.imports.routes as importRoutes
 import forms.imports.SadReferenceNumberFormProvider
 import models.{Mode, NormalMode}
-import navigation.{ImportNavigator, Navigator}
+import navigation.Navigator
 import pages.imports.SadReferenceNumberPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -35,7 +36,6 @@ class SadReferenceNumberController @Inject() (
                                                override val messagesApi: MessagesApi,
                                                sessionRepository: SessionRepository,
                                                navigator: Navigator,
-                                               importNavigator: ImportNavigator,
                                                identify: IdentifierAction,
                                                getData: DataRetrievalAction,
                                                requireData: DataRequiredAction,
@@ -48,7 +48,7 @@ class SadReferenceNumberController @Inject() (
 
   val form: Form[String] = formProvider()
   private def backLink(mode: Mode): Call =
-    importNavigator.backLinkFromSadReferenceNumberPage(mode)
+    importRoutes.SadReferenceCheckController.onPageLoad(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(SadReferenceNumberPage).fold(form)(form.fill)
