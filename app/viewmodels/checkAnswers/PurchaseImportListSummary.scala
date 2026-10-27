@@ -38,7 +38,6 @@ object PurchaseImportListSummary {
         val itemNumber = item.itemNumber
         val vatClaim = item.deductibleVatAmount
         val category = PurchaseOrImportType.codeToType.getOrElse(item.goodsDescriptionCategory, "Unknown")
-
         val itemType = if (item.itemType == "P") { "Purchase" }
         else { "Import" }
 
@@ -46,12 +45,17 @@ object PurchaseImportListSummary {
           displaySummaryListRow(itemType, category)
         } else {
           val currencySymbol = ControllerHelpers.currencySymbolFromSession(userAnswers, config)
-          displaySummaryListRow(itemType, category, currencySymbol, vatClaim)
+          displaySummaryListRow(itemType, category, currencySymbol, vatClaim, false)
         }
       }
   }
 
-  private def displaySummaryListRow(itemType: String, category: String, currencySymbol: String = "", vatClaim: BigDecimal = 0)(implicit
+  private def displaySummaryListRow(itemType: String,
+                                    category: String,
+                                    currencySymbol: String = "",
+                                    vatClaim: BigDecimal = 0,
+                                    incomplete: Boolean = true
+                                   )(implicit
     messages: Messages
   ): SummaryListRow = {
     SummaryListRowViewModel(
@@ -82,4 +86,5 @@ object PurchaseImportListSummary {
       }
     )
   }
+
 }

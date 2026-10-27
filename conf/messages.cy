@@ -64,6 +64,7 @@ taskListDashboard.listItem5 = Submit claim
 taskListDashboard.status1 = Not yet started
 taskListDashboard.status2 = Cannot start yet
 taskListDashboard.status3 = Completed
+taskListDashboard.status4 = Incomplete
 taskListDashboard.dashboardLink = Return to claim an EU VAT refund
 taskListDashboard.deleteLink = Delete this claim
 
@@ -624,6 +625,13 @@ purchaseWarning.warning = If you submit a claim with inaccurate information, it 
 purchaseWarning.correct = Yes, this is correct
 purchaseWarning.backLink = No, change details
 
+importDetailsWarning.title = Are you sure the import document information is correct?
+importDetailsWarning.heading = Are you sure the import document information is correct?
+importDetailsWarning.paragraph = You’ve already added an import using import document information. You can only do this once for each claim. Enter a Single Administrative Document (SAD) reference number instead.
+importDetailsWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
+importDetailsWarning.button = Yes, this is correct
+importDetailsWarning.link = No, add a new SAD reference number
+
 supplierVrnWarning.title = Are you sure the supplier’s VAT registration number is correct?
 supplierVrnWarning.heading = Are you sure the supplier’s VAT registration number is correct?
 supplierVrnWarning.p = You’ve already made a claim with the same supplier’s VAT registration number and invoice number. Use a different supplier’s VAT registration number or invoice number for this claim.
@@ -653,3 +661,10 @@ vatClaimWarning.p = You’ve told us the amount of VAT you’re claiming is {0}.
 vatClaimWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
 vatClaimWarning.yes = Yes, this is correct
 vatClaimWarning.no = No, change the VAT claim amount
+
+sadReferenceNumberWarning.title = Are you sure the Single Administrative Document (SAD) reference number is correct?
+sadReferenceNumberWarning.heading = Are you sure the Single Administrative Document (SAD) reference number is correct?
+sadReferenceNumberWarning.p = You’ve already added an import with the same SAD reference number. Use a different SAD reference number for this import.
+sadReferenceNumberWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
+sadReferenceNumberWarning.correct = Yes, this is correct
+sadReferenceNumberWarning.backLink = No, change SAD reference number

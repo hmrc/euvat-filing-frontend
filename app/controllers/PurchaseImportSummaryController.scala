@@ -55,6 +55,7 @@ class PurchaseImportSummaryController @Inject() (
     with I18nSupport {
 
   val form: Form[Boolean] = formProvider()
+  private var hasIncompleteRows: Boolean = false
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     val preparedForm = request.userAnswers.get(PurchaseImportSummaryPage).fold(form)(form.fill)
@@ -79,6 +80,7 @@ class PurchaseImportSummaryController @Inject() (
         .getPurchaseImportList(PurchaseImportListRequest(applicationId))
         .map { summaryResponse =>
           val summaryListRows = PurchaseImportListSummary.rows(userAnswers, summaryResponse.purchaseImportList, currencyConfig.currencyConfig)
+          hasIncompleteRows = summaryListRows.exists(row => row.value.content.asHtml.body.contains("Incomplete"))
           val page = view(formToRender, summaryListRows, summaryResponse.totalItems, summaryResponse.totalVatClaims)
           if (badRequest) BadRequest(page) else Ok(page)
         }
@@ -94,7 +96,7 @@ class PurchaseImportSummaryController @Inject() (
         if (value) {
           Future.successful(Redirect(routes.PurchaseOrImportController.onPageLoad))
         } else {
-          Future.successful(Redirect(routes.TaskListDashboardController.onPageLoad()))
+          Future.successful(Redirect(routes.TaskListDashboardController.onPageLoad(hasIncompleteRows)))
         }
     } yield result
   }

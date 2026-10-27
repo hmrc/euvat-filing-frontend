@@ -119,4 +119,17 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
       .execute[HttpResponse]
   }
 
+  def addImport(request: AddImportRequest)(implicit hc: HeaderCarrier): Future[AddImportResponse] =
+    http
+      .post(url"$euVatRefundsBaseUrl/add-import")
+      .withBody(Json.toJson(request))
+      .execute[AddImportResponse]
+
+  def getSadReferenceCount(request: SadReferenceCountRequest)(implicit hc: HeaderCarrier): Future[SadReferenceCountResponse] = {
+    http
+      .post(url"$euVatRefundsBaseUrl/get-sad-reference-count")
+      .withBody(Json.toJson(request))
+      .execute[SadReferenceCountResponse]
+  }
+
 }

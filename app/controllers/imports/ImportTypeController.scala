@@ -27,6 +27,7 @@ import forms.ImportTypeFormProvider
 import models.requests.{AddImportRequest, DataRequest}
 import models.{CheckMode, Mode, NormalMode, PurchaseOrImportType, UserAnswers}
 import navigation.Navigator
+import pages.AddImportResponsePage
 import pages.imports.ImportTypePage
 import play.api.Logging
 import play.api.data.Form
