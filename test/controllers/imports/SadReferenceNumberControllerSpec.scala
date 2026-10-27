@@ -194,8 +194,7 @@ class SadReferenceNumberControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
-        // TODO update import check your answer
-        redirectLocation(result).value mustEqual routes.ImportDateController.onPageLoad(CheckMode).url
+        redirectLocation(result).value mustEqual routes.CheckYourImportDetailsController.onPageLoad().url
       }
     }
 
