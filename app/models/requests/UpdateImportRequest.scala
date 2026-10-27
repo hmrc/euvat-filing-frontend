@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.euvatrefunds.models.requests
+package models.requests
 
 import play.api.libs.json.{Json, OFormat}
 
