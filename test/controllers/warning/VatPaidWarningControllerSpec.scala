@@ -22,7 +22,7 @@ import controllers.purchase
 import controllers.warning
 import models.{CheckMode, NormalMode, PurchaseOrImport}
 import pages.PurchaseOrImportPage
-import pages.imports.{TotalAmountWithoutVatPage, TotalVatPaidImportPage}
+import pages.imports.{ImportVatPaidChangedPage, TotalAmountWithoutVatPage, TotalVatPaidImportPage}
 import pages.purchase.{TotalPurchaseAmountBeforeVatPage, TotalVatPaidPage}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -122,7 +122,11 @@ class VatPaidWarningControllerSpec extends SpecBase {
     }
 
     "must redirect to next page on submit for Import in NormalMode" in {
-      val userAnswers = emptyUserAnswers.set(PurchaseOrImportPage, PurchaseOrImport.Import).success.value
+      val userAnswers = emptyUserAnswers
+        .set(PurchaseOrImportPage, PurchaseOrImport.Import)
+        .flatMap(_.set(TotalVatPaidImportPage, BigDecimal(100)))
+        .success
+        .value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -146,7 +150,12 @@ class VatPaidWarningControllerSpec extends SpecBase {
     }
 
     "must redirect to next page on submit for Import in CheckMode" in {
-      val userAnswers = emptyUserAnswers.set(PurchaseOrImportPage, PurchaseOrImport.Import).success.value
+      val userAnswers = emptyUserAnswers
+        .set(PurchaseOrImportPage, PurchaseOrImport.Import)
+        .flatMap(_.set(TotalVatPaidImportPage, BigDecimal(100)))
+        .flatMap(_.set(ImportVatPaidChangedPage, true))
+        .success
+        .value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
