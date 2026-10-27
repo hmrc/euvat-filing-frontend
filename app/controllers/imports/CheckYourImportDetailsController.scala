@@ -21,8 +21,7 @@ import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierA
 import models.requests.{DataRequest, UpdateImportRequest}
 import models.responses.AddImportResponse
 import models.{NormalMode, PurchaseOrImportType, UserAnswers}
-import navigation.ImportNavigator
-import pages.PurchaseImportSummaryPage
+import pages.{AddImportResponsePage, PurchaseImportSummaryPage}
 import pages.imports.*
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -50,41 +49,24 @@ class CheckYourImportDetailsController @Inject()(
                                                   currencyConfig: CurrencyConfig,
                                                   appConfig: FrontendAppConfig,
                                                   sessionRepository: SessionRepository,
-                                                  importNavigator: ImportNavigator,
                                                   euVatRefundsService: EuVatRefundsService
                                                 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    val answers = request.userAnswers
-    val reset = if (answers.get(ImportMissingAnswersJourneyPage).contains(true)) {
-      for {
-        updated <- Future.fromTry(answers.remove(ImportMissingAnswersJourneyPage))
-        _ <- sessionRepository.set(updated)
-      } yield updated
-    } else Future.successful(answers)
-
-    reset.map { updated =>
-      Ok(view(
-        CheckYourImportDetailsSummary.sections(updated, configPurchaseOrImportMapping, currencyConfig, appConfig.supplierCountries),
-        routes.CheckYourImportDetailsController.onSubmit(),
-        routes.TotalVatClaimController.onPageLoad(NormalMode)
-      ))
-    }
+  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+    Ok(view(
+      CheckYourImportDetailsSummary.sections(request.userAnswers, configPurchaseOrImportMapping, currencyConfig, appConfig.supplierCountries),
+      routes.CheckYourImportDetailsController.onSubmit(),
+      routes.TotalVatClaimController.onPageLoad(NormalMode)
+    ))
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    for {
-      flagged <- Future.fromTry(request.userAnswers.set(ImportMissingAnswersJourneyPage, true))
-      _       <- sessionRepository.set(flagged)
-      result  <- importNavigator.firstMissingImportPage(flagged) match {
-        case Some(missingPage) => Future.successful(Redirect(missingPage))
-        case None              => saveImport(flagged)
-      }
-    } yield result
+    saveImport(request.userAnswers)
   }
 
-  /** Everything is answered: send the import details to euvat-refunds (update-importation-details), keep the new
-   * updateSequenceNumber and go to the purchases and imports summary.
+  /** Send the import details to euvat-refunds (update-importation-details), keep the new updateSequenceNumber and go to
+   * the purchases and imports summary. Like purchase, answers that are not given are sent as None; handling missing answers
+   * is done later.
    */
   private def saveImport(answers: UserAnswers)(implicit request: DataRequest[?]): Future[Result] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
@@ -97,8 +79,7 @@ class CheckYourImportDetailsController @Inject()(
             for {
               withResponse <- Future.fromTry(answers.set(AddImportResponsePage, addResponse.copy(updateSequenceNumber = response.updateSequenceNumber)))
               withSequence <- Future.fromTry(withResponse.set(UpdateSequenceNumberQuery, response.updateSequenceNumber))
-              withoutList  <- Future.fromTry(withSequence.remove(PurchaseImportSummaryPage))
-              completed    <- Future.fromTry(withoutList.remove(ImportMissingAnswersJourneyPage))
+              completed    <- Future.fromTry(withSequence.remove(PurchaseImportSummaryPage))
               _            <- sessionRepository.set(completed)
             } yield Redirect(controllers.routes.PurchaseImportSummaryController.onPageLoad)
           }
@@ -144,7 +125,7 @@ class CheckYourImportDetailsController @Inject()(
       goodsDescriptionCategory    = PurchaseOrImportType.codes(importType),
       goodsDescriptionSubCategory = subCategory,
       goodsDescriptionText        = real(answers.get(DescribeItemsOnImportDocPage)),
-      hasSadReferenceNumber       = hasSad.map(answer => if (answer) "Y" else "N"),
+      hasSadReferenceNumber       = hasSad,
       sadReferenceNumber          = if (hasSad.contains(true)) real(answers.get(SadReferenceNumberPage)) else None,
       referenceInformation        = if (hasSad.contains(false)) real(answers.get(ImportDetailsInfoPage)) else None,
       supplierName                = answers.get(ImportSuppliersNamePage),

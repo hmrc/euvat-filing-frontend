@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package models.requests
+package uk.gov.hmrc.euvatrefunds.models.requests
 
 import play.api.libs.json.{Json, OFormat}
 
@@ -26,7 +26,7 @@ case class UpdateImportRequest(
                                 goodsDescriptionCategory: String,
                                 goodsDescriptionSubCategory: Option[String],
                                 goodsDescriptionText: Option[String],
-                                hasSadReferenceNumber: Option[String],
+                                hasSadReferenceNumber: Option[Boolean],
                                 sadReferenceNumber: Option[String],
                                 referenceInformation: Option[String],
                                 supplierName: Option[String],

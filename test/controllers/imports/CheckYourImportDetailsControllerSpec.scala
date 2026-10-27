@@ -118,7 +118,7 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
       }
     }
 
-    "must not save answers on GET when the missing-answer journey is inactive" in {
+    "must not save answers on GET" in {
       val repository = mock[SessionRepository]
       val application = buildApplication(Some(completeAnswers), repository)
 
@@ -131,36 +131,6 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
         status(result) mustBe OK
 
         verify(repository, never()).set(any[UserAnswers]())
-      }
-    }
-
-    "must clear and save the missing-answer journey flag on GET" in {
-      val repository = mock[SessionRepository]
-      val answers = completeAnswers
-        .set(ImportMissingAnswersJourneyPage, true)
-        .success
-        .value
-
-      val application = buildApplication(Some(answers), repository)
-
-      running(application) {
-        val request =
-          FakeRequest(GET, routes.CheckYourImportDetailsController.onPageLoad().url)
-
-        val result = route(application, request).value
-
-        status(result) mustBe OK
-
-        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
-        verify(repository).set(captor.capture())
-
-        val savedAnswers = captor.getValue
-
-        savedAnswers.get(ImportMissingAnswersJourneyPage) mustBe None
-        savedAnswers.get(ImportSuppliersNamePage) mustBe
-          answers.get(ImportSuppliersNamePage)
-        savedAnswers.get(ImportTotalVatClaimPage) mustBe
-          answers.get(ImportTotalVatClaimPage)
       }
     }
 
@@ -212,34 +182,18 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
       }
     }
 
-    "must save the recovery flag and redirect to the earliest missing page on POST" in {
+    "must redirect to Journey Recovery on POST when add-import has not created the item" in {
       val repository = mock[SessionRepository]
-      val answers = completeAnswers
-        .remove(ImportSuppliersNamePage)
-        .flatMap(_.remove(ImportTotalVatClaimPage))
-        .success
-        .value
-
-      val application = buildApplication(Some(answers), repository)
+      val application = buildApplication(Some(completeAnswers), repository)
 
       running(application) {
-        val request =
-          FakeRequest(POST, routes.CheckYourImportDetailsController.onSubmit().url)
-
-        val result = route(application, request).value
+        val result = route(application, FakeRequest(POST, routes.CheckYourImportDetailsController.onSubmit().url)).value
 
         status(result) mustBe SEE_OTHER
-        redirectLocation(result).value mustBe
-          routes.ImportSuppliersNameController.onPageLoad(CheckMode).url
-
-        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
-        verify(repository).set(captor.capture())
-
-        captor.getValue.get(ImportMissingAnswersJourneyPage) mustBe Some(true)
-        captor.getValue.get(ImportSuppliersNamePage) mustBe None
-        captor.getValue.get(ImportTotalVatClaimPage) mustBe None
+        redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
 
         verify(mockEuVatRefundsService, never()).updateImport(any())(any())
+        verify(repository, never()).set(any[UserAnswers]())
       }
     }
 
@@ -263,7 +217,7 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
           goodsDescriptionCategory    = "10",
           goodsDescriptionSubCategory = None,
           goodsDescriptionText        = Some("Imported equipment"),
-          hasSadReferenceNumber       = Some("Y"),
+          hasSadReferenceNumber       = Some(true),
           sadReferenceNumber          = Some("SAD123"),
           referenceInformation        = None,
           supplierName                = Some("Example Supplier"),
@@ -280,11 +234,10 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
         )
 
         val answersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
-        verify(repository, times(2)).set(answersCaptor.capture())
-        val saved = answersCaptor.getAllValues.get(1)
+        verify(repository, times(1)).set(answersCaptor.capture())
+        val saved = answersCaptor.getValue
         saved.get(AddImportResponsePage) mustBe Some(AddImportResponse(itemNumber = 4, updateSequenceNumber = 3))
         saved.get(UpdateSequenceNumberQuery) mustBe Some(3)
-        saved.get(ImportMissingAnswersJourneyPage) mustBe None
       }
     }
 
@@ -319,7 +272,7 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
 
         val requestCaptor = ArgumentCaptor.forClass(classOf[UpdateImportRequest])
         verify(mockEuVatRefundsService).updateImport(requestCaptor.capture())(any())
-        requestCaptor.getValue.hasSadReferenceNumber mustBe Some("N")
+        requestCaptor.getValue.hasSadReferenceNumber mustBe Some(false)
         requestCaptor.getValue.sadReferenceNumber mustBe None
         requestCaptor.getValue.referenceInformation mustBe Some("Document 123")
       }
@@ -351,10 +304,8 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
         status(result) mustBe SEE_OTHER
         redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
 
-        // only the missing-answers flag was saved; the sequence number and item response are untouched
-        val answersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
-        verify(repository, times(1)).set(answersCaptor.capture())
-        answersCaptor.getValue.get(AddImportResponsePage) mustBe Some(AddImportResponse(4, 2))
+        // nothing is saved when the backend call fails, so the sequence number and item response are untouched
+        verify(repository, never()).set(any[UserAnswers]())
       }
     }
 

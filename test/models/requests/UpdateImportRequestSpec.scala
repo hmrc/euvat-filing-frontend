@@ -30,7 +30,7 @@ class UpdateImportRequestSpec extends AnyFreeSpec with Matchers {
     goodsDescriptionCategory    = "10",
     goodsDescriptionSubCategory = Some("10.4.1"),
     goodsDescriptionText        = Some("Equipment"),
-    hasSadReferenceNumber       = Some("Y"),
+    hasSadReferenceNumber       = Some(true),
     sadReferenceNumber          = Some("SAD123456789"),
     referenceInformation        = None,
     supplierName                = Some("Finnish International"),

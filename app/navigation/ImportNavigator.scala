@@ -28,12 +28,6 @@ import javax.inject.{Inject, Singleton}
 class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseOrImportMapping: ConfigPurchaseOrImportMapping) {
   private def cya: Call = importsRoutes.CheckYourImportDetailsController.onPageLoad()
   private def recovery: Call = controllers.routes.JourneyRecoveryController.onPageLoad()
-  private lazy val missingAnswers = new ImportMissingAnswersNavigator(currencyConfig, configPurchaseOrImportMapping)
-
-  // Used only by import CheckMode routes; purchase and claim navigation are unaffected.
-  def continueImportEdit(answers: UserAnswers)(ordinary: => Call): Call =
-    if (answers.get(ImportMissingAnswersJourneyPage).contains(true)) missingAnswers.firstMissingPage(answers).getOrElse(cya)
-    else ordinary
 
   def navigateFromImportTypePage(mode: Mode)(answers: UserAnswers): Call =
     (answers.get(ImportTypePage), CountryCode.findCountryCode(answers)) match {
@@ -98,10 +92,4 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
 
   def navigateFromImportTotalVatClaimPage(mode: Mode)(answers: UserAnswers): Call =
     if (answers.get(ImportTotalVatClaimPage).isDefined) cya else recovery
-
-  def navigateFromCheckYourImportDetails(answers: UserAnswers): Call =
-    missingAnswers.navigateFromCheckYourImportDetails(answers)
-
-  def firstMissingImportPage(answers: UserAnswers): Option[Call] =
-    missingAnswers.firstMissingPage(answers)
 }

@@ -20,10 +20,10 @@ import controllers.actions.*
 import forms.PurchaseOrImportFormProvider
 import models.{NormalMode, PurchaseOrImport, UserAnswers}
 import navigation.Navigator
-import pages.PurchaseOrImportPage
+import pages.{AddImportResponsePage, PurchaseOrImportPage}
 import pages.imports.{
-  AddImportResponsePage, DescribeItemsOnImportDocPage, ImportAmountWithoutVatChangedPage, ImportCurrencyChangedPage, ImportCurrencyPage, ImportDatePage,
-  ImportDetailsInfoPage, ImportMissingAnswersJourneyPage, ImportSadChangedPage, ImportSubCategoryPage, ImportSubCodePage, ImportSupplierAddressPage,
+  DescribeItemsOnImportDocPage, ImportAmountWithoutVatChangedPage, ImportCurrencyChangedPage, ImportCurrencyPage, ImportDatePage,
+  ImportDetailsInfoPage, ImportSadChangedPage, ImportSubCategoryPage, ImportSubCodePage, ImportSupplierAddressPage,
   ImportSuppliersNamePage, ImportTotalVatClaimPage, ImportTypeChangedPage, ImportTypePage, SadReferenceCheckPage, SadReferenceNumberPage,
   TotalAmountWithoutVatPage, TotalVatPaidImportPage
 }
@@ -123,7 +123,6 @@ class PurchaseOrImportController @Inject() (
     TotalVatPaidImportPage,
     ImportTotalVatClaimPage,
     AddImportResponsePage,
-    ImportMissingAnswersJourneyPage,
     ImportTypeChangedPage,
     ImportSadChangedPage,
     ImportCurrencyChangedPage,
