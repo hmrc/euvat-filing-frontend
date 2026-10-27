@@ -89,10 +89,10 @@ class TaskListViewModel @Inject() {
                                      notStartedStatus: TaskListItemStatus,
                                      completedStatus: TaskListItemStatus
                                     ): TaskListItem = {
-    val inCompleteItems = answers.get(PurchaseImportSummaryIncompleteQuery).getOrElse(false)
+    val inCompleteRows = answers.get(PurchaseImportSummaryIncompleteQuery).getOrElse(false)
     TaskListItem(
       title = TaskListItemTitle(content = Text(messages("taskListDashboard.listItem2"))),
-      hint = if (inCompleteItems) {
+      hint = if (inCompleteRows) {
         Some(Hint(content = Text("You must add details to the incomplete items or remove them to submit this claim")))
       } else { None },
       status = if (claimDetailsDone) {
@@ -105,7 +105,7 @@ class TaskListViewModel @Inject() {
           )
         )
         answers.get(PurchaseImportSummaryPage) match {
-          case Some(false) => if (inCompleteItems) inCompleteStatus else completedStatus
+          case Some(false) => if (inCompleteRows) inCompleteStatus else completedStatus
           case _           => notStartedStatus
         }
       } else { cannotStartStatus },
