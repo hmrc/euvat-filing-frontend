@@ -33,7 +33,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import utils.ControllerHelpers.setIfPresent
-import utils.{ConfigPurchaseOrImportMapping, CountryCode, CurrencyConfig}
+import utils.{ConfigPurchaseOrImportMapping, CountryCode, CurrencyConfig, PurchaseOrImportHelpers}
 import viewmodels.checkAnswers.CheckYourPurchaseDetailsSummary
 import views.html.purchase.CheckYourPurchaseDetailsView
 
@@ -119,7 +119,9 @@ class CheckYourPurchaseDetailsController @Inject() (
     var answers = Future.successful(userAnswers)
     answers = removeAnswer(answers, PurchaseTypePage)
     answers = removeAnswer(answers, PurchaseSubTypePage)
+    answers = removeAnswer(answers, PurchaseSubTypeLabelPage)
     answers = removeAnswer(answers, PurchaseSubCategoryPage)
+    answers = removeAnswer(answers, PurchaseSubCategoryLabelPage)
     answers = removeAnswer(answers, DescribeItemsOnInvoicePage)
     answers = removeAnswer(answers, InvoiceTypePage)
     answers = removeAnswer(answers, InvoiceNumberPage)
@@ -139,6 +141,45 @@ class CheckYourPurchaseDetailsController @Inject() (
 
   private def removeAnswer[A](answers: Future[UserAnswers], page: Settable[A]): Future[UserAnswers] =
     answers.flatMap(userAnswers => Future.fromTry(userAnswers.remove(page)))
+
+  private def restorePurchaseCategoryAnswers(
+    answers: UserAnswers,
+    purchaseType: Option[models.PurchaseOrImportType],
+    subCode: Option[String],
+    country: Option[String]
+  )(implicit messages: Messages): scala.util.Try[UserAnswers] =
+    (purchaseType, subCode, country) match {
+      case (Some(parent), Some(selectedCode), Some(countryCode)) =>
+        val parentKey = parent.toString
+        val subtypes = configPurchaseMapping.subcodesFor(countryCode, parentKey)
+        val matchingParent = subtypes
+          .filter { case (code, _) => selectedCode == code || selectedCode.startsWith(s"$code.") }
+          .maxByOption(_._1.length)
+
+        matchingParent match {
+          case Some((parentCode, _)) =>
+            val subtypeLabel = PurchaseOrImportHelpers.labelFor(parentCode, subtypes)
+            val withSubtype = answers
+              .set(PurchaseSubTypePage, parentCode)
+              .flatMap(_.set(PurchaseSubTypeLabelPage, subtypeLabel))
+
+            val category = configPurchaseMapping
+              .subcategoriesFor(countryCode, parentKey, parentCode)
+              .find(_._1 == selectedCode)
+
+            category match {
+              case Some((categoryCode, _)) =>
+                val categoryOptions = configPurchaseMapping.subcategoriesFor(countryCode, parentKey, parentCode)
+                val categoryLabel = PurchaseOrImportHelpers.labelFor(categoryCode, categoryOptions)
+                withSubtype.flatMap(_.set(PurchaseSubCategoryPage, categoryCode)).flatMap(_.set(PurchaseSubCategoryLabelPage, categoryLabel))
+              case None => withSubtype
+            }
+
+          case None => answers.set(PurchaseSubTypePage, selectedCode)
+        }
+
+      case _ => scala.util.Try(answers)
+    }
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     implicit val msgs: Messages = messagesApi.preferred(request)
@@ -303,7 +344,11 @@ class CheckYourPurchaseDetailsController @Inject() (
                 var f: Future[UserAnswers] = Future.successful(clearedAnswers)
 
                 f = setIfPresent(f, purchaseTypeOpt, PurchaseTypePage)
-                f = setIfPresent(f, resp.goodsDescriptionSubCode, PurchaseSubTypePage)
+                f = f.flatMap(ua =>
+                  Future.fromTry(
+                    restorePurchaseCategoryAnswers(ua, purchaseTypeOpt, resp.goodsDescriptionSubCode, countryCodeOpt)
+                  )
+                )
                 f = setIfPresent(f, resp.goodsDescriptionText, DescribeItemsOnInvoicePage)
                 f = setIfPresent(f, invoiceTypeOpt, InvoiceTypePage)
                 f = setIfPresent(f, resp.invoiceNumber, InvoiceNumberPage)

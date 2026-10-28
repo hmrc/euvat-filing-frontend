@@ -640,13 +640,13 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
       }
     }
 
-    "changeYourAnswers should fetch, map and persist purchase details when not already cached" in {
+    "changeYourAnswers should restore and display purchase subcategory for a nested response code" in {
       val savedCaptor: ArgumentCaptor[models.UserAnswers] = ArgumentCaptor.forClass(classOf[models.UserAnswers])
       when(mockSessionRepository.set(savedCaptor.capture())) thenReturn Future.successful(true)
 
       val purchaseDetail = PurchaseDetailResponse(
         goodsDescriptionCode       = Some("1"),
-        goodsDescriptionSubCode    = Some("1.2"),
+        goodsDescriptionSubCode    = Some("1.2.6"),
         goodsDescriptionText       = Some("Fuel purchase"),
         simplifiedInvoiceIndicator = Some("false"),
         supplierName               = Some("Supplier Ltd"),
@@ -667,7 +667,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
         .thenReturn(Future.successful(purchaseDetail))
 
       val ua = emptyUserAnswers
-        .set(RefundingCountryPage, "FR")
+        .set(RefundingCountryPage, "AT")
         .success
         .value
         .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber = 7, updateSequenceNumber = 11))
@@ -681,12 +681,18 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
       running(application) {
         val request = FakeRequest(GET, controllers.purchase.routes.CheckYourPurchaseDetailsController.changeYourAnswers(123L, 7).url)
         val result = route(application, request).value
+        val body = contentAsString(result)
 
         status(result) mustEqual OK
 
         val saved = savedCaptor.getValue
         saved.get(PurchaseTypePage) mustBe Some(Fuel)
         saved.get(PurchaseSubTypePage) mustBe Some("1.2")
+        saved.get(PurchaseSubTypeLabelPage) mustBe defined
+        saved.get(PurchaseSubCategoryPage) mustBe Some("1.2.6")
+        saved.get(PurchaseSubCategoryLabelPage) mustBe Some("Passenger car (PKW)")
+        body must include(messages(application)("purchase.subCategory.fuel-type-or-vehicle"))
+        body must include("Passenger car (PKW)")
         saved.get(DescribeItemsOnInvoicePage) mustBe Some("Fuel purchase")
         saved.get(InvoiceTypePage) mustBe Some(InvoiceType.SimplifiedInvoice)
         saved.get(SupplierVatRegCheckPage) mustBe Some(false)
