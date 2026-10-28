@@ -595,6 +595,15 @@ beforeYouStartBankDetails.paragraph1 = You need to provide international bank ac
 beforeYouStartBankDetails.paragraph2 = You can find details on your bank statement or contact your bank directly.
 beforeYouStartBankDetails.paragraph3 = You must keep your bank details up to date to make sure you receive any refund you are owed.
 
+accountHolder.title = Who is the account holder?
+accountHolder.heading = Who is the account holder?
+accountHolder.applicant = Applicant (you)
+accountHolder.thirdParty = Third party (someone else)
+accountHolder.thirdParty.hint = The refunding country may need letters of authority or power of attorney
+accountHolder.checkYourAnswersLabel = Account holder
+accountHolder.error.required = Select the account holder
+accountHolder.change.hidden = account holder
+
 # Warning messages
 refundPeriodStartDateWarning.title = Are you sure the refund period start date is correct?
 refundPeriodStartDateWarning.heading = Are you sure the refund period start date is correct?
