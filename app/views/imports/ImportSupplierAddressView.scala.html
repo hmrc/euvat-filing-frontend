@@ -36,7 +36,8 @@
 @layout(pageTitle = views.ViewUtils.title(form, "supplierAddress.title"),backLinkUrl = Some(call.url)) {
   @formHelper(
     action = controllers.imports.routes.ImportSupplierAddressController.onSubmit(mode),
-    Symbol("novalidate") -> "novalidate"
+    Symbol("novalidate") -> "novalidate",
+    Symbol("autoComplete") -> "off"
   ) {
     @mainErrorSummary(
       form,
@@ -107,6 +108,7 @@
                 },
           attributes = Map(
             "data-ac-typed" -> "#countryTyped",
+            "autoComplete" -> "off",
             "data-ac-input-classes" -> "govuk-input govuk-!-width-full"
           ),
           errorMessage = form.error("country").map { error =>
