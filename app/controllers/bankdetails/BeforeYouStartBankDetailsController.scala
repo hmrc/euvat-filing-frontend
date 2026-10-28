@@ -30,15 +30,15 @@ import views.html.bankdetails.BeforeYouStartBankDetailsView
 import scala.concurrent.{ExecutionContext, Future}
 
 class BeforeYouStartBankDetailsController @Inject() (
-                                                      override val messagesApi: MessagesApi,
-                                                      sessionRepository: SessionRepository,
-                                                      identify: IdentifierAction,
-                                                      getData: DataRetrievalAction,
-                                                      requireData: DataRequiredAction,
-                                                      val controllerComponents: MessagesControllerComponents,
-                                                      view: BeforeYouStartBankDetailsView
-                                                    )(implicit ec: ExecutionContext)
-  extends FrontendBaseController
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  val controllerComponents: MessagesControllerComponents,
+  view: BeforeYouStartBankDetailsView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
     with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>

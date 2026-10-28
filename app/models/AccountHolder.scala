@@ -24,23 +24,23 @@ sealed trait AccountHolder
 
 object AccountHolder extends Enumerable.Implicits {
 
-  case object Applicant extends WithName("applicant") with AccountHolder
+  case object Applicant  extends WithName("applicant") with AccountHolder
   case object ThirdParty extends WithName("thirdParty") with AccountHolder
 
   val values: Seq[AccountHolder] = Seq(
-    Applicant, ThirdParty
+    Applicant,
+    ThirdParty
   )
 
-  def options(implicit messages: Messages): Seq[RadioItem] = values.zipWithIndex.map {
-    case (value, index) =>
-      RadioItem(
-        content = Text(messages(s"accountHolder.${value.toString}")),
-        value   = Some(value.toString),
-        id      = Some(s"value_$index"),
-        hint    = if (value == ThirdParty) Some(Hint(content = Text(messages("accountHolder.thirdParty.hint")))) else None
-      )
+  def options(implicit messages: Messages): Seq[RadioItem] = values.zipWithIndex.map { case (value, index) =>
+    RadioItem(
+      content = Text(messages(s"accountHolder.${value.toString}")),
+      value   = Some(value.toString),
+      id      = Some(s"value_$index"),
+      hint    = if (value == ThirdParty) Some(Hint(content = Text(messages("accountHolder.thirdParty.hint")))) else None
+    )
   }
 
   implicit val enumerable: Enumerable[AccountHolder] =
-    Enumerable(values.map(v => v.toString -> v): _*)
+    Enumerable(values.map(v => v.toString -> v)*)
 }
