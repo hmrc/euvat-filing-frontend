@@ -17,7 +17,6 @@
 package controllers
 
 import controllers.actions.*
-import models.NormalMode
 import pages.PurchaseOrImportPage
 
 import javax.inject.Inject

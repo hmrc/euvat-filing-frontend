@@ -1,0 +1,2 @@
+GET         /before-you-start                     controllers.bankdetails.BeforeYouStartBankDetailsController.onPageLoad()
+POST        /before-you-start                     controllers.bankdetails.BeforeYouStartBankDetailsController.onSubmit()
