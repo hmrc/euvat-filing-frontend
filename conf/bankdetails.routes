@@ -1,2 +1,7 @@
 GET         /before-you-start                     controllers.bankdetails.BeforeYouStartBankDetailsController.onPageLoad()
 POST        /before-you-start                     controllers.bankdetails.BeforeYouStartBankDetailsController.onSubmit()
+
+GET         /account-holder                       controllers.bankdetails.AccountHolderController.onPageLoad(mode: Mode = NormalMode)
+POST        /account-holder                       controllers.bankdetails.AccountHolderController.onSubmit(mode: Mode = NormalMode)
+GET         /change-account-holder                controllers.bankdetails.AccountHolderController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-account-holder                controllers.bankdetails.AccountHolderController.onSubmit(mode: Mode = CheckMode)
