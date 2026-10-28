@@ -26,7 +26,7 @@ import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import queries.ClaimApplicationResponseQuery
+import queries.{ClaimApplicationResponseQuery, PurchaseImportSummaryIncompleteQuery}
 import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -89,14 +89,15 @@ class PurchaseImportSummaryController @Inject() (
 
   private def saveAndRedirect(value: Boolean)(implicit request: DataRequest[AnyContent]): Future[Result] = {
     for {
-      answersWithSummary <- Future.fromTry(request.userAnswers.set(PurchaseImportSummaryPage, value))
+      userAnswers        <- Future.fromTry(request.userAnswers.set(PurchaseImportSummaryIncompleteQuery, hasIncompleteRows))
+      answersWithSummary <- Future.fromTry(userAnswers.set(PurchaseImportSummaryPage, value))
       updatedAnswers     <- Future.fromTry(answersWithSummary.remove(PurchaseOrImportPage))
       _                  <- sessionRepository.set(updatedAnswers)
       result <-
         if (value) {
           Future.successful(Redirect(routes.PurchaseOrImportController.onPageLoad))
         } else {
-          Future.successful(Redirect(routes.TaskListDashboardController.onPageLoad(hasIncompleteRows)))
+          Future.successful(Redirect(routes.TaskListDashboardController.onPageLoad()))
         }
     } yield result
   }
