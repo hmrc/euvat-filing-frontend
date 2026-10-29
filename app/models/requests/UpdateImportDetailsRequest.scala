@@ -20,7 +20,7 @@ import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDateTime
 
-case class UpdateImportRequest(
+case class UpdateImportDetailsRequest(
   applicationId: Long,
   itemNumber: Int,
   goodsDescriptionCategory: String,
