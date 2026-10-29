@@ -36,9 +36,8 @@
         @mainErrorSummary(form, Map.empty)
 
         <span class="govuk-caption-l">@messages(captionKey)</span>
-        <h1 class="govuk-heading-l">
-            @messages("totalVatPaid.heading")
-        </h1>
+        <h1 class="govuk-heading-l">@messages("totalVatPaid.heading")</h1>
+
         <p id="total-vat-paid" class="govuk-body">@Html(messages(paragraphKey))</p>
 
         @govukInput(

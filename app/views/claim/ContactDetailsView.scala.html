@@ -32,10 +32,8 @@
 
     @formHelper(action = controllers.claim.routes.ContactDetailsController.onSubmit(mode), Symbol("novalidate") -> "novalidate") {
         @mainErrorSummary(form)
-        <h1 class="govuk-heading-l">
-            <span class="govuk-caption-l">@messages("claim.caption")</span>
-            @messages("contactDetails.heading")
-        </h1>
+        <span class="govuk-caption-l">@messages("claim.caption")</span>
+        <h1 class="govuk-heading-l">@messages("contactDetails.heading")</h1>
 
         @govukInput(
             InputViewModel(

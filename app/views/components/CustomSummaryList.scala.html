@@ -15,7 +15,7 @@
  *@
 
 @this()
-@(rows: Seq[(String, Option[String], Seq[(String, String, String)])])(implicit messages: Messages)
+@(rows: Seq[(String, Option[String], Seq[(String, String, String)])], actionsClasses: String = "")(implicit messages: Messages)
 @import play.twirl.api.Html
 @import play.twirl.api.HtmlFormat
 
@@ -33,7 +33,7 @@
                     @renderedValue
                 }
             </dd>
-            <dd class="govuk-summary-list__actions">
+            <dd class="govuk-summary-list__actions @actionsClasses">
                 @if(links.nonEmpty) {
                     @if(links.size > 1) {
                         <ul class="govuk-summary-list__actions-list">
