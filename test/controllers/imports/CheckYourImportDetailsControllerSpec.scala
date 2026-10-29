@@ -24,7 +24,6 @@ import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{never, times, verify, when}
-import pages.AddImportResponsePage
 import pages.claim.RefundingCountryPage
 import pages.imports.*
 import play.api.Application
@@ -212,25 +211,21 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
         val requestCaptor = ArgumentCaptor.forClass(classOf[UpdateImportRequest])
         verify(mockEuVatRefundsService).updateImport(requestCaptor.capture())(any())
         requestCaptor.getValue mustBe UpdateImportRequest(
-          applicationId               = 404,
-          itemNumber                  = 4,
-          goodsDescriptionCategory    = "10",
-          goodsDescriptionSubCategory = None,
-          goodsDescriptionText        = Some("Imported equipment"),
-          hasSadReferenceNumber       = Some(true),
-          sadReferenceNumber          = Some("SAD123"),
-          referenceInformation        = None,
-          supplierName                = Some("Example Supplier"),
-          supplierAddressLine1        = Some("10 Street"),
-          supplierAddressLine2        = None,
-          supplierAddressLine3        = None,
-          supplierCountryCode         = Some("IN"),
-          issuingDate                 = Some(LocalDateTime.of(2026, 10, 1, 0, 0)),
-          currencyCode                = Some("EUR"),
-          taxableAmount               = Some(BigDecimal(100)),
-          vatAmount                   = Some(BigDecimal(20)),
-          deductibleVatAmount         = Some(BigDecimal(10)),
-          updateSequenceNumber        = 2
+          applicationId            = 404,
+          itemNumber               = 4,
+          goodsDescriptionCategory = "10",
+          goodsDescriptionText     = Some("Imported equipment"),
+          hasSadReferenceNumber    = Some("true"),
+          sadReferenceNumber       = Some("SAD123"),
+          supplierName             = Some("Example Supplier"),
+          supplierAddressLine1     = Some("10 Street"),
+          supplierCountryCode      = Some("IN"),
+          issuingDate              = Some(LocalDateTime.of(2026, 10, 1, 0, 0)),
+          currencyCode             = Some("EUR"),
+          taxableAmount            = Some(BigDecimal(100)),
+          vatAmount                = Some(BigDecimal(20)),
+          deductibleVatAmount      = Some(BigDecimal(10)),
+          updateSequenceNumber     = 2
         )
 
         val answersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
@@ -272,7 +267,7 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
 
         val requestCaptor = ArgumentCaptor.forClass(classOf[UpdateImportRequest])
         verify(mockEuVatRefundsService).updateImport(requestCaptor.capture())(any())
-        requestCaptor.getValue.hasSadReferenceNumber mustBe Some(false)
+        requestCaptor.getValue.hasSadReferenceNumber mustBe Some("false")
         requestCaptor.getValue.sadReferenceNumber mustBe None
         requestCaptor.getValue.referenceInformation mustBe Some("Document 123")
       }

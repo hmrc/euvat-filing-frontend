@@ -22,7 +22,8 @@ import controllers.purchase
 import controllers.warning
 import models.{CheckMode, NormalMode, PurchaseOrImport}
 import pages.PurchaseOrImportPage
-import pages.imports.{ImportVatPaidChangedPage, TotalAmountWithoutVatPage, TotalVatPaidImportPage}
+import pages.imports.{TotalAmountWithoutVatPage, TotalVatPaidImportPage}
+import queries.ImportVatPaidChangedQuery
 import pages.purchase.{TotalPurchaseAmountBeforeVatPage, TotalVatPaidPage}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -153,7 +154,7 @@ class VatPaidWarningControllerSpec extends SpecBase {
       val userAnswers = emptyUserAnswers
         .set(PurchaseOrImportPage, PurchaseOrImport.Import)
         .flatMap(_.set(TotalVatPaidImportPage, BigDecimal(100)))
-        .flatMap(_.set(ImportVatPaidChangedPage, true))
+        .flatMap(_.set(ImportVatPaidChangedQuery, true))
         .success
         .value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()

@@ -21,7 +21,7 @@ import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierA
 import models.requests.{DataRequest, UpdateImportRequest}
 import models.responses.AddImportResponse
 import models.{NormalMode, PurchaseOrImportType, UserAnswers}
-import pages.{AddImportResponsePage, PurchaseImportSummaryPage}
+import pages.PurchaseImportSummaryPage
 import pages.imports.*
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -118,7 +118,7 @@ class CheckYourImportDetailsController @Inject()(
       goodsDescriptionCategory    = PurchaseOrImportType.codes(importType),
       goodsDescriptionSubCategory = subCategory,
       goodsDescriptionText        = real(answers.get(DescribeItemsOnImportDocPage)),
-      hasSadReferenceNumber       = hasSad,
+      hasSadReferenceNumber       = hasSad.map(_.toString),
       sadReferenceNumber          = if (hasSad.contains(true)) real(answers.get(SadReferenceNumberPage)) else None,
       referenceInformation        = if (hasSad.contains(false)) real(answers.get(ImportDetailsInfoPage)) else None,
       supplierName                = answers.get(ImportSuppliersNamePage),

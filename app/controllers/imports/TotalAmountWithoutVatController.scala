@@ -17,6 +17,7 @@
 package controllers.imports
 
 import pages.imports.*
+import queries.ImportAmountWithoutVatChangedQuery
 import scala.util.Success
 
 import controllers.actions.*
@@ -80,7 +81,7 @@ class TotalAmountWithoutVatController @Inject() (
             else Success(request.userAnswers)
           for {
             base    <- Future.fromTry(cleared)
-            updated <- Future.fromTry(base.set(TotalAmountWithoutVatPage, value).flatMap(_.set(ImportAmountWithoutVatChangedPage, changed)))
+            updated <- Future.fromTry(base.set(TotalAmountWithoutVatPage, value).flatMap(_.set(ImportAmountWithoutVatChangedQuery, changed)))
             _       <- sessionRepository.set(updated)
           } yield Redirect(navigator.nextPage(TotalAmountWithoutVatPage, mode, updated))
         }

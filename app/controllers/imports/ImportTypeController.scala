@@ -27,7 +27,6 @@ import forms.ImportTypeFormProvider
 import models.requests.{AddImportRequest, DataRequest}
 import models.{CheckMode, Mode, NormalMode, PurchaseOrImportType, UserAnswers}
 import navigation.Navigator
-import pages.AddImportResponsePage
 import pages.imports.ImportTypePage
 import play.api.Logging
 import play.api.data.Form
@@ -104,7 +103,7 @@ class ImportTypeController @Inject() (
             else Success(request.userAnswers)
           for {
             base    <- Future.fromTry(cleared)
-            updated <- Future.fromTry(base.set(ImportTypePage, value).flatMap(_.set(ImportTypeChangedPage, changed)))
+            updated <- Future.fromTry(base.set(ImportTypePage, value).flatMap(_.set(ImportTypeChangedQuery, changed)))
             _       <- sessionRepository.set(updated)
             result  <- addImportIfRequired(updated, value, mode)
           } yield result

@@ -22,8 +22,9 @@ import controllers.imports.routes as importRoutes
 import models.*
 import pages.*
 import pages.claim.RefundingCountryPage
-import pages.imports.{ImportAmountWithoutVatChangedPage, ImportCurrencyChangedPage, ImportSadChangedPage, ImportSubCategoryPage, ImportSubCodePage, ImportTypePage, ImportVatPaidChangedPage, SadReferenceCheckPage}
+import pages.imports.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage, SadReferenceCheckPage}
 import play.api.Configuration
+import queries.{ImportAmountWithoutVatChangedQuery, ImportCurrencyChangedQuery, ImportSadChangedQuery, ImportSubCodeChangedQuery, ImportTypeChangedQuery, ImportVatPaidChangedQuery}
 import utils.{ConfigPurchaseOrImportMapping, CurrencyConfig}
 
 class ImportNavigatorSpec extends SpecBase {
@@ -226,13 +227,13 @@ class ImportNavigatorSpec extends SpecBase {
       }
 
       "must go from SadReferenceCheckPage to the SAD reference number page when the user has a SAD reference" in {
-        val ua = userAnswers.set(SadReferenceCheckPage, true).flatMap(_.set(ImportSadChangedPage, true)).success.value
+        val ua = userAnswers.set(SadReferenceCheckPage, true).flatMap(_.set(ImportSadChangedQuery, true)).success.value
         navigator.navigateFromSadReferenceCheckPage(CheckMode)(ua) mustBe
           importRoutes.SadReferenceNumberController.onPageLoad(CheckMode)
       }
 
       "must go from SadReferenceCheckPage to the import details info page when the user has no SAD reference" in {
-        val ua = userAnswers.set(SadReferenceCheckPage, false).flatMap(_.set(ImportSadChangedPage, true)).success.value
+        val ua = userAnswers.set(SadReferenceCheckPage, false).flatMap(_.set(ImportSadChangedQuery, true)).success.value
         navigator.navigateFromSadReferenceCheckPage(CheckMode)(ua) mustBe
           importRoutes.ImportDetailsInfoController.onPageLoad(CheckMode)
       }
@@ -260,22 +261,22 @@ class ImportNavigatorSpec extends SpecBase {
     val editNavigator = navigatorWith(mapping)
 
     "must send changed import type to its sub-code in CheckMode" in {
-      val answers = answersFor("AT", Fuel, "1.1").set(pages.imports.ImportTypeChangedPage, true).success.value
+      val answers = answersFor("AT", Fuel, "1.1").set(ImportTypeChangedQuery, true).success.value
       editNavigator.navigateFromImportTypePage(CheckMode)(answers) mustBe
         importRoutes.ImportSubCodeController.onPageLoad("fuel", CheckMode)
     }
     "must send changed sub-code to its required child in CheckMode" in {
-      val answers = answersFor("AT", Fuel, "1.1").set(pages.imports.ImportSubCodeChangedPage, true).success.value
+      val answers = answersFor("AT", Fuel, "1.1").set(ImportSubCodeChangedQuery, true).success.value
       editNavigator.navigateFromImportSubCodePage(CheckMode)(answers) mustBe
         importRoutes.ImportSubCategoryController.onPageLoad(CheckMode)
     }
     "must finish at CYA when a changed sub-code has no child" in {
-      val answers = answersFor("AT", Fuel, "1.3").set(pages.imports.ImportSubCodeChangedPage, true).success.value
+      val answers = answersFor("AT", Fuel, "1.3").set(ImportSubCodeChangedQuery, true).success.value
       editNavigator.navigateFromImportSubCodePage(CheckMode)(answers) mustBe
         importRoutes.CheckYourImportDetailsController.onPageLoad()
     }
     "must send Other and None of these to description in CheckMode" in {
-      val answers = answersFor("AT", Other, "10.99").set(pages.imports.ImportSubCodeChangedPage, true).success.value
+      val answers = answersFor("AT", Other, "10.99").set(ImportSubCodeChangedQuery, true).success.value
       editNavigator.navigateFromImportSubCodePage(CheckMode)(answers) mustBe
         importRoutes.DescribeItemsOnImportDocController.onPageLoad(CheckMode)
     }

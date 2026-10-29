@@ -27,6 +27,7 @@ import pages.*
 import pages.claim.*
 import pages.imports.*
 import pages.purchase.*
+import queries.{ImportSadChangedQuery, ImportVatPaidChangedQuery}
 import play.api.Configuration
 import utils.{ConfigLanguageMapping, ConfigPurchaseOrImportMapping, CurrencyConfig}
 
@@ -309,7 +310,7 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from SadReferenceCheckPage to SadReferenceNumberController when the user has a SAD reference" in {
-        val answers = userAnswers.set(SadReferenceCheckPage, true).flatMap(_.set(ImportSadChangedPage, true)).success.value
+        val answers = userAnswers.set(SadReferenceCheckPage, true).flatMap(_.set(ImportSadChangedQuery, true)).success.value
 
         navigator.nextPage(SadReferenceCheckPage, CheckMode, answers) mustBe
           importRoutes.SadReferenceNumberController.onPageLoad(CheckMode)
@@ -358,7 +359,7 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from ImportCurrencyPage to TotalAmountWithoutVatController" in {
-        navigator.nextPage(ImportCurrencyPage, CheckMode, userAnswers.set(ImportCurrencyChangedPage, true).success.value) mustBe
+        navigator.nextPage(ImportCurrencyPage, CheckMode, userAnswers.set(ImportCurrencyChangedQuery, true).success.value) mustBe
           importRoutes.TotalAmountWithoutVatController.onPageLoad(CheckMode)
       }
 
@@ -374,7 +375,7 @@ class NavigatorSpec extends SpecBase {
       "must go from TotalVatPaidImportPage to TotalVatClaimController" in {
         navigator.nextPage(TotalVatPaidImportPage,
           CheckMode,
-          userAnswers.set(TotalVatPaidImportPage, BigDecimal(20)).flatMap(_.set(ImportVatPaidChangedPage, true)).success.value
+          userAnswers.set(TotalVatPaidImportPage, BigDecimal(20)).flatMap(_.set(ImportVatPaidChangedQuery, true)).success.value
         ) mustBe
           controllers.imports.routes.TotalVatClaimController.onPageLoad(CheckMode)
       }

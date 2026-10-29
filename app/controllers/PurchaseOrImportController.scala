@@ -20,18 +20,13 @@ import controllers.actions.*
 import forms.PurchaseOrImportFormProvider
 import models.{NormalMode, PurchaseOrImport, UserAnswers}
 import navigation.Navigator
-import pages.{AddImportResponsePage, PurchaseOrImportPage}
-import pages.imports.{
-  DescribeItemsOnImportDocPage, ImportAmountWithoutVatChangedPage, ImportCurrencyChangedPage, ImportCurrencyPage, ImportDatePage,
-  ImportDetailsInfoPage, ImportSadChangedPage, ImportSubCategoryPage, ImportSubCodePage, ImportSupplierAddressPage,
-  ImportSuppliersNamePage, ImportTotalVatClaimPage, ImportTypeChangedPage, ImportTypePage, SadReferenceCheckPage, SadReferenceNumberPage,
-  TotalAmountWithoutVatPage, TotalVatPaidImportPage
-}
+import pages.PurchaseOrImportPage
+import pages.imports.{AddImportResponsePage, DescribeItemsOnImportDocPage, ImportCurrencyPage, ImportDatePage, ImportDetailsInfoPage, ImportSubCategoryPage, ImportSubCodePage, ImportSupplierAddressPage, ImportSuppliersNamePage, ImportTotalVatClaimPage, ImportTypePage, SadReferenceCheckPage, SadReferenceNumberPage, TotalAmountWithoutVatPage, TotalVatPaidImportPage}
 import pages.purchase.*
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import queries.{ImportSubCategoryLabelQuery, ImportSubTypeLabelQuery, Settable}
+import queries.{ImportAmountWithoutVatChangedQuery, ImportCurrencyChangedQuery, ImportSadChangedQuery, ImportSubCategoryLabelQuery, ImportSubCodeChangedQuery, ImportSubTypeLabelQuery, ImportTypeChangedQuery, ImportVatPaidChangedQuery, Settable}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.purchasesOrImports.PurchaseOrImportView
@@ -123,10 +118,12 @@ class PurchaseOrImportController @Inject() (
     TotalVatPaidImportPage,
     ImportTotalVatClaimPage,
     AddImportResponsePage,
-    ImportTypeChangedPage,
-    ImportSadChangedPage,
-    ImportCurrencyChangedPage,
-    ImportAmountWithoutVatChangedPage
+    ImportTypeChangedQuery,
+    ImportSubCodeChangedQuery,
+    ImportSadChangedQuery,
+    ImportCurrencyChangedQuery,
+    ImportAmountWithoutVatChangedQuery,
+    ImportVatPaidChangedQuery
   )
 
   private def clearPurchaseJourney(userAnswers: UserAnswers): Try[UserAnswers] =

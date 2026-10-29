@@ -26,8 +26,8 @@ import models.responses.{AddImportResponse, AddPurchaseResponse, ApplicationResp
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import pages.AddImportResponsePage
 import pages.purchase.AddPurchaseResponsePage
+import pages.imports.AddImportResponsePage
 import play.api.mvc.Call
 import queries.ClaimApplicationResponseQuery
 import repositories.SessionRepository

@@ -23,6 +23,7 @@ import models.requests.DataRequest
 import models.{CheckMode, Mode, RefundingCurrency}
 import navigation.Navigator
 import pages.imports.*
+import queries.ImportCurrencyChangedQuery
 import play.api.Logger
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -101,7 +102,7 @@ class ImportCurrencyController @Inject() (
                     else Success(request.userAnswers)
                   for {
                     base    <- Future.fromTry(cleared)
-                    updated <- Future.fromTry(base.set(ImportCurrencyPage, currencyCode).flatMap(_.set(ImportCurrencyChangedPage, changed)))
+                    updated <- Future.fromTry(base.set(ImportCurrencyPage, currencyCode).flatMap(_.set(ImportCurrencyChangedQuery, changed)))
                     _       <- sessionRepository.set(updated)
                   } yield Redirect(navigator.nextPage(ImportCurrencyPage, mode, updated))
                 }

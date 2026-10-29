@@ -27,6 +27,7 @@ import javax.inject.Inject
 import models.{Mode, UserAnswers}
 import navigation.Navigator
 import pages.imports.{TotalAmountWithoutVatPage, TotalVatPaidImportPage}
+import queries.ImportVatPaidChangedQuery
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
@@ -81,7 +82,7 @@ class TotalVatPaidImportController @Inject() (
             if (changed) request.userAnswers.remove(ImportTotalVatClaimPage) else Success(request.userAnswers)
           for {
             base    <- Future.fromTry(cleared)
-            updated <- Future.fromTry(base.set(TotalVatPaidImportPage, value).flatMap(_.set(ImportVatPaidChangedPage, changed)))
+            updated <- Future.fromTry(base.set(TotalVatPaidImportPage, value).flatMap(_.set(ImportVatPaidChangedQuery, changed)))
             _       <- sessionRepository.set(updated)
           } yield {
             val totalAmountWithoutVat = updated.get(TotalAmountWithoutVatPage).getOrElse(BigDecimal(0))

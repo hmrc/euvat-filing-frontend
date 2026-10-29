@@ -20,6 +20,7 @@ import controllers.imports.routes as importsRoutes
 import models.{CheckMode, Mode, Other, UserAnswers}
 import pages.imports.*
 import play.api.mvc.Call
+import queries.{ImportAmountWithoutVatChangedQuery, ImportCurrencyChangedQuery, ImportSadChangedQuery, ImportSubCodeChangedQuery, ImportTypeChangedQuery, ImportVatPaidChangedQuery}
 import utils.PurchaseOrImportHelpers.isNoneSelection
 import utils.{ConfigPurchaseOrImportMapping, CountryCode, CurrencyConfig}
 import javax.inject.{Inject, Singleton}
@@ -31,7 +32,7 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
 
   def navigateFromImportTypePage(mode: Mode)(answers: UserAnswers): Call =
     (answers.get(ImportTypePage), CountryCode.findCountryCode(answers)) match {
-      case (Some(_), Some(_)) if mode == CheckMode && !answers.get(ImportTypeChangedPage).contains(true) => cya
+      case (Some(_), Some(_)) if mode == CheckMode && !answers.get(ImportTypeChangedQuery).contains(true) => cya
       case (Some(importType), Some(country)) if configPurchaseOrImportMapping.selectableSubcodes(country, importType.toString).isDefined =>
         importsRoutes.ImportSubCodeController.onPageLoad(importType.toString, mode)
       case (Some(Other), Some(_)) => importsRoutes.DescribeItemsOnImportDocController.onPageLoad(mode)
@@ -41,7 +42,7 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
 
   def navigateFromImportSubCodePage(mode: Mode)(answers: UserAnswers): Call =
     (answers.get(ImportTypePage), answers.get(ImportSubCodePage), CountryCode.findCountryCode(answers)) match {
-      case (Some(_), Some(_), Some(_)) if mode == CheckMode && !answers.get(ImportSubCodeChangedPage).contains(true) => cya
+      case (Some(_), Some(_), Some(_)) if mode == CheckMode && !answers.get(ImportSubCodeChangedQuery).contains(true) => cya
       case (Some(Other), Some(code), Some(_)) if isNoneSelection(code) => importsRoutes.DescribeItemsOnImportDocController.onPageLoad(mode)
       case (Some(importType), Some(code), Some(country))
         if configPurchaseOrImportMapping.subcategoriesFor(country, importType.toString, code).nonEmpty =>
@@ -59,7 +60,7 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
   def navigateFromSadReferenceCheckPage(mode: Mode)(answers: UserAnswers): Call =
     answers.get(SadReferenceCheckPage) match {
       case None                                                                              => recovery
-      case Some(_) if mode == CheckMode && !answers.get(ImportSadChangedPage).contains(true) => cya
+      case Some(_) if mode == CheckMode && !answers.get(ImportSadChangedQuery).contains(true) => cya
       case Some(true)  => importsRoutes.SadReferenceNumberController.onPageLoad(mode)
       case Some(false) => importsRoutes.ImportDetailsInfoController.onPageLoad(mode)
     }
@@ -73,20 +74,20 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
       }
 
   def navigateFromImportCurrencyPage(mode: Mode)(answers: UserAnswers): Call =
-    if (mode == CheckMode && !answers.get(ImportCurrencyChangedPage).contains(true)) cya
+    if (mode == CheckMode && !answers.get(ImportCurrencyChangedQuery).contains(true)) cya
     else importsRoutes.TotalAmountWithoutVatController.onPageLoad(mode)
 
   def navigateFromTotalAmountWithoutVatPage(mode: Mode)(answers: UserAnswers): Call =
     answers.get(TotalAmountWithoutVatPage) match {
       case None                                                                                           => recovery
-      case Some(_) if mode == CheckMode && !answers.get(ImportAmountWithoutVatChangedPage).contains(true) => cya
+      case Some(_) if mode == CheckMode && !answers.get(ImportAmountWithoutVatChangedQuery).contains(true) => cya
       case Some(_) => importsRoutes.TotalVatPaidImportController.onPageLoad(mode)
     }
 
   def navigateFromTotalVatPaidImportPage(mode: Mode)(answers: UserAnswers): Call =
     answers.get(TotalVatPaidImportPage) match {
       case None                                                                                  => recovery
-      case Some(_) if mode == CheckMode && !answers.get(ImportVatPaidChangedPage).contains(true) => cya
+      case Some(_) if mode == CheckMode && !answers.get(ImportVatPaidChangedQuery).contains(true) => cya
       case Some(_) => importsRoutes.TotalVatClaimController.onPageLoad(mode)
     }
 

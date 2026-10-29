@@ -29,7 +29,7 @@ import pages.imports.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import queries.{ImportSubCategoryLabelQuery, ImportSubTypeLabelQuery}
+import queries.{ImportSubCategoryLabelQuery, ImportSubCodeChangedQuery, ImportSubTypeLabelQuery}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.PurchaseOrImportHelpers.*
@@ -115,7 +115,7 @@ class ImportSubCodeController @Inject() (
                 cleared  <- Future.fromTry(clearSubCategoryIfChanged(request.userAnswers, value))
                 selected <- Future.fromTry(setSelection(cleared, ImportSubCodePage, ImportSubTypeLabelQuery, value, label))
                 updatedAnswers <-
-                  Future.fromTry(selected.set(ImportSubCodeChangedPage, !request.userAnswers.isAnswerUnchanged(ImportSubCodePage, value)))
+                  Future.fromTry(selected.set(ImportSubCodeChangedQuery, !request.userAnswers.isAnswerUnchanged(ImportSubCodePage, value)))
                 _ <- sessionRepository.set(updatedAnswers)
               } yield Redirect(navigator.nextPage(ImportSubCodePage, mode, updatedAnswers))
             } else {

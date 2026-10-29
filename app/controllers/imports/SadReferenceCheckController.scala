@@ -26,6 +26,7 @@ import models.requests.DataRequest
 import models.{CheckMode, Mode, NormalMode, Other}
 import navigation.Navigator
 import pages.imports.*
+import queries.ImportSadChangedQuery
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
@@ -79,7 +80,7 @@ class SadReferenceCheckController @Inject() (
             if (changed) request.userAnswers.remove(SadReferenceNumberPage).flatMap(_.remove(ImportDetailsInfoPage)) else Success(request.userAnswers)
           for {
             base    <- Future.fromTry(cleared)
-            updated <- Future.fromTry(base.set(SadReferenceCheckPage, value).flatMap(_.set(ImportSadChangedPage, changed)))
+            updated <- Future.fromTry(base.set(SadReferenceCheckPage, value).flatMap(_.set(ImportSadChangedQuery, changed)))
             _       <- sessionRepository.set(updated)
           } yield Redirect(navigator.nextPage(SadReferenceCheckPage, mode, updated))
         }

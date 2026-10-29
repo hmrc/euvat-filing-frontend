@@ -276,7 +276,7 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
       goodsDescriptionCategory    = "10",
       goodsDescriptionSubCategory = Some("10.4.1"),
       goodsDescriptionText        = Some("Equipment"),
-      hasSadReferenceNumber       = Some(true),
+      hasSadReferenceNumber       = Some("true"),
       sadReferenceNumber          = Some("SAD123456789"),
       referenceInformation        = None,
       supplierName                = Some("Supplier"),
