@@ -25,22 +25,22 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.warning.ImportDetailsWarningView
 
-class ImportDetailsWarningController @Inject()(
-                                       override val messagesApi: MessagesApi,
-                                       identify: IdentifierAction,
-                                       getData: DataRetrievalAction,
-                                       requireData: DataRequiredAction,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       view: ImportDetailsWarningView
-                                     ) extends FrontendBaseController with I18nSupport {
+class ImportDetailsWarningController @Inject() (
+  override val messagesApi: MessagesApi,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  val controllerComponents: MessagesControllerComponents,
+  view: ImportDetailsWarningView
+) extends FrontendBaseController
+    with I18nSupport {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-      val call = routes.ImportDetailsInfoController.onPageLoad(mode)
-      Ok(view(routes.SadReferenceNumberController.onPageLoad(mode), call, mode))
+    val call = routes.ImportDetailsInfoController.onPageLoad(mode)
+    Ok(view(routes.SadReferenceNumberController.onPageLoad(mode), call, mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-     Redirect(routes.ImportDateController.onPageLoad(mode))
+    Redirect(routes.ImportDateController.onPageLoad(mode))
   }
 }
-
