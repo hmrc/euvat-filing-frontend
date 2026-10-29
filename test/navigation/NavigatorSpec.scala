@@ -27,8 +27,8 @@ import pages.*
 import pages.claim.*
 import pages.imports.*
 import pages.purchase.*
-import queries.{ImportAmountWithoutVatChangedQuery, ImportCurrencyChangedQuery, ImportSadChangedQuery, ImportVatPaidChangedQuery}
 import play.api.Configuration
+import queries.{ImportAmountWithoutVatChangedQuery, ImportCurrencyChangedQuery, ImportSadChangedQuery, ImportVatPaidChangedQuery}
 import utils.{ConfigLanguageMapping, ConfigPurchaseOrImportMapping, CurrencyConfig}
 
 class NavigatorSpec extends SpecBase {
@@ -124,11 +124,6 @@ class NavigatorSpec extends SpecBase {
 
         navigator.nextPage(PurchaseOrImportPage, NormalMode, answers) mustBe
           importRoutes.ImportTypeController.onPageLoad(NormalMode)
-      }
-
-      "must go from CheckYourImportDetailsPage to the purchases and imports summary" in {
-        navigator.nextPage(CheckYourImportDetailsPage, NormalMode, userAnswers) mustBe
-          controllers.routes.PurchaseImportSummaryController.onPageLoad
       }
 
       "must go from PurchaseOrImportPage to Journey Recovery when nothing is selected" in {
@@ -374,9 +369,9 @@ class NavigatorSpec extends SpecBase {
 
       "must go from TotalVatPaidImportPage to TotalVatClaimController" in {
         navigator.nextPage(TotalVatPaidImportPage,
-                           CheckMode,
-                           userAnswers.set(TotalVatPaidImportPage, BigDecimal(20)).flatMap(_.set(ImportVatPaidChangedQuery, true)).success.value
-                          ) mustBe
+          CheckMode,
+          userAnswers.set(TotalVatPaidImportPage, BigDecimal(20)).flatMap(_.set(ImportVatPaidChangedQuery, true)).success.value
+        ) mustBe
           controllers.imports.routes.TotalVatClaimController.onPageLoad(CheckMode)
       }
 

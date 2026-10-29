@@ -24,6 +24,7 @@ import pages.*
 import pages.claim.RefundingCountryPage
 import pages.imports.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage, SadReferenceCheckPage}
 import play.api.Configuration
+import play.api.mvc.Call
 import queries.{ImportAmountWithoutVatChangedQuery, ImportCurrencyChangedQuery, ImportSadChangedQuery, ImportSubCodeChangedQuery, ImportTypeChangedQuery, ImportVatPaidChangedQuery}
 import utils.{ConfigPurchaseOrImportMapping, CurrencyConfig}
 
@@ -279,13 +280,6 @@ class ImportNavigatorSpec extends SpecBase {
       val answers = answersFor("AT", Other, "10.99").set(ImportSubCodeChangedQuery, true).success.value
       editNavigator.navigateFromImportSubCodePage(CheckMode)(answers) mustBe
         importRoutes.DescribeItemsOnImportDocController.onPageLoad(CheckMode)
-    }
-  }
-
-  "ImportNavigator.navigateFromCheckYourImportDetailsPage" - {
-    "must go to the purchases and imports summary page" in {
-      navigator.navigateFromCheckYourImportDetailsPage(userAnswers) mustBe
-        controllers.routes.PurchaseImportSummaryController.onPageLoad
     }
   }
 }

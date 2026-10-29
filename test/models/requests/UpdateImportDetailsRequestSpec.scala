@@ -24,7 +24,7 @@ import java.time.LocalDateTime
 
 class UpdateImportDetailsRequestSpec extends AnyFreeSpec with Matchers {
 
-  private val request = UpdateImportRequest(
+  private val request = UpdateImportDetailsRequest(
     applicationId               = 404,
     itemNumber                  = 4,
     goodsDescriptionCategory    = "10",
@@ -46,7 +46,7 @@ class UpdateImportDetailsRequestSpec extends AnyFreeSpec with Matchers {
     updateSequenceNumber        = 1
   )
 
-  "UpdateImportRequest JSON" - {
+  "UpdateImportDetailsRequest JSON" - {
 
     "must use the field names euvat-refunds expects" in {
       val json = Json.toJson(request).as[JsObject]
@@ -74,11 +74,11 @@ class UpdateImportDetailsRequestSpec extends AnyFreeSpec with Matchers {
     }
 
     "must round trip through JSON" in {
-      Json.toJson(request).as[UpdateImportRequest] mustEqual request
+      Json.toJson(request).as[UpdateImportDetailsRequest] mustEqual request
     }
 
     "must fail to read when a mandatory field is missing" in {
-      (Json.toJson(request).as[JsObject] - "itemNumber").validate[UpdateImportRequest].isError mustBe true
+      (Json.toJson(request).as[JsObject] - "itemNumber").validate[UpdateImportDetailsRequest].isError mustBe true
     }
   }
 }

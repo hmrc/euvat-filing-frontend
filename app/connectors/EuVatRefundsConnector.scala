@@ -76,11 +76,11 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
       .execute[AddImportResponse]
   }
 
-  def updateImport(request: UpdateImportRequest)(implicit hc: HeaderCarrier): Future[UpdateImportResponse] = {
+  def updateImport(request: UpdateImportDetailsRequest)(implicit hc: HeaderCarrier): Future[UpdateImportDetailsResponse] = {
     http
       .put(url"$euVatRefundsBaseUrl/update-importation-details")
       .withBody(Json.toJson(request))
-      .execute[UpdateImportResponse]
+      .execute[UpdateImportDetailsResponse]
   }
 
   def getSupplierVrnCount(request: SupplierVrnCountRequest)(implicit hc: HeaderCarrier): Future[SupplierVrnCountResponse] = {

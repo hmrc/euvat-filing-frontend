@@ -18,7 +18,7 @@ package controllers.imports
 
 import config.FrontendAppConfig
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
-import models.requests.{DataRequest, UpdateImportRequest}
+import models.requests.{DataRequest, UpdateImportDetailsRequest}
 import models.responses.AddImportResponse
 import models.{NormalMode, PurchaseOrImportType, UserAnswers}
 import pages.PurchaseImportSummaryPage
@@ -101,7 +101,7 @@ class CheckYourImportDetailsController @Inject() (
     applicationId: Long,
     addResponse: AddImportResponse,
     importType: PurchaseOrImportType
-  ): UpdateImportRequest = {
+  ): UpdateImportDetailsRequest = {
     def real(value: Option[String]): Option[String] =
       value.filter(v => v.trim.nonEmpty && v != ConfigPurchaseOrImportMapping.NoneValue)
 
@@ -118,7 +118,7 @@ class CheckYourImportDetailsController @Inject() (
         .map(_.code)
     }
 
-    UpdateImportRequest(
+    UpdateImportDetailsRequest(
       applicationId               = applicationId,
       itemNumber                  = addResponse.itemNumber,
       goodsDescriptionCategory    = PurchaseOrImportType.codes(importType),

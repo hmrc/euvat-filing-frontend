@@ -42,6 +42,6 @@ case class UpdateImportDetailsRequest(
   updateSequenceNumber: Int
 )
 
-object UpdateImportRequest {
-  implicit val format: OFormat[UpdateImportRequest] = Json.format[UpdateImportRequest]
+object UpdateImportDetailsRequest {
+  implicit val format: OFormat[UpdateImportDetailsRequest] = Json.format[UpdateImportDetailsRequest]
 }

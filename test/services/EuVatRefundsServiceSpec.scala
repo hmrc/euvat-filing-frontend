@@ -270,7 +270,7 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
   }
 
   "EuVatRefundsService.updateImport" - {
-    val updateRequest = UpdateImportRequest(
+    val updateRequest = UpdateImportDetailsRequest(
       applicationId               = 123L,
       itemNumber                  = 4,
       goodsDescriptionCategory    = "10",
@@ -291,7 +291,7 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
       deductibleVatAmount         = Some(BigDecimal(40)),
       updateSequenceNumber        = 2
     )
-    val expectedResponse = UpdateImportResponse(updateSequenceNumber = 3)
+    val expectedResponse = UpdateImportDetailsResponse(updateSequenceNumber = 3)
 
     "should return the update import response from the connector" in {
       when(mockConnector.updateImport(any())(any())).thenReturn(Future.successful(expectedResponse))
