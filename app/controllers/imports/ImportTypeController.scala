@@ -18,7 +18,6 @@ package controllers.imports
 
 import pages.imports.*
 import queries.*
-import scala.util.Success
 
 import com.google.inject.Inject
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
@@ -37,6 +36,7 @@ import services.EuVatRefundsService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
+import utils.ControllerHelpers.saveAnswerAndResetDependents
 import views.html.purchasesOrImports.PurchaseOrImportTypeView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -58,6 +58,10 @@ class ImportTypeController @Inject() (
     with Logging {
 
   val form: Form[PurchaseOrImportType] = formProvider()
+
+  // Answers that only make sense for the selected import type, so they are cleared when the type changes.
+  private val dependentAnswers: List[Settable[?]] =
+    List(ImportSubCodePage, ImportSubTypeLabelQuery, ImportSubCategoryPage, ImportSubCategoryLabelQuery, DescribeItemsOnImportDocPage)
 
   private def backLink(mode: Mode)(implicit request: DataRequest[?]) =
     if (mode == CheckMode) importRoutes.CheckYourImportDetailsController.onPageLoad()
@@ -90,24 +94,14 @@ class ImportTypeController @Inject() (
                   )
             )
           ),
-        value => {
-          val changed = !request.userAnswers.isAnswerUnchanged(ImportTypePage, value)
-          val cleared: scala.util.Try[models.UserAnswers] =
-            if (changed)
-              request.userAnswers
-                .remove(ImportSubCodePage)
-                .flatMap(_.remove(ImportSubTypeLabelQuery))
-                .flatMap(_.remove(ImportSubCategoryPage))
-                .flatMap(_.remove(ImportSubCategoryLabelQuery))
-                .flatMap(_.remove(DescribeItemsOnImportDocPage))
-            else Success(request.userAnswers)
-          for {
-            base    <- Future.fromTry(cleared)
-            updated <- Future.fromTry(base.set(ImportTypePage, value).flatMap(_.set(ImportTypeChangedQuery, changed)))
-            _       <- sessionRepository.set(updated)
-            result  <- addImportIfRequired(updated, value, mode)
-          } yield result
-        }
+        value =>
+          saveAnswerAndResetDependents(
+            page              = ImportTypePage,
+            newValue          = value,
+            userAnswers       = request.userAnswers,
+            dependents        = dependentAnswers,
+            sessionRepository = sessionRepository
+          )(updated => addImportIfRequired(updated, value, mode))
       )
   }
 

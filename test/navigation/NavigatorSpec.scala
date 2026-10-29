@@ -28,7 +28,6 @@ import pages.claim.*
 import pages.imports.*
 import pages.purchase.*
 import play.api.Configuration
-import queries.{ImportAmountWithoutVatChangedQuery, ImportCurrencyChangedQuery, ImportSadChangedQuery, ImportVatPaidChangedQuery}
 import utils.{ConfigLanguageMapping, ConfigPurchaseOrImportMapping, CurrencyConfig}
 
 class NavigatorSpec extends SpecBase {
@@ -305,7 +304,7 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from SadReferenceCheckPage to SadReferenceNumberController when the user has a SAD reference" in {
-        val answers = userAnswers.set(SadReferenceCheckPage, true).flatMap(_.set(ImportSadChangedQuery, true)).success.value
+        val answers = userAnswers.set(SadReferenceCheckPage, true).success.value
 
         navigator.nextPage(SadReferenceCheckPage, CheckMode, answers) mustBe
           importRoutes.SadReferenceNumberController.onPageLoad(CheckMode)
@@ -354,7 +353,7 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from ImportCurrencyPage to TotalAmountWithoutVatController" in {
-        navigator.nextPage(ImportCurrencyPage, CheckMode, userAnswers.set(ImportCurrencyChangedQuery, true).success.value) mustBe
+        navigator.nextPage(ImportCurrencyPage, CheckMode, userAnswers) mustBe
           importRoutes.TotalAmountWithoutVatController.onPageLoad(CheckMode)
       }
 
@@ -362,16 +361,13 @@ class NavigatorSpec extends SpecBase {
         navigator.nextPage(
           TotalAmountWithoutVatPage,
           CheckMode,
-          userAnswers.set(TotalAmountWithoutVatPage, BigDecimal(100)).flatMap(_.set(ImportAmountWithoutVatChangedQuery, true)).success.value
+          userAnswers.set(TotalAmountWithoutVatPage, BigDecimal(100)).success.value
         ) mustBe
           controllers.imports.routes.TotalVatPaidImportController.onPageLoad(CheckMode)
       }
 
       "must go from TotalVatPaidImportPage to TotalVatClaimController" in {
-        navigator.nextPage(TotalVatPaidImportPage,
-          CheckMode,
-          userAnswers.set(TotalVatPaidImportPage, BigDecimal(20)).flatMap(_.set(ImportVatPaidChangedQuery, true)).success.value
-        ) mustBe
+        navigator.nextPage(TotalVatPaidImportPage, CheckMode, userAnswers.set(TotalVatPaidImportPage, BigDecimal(20)).success.value) mustBe
           controllers.imports.routes.TotalVatClaimController.onPageLoad(CheckMode)
       }
 

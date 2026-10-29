@@ -26,7 +26,7 @@ import pages.purchase.*
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import queries.{ImportAmountWithoutVatChangedQuery, ImportCurrencyChangedQuery, ImportSadChangedQuery, ImportSubCategoryLabelQuery, ImportSubCodeChangedQuery, ImportSubTypeLabelQuery, ImportTypeChangedQuery, ImportVatPaidChangedQuery, Settable}
+import queries.{ImportSubCategoryLabelQuery, ImportSubTypeLabelQuery, Settable}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.purchasesOrImports.PurchaseOrImportView
@@ -117,13 +117,7 @@ class PurchaseOrImportController @Inject() (
     TotalAmountWithoutVatPage,
     TotalVatPaidImportPage,
     ImportTotalVatClaimPage,
-    AddImportResponsePage,
-    ImportTypeChangedQuery,
-    ImportSubCodeChangedQuery,
-    ImportSadChangedQuery,
-    ImportCurrencyChangedQuery,
-    ImportAmountWithoutVatChangedQuery,
-    ImportVatPaidChangedQuery
+    AddImportResponsePage
   )
 
   private def clearPurchaseJourney(userAnswers: UserAnswers): Try[UserAnswers] =

@@ -23,7 +23,6 @@ import models.requests.DataRequest
 import models.{CheckMode, Mode, RefundingCurrency}
 import navigation.Navigator
 import pages.imports.*
-import queries.ImportCurrencyChangedQuery
 import play.api.Logger
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -33,11 +32,11 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import utils.*
+import utils.ControllerHelpers
 import views.html.purchasesOrImports.RefundingCurrencyView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Success
 
 class ImportCurrencyController @Inject() (
   override val messagesApi: MessagesApi,
@@ -91,21 +90,14 @@ class ImportCurrencyController @Inject() (
                 case None =>
                   logger.warn(s"ImportCurrencyController.onSubmit - could not find currency code for ${value.toString}")
                   Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-                case Some(currencyCode) => {
-                  val changed = !request.userAnswers.isAnswerUnchanged(ImportCurrencyPage, currencyCode)
-                  val cleared: scala.util.Try[models.UserAnswers] =
-                    if (changed)
-                      request.userAnswers
-                        .remove(TotalAmountWithoutVatPage)
-                        .flatMap(_.remove(TotalVatPaidImportPage))
-                        .flatMap(_.remove(ImportTotalVatClaimPage))
-                    else Success(request.userAnswers)
-                  for {
-                    base    <- Future.fromTry(cleared)
-                    updated <- Future.fromTry(base.set(ImportCurrencyPage, currencyCode).flatMap(_.set(ImportCurrencyChangedQuery, changed)))
-                    _       <- sessionRepository.set(updated)
-                  } yield Redirect(navigator.nextPage(ImportCurrencyPage, mode, updated))
-                }
+                case Some(currencyCode) =>
+                  ControllerHelpers.saveAnswerAndResetDependents(
+                    page              = ImportCurrencyPage,
+                    newValue          = currencyCode,
+                    userAnswers       = request.userAnswers,
+                    dependents        = List(TotalAmountWithoutVatPage, TotalVatPaidImportPage, ImportTotalVatClaimPage),
+                    sessionRepository = sessionRepository
+                  )(updated => Future.successful(Redirect(navigator.nextPage(ImportCurrencyPage, mode, updated))))
               }
           )
     }

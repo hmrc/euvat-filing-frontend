@@ -21,9 +21,10 @@ import models.requests.DataRequest
 import models.{CheckMode, Mode, UserAnswers}
 import pages.QuestionPage
 import pages.purchase.PurchaseTypePage
-import play.api.libs.json.{Format, Reads}
+import play.api.libs.json.{Format, Reads, Writes}
 import play.api.mvc.Results.*
 import play.api.mvc.{Call, Result}
+import queries.Settable
 import repositories.SessionRepository
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -82,6 +83,35 @@ object ControllerHelpers {
 
     applyShortCircuit(page, newValue, mode, userAnswers, sessionRepositoryOpt, unchangedRedirect, onSaved)
   }
+
+  /** Saves an answer on a page whose later answers depend on it.
+    *
+    * When the value has changed, the `dependents` are removed before it is saved, so a navigator running in CheckMode can see that they still have to
+    * be answered. When the value is unchanged nothing is cleared, so the navigator takes the user straight back to check your answers.
+    *   - `alsoSet` runs after the value is set (for example to store a label next to it) and before the answers are saved.
+    *   - `onSaved` receives the saved answers and decides where to go next.
+    */
+  def saveAnswerAndResetDependents[A](
+    page: QuestionPage[A],
+    newValue: A,
+    userAnswers: UserAnswers,
+    dependents: Seq[Settable[?]],
+    sessionRepository: SessionRepository,
+    alsoSet: UserAnswers => Try[UserAnswers] = answers => Success(answers)
+  )(onSaved: UserAnswers => Future[Result])(implicit rds: Reads[A], wrts: Writes[A], ec: ExecutionContext): Future[Result] = {
+    val changed = !userAnswers.isAnswerUnchanged(page, newValue)
+
+    for {
+      cleared    <- Future.fromTry(if (changed) removeAll(userAnswers, dependents) else Success(userAnswers))
+      withValue  <- Future.fromTry(cleared.set(page, newValue))
+      withExtras <- Future.fromTry(alsoSet(withValue))
+      _          <- sessionRepository.set(withExtras)
+      result     <- onSaved(withExtras)
+    } yield result
+  }
+
+  private def removeAll(userAnswers: UserAnswers, pages: Seq[Settable[?]]): Try[UserAnswers] =
+    pages.foldLeft(Try(userAnswers))((acc, page) => acc.flatMap(_.remove(page)))
 
   private def applyShortCircuit[T](
     page: QuestionPage[T],

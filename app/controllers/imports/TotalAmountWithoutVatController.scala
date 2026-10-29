@@ -17,8 +17,6 @@
 package controllers.imports
 
 import pages.imports.*
-import queries.ImportAmountWithoutVatChangedQuery
-import scala.util.Success
 
 import controllers.actions.*
 import controllers.imports.routes as importRoutes
@@ -74,17 +72,14 @@ class TotalAmountWithoutVatController @Inject() (
       .bindFromRequest()
       .fold(
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)(request.userAnswers), prefix, currencyName))),
-        value => {
-          val changed = !request.userAnswers.isAnswerUnchanged(TotalAmountWithoutVatPage, value)
-          val cleared: scala.util.Try[models.UserAnswers] =
-            if (changed) request.userAnswers.remove(TotalVatPaidImportPage).flatMap(_.remove(ImportTotalVatClaimPage))
-            else Success(request.userAnswers)
-          for {
-            base    <- Future.fromTry(cleared)
-            updated <- Future.fromTry(base.set(TotalAmountWithoutVatPage, value).flatMap(_.set(ImportAmountWithoutVatChangedQuery, changed)))
-            _       <- sessionRepository.set(updated)
-          } yield Redirect(navigator.nextPage(TotalAmountWithoutVatPage, mode, updated))
-        }
+        value =>
+          saveAnswerAndResetDependents(
+            page              = TotalAmountWithoutVatPage,
+            newValue          = value,
+            userAnswers       = request.userAnswers,
+            dependents        = List(TotalVatPaidImportPage, ImportTotalVatClaimPage),
+            sessionRepository = sessionRepository
+          )(updated => Future.successful(Redirect(navigator.nextPage(TotalAmountWithoutVatPage, mode, updated))))
       )
   }
 

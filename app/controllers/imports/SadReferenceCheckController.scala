@@ -17,7 +17,6 @@
 package controllers.imports
 
 import pages.imports.*
-import scala.util.Success
 
 import controllers.actions.*
 import controllers.imports.routes as importRoutes
@@ -26,12 +25,12 @@ import models.requests.DataRequest
 import models.{CheckMode, Mode, NormalMode, Other}
 import navigation.Navigator
 import pages.imports.*
-import queries.ImportSadChangedQuery
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.ControllerHelpers.saveAnswerAndResetDependents
 import views.html.imports.SadReferenceCheckView
 
 import javax.inject.Inject
@@ -74,16 +73,14 @@ class SadReferenceCheckController @Inject() (
       .bindFromRequest()
       .fold(
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, computeBackLink(mode), mode))),
-        value => {
-          val changed = !request.userAnswers.isAnswerUnchanged(SadReferenceCheckPage, value)
-          val cleared: scala.util.Try[models.UserAnswers] =
-            if (changed) request.userAnswers.remove(SadReferenceNumberPage).flatMap(_.remove(ImportDetailsInfoPage)) else Success(request.userAnswers)
-          for {
-            base    <- Future.fromTry(cleared)
-            updated <- Future.fromTry(base.set(SadReferenceCheckPage, value).flatMap(_.set(ImportSadChangedQuery, changed)))
-            _       <- sessionRepository.set(updated)
-          } yield Redirect(navigator.nextPage(SadReferenceCheckPage, mode, updated))
-        }
+        value =>
+          saveAnswerAndResetDependents(
+            page              = SadReferenceCheckPage,
+            newValue          = value,
+            userAnswers       = request.userAnswers,
+            dependents        = List(SadReferenceNumberPage, ImportDetailsInfoPage),
+            sessionRepository = sessionRepository
+          )(updated => Future.successful(Redirect(navigator.nextPage(SadReferenceCheckPage, mode, updated))))
       )
   }
 
