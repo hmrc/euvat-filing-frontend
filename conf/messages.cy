@@ -674,3 +674,11 @@ sadReferenceNumberWarning.p = You’ve already added an import with the same SAD
 sadReferenceNumberWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
 sadReferenceNumberWarning.correct = Yes, this is correct
 sadReferenceNumberWarning.backLink = No, change SAD reference number
+
+removeItem.title = Remove item
+removeItem.heading = Remove item
+removeItem.list1 = Type
+removeItem.list2 = VAT claim
+removeItem.legend = Are you sure you want to remove this item?
+removeItem.notProvided = Not provided
+removeItem.error.required = Select yes if you want to remove this item
