@@ -22,7 +22,7 @@ import play.api.libs.json.{JsObject, Json}
 
 import java.time.LocalDateTime
 
-class UpdateImportRequestSpec extends AnyFreeSpec with Matchers {
+class UpdateImportDetailsRequestSpec extends AnyFreeSpec with Matchers {
 
   private val request = UpdateImportRequest(
     applicationId               = 404,
@@ -52,9 +52,22 @@ class UpdateImportRequestSpec extends AnyFreeSpec with Matchers {
       val json = Json.toJson(request).as[JsObject]
 
       json.keys mustEqual Set(
-        "applicationId", "itemNumber", "goodsDescriptionCategory", "goodsDescriptionSubCategory", "goodsDescriptionText",
-        "hasSadReferenceNumber", "sadReferenceNumber", "supplierName", "supplierAddressLine1", "supplierAddressLine2",
-        "supplierCountryCode", "issuingDate", "currencyCode", "taxableAmount", "vatAmount", "deductibleVatAmount",
+        "applicationId",
+        "itemNumber",
+        "goodsDescriptionCategory",
+        "goodsDescriptionSubCategory",
+        "goodsDescriptionText",
+        "hasSadReferenceNumber",
+        "sadReferenceNumber",
+        "supplierName",
+        "supplierAddressLine1",
+        "supplierAddressLine2",
+        "supplierCountryCode",
+        "issuingDate",
+        "currencyCode",
+        "taxableAmount",
+        "vatAmount",
+        "deductibleVatAmount",
         "updateSequenceNumber"
       )
       (json \\ "issuingDate").head.as[String] mustEqual "2026-05-14T00:00:00"

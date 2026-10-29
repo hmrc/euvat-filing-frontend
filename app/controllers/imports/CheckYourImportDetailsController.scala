@@ -38,26 +38,31 @@ import views.html.imports.CheckYourImportDetailsView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class CheckYourImportDetailsController @Inject()(
-                                                  override val messagesApi: MessagesApi,
-                                                  identify: IdentifierAction,
-                                                  getData: DataRetrievalAction,
-                                                  requireData: DataRequiredAction,
-                                                  val controllerComponents: MessagesControllerComponents,
-                                                  view: CheckYourImportDetailsView,
-                                                  configPurchaseOrImportMapping: ConfigPurchaseOrImportMapping,
-                                                  currencyConfig: CurrencyConfig,
-                                                  appConfig: FrontendAppConfig,
-                                                  sessionRepository: SessionRepository,
-                                                  euVatRefundsService: EuVatRefundsService
-                                                )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
+class CheckYourImportDetailsController @Inject() (
+  override val messagesApi: MessagesApi,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  val controllerComponents: MessagesControllerComponents,
+  view: CheckYourImportDetailsView,
+  configPurchaseOrImportMapping: ConfigPurchaseOrImportMapping,
+  currencyConfig: CurrencyConfig,
+  appConfig: FrontendAppConfig,
+  sessionRepository: SessionRepository,
+  euVatRefundsService: EuVatRefundsService
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport
+    with Logging {
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    Ok(view(
-      CheckYourImportDetailsSummary.sections(request.userAnswers, configPurchaseOrImportMapping, currencyConfig, appConfig.supplierCountries),
-      routes.CheckYourImportDetailsController.onSubmit(),
-      routes.TotalVatClaimController.onPageLoad(NormalMode)
-    ))
+    Ok(
+      view(
+        CheckYourImportDetailsSummary.sections(request.userAnswers, configPurchaseOrImportMapping, currencyConfig, appConfig.supplierCountries),
+        routes.CheckYourImportDetailsController.onSubmit(),
+        routes.TotalVatClaimController.onPageLoad(NormalMode)
+      )
+    )
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -73,7 +78,8 @@ class CheckYourImportDetailsController @Inject()(
           .updateImport(buildUpdateRequest(answers, claim.applicationId, addResponse, importType))
           .flatMap { response =>
             for {
-              withResponse <- Future.fromTry(answers.set(AddImportResponsePage, addResponse.copy(updateSequenceNumber = response.updateSequenceNumber)))
+              withResponse <-
+                Future.fromTry(answers.set(AddImportResponsePage, addResponse.copy(updateSequenceNumber = response.updateSequenceNumber)))
               withSequence <- Future.fromTry(withResponse.set(UpdateSequenceNumberQuery, response.updateSequenceNumber))
               completed    <- Future.fromTry(withSequence.remove(PurchaseImportSummaryPage))
               _            <- sessionRepository.set(completed)
@@ -91,11 +97,11 @@ class CheckYourImportDetailsController @Inject()(
   }
 
   private def buildUpdateRequest(
-                                  answers: UserAnswers,
-                                  applicationId: Long,
-                                  addResponse: AddImportResponse,
-                                  importType: PurchaseOrImportType
-                                ): UpdateImportRequest = {
+    answers: UserAnswers,
+    applicationId: Long,
+    addResponse: AddImportResponse,
+    importType: PurchaseOrImportType
+  ): UpdateImportRequest = {
     def real(value: Option[String]): Option[String] =
       value.filter(v => v.trim.nonEmpty && v != ConfigPurchaseOrImportMapping.NoneValue)
 

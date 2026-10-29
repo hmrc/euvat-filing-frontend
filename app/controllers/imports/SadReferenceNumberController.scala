@@ -37,18 +37,18 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class SadReferenceNumberController @Inject() (
-                                               override val messagesApi: MessagesApi,
-                                               sessionRepository: SessionRepository,
-                                               navigator: Navigator,
-                                               identify: IdentifierAction,
-                                               getData: DataRetrievalAction,
-                                               requireData: DataRequiredAction,
-                                               formProvider: SadReferenceNumberFormProvider,
-                                               val controllerComponents: MessagesControllerComponents,
-                                               euVatRefundsService: EuVatRefundsService,
-                                               view: SadReferenceNumberView
-                                             )(implicit ec: ExecutionContext)
-  extends FrontendBaseController
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  navigator: Navigator,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: SadReferenceNumberFormProvider,
+  val controllerComponents: MessagesControllerComponents,
+  euVatRefundsService: EuVatRefundsService,
+  view: SadReferenceNumberView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
     with Logging
     with I18nSupport {
 

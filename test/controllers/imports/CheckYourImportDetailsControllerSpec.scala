@@ -69,9 +69,9 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
       .value
 
   private def buildApplication(
-                                answers: Option[UserAnswers],
-                                repository: SessionRepository
-                              ): Application = {
+    answers: Option[UserAnswers],
+    repository: SessionRepository
+  ): Application = {
     when(repository.set(any[UserAnswers]()))
       .thenReturn(Future.successful(true))
 

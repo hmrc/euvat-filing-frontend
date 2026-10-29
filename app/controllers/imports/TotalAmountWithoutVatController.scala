@@ -39,18 +39,18 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class TotalAmountWithoutVatController @Inject() (
-                                                  override val messagesApi: MessagesApi,
-                                                  sessionRepository: SessionRepository,
-                                                  navigator: Navigator,
-                                                  currencyConfig: CurrencyConfig,
-                                                  identify: IdentifierAction,
-                                                  getData: DataRetrievalAction,
-                                                  requireData: DataRequiredAction,
-                                                  formProvider: TotalAmountWithoutVatFormProvider,
-                                                  val controllerComponents: MessagesControllerComponents,
-                                                  view: TotalAmountWithoutVatView
-                                                )(implicit ec: ExecutionContext)
-  extends FrontendBaseController
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  navigator: Navigator,
+  currencyConfig: CurrencyConfig,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: TotalAmountWithoutVatFormProvider,
+  val controllerComponents: MessagesControllerComponents,
+  view: TotalAmountWithoutVatView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
     with I18nSupport {
 
   val form: Form[BigDecimal] = formProvider()
@@ -58,7 +58,7 @@ class TotalAmountWithoutVatController @Inject() (
   private def backLink(mode: Mode)(userAnswers: models.UserAnswers): Call =
     CountryCode.findCountryCode(userAnswers) match {
       case Some(country) if currencyConfig.requiresCurrencySelection(country) => importRoutes.ImportCurrencyController.onPageLoad(mode)
-        // TODO: Wire this to supplier address page when it is ready
+      // TODO: Wire this to supplier address page when it is ready
       case _ => importRoutes.ImportSuppliersNameController.onPageLoad(mode)
     }
 

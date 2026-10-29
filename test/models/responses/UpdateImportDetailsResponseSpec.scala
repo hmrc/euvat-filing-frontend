@@ -20,7 +20,7 @@ import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import play.api.libs.json.Json
 
-class UpdateImportResponseSpec extends AnyFreeSpec with Matchers {
+class UpdateImportDetailsResponseSpec extends AnyFreeSpec with Matchers {
 
   "UpdateImportResponse JSON" - {
 

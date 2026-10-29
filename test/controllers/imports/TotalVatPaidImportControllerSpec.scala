@@ -65,13 +65,13 @@ class TotalVatPaidImportControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
           view(form,
-            routes.TotalVatPaidImportController.onSubmit(NormalMode),
-            backLink(NormalMode),
-            "import.caption",
-            "totalVatPaidImport.p1",
-            "€",
-            "Euro"
-          )(
+               routes.TotalVatPaidImportController.onSubmit(NormalMode),
+               backLink(NormalMode),
+               "import.caption",
+               "totalVatPaidImport.p1",
+               "€",
+               "Euro"
+              )(
             request,
             messages(application)
           ).toString
@@ -93,13 +93,13 @@ class TotalVatPaidImportControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
           view(form,
-            routes.TotalVatPaidImportController.onSubmit(CheckMode),
-            backLink(CheckMode),
-            "import.caption",
-            "totalVatPaidImport.p1",
-            "€",
-            "Euro"
-          )(
+               routes.TotalVatPaidImportController.onSubmit(CheckMode),
+               backLink(CheckMode),
+               "import.caption",
+               "totalVatPaidImport.p1",
+               "€",
+               "Euro"
+              )(
             request,
             messages(application)
           ).toString
@@ -240,13 +240,13 @@ class TotalVatPaidImportControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual BAD_REQUEST
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
           view(boundForm,
-            routes.TotalVatPaidImportController.onSubmit(NormalMode),
-            backLink(NormalMode),
-            "import.caption",
-            "totalVatPaidImport.p1",
-            "€",
-            "Euro"
-          )(
+               routes.TotalVatPaidImportController.onSubmit(NormalMode),
+               backLink(NormalMode),
+               "import.caption",
+               "totalVatPaidImport.p1",
+               "€",
+               "Euro"
+              )(
             request,
             messages(application)
           ).toString
