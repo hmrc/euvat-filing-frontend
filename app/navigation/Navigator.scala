@@ -22,6 +22,7 @@ import controllers.purchase.routes as purchaseRoutes
 import models.*
 import models.PurchaseOrImport.{Import, Purchase}
 import pages.*
+import pages.bankdetails.*
 import pages.claim.*
 import pages.imports.*
 import pages.purchase.*
@@ -77,6 +78,7 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case TotalAmountWithoutVatPage         => _ => importRoutes.TotalVatPaidImportController.onPageLoad(NormalMode)
     case TotalVatPaidImportPage            => _ => importRoutes.TotalVatClaimController.onPageLoad(NormalMode)
     case ImportTotalVatClaimPage           => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
+    case AccountHolderPage                 => _ => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: RA7.2 bank details form
     case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 
@@ -119,6 +121,7 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case TotalAmountWithoutVatPage         => _ => controllers.imports.routes.TotalVatPaidImportController.onPageLoad(CheckMode)
     case TotalVatPaidImportPage            => _ => controllers.imports.routes.TotalVatClaimController.onPageLoad(CheckMode)
     case ImportTotalVatClaimPage           => _ => controllers.routes.JourneyRecoveryController.onPageLoad()
+    case AccountHolderPage                 => _ => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: RA7.2 bank details form
     case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 

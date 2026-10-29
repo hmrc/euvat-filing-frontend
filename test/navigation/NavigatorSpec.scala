@@ -24,6 +24,7 @@ import controllers.purchase.routes as purchaseRoutes
 import models.*
 import models.PurchaseOrImport.Import
 import pages.*
+import pages.bankdetails.*
 import pages.claim.*
 import pages.imports.*
 import pages.purchase.*
@@ -231,6 +232,11 @@ class NavigatorSpec extends SpecBase {
           controllers.imports.routes.TotalVatClaimController.onPageLoad(NormalMode)
       }
 
+      "must go from AccountHolderPage to Journey Recovery" in {
+        navigator.nextPage(AccountHolderPage, NormalMode, userAnswers) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+
       "must go from a page that doesn't exist in the route map to Index" in {
         case object UnknownPage extends Page
         navigator.nextPage(UnknownPage, NormalMode, userAnswers) mustBe controllers.routes.IndexController.onPageLoad()
@@ -365,6 +371,11 @@ class NavigatorSpec extends SpecBase {
       "must go from TotalVatPaidImportPage to TotalVatClaimController" in {
         navigator.nextPage(TotalVatPaidImportPage, CheckMode, userAnswers) mustBe
           controllers.imports.routes.TotalVatClaimController.onPageLoad(CheckMode)
+      }
+
+      "must go from AccountHolderPage to Journey Recovery" in {
+        navigator.nextPage(AccountHolderPage, CheckMode, userAnswers) mustBe
+          controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from a page that doesn't exist in the edit route map to IndexController" in {
