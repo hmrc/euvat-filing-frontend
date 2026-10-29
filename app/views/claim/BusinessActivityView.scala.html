@@ -34,10 +34,8 @@
 @layout(pageTitle = views.ViewUtils.title(form, "businessActivity.title"), backLinkUrl = Some(call.url)) {
     @formHelper(action = controllers.claim.routes.BusinessActivityController.onSubmit(mode)) {
         @mainErrorSummary(form)
-        <h1 class="govuk-heading-l">
-            <span class="govuk-caption-l">@messages("claim.caption")</span>
-            @messages("businessActivity.heading")
-        </h1>
+        <span class="govuk-caption-l">@messages("claim.caption")</span>
+        <h1 class="govuk-heading-l">@messages("businessActivity.heading")</h1>
 
         @if(baCode1 != "") {
             @govukInsetText(InsetText(
@@ -50,7 +48,7 @@
         }
 
         <div class="govuk-form-group @if(isError){govuk-form-group--error}">
-            <fieldset class="govuk-fieldset" @if(isError){aria-describedby="value-error"}>
+            <fieldset class="govuk-fieldset" aria-describedby="ba-para@if(isError){ value-error}">
                 <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
                     @messages("businessActivity.legend")
                 </legend>

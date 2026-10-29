@@ -34,16 +34,14 @@
 @(form: play.api.data.Form[_], mode: models.Mode, call: Call, startErrorMessage: Option[String], endErrorMessage: Option[String], highlighted: Set[String], errorLinkOverrides: Map[String, String])(implicit request: play.api.mvc.Request[_], messages: play.api.i18n.Messages)
 @layout(pageTitle = title(form, "refundPeriod.title"), backLinkUrl = Some(call.url)) {
 
-    @formHelper(action = controllers.claim.routes.RefundPeriodController.onSubmit(mode)) {
+    @formHelper(action = controllers.claim.routes.RefundPeriodController.onSubmit(mode), Symbol("autoComplete") -> "on") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = errorLinkOverrides))
         }
 
-        <h1 class="govuk-heading-l">
-            <span class="govuk-caption-l">@messages("claim.caption")</span>
-            @messages("refundPeriod.heading")
-        </h1>
+        <span class="govuk-caption-l">@messages("claim.caption")</span>
+        <h1 class="govuk-heading-l">@messages("refundPeriod.heading")</h1>
         <p class="govuk-body">@messages("refundPeriod.rules.heading")</p>
 
         <ul class="govuk-list govuk-list--bullet">

@@ -34,10 +34,8 @@
 
     @formHelper(action = controllers.claim.routes.CheckYourStateDetailsController.onSubmit(mode)) {
         @mainErrorSummary(form)
-        <h1 class="govuk-heading-l">
-            <span class="govuk-caption-l">@messages("claim.caption")</span>
-            @messages("checkYourStateDetails.heading")
-        </h1>
+        <span class="govuk-caption-l">@messages("claim.caption")</span>
+        <h1 class="govuk-heading-l">@messages("checkYourStateDetails.heading")</h1>
 
         <p class="govuk-body">@messages("checkYourStateDetails.p1")</p>
         <p class="govuk-body">@messages("checkYourStateDetails.p2")</p>
