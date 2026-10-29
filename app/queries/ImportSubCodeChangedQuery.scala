@@ -14,17 +14,10 @@
  * limitations under the License.
  */
 
-package pages.imports
+package queries
 
-import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-case object ImportAmountWithoutVatChangedPage extends QuestionPage[Boolean] {
-  override def path: JsPath = JsPath \ toString
-  override def toString: String = "importAmountWithoutVatChanged"
-}
-
-case object ImportVatPaidChangedPage extends QuestionPage[Boolean] {
-  override def path: JsPath = JsPath \ toString
-  override def toString: String = "importVatPaidChanged"
+case object ImportSubCodeChangedQuery extends Gettable[Boolean] with Settable[Boolean] {
+  override def path: JsPath = JsPath \ "importSubCodeChanged"
 }
