@@ -25,27 +25,29 @@ class PurchaseDetailsResponseSpec extends AnyWordSpec with Matchers {
   "PurchaseDetailsResponse JSON format" should {
 
     "deserialize a response with omitted optional fields" in {
-      Json.obj(
-        "goodsDescriptionCode" -> "1",
-        "updateSequenceNumber" -> 7
-      ).as[PurchaseDetailsResponse] shouldBe PurchaseDetailsResponse(
-        goodsDescriptionCode = "1",
-        goodsDescriptionSubCode = None,
-        goodsDescriptionText = None,
+      Json
+        .obj(
+          "goodsDescriptionCode" -> "1",
+          "updateSequenceNumber" -> 7
+        )
+        .as[PurchaseDetailsResponse] shouldBe PurchaseDetailsResponse(
+        goodsDescriptionCode       = "1",
+        goodsDescriptionSubCode    = None,
+        goodsDescriptionText       = None,
         simplifiedInvoiceIndicator = None,
-        supplierName = None,
-        supplierAddressLine1 = None,
-        supplierAddressLine2 = None,
-        supplierAddressLine3 = None,
-        supplierVatNumber = None,
-        supplierTaxIdentifier = None,
-        invoiceDate = None,
-        invoiceNumber = None,
-        currencyCode = None,
-        taxableAmount = None,
-        vatAmount = None,
-        deductibleVatAmount = None,
-        updateSequenceNumber = 7
+        supplierName               = None,
+        supplierAddressLine1       = None,
+        supplierAddressLine2       = None,
+        supplierAddressLine3       = None,
+        supplierVatNumber          = None,
+        supplierTaxIdentifier      = None,
+        invoiceDate                = None,
+        invoiceNumber              = None,
+        currencyCode               = None,
+        taxableAmount              = None,
+        vatAmount                  = None,
+        deductibleVatAmount        = None,
+        updateSequenceNumber       = 7
       )
     }
   }

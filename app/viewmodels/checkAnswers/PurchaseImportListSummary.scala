@@ -48,16 +48,17 @@ object PurchaseImportListSummary {
           displaySummaryListRow(itemNumber, itemType, itemTypeCode, category)
         } else {
           val currencySymbol = ControllerHelpers.currencySymbolFromSession(userAnswers, config)
-          displaySummaryListRow(itemType, category, currencySymbol, vatClaim, false)
+          displaySummaryListRow(itemNumber, itemType, itemTypeCode, category, currencySymbol, vatClaim)
         }
       }
   }
 
-  private def displaySummaryListRow(itemType: String,
+  private def displaySummaryListRow(itemNumber: Int,
+                                    itemType: String,
+                                    itemTypeCode: String,
                                     category: String,
                                     currencySymbol: String = "",
-                                    vatClaim: BigDecimal = 0,
-                                    incomplete: Boolean = true
+                                    vatClaim: BigDecimal = 0
                                    )(implicit
     messages: Messages
   ): SummaryListRow = {
