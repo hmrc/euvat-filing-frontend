@@ -40,18 +40,18 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Success
 
 class ImportCurrencyController @Inject() (
-                                           override val messagesApi: MessagesApi,
-                                           sessionRepository: SessionRepository,
-                                           navigator: Navigator,
-                                           identify: IdentifierAction,
-                                           getData: DataRetrievalAction,
-                                           requireData: DataRequiredAction,
-                                           formProvider: RefundingCurrencyFormProvider,
-                                           currencyConfig: CurrencyConfig,
-                                           val controllerComponents: MessagesControllerComponents,
-                                           view: RefundingCurrencyView
-                                         )(implicit ec: ExecutionContext)
-  extends FrontendBaseController
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  navigator: Navigator,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: RefundingCurrencyFormProvider,
+  currencyConfig: CurrencyConfig,
+  val controllerComponents: MessagesControllerComponents,
+  view: RefundingCurrencyView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
     with I18nSupport {
 
   private val messagePrefix = "import.refundingCurrency"

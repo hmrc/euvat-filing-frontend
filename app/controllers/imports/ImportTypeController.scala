@@ -42,18 +42,18 @@ import views.html.purchasesOrImports.PurchaseOrImportTypeView
 import scala.concurrent.{ExecutionContext, Future}
 
 class ImportTypeController @Inject() (
-                                       override val messagesApi: MessagesApi,
-                                       sessionRepository: SessionRepository,
-                                       navigator: Navigator,
-                                       identify: IdentifierAction,
-                                       getData: DataRetrievalAction,
-                                       requireData: DataRequiredAction,
-                                       formProvider: ImportTypeFormProvider,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       view: PurchaseOrImportTypeView,
-                                       euVatRefundsService: EuVatRefundsService
-                                     )(implicit ec: ExecutionContext)
-  extends FrontendBaseController
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  navigator: Navigator,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: ImportTypeFormProvider,
+  val controllerComponents: MessagesControllerComponents,
+  view: PurchaseOrImportTypeView,
+  euVatRefundsService: EuVatRefundsService
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
     with I18nSupport
     with Logging {
 
@@ -80,14 +80,14 @@ class ImportTypeController @Inject() (
           Future.successful(
             BadRequest(
               view(formWithErrors,
-                mode,
-                backLink(mode),
-                routes.ImportTypeController.onSubmit(mode),
-                "importType",
-                "import.caption",
-                false,
-                legendKey = None
-              )
+                   mode,
+                   backLink(mode),
+                   routes.ImportTypeController.onSubmit(mode),
+                   "importType",
+                   "import.caption",
+                   false,
+                   legendKey = None
+                  )
             )
           ),
         value => {
@@ -111,7 +111,8 @@ class ImportTypeController @Inject() (
       )
   }
 
-  private def addImportIfRequired(answers: UserAnswers, importType: PurchaseOrImportType, mode: Mode)(implicit request: DataRequest[?]
+  private def addImportIfRequired(answers: UserAnswers, importType: PurchaseOrImportType, mode: Mode)(implicit
+    request: DataRequest[?]
   ): Future[Result] = {
     def onward(ua: UserAnswers): Result = Redirect(navigator.nextPage(ImportTypePage, mode, ua))
 

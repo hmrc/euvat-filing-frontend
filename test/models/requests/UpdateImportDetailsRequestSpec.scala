@@ -22,9 +22,9 @@ import play.api.libs.json.{JsObject, Json}
 
 import java.time.LocalDateTime
 
-class UpdateImportRequestSpec extends AnyFreeSpec with Matchers {
+class UpdateImportDetailsRequestSpec extends AnyFreeSpec with Matchers {
 
-  private val request = UpdateImportRequest(
+  private val request = UpdateImportDetailsRequest(
     applicationId               = 404,
     itemNumber                  = 4,
     goodsDescriptionCategory    = "10",
@@ -46,26 +46,39 @@ class UpdateImportRequestSpec extends AnyFreeSpec with Matchers {
     updateSequenceNumber        = 1
   )
 
-  "UpdateImportRequest JSON" - {
+  "UpdateImportDetailsRequest JSON" - {
 
     "must use the field names euvat-refunds expects" in {
       val json = Json.toJson(request).as[JsObject]
 
       json.keys mustEqual Set(
-        "applicationId", "itemNumber", "goodsDescriptionCategory", "goodsDescriptionSubCategory", "goodsDescriptionText",
-        "hasSadReferenceNumber", "sadReferenceNumber", "supplierName", "supplierAddressLine1", "supplierAddressLine2",
-        "supplierCountryCode", "issuingDate", "currencyCode", "taxableAmount", "vatAmount", "deductibleVatAmount",
+        "applicationId",
+        "itemNumber",
+        "goodsDescriptionCategory",
+        "goodsDescriptionSubCategory",
+        "goodsDescriptionText",
+        "hasSadReferenceNumber",
+        "sadReferenceNumber",
+        "supplierName",
+        "supplierAddressLine1",
+        "supplierAddressLine2",
+        "supplierCountryCode",
+        "issuingDate",
+        "currencyCode",
+        "taxableAmount",
+        "vatAmount",
+        "deductibleVatAmount",
         "updateSequenceNumber"
       )
       (json \\ "issuingDate").head.as[String] mustEqual "2026-05-14T00:00:00"
     }
 
     "must round trip through JSON" in {
-      Json.toJson(request).as[UpdateImportRequest] mustEqual request
+      Json.toJson(request).as[UpdateImportDetailsRequest] mustEqual request
     }
 
     "must fail to read when a mandatory field is missing" in {
-      (Json.toJson(request).as[JsObject] - "itemNumber").validate[UpdateImportRequest].isError mustBe true
+      (Json.toJson(request).as[JsObject] - "itemNumber").validate[UpdateImportDetailsRequest].isError mustBe true
     }
   }
 }

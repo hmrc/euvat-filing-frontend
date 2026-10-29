@@ -33,17 +33,17 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class ImportSupplierAddressController @Inject() (
-                                                  identify: IdentifierAction,
-                                                  getData: DataRetrievalAction,
-                                                  requireData: DataRequiredAction,
-                                                  formProvider: ImportSupplierAddressFormProvider,
-                                                  sessionRepository: SessionRepository,
-                                                  navigator: Navigator,
-                                                  config: FrontendAppConfig,
-                                                  val controllerComponents: MessagesControllerComponents,
-                                                  view: ImportSupplierAddressView
-                                                )(implicit ec: ExecutionContext)
-  extends BaseController
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: ImportSupplierAddressFormProvider,
+  sessionRepository: SessionRepository,
+  navigator: Navigator,
+  config: FrontendAppConfig,
+  val controllerComponents: MessagesControllerComponents,
+  view: ImportSupplierAddressView
+)(implicit ec: ExecutionContext)
+    extends BaseController
     with I18nSupport {
 
   private val form = formProvider()
@@ -85,7 +85,7 @@ class ImportSupplierAddressController @Inject() (
             val hasRequiredCountryError =
               formWithErrors.errors.exists { error =>
                 error.key == "country" &&
-                  error.message == "import.supplierAddress.error.country.required"
+                error.message == "import.supplierAddress.error.country.required"
               }
 
             val adjustedForm =
@@ -93,7 +93,7 @@ class ImportSupplierAddressController @Inject() (
                 val filtered =
                   formWithErrors.errors.filterNot { error =>
                     error.key == "country" &&
-                      error.message == "import.supplierAddress.error.country.required"
+                    error.message == "import.supplierAddress.error.country.required"
                   }
 
                 formWithErrors.copy(
@@ -121,11 +121,11 @@ class ImportSupplierAddressController @Inject() (
           value =>
             for {
               updatedAnswers <- Future.fromTry(
-                request.userAnswers.set(
-                  ImportSupplierAddressPage,
-                  value
-                )
-              )
+                                  request.userAnswers.set(
+                                    ImportSupplierAddressPage,
+                                    value
+                                  )
+                                )
               _ <- sessionRepository.set(updatedAnswers)
             } yield Redirect(
               navigator.nextPage(

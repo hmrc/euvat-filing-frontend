@@ -20,20 +20,20 @@ import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import play.api.libs.json.Json
 
-class UpdateImportResponseSpec extends AnyFreeSpec with Matchers {
+class UpdateImportDetailsResponseSpec extends AnyFreeSpec with Matchers {
 
-  "UpdateImportResponse JSON" - {
+  "UpdateImportDetailsResponse JSON" - {
 
     "must read the update-importation-details response" in {
-      Json.obj("updateSequenceNumber" -> 3).as[UpdateImportResponse] mustEqual UpdateImportResponse(3)
+      Json.obj("updateSequenceNumber" -> 3).as[UpdateImportDetailsResponse] mustEqual UpdateImportDetailsResponse(3)
     }
 
     "must write the updateSequenceNumber" in {
-      Json.toJson(UpdateImportResponse(3)) mustEqual Json.obj("updateSequenceNumber" -> 3)
+      Json.toJson(UpdateImportDetailsResponse(3)) mustEqual Json.obj("updateSequenceNumber" -> 3)
     }
 
     "must fail to read when updateSequenceNumber is missing" in {
-      Json.obj().validate[UpdateImportResponse].isError mustBe true
+      Json.obj().validate[UpdateImportDetailsResponse].isError mustBe true
     }
   }
 }

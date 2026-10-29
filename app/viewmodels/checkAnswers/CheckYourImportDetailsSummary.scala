@@ -39,10 +39,10 @@ object CheckYourImportDetailsSummary {
     value.filter(_.trim.nonEmpty)
 
   private def row(
-                   labelKey: String,
-                   value: Option[String],
-                   url: String
-                 )(implicit messages: Messages): Row = {
+    labelKey: String,
+    value: Option[String],
+    url: String
+  )(implicit messages: Messages): Row = {
     val action = if (value.isDefined) "change" else "add"
 
     (
@@ -53,10 +53,10 @@ object CheckYourImportDetailsSummary {
   }
 
   private def selection(
-                         value: Option[String],
-                         options: Seq[(String, String)],
-                         config: ConfigPurchaseOrImportMapping
-                       )(implicit messages: Messages): Option[String] =
+    value: Option[String],
+    options: Seq[(String, String)],
+    config: ConfigPurchaseOrImportMapping
+  )(implicit messages: Messages): Option[String] =
     value.flatMap {
       case ConfigPurchaseOrImportMapping.NoneValue =>
         Some(messages("site.none"))
@@ -65,17 +65,19 @@ object CheckYourImportDetailsSummary {
         config
           .buildRadioItems(options, messages)
           .find(_.value.contains(code))
-          .map(item => item.content match {
-            case uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text(value) => value
-            case content => content.asHtml.toString
-          })
+          .map(item =>
+            item.content match {
+              case uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text(value) => value
+              case content                                                        => content.asHtml.toString
+            }
+          )
     }
 
   private def dynamicRow(
-                          label: String,
-                          value: Option[String],
-                          url: String
-                        )(implicit messages: Messages): Row = {
+    label: String,
+    value: Option[String],
+    url: String
+  )(implicit messages: Messages): Row = {
     val action = if (value.isDefined) "change" else "add"
 
     (
@@ -92,9 +94,9 @@ object CheckYourImportDetailsSummary {
   }
 
   def categoryRows(
-                    answers: UserAnswers,
-                    config: ConfigPurchaseOrImportMapping
-                  )(implicit messages: Messages): Seq[Row] = {
+    answers: UserAnswers,
+    config: ConfigPurchaseOrImportMapping
+  )(implicit messages: Messages): Seq[Row] = {
     val importType = answers.get(ImportTypePage)
     val country = CountryCode.findCountryCode(answers)
 
@@ -107,13 +109,13 @@ object CheckYourImportDetailsSummary {
     val subCodeOptions = (
       for {
         selectedType <- importType
-        countryCode <- country
+        countryCode  <- country
         options <- config.selectableSubcodes(
-          countryCode,
-          selectedType.toString
-        )
+                     countryCode,
+                     selectedType.toString
+                   )
       } yield options
-      ).getOrElse(Seq.empty)
+    ).getOrElse(Seq.empty)
 
     val selectedSubCode = answers.get(ImportSubCodePage)
 
@@ -122,7 +124,7 @@ object CheckYourImportDetailsSummary {
         (
           subCodeOptions.isEmpty ||
             selectedSubCode.exists(isNoneSelection)
-          )
+        )
 
     if (descriptionRequired) {
       Seq(
@@ -165,20 +167,20 @@ object CheckYourImportDetailsSummary {
       val subCategoryRows = (
         for {
           selectedType <- importType
-          countryCode <- country
-          subCode <- selectedSubCode
+          countryCode  <- country
+          subCode      <- selectedSubCode
           if subCodeOptions.exists(_._1 == subCode)
           options = config.subcategoriesFor(
-            countryCode,
-            selectedType.toString,
-            subCode
-          )
+                      countryCode,
+                      selectedType.toString,
+                      subCode
+                    )
           if options.nonEmpty
           slug <- PurchaseOrImportSubCategoryType
-            .purchaseOrImportSubCategoryUrlSlugFor(
-              selectedType.toString,
-              subCode
-            )
+                    .purchaseOrImportSubCategoryUrlSlugFor(
+                      selectedType.toString,
+                      subCode
+                    )
         } yield Seq(
           dynamicRow(
             messages(s"purchase.subCategory.$slug"),
@@ -190,22 +192,20 @@ object CheckYourImportDetailsSummary {
             subCategoryUrl(slug)
           )
         )
-        ).getOrElse(Seq.empty)
+      ).getOrElse(Seq.empty)
 
       Seq(typeRow) ++ subCodeRows ++ subCategoryRows
     }
   }
 
-  def documentRows(answers: UserAnswers)(
-    implicit messages: Messages
+  def documentRows(answers: UserAnswers)(implicit
+    messages: Messages
   ): Seq[Row] = {
     val sadAnswer = answers.get(SadReferenceCheckPage)
 
     val sadRow = row(
       "sad",
-      sadAnswer.map(value =>
-        messages(if (value) "site.yes" else "site.no")
-      ),
+      sadAnswer.map(value => messages(if (value) "site.yes" else "site.no")),
       routes.SadReferenceCheckController.onPageLoad(CheckMode).url
     )
 
@@ -228,21 +228,22 @@ object CheckYourImportDetailsSummary {
     Seq(sadRow) ++ referenceRows ++ Seq(rowImportDate(answers))
   }
 
-  def rowImportDate(answers: UserAnswers)(
-    implicit messages: Messages
+  def rowImportDate(answers: UserAnswers)(implicit
+    messages: Messages
   ): Row = {
     implicit val lang: Lang = messages.lang
 
     row(
       "importDate",
-      answers.get(ImportDatePage)
+      answers
+        .get(ImportDatePage)
         .map(_.format(DateTimeFormats.dateTimeFormat())),
       routes.ImportDateController.onPageLoad(CheckMode).url
     )
   }
 
-  def rowSupplierName(answers: UserAnswers)(
-    implicit messages: Messages
+  def rowSupplierName(answers: UserAnswers)(implicit
+    messages: Messages
   ): Row =
     row(
       "supplierName",
@@ -251,9 +252,9 @@ object CheckYourImportDetailsSummary {
     )
 
   def rowSupplierAddress(
-                          answers: UserAnswers,
-                          supplierCountries: Map[String, String]
-                        )(implicit messages: Messages): Row = {
+    answers: UserAnswers,
+    supplierCountries: Map[String, String]
+  )(implicit messages: Messages): Row = {
     val value = answers
       .get(ImportSupplierAddressPage)
       .filter(address =>
@@ -279,9 +280,9 @@ object CheckYourImportDetailsSummary {
   }
 
   private def amount(
-                      value: Option[BigDecimal],
-                      currency: Option[Currency]
-                    ): Option[String] =
+    value: Option[BigDecimal],
+    currency: Option[Currency]
+  ): Option[String] =
     value.map { number =>
       val formatted = number.bigDecimal
         .setScale(2, java.math.RoundingMode.HALF_UP)
@@ -291,10 +292,11 @@ object CheckYourImportDetailsSummary {
     }
 
   def amountRows(
-                  answers: UserAnswers,
-                  currencyConfig: CurrencyConfig
-                )(implicit messages: Messages): Seq[Row] = {
-    val currencies = CountryCode.findCountryCode(answers)
+    answers: UserAnswers,
+    currencyConfig: CurrencyConfig
+  )(implicit messages: Messages): Seq[Row] = {
+    val currencies = CountryCode
+      .findCountryCode(answers)
       .flatMap(currencyConfig.currencyConfig.get)
       .getOrElse(currencyConfig.default)
 
@@ -302,7 +304,8 @@ object CheckYourImportDetailsSummary {
 
     val selectedCurrency =
       if (showCurrency) {
-        answers.get(ImportCurrencyPage)
+        answers
+          .get(ImportCurrencyPage)
           .flatMap(code => currencies.find(_.code == code))
       } else {
         currencies.headOption
@@ -346,11 +349,11 @@ object CheckYourImportDetailsSummary {
   }
 
   def sections(
-                answers: UserAnswers,
-                config: ConfigPurchaseOrImportMapping,
-                currencyConfig: CurrencyConfig,
-                supplierCountries: Map[String, String]
-              )(implicit messages: Messages): Seq[Section] =
+    answers: UserAnswers,
+    config: ConfigPurchaseOrImportMapping,
+    currencyConfig: CurrencyConfig,
+    supplierCountries: Map[String, String]
+  )(implicit messages: Messages): Seq[Section] =
     Seq(
       s"$prefix.importCategory" ->
         categoryRows(answers, config),

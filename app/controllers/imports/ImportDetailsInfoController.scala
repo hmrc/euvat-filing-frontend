@@ -34,17 +34,17 @@ import play.api.data.Form
 import scala.concurrent.{ExecutionContext, Future}
 
 class ImportDetailsInfoController @Inject() (
-                                              override val messagesApi: MessagesApi,
-                                              sessionRepository: SessionRepository,
-                                              navigator: Navigator,
-                                              identify: IdentifierAction,
-                                              getData: DataRetrievalAction,
-                                              requireData: DataRequiredAction,
-                                              formProvider: ImportDetailsInfoFormProvider,
-                                              val controllerComponents: MessagesControllerComponents,
-                                              view: ImportDetailsInfoView
-                                            )(implicit ec: ExecutionContext)
-  extends FrontendBaseController
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  navigator: Navigator,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: ImportDetailsInfoFormProvider,
+  val controllerComponents: MessagesControllerComponents,
+  view: ImportDetailsInfoView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
     with I18nSupport {
 
   val form: Form[String] = formProvider()

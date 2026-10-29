@@ -40,18 +40,18 @@ import views.html.purchasesOrImports.PurchaseOrImportTotalVatPaidView
 import scala.concurrent.{ExecutionContext, Future}
 
 class TotalVatPaidImportController @Inject() (
-                                               override val messagesApi: MessagesApi,
-                                               sessionRepository: SessionRepository,
-                                               navigator: Navigator,
-                                               currencyConfig: CurrencyConfig,
-                                               identify: IdentifierAction,
-                                               getData: DataRetrievalAction,
-                                               requireData: DataRequiredAction,
-                                               formProvider: TotalVatPaidImportFormProvider,
-                                               val controllerComponents: MessagesControllerComponents,
-                                               view: PurchaseOrImportTotalVatPaidView
-                                             )(implicit ec: ExecutionContext)
-  extends FrontendBaseController
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  navigator: Navigator,
+  currencyConfig: CurrencyConfig,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: TotalVatPaidImportFormProvider,
+  val controllerComponents: MessagesControllerComponents,
+  view: PurchaseOrImportTotalVatPaidView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
     with I18nSupport {
 
   val form: Form[BigDecimal] = formProvider()

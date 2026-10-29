@@ -17,8 +17,8 @@
 package controllers.imports
 
 import base.SpecBase
-import models.requests.UpdateImportRequest
-import models.responses.{AddImportResponse, ApplicationResponse, UpdateImportResponse}
+import models.requests.UpdateImportDetailsRequest
+import models.responses.{AddImportResponse, ApplicationResponse, UpdateImportDetailsResponse}
 import models.{CheckMode, ImportSupplierAddress, Other, UserAnswers}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
@@ -69,9 +69,9 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
       .value
 
   private def buildApplication(
-                                answers: Option[UserAnswers],
-                                repository: SessionRepository
-                              ): Application = {
+    answers: Option[UserAnswers],
+    repository: SessionRepository
+  ): Application = {
     when(repository.set(any[UserAnswers]()))
       .thenReturn(Future.successful(true))
 
@@ -199,7 +199,7 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
     "must update the import and redirect to the purchases and imports summary on POST when everything is answered" in {
       val repository = mock[SessionRepository]
       when(mockEuVatRefundsService.updateImport(any())(any()))
-        .thenReturn(Future.successful(UpdateImportResponse(updateSequenceNumber = 3)))
+        .thenReturn(Future.successful(UpdateImportDetailsResponse(updateSequenceNumber = 3)))
       val application = buildApplication(Some(savedAnswers), repository)
 
       running(application) {
@@ -208,9 +208,9 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
         status(result) mustBe SEE_OTHER
         redirectLocation(result).value mustBe controllers.routes.PurchaseImportSummaryController.onPageLoad.url
 
-        val requestCaptor = ArgumentCaptor.forClass(classOf[UpdateImportRequest])
+        val requestCaptor = ArgumentCaptor.forClass(classOf[UpdateImportDetailsRequest])
         verify(mockEuVatRefundsService).updateImport(requestCaptor.capture())(any())
-        requestCaptor.getValue mustBe UpdateImportRequest(
+        requestCaptor.getValue mustBe UpdateImportDetailsRequest(
           applicationId            = 404,
           itemNumber               = 4,
           goodsDescriptionCategory = "10",
@@ -238,14 +238,14 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
 
     "must prefer the latest application sequence number over the one returned by add-import" in {
       val repository = mock[SessionRepository]
-      when(mockEuVatRefundsService.updateImport(any())(any())).thenReturn(Future.successful(UpdateImportResponse(8)))
+      when(mockEuVatRefundsService.updateImport(any())(any())).thenReturn(Future.successful(UpdateImportDetailsResponse(8)))
       val answers = savedAnswers.set(UpdateSequenceNumberQuery, 7).success.value
       val application = buildApplication(Some(answers), repository)
 
       running(application) {
         status(route(application, FakeRequest(POST, routes.CheckYourImportDetailsController.onSubmit().url)).value) mustBe SEE_OTHER
 
-        val requestCaptor = ArgumentCaptor.forClass(classOf[UpdateImportRequest])
+        val requestCaptor = ArgumentCaptor.forClass(classOf[UpdateImportDetailsRequest])
         verify(mockEuVatRefundsService).updateImport(requestCaptor.capture())(any())
         requestCaptor.getValue.updateSequenceNumber mustBe 7
       }
@@ -253,7 +253,7 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
 
     "must send only the document information when there is no SAD reference" in {
       val repository = mock[SessionRepository]
-      when(mockEuVatRefundsService.updateImport(any())(any())).thenReturn(Future.successful(UpdateImportResponse(3)))
+      when(mockEuVatRefundsService.updateImport(any())(any())).thenReturn(Future.successful(UpdateImportDetailsResponse(3)))
       // SadReferenceNumberPage still holds the earlier "Yes" answer and must not be sent
       val answers = savedAnswers
         .set(SadReferenceCheckPage, false)
@@ -265,7 +265,7 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
       running(application) {
         status(route(application, FakeRequest(POST, routes.CheckYourImportDetailsController.onSubmit().url)).value) mustBe SEE_OTHER
 
-        val requestCaptor = ArgumentCaptor.forClass(classOf[UpdateImportRequest])
+        val requestCaptor = ArgumentCaptor.forClass(classOf[UpdateImportDetailsRequest])
         verify(mockEuVatRefundsService).updateImport(requestCaptor.capture())(any())
         requestCaptor.getValue.hasSadReferenceNumber mustBe Some("false")
         requestCaptor.getValue.sadReferenceNumber mustBe None
@@ -275,14 +275,14 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
 
     "must send the selected currency when one has been chosen" in {
       val repository = mock[SessionRepository]
-      when(mockEuVatRefundsService.updateImport(any())(any())).thenReturn(Future.successful(UpdateImportResponse(3)))
+      when(mockEuVatRefundsService.updateImport(any())(any())).thenReturn(Future.successful(UpdateImportDetailsResponse(3)))
       val answers = savedAnswers.set(ImportCurrencyPage, "SEK").success.value
       val application = buildApplication(Some(answers), repository)
 
       running(application) {
         status(route(application, FakeRequest(POST, routes.CheckYourImportDetailsController.onSubmit().url)).value) mustBe SEE_OTHER
 
-        val requestCaptor = ArgumentCaptor.forClass(classOf[UpdateImportRequest])
+        val requestCaptor = ArgumentCaptor.forClass(classOf[UpdateImportDetailsRequest])
         verify(mockEuVatRefundsService).updateImport(requestCaptor.capture())(any())
         requestCaptor.getValue.currencyCode mustBe Some("SEK")
       }

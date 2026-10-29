@@ -35,10 +35,10 @@ class ImportDetailsWarningControllerSpec extends SpecBase {
         val result = route(application, request).value
         val view = application.injector.instanceOf[ImportDetailsWarningView]
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          importRoutes.SadReferenceNumberController.onPageLoad(NormalMode),
-          importRoutes.ImportDetailsInfoController.onPageLoad(NormalMode), NormalMode)
-          (request,messages(application)).toString
+        contentAsString(result) mustEqual view(importRoutes.SadReferenceNumberController.onPageLoad(NormalMode),
+                                               importRoutes.ImportDetailsInfoController.onPageLoad(NormalMode),
+                                               NormalMode
+                                              )(request, messages(application)).toString
       }
     }
 
@@ -49,10 +49,10 @@ class ImportDetailsWarningControllerSpec extends SpecBase {
         val result = route(application, request).value
         val view = application.injector.instanceOf[ImportDetailsWarningView]
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          importRoutes.SadReferenceNumberController.onPageLoad(CheckMode),
-          importRoutes.ImportDetailsInfoController.onPageLoad(CheckMode), CheckMode)
-          (request,messages(application)).toString
+        contentAsString(result) mustEqual view(importRoutes.SadReferenceNumberController.onPageLoad(CheckMode),
+                                               importRoutes.ImportDetailsInfoController.onPageLoad(CheckMode),
+                                               CheckMode
+                                              )(request, messages(application)).toString
       }
     }
 

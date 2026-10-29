@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package pages.imports
+package models.responses
 
-import pages.Page
+import play.api.libs.json.{Json, OFormat}
 
-case object CheckYourImportDetailsPage extends Page {
-  override def toString: String = "checkYourImportDetails"
+case class UpdateImportDetailsResponse(updateSequenceNumber: Int)
+
+object UpdateImportDetailsResponse {
+  implicit val format: OFormat[UpdateImportDetailsResponse] = Json.format[UpdateImportDetailsResponse]
 }
