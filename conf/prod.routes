@@ -7,3 +7,4 @@
 ->      /file-eu-vat/purchase               purchase.Routes
 ->      /file-eu-vat/import                 imports.Routes
 ->      /file-eu-vat/warning                warning.Routes
+->      /file-eu-vat/bank-details           bankdetails.Routes

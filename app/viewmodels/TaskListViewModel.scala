@@ -19,7 +19,7 @@ package viewmodels
 import models.{NormalMode, UserAnswers}
 import pages.PurchaseImportSummaryPage
 import play.api.i18n.Messages
-import queries.ClaimDetailsCompletedQuery
+import queries.{ClaimDetailsCompletedQuery, PurchaseImportSummaryIncompleteQuery}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 import uk.gov.hmrc.govukfrontend.views.viewmodels.tag.Tag
@@ -31,7 +31,7 @@ class TaskListViewModel @Inject() {
 
   def showDeleteLink(answers: UserAnswers): Boolean = answers.get(ClaimDetailsCompletedQuery).contains(true)
 
-  def buildTaskList(answers: UserAnswers, inCompleteRows: Boolean)(implicit messages: Messages): TaskList = {
+  def buildTaskList(answers: UserAnswers)(implicit messages: Messages): TaskList = {
     val claimDetailsDone = answers.get(ClaimDetailsCompletedQuery).contains(true)
     def notStartedStatus = TaskListItemStatus(tag = Some(Tag(content = Text(messages("taskListDashboard.status1")))))
     def cannotStartStatus =
@@ -40,7 +40,7 @@ class TaskListViewModel @Inject() {
 
     val claimDetailsItem = claimTaskList(messages, claimDetailsDone, notStartedStatus, completedStatus)
     val purchaseImportItems =
-      purchaseImportTaskList(answers, messages, claimDetailsDone, cannotStartStatus, notStartedStatus, completedStatus, inCompleteRows)
+      purchaseImportTaskList(answers, messages, claimDetailsDone, cannotStartStatus, notStartedStatus, completedStatus)
     val supportingDocsItem = supportingDocItemList(messages, claimDetailsDone, notStartedStatus, cannotStartStatus)
     val bankDetailsItem = bankDetailsTaskList(messages, claimDetailsDone, notStartedStatus, cannotStartStatus)
     val submitClaimItem = submitClaimTaskList(messages, cannotStartStatus)
@@ -66,7 +66,7 @@ class TaskListViewModel @Inject() {
     TaskListItem(
       title  = TaskListItemTitle(content = Text(messages("taskListDashboard.listItem4"))),
       status = if (claimDetailsDone) notStartedStatus else cannotStartStatus,
-      href   = if (claimDetailsDone) Some("#") else None
+      href   = if (claimDetailsDone) Some(controllers.bankdetails.routes.BeforeYouStartBankDetailsController.onPageLoad().url) else None
     )
   }
 
@@ -87,9 +87,9 @@ class TaskListViewModel @Inject() {
                                      claimDetailsDone: Boolean,
                                      cannotStartStatus: TaskListItemStatus,
                                      notStartedStatus: TaskListItemStatus,
-                                     completedStatus: TaskListItemStatus,
-                                     inCompleteRows: Boolean
+                                     completedStatus: TaskListItemStatus
                                     ): TaskListItem = {
+    val inCompleteRows = answers.get(PurchaseImportSummaryIncompleteQuery).getOrElse(false)
     TaskListItem(
       title = TaskListItemTitle(content = Text(messages("taskListDashboard.listItem2"))),
       hint = if (inCompleteRows) {
