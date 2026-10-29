@@ -589,15 +589,12 @@ purchaseImportSummary.complete.remove.hidden = {0} for {1} with a VAT claim of {
 purchaseImportSummary.error.required = Select yes if you need to add another item
 purchaseImportSummary.error.incomplete = You must add details to the incomplete items or remove them before you can continue
 
-<<<<<<< HEAD
 beforeYouStartBankDetails.title = Before you start
 beforeYouStartBankDetails.heading = Before you start
 beforeYouStartBankDetails.paragraph1 = You need to provide international bank account details in order to claim an EU VAT refund.
 beforeYouStartBankDetails.paragraph2 = You can find details on your bank statement or contact your bank directly.
 beforeYouStartBankDetails.paragraph3 = You must keep your bank details up to date to make sure you receive any refund you are owed.
 
-=======
->>>>>>> 8d8d783a (fix messages text placing order)
 # Warning messages
 refundPeriodStartDateWarning.title = Are you sure the refund period start date is correct?
 refundPeriodStartDateWarning.heading = Are you sure the refund period start date is correct?
