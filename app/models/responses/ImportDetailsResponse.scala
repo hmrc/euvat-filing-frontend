@@ -18,20 +18,22 @@ package models.responses
 
 import play.api.libs.json.{Json, OFormat}
 
+import java.time.LocalDateTime
+
 case class ImportDetailsResponse(
   applicationId: Long,
   itemNumber: Int,
-  issuingDate: String,
+  issuingDate: Option[LocalDateTime],
   supplierName: Option[String],
   supplierAddressLine1: Option[String],
   supplierAddressLine2: Option[String],
   supplierAddressLine3: Option[String],
   supplierCountryCode: Option[String],
   goodsDescriptionCategory: String,
-  currencyCode: String,
-  taxableAmount: BigDecimal,
-  vatAmount: BigDecimal,
-  deductibleVatAmount: BigDecimal,
+  currencyCode: Option[String],
+  taxableAmount: Option[BigDecimal],
+  vatAmount: Option[BigDecimal],
+  deductibleVatAmount: Option[BigDecimal],
   hasSadReferenceNumber: Option[String],
   sadReferenceNumber: Option[String],
   referenceInformation: Option[String],

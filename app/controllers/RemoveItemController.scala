@@ -86,7 +86,7 @@ class RemoveItemController @Inject() (
               case "I" =>
                 euVatRefundsService
                   .getImportDetails(applicationId, itemNumber)
-                  .map(response => Some(response.deductibleVatAmount -> response.updateSequenceNumber))
+                  .map(response => Some(response.deductibleVatAmount.getOrElse(BigDecimal(0)) -> response.updateSequenceNumber))
                   .recover { case ex =>
                     logger.warn(s"Unable to retrieve import details for item $itemNumber", ex)
                     None

@@ -38,17 +38,17 @@ class RemoveItemControllerSpec extends SpecBase {
     val importDetailsResponse = ImportDetailsResponse(
       applicationId               = 111,
       itemNumber                  = 2,
-      issuingDate                 = "2026-10-21",
+      issuingDate                 = Some(java.time.LocalDateTime.of(2026, 10, 21, 0, 0)),
       supplierName                = Some("Supplier"),
       supplierAddressLine1        = Some("Address line 1"),
       supplierAddressLine2        = None,
       supplierAddressLine3        = None,
       supplierCountryCode         = Some("FR"),
       goodsDescriptionCategory    = "1",
-      currencyCode                = "EU",
-      taxableAmount               = BigDecimal(300),
-      vatAmount                   = BigDecimal(200),
-      deductibleVatAmount         = BigDecimal(42),
+      currencyCode                = Some("EU"),
+      taxableAmount               = Some(BigDecimal(300)),
+      vatAmount                   = Some(BigDecimal(200)),
+      deductibleVatAmount         = Some(BigDecimal(42)),
       hasSadReferenceNumber       = Some("N"),
       sadReferenceNumber          = None,
       referenceInformation        = None,
@@ -161,7 +161,7 @@ class RemoveItemControllerSpec extends SpecBase {
 
     "show Not provided for an incomplete item" in {
       when(mockEuVatRefundsService.getImportDetails(eqTo(111L), eqTo(2))(any()))
-        .thenReturn(Future.successful(importDetailsResponse.copy(deductibleVatAmount = 0)))
+        .thenReturn(Future.successful(importDetailsResponse.copy(deductibleVatAmount = None)))
       val application = applicationBuilder(userAnswers = Some(userAnswersWithItem(2))).build()
 
       running(application) {
