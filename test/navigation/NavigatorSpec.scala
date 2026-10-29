@@ -27,7 +27,7 @@ import pages.*
 import pages.claim.*
 import pages.imports.*
 import pages.purchase.*
-import queries.{ImportSadChangedQuery, ImportVatPaidChangedQuery}
+import queries.{ImportAmountWithoutVatChangedQuery, ImportCurrencyChangedQuery,ImportSadChangedQuery, ImportVatPaidChangedQuery}
 import play.api.Configuration
 import utils.{ConfigLanguageMapping, ConfigPurchaseOrImportMapping, CurrencyConfig}
 
@@ -367,7 +367,7 @@ class NavigatorSpec extends SpecBase {
         navigator.nextPage(
           TotalAmountWithoutVatPage,
           CheckMode,
-          userAnswers.set(TotalAmountWithoutVatPage, BigDecimal(100)).flatMap(_.set(ImportAmountWithoutVatChangedPage, true)).success.value
+          userAnswers.set(TotalAmountWithoutVatPage, BigDecimal(100)).flatMap(_.set(ImportAmountWithoutVatChangedQuery, true)).success.value
         ) mustBe
           controllers.imports.routes.TotalVatPaidImportController.onPageLoad(CheckMode)
       }
