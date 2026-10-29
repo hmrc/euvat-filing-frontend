@@ -28,15 +28,14 @@ formHelper: FormWithCSRF
 
 @layout(pageTitle = titleNoForm(messages("beforeYouStartBankDetails.title")), backLinkUrl = Some(backLinkCall.url)) {
 @formHelper(action = controllers.bankdetails.routes.BeforeYouStartBankDetailsController.onSubmit()) {
-<h1 class="govuk-heading-l">
+
     <span class="govuk-caption-l">@messages("bankDetails.caption")</span>
-    @messages("beforeYouStartBankDetails.heading")
-</h1>
+
+    <h1 class="govuk-heading-l">@messages("beforeYouStartBankDetails.heading")</h1>
 
     <p class="govuk-body">@messages("beforeYouStartBankDetails.paragraph1")</p>
     <p class="govuk-body">@messages("beforeYouStartBankDetails.paragraph2")</p>
     <p class="govuk-body">@messages("beforeYouStartBankDetails.paragraph3")</p>
-
 
 @govukButton(ButtonViewModel(Text(messages("site.continue"))))
 }
