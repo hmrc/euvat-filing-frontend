@@ -20,6 +20,7 @@ import models.requests.DataRequest
 import models.{PurchaseImport, PurchaseOrImportType, UserAnswers}
 import queries.ClaimApplicationResponseQuery
 import controllers.imports.routes as importRoutes
+import controllers.purchase.routes as purchaseRoutes
 import play.api.i18n.Messages
 import play.twirl.api.Html
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
@@ -43,8 +44,14 @@ object PurchaseImportListSummary {
         val itemType = if (item.itemType == "P") { "Purchase" }
         else { "Import" }
 
+        val maybeAppId = userAnswers.get(ClaimApplicationResponseQuery).map(_.applicationId)
+
+        val changeUrl = maybeAppId.map { appId =>
+          purchaseRoutes.CheckYourPurchaseDetailsController.changeYourAnswers(appId, itemNumber).url
+        }
+
         if (vatClaim == 0) {
-          displaySummaryListRow(itemType, category)
+          displaySummaryListRow(itemType, category, changeHref = changeUrl)
         } else {
           val currencySymbol = ControllerHelpers.currencySymbolFromSession(userAnswers, config)
           val changeUrl =
@@ -76,7 +83,7 @@ object PurchaseImportListSummary {
       },
       actions = if (vatClaim == 0) {
         Seq(
-          ActionItemViewModel("site.add", "#").withVisuallyHiddenText(
+          ActionItemViewModel("site.add", changeHref.getOrElse("#")).withVisuallyHiddenText(
             messages("purchaseImportSummary.incomplete.add.hidden", itemType, category)
           ),
           ActionItemViewModel("site.remove", "#").withVisuallyHiddenText(

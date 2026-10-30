@@ -140,3 +140,4 @@ POST       /change-vat-claim                                controllers.purchase
 
 GET        /check-your-answers                              controllers.purchase.CheckYourPurchaseDetailsController.onPageLoad()
 POST       /check-your-answers                              controllers.purchase.CheckYourPurchaseDetailsController.onSubmit()
+GET        /change-your-answers/:applicationId/:itemNumber    controllers.purchase.CheckYourPurchaseDetailsController.changeYourAnswers(applicationId: Long, itemNumber: Int)

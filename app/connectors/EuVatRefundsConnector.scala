@@ -83,11 +83,6 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
       .execute[UpdateImportDetailsResponse]
   }
 
-  def getImportDetails(applicationId: Long, itemNumber: Int)(implicit hc: HeaderCarrier): Future[ImportDetailsResponse] =
-    http
-      .get(url"$euVatRefundsBaseUrl/get-import-details/$applicationId/$itemNumber")
-      .execute[ImportDetailsResponse]
-
   def getSupplierVrnCount(request: SupplierVrnCountRequest)(implicit hc: HeaderCarrier): Future[SupplierVrnCountResponse] = {
     http
       .post(url"$euVatRefundsBaseUrl/get-supplier-vrn-count")
@@ -115,6 +110,12 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
       .post(url"$euVatRefundsBaseUrl/get-purchases-and-imports")
       .withBody(Json.toJson(request))
       .execute[PurchaseImportListResponse]
+  }
+
+  def getPurchaseDetails(applicationId: Long, itemNumber: Int)(implicit hc: HeaderCarrier): Future[models.responses.PurchaseDetailResponse] = {
+    http
+      .get(url"$euVatRefundsBaseUrl/get-purchase-details/$applicationId/$itemNumber")
+      .execute[models.responses.PurchaseDetailResponse]
   }
 
   def deleteApplication(request: DeleteApplicationRequest)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
