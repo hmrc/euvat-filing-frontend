@@ -27,17 +27,26 @@
 @(
     sections: Seq[(String, Seq[(String, Option[String], Seq[(String, String, String)])])],
     formAction: Call,
-    backLink: Call
+    backLink: Call,
+    pageType: String,
+    isAmended: Boolean
 )(implicit request: Request[?], messages: Messages)
 
 @layout(
-    pageTitle = titleNoForm(messages("checkYourImportDetails.title")),
+    pageTitle = titleNoForm(messages(s"${pageType}.title")),
     backLinkUrl = Some(backLink.url)
 ) {
-    <span class="govuk-caption-l">@messages("import.caption")</span>
-    <h1 class="govuk-heading-l">
-        @messages("checkYourImportDetails.heading")
-    </h1>
+    @if(pageType == "changeYourImportDetails") {
+        <h1 class="govuk-heading-l">
+            <span class="govuk-caption-l">@messages("import.caption")</span>
+            @messages(s"${pageType}.heading")
+        </h1>
+    } else {
+        <span class="govuk-caption-l">@messages("import.caption")</span>
+        <h1 class="govuk-heading-l">
+            @messages(s"${pageType}.heading")
+        </h1>
+    }
 
     @formHelper(
         action = formAction,
@@ -54,7 +63,9 @@
         }
 
         @govukButton(
-            ButtonViewModel(messages("site.save.continue"))
+            ButtonViewModel(messages(
+                if (pageType == "changeYourImportDetails" && !isAmended) "site.continue" else "site.save.continue"
+            ))
         )
     }
 }

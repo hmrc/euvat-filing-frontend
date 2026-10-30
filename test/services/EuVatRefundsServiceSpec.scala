@@ -309,6 +309,45 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
     }
   }
 
+  "EuVatRefundsService.getImportDetails" - {
+    val expectedResponse = ImportDetailsResponse(
+      applicationId               = 123L,
+      itemNumber                  = 4,
+      issuingDate                 = Some(LocalDateTime.of(2026, 5, 14, 0, 0)),
+      supplierName                = Some("Supplier"),
+      supplierAddressLine1        = Some("1 High Street"),
+      supplierAddressLine2        = None,
+      supplierAddressLine3        = None,
+      supplierCountryCode         = Some("GB"),
+      goodsDescriptionCategory    = "10",
+      goodsDescriptionSubcategory = None,
+      goodsDescriptionText        = Some("Equipment"),
+      hasSadReferenceNumber       = Some("false"),
+      sadReferenceNumber          = None,
+      referenceInformation        = Some("Document"),
+      currencyCode                = Some("EUR"),
+      taxableAmount               = Some(BigDecimal(1000)),
+      vatAmount                   = Some(BigDecimal(99)),
+      deductibleVatAmount         = Some(BigDecimal(40)),
+      updateSequenceNumber        = 2
+    )
+
+    "should return the saved import from the connector" in {
+      when(mockConnector.getImportDetails(any(), any())(any())).thenReturn(Future.successful(expectedResponse))
+
+      service.getImportDetails(123L, 4)(hc).futureValue mustEqual expectedResponse
+    }
+
+    "should propagate an exception from the connector" in {
+      val failure = new RuntimeException("Connector failed")
+      when(mockConnector.getImportDetails(any(), any())(any())).thenReturn(Future.failed(failure))
+
+      whenReady(service.getImportDetails(123L, 4).failed) { ex =>
+        ex mustEqual failure
+      }
+    }
+  }
+
   "EuVatRefundsService.getPurchaseDetails" - {
 
     val expectedResponse = PurchaseDetailResponse(

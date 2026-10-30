@@ -27,7 +27,7 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class EuVatRefundsService @Inject() (euVatRefundsConnector: EuVatRefundsConnector, config: FrontendAppConfig)(implicit ec: ExecutionContext)
-    extends Logging {
+  extends Logging {
   def retrieveTraderKnownFacts()(implicit hc: HeaderCarrier): Future[TraderKnownFactsResponse] = {
     euVatRefundsConnector.retrieveTradersKnownFacts()
   }
@@ -52,11 +52,14 @@ class EuVatRefundsService @Inject() (euVatRefundsConnector: EuVatRefundsConnecto
   def updateImport(request: UpdateImportDetailsRequest)(implicit hc: HeaderCarrier): Future[UpdateImportDetailsResponse] =
     euVatRefundsConnector.updateImport(request)
 
+  def getImportDetails(applicationId: Long, itemNumber: Int)(implicit hc: HeaderCarrier): Future[ImportDetailsResponse] =
+    euVatRefundsConnector.getImportDetails(applicationId, itemNumber)
+
   def deleteApplication(request: models.requests.DeleteApplicationRequest)(implicit hc: HeaderCarrier): Future[HttpResponse] =
     euVatRefundsConnector.deleteApplication(request)
 
   def getSupplierTaxIdentifierCount(request: SupplierTaxIdentifierCountRequest)(implicit
-    hc: HeaderCarrier
+                                                                                hc: HeaderCarrier
   ): Future[SupplierTaxIdentifierCountResponse] =
     euVatRefundsConnector.getSupplierTaxIdentifierCount(request)
 

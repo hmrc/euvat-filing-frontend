@@ -125,3 +125,5 @@ POST       /change-vat-claim                            controllers.imports.Tota
 
 GET        /check-your-answers                          controllers.imports.CheckYourImportDetailsController.onPageLoad()
 POST       /check-your-answers                          controllers.imports.CheckYourImportDetailsController.onSubmit()
+
+GET        /change-your-answers/:applicationId/:itemNumber    controllers.imports.CheckYourImportDetailsController.changeYourAnswers(applicationId: Long, itemNumber: Int)

@@ -19,6 +19,7 @@ package viewmodels.checkAnswers
 import models.requests.DataRequest
 import models.{PurchaseImport, PurchaseOrImportType, UserAnswers}
 import queries.ClaimApplicationResponseQuery
+import controllers.imports.routes as importRoutes
 import controllers.purchase.routes as purchaseRoutes
 import play.api.i18n.Messages
 import play.twirl.api.Html
@@ -31,8 +32,8 @@ import viewmodels.implicits.*
 object PurchaseImportListSummary {
 
   def rows(userAnswers: UserAnswers, list: List[PurchaseImport], config: Map[String, Seq[Currency]])(implicit
-    messages: Messages,
-    request: DataRequest[?]
+                                                                                                     messages: Messages,
+                                                                                                     request: DataRequest[?]
   ): Seq[SummaryListRow] = {
     val (completeClaims, incompleteClaims) = list.partition(_.deductibleVatAmount > 0) // split between incomplete and complete items
     (incompleteClaims ++ completeClaims) // display incomplete first and the completed ones
@@ -53,6 +54,12 @@ object PurchaseImportListSummary {
           displaySummaryListRow(itemType, category, changeHref = changeUrl)
         } else {
           val currencySymbol = ControllerHelpers.currencySymbolFromSession(userAnswers, config)
+          val changeUrl =
+            if (item.itemType == "P") None
+            else
+              userAnswers.get(ClaimApplicationResponseQuery).map { claim =>
+                importRoutes.CheckYourImportDetailsController.changeYourAnswers(claim.applicationId, itemNumber).url
+              }
           displaySummaryListRow(itemType, category, currencySymbol, vatClaim, false, changeUrl)
         }
       }
@@ -65,8 +72,8 @@ object PurchaseImportListSummary {
                                     incomplete: Boolean = true,
                                     changeHref: Option[String] = None
                                    )(implicit
-    messages: Messages
-  ): SummaryListRow = {
+                                     messages: Messages
+                                   ): SummaryListRow = {
     SummaryListRowViewModel(
       key = itemType + " (" + category + ")",
       value = if (vatClaim == 0) {

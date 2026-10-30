@@ -30,7 +30,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV2)(implicit ec: ExecutionContext)
-    extends HttpReadsInstances
+  extends HttpReadsInstances
     with Logging {
 
   private val euVatRefundsBaseUrl: String = config.baseUrl("euvat-refunds") + "/euvat-refunds"
@@ -97,8 +97,8 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
       .execute[UpdateApplicationDetailsResponse]
 
   def getSupplierTaxIdentifierCount(
-    request: SupplierTaxIdentifierCountRequest
-  )(implicit hc: HeaderCarrier): Future[SupplierTaxIdentifierCountResponse] = {
+                                     request: SupplierTaxIdentifierCountRequest
+                                   )(implicit hc: HeaderCarrier): Future[SupplierTaxIdentifierCountResponse] = {
     http
       .post(url"$euVatRefundsBaseUrl/get-supplier-taxIdentifier-count")
       .withBody(Json.toJson(request))

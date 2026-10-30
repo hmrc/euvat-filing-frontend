@@ -564,4 +564,48 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
     }
   }
 
+  "EuVatRefundsConnector.getImportDetails" should {
+    val expected = ImportDetailsResponse(
+      applicationId               = 123L,
+      itemNumber                  = 4,
+      issuingDate                 = Some(LocalDateTime.of(2026, 5, 14, 0, 0)),
+      supplierName                = Some("Supplier"),
+      supplierAddressLine1        = Some("1 High Street"),
+      supplierAddressLine2        = None,
+      supplierAddressLine3        = None,
+      supplierCountryCode         = Some("GB"),
+      goodsDescriptionCategory    = "10",
+      goodsDescriptionSubcategory = None,
+      goodsDescriptionText        = Some("Equipment"),
+      hasSadReferenceNumber       = Some("false"),
+      sadReferenceNumber          = None,
+      referenceInformation        = Some("Document"),
+      currencyCode                = Some("EUR"),
+      taxableAmount               = Some(BigDecimal(1000)),
+      vatAmount                   = Some(BigDecimal(99)),
+      deductibleVatAmount         = Some(BigDecimal(40)),
+      updateSequenceNumber        = 2
+    )
+
+    "call the get-import-details URL for the item and return the saved import" in {
+      when(mockHttp.get(any())(any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.execute[ImportDetailsResponse](any(), any()))
+        .thenReturn(Future.successful(expected))
+
+      connector.getImportDetails(123L, 4).futureValue shouldBe expected
+
+      verify(mockHttp).get(url"$baseUrl/get-import-details/123/4")
+    }
+
+    "propagate failures from the HTTP client" in {
+      val failure = UpstreamErrorResponse("error", 500)
+      when(mockHttp.get(any())(any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.execute[ImportDetailsResponse](any(), any()))
+        .thenReturn(Future.failed(failure))
+
+      whenReady(connector.getImportDetails(123L, 5).failed) { ex =>
+        ex shouldBe failure
+      }
+    }
+  }
 }

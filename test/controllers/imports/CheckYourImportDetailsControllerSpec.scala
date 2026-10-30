@@ -18,7 +18,7 @@ package controllers.imports
 
 import base.SpecBase
 import models.requests.UpdateImportDetailsRequest
-import models.responses.{AddImportResponse, ApplicationResponse, UpdateImportDetailsResponse}
+import models.responses.{AddImportResponse, ApplicationResponse, ImportDetailsResponse, UpdateImportDetailsResponse}
 import models.{CheckMode, ImportSupplierAddress, Other, UserAnswers}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
