@@ -31,7 +31,7 @@
 ) {
     <h1 class="govuk-heading-l">@messages(if(isPostSubmission) "checkYourClaimDetails.claimDetails.heading" else "checkYourClaimDetails.heading")</h1>
     @if(!isPostSubmission) {
-        <p class="govuk-body">@messages("checkYourClaimDetails.paragraph")</p><br/>
+        <p class="govuk-body">@messages("checkYourClaimDetails.paragraph")</p>
     }
 
     @formHelper(action = controllers.claim.routes.CheckYourClaimDetailsController.onSubmit(), Symbol("autoComplete") -> "off") {

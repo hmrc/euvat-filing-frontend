@@ -29,10 +29,8 @@
 
 @layout(pageTitle = titleNoForm(messages("businessActivityThree.title")), backLinkUrl = Some(controllers.claim.routes.BusinessActivityCodeThreeController.onPageLoad(NormalMode).url)) {
     @formHelper(action = controllers.claim.routes.BusinessActivityThreeController.onSubmit()) {
-        <h1 class="govuk-heading-l">
-            <span class="govuk-caption-l">@messages("claim.caption")</span>
-            @messages("businessActivityThree.heading")
-        </h1>
+        <span class="govuk-caption-l">@messages("claim.caption")</span>
+        <h1 class="govuk-heading-l">@messages("businessActivityThree.heading")</h1>
         @govukInsetText(InsetText(
             content = HtmlContent(s"${messages("businessActivityThree.lead")} ${baCode1}")
         ))
@@ -47,7 +45,8 @@
                     (controllers.claim.routes.BusinessActivityCodeThreeController.onPageLoad(CheckMode).url, "site.change", "businessActivityThree.ba3.change.hidden"),
                     (controllers.claim.routes.RemoveThirdBusinessActivityController.onPageLoad().url, "site.remove", "businessActivityThree.ba3.remove.hidden")
                 ))
-            )
+            ),
+            actionsClasses = "govuk-!-width-one-third"
         )
 
         @govukButton(ButtonViewModel(messages("site.continue")))

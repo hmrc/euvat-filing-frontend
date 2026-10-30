@@ -123,6 +123,22 @@
     }, 100);
   }
 
+  function nameListbox(acInput) {
+    if (!acInput) return;
+    var tries = 0;
+    var iv = setInterval(function () {
+      var listbox = document.getElementById(acInput.id + '__listbox');
+      var hint = document.getElementById(acInput.id + '-hint');
+      if (listbox) {
+        listbox.removeAttribute('aria-labelledby');
+        if (hint) listbox.setAttribute('aria-labelledby', hint.id);
+        else listbox.setAttribute('aria-label', 'country suggestions');
+        clearInterval(iv);
+      }
+      if (++ tries > 6) clearInterval(iv);
+    }, 100);
+  }
+
   function syncOnSubmit(form) {
     if (initialized.has(form)) return;
     initialized.add(form);
@@ -166,6 +182,7 @@
       }
     } catch (e) { /* ignore DOM exceptions */ }
     if (acInput && headingId) patchAria(acInput, headingId);
+    nameListbox(acInput);
     // Ensure any requested input classes persist across component re-renders
     // (accessible-autocomplete may replace the input's `class` on focus).
     try {

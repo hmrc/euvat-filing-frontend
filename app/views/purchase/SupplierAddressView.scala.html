@@ -29,12 +29,11 @@
 @(form: Form[?], mode: Mode, call: Call)(implicit request: Request[?], messages: Messages)
 
 @layout(pageTitle = views.ViewUtils.title(form, "supplierAddress.title"), backLinkUrl = Some(call.url)) {
-    @formHelper(action = controllers.purchase.routes.SupplierAddressController.onSubmit(mode), Symbol("novalidate") -> "novalidate") {
+    @formHelper(action = controllers.purchase.routes.SupplierAddressController.onSubmit(mode), Symbol("novalidate") -> "novalidate", Symbol("autoComplete") -> "on") {
         @mainErrorSummary(form, Map("addressLine1" -> "addressLine1", "addressLine2" -> "addressLine2", "addressLine3" -> "addressLine3"))
-        <h1 class="govuk-heading-l">
-            <span class="govuk-caption-l">@messages("purchase.caption")</span>
-            @messages("supplierAddress.heading")
-        </h1>
+        <span class="govuk-caption-l">@messages("purchase.caption")</span>
+        <h1 class="govuk-heading-l">@messages("supplierAddress.heading")</h1>
+
         <p class="govuk-body">@messages("supplierAddress.lead")</p>
 
         @govukInput(
@@ -43,6 +42,7 @@
                 label = LabelViewModel(messages("supplierAddress.line1.label"))
             )
             .withWidth(Full)
+            .withAutocomplete("address-line1")
         )
 
         @govukInput(
@@ -51,6 +51,7 @@
                 label = LabelViewModel(messages("supplierAddress.line2.label"))
             )
             .withWidth(Full)
+            .withAutocomplete("address-line2")
         )
 
         @govukInput(
@@ -59,6 +60,7 @@
                 label = LabelViewModel(messages("supplierAddress.line3.label"))
             )
             .withWidth(Full)
+            .withAutocomplete("address-line3")
         )
 
         @govukButton(ButtonViewModel(messages("site.continue")))

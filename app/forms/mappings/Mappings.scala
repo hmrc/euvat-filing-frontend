@@ -82,7 +82,7 @@ trait Mappings extends Formatters with Constraints {
 
   val validateEmailAddress: String = """^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9][a-zA-Z0-9_\-\.]*)\.([a-zA-Z]{2,})$"""
   val emailMaxLength: Int = 100
-  val validateTelephoneNumber: String = """^(\+)?[0-9]{1,20}$"""
+  val validateTelephoneNumber: String = """^\+?[0-9\(\)\-\s]*$"""
   val telephoneMaxLength: Int = 20
   val invoiceNumberMaxLength: Int = 30
   // Expression for invoice/reference-like fields: letters, digits, spaces and a limited set of symbols
