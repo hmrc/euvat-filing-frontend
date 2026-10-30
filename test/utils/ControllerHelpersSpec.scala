@@ -23,9 +23,11 @@ import models.{CheckMode, Fuel, NormalMode, PurchaseOrImportType}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any as anyA
 import org.mockito.Mockito.{never, times, verify, when}
+import pages.QuestionPage
 import pages.claim.RefundingCountryPage
 import pages.imports.{ImportCurrencyPage, TotalAmountWithoutVatPage, TotalVatPaidImportPage}
 import pages.purchase.*
+import play.api.libs.json.JsPath
 import play.api.mvc.Call
 import play.api.mvc.Results.*
 import play.api.test.FakeRequest
@@ -34,8 +36,16 @@ import repositories.SessionRepository
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.util.{Failure, Success}
 
 class ControllerHelpersSpec extends SpecBase {
+
+  private case object FailingStringPage extends QuestionPage[String] {
+    override def path: JsPath = JsPath \ "failingStringPage"
+
+    override def cleanup(value: Option[String], userAnswers: models.UserAnswers) =
+      Failure(new RuntimeException("cleanup failed"))
+  }
 
   "currencySymbolFromSession" - {
     "falls back to Euro when no country selected" in {
@@ -68,6 +78,32 @@ class ControllerHelpersSpec extends SpecBase {
       val updated = emptyUserAnswers.set(TotalPurchaseAmountBeforeVatPage, BigDecimal(100)).success.value
 
       ControllerHelpers.compareWithPage(BigDecimal(80), TotalPurchaseAmountBeforeVatPage, updated)(_ >= _) mustBe false
+    }
+  }
+
+  "setIfPresent" - {
+    "sets the value when it is defined" in {
+      val result = ControllerHelpers.setIfPresent(Future.successful(emptyUserAnswers), Some("Acme Ltd"), SuppliersNamePage).futureValue
+
+      result.get(SuppliersNamePage) mustBe Some("Acme Ltd")
+    }
+
+    "returns the same answers when the value is absent" in {
+      val existing = emptyUserAnswers.set(SuppliersNamePage, "Acme Ltd").success.value
+
+      val result = ControllerHelpers.setIfPresent(Future.successful(existing), None, SuppliersNamePage).futureValue
+
+      result mustBe existing
+      result.get(SuppliersNamePage) mustBe Some("Acme Ltd")
+    }
+
+    "propagates failures from page cleanup when the value is defined" in {
+      val failure = ControllerHelpers
+        .setIfPresent(Future.successful(emptyUserAnswers), Some("boom"), FailingStringPage)
+        .failed
+        .futureValue
+
+      failure.getMessage mustBe "cleanup failed"
     }
   }
 

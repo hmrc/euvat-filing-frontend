@@ -33,6 +33,9 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.CurrencyConfig
 import viewmodels.checkAnswers.PurchaseImportListSummary
 import views.html.purchasesOrImports.PurchaseImportSummaryView
+import views.html.purchase.CheckYourPurchaseDetailsView
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
+import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -48,7 +51,8 @@ class PurchaseImportSummaryController @Inject() (
   currencyConfig: CurrencyConfig,
   sessionRepository: SessionRepository,
   navigator: Navigator,
-  service: EuVatRefundsService
+  service: EuVatRefundsService,
+  viewDetails: CheckYourPurchaseDetailsView
 )(using ExecutionContext)
     extends FrontendBaseController
     with Logging

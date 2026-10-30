@@ -17,8 +17,8 @@
 package viewmodels.checkAnswers
 
 import controllers.purchase.routes
-import models.{CheckMode, PurchaseOrImportType, SupplierTaxNumberCheck, UserAnswers}
-import pages.claim.{RefundingCountryNamePage, RefundingCountryPage}
+import models.{CheckMode, InvoiceType, PurchaseOrImportType, SupplierTaxNumberCheck, UserAnswers}
+import pages.claim.*
 import pages.purchase.*
 import play.api.i18n.{Lang, Messages}
 import play.api.mvc.RequestHeader
@@ -189,10 +189,17 @@ object CheckYourPurchaseDetailsSummary {
     }
 
   private def rowSupplierVatRegCheck(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
-    answers.get(SupplierVatRegCheckPage).map { v =>
+    Option.when(
+      !answers.get(RefundingCountryPage).exists(_.equalsIgnoreCase("DE")) &&
+        answers.get(InvoiceTypePage).contains(InvoiceType.SimplifiedInvoice)
+    ) {
+      val displayedValue =
+        if (answers.get(SupplierVatRegistrationNumberPage).exists(_.trim.nonEmpty)) true
+        else answers.get(SupplierVatRegCheckPage).getOrElse(false)
+
       val url = routes.SupplierVatRegCheckController.onPageLoad(CheckMode).url
       (messages("supplierVatRegCheck.checkYourAnswersLabel"),
-       Some(if (v) messages("site.yes") else messages("site.no")),
+       Some(if (displayedValue) messages("site.yes") else messages("site.no")),
        Seq((url, "site.change", "supplierVatRegCheck.change.hidden"))
       )
     }
