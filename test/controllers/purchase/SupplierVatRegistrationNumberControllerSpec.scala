@@ -21,8 +21,9 @@ import forms.purchase.SupplierVatRegistrationNumberFormProvider
 import models.responses.{AddPurchaseResponse, ApplicationResponse, SupplierVrnCountResponse}
 import models.{CheckMode, InvoiceType, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.claim.RefundingCountryPage
 import pages.purchase.*
@@ -214,6 +215,43 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
       }
     }
 
+    "must persist simplified invoice VAT check as true when a non-Germany simplified invoice saves a VAT registration number" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      when(mockEuVatRefundsService.getSupplierVrnCount(any())(any()))
+        .thenReturn(Future.successful(SupplierVrnCountResponse(0)))
+
+      val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+      val simplifiedAnswers = seededAnswers
+        .set(RefundingCountryPage, "FR")
+        .success
+        .value
+        .set(InvoiceTypePage, InvoiceType.SimplifiedInvoice)
+        .success
+        .value
+
+      val application =
+        applicationBuilder(userAnswers = Some(simplifiedAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, supplierVatRegistrationNumberRoute)
+            .withFormUrlEncodedBody(("value", "FR123456789"))
+
+        val result = route(application, request).value
+        status(result) mustEqual SEE_OTHER
+
+        org.mockito.Mockito.verify(mockSessionRepository).set(captor.capture())
+        captor.getValue.get(SupplierVatRegCheckPage) mustBe Some(true)
+      }
+    }
+
     "must redirect to the warning page when a duplicate is found" in {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
@@ -356,6 +394,37 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.CheckYourPurchaseDetailsController.onPageLoad().url
+      }
+    }
+
+    "must save the VAT number in CheckMode when the preloaded purchase has no invoice number" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val ua = seededAnswers
+        .remove(InvoiceNumberPage)
+        .success
+        .value
+        .set(TotalPurchaseAmountBeforeVatPage, 123)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(ua))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.SupplierVatRegistrationNumberController.onSubmit(CheckMode).url)
+          .withFormUrlEncodedBody(("value", "FR123456789"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.CheckYourPurchaseDetailsController.onPageLoad().url
+        verify(mockEuVatRefundsService, never()).getSupplierVrnCount(any())(any())
+
+        val captor = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
+        org.mockito.Mockito.verify(mockSessionRepository).set(captor.capture())
+        captor.getValue.get(SupplierVatRegistrationNumberPage) mustBe Some("FR123456789")
       }
     }
 
