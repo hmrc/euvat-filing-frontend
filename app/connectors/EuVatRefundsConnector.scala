@@ -30,7 +30,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV2)(implicit ec: ExecutionContext)
-    extends HttpReadsInstances
+  extends HttpReadsInstances
     with Logging {
 
   private val euVatRefundsBaseUrl: String = config.baseUrl("euvat-refunds") + "/euvat-refunds"
@@ -83,6 +83,11 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
       .execute[UpdateImportDetailsResponse]
   }
 
+  def getImportDetails(applicationId: Long, itemNumber: Int)(implicit hc: HeaderCarrier): Future[ImportDetailsResponse] =
+    http
+      .get(url"$euVatRefundsBaseUrl/get-import-details/$applicationId/$itemNumber")
+      .execute[ImportDetailsResponse]
+
   def getSupplierVrnCount(request: SupplierVrnCountRequest)(implicit hc: HeaderCarrier): Future[SupplierVrnCountResponse] = {
     http
       .post(url"$euVatRefundsBaseUrl/get-supplier-vrn-count")
@@ -97,8 +102,8 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
       .execute[UpdateApplicationDetailsResponse]
 
   def getSupplierTaxIdentifierCount(
-    request: SupplierTaxIdentifierCountRequest
-  )(implicit hc: HeaderCarrier): Future[SupplierTaxIdentifierCountResponse] = {
+                                     request: SupplierTaxIdentifierCountRequest
+                                   )(implicit hc: HeaderCarrier): Future[SupplierTaxIdentifierCountResponse] = {
     http
       .post(url"$euVatRefundsBaseUrl/get-supplier-taxIdentifier-count")
       .withBody(Json.toJson(request))

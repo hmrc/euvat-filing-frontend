@@ -18,6 +18,8 @@ package viewmodels.checkAnswers
 
 import models.requests.DataRequest
 import models.{PurchaseImport, PurchaseOrImportType, UserAnswers}
+import queries.ClaimApplicationResponseQuery
+import controllers.imports.routes as importRoutes
 import play.api.i18n.Messages
 import play.twirl.api.Html
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
@@ -29,8 +31,8 @@ import viewmodels.implicits.*
 object PurchaseImportListSummary {
 
   def rows(userAnswers: UserAnswers, list: List[PurchaseImport], config: Map[String, Seq[Currency]])(implicit
-    messages: Messages,
-    request: DataRequest[?]
+                                                                                                     messages: Messages,
+                                                                                                     request: DataRequest[?]
   ): Seq[SummaryListRow] = {
     val (completeClaims, incompleteClaims) = list.partition(_.deductibleVatAmount > 0) // split between incomplete and complete items
     (incompleteClaims ++ completeClaims) // display incomplete first and the completed ones
@@ -45,7 +47,13 @@ object PurchaseImportListSummary {
           displaySummaryListRow(itemType, category)
         } else {
           val currencySymbol = ControllerHelpers.currencySymbolFromSession(userAnswers, config)
-          displaySummaryListRow(itemType, category, currencySymbol, vatClaim, false)
+          val changeUrl =
+            if (item.itemType == "P") None
+            else
+              userAnswers.get(ClaimApplicationResponseQuery).map { claim =>
+                importRoutes.CheckYourImportDetailsController.changeYourAnswers(claim.applicationId, itemNumber).url
+              }
+          displaySummaryListRow(itemType, category, currencySymbol, vatClaim, false, changeUrl)
         }
       }
   }
@@ -54,10 +62,11 @@ object PurchaseImportListSummary {
                                     category: String,
                                     currencySymbol: String = "",
                                     vatClaim: BigDecimal = 0,
-                                    incomplete: Boolean = true
+                                    incomplete: Boolean = true,
+                                    changeHref: Option[String] = None
                                    )(implicit
-    messages: Messages
-  ): SummaryListRow = {
+                                     messages: Messages
+                                   ): SummaryListRow = {
     SummaryListRowViewModel(
       key = itemType + " (" + category + ")",
       value = if (vatClaim == 0) {
@@ -76,7 +85,7 @@ object PurchaseImportListSummary {
         )
       } else {
         Seq(
-          ActionItemViewModel("site.change", "#").withVisuallyHiddenText(
+          ActionItemViewModel("site.change", changeHref.getOrElse("#")).withVisuallyHiddenText(
             messages("purchaseImportSummary.complete.change.hidden", itemType, category, currencySymbol + vatClaim)
           ),
           ActionItemViewModel("site.remove", "#").withVisuallyHiddenText(

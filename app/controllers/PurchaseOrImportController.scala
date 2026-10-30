@@ -26,7 +26,7 @@ import pages.purchase.*
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import queries.{ImportSubCategoryLabelQuery, ImportSubTypeLabelQuery, Settable}
+import queries.{ImportDetailsResponseQuery, ImportDetailsRouteQuery, ImportSubCategoryLabelQuery, ImportSubTypeLabelQuery, Settable}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.purchasesOrImports.PurchaseOrImportView
@@ -36,17 +36,17 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
 class PurchaseOrImportController @Inject() (
-  override val messagesApi: MessagesApi,
-  sessionRepository: SessionRepository,
-  navigator: Navigator,
-  identify: IdentifierAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
-  formProvider: PurchaseOrImportFormProvider,
-  val controllerComponents: MessagesControllerComponents,
-  view: PurchaseOrImportView
-)(implicit ec: ExecutionContext)
-    extends FrontendBaseController
+                                             override val messagesApi: MessagesApi,
+                                             sessionRepository: SessionRepository,
+                                             navigator: Navigator,
+                                             identify: IdentifierAction,
+                                             getData: DataRetrievalAction,
+                                             requireData: DataRequiredAction,
+                                             formProvider: PurchaseOrImportFormProvider,
+                                             val controllerComponents: MessagesControllerComponents,
+                                             view: PurchaseOrImportView
+                                           )(implicit ec: ExecutionContext)
+  extends FrontendBaseController
     with I18nSupport {
 
   val form: Form[PurchaseOrImport] = formProvider()
@@ -117,7 +117,9 @@ class PurchaseOrImportController @Inject() (
     TotalAmountWithoutVatPage,
     TotalVatPaidImportPage,
     ImportTotalVatClaimPage,
-    AddImportResponsePage
+    AddImportResponsePage,
+    ImportDetailsRouteQuery,
+    ImportDetailsResponseQuery
   )
 
   private def clearPurchaseJourney(userAnswers: UserAnswers): Try[UserAnswers] =

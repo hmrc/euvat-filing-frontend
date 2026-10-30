@@ -132,6 +132,30 @@ class PurchaseOrImportControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must clear a saved import that was being changed on a GET" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(queries.ImportDetailsRouteQuery, queries.ImportDetailsRoute(404, 4))
+        .success
+        .value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+          .build()
+
+      running(application) {
+        val result = route(application, FakeRequest(GET, purchaseOrImportRoute)).value
+        status(result) mustEqual OK
+
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(mockSessionRepository).set(captor.capture())
+        captor.getValue.get(queries.ImportDetailsRouteQuery) mustBe None
+      }
+    }
+
     "must redirect to the next page when valid data is submitted" in {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
