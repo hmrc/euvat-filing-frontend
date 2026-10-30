@@ -19,8 +19,8 @@ package controllers.purchase
 import controllers.actions.*
 import forms.purchase.PurchaseTypeFormProvider
 import models.*
-import models.requests.{AddPurchaseRequest, DataRequest}
-import models.responses.AddPurchaseResponse
+import models.requests.{AddPurchaseRequest, DataRequest, UpdatePurchaseRequest}
+import models.responses.{AddPurchaseResponse, ApplicationResponse, UpdatePurchaseResponse}
 import navigation.Navigator
 import pages.QuestionPage
 import pages.claim.CountryChangedPage
@@ -409,12 +409,6 @@ class PurchaseTypeController @Inject() (
         logger.warn("Missing applicationId for addPurchase")
         Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
       } { claimResponse =>
-        val purchaseRequest = AddPurchaseRequest(
-          applicationId            = claimResponse.applicationId,
-          goodsDescriptionCategory = PurchaseOrImportType.codes(purchaseType),
-          updateSequenceNumber     = answers.get(UpdateSequenceNumberQuery).getOrElse(claimResponse.updateSeqNumber)
-        )
-
         def persistAddPurchaseResponseAndRedirect(response: AddPurchaseResponse): Future[Result] =
           for {
             updatedAnswers1 <- Future.fromTry(answers.set(AddPurchaseResponsePage, response))
@@ -424,13 +418,31 @@ class PurchaseTypeController @Inject() (
             redirectWithPrefix(navigator.nextPage(PurchaseTypePage, mode, updatedAnswers2))(request)
           }
 
-        euVatRefundsService
-          .addPurchase(purchaseRequest)
-          .flatMap(persistAddPurchaseResponseAndRedirect)
-          .recover { case ex =>
-            logger.error("Error while adding the purchase", ex)
-            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-          }
+        if (answers.get(AddPurchaseResponsePage).isDefined) {
+          euVatRefundsService
+            .updatePurchase(UpdatePurchaseRequest.from(answers, purchaseType, claimResponse))
+            .flatMap(updatePurchaseResponse => updateSeqNumberInSession(answers, updatePurchaseResponse))
+            .map(updatedAnswers => redirectWithPrefix(navigator.nextPage(PurchaseTypePage, mode, updatedAnswers)))
+            .recover { case ex =>
+              logger.error("Error while updating the purchase", ex)
+              Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+            }
+        } else {
+          euVatRefundsService
+            .addPurchase(AddPurchaseRequest.from(answers, purchaseType, claimResponse))
+            .flatMap(persistAddPurchaseResponseAndRedirect)
+            .recover { case ex =>
+              logger.error("Error while adding the purchase", ex)
+              Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+            }
+        }
       }
+  }
+
+  private def updateSeqNumberInSession(answers: UserAnswers, response: UpdatePurchaseResponse) = {
+    for {
+      updatedAnswers <- Future.fromTry(answers.set(UpdateSequenceNumberQuery, response.updateSequenceNumber))
+      _              <- sessionRepository.set(updatedAnswers)
+    } yield updatedAnswers
   }
 }

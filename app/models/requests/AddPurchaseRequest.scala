@@ -16,7 +16,10 @@
 
 package models.requests
 
+import models.responses.ApplicationResponse
+import models.{PurchaseOrImportType, UserAnswers}
 import play.api.libs.json.{Json, OFormat}
+import queries.UpdateSequenceNumberQuery
 
 import java.time.LocalDateTime
 
@@ -42,4 +45,12 @@ case class AddPurchaseRequest(
 )
 object AddPurchaseRequest {
   implicit val format: OFormat[AddPurchaseRequest] = Json.format[AddPurchaseRequest]
+
+  def from(answers: UserAnswers, purchaseType: PurchaseOrImportType, claimResponse: ApplicationResponse): AddPurchaseRequest = {
+    AddPurchaseRequest(
+      applicationId            = claimResponse.applicationId,
+      goodsDescriptionCategory = PurchaseOrImportType.codes(purchaseType),
+      updateSequenceNumber     = answers.get(UpdateSequenceNumberQuery).getOrElse(claimResponse.updateSeqNumber)
+    )
+  }
 }
