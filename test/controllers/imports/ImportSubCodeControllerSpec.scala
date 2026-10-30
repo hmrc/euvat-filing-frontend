@@ -17,7 +17,7 @@
 package controllers.imports
 
 import base.SpecBase
-import models.{Fuel, NormalMode, Other, PurchaseOrImportType, Transport, UserAnswers}
+import models.{CheckMode, Fuel, NormalMode, Other, PurchaseOrImportType, Transport, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.{times, verify}
 import pages.claim.RefundingCountryPage
@@ -29,7 +29,7 @@ import queries.{ImportSubCategoryLabelQuery, ImportSubTypeLabelQuery}
 import repositories.SessionRepository
 
 class ImportSubCodeControllerSpec extends SpecBase {
-  private def fuelRoute = controllers.imports.routes.ImportSubCodeController.onPageLoad("fuel").url
+  private def fuelRoute = controllers.imports.routes.ImportSubCodeController.onPageLoad("fuel", models.NormalMode).url
   private def journeyRecoveryUrl = controllers.routes.JourneyRecoveryController.onPageLoad().url
   private def sadReferenceUrl = controllers.imports.routes.SadReferenceCheckController.onPageLoad(NormalMode).url
   private def taskListUrl = controllers.routes.TaskListDashboardController.onPageLoad().url
@@ -90,7 +90,7 @@ class ImportSubCodeControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers = Some(answers(Transport))).build()
 
       running(application) {
-        val transportRoute = controllers.imports.routes.ImportSubCodeController.onPageLoad("transport").url
+        val transportRoute = controllers.imports.routes.ImportSubCodeController.onPageLoad("transport", models.NormalMode).url
         val result = route(application, FakeRequest(GET, transportRoute)).value
 
         status(result) mustEqual OK
@@ -114,7 +114,7 @@ class ImportSubCodeControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers = Some(answers(Other))).build()
 
       running(application) {
-        val otherRoute = controllers.imports.routes.ImportSubCodeController.onPageLoad("other").url
+        val otherRoute = controllers.imports.routes.ImportSubCodeController.onPageLoad("other", models.NormalMode).url
         val result = route(application, FakeRequest(GET, otherRoute)).value
 
         status(result) mustEqual OK
@@ -285,6 +285,54 @@ class ImportSubCodeControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual journeyRecoveryUrl
+      }
+    }
+
+    "must go back to check your answers in CheckMode when the same sub-code is submitted and its sub category is still answered" in {
+      val userAnswers = answers()
+        .set(ImportSubCodePage, "1.2")
+        .success
+        .value
+        .set(ImportSubCategoryPage, "1.2.6")
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, controllers.imports.routes.ImportSubCodeController.onSubmit("fuel", CheckMode).url)
+          .withFormUrlEncodedBody("value" -> "1.2")
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.imports.routes.CheckYourImportDetailsController.onPageLoad().url
+        savedAnswers.get(ImportSubCategoryPage) mustBe Some("1.2.6")
+      }
+    }
+
+    "must go to the sub category in CheckMode when a different sub-code is submitted" in {
+      val userAnswers = answers()
+        .set(ImportSubCodePage, "1.1")
+        .success
+        .value
+        .set(ImportSubCategoryPage, "1.1.1")
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, controllers.imports.routes.ImportSubCodeController.onSubmit("fuel", CheckMode).url)
+          .withFormUrlEncodedBody("value" -> "1.2")
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.imports.routes.ImportSubCategoryController.onPageLoad(CheckMode).url
+        savedAnswers.get(ImportSubCategoryPage) mustBe None
       }
     }
   }

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package pages
+package models.responses
 
-import models.responses.AddImportResponse
-import play.api.libs.json.JsPath
+import play.api.libs.json.{Json, OFormat}
 
-case object AddImportResponsePage extends QuestionPage[AddImportResponse] {
-  override def path: JsPath = JsPath \ toString
-  override def toString: String = "addImportResponse"
+case class UpdateImportDetailsResponse(updateSequenceNumber: Int)
+
+object UpdateImportDetailsResponse {
+  implicit val format: OFormat[UpdateImportDetailsResponse] = Json.format[UpdateImportDetailsResponse]
 }

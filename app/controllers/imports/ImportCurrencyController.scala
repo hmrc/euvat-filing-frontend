@@ -20,9 +20,9 @@ import controllers.actions.*
 import controllers.imports.routes as importRoutes
 import forms.RefundingCurrencyFormProvider
 import models.requests.DataRequest
-import models.{Mode, RefundingCurrency}
+import models.{CheckMode, Mode, RefundingCurrency}
 import navigation.Navigator
-import pages.imports.ImportCurrencyPage
+import pages.imports.*
 import play.api.Logger
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -32,6 +32,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import utils.*
+import utils.ControllerHelpers
 import views.html.purchasesOrImports.RefundingCurrencyView
 
 import javax.inject.Inject
@@ -90,10 +91,13 @@ class ImportCurrencyController @Inject() (
                   logger.warn(s"ImportCurrencyController.onSubmit - could not find currency code for ${value.toString}")
                   Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
                 case Some(currencyCode) =>
-                  for {
-                    updatedAnswers <- Future.fromTry(request.userAnswers.set(ImportCurrencyPage, currencyCode))
-                    _              <- sessionRepository.set(updatedAnswers)
-                  } yield Redirect(navigator.nextPage(ImportCurrencyPage, mode, updatedAnswers))
+                  ControllerHelpers.saveAnswerAndResetDependents(
+                    page              = ImportCurrencyPage,
+                    newValue          = currencyCode,
+                    userAnswers       = request.userAnswers,
+                    dependents        = List(TotalAmountWithoutVatPage, TotalVatPaidImportPage, ImportTotalVatClaimPage),
+                    sessionRepository = sessionRepository
+                  )(updated => Future.successful(Redirect(navigator.nextPage(ImportCurrencyPage, mode, updated))))
               }
           )
     }
@@ -106,6 +110,9 @@ class ImportCurrencyController @Inject() (
       routes.ImportCurrencyController.onSubmit(mode),
       messagePrefix,
       "import.caption",
-      Some(importRoutes.ImportSuppliersNameController.onPageLoad(mode))
+      Some(
+        if (mode == CheckMode) importRoutes.CheckYourImportDetailsController.onPageLoad()
+        else importRoutes.ImportSuppliersNameController.onPageLoad(mode)
+      )
     )
 }

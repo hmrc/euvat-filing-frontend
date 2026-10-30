@@ -16,10 +16,13 @@
 
 package controllers.imports
 
+import pages.imports.*
+
 import controllers.actions.*
+import controllers.imports.routes as importRoutes
 import forms.imports.SadReferenceCheckFormProvider
 import models.requests.DataRequest
-import models.{Mode, NormalMode, Other}
+import models.{CheckMode, Mode, NormalMode, Other}
 import navigation.Navigator
 import pages.imports.*
 import play.api.data.Form
@@ -27,6 +30,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.ControllerHelpers.saveAnswerAndResetDependents
 import views.html.imports.SadReferenceCheckView
 
 import javax.inject.Inject
@@ -47,34 +51,36 @@ class SadReferenceCheckController @Inject() (
     with I18nSupport {
 
   val form: Form[Boolean] = formProvider()
-  private def backLink(mode: Mode): Call = routes.ImportSubCategoryController.onPageLoad(mode)
 
-  private def computeBackLink(implicit request: DataRequest[AnyContent]): Call = {
-    val answers = request.userAnswers
-    (answers.get(ImportTypePage), answers.get(ImportSubCodePage), answers.get(ImportSubCategoryPage)) match {
-      case (Some(_), _, Some(_)) => controllers.imports.routes.ImportSubCategoryController.onPageLoad(NormalMode)
-      case (Some(Other), _, _) if answers.get(DescribeItemsOnImportDocPage).isDefined =>
-        controllers.imports.routes.DescribeItemsOnImportDocController.onPageLoad(NormalMode)
-      case (Some(importType), Some(_), None) => controllers.imports.routes.ImportSubCodeController.onPageLoad(importType.toString)
-      case _                                 => controllers.imports.routes.ImportTypeController.onPageLoad(NormalMode)
-    }
-  }
+  private def computeBackLink(mode: Mode)(implicit request: DataRequest[AnyContent]): Call =
+    if (mode == CheckMode) importRoutes.CheckYourImportDetailsController.onPageLoad()
+    else
+      (request.userAnswers.get(ImportTypePage), request.userAnswers.get(ImportSubCodePage), request.userAnswers.get(ImportSubCategoryPage)) match {
+        case (Some(_), _, Some(_)) => importRoutes.ImportSubCategoryController.onPageLoad(NormalMode)
+        case (Some(Other), _, _) if request.userAnswers.get(DescribeItemsOnImportDocPage).isDefined =>
+          importRoutes.DescribeItemsOnImportDocController.onPageLoad(NormalMode)
+        case (Some(importType), Some(_), None) => importRoutes.ImportSubCodeController.onPageLoad(importType.toString, mode)
+        case _                                 => importRoutes.ImportTypeController.onPageLoad(NormalMode)
+      }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(SadReferenceCheckPage).fold(form)(form.fill)
-    Ok(view(preparedForm, computeBackLink))
+    Ok(view(preparedForm, computeBackLink(mode), mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, computeBackLink))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, computeBackLink(mode), mode))),
         value =>
-          for {
-            updated <- Future.fromTry(request.userAnswers.set(SadReferenceCheckPage, value))
-            _       <- sessionRepository.set(updated)
-          } yield Redirect(navigator.nextPage(SadReferenceCheckPage, mode, updated))
+          saveAnswerAndResetDependents(
+            page              = SadReferenceCheckPage,
+            newValue          = value,
+            userAnswers       = request.userAnswers,
+            dependents        = List(SadReferenceNumberPage, ImportDetailsInfoPage),
+            sessionRepository = sessionRepository
+          )(updated => Future.successful(Redirect(navigator.nextPage(SadReferenceCheckPage, mode, updated))))
       )
   }
 

@@ -20,7 +20,7 @@ import controllers.imports.routes as importRoutes
 import config.FrontendAppConfig
 import controllers.actions.*
 import forms.imports.ImportSupplierAddressFormProvider
-import models.{Mode, NormalMode}
+import models.{CheckMode, Mode, NormalMode}
 import pages.imports.ImportSupplierAddressPage
 import play.api.i18n.I18nSupport
 import play.api.mvc.*
@@ -48,8 +48,9 @@ class ImportSupplierAddressController @Inject() (
 
   private val form = formProvider()
 
-  private def backLink: Call =
-    importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode)
+  private def backLink(mode: Mode): Call =
+    if (mode == CheckMode) importRoutes.CheckYourImportDetailsController.onPageLoad()
+    else importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData) { implicit request =>
@@ -64,7 +65,7 @@ class ImportSupplierAddressController @Inject() (
           preparedForm,
           config.supplierCountries,
           mode,
-          backLink
+          backLink(mode)
         )
       )
     }
@@ -112,7 +113,7 @@ class ImportSupplierAddressController @Inject() (
                   adjustedForm,
                   config.supplierCountries,
                   mode,
-                  backLink
+                  backLink(mode)
                 )
               )
             )

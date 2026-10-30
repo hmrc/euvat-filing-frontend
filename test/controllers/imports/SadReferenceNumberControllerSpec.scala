@@ -26,8 +26,8 @@ import models.responses.{AddImportResponse, AddPurchaseResponse, ApplicationResp
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import pages.AddImportResponsePage
 import pages.purchase.AddPurchaseResponsePage
+import pages.imports.AddImportResponsePage
 import play.api.mvc.Call
 import queries.ClaimApplicationResponseQuery
 import repositories.SessionRepository
@@ -194,8 +194,7 @@ class SadReferenceNumberControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
-        // TODO update import check your answer
-        redirectLocation(result).value mustEqual routes.ImportDateController.onPageLoad(CheckMode).url
+        redirectLocation(result).value mustEqual routes.CheckYourImportDetailsController.onPageLoad().url
       }
     }
 

@@ -112,7 +112,7 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.CheckYourImportDetailsController.onPageLoad().url
         verify(mockSessionRepository).set(any())
       }
     }

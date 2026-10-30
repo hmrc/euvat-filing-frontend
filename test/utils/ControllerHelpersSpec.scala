@@ -20,10 +20,12 @@ import base.SpecBase
 import com.typesafe.config.ConfigFactory
 import models.requests.DataRequest
 import models.{CheckMode, Fuel, NormalMode, PurchaseOrImportType}
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any as anyA
 import org.mockito.Mockito.{never, times, verify, when}
 import pages.QuestionPage
 import pages.claim.RefundingCountryPage
+import pages.imports.{ImportCurrencyPage, TotalAmountWithoutVatPage, TotalVatPaidImportPage}
 import pages.purchase.*
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
@@ -325,9 +327,9 @@ class ControllerHelpersSpec extends SpecBase {
       val conf = play.api.Configuration(
         ConfigFactory.parseString(
           """
-              |currency.mapping {
-              |  XX = ["xcoin|XCO|X"]
-              |}
+            |currency.mapping {
+            |  XX = ["xcoin|XCO|X"]
+            |}
             """.stripMargin
         )
       )
@@ -338,6 +340,94 @@ class ControllerHelpersSpec extends SpecBase {
 
       name.toLowerCase must include("xcoin")
       prefix           must include("X")
+    }
+  }
+
+  "saveAnswerAndResetDependents" - {
+    def answersWith(currency: String): models.UserAnswers =
+      emptyUserAnswers
+        .set(ImportCurrencyPage, currency)
+        .success
+        .value
+        .set(TotalAmountWithoutVatPage, BigDecimal(10))
+        .success
+        .value
+
+    def savingRepo: SessionRepository = {
+      val repo = mock[SessionRepository]
+      when(repo.set(anyA[models.UserAnswers])) thenReturn Future.successful(true)
+      repo
+    }
+
+    def savedAnswers(repo: SessionRepository): models.UserAnswers = {
+      val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
+      verify(repo, times(1)).set(captor.capture())
+      captor.getValue
+    }
+
+    def save(
+      userAnswers: models.UserAnswers,
+      value: String,
+      repo: SessionRepository,
+      alsoSet: models.UserAnswers => scala.util.Try[models.UserAnswers] = answers => scala.util.Success(answers)
+    ): Future[play.api.mvc.Result] =
+      ControllerHelpers.saveAnswerAndResetDependents(
+        page              = ImportCurrencyPage,
+        newValue          = value,
+        userAnswers       = userAnswers,
+        dependents        = List(TotalAmountWithoutVatPage),
+        sessionRepository = repo,
+        alsoSet           = alsoSet
+      )(_ => Future.successful(Ok("saved")))
+
+    "clears the dependents and saves the value when the value changed" in {
+      val repo = savingRepo
+
+      save(answersWith("EUR"), "GBP", repo).futureValue.header.status mustBe OK
+
+      val saved = savedAnswers(repo)
+      saved.get(ImportCurrencyPage) mustBe Some("GBP")
+      saved.get(TotalAmountWithoutVatPage) mustBe None
+    }
+
+    "keeps the dependents when the value is unchanged" in {
+      val repo = savingRepo
+
+      save(answersWith("EUR"), "EUR", repo).futureValue.header.status mustBe OK
+
+      val saved = savedAnswers(repo)
+      saved.get(ImportCurrencyPage) mustBe Some("EUR")
+      saved.get(TotalAmountWithoutVatPage) mustBe Some(BigDecimal(10))
+    }
+
+    "saves the value when there was no previous answer" in {
+      val repo = savingRepo
+
+      save(emptyUserAnswers, "EUR", repo).futureValue.header.status mustBe OK
+
+      savedAnswers(repo).get(ImportCurrencyPage) mustBe Some("EUR")
+    }
+
+    "applies alsoSet to the answers before saving" in {
+      val repo = savingRepo
+
+      save(answersWith("EUR"), "GBP", repo, _.set(TotalVatPaidImportPage, BigDecimal(5))).futureValue.header.status mustBe OK
+
+      savedAnswers(repo).get(TotalVatPaidImportPage) mustBe Some(BigDecimal(5))
+    }
+
+    "passes the saved answers to onSaved" in {
+      val repo = savingRepo
+
+      val result = ControllerHelpers.saveAnswerAndResetDependents(
+        page              = ImportCurrencyPage,
+        newValue          = "GBP",
+        userAnswers       = answersWith("EUR"),
+        dependents        = List(TotalAmountWithoutVatPage),
+        sessionRepository = repo
+      )(saved => Future.successful(Ok(saved.get(ImportCurrencyPage).getOrElse("missing"))))
+
+      contentAsString(result) mustBe "GBP"
     }
   }
 

@@ -122,7 +122,11 @@ class VatPaidWarningControllerSpec extends SpecBase {
     }
 
     "must redirect to next page on submit for Import in NormalMode" in {
-      val userAnswers = emptyUserAnswers.set(PurchaseOrImportPage, PurchaseOrImport.Import).success.value
+      val userAnswers = emptyUserAnswers
+        .set(PurchaseOrImportPage, PurchaseOrImport.Import)
+        .flatMap(_.set(TotalVatPaidImportPage, BigDecimal(100)))
+        .success
+        .value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -146,7 +150,11 @@ class VatPaidWarningControllerSpec extends SpecBase {
     }
 
     "must redirect to next page on submit for Import in CheckMode" in {
-      val userAnswers = emptyUserAnswers.set(PurchaseOrImportPage, PurchaseOrImport.Import).success.value
+      val userAnswers = emptyUserAnswers
+        .set(PurchaseOrImportPage, PurchaseOrImport.Import)
+        .flatMap(_.set(TotalVatPaidImportPage, BigDecimal(100)))
+        .success
+        .value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {

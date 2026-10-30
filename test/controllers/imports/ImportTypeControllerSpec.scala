@@ -19,15 +19,14 @@ package controllers.imports
 import base.SpecBase
 import controllers.routes
 import forms.ImportTypeFormProvider
-import models.{Fuel, NormalMode, PurchaseOrImportType, UserAnswers}
+import models.{CheckMode, Fuel, NormalMode, PurchaseOrImportType, Transport, UserAnswers}
 import models.responses.{AddImportResponse, ApplicationResponse}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.AddImportResponsePage
-import pages.imports.ImportTypePage
+import pages.imports.{AddImportResponsePage, ImportSubCodePage, ImportTypePage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -249,6 +248,76 @@ class ImportTypeControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must keep the sub-code when the import type is unchanged in CheckMode" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val userAnswers = emptyUserAnswers
+        .set(ImportTypePage, Fuel)
+        .success
+        .value
+        .set(ImportSubCodePage, "1.2")
+        .success
+        .value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, controllers.imports.routes.ImportTypeController.onSubmit(CheckMode).url)
+            .withFormUrlEncodedBody(("value", Fuel.toString))
+
+        val result = route(application, request).value
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(mockSessionRepository, times(1)).set(captor.capture())
+        captor.getValue.get(ImportTypePage) mustBe Some(Fuel)
+        captor.getValue.get(ImportSubCodePage) mustBe Some("1.2")
+      }
+    }
+
+    "must clear the sub-code when the import type changes in CheckMode" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val userAnswers = emptyUserAnswers
+        .set(ImportTypePage, Fuel)
+        .success
+        .value
+        .set(ImportSubCodePage, "1.2")
+        .success
+        .value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, controllers.imports.routes.ImportTypeController.onSubmit(CheckMode).url)
+            .withFormUrlEncodedBody(("value", Transport.toString))
+
+        val result = route(application, request).value
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(mockSessionRepository, times(1)).set(captor.capture())
+        captor.getValue.get(ImportTypePage) mustBe Some(Transport)
+        captor.getValue.get(ImportSubCodePage) mustBe None
       }
     }
   }

@@ -21,11 +21,12 @@ import forms.PurchaseOrImportFormProvider
 import models.{NormalMode, PurchaseOrImport, UserAnswers}
 import navigation.Navigator
 import pages.PurchaseOrImportPage
+import pages.imports.{AddImportResponsePage, DescribeItemsOnImportDocPage, ImportCurrencyPage, ImportDatePage, ImportDetailsInfoPage, ImportSubCategoryPage, ImportSubCodePage, ImportSupplierAddressPage, ImportSuppliersNamePage, ImportTotalVatClaimPage, ImportTypePage, SadReferenceCheckPage, SadReferenceNumberPage, TotalAmountWithoutVatPage, TotalVatPaidImportPage}
 import pages.purchase.*
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import queries.Settable
+import queries.{ImportSubCategoryLabelQuery, ImportSubTypeLabelQuery, Settable}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.purchasesOrImports.PurchaseOrImportView
@@ -97,8 +98,30 @@ class PurchaseOrImportController @Inject() (
     TotalVatClaimPage
   )
 
+  // Without this a second import would open pre-filled with the previous import's answers, and the stale
+  // AddImportResponsePage would stop add-import being called for the new item.
+  private val importJourneyPages: List[Settable[_]] = List(
+    ImportTypePage,
+    ImportSubCodePage,
+    ImportSubTypeLabelQuery,
+    ImportSubCategoryPage,
+    ImportSubCategoryLabelQuery,
+    DescribeItemsOnImportDocPage,
+    SadReferenceCheckPage,
+    SadReferenceNumberPage,
+    ImportDetailsInfoPage,
+    ImportDatePage,
+    ImportSuppliersNamePage,
+    ImportSupplierAddressPage,
+    ImportCurrencyPage,
+    TotalAmountWithoutVatPage,
+    TotalVatPaidImportPage,
+    ImportTotalVatClaimPage,
+    AddImportResponsePage
+  )
+
   private def clearPurchaseJourney(userAnswers: UserAnswers): Try[UserAnswers] =
-    purchaseJourneyPages.foldLeft(Try(userAnswers)) { (acc, page) =>
+    (purchaseJourneyPages ++ importJourneyPages).foldLeft(Try(userAnswers)) { (acc, page) =>
       acc.flatMap(_.remove(page))
     }
 }

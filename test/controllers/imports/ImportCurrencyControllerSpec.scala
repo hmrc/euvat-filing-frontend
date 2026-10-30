@@ -17,7 +17,7 @@
 package controllers.imports
 
 import base.SpecBase
-import models.{NormalMode, RefundingCurrency, UserAnswers}
+import models.{CheckMode, NormalMode, RefundingCurrency, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
@@ -25,7 +25,7 @@ import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.claim.RefundingCountryPage
 import pages.purchase.RefundingCurrencyPage
-import pages.imports.ImportCurrencyPage
+import pages.imports.{ImportCurrencyPage, TotalAmountWithoutVatPage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -179,6 +179,71 @@ class ImportCurrencyControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must go back to check your answers and keep the amount when the currency is unchanged in CheckMode" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val userAnswers = userAnswersWithEstonia
+        .set(ImportCurrencyPage, "EUR")
+        .success
+        .value
+        .set(TotalAmountWithoutVatPage, BigDecimal(10))
+        .success
+        .value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, routes.ImportCurrencyController.onSubmit(CheckMode).url)
+            .withFormUrlEncodedBody(("value", RefundingCurrency.Euro.toString))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.imports.routes.CheckYourImportDetailsController.onPageLoad().url
+
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(mockSessionRepository, times(1)).set(captor.capture())
+        captor.getValue.get(TotalAmountWithoutVatPage) mustBe Some(BigDecimal(10))
+      }
+    }
+
+    "must clear the amount and ask for it again when the currency changes in CheckMode" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val userAnswers = userAnswersWithEstonia
+        .set(ImportCurrencyPage, "GBP")
+        .success
+        .value
+        .set(TotalAmountWithoutVatPage, BigDecimal(10))
+        .success
+        .value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, routes.ImportCurrencyController.onSubmit(CheckMode).url)
+            .withFormUrlEncodedBody(("value", RefundingCurrency.Euro.toString))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.TotalAmountWithoutVatController.onPageLoad(CheckMode).url
+
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(mockSessionRepository, times(1)).set(captor.capture())
+        captor.getValue.get(ImportCurrencyPage) mustBe Some("EUR")
+        captor.getValue.get(TotalAmountWithoutVatPage) mustBe None
       }
     }
   }

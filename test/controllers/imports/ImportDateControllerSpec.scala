@@ -109,7 +109,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
             view(
               application.injector.instanceOf[ImportDateFormProvider].apply(),
               formAction(models.CheckMode),
-              controllers.routes.JourneyRecoveryController.onPageLoad(),
+              routes.CheckYourImportDetailsController.onPageLoad(),
               captionKey,
               titleKey,
               headingKey
@@ -447,7 +447,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual controllers.imports.routes.ImportSuppliersNameController.onPageLoad(CheckMode).url
+          redirectLocation(result).value mustEqual controllers.imports.routes.CheckYourImportDetailsController.onPageLoad().url
           org.mockito.Mockito.verify(mockSessionRepository, org.mockito.Mockito.never()).set(any())
         }
       }
@@ -475,7 +475,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual controllers.imports.routes.ImportSuppliersNameController.onPageLoad(CheckMode).url
+          redirectLocation(result).value mustEqual controllers.imports.routes.CheckYourImportDetailsController.onPageLoad().url
 
           val captor = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
           org.mockito.Mockito.verify(mockSessionRepository).set(captor.capture())

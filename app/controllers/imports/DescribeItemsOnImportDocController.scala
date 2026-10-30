@@ -54,11 +54,13 @@ class DescribeItemsOnImportDocController @Inject() (
 
   val form: Form[String] = formProvider(messagePrefix)
 
-  private def backLink(answers: UserAnswers): Call =
-    answers.get(ImportSubCodePage) match {
-      case Some(_) => importRoutes.ImportSubCodeController.onPageLoad(Other.toString)
-      case None    => importRoutes.ImportTypeController.onPageLoad(NormalMode)
-    }
+  private def backLink(answers: UserAnswers, mode: Mode): Call =
+    if (mode == CheckMode) importRoutes.CheckYourImportDetailsController.onPageLoad()
+    else
+      answers.get(ImportSubCodePage) match {
+        case Some(_) => importRoutes.ImportSubCodeController.onPageLoad(Other.toString, mode)
+        case None    => importRoutes.ImportTypeController.onPageLoad(NormalMode)
+      }
 
   private def submitCall(mode: Mode): Call = importRoutes.DescribeItemsOnImportDocController.onSubmit(mode)
 
@@ -77,7 +79,7 @@ class DescribeItemsOnImportDocController @Inject() (
   private def renderView(form: Form[String], mode: Mode)(implicit request: DataRequest[AnyContent]) =
     view(form,
          submitCall(mode),
-         backLink(request.userAnswers),
+         backLink(request.userAnswers, mode),
          messagePrefix,
          "import.caption",
          Some(messagesApi.preferred(request)(s"$messagePrefix.hint"))

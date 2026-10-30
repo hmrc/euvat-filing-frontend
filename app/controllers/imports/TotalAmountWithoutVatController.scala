@@ -16,6 +16,8 @@
 
 package controllers.imports
 
+import pages.imports.*
+
 import controllers.actions.*
 import controllers.imports.routes as importRoutes
 import forms.imports.TotalAmountWithoutVatFormProvider
@@ -71,10 +73,13 @@ class TotalAmountWithoutVatController @Inject() (
       .fold(
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)(request.userAnswers), prefix, currencyName))),
         value =>
-          for {
-            updated <- Future.fromTry(request.userAnswers.set(TotalAmountWithoutVatPage, value))
-            _       <- sessionRepository.set(updated)
-          } yield Redirect(navigator.nextPage(TotalAmountWithoutVatPage, mode, updated))
+          saveAnswerAndResetDependents(
+            page              = TotalAmountWithoutVatPage,
+            newValue          = value,
+            userAnswers       = request.userAnswers,
+            dependents        = List(TotalVatPaidImportPage, ImportTotalVatClaimPage),
+            sessionRepository = sessionRepository
+          )(updated => Future.successful(Redirect(navigator.nextPage(TotalAmountWithoutVatPage, mode, updated))))
       )
   }
 

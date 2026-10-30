@@ -17,10 +17,15 @@
 package controllers.imports
 
 import base.SpecBase
-import models.NormalMode
+import models.{CheckMode, NormalMode, UserAnswers}
+import org.mockito.ArgumentCaptor
+import org.mockito.Mockito.{times, verify}
 import org.scalatestplus.mockito.MockitoSugar
+import pages.imports.{ImportDetailsInfoPage, SadReferenceCheckPage, SadReferenceNumberPage}
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import repositories.SessionRepository
 
 class SadReferenceCheckControllerSpec extends SpecBase with MockitoSugar {
 
@@ -53,7 +58,9 @@ class SadReferenceCheckControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustBe OK
         contentAsString(result) must include("govuk-back-link")
-        contentAsString(result) must not include controllers.imports.routes.ImportSubCodeController.onPageLoad(models.Fuel.toString).url
+        contentAsString(result) must not include controllers.imports.routes.ImportSubCodeController
+          .onPageLoad(models.Fuel.toString, models.NormalMode)
+          .url
       }
     }
 
@@ -95,6 +102,62 @@ class SadReferenceCheckControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustBe BAD_REQUEST
+      }
+    }
+
+    "must go back to check your answers and keep the SAD reference number when the answer is unchanged in CheckMode" in {
+      val userAnswers = emptyUserAnswers
+        .set(SadReferenceCheckPage, true)
+        .success
+        .value
+        .set(SadReferenceNumberPage, "SAD123")
+        .success
+        .value
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, controllers.imports.routes.SadReferenceCheckController.onSubmit(CheckMode).url)
+          .withFormUrlEncodedBody("value" -> "true")
+
+        val result = route(application, request).value
+
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result).value mustBe controllers.imports.routes.CheckYourImportDetailsController.onPageLoad().url
+
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(mockSessionRepository, times(1)).set(captor.capture())
+        captor.getValue.get(SadReferenceNumberPage) mustBe Some("SAD123")
+      }
+    }
+
+    "must clear the SAD reference number and ask for the details info when the answer changes to no in CheckMode" in {
+      val userAnswers = emptyUserAnswers
+        .set(SadReferenceCheckPage, true)
+        .success
+        .value
+        .set(SadReferenceNumberPage, "SAD123")
+        .success
+        .value
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, controllers.imports.routes.SadReferenceCheckController.onSubmit(CheckMode).url)
+          .withFormUrlEncodedBody("value" -> "false")
+
+        val result = route(application, request).value
+
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result).value mustBe controllers.imports.routes.ImportDetailsInfoController.onPageLoad(CheckMode).url
+
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(mockSessionRepository, times(1)).set(captor.capture())
+        captor.getValue.get(SadReferenceCheckPage) mustBe Some(false)
+        captor.getValue.get(SadReferenceNumberPage) mustBe None
+        captor.getValue.get(ImportDetailsInfoPage) mustBe None
       }
     }
   }

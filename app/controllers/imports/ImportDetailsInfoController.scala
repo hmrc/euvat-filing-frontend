@@ -17,6 +17,7 @@
 package controllers.imports
 
 import controllers.actions.*
+import controllers.imports.routes as importRoutes
 import forms.imports.ImportDetailsInfoFormProvider
 import models.requests.DataRequest
 import javax.inject.Inject
@@ -52,10 +53,10 @@ class ImportDetailsInfoController @Inject() (
     request.userAnswers.get(SadReferenceCheckPage) match {
       case Some(true) =>
         request.userAnswers.get(SadReferenceNumberPage) match {
-          case Some(_) => controllers.imports.routes.SadReferenceNumberController.onPageLoad(mode)
-          case None    => controllers.imports.routes.SadReferenceCheckController.onPageLoad(mode)
+          case Some(_) => importRoutes.SadReferenceNumberController.onPageLoad(mode)
+          case None    => importRoutes.SadReferenceCheckController.onPageLoad(mode)
         }
-      case _ => controllers.imports.routes.SadReferenceCheckController.onPageLoad(mode)
+      case _ => importRoutes.SadReferenceCheckController.onPageLoad(mode)
     }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>

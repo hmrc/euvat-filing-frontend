@@ -17,12 +17,12 @@
 package controllers.imports
 
 import controllers.actions.*
+import controllers.imports.routes as importRoutes
 import forms.imports.SadReferenceNumberFormProvider
 import models.requests.SadReferenceCountRequest
 import models.{Mode, UserAnswers}
 import navigation.Navigator
-import pages.AddImportResponsePage
-import pages.imports.SadReferenceNumberPage
+import pages.imports.{AddImportResponsePage, SadReferenceNumberPage}
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -53,18 +53,19 @@ class SadReferenceNumberController @Inject() (
     with I18nSupport {
 
   val form: Form[String] = formProvider()
-  private def backLink(mode: Mode): Call = routes.SadReferenceCheckController.onPageLoad(mode)
+  private def backLink(mode: Mode): Call =
+    importRoutes.SadReferenceCheckController.onPageLoad(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(SadReferenceNumberPage).fold(form)(form.fill)
-    Ok(view(preparedForm, backLink(mode)))
+    Ok(view(preparedForm, backLink(mode), mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, backLink(mode)))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, backLink(mode), mode))),
         value =>
           buildSadReferenceCountRequest(request.userAnswers, value) match {
 

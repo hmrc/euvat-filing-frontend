@@ -69,6 +69,20 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
       .execute[UpdatePurchaseResponse]
   }
 
+  def addImport(request: AddImportRequest)(implicit hc: HeaderCarrier): Future[AddImportResponse] = {
+    http
+      .post(url"$euVatRefundsBaseUrl/add-import")
+      .withBody(Json.toJson(request))
+      .execute[AddImportResponse]
+  }
+
+  def updateImport(request: UpdateImportDetailsRequest)(implicit hc: HeaderCarrier): Future[UpdateImportDetailsResponse] = {
+    http
+      .put(url"$euVatRefundsBaseUrl/update-importation-details")
+      .withBody(Json.toJson(request))
+      .execute[UpdateImportDetailsResponse]
+  }
+
   def getSupplierVrnCount(request: SupplierVrnCountRequest)(implicit hc: HeaderCarrier): Future[SupplierVrnCountResponse] = {
     http
       .post(url"$euVatRefundsBaseUrl/get-supplier-vrn-count")
@@ -110,12 +124,6 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
       .withBody(Json.toJson(request))
       .execute[HttpResponse]
   }
-
-  def addImport(request: AddImportRequest)(implicit hc: HeaderCarrier): Future[AddImportResponse] =
-    http
-      .post(url"$euVatRefundsBaseUrl/add-import")
-      .withBody(Json.toJson(request))
-      .execute[AddImportResponse]
 
   def getSadReferenceCount(request: SadReferenceCountRequest)(implicit hc: HeaderCarrier): Future[SadReferenceCountResponse] = {
     http

@@ -20,7 +20,7 @@ import controllers.actions.*
 import controllers.routes
 import forms.PurchaseOrImportSubTypeFormProvider
 import models.requests.DataRequest
-import models.{Mode, PurchaseOrImportType}
+import models.{CheckMode, Mode, PurchaseOrImportType}
 import navigation.Navigator
 import pages.imports.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage}
 import play.api.data.Form
@@ -78,7 +78,8 @@ class ImportSubCategoryController @Inject() (
       title,
       "import.caption",
       controllers.imports.routes.ImportSubCategoryController.onSubmit(mode),
-      controllers.imports.routes.ImportSubCodeController.onPageLoad(data.parentKey)
+      if (mode == CheckMode) controllers.imports.routes.CheckYourImportDetailsController.onPageLoad()
+      else controllers.imports.routes.ImportSubCodeController.onPageLoad(data.parentKey, mode)
     )
   }
 

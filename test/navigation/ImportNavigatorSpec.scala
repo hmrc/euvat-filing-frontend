@@ -22,8 +22,9 @@ import controllers.imports.routes as importRoutes
 import models.*
 import pages.*
 import pages.claim.RefundingCountryPage
-import pages.imports.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage, SadReferenceCheckPage}
+import pages.imports.{DescribeItemsOnImportDocPage, ImportDetailsInfoPage, ImportSubCategoryPage, ImportSubCodePage, ImportTotalVatClaimPage, ImportTypePage, SadReferenceCheckPage, SadReferenceNumberPage, TotalAmountWithoutVatPage, TotalVatPaidImportPage}
 import play.api.Configuration
+import play.api.mvc.Call
 import utils.{ConfigPurchaseOrImportMapping, CurrencyConfig}
 
 class ImportNavigatorSpec extends SpecBase {
@@ -93,7 +94,7 @@ class ImportNavigatorSpec extends SpecBase {
           .success
           .value
         navigatorWith(fakeConfig).navigateFromImportTypePage(NormalMode)(ua) mustBe
-          importRoutes.ImportSubCodeController.onPageLoad(Fuel.toString)
+          importRoutes.ImportSubCodeController.onPageLoad(Fuel.toString, models.NormalMode)
       }
 
       "must go from ImportTypePage to SadReferenceCheck when the country has no sub codes for that type" in {
@@ -216,13 +217,13 @@ class ImportNavigatorSpec extends SpecBase {
       "must go from ImportSubCodePage to SadReferenceCheck when the sub code has no sub categories" in {
         val ua = answersFor("AT", Fuel, "1.3")
         navigator.navigateFromImportSubCodePage(CheckMode)(ua) mustBe
-          importRoutes.SadReferenceCheckController.onPageLoad(CheckMode)
+          importRoutes.CheckYourImportDetailsController.onPageLoad()
       }
 
       "must go from ImportSubCategoryPage to SadReferenceCheck when a sub category has been answered" in {
         val ua = userAnswers.set(ImportSubCategoryPage, "1.2.6").success.value
         navigator.navigateFromImportSubCategoryPage(CheckMode)(ua) mustBe
-          importRoutes.SadReferenceCheckController.onPageLoad(CheckMode)
+          importRoutes.CheckYourImportDetailsController.onPageLoad()
       }
 
       "must go from SadReferenceCheckPage to the SAD reference number page when the user has a SAD reference" in {
@@ -240,15 +241,115 @@ class ImportNavigatorSpec extends SpecBase {
       "must go from SuppliersAddress to ImportCurrencyController when the country requires currency selection" in {
         val answers = userAnswers.set(RefundingCountryPage, "EE").success.value
         navigator.navigateFromSupplierAddressPage(CheckMode)(answers) mustBe
-          importRoutes.ImportCurrencyController.onPageLoad(CheckMode)
+          importRoutes.CheckYourImportDetailsController.onPageLoad()
       }
 
       "must from SuppliersAddress to TotalAmountWithoutVat page when the country has one currency" in {
         val answers = userAnswers.set(RefundingCountryPage, "AT").success.value
         navigator.navigateFromSupplierAddressPage(CheckMode)(answers) mustBe
+          importRoutes.CheckYourImportDetailsController.onPageLoad()
+      }
+
+      "must go from SadReferenceCheckPage back to check your answers when the SAD reference number is still answered" in {
+        val ua = userAnswers.set(SadReferenceCheckPage, true).flatMap(_.set(SadReferenceNumberPage, "SAD123")).success.value
+        navigator.navigateFromSadReferenceCheckPage(CheckMode)(ua) mustBe
+          importRoutes.CheckYourImportDetailsController.onPageLoad()
+      }
+
+      "must go from SadReferenceCheckPage back to check your answers when the import details info is still answered" in {
+        val ua = userAnswers.set(SadReferenceCheckPage, false).flatMap(_.set(ImportDetailsInfoPage, "info")).success.value
+        navigator.navigateFromSadReferenceCheckPage(CheckMode)(ua) mustBe
+          importRoutes.CheckYourImportDetailsController.onPageLoad()
+      }
+
+      "must go from ImportCurrencyPage to TotalAmountWithoutVat when the amount has been cleared" in {
+        navigator.navigateFromImportCurrencyPage(CheckMode)(userAnswers) mustBe
           importRoutes.TotalAmountWithoutVatController.onPageLoad(CheckMode)
+      }
+
+      "must go from ImportCurrencyPage back to check your answers when the amount is still answered" in {
+        val ua = userAnswers.set(TotalAmountWithoutVatPage, BigDecimal(100)).success.value
+        navigator.navigateFromImportCurrencyPage(CheckMode)(ua) mustBe
+          importRoutes.CheckYourImportDetailsController.onPageLoad()
+      }
+
+      "must go from TotalAmountWithoutVatPage to TotalVatPaidImport when the VAT paid has been cleared" in {
+        val ua = userAnswers.set(TotalAmountWithoutVatPage, BigDecimal(100)).success.value
+        navigator.navigateFromTotalAmountWithoutVatPage(CheckMode)(ua) mustBe
+          importRoutes.TotalVatPaidImportController.onPageLoad(CheckMode)
+      }
+
+      "must go from TotalAmountWithoutVatPage back to check your answers when the VAT paid is still answered" in {
+        val ua = userAnswers.set(TotalAmountWithoutVatPage, BigDecimal(100)).flatMap(_.set(TotalVatPaidImportPage, BigDecimal(20))).success.value
+        navigator.navigateFromTotalAmountWithoutVatPage(CheckMode)(ua) mustBe
+          importRoutes.CheckYourImportDetailsController.onPageLoad()
+      }
+
+      "must go from TotalVatPaidImportPage to TotalVatClaim when the VAT claim has been cleared" in {
+        val ua = userAnswers.set(TotalVatPaidImportPage, BigDecimal(20)).success.value
+        navigator.navigateFromTotalVatPaidImportPage(CheckMode)(ua) mustBe
+          importRoutes.TotalVatClaimController.onPageLoad(CheckMode)
+      }
+
+      "must go from TotalVatPaidImportPage back to check your answers when the VAT claim is still answered" in {
+        val ua = userAnswers.set(TotalVatPaidImportPage, BigDecimal(20)).flatMap(_.set(ImportTotalVatClaimPage, BigDecimal(10))).success.value
+        navigator.navigateFromTotalVatPaidImportPage(CheckMode)(ua) mustBe
+          importRoutes.CheckYourImportDetailsController.onPageLoad()
       }
     }
 
+  }
+  "Import CYA category edits" - {
+    val mapping = new ConfigPurchaseOrImportMapping() {
+      override def selectableSubcodes(country: String, parentKey: String): Option[Seq[(String, String)]] = Some(Seq("1.1" -> "Fuel"))
+      override def subcategoriesFor(country: String, parentKey: String, subcode: String): Seq[(String, String)] =
+        if (subcode == "1.1") Seq("1.1.1" -> "Fuel type") else Seq.empty
+    }
+    val editNavigator = navigatorWith(mapping)
+    val cya = importRoutes.CheckYourImportDetailsController.onPageLoad()
+
+    "must send an import type whose sub-code has been cleared to its sub-code in CheckMode" in {
+      val answers = userAnswers.set(RefundingCountryPage, "AT").flatMap(_.set(ImportTypePage, Fuel)).success.value
+      editNavigator.navigateFromImportTypePage(CheckMode)(answers) mustBe
+        importRoutes.ImportSubCodeController.onPageLoad("fuel", CheckMode)
+    }
+    "must send an import type whose sub-code is still answered back to CYA in CheckMode" in {
+      editNavigator.navigateFromImportTypePage(CheckMode)(answersFor("AT", Fuel, "1.1")) mustBe cya
+    }
+    "must send an import type to its sub-code even when the sub-code is answered outside CheckMode" in {
+      editNavigator.navigateFromImportTypePage(NormalMode)(answersFor("AT", Fuel, "1.1")) mustBe
+        importRoutes.ImportSubCodeController.onPageLoad("fuel", NormalMode)
+    }
+    "must send Other without selectable sub-codes to the description until it is answered in CheckMode" in {
+      val otherMapping = new ConfigPurchaseOrImportMapping() {
+        override def subcodesFor(country: String, parentKey: String): Seq[(String, String)] =
+          if (parentKey == Other.toString) Seq(("10.99", "sub.other.99")) else Seq.empty
+      }
+      val answers = userAnswers.set(RefundingCountryPage, "AT").flatMap(_.set(ImportTypePage, Other)).success.value
+      val described = answers.set(DescribeItemsOnImportDocPage, "Imported equipment").success.value
+
+      navigatorWith(otherMapping).navigateFromImportTypePage(CheckMode)(answers) mustBe
+        importRoutes.DescribeItemsOnImportDocController.onPageLoad(CheckMode)
+      navigatorWith(otherMapping).navigateFromImportTypePage(CheckMode)(described) mustBe cya
+    }
+    "must send a sub-code without a sub category to its required child in CheckMode" in {
+      editNavigator.navigateFromImportSubCodePage(CheckMode)(answersFor("AT", Fuel, "1.1")) mustBe
+        importRoutes.ImportSubCategoryController.onPageLoad(CheckMode)
+    }
+    "must send a sub-code whose sub category is still answered back to CYA in CheckMode" in {
+      val answers = answersFor("AT", Fuel, "1.1").set(ImportSubCategoryPage, "1.1.1").success.value
+      editNavigator.navigateFromImportSubCodePage(CheckMode)(answers) mustBe cya
+    }
+    "must finish at CYA when a sub-code has no child" in {
+      editNavigator.navigateFromImportSubCodePage(CheckMode)(answersFor("AT", Fuel, "1.3")) mustBe cya
+    }
+    "must send Other and None of these to description until it is answered in CheckMode" in {
+      val answers = answersFor("AT", Other, "10.99")
+      editNavigator.navigateFromImportSubCodePage(CheckMode)(answers) mustBe
+        importRoutes.DescribeItemsOnImportDocController.onPageLoad(CheckMode)
+      editNavigator.navigateFromImportSubCodePage(CheckMode)(
+        answers.set(DescribeItemsOnImportDocPage, "Imported equipment").success.value
+      ) mustBe cya
+    }
   }
 }

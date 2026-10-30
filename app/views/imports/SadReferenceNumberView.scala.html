@@ -28,11 +28,11 @@
 )
 
 
-@(form: play.api.data.Form[_], call: play.api.mvc.Call)(implicit request: play.api.mvc.Request[_], messages: play.api.i18n.Messages)
+@(form: play.api.data.Form[_], call: play.api.mvc.Call, mode: models.Mode = models.NormalMode)(implicit request: play.api.mvc.Request[_], messages: play.api.i18n.Messages)
 
 @layout(pageTitle = title(form, messages("sadReferenceNumber.title")), backLinkUrl = Some(call.url)) {
 
-    @formHelper(action = controllers.imports.routes.SadReferenceNumberController.onSubmit(models.NormalMode)) {
+    @formHelper(action = controllers.imports.routes.SadReferenceNumberController.onSubmit(mode)) {
 
         @mainErrorSummary(form, errorLinkOverrides = Map("value" -> "value"))
 

@@ -17,6 +17,7 @@
 package controllers.imports
 
 import controllers.actions.*
+import controllers.imports.routes as importRoutes
 import forms.purchase.TotalVatClaimFormProvider
 import models.{Mode, UserAnswers}
 import navigation.Navigator
@@ -51,7 +52,8 @@ class TotalVatClaimController @Inject() (
 
   val form: Form[BigDecimal] = formProvider()
 
-  private def backLink(mode: Mode): Call = routes.TotalVatPaidImportController.onPageLoad(mode)
+  private def backLink(mode: Mode): Call =
+    importRoutes.TotalVatPaidImportController.onPageLoad(mode)
 
   private def formAction(mode: Mode): Call = routes.TotalVatClaimController.onSubmit(mode)
 

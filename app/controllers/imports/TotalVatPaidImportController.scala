@@ -16,7 +16,10 @@
 
 package controllers.imports
 
+import pages.imports.*
+
 import controllers.actions.*
+import controllers.imports.routes as importRoutes
 import forms.imports.TotalVatPaidImportFormProvider
 
 import javax.inject.Inject
@@ -52,7 +55,7 @@ class TotalVatPaidImportController @Inject() (
   val form: Form[BigDecimal] = formProvider()
 
   private def backLink(mode: Mode): Call =
-    controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad(mode)
+    importRoutes.TotalAmountWithoutVatController.onPageLoad(mode)
 
   private def formAction(mode: Mode): Call = routes.TotalVatPaidImportController.onSubmit(mode)
 
@@ -72,16 +75,18 @@ class TotalVatPaidImportController @Inject() (
             BadRequest(view(formWithErrors, formAction(mode), backLink(mode), "import.caption", "totalVatPaidImport.p1", prefix, currencyName))
           ),
         value =>
-          for {
-            userAnswers <- Future.fromTry(request.userAnswers.set(TotalVatPaidImportPage, value))
-            _           <- sessionRepository.set(userAnswers)
-          } yield {
-            val totalAmountWithoutVat = userAnswers.get(TotalAmountWithoutVatPage).getOrElse(BigDecimal(0))
-            if (value < totalAmountWithoutVat) {
-              Redirect(navigator.nextPage(TotalVatPaidImportPage, mode, userAnswers))
-            } else {
-              Redirect(controllers.warning.routes.VatPaidWarningController.onPageLoad(mode))
-            }
+          saveAnswerAndResetDependents(
+            page              = TotalVatPaidImportPage,
+            newValue          = value,
+            userAnswers       = request.userAnswers,
+            dependents        = List(ImportTotalVatClaimPage),
+            sessionRepository = sessionRepository
+          ) { updated =>
+            val totalAmountWithoutVat = updated.get(TotalAmountWithoutVatPage).getOrElse(BigDecimal(0))
+            Future.successful(
+              if (value < totalAmountWithoutVat) Redirect(navigator.nextPage(TotalVatPaidImportPage, mode, updated))
+              else Redirect(controllers.warning.routes.VatPaidWarningController.onPageLoad(mode))
+            )
           }
       )
   }

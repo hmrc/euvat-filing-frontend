@@ -18,12 +18,13 @@ package controllers.imports
 
 import base.SpecBase
 import forms.imports.TotalAmountWithoutVatFormProvider
-import models.{NormalMode, UserAnswers}
+import models.{CheckMode, NormalMode, UserAnswers}
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{verify, when}
+import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.claim.RefundingCountryPage
-import pages.imports.{SadReferenceCheckPage, SadReferenceNumberPage, TotalAmountWithoutVatPage}
+import pages.imports.{ImportTotalVatClaimPage, SadReferenceCheckPage, SadReferenceNumberPage, TotalAmountWithoutVatPage, TotalVatPaidImportPage}
 import pages.purchase.RefundingCurrencyPage
 import play.api.data.Form
 import play.api.inject.bind
@@ -175,6 +176,71 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must go back to check your answers and keep the VAT answers when the amount is unchanged in CheckMode" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val userAnswers = emptyUserAnswers
+        .set(TotalAmountWithoutVatPage, BigDecimal("123.45"))
+        .success
+        .value
+        .set(TotalVatPaidImportPage, BigDecimal(20))
+        .success
+        .value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+          .build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.TotalAmountWithoutVatController.onSubmit(CheckMode).url)
+          .withFormUrlEncodedBody(("value", "123.45"))
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.imports.routes.CheckYourImportDetailsController.onPageLoad().url
+
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(mockSessionRepository, times(1)).set(captor.capture())
+        captor.getValue.get(TotalVatPaidImportPage) mustBe Some(BigDecimal(20))
+      }
+    }
+
+    "must clear the VAT answers and ask for the VAT paid again when the amount changes in CheckMode" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val userAnswers = emptyUserAnswers
+        .set(TotalAmountWithoutVatPage, BigDecimal(100))
+        .success
+        .value
+        .set(TotalVatPaidImportPage, BigDecimal(20))
+        .success
+        .value
+        .set(ImportTotalVatClaimPage, BigDecimal(10))
+        .success
+        .value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+          .build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.TotalAmountWithoutVatController.onSubmit(CheckMode).url)
+          .withFormUrlEncodedBody(("value", "123.45"))
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.TotalVatPaidImportController.onPageLoad(CheckMode).url
+
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(mockSessionRepository, times(1)).set(captor.capture())
+        captor.getValue.get(TotalAmountWithoutVatPage) mustBe Some(BigDecimal("123.45"))
+        captor.getValue.get(TotalVatPaidImportPage) mustBe None
+        captor.getValue.get(ImportTotalVatClaimPage) mustBe None
       }
     }
   }
