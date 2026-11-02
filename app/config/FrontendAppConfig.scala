@@ -67,11 +67,4 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val earliestRefundStart: YearMonth = getYearMonth("refund.start.earliest")
   val latestRefundStart: YearMonth = getYearMonth("refund.start.latest")
 
-  val keyStoreLocation: String = configuration.get[String]("settings.submission.keyStoreLocation")
-  val keyStoreFile: String = configuration.get[String]("settings.submission.keyStore")
-  val keyStoreType: String = configuration.get[String]("settings.submission.keyStoreType")
-  val keyStorePassword: String = configuration.get[String]("settings.submission.pwdkeyStore")
-  val keyEntryPassword: String = configuration.get[String]("settings.submission.pwdkeyEntry")
-  val keyAlias: String = configuration.get[String]("settings.submission.alias")
-  val knownText: String = configuration.get[String]("settings.submission.knownText")
 }
