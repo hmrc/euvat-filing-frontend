@@ -16,13 +16,14 @@
 
 package utils
 
-import play.api.Configuration
+import play.api.{Configuration, Logging}
 import uk.gov.hmrc.crypto.{Crypted, PlainText, SymmetricCryptoFactory}
 
 import javax.inject.{Inject, Singleton}
+import scala.util.{Failure, Success, Try}
 
 @Singleton
-class BankDetailsEncryption @Inject() (configuration: Configuration) {
+class BankDetailsEncryption @Inject() (configuration: Configuration) extends Logging {
 
   private val KnownText = "knowntext"
 
@@ -32,8 +33,13 @@ class BankDetailsEncryption @Inject() (configuration: Configuration) {
   def encrypt(plainText: String): String =
     crypto.encrypt(PlainText(plainText)).value
 
-  def decrypt(cipherText: String): String =
-    crypto.decrypt(Crypted(cipherText)).value
+  def decrypt(cipherText: String): Option[String] =
+    Try(crypto.decrypt(Crypted(cipherText)).value) match {
+      case Success(value) => Some(value)
+      case Failure(_) =>
+        logger.warn("Failed to decrypt bank details value")
+        None
+    }
 
   def knownCipherText: String = encrypt(KnownText)
 }
