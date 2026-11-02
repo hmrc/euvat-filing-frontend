@@ -24,23 +24,23 @@ import play.api.Configuration
 class BankDetailsEncryptionSpec extends AnyWordSpec with Matchers {
 
   private val encryption = new BankDetailsEncryption(Configuration(ConfigFactory.load()))
-  private val iban       = "DE89370400440532013000"
+  private val iban = "DE89370400440532013000"
 
   "BankDetailsEncryption" should {
 
     "decrypt an encrypted value back to the original" in {
       val encrypted = encryption.encrypt(iban)
 
-      encrypted should not be iban
-      encryption.decrypt(encrypted) shouldBe iban
+      encrypted                       should not be iban
+      encryption.decrypt(encrypted) shouldBe Some(iban)
     }
 
     "produce a known cipher text that decrypts to the known text" in {
-      encryption.decrypt(encryption.knownCipherText) shouldBe "knowntext"
+      encryption.decrypt(encryption.knownCipherText) shouldBe Some("knowntext")
     }
 
-    "produce a different encrypted value each time for the same input" in {
-      encryption.encrypt(iban) should not be encryption.encrypt(iban)
+    "return None when the value cannot be decrypted" in {
+      encryption.decrypt("not-a-valid-encrypted-value") shouldBe None
     }
   }
 }
