@@ -16,48 +16,24 @@
 
 package utils
 
-import config.FrontendAppConfig
+import play.api.Configuration
+import uk.gov.hmrc.crypto.{Crypted, PlainText, SymmetricCryptoFactory}
 
-import java.io.FileInputStream
-import java.nio.charset.StandardCharsets
-import java.security.KeyStore
-import javax.crypto.{Cipher, SecretKey}
 import javax.inject.{Inject, Singleton}
-import scala.util.Using
 
 @Singleton
-class BankDetailsEncryption @Inject() (appConfig: FrontendAppConfig) {
+class BankDetailsEncryption @Inject() (configuration: Configuration) {
 
-  private lazy val secretKey: SecretKey = {
-    val keyStore = KeyStore.getInstance(appConfig.keyStoreType)
-    val path = s"${appConfig.keyStoreLocation}/${appConfig.keyStoreFile}"
+  private val KnownText = "knowntext"
 
-    Using.resource(new FileInputStream(path)) { stream =>
-      keyStore.load(stream, appConfig.keyStorePassword.toCharArray)
-    }
+  private val crypto =
+    SymmetricCryptoFactory.aesGcmCryptoFromConfig("bankDetails.encryption", configuration.underlying)
 
-    keyStore.getKey(appConfig.keyAlias, appConfig.keyEntryPassword.toCharArray).asInstanceOf[SecretKey]
-  }
+  def encrypt(plainText: String): String =
+    crypto.encrypt(PlainText(plainText)).value
 
-  private val Transformation = "AES/ECB/PKCS5Padding"
+  def decrypt(cipherText: String): String =
+    crypto.decrypt(Crypted(cipherText)).value
 
-  private def toHex(bytes: Array[Byte]): String =
-    bytes.map(b => f"$b%02x").mkString
-
-  private def fromHex(hex: String): Array[Byte] =
-    hex.grouped(2).map(Integer.parseInt(_, 16).toByte).toArray
-
-  def encrypt(plainText: String): String = {
-    val cipher = Cipher.getInstance(Transformation)
-    cipher.init(Cipher.ENCRYPT_MODE, secretKey)
-    toHex(cipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8)))
-  }
-
-  def decrypt(cipherText: String): String = {
-    val cipher = Cipher.getInstance(Transformation)
-    cipher.init(Cipher.DECRYPT_MODE, secretKey)
-    new String(cipher.doFinal(fromHex(cipherText)), StandardCharsets.UTF_8)
-  }
-
-  def knownCipherText: String = encrypt(appConfig.knownText)
+  def knownCipherText: String = encrypt(KnownText)
 }
