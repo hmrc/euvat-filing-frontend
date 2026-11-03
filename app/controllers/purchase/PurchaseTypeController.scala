@@ -429,36 +429,31 @@ class PurchaseTypeController @Inject() (
 
       val ua = request.userAnswers
 
-      if (!ua.get(ClaimApplicationResponseQuery).map(_.applicationId).contains(applicationId)) {
-        logger.warn(s"Add details requested for application $applicationId which is not the claim in session")
-        Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-      } else {
-        euVatRefundsService
-          .getPurchaseDetails(applicationId, itemNumber)
-          .flatMap { response =>
-            for {
-              purchaseType   <- Future.fromTry(resolvePurchaseType(response, itemNumber))
-              clearedAnswers <- Future.fromTry(clearStaleAnswers(ua, pagesToRemoveAnswers))
-              loadedAnswers  <- Future.fromTry(loadPurchase(clearedAnswers, response, purchaseType, itemNumber))
-              _              <- sessionRepository.set(loadedAnswers)
-            } yield Ok(
-              view(
-                form.fill(purchaseType),
-                NormalMode,
-                routes.PurchaseTypeController.onSubmit(NormalMode),
-                "purchaseType",
-                "purchase.caption",
-                true,
-                legendKey = Some("purchaseType.h2")
-              )
+      euVatRefundsService
+        .getPurchaseDetails(applicationId, itemNumber)
+        .flatMap { response =>
+          for {
+            purchaseType   <- Future.fromTry(resolvePurchaseType(response, itemNumber))
+            clearedAnswers <- Future.fromTry(clearStaleAnswers(ua, pagesToRemoveAnswers))
+            loadedAnswers  <- Future.fromTry(loadPurchase(clearedAnswers, response, purchaseType, itemNumber))
+            _              <- sessionRepository.set(loadedAnswers)
+          } yield Ok(
+            view(
+              form.fill(purchaseType),
+              NormalMode,
+              routes.PurchaseTypeController.onSubmit(NormalMode),
+              "purchaseType",
+              "purchase.caption",
+              true,
+              legendKey = Some("purchaseType.h2")
             )
+          )
 
-          }
-          .recover { case ex =>
-            logger.error(s"Error fetching purchase details for item $itemNumber", ex)
-            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-          }
-      }
+        }
+        .recover { case ex =>
+          logger.error(s"Error fetching purchase details for item $itemNumber", ex)
+          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+        }
   }
 
   private val pagesToRemoveAnswers: List[Settable[_]] = List(

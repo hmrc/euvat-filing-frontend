@@ -480,58 +480,7 @@ class ImportTypeControllerSpec extends SpecBase with MockitoSugar {
         verify(mockSessionRepository, never()).set(any[UserAnswers])
       }
     }
-
-    "addDetails should redirect to JourneyRecovery when applicationId does not match the claim in session" in {
-      val savedCaptor: ArgumentCaptor[models.UserAnswers] = ArgumentCaptor.forClass(classOf[models.UserAnswers])
-      when(mockSessionRepository.set(savedCaptor.capture())) thenReturn Future.successful(true)
-
-      val importDetail = ImportDetailsResponse(
-        applicationId               = 123L,
-        itemNumber                  = 7,
-        issuingDate                 = None,
-        supplierName                = None,
-        supplierAddressLine1        = None,
-        supplierAddressLine2        = None,
-        supplierAddressLine3        = None,
-        supplierCountryCode         = None,
-        goodsDescriptionCategory    = "111",
-        goodsDescriptionSubcategory = None,
-        goodsDescriptionText        = None,
-        hasSadReferenceNumber       = None,
-        sadReferenceNumber          = None,
-        referenceInformation        = None,
-        currencyCode                = None,
-        taxableAmount               = None,
-        vatAmount                   = None,
-        deductibleVatAmount         = None,
-        updateSequenceNumber        = 5
-      )
-
-      when(mockEuVatRefundsService.getImportDetails(org.mockito.ArgumentMatchers.eq(123L), org.mockito.ArgumentMatchers.eq(7))(any()))
-        .thenReturn(Future.successful(importDetail))
-
-      val ua = emptyUserAnswers
-        .set(ClaimApplicationResponseQuery, ApplicationResponse(555, "App1", 5))
-        .success
-        .value
-
-      val application = applicationBuilder(userAnswers = Some(ua))
-        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
-        .build()
-
-      running(application) {
-        val request = FakeRequest(GET, controllers.imports.routes.ImportTypeController.addDetails(123L, 7).url)
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
-
-        verify(mockEuVatRefundsService, never()).getImportDetails(any, any)(any[HeaderCarrier])
-        verify(mockSessionRepository, never()).set(any[UserAnswers])
-        verifyNoMoreInteractions(mockEuVatRefundsService)
-      }
-    }
-
+    
     "addDetails should redirect to JourneyRecovery when goodsDescriptionCategory does not match" in {
       val savedCaptor: ArgumentCaptor[models.UserAnswers] = ArgumentCaptor.forClass(classOf[models.UserAnswers])
       when(mockSessionRepository.set(savedCaptor.capture())) thenReturn Future.successful(true)

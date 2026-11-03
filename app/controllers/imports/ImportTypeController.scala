@@ -80,14 +80,7 @@ class ImportTypeController @Inject() (
         formWithErrors =>
           Future.successful(
             BadRequest(
-              view(formWithErrors,
-                   mode,
-                   routes.ImportTypeController.onSubmit(mode),
-                   "importType",
-                   "import.caption",
-                   false,
-                   legendKey = None
-                  )
+              view(formWithErrors, mode, routes.ImportTypeController.onSubmit(mode), "importType", "import.caption", false, legendKey = None)
             )
           ),
         value =>
@@ -138,36 +131,31 @@ class ImportTypeController @Inject() (
 
       val ua = request.userAnswers
 
-      if (!ua.get(ClaimApplicationResponseQuery).map(_.applicationId).contains(applicationId)) {
-        logger.warn(s"Add details requested for application $applicationId which is not the claim in session")
-        Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-      } else {
-        euVatRefundsService
-          .getImportDetails(applicationId, itemNumber)
-          .flatMap { response =>
-            for {
-              importType     <- Future.fromTry(resolveImportType(response))
-              clearedAnswers <- Future.fromTry(clearStaleAnswers(ua, pagesToRemoveAnswers))
-              loadedAnswers  <- Future.fromTry(loadImport(clearedAnswers, response, importType, itemNumber))
-              _              <- sessionRepository.set(loadedAnswers)
-            } yield Ok(
-              view(
-                form.fill(importType),
-                NormalMode,
-                routes.ImportTypeController.onSubmit(NormalMode),
-                "importType",
-                "import.caption",
-                false,
-                legendKey = None
-              )
+      euVatRefundsService
+        .getImportDetails(applicationId, itemNumber)
+        .flatMap { response =>
+          for {
+            importType     <- Future.fromTry(resolveImportType(response))
+            clearedAnswers <- Future.fromTry(clearStaleAnswers(ua, pagesToRemoveAnswers))
+            loadedAnswers  <- Future.fromTry(loadImport(clearedAnswers, response, importType, itemNumber))
+            _              <- sessionRepository.set(loadedAnswers)
+          } yield Ok(
+            view(
+              form.fill(importType),
+              NormalMode,
+              routes.ImportTypeController.onSubmit(NormalMode),
+              "importType",
+              "import.caption",
+              false,
+              legendKey = None
             )
+          )
 
-          }
-          .recover { case ex =>
-            logger.error(s"Error fetching import details for item $itemNumber", ex)
-            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-          }
-      }
+        }
+        .recover { case ex =>
+          logger.error(s"Error fetching import details for item $itemNumber", ex)
+          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+        }
   }
 
   private val pagesToRemoveAnswers: List[Settable[_]] = List(
