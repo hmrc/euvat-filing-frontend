@@ -24,37 +24,20 @@
     customSummaryList: views.html.components.CustomSummaryList
 )
 
-@(
-    sections: Seq[(String, Seq[(String, Option[String], Seq[(String, String, String)])])],
-    formAction: Call,
-    backLink: Call
-)(implicit request: Request[?], messages: Messages)
+@(sections: Seq[(String, Seq[(String, Option[String], Seq[(String, String, String)])])], formAction: Call)(implicit request: Request[?], messages: Messages)
 
-@layout(
-    pageTitle = titleNoForm(messages("checkYourImportDetails.title")),
-    backLinkUrl = Some(backLink.url)
-) {
+@layout(pageTitle = titleNoForm(messages("checkYourImportDetails.title")), showBackLink = false) {
     <span class="govuk-caption-l">@messages("import.caption")</span>
-    <h1 class="govuk-heading-l">
-        @messages("checkYourImportDetails.heading")
-    </h1>
+    <h1 class="govuk-heading-l">@messages("checkYourImportDetails.heading")</h1>
 
-    @formHelper(
-        action = formAction,
-        Symbol("autocomplete") -> "off"
-    ) {
+    @formHelper(action = formAction, Symbol("autocomplete") -> "off") {
         @for((labelKey, rows) <- sections) {
             <div class="govuk-!-margin-bottom-9">
-                <h2 class="govuk-heading-m govuk-!-margin-bottom-2">
-                    @messages(labelKey)
-                </h2>
-
+                <h2 class="govuk-heading-m govuk-!-margin-bottom-2">@messages(labelKey)</h2>
                 @customSummaryList(rows)
             </div>
         }
 
-        @govukButton(
-            ButtonViewModel(messages("site.save.continue"))
-        )
+        @govukButton(ButtonViewModel(messages("site.save.continue")))
     }
 }

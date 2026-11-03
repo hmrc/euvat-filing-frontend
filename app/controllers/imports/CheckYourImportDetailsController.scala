@@ -20,7 +20,7 @@ import config.FrontendAppConfig
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import models.requests.{DataRequest, UpdateImportDetailsRequest}
 import models.responses.AddImportResponse
-import models.{NormalMode, PurchaseOrImportType, UserAnswers}
+import models.{PurchaseOrImportType, UserAnswers}
 import pages.PurchaseImportSummaryPage
 import pages.imports.*
 import play.api.Logging
@@ -35,6 +35,7 @@ import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import utils.{ConfigPurchaseOrImportMapping, CountryCode, CurrencyConfig}
 import viewmodels.checkAnswers.CheckYourImportDetailsSummary
 import views.html.imports.CheckYourImportDetailsView
+
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -59,8 +60,7 @@ class CheckYourImportDetailsController @Inject() (
     Ok(
       view(
         CheckYourImportDetailsSummary.sections(request.userAnswers, configPurchaseOrImportMapping, currencyConfig, appConfig.supplierCountries),
-        routes.CheckYourImportDetailsController.onSubmit(),
-        routes.TotalVatClaimController.onPageLoad(NormalMode)
+        routes.CheckYourImportDetailsController.onSubmit()
       )
     )
   }
@@ -106,7 +106,6 @@ class CheckYourImportDetailsController @Inject() (
       value.filter(v => v.trim.nonEmpty && v != ConfigPurchaseOrImportMapping.NoneValue)
 
     val subCategory = real(answers.get(ImportSubCategoryPage)).orElse(real(answers.get(ImportSubCodePage)))
-
     val hasSad = answers.get(SadReferenceCheckPage)
     val address = answers.get(ImportSupplierAddressPage)
 

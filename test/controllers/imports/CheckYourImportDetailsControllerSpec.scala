@@ -111,9 +111,6 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
 
         document.select("form").attr("action") mustBe
           routes.CheckYourImportDetailsController.onSubmit().url
-
-        document.select("a.govuk-back-link").attr("href") mustBe
-          routes.TotalVatClaimController.onPageLoad(models.NormalMode).url
       }
     }
 
