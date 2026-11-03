@@ -117,11 +117,6 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
       .execute[PurchaseImportListResponse]
   }
 
-  def getImportDetails(applicationId: Long, itemNumber: Int)(implicit hc: HeaderCarrier): Future[ImportDetailsResponse] =
-    http
-      .get(url"$euVatRefundsBaseUrl/get-import-details/$applicationId/$itemNumber")
-      .execute[ImportDetailsResponse]
-
   def getPurchaseDetails(applicationId: Long, itemNumber: Int)(implicit hc: HeaderCarrier): Future[PurchaseDetailsResponse] =
     http
       .get(url"$euVatRefundsBaseUrl/get-purchase-details/$applicationId/$itemNumber")
