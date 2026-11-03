@@ -446,7 +446,7 @@ totalPurchaseAmountBeforeVat.title = Total purchase amount before VAT
 totalPurchaseAmountBeforeVat.heading = Total purchase amount before VAT
 totalPurchaseAmountBeforeVat.h2 = How much did the purchase cost before VAT?
 totalPurchaseAmountBeforeVat.inset = The currency for this claim is in {0} ({1}). For invoices in any other currency, you must convert the amounts before adding them to your claim. Use the <a href="https://data.ecb.europa.eu/currency-converter" class="govuk-link" rel="noreferrer noopener" target="_blank">European Central Bank currency converter (opens in new tab).</a>
-totalPurchaseAmountBeforeVat.p1 = This is the purchase amount before VAT is added. If your invoice does not show this amount, you’ll need to <a href="https://www.gov.uk/charge-reclaim-record-vat" class="govuk-link" target="_blank" rel="noreferrer noopener">calculate it (opens in a new tab)</a>.
+totalPurchaseAmountBeforeVat.p1 = This is the purchase amount before VAT is added. If your invoice does not show this amount, you’ll need to <a href="https://www.gov.uk/charge-reclaim-record-vat" class="govuk-link" target="_blank" rel="noreferrer noopener">calculate it (opens in new tab)</a>.
 totalPurchaseAmountBeforeVat.hint = For example, {0}150 or {0}120.45
 totalPurchaseAmountBeforeVat.checkYourAnswersLabel = Amount without VAT
 totalPurchaseAmountBeforeVat.change.hidden = Total purchase amount without VAT
@@ -549,7 +549,7 @@ purchaseOrImportDate.hint = For example, 27 3 2025
 
 totalAmountWithoutVat.title = Total amount without VAT
 totalAmountWithoutVat.heading = Total amount without VAT
-totalAmountWithoutVat.inset = The currency for this claim is in {0} ({1}). For import documents in any other currency, you must convert the amounts before adding them to your claim. Use the <a href="https://data.ecb.europa.eu/currency-converter" class="govuk-link" rel="noreferrer noopener" target="_blank">European Central Bank currency converter (opens in a new tab)</a>.
+totalAmountWithoutVat.inset = The currency for this claim is in {0} ({1}). For import documents in any other currency, you must convert the amounts before adding them to your claim. Use the <a href="https://data.ecb.europa.eu/currency-converter" class="govuk-link" rel="noreferrer noopener" target="_blank">European Central Bank currency converter (opens in new tab)</a>.
 totalAmountWithoutVat.p1 = If this amount is not on your import document, you’ll need to calculate it. Use the standard VAT rate of the country you’re claiming from.
 totalAmountWithoutVat.h2 = How much did the import cost without VAT?
 totalAmountWithoutVat.hint = For example, {0}150 or {0}120.45
