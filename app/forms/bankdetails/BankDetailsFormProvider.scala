@@ -16,27 +16,16 @@
 
 package forms.bankdetails
 
+import forms.Validation.{bicRegex, currencyCodeRegex, ibanRegex, nameOnAccountRegex}
 import forms.mappings.Mappings
 import models.BankDetails
 import play.api.data.Form
-import play.api.data.Forms._
+import play.api.data.Forms.*
 
 import javax.inject.Inject
 import java.util.Locale
 
 class BankDetailsFormProvider @Inject() extends Mappings {
-
-  private val nameOnAccountRegex =
-    """^[A-Za-z0-9/\-?:().,'+ ]*$"""
-
-  private val bicRegex =
-    """^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$"""
-
-  private val ibanRegex =
-    """^[A-Z]{2}[0-9]{2}[0-9A-Z]{10,30}$"""
-
-  private val currencyCodeRegex =
-    """^[A-Z]{3}$"""
 
   private def trim(value: String): String =
     value.trim
@@ -70,7 +59,6 @@ class BankDetailsFormProvider @Inject() extends Mappings {
                 "bankDetails.internationalBankAccountDetails.error.NameOnTheAccount.invalid"
               )
             ),
-
         "BIC" ->
           text("bankDetails.internationalBankAccountDetails.error.BIC.required")
             .transform(normaliseBic, identity)
@@ -86,7 +74,6 @@ class BankDetailsFormProvider @Inject() extends Mappings {
                 "bankDetails.internationalBankAccountDetails.error.BIC.invalid"
               )
             ),
-
         "accountNumber" ->
           text("bankDetails.internationalBankAccountDetails.error.accountNumber.required")
             .transform(normaliseIban, identity)
@@ -102,7 +89,6 @@ class BankDetailsFormProvider @Inject() extends Mappings {
                 "bankDetails.internationalBankAccountDetails.error.accountNumber.invalid"
               )
             ),
-
         "CurrencyOfAccount" ->
           text("bankDetails.internationalBankAccountDetails.error.CurrencyOfAccount.required")
             .transform(normaliseCurrencyCode, identity)
@@ -120,21 +106,20 @@ class BankDetailsFormProvider @Inject() extends Mappings {
           currencyOfAccount
         ) =>
           BankDetails(
-            NameOnTheAccount = nameOnTheAccount,
-            BIC = bic,
-            accountNumber = accountNumber,
+            NameOnTheAccount  = nameOnTheAccount,
+            BIC               = bic,
+            accountNumber     = accountNumber,
             CurrencyOfAccount = currencyOfAccount
           )
-      )(
-        bankDetails =>
-          Some(
-            (
-              bankDetails.NameOnTheAccount,
-              bankDetails.BIC,
-              bankDetails.accountNumber,
-              bankDetails.CurrencyOfAccount
-            )
+      )(bankDetails =>
+        Some(
+          (
+            bankDetails.NameOnTheAccount,
+            bankDetails.BIC,
+            bankDetails.accountNumber,
+            bankDetails.CurrencyOfAccount
           )
+        )
       )
     )
 }

@@ -20,12 +20,12 @@ import com.typesafe.config.Config
 import models.Currency
 
 import javax.inject.{Inject, Singleton}
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 @Singleton
-class InternationalCurrencyProvider @Inject()(
-                                               config: Config
-                                             ) {
+class InternationalCurrencyProvider @Inject() (
+  config: Config
+) {
 
   private val configPath = "international-bank-currencies"
 
@@ -35,7 +35,7 @@ class InternationalCurrencyProvider @Inject()(
       .asScala
       .map { currencyConfig =>
         Currency(
-          code = currencyConfig.getString("code"),
+          code        = currencyConfig.getString("code"),
           description = currencyConfig.getString("description")
         )
       }

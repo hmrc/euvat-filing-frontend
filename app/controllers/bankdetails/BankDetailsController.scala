@@ -16,7 +16,7 @@
 
 package controllers.bankdetails
 
-import controllers.actions._
+import controllers.actions.*
 import forms.bankdetails.BankDetailsFormProvider
 import models.Mode
 import navigation.Navigator
@@ -31,25 +31,22 @@ import config.InternationalCurrencyProvider
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class BankDetailsController @Inject()(
-                                       override val messagesApi: MessagesApi,
-                                       sessionRepository: SessionRepository,
-                                       navigator: Navigator,
-                                       identify: IdentifierAction,
-                                       getData: DataRetrievalAction,
-                                       requireData: DataRequiredAction,
-                                       formProvider: BankDetailsFormProvider,
-                                       internationalCurrencyProvider: InternationalCurrencyProvider,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       view: BankDetailsView
-                                     )(implicit ec: ExecutionContext)
-  extends FrontendBaseController
+class BankDetailsController @Inject() (
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  navigator: Navigator,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: BankDetailsFormProvider,
+  internationalCurrencyProvider: InternationalCurrencyProvider,
+  val controllerComponents: MessagesControllerComponents,
+  view: BankDetailsView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
     with I18nSupport {
 
   private val form = formProvider()
-
-//  private val currencyCodes: Map[String, String] =
-//    internationalCurrencyProvider.currencies
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData) { implicit request =>
@@ -69,42 +66,41 @@ class BankDetailsController @Inject()(
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData).async {
-      implicit request =>
+    (identify andThen getData andThen requireData).async { implicit request =>
 
-        form
-          .bindFromRequest()
-          .fold(
-            formWithErrors =>
-              Future.successful(
-                BadRequest(
-                  view(
-                    formWithErrors,
-                    mode,
-                    internationalCurrencyProvider.currencies
-                  )
-                )
-              ),
-            value =>
-              for {
-                updatedAnswers <-
-                  Future.fromTry(
-                    request.userAnswers.set(
-                      BankDetailsPage,
-                      value
-                    )
-                  )
-
-                _ <-
-                  sessionRepository.set(updatedAnswers)
-
-              } yield Redirect(
-                navigator.nextPage(
-                  BankDetailsPage,
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            Future.successful(
+              BadRequest(
+                view(
+                  formWithErrors,
                   mode,
-                  updatedAnswers
+                  internationalCurrencyProvider.currencies
                 )
               )
-          )
+            ),
+          value =>
+            for {
+              updatedAnswers <-
+                Future.fromTry(
+                  request.userAnswers.set(
+                    BankDetailsPage,
+                    value
+                  )
+                )
+
+              _ <-
+                sessionRepository.set(updatedAnswers)
+
+            } yield Redirect(
+              navigator.nextPage(
+                BankDetailsPage,
+                mode,
+                updatedAnswers
+              )
+            )
+        )
     }
 }

@@ -16,14 +16,14 @@
 
 package models
 
-import play.api.libs.json._
+import play.api.libs.json.*
 
 case class BankDetails(
-                        NameOnTheAccount: String,
-                        BIC: String,
-                        accountNumber: String,
-                        CurrencyOfAccount: String
-                      )
+  NameOnTheAccount: String,
+  BIC: String,
+  accountNumber: String,
+  CurrencyOfAccount: String
+)
 
 object BankDetails {
 

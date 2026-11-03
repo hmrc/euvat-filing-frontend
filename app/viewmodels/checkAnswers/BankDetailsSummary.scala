@@ -23,24 +23,23 @@ import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import viewmodels.govuk.summarylist._
-import viewmodels.implicits._
+import viewmodels.govuk.summarylist.*
+import viewmodels.implicits.*
 
-object BankDetailsSummary  {
+object BankDetailsSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(BankDetailsPage).map {
-      answer =>
+    answers.get(BankDetailsPage).map { answer =>
 
       val value = HtmlFormat.escape(answer.NameOnTheAccount).toString + "<br/>" + HtmlFormat.escape(answer.BIC).toString
 
-        SummaryListRowViewModel(
-          key     = "bankDetails.checkYourAnswersLabel",
-          value   = ValueViewModel(HtmlContent(value)),
-          actions = Seq(
-            ActionItemViewModel("site.change", controllers.bankdetails.routes.BankDetailsController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("bankDetails.change.hidden"))
-          )
+      SummaryListRowViewModel(
+        key   = "bankDetails.checkYourAnswersLabel",
+        value = ValueViewModel(HtmlContent(value)),
+        actions = Seq(
+          ActionItemViewModel("site.change", controllers.bankdetails.routes.BankDetailsController.onPageLoad(CheckMode).url)
+            .withVisuallyHiddenText(messages("bankDetails.change.hidden"))
         )
+      )
     }
 }

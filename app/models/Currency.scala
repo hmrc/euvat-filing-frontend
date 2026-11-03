@@ -17,9 +17,9 @@
 package models
 
 case class Currency(
-                     code: String,
-                     description: String
-                   ) {
+  code: String,
+  description: String
+) {
   def displayValue: String =
     s"$code - $description"
 }
