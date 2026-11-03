@@ -61,14 +61,6 @@ class PurchaseTypeController @Inject() (
 
   val form: Form[PurchaseOrImportType] = formProvider()
 
-  private def backLink(mode: Mode) = {
-    if (mode == CheckMode) {
-      routes.CheckYourPurchaseDetailsController.onPageLoad()
-    } else {
-      controllers.routes.PurchaseOrImportController.onPageLoad
-    }
-  }
-
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     if (request.userAnswers.get(CountryChangedPage).contains(true)) {
       val clearedTry = for {
@@ -91,7 +83,6 @@ class PurchaseTypeController @Inject() (
                 view(
                   preparedForm,
                   mode,
-                  backLink(mode),
                   routes.PurchaseTypeController.onSubmit(mode),
                   "purchaseType",
                   "purchase.caption",
@@ -108,7 +99,6 @@ class PurchaseTypeController @Inject() (
           view(
             preparedForm,
             mode,
-            backLink(mode),
             routes.PurchaseTypeController.onSubmit(mode),
             "purchaseType",
             "purchase.caption",
@@ -130,7 +120,6 @@ class PurchaseTypeController @Inject() (
               view(
                 formWithErrors,
                 mode,
-                backLink(mode),
                 routes.PurchaseTypeController.onSubmit(mode),
                 "purchaseType",
                 "purchase.caption",
@@ -439,7 +428,6 @@ class PurchaseTypeController @Inject() (
       implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
       val ua = request.userAnswers
-      val backLink = controllers.routes.PurchaseImportSummaryController.onPageLoad
 
       if (!ua.get(ClaimApplicationResponseQuery).map(_.applicationId).contains(applicationId)) {
         logger.warn(s"Add details requested for application $applicationId which is not the claim in session")
@@ -457,7 +445,6 @@ class PurchaseTypeController @Inject() (
               view(
                 form.fill(purchaseType),
                 NormalMode,
-                backLink,
                 routes.PurchaseTypeController.onSubmit(NormalMode),
                 "purchaseType",
                 "purchase.caption",

@@ -64,17 +64,13 @@ class ImportTypeController @Inject() (
   private val dependentAnswers: List[Settable[?]] =
     List(ImportSubCodePage, ImportSubTypeLabelQuery, ImportSubCategoryPage, ImportSubCategoryLabelQuery, DescribeItemsOnImportDocPage)
 
-  private def backLink(mode: Mode)(implicit request: DataRequest[?]) =
-    if (mode == CheckMode) importRoutes.CheckYourImportDetailsController.onPageLoad()
-    else controllers.routes.PurchaseOrImportController.onPageLoad
-
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(ImportTypePage) match {
       case None        => form
       case Some(value) => form.fill(value)
     }
 
-    Ok(view(preparedForm, mode, backLink(mode), routes.ImportTypeController.onSubmit(mode), "importType", "import.caption", false, legendKey = None))
+    Ok(view(preparedForm, mode, routes.ImportTypeController.onSubmit(mode), "importType", "import.caption", false, legendKey = None))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -86,7 +82,6 @@ class ImportTypeController @Inject() (
             BadRequest(
               view(formWithErrors,
                    mode,
-                   backLink(mode),
                    routes.ImportTypeController.onSubmit(mode),
                    "importType",
                    "import.caption",
@@ -142,7 +137,6 @@ class ImportTypeController @Inject() (
       implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
       val ua = request.userAnswers
-      val backLink = controllers.routes.PurchaseImportSummaryController.onPageLoad
 
       if (!ua.get(ClaimApplicationResponseQuery).map(_.applicationId).contains(applicationId)) {
         logger.warn(s"Add details requested for application $applicationId which is not the claim in session")
@@ -160,7 +154,6 @@ class ImportTypeController @Inject() (
               view(
                 form.fill(importType),
                 NormalMode,
-                backLink,
                 routes.ImportTypeController.onSubmit(NormalMode),
                 "importType",
                 "import.caption",

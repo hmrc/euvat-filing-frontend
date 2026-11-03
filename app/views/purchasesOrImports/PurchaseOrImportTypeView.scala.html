@@ -29,11 +29,11 @@
     govukDetails : GovukDetails
 )
 
-@(form: Form[?], mode: Mode, backLink: Call, submitCall: Call, messagePrefix: String, captionKey: String, showPurchaseIntro: Boolean = true, legendKey: Option[String] = None)(implicit request: Request[?], messages: Messages)
+@(form: Form[?], mode: Mode, submitCall: Call, messagePrefix: String, captionKey: String, showPurchaseIntro: Boolean = true, legendKey: Option[String] = None)(implicit request: Request[?], messages: Messages)
 
 @isError = @{form.error("value").isDefined}
 
-@layout(pageTitle = views.ViewUtils.title(form, s"$messagePrefix.title"), backLinkUrl = Some(backLink.url)) {
+@layout(pageTitle = views.ViewUtils.title(form, s"$messagePrefix.title")) {
     @formHelper(action = submitCall) {
         @mainErrorSummary(form, Map("value" -> "value_0"))
 

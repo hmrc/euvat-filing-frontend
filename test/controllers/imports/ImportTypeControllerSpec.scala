@@ -44,7 +44,6 @@ import scala.concurrent.Future
 class ImportTypeControllerSpec extends SpecBase with MockitoSugar {
   def onwardRoute: Call = Call("GET", "/foo")
   lazy val importTypeRoute: String = controllers.imports.routes.ImportTypeController.onPageLoad(NormalMode).url
-  lazy val backLinkCall: Call = controllers.routes.PurchaseOrImportController.onPageLoad
   lazy val submitCall: Call = controllers.imports.routes.ImportTypeController.onSubmit(NormalMode)
   val formProvider = new ImportTypeFormProvider()
   val form: Form[PurchaseOrImportType] = formProvider()
@@ -61,7 +60,7 @@ class ImportTypeControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, backLinkCall, submitCall, "importType", "import.caption", showPurchaseIntro = false)(
+          view(form, NormalMode, submitCall, "importType", "import.caption", showPurchaseIntro = false)(
             request,
             messages(application)
           ).toString
@@ -80,7 +79,7 @@ class ImportTypeControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form.fill(Fuel), NormalMode, backLinkCall, submitCall, "importType", "import.caption", showPurchaseIntro = false)(
+          view(form.fill(Fuel), NormalMode, submitCall, "importType", "import.caption", showPurchaseIntro = false)(
             request,
             messages(application)
           ).toString
@@ -221,7 +220,7 @@ class ImportTypeControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual BAD_REQUEST
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(boundForm, NormalMode, backLinkCall, submitCall, "importType", "import.caption", showPurchaseIntro = false)(
+          view(boundForm, NormalMode, submitCall, "importType", "import.caption", showPurchaseIntro = false)(
             request,
             messages(application)
           ).toString
@@ -365,8 +364,16 @@ class ImportTypeControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request = FakeRequest(GET, controllers.imports.routes.ImportTypeController.addDetails(123L, 7).url)
         val result = route(application, request).value
+        val view = application.injector.instanceOf[PurchaseOrImportTypeView]
 
         status(result) mustEqual OK
+
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
+          view(form.fill(Fuel), NormalMode, submitCall, "importType", "import.caption", showPurchaseIntro = false)(
+            request,
+            messages(application)
+          ).toString
+        )
 
         val saved = savedCaptor.getValue
         saved.get(PurchaseOrImportPage) mustBe Some(Import)
