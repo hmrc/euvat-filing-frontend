@@ -457,7 +457,6 @@ class PurchaseTypeController @Inject() (
   }
 
   private val pagesToRemoveAnswers: List[Settable[_]] = List(
-    AddPurchaseResponsePage,
     CurrencyChangedPage,
     DescribeItemsArrivedFromCheckYourAnswersPage,
     DescribeItemsOnInvoicePage,
@@ -471,7 +470,6 @@ class PurchaseTypeController @Inject() (
     PurchaseSubTypeArrivedFromCheckYourAnswersPage,
     PurchaseSubTypeLabelPage,
     PurchaseSubTypePage,
-    PurchaseTypePage,
     RefundingCurrencyPage,
     SupplierAddressPage,
     SuppliersNamePage,
@@ -484,8 +482,7 @@ class PurchaseTypeController @Inject() (
     TotalVatPaidPage,
     PurchaseDetailResponseQuery,
     PurchaseDetailRouteQuery,
-    InvoiceNumberFlagQuery,
-    PurchaseOrImportPage
+    InvoiceNumberFlagQuery
   )
 
   private def clearStaleAnswers(userAnswers: UserAnswers, pagesToRemoveAnswers: List[Settable[_]]): Try[UserAnswers] =

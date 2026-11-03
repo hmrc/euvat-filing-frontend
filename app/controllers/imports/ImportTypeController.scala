@@ -159,7 +159,6 @@ class ImportTypeController @Inject() (
   }
 
   private val pagesToRemoveAnswers: List[Settable[_]] = List(
-    AddImportResponsePage,
     DescribeItemsOnImportDocPage,
     ImportCurrencyPage,
     ImportDatePage,
@@ -169,14 +168,12 @@ class ImportTypeController @Inject() (
     ImportSupplierAddressPage,
     ImportSuppliersNamePage,
     ImportTotalVatClaimPage,
-    ImportTypePage,
     SadReferenceCheckPage,
     SadReferenceNumberPage,
     TotalAmountWithoutVatPage,
     TotalVatPaidImportPage,
     ImportSubCategoryLabelQuery,
-    ImportSubTypeLabelQuery,
-    PurchaseOrImportPage
+    ImportSubTypeLabelQuery
   )
 
   private def clearStaleAnswers(userAnswers: UserAnswers, pagesToRemoveAnswers: List[Settable[_]]): Try[UserAnswers] =

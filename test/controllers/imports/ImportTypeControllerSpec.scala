@@ -25,7 +25,7 @@ import models.responses.{AddImportResponse, ApplicationResponse, ImportDetailsRe
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{never, times, verify, verifyNoMoreInteractions, when}
+import org.mockito.Mockito.{never, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.PurchaseOrImportPage
 import pages.imports.{AddImportResponsePage, ImportSubCodePage, ImportSuppliersNamePage, ImportTotalVatClaimPage, ImportTypePage, SadReferenceCheckPage, TotalAmountWithoutVatPage}
@@ -36,7 +36,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import queries.{ClaimApplicationResponseQuery, ImportSubTypeLabelQuery}
 import repositories.SessionRepository
-import uk.gov.hmrc.http.HeaderCarrier
 import views.html.purchasesOrImports.PurchaseOrImportTypeView
 
 import scala.concurrent.Future
@@ -480,7 +479,7 @@ class ImportTypeControllerSpec extends SpecBase with MockitoSugar {
         verify(mockSessionRepository, never()).set(any[UserAnswers])
       }
     }
-    
+
     "addDetails should redirect to JourneyRecovery when goodsDescriptionCategory does not match" in {
       val savedCaptor: ArgumentCaptor[models.UserAnswers] = ArgumentCaptor.forClass(classOf[models.UserAnswers])
       when(mockSessionRepository.set(savedCaptor.capture())) thenReturn Future.successful(true)

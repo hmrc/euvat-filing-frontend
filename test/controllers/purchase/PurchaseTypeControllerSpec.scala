@@ -24,7 +24,7 @@ import models.responses.*
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{never, times, verify, verifyNoMoreInteractions, when}
+import org.mockito.Mockito.{never, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.PurchaseOrImportPage
 import pages.claim.{CountryChangedPage, RefundingCountryPage}
@@ -35,7 +35,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import queries.ClaimApplicationResponseQuery
 import repositories.SessionRepository
-import uk.gov.hmrc.http.HeaderCarrier
 import utils.ConfigPurchaseOrImportMapping
 import views.html.purchasesOrImports.PurchaseOrImportTypeView
 
