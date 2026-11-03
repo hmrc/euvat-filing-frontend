@@ -47,72 +47,71 @@ action = controllers.bankdetails.routes.BankDetailsController.onSubmit(mode),
 Symbol("autocomplete") -> "off"
 ) {
 
-@if(form.errors.nonEmpty) {
-    @govukErrorSummary(ErrorSummaryViewModel(form))
-}
+    @if(form.errors.nonEmpty) {
+        @govukErrorSummary(ErrorSummaryViewModel(form))
+    }
 
-<h1 class="govuk-heading-l">
-            <span class="govuk-caption-l">
-                @messages("bankDetails.internationalBankAccountDetails.caption")
-            </span>
-    @messages("bankDetails.internationalBankAccountDetails.heading")
-</h1>
+    <h1 class="govuk-heading-l">
+                <span class="govuk-caption-l">
+                    @messages("bankDetails.internationalBankAccountDetails.caption")
+                </span>
+        @messages("bankDetails.internationalBankAccountDetails.heading")
+    </h1>
 
-@govukInput(
-    InputViewModel(
-        field = form("NameOnTheAccount"),
-        label = LabelViewModel(
-        messages(
-        "bankDetails.internationalBankAccountDetails.NameOnTheAccount"
-        )
-        )
-    )
-    .withWidth(Full)
-)
-
-@govukInput(
-    InputViewModel(
-        field = form("BIC"),
-        label = LabelViewModel(
+    @govukInput(
+        InputViewModel(
+            field = form("NameOnTheAccount"),
+            label = LabelViewModel(
             messages(
-                "bankDetails.internationalBankAccountDetails.bicOrSwift"
+            "bankDetails.internationalBankAccountDetails.NameOnTheAccount"
             )
+            )
+        )
+        .withWidth(Full)
+    )
+
+    @govukInput(
+        InputViewModel(
+            field = form("BIC"),
+            label = LabelViewModel(
+                messages(
+                    "bankDetails.internationalBankAccountDetails.bicOrSwift"
+                )
+                )
+            )
+            .withHint(
+            HintViewModel(
+            Text(
+                messages(
+                    "bankDetails.internationalBankAccountDetails.bicOrSwift.hint"
+                )
+            )
+            )
+        )
+        .withWidth(Fixed10)
+    )
+
+    @govukInput(
+        InputViewModel(
+            field = form("accountNumber"),
+                label = LabelViewModel(
+                messages(
+                    "bankDetails.internationalBankAccountDetails.accountNumber"
+                )
             )
         )
         .withHint(
         HintViewModel(
-        Text(
-            messages(
-                "bankDetails.internationalBankAccountDetails.bicOrSwift.hint"
+            Text(
+                messages(
+                    "bankDetails.internationalBankAccountDetails.accountNumber.hint"
+                )
+            )
             )
         )
-        )
+        .withWidth(Fixed20)
     )
-    .withWidth(Fixed10)
-)
 
-@govukInput(
-    InputViewModel(
-        field = form("accountNumber"),
-            label = LabelViewModel(
-            messages(
-                "bankDetails.internationalBankAccountDetails.accountNumber"
-            )
-        )
-    )
-    .withHint(
-    HintViewModel(
-        Text(
-            messages(
-                "bankDetails.internationalBankAccountDetails.accountNumber.hint"
-            )
-        )
-        )
-    )
-    .withWidth(Fixed20)
-)
-
-<div class="govuk-form-group @if(form("CurrencyOfAccount").hasErrors){govuk-form-group--error}">
     @govukSelect(
         Select(
             id = form("CurrencyOfAccount").id + "-input",
@@ -170,10 +169,9 @@ Symbol("autocomplete") -> "off"
                 )
             )
     )
-</div>
 
-<input type="hidden" id="currencyTyped" name="currencyTyped" value="">
+    <input type="hidden" id="currencyTyped" name="currencyTyped" value="">
 
-@govukButton(ButtonViewModel(messages("site.continue")))
+    @govukButton(ButtonViewModel(messages("site.continue")))
 }
 }
