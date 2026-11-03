@@ -686,6 +686,10 @@ checkYourBankDetails.change.hidden = international bank account details
 checkYourBankDetails.accountHolder.label = Account holder
 checkYourBankDetails.accountHolder.applicant = Applicant (you)
 checkYourBankDetails.accountHolder.thirdParty = Third party
+checkYourBankDetails.accountName.label = Account name
+checkYourBankDetails.bic.label = BIC or SWIFT code
+checkYourBankDetails.iban.label = IBAN
+checkYourBankDetails.currency.label = Account currency
 
 # Warning messages
 refundPeriodStartDateWarning.title = Are you sure the refund period start date is correct?

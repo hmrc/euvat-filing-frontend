@@ -16,6 +16,7 @@
 
 package controllers.bankdetails
 
+import config.InternationalCurrencyProvider
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import models.CheckMode
 import play.api.Logging
@@ -34,7 +35,8 @@ class CheckYourBankDetailsController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   val controllerComponents: MessagesControllerComponents,
-  view: CheckYourBankDetailsView
+  view: CheckYourBankDetailsView,
+  currencyProvider: InternationalCurrencyProvider
 )(using ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
@@ -42,17 +44,20 @@ class CheckYourBankDetailsController @Inject() (
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val rows = Seq(
-      CheckYourBankDetailsSummary.rowAccountHolder(request.userAnswers)
-      // add the other four rows once available
+      CheckYourBankDetailsSummary.rowAccountHolder(request.userAnswers),
+      CheckYourBankDetailsSummary.rowAccountName(request.userAnswers),
+      CheckYourBankDetailsSummary.rowBic(request.userAnswers),
+      CheckYourBankDetailsSummary.rowIban(request.userAnswers),
+      CheckYourBankDetailsSummary.rowCurrency(request.userAnswers, currencyProvider.currencies)
     ).flatten
 
-    val changeUrl = controllers.bankdetails.routes.AccountHolderController.onPageLoad(CheckMode).url
+    val changeUrl = routes.AccountHolderController.onPageLoad(CheckMode).url
+
     Ok(view(rows, changeUrl))
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    // TODO F5.2: build request (BIC/IBAN encrypted via your F5.3 utils), call service,
-    // update UpdateSequenceNumberQuery, save session — same shape as updateClaimDetailsAndRedirect
+    // TODO F5.2 (DTR-8857): build the update request with BIC/IBAN encrypted via F5.3,
     Future.successful(Redirect(controllers.routes.TaskListDashboardController.onPageLoad()))
   }
 }

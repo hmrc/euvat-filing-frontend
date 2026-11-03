@@ -17,8 +17,9 @@
 package controllers.bankdetails
 
 import base.SpecBase
-import models.{AccountHolder, CheckMode}
-import pages.bankdetails.AccountHolderPage
+import controllers.bankdetails.routes
+import models.{AccountHolder, BankDetails, CheckMode}
+import pages.bankdetails.{AccountHolderPage, BankDetailsPage}
 import play.api.test.CSRFTokenHelper.*
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -32,10 +33,15 @@ class CheckYourBankDetailsControllerSpec extends SpecBase {
       .success
       .value
 
+    lazy val fullAnswers = applicantAnswers
+      .set(BankDetailsPage, BankDetails("Joe Bloggs", "NWBKGB2LXXX", "GB29NWBK60161331926819", "GBP"))
+      .success
+      .value
+
     "onPageLoad" - {
 
       "must return OK and render the heading, caption and card title" in {
-        val application = applicationBuilder(userAnswers = Some(applicantAnswers)).build()
+        val application = applicationBuilder(userAnswers = Some(fullAnswers)).build()
 
         running(application) {
           val request = FakeRequest(GET, routes.CheckYourBankDetailsController.onPageLoad().url).withCSRFToken
@@ -77,20 +83,59 @@ class CheckYourBankDetailsControllerSpec extends SpecBase {
         }
       }
 
-      "must not show the account holder row when no answer is saved" in {
-        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      "must show account name, BIC, IBAN and currency rows" in {
+        val application = applicationBuilder(userAnswers = Some(fullAnswers)).build()
+
+        running(application) {
+          val request = FakeRequest(GET, routes.CheckYourBankDetailsController.onPageLoad().url).withCSRFToken
+          val result = route(application, request).value
+          val html = contentAsString(result)
+          val msgs = messages(application)
+
+          html must include(msgs("checkYourBankDetails.accountName.label"))
+          html must include("Joe Bloggs")
+          html must include(msgs("checkYourBankDetails.bic.label"))
+          html must include("NWBKGB2LXXX")
+          html must include(msgs("checkYourBankDetails.iban.label"))
+          html must include("GB29NWBK60161331926819")
+          html must include(msgs("checkYourBankDetails.currency.label"))
+          html must include("United Kingdom (pounds)")
+        }
+      }
+
+      "must fall back to the currency code when it is not in config" in {
+        val ua = applicantAnswers
+          .set(BankDetailsPage, BankDetails("Joe Bloggs", "NWBKGB2LXXX", "GB29NWBK60161331926819", "XXX"))
+          .success
+          .value
+        val application = applicationBuilder(userAnswers = Some(ua)).build()
 
         running(application) {
           val request = FakeRequest(GET, routes.CheckYourBankDetailsController.onPageLoad().url).withCSRFToken
           val result = route(application, request).value
 
+          contentAsString(result) must include("XXX")
+        }
+      }
+
+      "must not show any rows when no answers are saved" in {
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+        running(application) {
+          val request = FakeRequest(GET, routes.CheckYourBankDetailsController.onPageLoad().url).withCSRFToken
+          val result = route(application, request).value
+          val html = contentAsString(result)
+          val msgs = messages(application)
+
           status(result) mustEqual OK
-          contentAsString(result) must not include messages(application)("checkYourBankDetails.accountHolder.label")
+          html must not include msgs("checkYourBankDetails.accountHolder.label")
+          html must not include msgs("checkYourBankDetails.accountName.label")
+          html must not include msgs("checkYourBankDetails.iban.label")
         }
       }
 
       "must link the card Change action to the account holder page in CheckMode" in {
-        val application = applicationBuilder(userAnswers = Some(applicantAnswers)).build()
+        val application = applicationBuilder(userAnswers = Some(fullAnswers)).build()
 
         running(application) {
           val request = FakeRequest(GET, routes.CheckYourBankDetailsController.onPageLoad().url).withCSRFToken
@@ -101,7 +146,7 @@ class CheckYourBankDetailsControllerSpec extends SpecBase {
       }
 
       "must not render a back link" in {
-        val application = applicationBuilder(userAnswers = Some(applicantAnswers)).build()
+        val application = applicationBuilder(userAnswers = Some(fullAnswers)).build()
 
         running(application) {
           val request = FakeRequest(GET, routes.CheckYourBankDetailsController.onPageLoad().url).withCSRFToken
@@ -127,7 +172,7 @@ class CheckYourBankDetailsControllerSpec extends SpecBase {
     "onSubmit" - {
 
       "must redirect to the task list" in {
-        val application = applicationBuilder(userAnswers = Some(applicantAnswers)).build()
+        val application = applicationBuilder(userAnswers = Some(fullAnswers)).build()
 
         running(application) {
           val request = FakeRequest(POST, routes.CheckYourBankDetailsController.onSubmit().url)

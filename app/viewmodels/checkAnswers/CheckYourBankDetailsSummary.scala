@@ -16,8 +16,8 @@
 
 package viewmodels.checkAnswers
 
-import models.UserAnswers
-import pages.bankdetails.AccountHolderPage
+import models.{Currency, UserAnswers}
+import pages.bankdetails.{AccountHolderPage, BankDetailsPage}
 import play.api.i18n.Messages
 
 object CheckYourBankDetailsSummary {
@@ -33,5 +33,27 @@ object CheckYourBankDetailsSummary {
       )
     }
 
-  // add rowAccountName, rowBic, rowIban, rowCurrency — same shape, reading his page/model
+  def rowAccountName(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
+    answers.get(BankDetailsPage).map { details =>
+      (messages("checkYourBankDetails.accountName.label"), Some(details.NameOnTheAccount), Seq.empty)
+    }
+
+  def rowBic(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
+    answers.get(BankDetailsPage).map { details =>
+      (messages("checkYourBankDetails.bic.label"), Some(details.BIC), Seq.empty)
+    }
+
+  def rowIban(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
+    answers.get(BankDetailsPage).map { details =>
+      (messages("checkYourBankDetails.iban.label"), Some(details.accountNumber), Seq.empty)
+    }
+
+  def rowCurrency(answers: UserAnswers, currencies: Seq[Currency])(implicit messages: Messages): Option[Row] =
+    answers.get(BankDetailsPage).map { details =>
+      val label = currencies
+        .find(_.code == details.CurrencyOfAccount)
+        .map(_.description)
+        .getOrElse(details.CurrencyOfAccount)
+      (messages("checkYourBankDetails.currency.label"), Some(label), Seq.empty)
+    }
 }
