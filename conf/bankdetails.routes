@@ -10,3 +10,6 @@ GET         /account-holder                       controllers.bankdetails.Accoun
 POST        /account-holder                       controllers.bankdetails.AccountHolderController.onSubmit(mode: Mode = NormalMode)
 GET         /change-account-holder                controllers.bankdetails.AccountHolderController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-account-holder                controllers.bankdetails.AccountHolderController.onSubmit(mode: Mode = CheckMode)
+
+GET         /check-your-answers                   controllers.bankdetails.CheckYourBankDetailsController.onPageLoad()
+POST        /check-your-answers                   controllers.bankdetails.CheckYourBankDetailsController.onSubmit()

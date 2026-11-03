@@ -678,6 +678,15 @@ bankDetails.internationalBankAccountDetails.error.accountNumber.invalid = Enter 
 bankDetails.internationalBankAccountDetails.error.CurrencyOfAccount.required = Select the currency of account
 bankDetails.internationalBankAccountDetails.error.CurrencyOfAccount.invalid = Select the currency of account
 
+checkYourBankDetails.title = Check your answers
+checkYourBankDetails.heading = Check your answers
+checkYourBankDetails.caption = Bank details
+checkYourBankDetails.card.title = International bank account details
+checkYourBankDetails.change.hidden = international bank account details
+checkYourBankDetails.accountHolder.label = Account holder
+checkYourBankDetails.accountHolder.applicant = Applicant (you)
+checkYourBankDetails.accountHolder.thirdParty = Third party
+
 # Warning messages
 refundPeriodStartDateWarning.title = Are you sure the refund period start date is correct?
 refundPeriodStartDateWarning.heading = Are you sure the refund period start date is correct?
