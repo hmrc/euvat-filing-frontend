@@ -648,6 +648,15 @@ beforeYouStartBankDetails.paragraph1 = You need to provide international bank ac
 beforeYouStartBankDetails.paragraph2 = You can find details on your bank statement or contact your bank directly.
 beforeYouStartBankDetails.paragraph3 = You must keep your bank details up to date to make sure you receive any refund you are owed.
 
+accountHolder.title = Who is the account holder?
+accountHolder.heading = Who is the account holder?
+accountHolder.applicant = Applicant (you)
+accountHolder.thirdParty = Third party (someone else)
+accountHolder.thirdParty.hint = The refunding country may need letters of authority or power of attorney
+accountHolder.checkYourAnswersLabel = Account holder
+accountHolder.error.required = Select the account holder
+accountHolder.change.hidden = account holder
+
 # Warning messages
 refundPeriodStartDateWarning.title = Are you sure the refund period start date is correct?
 refundPeriodStartDateWarning.heading = Are you sure the refund period start date is correct?
@@ -727,3 +736,11 @@ sadReferenceNumberWarning.p = You’ve already added an import with the same SAD
 sadReferenceNumberWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
 sadReferenceNumberWarning.correct = Yes, this is correct
 sadReferenceNumberWarning.backLink = No, change SAD reference number
+
+removeItem.title = Remove item
+removeItem.heading = Remove item
+removeItem.list1 = Type
+removeItem.list2 = VAT claim
+removeItem.legend = Are you sure you want to remove this item?
+removeItem.notProvided = Not provided
+removeItem.error.required = Select yes if you want to remove this item

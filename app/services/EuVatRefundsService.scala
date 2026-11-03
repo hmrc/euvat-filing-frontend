@@ -71,8 +71,17 @@ class EuVatRefundsService @Inject() (euVatRefundsConnector: EuVatRefundsConnecto
     euVatRefundsConnector.getPurchaseImportList(request)
   }
 
-  def getPurchaseDetails(applicationId: Long, itemNumber: Int)(implicit hc: HeaderCarrier): Future[PurchaseDetailResponse] =
+  def getImportDetails(applicationId: Long, itemNumber: Int)(implicit hc: HeaderCarrier): Future[ImportDetailsResponse] =
+    euVatRefundsConnector.getImportDetails(applicationId, itemNumber)
+
+  def getPurchaseDetails(applicationId: Long, itemNumber: Int)(implicit hc: HeaderCarrier): Future[PurchaseDetailsResponse] =
     euVatRefundsConnector.getPurchaseDetails(applicationId, itemNumber)
+
+  def deletePurchase(request: DeleteItemRequest)(implicit hc: HeaderCarrier): Future[DeleteItemResponse] =
+    euVatRefundsConnector.deletePurchase(request)
+
+  def deleteImport(request: DeleteItemRequest)(implicit hc: HeaderCarrier): Future[DeleteItemResponse] =
+    euVatRefundsConnector.deleteImport(request)
 
   def updateApplicationDetails(request: UpdateApplicationDetailsRequest)(implicit hc: HeaderCarrier): Future[UpdateApplicationDetailsResponse] =
     euVatRefundsConnector.updateApplicationDetails(request)

@@ -36,6 +36,7 @@ import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import utils.{ConfigPurchaseOrImportMapping, CountryCode, CurrencyConfig, PurchaseOrImportHelpers}
 import viewmodels.checkAnswers.CheckYourImportDetailsSummary
 import views.html.imports.CheckYourImportDetailsView
+
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
@@ -62,7 +63,6 @@ class CheckYourImportDetailsController @Inject() (
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     request.userAnswers.get(ImportDetailsRouteQuery) match {
-      // a saved import is being changed, so CheckMode pages coming back here return to change your answers
       case Some(route) =>
         Redirect(routes.CheckYourImportDetailsController.changeYourAnswers(route.applicationId, route.itemNumber))
 
@@ -291,7 +291,6 @@ class CheckYourImportDetailsController @Inject() (
       value.filter(v => v.trim.nonEmpty && v != ConfigPurchaseOrImportMapping.NoneValue)
 
     val subCategory = real(answers.get(ImportSubCategoryPage)).orElse(real(answers.get(ImportSubCodePage)))
-
     val hasSad = answers.get(SadReferenceCheckPage)
     val address = answers.get(ImportSupplierAddressPage)
 

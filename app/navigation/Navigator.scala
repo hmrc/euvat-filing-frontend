@@ -19,13 +19,16 @@ package navigation
 import controllers.claim.routes as claimRoutes
 import controllers.imports.routes as importRoutes
 import controllers.purchase.routes as purchaseRoutes
+import controllers.routes
 import models.*
 import models.PurchaseOrImport.{Import, Purchase}
 import pages.*
+import pages.bankdetails.*
 import pages.claim.*
 import pages.imports.*
 import pages.purchase.*
 import play.api.mvc.Call
+import queries.PurchaseImportTotalItemsQuery
 
 import javax.inject.{Inject, Singleton}
 
@@ -77,6 +80,8 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case TotalAmountWithoutVatPage         => userAnswers => importNavigator.navigateFromTotalAmountWithoutVatPage(NormalMode)(userAnswers)
     case TotalVatPaidImportPage            => userAnswers => importNavigator.navigateFromTotalVatPaidImportPage(NormalMode)(userAnswers)
     case ImportTotalVatClaimPage           => userAnswers => importNavigator.navigateFromImportTotalVatClaimPage(NormalMode)(userAnswers)
+    case RemoveItemPage                    => userAnswers => navigateFromRemoveItemPage(userAnswers)
+    case AccountHolderPage                 => _ => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: RA7.2 bank details form
     case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 
@@ -119,6 +124,7 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case TotalAmountWithoutVatPage         => userAnswers => importNavigator.navigateFromTotalAmountWithoutVatPage(CheckMode)(userAnswers)
     case TotalVatPaidImportPage            => userAnswers => importNavigator.navigateFromTotalVatPaidImportPage(CheckMode)(userAnswers)
     case ImportTotalVatClaimPage           => userAnswers => importNavigator.navigateFromImportTotalVatClaimPage(CheckMode)(userAnswers)
+    case AccountHolderPage                 => _ => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: RA7.2 bank details form
     case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 
@@ -128,4 +134,12 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
       case Some(Import)   => importRoutes.ImportTypeController.onPageLoad(NormalMode)
       case None           => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
+
+  private def navigateFromRemoveItemPage(userAnswers: UserAnswers): Call =
+    (userAnswers.get(RemoveItemPage), userAnswers.get(PurchaseImportTotalItemsQuery)) match {
+      case (Some(true), Some(1)) => routes.TaskListDashboardController.onPageLoad()
+      case (Some(_), _)          => routes.PurchaseImportSummaryController.onPageLoad
+      case _                     => routes.JourneyRecoveryController.onPageLoad()
+    }
+
 }

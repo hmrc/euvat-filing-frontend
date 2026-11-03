@@ -17,10 +17,11 @@
 package models.responses
 
 import play.api.libs.json.{Json, OFormat}
+
 import java.time.LocalDateTime
 
-case class PurchaseDetailResponse(
-  goodsDescriptionCode: Option[String],
+case class PurchaseDetailsResponse(
+  goodsDescriptionCode: String,
   goodsDescriptionSubCode: Option[String],
   goodsDescriptionText: Option[String],
   simplifiedInvoiceIndicator: Option[String],
@@ -36,8 +37,9 @@ case class PurchaseDetailResponse(
   taxableAmount: Option[BigDecimal],
   vatAmount: Option[BigDecimal],
   deductibleVatAmount: Option[BigDecimal],
-  updateSequenceNumber: Option[Int]
+  updateSequenceNumber: Int
 )
 
-object PurchaseDetailResponse:
-  given OFormat[PurchaseDetailResponse] = Json.format[PurchaseDetailResponse]
+object PurchaseDetailsResponse {
+  implicit val format: OFormat[PurchaseDetailsResponse] = Json.format[PurchaseDetailsResponse]
+}

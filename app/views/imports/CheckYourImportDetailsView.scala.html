@@ -48,16 +48,10 @@
         </h1>
     }
 
-    @formHelper(
-        action = formAction,
-        Symbol("autocomplete") -> "off"
-    ) {
+    @formHelper(action = formAction, Symbol("autocomplete") -> "off") {
         @for((labelKey, rows) <- sections) {
             <div class="govuk-!-margin-bottom-9">
-                <h2 class="govuk-heading-m govuk-!-margin-bottom-2">
-                    @messages(labelKey)
-                </h2>
-
+                <h2 class="govuk-heading-m govuk-!-margin-bottom-2">@messages(labelKey)</h2>
                 @customSummaryList(rows)
             </div>
         }

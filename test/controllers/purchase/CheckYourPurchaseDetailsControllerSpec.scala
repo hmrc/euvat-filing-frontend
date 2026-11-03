@@ -18,7 +18,7 @@ package controllers.purchase
 
 import base.SpecBase
 import models.requests.UpdatePurchaseRequest
-import models.responses.{AddPurchaseResponse, PurchaseDetailResponse, UpdatePurchaseResponse}
+import models.responses.{AddPurchaseResponse, PurchaseDetailsResponse, UpdatePurchaseResponse}
 import models.{Fuel, InvoiceType, SupplierAddress}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
@@ -337,8 +337,8 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
         .value
         .set(
           queries.PurchaseDetailResponseQuery,
-          PurchaseDetailResponse(
-            goodsDescriptionCode       = Some("1"),
+          PurchaseDetailsResponse(
+            goodsDescriptionCode       = "1",
             goodsDescriptionSubCode    = Some("1.2"),
             goodsDescriptionText       = Some("Fuel"),
             simplifiedInvoiceIndicator = Some("false"),
@@ -354,7 +354,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
             taxableAmount              = Some(BigDecimal(100)),
             vatAmount                  = Some(BigDecimal(20)),
             deductibleVatAmount        = Some(BigDecimal(10)),
-            updateSequenceNumber       = Some(1)
+            updateSequenceNumber       = 1
           )
         )
         .success
@@ -372,8 +372,8 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
     }
 
     "changeYourAnswers should show Continue when cached purchase detail matches current answers" in {
-      val cachedResponse = PurchaseDetailResponse(
-        goodsDescriptionCode       = Some("1"),
+      val cachedResponse = PurchaseDetailsResponse(
+        goodsDescriptionCode       = "1",
         goodsDescriptionSubCode    = Some("1.2"),
         goodsDescriptionText       = Some("Fuel"),
         simplifiedInvoiceIndicator = Some("false"),
@@ -389,7 +389,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
         taxableAmount              = Some(BigDecimal(100)),
         vatAmount                  = Some(BigDecimal(20)),
         deductibleVatAmount        = Some(BigDecimal(10)),
-        updateSequenceNumber       = Some(1)
+        updateSequenceNumber       = 1
       )
 
       val ua = emptyUserAnswers
@@ -497,8 +497,8 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
         .value
         .set(
           queries.PurchaseDetailResponseQuery,
-          PurchaseDetailResponse(
-            goodsDescriptionCode       = Some("1"),
+          PurchaseDetailsResponse(
+            goodsDescriptionCode       = "1",
             goodsDescriptionSubCode    = Some("1.2"),
             goodsDescriptionText       = Some("Fuel"),
             simplifiedInvoiceIndicator = Some("false"),
@@ -514,7 +514,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
             taxableAmount              = Some(BigDecimal(100)),
             vatAmount                  = Some(BigDecimal(20)),
             deductibleVatAmount        = Some(BigDecimal(10)),
-            updateSequenceNumber       = Some(1)
+            updateSequenceNumber       = 1
           )
         )
         .success
@@ -535,8 +535,8 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
     "changeYourAnswers should fetch the selected item when the cached route is for another item" in {
       val savedCaptor: ArgumentCaptor[models.UserAnswers] = ArgumentCaptor.forClass(classOf[models.UserAnswers])
       when(mockSessionRepository.set(savedCaptor.capture())) thenReturn Future.successful(true)
-      val selectedItem = PurchaseDetailResponse(
-        goodsDescriptionCode       = Some("3"),
+      val selectedItem = PurchaseDetailsResponse(
+        goodsDescriptionCode       = "3",
         goodsDescriptionSubCode    = None,
         goodsDescriptionText       = None,
         simplifiedInvoiceIndicator = None,
@@ -552,7 +552,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
         taxableAmount              = None,
         vatAmount                  = None,
         deductibleVatAmount        = None,
-        updateSequenceNumber       = Some(2)
+        updateSequenceNumber       = 2
       )
       when(mockEuVatRefundsService.getPurchaseDetails(org.mockito.ArgumentMatchers.eq(123L), org.mockito.ArgumentMatchers.eq(3))(any()))
         .thenReturn(Future.successful(selectedItem))
@@ -599,8 +599,8 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
         .value
         .set(
           queries.PurchaseDetailResponseQuery,
-          PurchaseDetailResponse(
-            goodsDescriptionCode       = Some("1"),
+          PurchaseDetailsResponse(
+            goodsDescriptionCode       = "1",
             goodsDescriptionSubCode    = Some("1.2"),
             goodsDescriptionText       = Some("Fuel"),
             simplifiedInvoiceIndicator = Some("false"),
@@ -616,7 +616,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
             taxableAmount              = Some(BigDecimal(100)),
             vatAmount                  = Some(BigDecimal(20)),
             deductibleVatAmount        = Some(BigDecimal(10)),
-            updateSequenceNumber       = Some(1)
+            updateSequenceNumber       = 1
           )
         )
         .success
@@ -644,8 +644,8 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
       val savedCaptor: ArgumentCaptor[models.UserAnswers] = ArgumentCaptor.forClass(classOf[models.UserAnswers])
       when(mockSessionRepository.set(savedCaptor.capture())) thenReturn Future.successful(true)
 
-      val purchaseDetail = PurchaseDetailResponse(
-        goodsDescriptionCode       = Some("1"),
+      val purchaseDetail = PurchaseDetailsResponse(
+        goodsDescriptionCode       = "1",
         goodsDescriptionSubCode    = Some("1.2.6"),
         goodsDescriptionText       = Some("Fuel purchase"),
         simplifiedInvoiceIndicator = Some("false"),
@@ -661,7 +661,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
         taxableAmount              = Some(BigDecimal(100)),
         vatAmount                  = Some(BigDecimal(20)),
         deductibleVatAmount        = Some(BigDecimal(10)),
-        updateSequenceNumber       = Some(11)
+        updateSequenceNumber       = 11
       )
       when(mockEuVatRefundsService.getPurchaseDetails(org.mockito.ArgumentMatchers.eq(123L), org.mockito.ArgumentMatchers.eq(7))(any()))
         .thenReturn(Future.successful(purchaseDetail))
@@ -698,7 +698,8 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
         saved.get(SupplierVatRegCheckPage) mustBe Some(false)
         saved.get(SuppliersNamePage) mustBe Some("Supplier Ltd")
         saved.get(SupplierVatRegistrationNumberPage) mustBe Some("FR123456789")
-        saved.get(queries.PurchaseDetailResponseQuery) mustBe Some(purchaseDetail)
+        saved.get(queries.PurchaseDetailResponseQuery).map(_.goodsDescriptionCode) mustBe Some("1")
+        saved.get(queries.PurchaseDetailResponseQuery).map(_.updateSequenceNumber) mustBe Some(11)
         saved.get(queries.PurchaseDetailRouteQuery) mustBe Some(queries.PurchaseDetailRoute(123L, 7))
       }
     }
@@ -740,7 +741,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
         .value
         .set(
           queries.PurchaseDetailResponseQuery,
-          PurchaseDetailResponse(None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, Some(8))
+          PurchaseDetailsResponse("", None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, 8)
         )
         .success
         .value
@@ -768,8 +769,8 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
         UpdatePurchaseResponse(updateSequenceNumber = 2)
       )
 
-      val selectedPurchase = PurchaseDetailResponse(
-        goodsDescriptionCode       = Some("1"),
+      val selectedPurchase = PurchaseDetailsResponse(
+        goodsDescriptionCode       = "1",
         goodsDescriptionSubCode    = Some("1.2"),
         goodsDescriptionText       = Some("Fuel"),
         simplifiedInvoiceIndicator = None,
@@ -785,7 +786,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
         taxableAmount              = None,
         vatAmount                  = None,
         deductibleVatAmount        = None,
-        updateSequenceNumber       = Some(1)
+        updateSequenceNumber       = 1
       )
 
       val userAnswers = emptyUserAnswers
@@ -879,8 +880,8 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
         .value
         .set(
           queries.PurchaseDetailResponseQuery,
-          models.responses.PurchaseDetailResponse(
-            goodsDescriptionCode       = None,
+          PurchaseDetailsResponse(
+            goodsDescriptionCode       = "",
             goodsDescriptionSubCode    = None,
             goodsDescriptionText       = None,
             simplifiedInvoiceIndicator = None,
@@ -896,7 +897,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
             taxableAmount              = None,
             vatAmount                  = None,
             deductibleVatAmount        = None,
-            updateSequenceNumber       = Some(1)
+            updateSequenceNumber       = 1
           )
         )
         .success

@@ -17,9 +17,18 @@
 package controllers.bankdetails
 
 import base.SpecBase
+import models.{AccountHolder, NormalMode, UserAnswers}
+import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{verify, when}
+import pages.bankdetails.AccountHolderPage
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import repositories.SessionRepository
 import views.html.bankdetails.BeforeYouStartBankDetailsView
+
+import scala.concurrent.Future
 
 class BeforeYouStartBankDetailsControllerSpec extends SpecBase {
 
@@ -57,9 +66,15 @@ class BeforeYouStartBankDetailsControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to the next page for a POST" in {
+    "must redirect to the Account Holder page for a POST" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+          .build()
 
       running(application) {
         val request = FakeRequest(POST, routes.BeforeYouStartBankDetailsController.onSubmit().url)
@@ -67,8 +82,36 @@ class BeforeYouStartBankDetailsControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        // TODO: update once the next bank details page exists
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.AccountHolderController.onPageLoad(NormalMode).url
+      }
+    }
+
+    "must clear the Account Holder answer from the session on submit" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(AccountHolderPage, AccountHolder.values.head)
+        .success
+        .value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+          .build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.BeforeYouStartBankDetailsController.onSubmit().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(mockSessionRepository).set(captor.capture())
+
+        captor.getValue.get(AccountHolderPage) mustBe None
       }
     }
 
