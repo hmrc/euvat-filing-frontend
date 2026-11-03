@@ -55,30 +55,20 @@ class SupplierTaxIdentifierNumberController @Inject() (
 
   val form: Form[String] = formProvider()
 
-  private def backLink(request: DataRequest[?], mode: Mode) = {
-    val hasInvoiceNumber = request.userAnswers.get(InvoiceNumberFlagQuery).contains(true)
-
-    mode match {
-      case CheckMode if hasInvoiceNumber => routes.InvoiceNumberController.onPageLoad(CheckMode)
-      case CheckMode                     => routes.CheckYourPurchaseDetailsController.onPageLoad()
-      case _                             => routes.SupplierTaxNumberCheckController.onPageLoad(NormalMode)
-    }
-  }
-
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     for {
       updatedAnswers <- Future.fromTry(request.userAnswers.remove(SupplierVatRegistrationNumberPage))
       _              <- sessionRepository.set(updatedAnswers)
     } yield None
     val preparedForm = request.userAnswers.get(SupplierTaxIdentifierNumberPage).fold(form)(form.fill)
-    Ok(view(preparedForm, mode, backLink(request, mode)))
+    Ok(view(preparedForm, mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(request, mode)))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
         value =>
           val invoiceNumber = request.userAnswers.get(InvoiceNumberPage).getOrElse("")
           val maybeAppId = request.userAnswers.get(ClaimApplicationResponseQuery).map(_.applicationId)

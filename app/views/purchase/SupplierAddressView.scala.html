@@ -26,9 +26,9 @@
     mainErrorSummary: MainErrorSummary
 )
 
-@(form: Form[?], mode: Mode, call: Call)(implicit request: Request[?], messages: Messages)
+@(form: Form[?], mode: Mode)(implicit request: Request[?], messages: Messages)
 
-@layout(pageTitle = views.ViewUtils.title(form, "supplierAddress.title"), backLinkUrl = Some(call.url)) {
+@layout(pageTitle = views.ViewUtils.title(form, "supplierAddress.title")) {
     @formHelper(action = controllers.purchase.routes.SupplierAddressController.onSubmit(mode), Symbol("novalidate") -> "novalidate") {
         @mainErrorSummary(form, Map("addressLine1" -> "addressLine1", "addressLine2" -> "addressLine2", "addressLine3" -> "addressLine3"))
         <h1 class="govuk-heading-l">

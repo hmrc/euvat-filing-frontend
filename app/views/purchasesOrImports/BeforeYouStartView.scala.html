@@ -24,9 +24,9 @@
         formHelper: FormWithCSRF
 )
 
-@(backLinkCall: Call)(implicit request: Request[_], messages: Messages)
+@()(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("beforeYouStart.title")), backLinkUrl = Some(backLinkCall.url)) {
+@layout(pageTitle = titleNoForm(messages("beforeYouStart.title"))) {
     @formHelper(action = routes.BeforeYouStartController.onSubmit()) {
         <h1 class="govuk-heading-l">
             <span class="govuk-caption-l">@messages("purchasesAndImports.caption")</span>

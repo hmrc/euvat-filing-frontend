@@ -32,11 +32,11 @@
     mainErrorSummary: MainErrorSummary
 )
 
-@(form: Form[_], countries: Map[String,String], call: Call, mode: models.Mode = models.NormalMode)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], countries: Map[String,String], mode: models.Mode = models.NormalMode)(implicit request: Request[_], messages: Messages)
 
 @isError = @{form.error("value").isDefined}
 
-@layout(pageTitle = views.ViewUtils.title(form, "refundingCountry.title"), backLinkUrl = Some(call.url)) {
+@layout(pageTitle = views.ViewUtils.title(form, "refundingCountry.title")) {
     @formHelper(action = controllers.claim.routes.RefundingCountryController.onSubmit(mode)) {
         @mainErrorSummary(form, Map("value" -> (form("value").id + "-input")))
 

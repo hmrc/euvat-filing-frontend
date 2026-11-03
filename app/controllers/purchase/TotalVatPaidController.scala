@@ -50,18 +50,12 @@ class TotalVatPaidController @Inject() (
 
   val form: Form[BigDecimal] = formProvider()
 
-  private def backLink(mode: Mode) = if (mode == CheckMode) {
-    routes.CheckYourPurchaseDetailsController.onPageLoad()
-  } else {
-    routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode)
-  }
-
   private def formAction(mode: Mode): Call = routes.TotalVatPaidController.onSubmit(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(TotalVatPaidPage).fold(form)(form.fill)
     val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)
-    Ok(view(preparedForm, formAction(mode), backLink(mode), "purchase.caption", "totalVatPaid.p1", prefix, currencyName))
+    Ok(view(preparedForm, formAction(mode), "purchase.caption", "totalVatPaid.p1", prefix, currencyName))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -71,7 +65,7 @@ class TotalVatPaidController @Inject() (
       .fold(
         formWithErrors =>
           Future.successful(
-            BadRequest(view(formWithErrors, formAction(mode), backLink(mode), "purchase.caption", "totalVatPaid.p1", prefix, currencyName))
+            BadRequest(view(formWithErrors, formAction(mode), "purchase.caption", "totalVatPaid.p1", prefix, currencyName))
           ),
         value =>
           for {

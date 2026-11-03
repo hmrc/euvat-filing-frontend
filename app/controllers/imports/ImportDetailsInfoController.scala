@@ -49,16 +49,6 @@ class ImportDetailsInfoController @Inject() (
 
   val form: Form[String] = formProvider()
 
-  private def backLink(mode: Mode)(implicit request: DataRequest[?]) =
-    request.userAnswers.get(SadReferenceCheckPage) match {
-      case Some(true) =>
-        request.userAnswers.get(SadReferenceNumberPage) match {
-          case Some(_) => importRoutes.SadReferenceNumberController.onPageLoad(mode)
-          case None    => importRoutes.SadReferenceCheckController.onPageLoad(mode)
-        }
-      case _ => importRoutes.SadReferenceCheckController.onPageLoad(mode)
-    }
-
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
     val preparedForm = request.userAnswers.get(ImportDetailsInfoPage) match {
@@ -66,7 +56,7 @@ class ImportDetailsInfoController @Inject() (
       case Some(value) => form.fill(value)
     }
 
-    Ok(view(preparedForm, mode, backLink(mode)))
+    Ok(view(preparedForm, mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -74,7 +64,7 @@ class ImportDetailsInfoController @Inject() (
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
         value => {
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(ImportDetailsInfoPage, value))

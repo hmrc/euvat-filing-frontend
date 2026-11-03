@@ -27,7 +27,7 @@
 
 @(baCode1: String, baCode2: String, baCode3: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("businessActivityThree.title")), backLinkUrl = Some(controllers.claim.routes.BusinessActivityCodeThreeController.onPageLoad(NormalMode).url)) {
+@layout(pageTitle = titleNoForm(messages("businessActivityThree.title"))) {
     @formHelper(action = controllers.claim.routes.BusinessActivityThreeController.onSubmit()) {
         <h1 class="govuk-heading-l">
             <span class="govuk-caption-l">@messages("claim.caption")</span>

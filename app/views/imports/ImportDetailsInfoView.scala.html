@@ -25,9 +25,9 @@
     mainErrorSummary: views.html.components.MainErrorSummary
 )
 
-@(form: Form[_], mode: Mode, call: Call)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("importDetailsInfo.title")), backLinkUrl = Some(call.url)) {
+@layout(pageTitle = title(form, messages("importDetailsInfo.title"))) {
 
     @formHelper(action = routes.ImportDetailsInfoController.onSubmit(mode)) {
 

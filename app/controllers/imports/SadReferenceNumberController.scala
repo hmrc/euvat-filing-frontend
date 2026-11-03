@@ -53,19 +53,17 @@ class SadReferenceNumberController @Inject() (
     with I18nSupport {
 
   val form: Form[String] = formProvider()
-  private def backLink(mode: Mode): Call =
-    importRoutes.SadReferenceCheckController.onPageLoad(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(SadReferenceNumberPage).fold(form)(form.fill)
-    Ok(view(preparedForm, backLink(mode), mode))
+    Ok(view(preparedForm, mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, backLink(mode), mode))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
         value =>
           buildSadReferenceCountRequest(request.userAnswers, value) match {
 

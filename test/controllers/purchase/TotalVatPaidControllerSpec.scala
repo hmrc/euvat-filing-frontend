@@ -56,7 +56,6 @@ class TotalVatPaidControllerSpec extends SpecBase with MockitoSugar {
           view(
             form,
             routes.TotalVatPaidController.onSubmit(NormalMode),
-            routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode),
             "purchase.caption",
             "totalVatPaid.p1",
             "€",
@@ -82,7 +81,6 @@ class TotalVatPaidControllerSpec extends SpecBase with MockitoSugar {
           view(
             form,
             routes.TotalVatPaidController.onSubmit(CheckMode),
-            routes.CheckYourPurchaseDetailsController.onPageLoad(),
             "purchase.caption",
             "totalVatPaid.p1",
             "€",
@@ -109,7 +107,6 @@ class TotalVatPaidControllerSpec extends SpecBase with MockitoSugar {
           view(
             form.fill(BigDecimal("12.34")),
             routes.TotalVatPaidController.onSubmit(NormalMode),
-            routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode),
             "purchase.caption",
             "totalVatPaid.p1",
             "€",
@@ -183,7 +180,6 @@ class TotalVatPaidControllerSpec extends SpecBase with MockitoSugar {
           view(
             boundForm,
             routes.TotalVatPaidController.onSubmit(NormalMode),
-            routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode),
             "purchase.caption",
             "totalVatPaid.p1",
             "€",

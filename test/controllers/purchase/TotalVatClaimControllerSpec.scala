@@ -42,7 +42,6 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
   def onwardRoute: Call = Call("GET", "/foo")
   val validAnswer: BigDecimal = BigDecimal("123.45")
   lazy val totalVatClaimRoute: String = routes.TotalVatClaimController.onPageLoad(NormalMode).url
-  def backLink: Call = routes.TotalVatPaidController.onPageLoad(NormalMode)
 
   "TotalVatClaim Controller" - {
 
@@ -56,7 +55,7 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, routes.TotalVatClaimController.onSubmit(NormalMode), backLink, "purchase.caption", "€")(
+          view(form, NormalMode, routes.TotalVatClaimController.onSubmit(NormalMode), "purchase.caption", "€")(
             request,
             messages(application)
           ).toString
@@ -78,7 +77,6 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
             form,
             CheckMode,
             routes.TotalVatClaimController.onSubmit(CheckMode),
-            routes.CheckYourPurchaseDetailsController.onPageLoad(),
             "purchase.caption",
             "€"
           )(
@@ -104,7 +102,6 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
             form.fill(validAnswer),
             NormalMode,
             routes.TotalVatClaimController.onSubmit(NormalMode),
-            backLink,
             "purchase.caption",
             "€"
           )(
@@ -207,22 +204,11 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
         status(result) mustEqual BAD_REQUEST
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(boundForm, NormalMode, routes.TotalVatClaimController.onSubmit(NormalMode), backLink, "purchase.caption", "€")(
+          view(boundForm, NormalMode, routes.TotalVatClaimController.onSubmit(NormalMode), "purchase.caption", "€")(
             request,
             messages(application)
           ).toString
         )
-      }
-    }
-
-    "must have the correct back link" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-
-      running(application) {
-        val request = FakeRequest(GET, totalVatClaimRoute)
-        val result = route(application, request).value
-        status(result) mustEqual OK
-        contentAsString(result) must include(routes.TotalVatPaidController.onPageLoad(NormalMode).url)
       }
     }
 
@@ -377,7 +363,7 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
       val result = route(application, request).value
       status(result) mustEqual OK
       normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-        view(form, NormalMode, routes.TotalVatClaimController.onSubmit(NormalMode), backLink, "purchase.caption", "kr")(
+        view(form, NormalMode, routes.TotalVatClaimController.onSubmit(NormalMode), "purchase.caption", "kr")(
           request,
           messages(application)
         ).toString
@@ -402,7 +388,7 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
       val result = route(application, request).value
       status(result) mustEqual OK
       normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-        view(form, NormalMode, routes.TotalVatClaimController.onSubmit(NormalMode), backLink, "purchase.caption", "€")(
+        view(form, NormalMode, routes.TotalVatClaimController.onSubmit(NormalMode), "purchase.caption", "€")(
           request,
           messages(application)
         ).toString
@@ -428,7 +414,7 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
       val result = route(application, request).value
       status(result) mustEqual BAD_REQUEST
       normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-        view(boundForm, NormalMode, routes.TotalVatClaimController.onSubmit(NormalMode), backLink, "purchase.caption", "kr")(
+        view(boundForm, NormalMode, routes.TotalVatClaimController.onSubmit(NormalMode), "purchase.caption", "kr")(
           request,
           messages(application)
         ).toString

@@ -57,11 +57,11 @@ class BusinessActivityTwoController @Inject() (
       case (Some(baCode1), Some(baCode2)) =>
         val preparedForm = userAnswers.get(BusinessActivityTwoPage).fold(form)(form.fill)
 
-        Ok(view(preparedForm, mode, backLink, baCode1, baCode2)).addingToSession("removeOrigin" -> "business-activity-2")(request)
+        Ok(view(preparedForm, mode, baCode1, baCode2)).addingToSession("removeOrigin" -> "business-activity-2")(request)
 
       case _ =>
         logger.warn("Data guard error, missing required information")
-        Redirect(controllers.routes.UnauthorisedController.onPageLoad()) // TODO - update to system guard error page when ready
+        Redirect(controllers.routes.UnauthorisedController.onPageLoad())
     }
 
   }
@@ -75,7 +75,7 @@ class BusinessActivityTwoController @Inject() (
           .fold(
             formWithErrors =>
               Future.successful(
-                BadRequest(view(formWithErrors, mode, backLink, baCode1, baCode2)).addingToSession("removeOrigin" -> "business-activity-2")
+                BadRequest(view(formWithErrors, mode, baCode1, baCode2)).addingToSession("removeOrigin" -> "business-activity-2")
               ),
             value =>
               for {
@@ -91,7 +91,7 @@ class BusinessActivityTwoController @Inject() (
 
       case _ =>
         logger.warn("Data guard error, missing required information")
-        Future.successful(Redirect(controllers.routes.UnauthorisedController.onPageLoad())) // TODO - update to system guard error page when ready
+        Future.successful(Redirect(controllers.routes.UnauthorisedController.onPageLoad()))
     }
   }
 }

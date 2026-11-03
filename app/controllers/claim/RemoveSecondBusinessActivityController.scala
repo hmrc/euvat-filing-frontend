@@ -77,7 +77,7 @@ class RemoveSecondBusinessActivityController @Inject() (
 
     val actionCall = Call("POST", routes.RemoveSecondBusinessActivityController.onSubmit().url)
 
-    val result = Ok(view(form, headingKey, actionCall, backLinkFrom(origin, mode), mode))
+    val result = Ok(view(form, headingKey, actionCall, mode))
 
     // if origin or mode present as query params, persist them in the session for subsequent POST
     val reqWithOrigin = request.getQueryString("origin") match {
@@ -103,7 +103,7 @@ class RemoveSecondBusinessActivityController @Inject() (
       .fold(
         formWithErrors => {
           val actionCall = Call("POST", routes.RemoveSecondBusinessActivityController.onSubmit().url)
-          Future.successful(BadRequest(view(formWithErrors, headingKey, actionCall, backLinkFrom(origin, mode), mode)))
+          Future.successful(BadRequest(view(formWithErrors, headingKey, actionCall, mode)))
         },
         {
           case true =>
@@ -134,12 +134,10 @@ class RemoveSecondBusinessActivityController @Inject() (
                 case _                           => Redirect(routes.BusinessActivityController.onPageLoad(NormalMode))
               }
 
-              // clear the stored origin/mode from the session
               redirect.removingFromSession(SessionOriginKey, SessionModeKey)(request)
             }
 
-          case false =>
-            Future.successful(Redirect(backLinkFrom(origin, mode)))
+          case false => Future.successful(Redirect(backLinkFrom(origin, mode)))
         }
       )
   }

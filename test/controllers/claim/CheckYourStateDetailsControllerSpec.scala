@@ -42,9 +42,7 @@ import views.html.claim.CheckYourStateDetailsView
 import scala.concurrent.Future
 
 class CheckYourStateDetailsControllerSpec extends SpecBase with MockitoSugar {
-
   def onwardRoute: Call = Call("GET", "/foo")
-
   val formProvider = new CheckYourStateDetailsFormProvider()
   val form: Form[Boolean] = formProvider()
 
@@ -53,43 +51,32 @@ class CheckYourStateDetailsControllerSpec extends SpecBase with MockitoSugar {
   "CheckYourStateDetails Controller" - {
 
     "must return OK and the correct view for a GET" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, checkYourStateDetailsRoute)
-
         val result = route(application, request).value
-
         val view = application.injector.instanceOf[CheckYourStateDetailsView]
 
         status(result) mustEqual OK
-        contentAsString(result) must include(routes.CheckYourClaimDetailsController.onPageLoad().url)
       }
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
-
       val userAnswers = UserAnswers(userAnswersId).set(CheckYourStateDetailsPage, true).success.value
-
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, checkYourStateDetailsRoute)
-
         val view = application.injector.instanceOf[CheckYourStateDetailsView]
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) must include(routes.CheckYourClaimDetailsController.onPageLoad().url)
       }
     }
 
     "must call delete and redirect to the management frontend when 'Yes' is submitted" in {
-
       val mockDeleteHelper = mock[DeleteClaimHelper]
-
       when(mockDeleteHelper.deleteAndRedirect(any())(any())) thenReturn Future.successful(Results.Redirect("/manage"))
 
       val populatedAnswers = emptyUserAnswers
@@ -120,7 +107,6 @@ class CheckYourStateDetailsControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -129,32 +115,24 @@ class CheckYourStateDetailsControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("value", ""))
 
         val boundForm = form.bind(Map("value" -> ""))
-
         val view = application.injector.instanceOf[CheckYourStateDetailsView]
-
         val result = route(application, request).value
-
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) must include(routes.CheckYourClaimDetailsController.onPageLoad().url)
       }
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
         val request = FakeRequest(GET, checkYourStateDetailsRoute)
-
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
@@ -163,7 +141,6 @@ class CheckYourStateDetailsControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("value", "true"))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }

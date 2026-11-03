@@ -52,27 +52,16 @@ class SadReferenceCheckController @Inject() (
 
   val form: Form[Boolean] = formProvider()
 
-  private def computeBackLink(mode: Mode)(implicit request: DataRequest[AnyContent]): Call =
-    if (mode == CheckMode) importRoutes.CheckYourImportDetailsController.onPageLoad()
-    else
-      (request.userAnswers.get(ImportTypePage), request.userAnswers.get(ImportSubCodePage), request.userAnswers.get(ImportSubCategoryPage)) match {
-        case (Some(_), _, Some(_)) => importRoutes.ImportSubCategoryController.onPageLoad(NormalMode)
-        case (Some(Other), _, _) if request.userAnswers.get(DescribeItemsOnImportDocPage).isDefined =>
-          importRoutes.DescribeItemsOnImportDocController.onPageLoad(NormalMode)
-        case (Some(importType), Some(_), None) => importRoutes.ImportSubCodeController.onPageLoad(importType.toString, mode)
-        case _                                 => importRoutes.ImportTypeController.onPageLoad(NormalMode)
-      }
-
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(SadReferenceCheckPage).fold(form)(form.fill)
-    Ok(view(preparedForm, computeBackLink(mode), mode))
+    Ok(view(preparedForm, mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, computeBackLink(mode), mode))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
         value =>
           saveAnswerAndResetDependents(
             page              = SadReferenceCheckPage,

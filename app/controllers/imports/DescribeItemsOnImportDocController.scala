@@ -54,14 +54,6 @@ class DescribeItemsOnImportDocController @Inject() (
 
   val form: Form[String] = formProvider(messagePrefix)
 
-  private def backLink(answers: UserAnswers, mode: Mode): Call =
-    if (mode == CheckMode) importRoutes.CheckYourImportDetailsController.onPageLoad()
-    else
-      answers.get(ImportSubCodePage) match {
-        case Some(_) => importRoutes.ImportSubCodeController.onPageLoad(Other.toString, mode)
-        case None    => importRoutes.ImportTypeController.onPageLoad(NormalMode)
-      }
-
   private def submitCall(mode: Mode): Call = importRoutes.DescribeItemsOnImportDocController.onSubmit(mode)
 
   private def isReachable(answers: UserAnswers): Boolean =
@@ -77,13 +69,7 @@ class DescribeItemsOnImportDocController @Inject() (
     }
 
   private def renderView(form: Form[String], mode: Mode)(implicit request: DataRequest[AnyContent]) =
-    view(form,
-         submitCall(mode),
-         backLink(request.userAnswers, mode),
-         messagePrefix,
-         "import.caption",
-         Some(messagesApi.preferred(request)(s"$messagePrefix.hint"))
-        )
+    view(form, submitCall(mode), messagePrefix, "import.caption", Some(messagesApi.preferred(request)(s"$messagePrefix.hint")))
 
   private def withGuard(block: => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] =
     if (isReachable(request.userAnswers)) block

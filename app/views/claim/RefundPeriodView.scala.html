@@ -31,8 +31,8 @@
   govukButton: GovukButton
 )
 
-@(form: play.api.data.Form[_], mode: models.Mode, call: Call, startErrorMessage: Option[String], endErrorMessage: Option[String], highlighted: Set[String], errorLinkOverrides: Map[String, String])(implicit request: play.api.mvc.Request[_], messages: play.api.i18n.Messages)
-@layout(pageTitle = title(form, "refundPeriod.title"), backLinkUrl = Some(call.url)) {
+@(form: play.api.data.Form[_], mode: models.Mode, startErrorMessage: Option[String], endErrorMessage: Option[String], highlighted: Set[String], errorLinkOverrides: Map[String, String])(implicit request: play.api.mvc.Request[_], messages: play.api.i18n.Messages)
+@layout(pageTitle = title(form, "refundPeriod.title")) {
 
     @formHelper(action = controllers.claim.routes.RefundPeriodController.onSubmit(mode)) {
 

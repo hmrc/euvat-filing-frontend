@@ -18,25 +18,24 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 
 @this(
-layout: templates.Layout,
-govukButton: GovukButton,
-govukBackLink: GovukBackLink,
-formHelper: FormWithCSRF
+    layout: templates.Layout,
+    govukButton: GovukButton,
+    govukBackLink: GovukBackLink,
+    formHelper: FormWithCSRF
 )
 
-@(backLinkCall: Call)(implicit request: Request[_], messages: Messages)
+@()(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("beforeYouStartBankDetails.title")), backLinkUrl = Some(backLinkCall.url)) {
-@formHelper(action = controllers.bankdetails.routes.BeforeYouStartBankDetailsController.onSubmit()) {
+@layout(pageTitle = titleNoForm(messages("beforeYouStartBankDetails.title"))) {
+    @formHelper(action = controllers.bankdetails.routes.BeforeYouStartBankDetailsController.onSubmit()) {
 
-    <span class="govuk-caption-l">@messages("bankDetails.caption")</span>
+        <span class="govuk-caption-l">@messages("bankDetails.caption")</span>
+        <h1 class="govuk-heading-l">@messages("beforeYouStartBankDetails.heading")</h1>
 
-    <h1 class="govuk-heading-l">@messages("beforeYouStartBankDetails.heading")</h1>
+        <p class="govuk-body">@messages("beforeYouStartBankDetails.paragraph1")</p>
+        <p class="govuk-body">@messages("beforeYouStartBankDetails.paragraph2")</p>
+        <p class="govuk-body">@messages("beforeYouStartBankDetails.paragraph3")</p>
 
-    <p class="govuk-body">@messages("beforeYouStartBankDetails.paragraph1")</p>
-    <p class="govuk-body">@messages("beforeYouStartBankDetails.paragraph2")</p>
-    <p class="govuk-body">@messages("beforeYouStartBankDetails.paragraph3")</p>
-
-@govukButton(ButtonViewModel(Text(messages("site.continue"))))
-}
+        @govukButton(ButtonViewModel(Text(messages("site.continue"))))
+    }
 }

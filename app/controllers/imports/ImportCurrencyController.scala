@@ -109,10 +109,6 @@ class ImportCurrencyController @Inject() (
       PurchaseOrImportHelpers.currencyRadioItems(currencies, messagesApi.preferred(request)),
       routes.ImportCurrencyController.onSubmit(mode),
       messagePrefix,
-      "import.caption",
-      Some(
-        if (mode == CheckMode) importRoutes.CheckYourImportDetailsController.onPageLoad()
-        else importRoutes.ImportSuppliersNameController.onPageLoad(mode)
-      )
+      "import.caption"
     )
 }

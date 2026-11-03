@@ -29,11 +29,11 @@
   mainErrorSummary: MainErrorSummary
 )
 
-@(form: Form[?], countries: Map[String, String], mode: Mode, call: Call)(implicit request: Request[?], messages: Messages)
+@(form: Form[?], countries: Map[String, String], mode: Mode)(implicit request: Request[?], messages: Messages)
 
 @isCountryError = @{form.error("country").isDefined}
 
-@layout(pageTitle = views.ViewUtils.title(form, "supplierAddress.title"),backLinkUrl = Some(call.url)) {
+@layout(pageTitle = views.ViewUtils.title(form, "supplierAddress.title")) {
   @formHelper(
     action = controllers.imports.routes.ImportSupplierAddressController.onSubmit(mode),
     Symbol("novalidate") -> "novalidate"

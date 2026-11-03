@@ -30,10 +30,10 @@
     mainErrorSummary: MainErrorSummary
 )
 
-@(form: Form[_], mode: Mode, call: Call, baCode1: String, baCode2: String)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, baCode1: String, baCode2: String)(implicit request: Request[_], messages: Messages)
 @isError = @{form.error("value").isDefined}
 
-@layout(pageTitle = views.ViewUtils.title(form, messages("businessActivityTwo.title")), backLinkUrl = Some(call.url)) {
+@layout(pageTitle = views.ViewUtils.title(form, messages("businessActivityTwo.title"))) {
     @formHelper(action = controllers.claim.routes.BusinessActivityTwoController.onSubmit(mode)) {
         @mainErrorSummary(form)
         <h1 class="govuk-heading-l">

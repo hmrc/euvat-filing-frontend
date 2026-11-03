@@ -53,12 +53,7 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form,
-               routes.SuppliersNameController.onSubmit(NormalMode),
-               routes.InvoiceDateController.onPageLoad(NormalMode),
-               "purchase.caption",
-               "suppliersName.hint"
-              )(
+          view(form, routes.SuppliersNameController.onSubmit(NormalMode), "purchase.caption", "suppliersName.hint")(
             request,
             messages(application)
           ).toString
@@ -79,7 +74,6 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
           view(
             form,
             routes.SuppliersNameController.onSubmit(CheckMode),
-            routes.CheckYourPurchaseDetailsController.onPageLoad(),
             "purchase.caption",
             "suppliersName.hint"
           )(
@@ -104,7 +98,6 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
           view(
             form.fill("answer"),
             routes.SuppliersNameController.onSubmit(NormalMode),
-            routes.InvoiceDateController.onPageLoad(NormalMode),
             "purchase.caption",
             "suppliersName.hint"
           )(
@@ -205,7 +198,6 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
           view(
             boundForm,
             routes.SuppliersNameController.onSubmit(NormalMode),
-            routes.InvoiceDateController.onPageLoad(NormalMode),
             "purchase.caption",
             "suppliersName.hint"
           )(
@@ -233,7 +225,6 @@ class SuppliersNameControllerSpec extends SpecBase with MockitoSugar {
           view(
             boundForm,
             routes.SuppliersNameController.onSubmit(NormalMode),
-            routes.InvoiceDateController.onPageLoad(NormalMode),
             "purchase.caption",
             "suppliersName.hint"
           )(
