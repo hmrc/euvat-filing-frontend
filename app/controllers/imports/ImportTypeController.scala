@@ -18,15 +18,15 @@ package controllers.imports
 
 import pages.imports.*
 import queries.*
-
 import com.google.inject.Inject
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import controllers.imports.routes as importRoutes
 import forms.ImportTypeFormProvider
 import models.requests.{AddImportRequest, DataRequest}
-import models.{CheckMode, Mode, NormalMode, PurchaseOrImportType, UserAnswers}
+import models.responses.{AddImportResponse, ImportDetailsResponse}
+import models.{CheckMode, Mode, NormalMode, PurchaseOrImport, PurchaseOrImportType, Transport, UserAnswers}
 import navigation.Navigator
-import pages.imports.ImportTypePage
+import pages.PurchaseOrImportPage
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -40,6 +40,7 @@ import utils.ControllerHelpers.saveAnswerAndResetDependents
 import views.html.purchasesOrImports.PurchaseOrImportTypeView
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success, Try}
 
 class ImportTypeController @Inject() (
   override val messagesApi: MessagesApi,
@@ -135,4 +136,86 @@ class ImportTypeController @Inject() (
         Future.successful(onward(answers))
     }
   }
+
+  def addDetails(applicationId: Long, itemNumber: Int): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+    implicit request =>
+      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+
+      val ua = request.userAnswers
+      val backLink = controllers.routes.PurchaseImportSummaryController.onPageLoad
+
+      if (!ua.get(ClaimApplicationResponseQuery).map(_.applicationId).contains(applicationId)) {
+        logger.warn(s"Add details requested for application $applicationId which is not the claim in session")
+        Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+      } else {
+        euVatRefundsService
+          .getImportDetails(applicationId, itemNumber)
+          .flatMap { response =>
+            for {
+              importType     <- Future.fromTry(resolveImportType(response))
+              clearedAnswers <- Future.fromTry(clearStaleAnswers(ua, pagesToRemoveAnswers))
+              loadedAnswers  <- Future.fromTry(loadImport(clearedAnswers, response, importType, itemNumber))
+              _              <- sessionRepository.set(loadedAnswers)
+            } yield Ok(
+              view(
+                form.fill(importType),
+                NormalMode,
+                backLink,
+                routes.ImportTypeController.onSubmit(NormalMode),
+                "importType",
+                "import.caption",
+                false,
+                legendKey = None
+              )
+            )
+
+          }
+          .recover { case ex =>
+            logger.error(s"Error fetching import details for item $itemNumber", ex)
+            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+          }
+      }
+  }
+
+  private val pagesToRemoveAnswers: List[Settable[_]] = List(
+    AddImportResponsePage,
+    DescribeItemsOnImportDocPage,
+    ImportCurrencyPage,
+    ImportDatePage,
+    ImportDetailsInfoPage,
+    ImportSubCategoryPage,
+    ImportSubCodePage,
+    ImportSupplierAddressPage,
+    ImportSuppliersNamePage,
+    ImportTotalVatClaimPage,
+    ImportTypePage,
+    SadReferenceCheckPage,
+    SadReferenceNumberPage,
+    TotalAmountWithoutVatPage,
+    TotalVatPaidImportPage,
+    ImportSubCategoryLabelQuery,
+    ImportSubTypeLabelQuery,
+    PurchaseOrImportPage
+  )
+
+  private def clearStaleAnswers(userAnswers: UserAnswers, pagesToRemoveAnswers: List[Settable[_]]): Try[UserAnswers] =
+    pagesToRemoveAnswers.foldLeft(Try(userAnswers)) { (acc, page) =>
+      acc.flatMap(_.remove(page))
+    }
+
+  private def resolveImportType(response: ImportDetailsResponse): Try[PurchaseOrImportType] =
+    PurchaseOrImportType.codes.collectFirst { case (importType, code) if code == response.goodsDescriptionCategory.trim => importType } match {
+      case None =>
+        Failure(new IllegalStateException(s"Unknown import category ${response.goodsDescriptionCategory} for item ${response.itemNumber}"))
+
+      case Some(importType) =>
+        Success(importType)
+    }
+
+  private def loadImport(ua: UserAnswers, response: ImportDetailsResponse, importType: PurchaseOrImportType, itemNumber: Int): Try[UserAnswers] =
+    ua
+      .set(PurchaseOrImportPage, PurchaseOrImport.Import)
+      .flatMap(_.set(ImportTypePage, importType))
+      .flatMap(_.set(AddImportResponsePage, AddImportResponse(itemNumber, response.updateSequenceNumber)))
+
 }

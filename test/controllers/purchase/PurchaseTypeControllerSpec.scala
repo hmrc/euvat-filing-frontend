@@ -19,12 +19,14 @@ package controllers.purchase
 import base.SpecBase
 import forms.purchase.PurchaseTypeFormProvider
 import models.*
+import models.PurchaseOrImport.Purchase
 import models.responses.*
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{never, times, verify, when}
+import org.mockito.Mockito.{never, times, verify, verifyNoMoreInteractions, when}
 import org.scalatestplus.mockito.MockitoSugar
+import pages.PurchaseOrImportPage
 import pages.claim.{CountryChangedPage, RefundingCountryPage}
 import pages.purchase.*
 import play.api.inject.bind
@@ -33,6 +35,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import queries.ClaimApplicationResponseQuery
 import repositories.SessionRepository
+import uk.gov.hmrc.http.HeaderCarrier
 import utils.ConfigPurchaseOrImportMapping
 import views.html.purchasesOrImports.PurchaseOrImportTypeView
 
@@ -1003,6 +1006,240 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual ("/file-eu-vat/purchase" + onwardRoute.url)
         verify(mockEuVatRefundsService, never).addPurchase(any())(any())
+      }
+    }
+
+    "addDetails should fetch, map and persist purchase details" in {
+      val savedCaptor: ArgumentCaptor[models.UserAnswers] = ArgumentCaptor.forClass(classOf[models.UserAnswers])
+      when(mockSessionRepository.set(savedCaptor.capture())) thenReturn Future.successful(true)
+
+      val purchaseDetail = PurchaseDetailsResponse(
+        goodsDescriptionCode       = "1",
+        goodsDescriptionSubCode    = None,
+        goodsDescriptionText       = None,
+        simplifiedInvoiceIndicator = None,
+        supplierName               = None,
+        supplierAddressLine1       = None,
+        supplierAddressLine2       = None,
+        supplierAddressLine3       = None,
+        supplierVatNumber          = None,
+        supplierTaxIdentifier      = None,
+        invoiceDate                = None,
+        invoiceNumber              = None,
+        currencyCode               = None,
+        taxableAmount              = None,
+        vatAmount                  = None,
+        deductibleVatAmount        = None,
+        updateSequenceNumber       = 11
+      )
+      when(mockEuVatRefundsService.getPurchaseDetails(org.mockito.ArgumentMatchers.eq(123L), org.mockito.ArgumentMatchers.eq(7))(any()))
+        .thenReturn(Future.successful(purchaseDetail))
+
+      val ua = emptyUserAnswers
+        .set(ClaimApplicationResponseQuery, ApplicationResponse(123, "App1", 5))
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(ua))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.purchase.routes.PurchaseTypeController.addDetails(123L, 7).url)
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+
+        val saved = savedCaptor.getValue
+        saved.get(PurchaseOrImportPage) mustBe Some(Purchase)
+        saved.get(PurchaseTypePage) mustBe Some(Fuel)
+        saved.get(AddPurchaseResponsePage) mustBe Some(AddPurchaseResponse(7, 11))
+      }
+    }
+
+    "addDetails should clear and replace stale purchase details when fetch" in {
+      val savedCaptor: ArgumentCaptor[models.UserAnswers] = ArgumentCaptor.forClass(classOf[models.UserAnswers])
+      when(mockSessionRepository.set(savedCaptor.capture())) thenReturn Future.successful(true)
+
+      val purchaseDetail = PurchaseDetailsResponse(
+        goodsDescriptionCode       = "3",
+        goodsDescriptionSubCode    = None,
+        goodsDescriptionText       = None,
+        simplifiedInvoiceIndicator = None,
+        supplierName               = None,
+        supplierAddressLine1       = None,
+        supplierAddressLine2       = None,
+        supplierAddressLine3       = None,
+        supplierVatNumber          = None,
+        supplierTaxIdentifier      = None,
+        invoiceDate                = None,
+        invoiceNumber              = None,
+        currencyCode               = None,
+        taxableAmount              = None,
+        vatAmount                  = None,
+        deductibleVatAmount        = None,
+        updateSequenceNumber       = 11
+      )
+      when(mockEuVatRefundsService.getPurchaseDetails(org.mockito.ArgumentMatchers.eq(123L), org.mockito.ArgumentMatchers.eq(7))(any()))
+        .thenReturn(Future.successful(purchaseDetail))
+
+      val ua = emptyUserAnswers
+        .set(ClaimApplicationResponseQuery, ApplicationResponse(123, "App1", 5))
+        .success
+        .value
+        .set(PurchaseTypePage, Fuel)
+        .success
+        .value
+        .set(PurchaseSubTypePage, "1.2")
+        .success
+        .value
+        .set(DescribeItemsOnInvoicePage, "Fuel purchase")
+        .success
+        .value
+        .set(InvoiceTypePage, InvoiceType.SimplifiedInvoice)
+        .success
+        .value
+        .set(SupplierVatRegCheckPage, false)
+        .success
+        .value
+        .set(SuppliersNamePage, "Supplier Ltd")
+        .success
+        .value
+        .set(SupplierVatRegistrationNumberPage, "FR123456789")
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(ua))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.purchase.routes.PurchaseTypeController.addDetails(123L, 7).url)
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+
+        val saved = savedCaptor.getValue
+        saved.get(PurchaseOrImportPage) mustBe Some(Purchase)
+        saved.get(PurchaseTypePage) mustBe Some(Transport)
+
+        saved.get(PurchaseSubTypePage) mustBe None
+        saved.get(DescribeItemsOnInvoicePage) mustBe None
+        saved.get(InvoiceTypePage) mustBe None
+        saved.get(SupplierVatRegCheckPage) mustBe None
+        saved.get(SuppliersNamePage) mustBe None
+        saved.get(SupplierVatRegistrationNumberPage) mustBe None
+      }
+    }
+
+    "addDetails should redirect to JourneyRecovery when fetching purchase details fails" in {
+      when(mockEuVatRefundsService.getPurchaseDetails(org.mockito.ArgumentMatchers.eq(123L), org.mockito.ArgumentMatchers.eq(7))(any()))
+        .thenReturn(Future.failed(new RuntimeException("boom")))
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.purchase.routes.PurchaseTypeController.addDetails(123L, 7).url)
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+
+        verify(mockSessionRepository, never()).set(any[UserAnswers])
+      }
+    }
+
+    "addDetails should redirect to JourneyRecovery when applicationId does not match the claim in session" in {
+      val savedCaptor: ArgumentCaptor[models.UserAnswers] = ArgumentCaptor.forClass(classOf[models.UserAnswers])
+      when(mockSessionRepository.set(savedCaptor.capture())) thenReturn Future.successful(true)
+
+      val purchaseDetail = PurchaseDetailsResponse(
+        goodsDescriptionCode       = "1",
+        goodsDescriptionSubCode    = None,
+        goodsDescriptionText       = None,
+        simplifiedInvoiceIndicator = None,
+        supplierName               = None,
+        supplierAddressLine1       = None,
+        supplierAddressLine2       = None,
+        supplierAddressLine3       = None,
+        supplierVatNumber          = None,
+        supplierTaxIdentifier      = None,
+        invoiceDate                = None,
+        invoiceNumber              = None,
+        currencyCode               = None,
+        taxableAmount              = None,
+        vatAmount                  = None,
+        deductibleVatAmount        = None,
+        updateSequenceNumber       = 5
+      )
+      when(mockEuVatRefundsService.getPurchaseDetails(org.mockito.ArgumentMatchers.eq(123L), org.mockito.ArgumentMatchers.eq(7))(any()))
+        .thenReturn(Future.successful(purchaseDetail))
+
+      val ua = emptyUserAnswers
+        .set(ClaimApplicationResponseQuery, ApplicationResponse(555, "App1", 5))
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(ua))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.purchase.routes.PurchaseTypeController.addDetails(123L, 7).url)
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+
+        verify(mockEuVatRefundsService, never()).getPurchaseDetails(any, any)(any[HeaderCarrier])
+        verify(mockSessionRepository, never()).set(any[UserAnswers])
+        verifyNoMoreInteractions(mockEuVatRefundsService)
+      }
+    }
+
+    "addDetails should redirect to JourneyRecovery when goodsDescriptionCode does not match" in {
+      val savedCaptor: ArgumentCaptor[models.UserAnswers] = ArgumentCaptor.forClass(classOf[models.UserAnswers])
+      when(mockSessionRepository.set(savedCaptor.capture())) thenReturn Future.successful(true)
+
+      val purchaseDetail = PurchaseDetailsResponse(
+        goodsDescriptionCode       = "111",
+        goodsDescriptionSubCode    = None,
+        goodsDescriptionText       = None,
+        simplifiedInvoiceIndicator = None,
+        supplierName               = None,
+        supplierAddressLine1       = None,
+        supplierAddressLine2       = None,
+        supplierAddressLine3       = None,
+        supplierVatNumber          = None,
+        supplierTaxIdentifier      = None,
+        invoiceDate                = None,
+        invoiceNumber              = None,
+        currencyCode               = None,
+        taxableAmount              = None,
+        vatAmount                  = None,
+        deductibleVatAmount        = None,
+        updateSequenceNumber       = 5
+      )
+      when(mockEuVatRefundsService.getPurchaseDetails(org.mockito.ArgumentMatchers.eq(123L), org.mockito.ArgumentMatchers.eq(7))(any()))
+        .thenReturn(Future.successful(purchaseDetail))
+
+      val ua = emptyUserAnswers
+        .set(ClaimApplicationResponseQuery, ApplicationResponse(123, "App1", 5))
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.purchase.routes.PurchaseTypeController.addDetails(123L, 7).url)
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+
+        verify(mockSessionRepository, never()).set(any[UserAnswers])
       }
     }
   }
