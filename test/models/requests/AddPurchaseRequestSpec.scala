@@ -16,13 +16,17 @@
 
 package models.requests
 
+import base.SpecBase
+import models.Other
+import models.responses.ApplicationResponse
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.Json
+import queries.{ClaimApplicationResponseQuery, UpdateSequenceNumberQuery}
 
 import java.time.LocalDateTime
 
-class AddPurchaseRequestSpec extends AnyWordSpec with Matchers {
+class AddPurchaseRequestSpec extends SpecBase {
 
   private val request = AddPurchaseRequest(
     applicationId              = 123456,
@@ -45,13 +49,13 @@ class AddPurchaseRequestSpec extends AnyWordSpec with Matchers {
     updateSequenceNumber       = 1
   )
 
-  "AddPurchaseRequest JSON format" should {
+  "AddPurchaseRequest JSON format" - {
 
-    "serialize and deserialize correctly" in {
-      Json.toJson(request).as[AddPurchaseRequest] shouldBe request
+    "must serialize and deserialize correctly" in {
+      Json.toJson(request).as[AddPurchaseRequest] mustBe request
     }
 
-    "deserialize when optional fields are absent" in {
+    "must deserialize when optional fields are absent" in {
       val json = Json.obj(
         "applicationId"            -> 123456,
         "goodsDescriptionCategory" -> "1",
@@ -59,9 +63,30 @@ class AddPurchaseRequestSpec extends AnyWordSpec with Matchers {
       )
       val result = json.as[AddPurchaseRequest]
 
-      result.applicationId        shouldBe 123456L
-      result.supplierName         shouldBe None
-      result.updateSequenceNumber shouldBe 1
+      result.applicationId mustBe 123456L
+      result.supplierName mustBe None
+      result.updateSequenceNumber mustBe 1
+    }
+  }
+
+  "AddPurchaseRequest.from" - {
+
+    "must create AddPurchaseRequest from userAnswers" in {
+      val purchaseType = Other
+      val applicationId = 3L
+      val applicationNumber = "123"
+      val updateSequenceNumber = 20
+
+      val claimResponse = ApplicationResponse(applicationId, applicationNumber, updateSequenceNumber)
+      val userAnswers = emptyUserAnswers.set(UpdateSequenceNumberQuery, updateSequenceNumber).success.value
+
+      val result = AddPurchaseRequest.from(userAnswers, purchaseType, claimResponse)
+
+      result mustEqual AddPurchaseRequest(
+        applicationId            = applicationId,
+        goodsDescriptionCategory = "10",
+        updateSequenceNumber     = updateSequenceNumber
+      )
     }
   }
 }

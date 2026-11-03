@@ -23,7 +23,7 @@ import models.responses.*
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{never, times, verify, when}
+import org.mockito.Mockito.{never, times, verify, verifyNoInteractions, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.claim.{CountryChangedPage, RefundingCountryPage}
 import pages.purchase.*
@@ -330,6 +330,42 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual ("/file-eu-vat/purchase" + onwardRoute.url)
         verify(mockSessionRepository, times(2)).set(any())
+      }
+    }
+
+    "must not create a new purchase when an AddPurchaseResponse has already been made" in {
+      val updateSequenceNumber = 1
+      val itemNumber = 2
+      val applicationId = 134
+      val mockSessionRepository = mock[SessionRepository]
+
+      when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+
+      val userAnswers = emptyUserAnswers
+        .set(ClaimApplicationResponseQuery, ApplicationResponse(applicationId, "GB123134", updateSequenceNumber))
+        .success
+        .value
+        .set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber, updateSequenceNumber))
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(
+          bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+          bind[SessionRepository].toInstance(mockSessionRepository)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, purchaseTypeSubmitRoute)
+          .withFormUrlEncodedBody("value" -> Fuel.toString)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+        verify(mockSessionRepository, times(1)).set(any())
+        verifyNoInteractions(mockEuVatRefundsService)
       }
     }
 
