@@ -16,10 +16,10 @@
 
 package queries
 
+import models.responses.PurchaseDetailsResponse
 import play.api.libs.json.JsPath
-import models.responses.PurchaseDetailResponse
 
-case object PurchaseDetailResponseQuery extends Gettable[PurchaseDetailResponse] with Settable[PurchaseDetailResponse] {
+case object PurchaseDetailResponseQuery extends Gettable[PurchaseDetailsResponse] with Settable[PurchaseDetailsResponse] {
 
   override def path: JsPath = JsPath \ toString
 

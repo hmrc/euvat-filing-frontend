@@ -311,8 +311,8 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
 
   "EuVatRefundsService.getPurchaseDetails" - {
 
-    val expectedResponse = PurchaseDetailResponse(
-      goodsDescriptionCode       = Some("1"),
+    val expectedResponse = PurchaseDetailsResponse(
+      goodsDescriptionCode       = "1",
       goodsDescriptionSubCode    = Some("1.2"),
       goodsDescriptionText       = Some("Fuel"),
       simplifiedInvoiceIndicator = Some("false"),
@@ -328,7 +328,7 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
       taxableAmount              = Some(BigDecimal(100)),
       vatAmount                  = Some(BigDecimal(20)),
       deductibleVatAmount        = Some(BigDecimal(10)),
-      updateSequenceNumber       = Some(1)
+      updateSequenceNumber       = 1
     )
 
     "should return purchase details from the connector" in {

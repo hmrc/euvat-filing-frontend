@@ -112,10 +112,28 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
       .execute[PurchaseImportListResponse]
   }
 
-  def getPurchaseDetails(applicationId: Long, itemNumber: Int)(implicit hc: HeaderCarrier): Future[models.responses.PurchaseDetailResponse] = {
+  def getImportDetails(applicationId: Long, itemNumber: Int)(implicit hc: HeaderCarrier): Future[ImportDetailsResponse] =
+    http
+      .get(url"$euVatRefundsBaseUrl/get-import-details/$applicationId/$itemNumber")
+      .execute[ImportDetailsResponse]
+
+  def getPurchaseDetails(applicationId: Long, itemNumber: Int)(implicit hc: HeaderCarrier): Future[PurchaseDetailsResponse] =
     http
       .get(url"$euVatRefundsBaseUrl/get-purchase-details/$applicationId/$itemNumber")
-      .execute[models.responses.PurchaseDetailResponse]
+      .execute[PurchaseDetailsResponse]
+
+  def deletePurchase(request: DeleteItemRequest)(implicit hc: HeaderCarrier): Future[DeleteItemResponse] = {
+    http
+      .delete(url"$euVatRefundsBaseUrl/delete-purchase")
+      .withBody(Json.toJson(request))
+      .execute[DeleteItemResponse]
+  }
+
+  def deleteImport(request: DeleteItemRequest)(implicit hc: HeaderCarrier): Future[DeleteItemResponse] = {
+    http
+      .delete(url"$euVatRefundsBaseUrl/delete-import")
+      .withBody(Json.toJson(request))
+      .execute[DeleteItemResponse]
   }
 
   def deleteApplication(request: DeleteApplicationRequest)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
