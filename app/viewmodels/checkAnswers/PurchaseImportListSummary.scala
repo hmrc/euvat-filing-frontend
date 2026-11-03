@@ -50,19 +50,14 @@ object PurchaseImportListSummary {
         val maybeAppId = userAnswers.get(ClaimApplicationResponseQuery).map(_.applicationId)
 
         val changeUrl = maybeAppId.map { appId =>
-          purchaseRoutes.CheckYourPurchaseDetailsController.changeYourAnswers(appId, itemNumber).url
+          if (item.itemType == "P") purchaseRoutes.CheckYourPurchaseDetailsController.changeYourAnswers(appId, itemNumber).url
+          else importRoutes.CheckYourImportDetailsController.changeYourAnswers(appId, itemNumber).url
         }
 
         if (vatClaim == 0) {
           displaySummaryListRow(itemNumber, itemType, itemTypeCode, category, changeHref = changeUrl)
         } else {
           val currencySymbol = ControllerHelpers.currencySymbolFromSession(userAnswers, config)
-          val changeUrl =
-            if (item.itemType == "P") None
-            else
-              userAnswers.get(ClaimApplicationResponseQuery).map { claim =>
-                importRoutes.CheckYourImportDetailsController.changeYourAnswers(claim.applicationId, itemNumber).url
-              }
           displaySummaryListRow(itemNumber, itemType, itemTypeCode, category, currencySymbol, vatClaim, changeHref = changeUrl)
         }
       }

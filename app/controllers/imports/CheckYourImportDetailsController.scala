@@ -20,7 +20,7 @@ import config.FrontendAppConfig
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import models.requests.{DataRequest, UpdateImportDetailsRequest}
 import models.responses.{AddImportResponse, ImportDetailsResponse}
-import models.{ImportSupplierAddress, NormalMode, Other, PurchaseOrImport, PurchaseOrImportType, UserAnswers}
+import models.{ImportSupplierAddress, Other, PurchaseOrImport, PurchaseOrImportType, UserAnswers}
 import pages.{PurchaseImportSummaryPage, PurchaseOrImportPage}
 import pages.imports.*
 import play.api.Logging
@@ -58,9 +58,6 @@ class CheckYourImportDetailsController @Inject() (
     with I18nSupport
     with Logging {
 
-  private val checkPageType  = "checkYourImportDetails"
-  private val changePageType = "changeYourImportDetails"
-
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     request.userAnswers.get(ImportDetailsRouteQuery) match {
       case Some(route) =>
@@ -71,15 +68,13 @@ class CheckYourImportDetailsController @Inject() (
           view(
             sections(request.userAnswers),
             routes.CheckYourImportDetailsController.onSubmit(),
-            routes.TotalVatClaimController.onPageLoad(NormalMode),
-            checkPageType,
+            "checkYourImportDetails",
             isAmended = false
           )
         )
     }
   }
 
-  // RA3.2.1 Change link for a saved import: load it once, then show it as change your answers
   def changeYourAnswers(applicationId: Long, itemNumber: Int): Action[AnyContent] =
     (identify andThen getData andThen requireData).async { implicit request =>
       implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
@@ -121,8 +116,7 @@ class CheckYourImportDetailsController @Inject() (
       view(
         sections(answers),
         routes.CheckYourImportDetailsController.onSubmit(),
-        controllers.routes.PurchaseImportSummaryController.onPageLoad,
-        changePageType,
+        "changeYourImportDetails",
         isAmended(answers)
       )
     )

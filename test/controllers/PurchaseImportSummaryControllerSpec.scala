@@ -85,7 +85,7 @@ class PurchaseImportSummaryControllerSpec extends SpecBase {
       }
     }
 
-    "link the Change action of a saved import to its change your answers page" in {
+    "link the Change action of a saved import and purchase to its change your answers page" in {
       val userAnswers = emptyUserAnswers.set(ClaimApplicationResponseQuery, ApplicationResponse(111, "App1", 1)).success.value
       when(mockEuVatRefundsService.getPurchaseImportList(any())(any())).thenReturn(Future.successful(purchaseImportResponse))
 
@@ -97,6 +97,7 @@ class PurchaseImportSummaryControllerSpec extends SpecBase {
 
         status(result) mustEqual OK
         document.select(s"a[href='${controllers.imports.routes.CheckYourImportDetailsController.changeYourAnswers(111, 456).url}']").size() mustBe 1
+        document.select(s"a[href='${controllers.purchase.routes.CheckYourPurchaseDetailsController.changeYourAnswers(111, 123).url}']").size() mustBe 1
       }
     }
 

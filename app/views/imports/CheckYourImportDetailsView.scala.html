@@ -27,15 +27,13 @@
 @(
     sections: Seq[(String, Seq[(String, Option[String], Seq[(String, String, String)])])],
     formAction: Call,
-    backLink: Call,
     pageType: String,
     isAmended: Boolean
 )(implicit request: Request[?], messages: Messages)
 
 @layout(
     pageTitle = titleNoForm(messages(s"${pageType}.title")),
-    backLinkUrl = Some(backLink.url)
-) {
+    showBackLink = false) {
     @if(pageType == "changeYourImportDetails") {
         <h1 class="govuk-heading-l">
             <span class="govuk-caption-l">@messages("import.caption")</span>

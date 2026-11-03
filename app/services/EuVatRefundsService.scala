@@ -52,9 +52,6 @@ class EuVatRefundsService @Inject() (euVatRefundsConnector: EuVatRefundsConnecto
   def updateImport(request: UpdateImportDetailsRequest)(implicit hc: HeaderCarrier): Future[UpdateImportDetailsResponse] =
     euVatRefundsConnector.updateImport(request)
 
-  def getImportDetails(applicationId: Long, itemNumber: Int)(implicit hc: HeaderCarrier): Future[ImportDetailsResponse] =
-    euVatRefundsConnector.getImportDetails(applicationId, itemNumber)
-
   def deleteApplication(request: models.requests.DeleteApplicationRequest)(implicit hc: HeaderCarrier): Future[HttpResponse] =
     euVatRefundsConnector.deleteApplication(request)
 
@@ -70,6 +67,9 @@ class EuVatRefundsService @Inject() (euVatRefundsConnector: EuVatRefundsConnecto
   def getPurchaseImportList(request: PurchaseImportListRequest)(implicit hc: HeaderCarrier): Future[PurchaseImportListResponse] = {
     euVatRefundsConnector.getPurchaseImportList(request)
   }
+
+  def getImportDetails(applicationId: Long, itemNumber: Int)(implicit hc: HeaderCarrier): Future[ImportDetailsResponse] =
+    euVatRefundsConnector.getImportDetails(applicationId, itemNumber)
 
   def getPurchaseDetails(applicationId: Long, itemNumber: Int)(implicit hc: HeaderCarrier): Future[PurchaseDetailsResponse] =
     euVatRefundsConnector.getPurchaseDetails(applicationId, itemNumber)

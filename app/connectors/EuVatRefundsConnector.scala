@@ -76,11 +76,6 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
       .execute[AddImportResponse]
   }
 
-  def getImportDetails(applicationId: Long, itemNumber: Int)(implicit hc: HeaderCarrier): Future[ImportDetailsResponse] =
-    http
-      .get(url"$euVatRefundsBaseUrl/get-import-details/$applicationId/$itemNumber")
-      .execute[ImportDetailsResponse]
-
   def updateImport(request: UpdateImportDetailsRequest)(implicit hc: HeaderCarrier): Future[UpdateImportDetailsResponse] = {
     http
       .put(url"$euVatRefundsBaseUrl/update-importation-details")
@@ -116,6 +111,11 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
       .withBody(Json.toJson(request))
       .execute[PurchaseImportListResponse]
   }
+
+  def getImportDetails(applicationId: Long, itemNumber: Int)(implicit hc: HeaderCarrier): Future[ImportDetailsResponse] =
+    http
+      .get(url"$euVatRefundsBaseUrl/get-import-details/$applicationId/$itemNumber")
+      .execute[ImportDetailsResponse]
 
   def getPurchaseDetails(applicationId: Long, itemNumber: Int)(implicit hc: HeaderCarrier): Future[PurchaseDetailsResponse] =
     http
