@@ -30,15 +30,13 @@
 
 @layout(pageTitle = title(form, messages("invoiceNumber.title")), backLinkUrl = Some(call.url)) {
 
-    @formHelper(action = controllers.purchase.routes.InvoiceNumberController.onSubmit(mode)) {
+    @formHelper(action = controllers.purchase.routes.InvoiceNumberController.onSubmit(mode), Symbol("autoComplete") -> "on") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
-        <h1 class="govuk-heading-l">
-            <span class="govuk-caption-l">@messages("purchase.caption")</span>
-            @messages("invoiceNumber.heading")
-        </h1>
+        <span class="govuk-caption-l">@messages("purchase.caption")</span>
+        <h1 class="govuk-heading-l">@messages("invoiceNumber.heading")</h1>
 
         <p class="govuk-body">@messages("invoiceNumber.p1")</p>
 

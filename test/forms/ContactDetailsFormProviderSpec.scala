@@ -110,13 +110,14 @@ class ContactDetailsFormProviderSpec extends StringFieldBehaviours with FieldBeh
       )
     }
 
-    "reject a telephone number with whitespace per spec" in {
+    "bind a telephone number with whitespace" in {
       val result = form.bind(validData.updated(fieldName, "01632 960 001")).apply(fieldName)
-      result.errors must contain only FormError(
-        fieldName,
-        "contactDetails.error.telephone.format",
-        Seq(formProvider.validateTelephoneNumber)
-      )
+      result.errors mustBe empty
+    }
+
+    "bind a telephone number with brackets and hyphens" in {
+      val result = form.bind(validData.updated(fieldName, "(01632) 960-001")).apply(fieldName)
+      result.errors mustBe empty
     }
 
     "bind a telephone number with exactly 20 digits" in {
