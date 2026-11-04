@@ -54,6 +54,7 @@ purchase.caption = Purchase details
 purchasesAndImports.caption = Purchases and imports
 import.caption = Import details
 bankDetails.caption = Bank details
+supportingDocuments.caption = 	Supporting documents
 
 taskListDashboard.title = Make a claim for an EU VAT refund
 taskListDashboard.heading = Make a claim for an EU VAT refund
@@ -691,6 +692,23 @@ bankDetails.checkYourBankDetails.accountName.label = Account name
 bankDetails.checkYourBankDetails.bic.label = BIC or SWIFT code
 bankDetails.checkYourBankDetails.iban.label = IBAN
 bankDetails.checkYourBankDetails.currency.label = Account currency
+
+beforeYouStartSupportingDocs.title = Before you start
+beforeYouStartSupportingDocs.heading = Before you start
+beforeYouStartSupportingDocs.paragraph1 = You need to provide evidence of your purchase or import (for example, an invoice) if the value is:
+beforeYouStartSupportingDocs.evidence.bullet1 = €1,000 or more
+beforeYouStartSupportingDocs.evidence.bullet2 = €250 or more for road fuel
+beforeYouStartSupportingDocs.subheading = VAT receipts and invoices
+beforeYouStartSupportingDocs.paragraph2 = To be accepted, VAT receipts and invoices must show the following information:
+beforeYouStartSupportingDocs.invoice.bullet1 = invoice number and date
+beforeYouStartSupportingDocs.invoice.bullet2 = supplier’s name or trading address
+beforeYouStartSupportingDocs.invoice.bullet3 = supplier’s VAT registration number (or tax identifier in Germany)
+beforeYouStartSupportingDocs.invoice.bullet4 = time of supply (if different from the invoice date)
+beforeYouStartSupportingDocs.invoice.bullet5 = description of the goods or services
+beforeYouStartSupportingDocs.invoice.bullet6 = unit price or rate, excluding VAT and the rate of any discount
+beforeYouStartSupportingDocs.invoice.bullet7 = total amount of VAT charged
+beforeYouStartSupportingDocs.simplifiedInvoice.summary = If you have a simplified invoice
+beforeYouStartSupportingDocs.simplifiedInvoice.detail = You can still upload a simplified invoice if it does not include the supplier’s VAT registration number or tax identifier.
 
 # Warning messages
 refundPeriodStartDateWarning.title = Are you sure the refund period start date is correct?
