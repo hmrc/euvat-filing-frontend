@@ -232,7 +232,7 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
       goodsDescriptionCategory    = "1.2",
       goodsDescriptionSubCategory = None,
       goodsDescriptionText        = Some("Fuel"),
-      simplifiedInvoiceIndicator  = Some("Y"),
+      simplifiedInvoiceIndicator  = Some("true"),
       supplierName                = Some("Supplier"),
       supplierAddress1            = None,
       supplierAddress2            = None,
