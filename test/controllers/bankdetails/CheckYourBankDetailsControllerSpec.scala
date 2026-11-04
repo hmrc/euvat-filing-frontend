@@ -84,11 +84,8 @@ class CheckYourBankDetailsControllerSpec extends SpecBase {
       }
 
       "must show account name, BIC, IBAN and currency rows" in {
-        val baseApp = applicationBuilder(userAnswers = None).build()
-        val currency = baseApp.injector.instanceOf[config.InternationalCurrencyProvider].currencies.head
-
         val answers = applicantAnswers
-          .set(BankDetailsPage, BankDetails("Joe Bloggs", "NWBKGB2LXXX", "GB29NWBK60161331926819", currency.code))
+          .set(BankDetailsPage, BankDetails("Joe Bloggs", "NWBKGB2LXXX", "GB29NWBK60161331926819", "GBP"))
           .success
           .value
 
@@ -107,9 +104,10 @@ class CheckYourBankDetailsControllerSpec extends SpecBase {
           html must include(msgs("checkYourBankDetails.iban.label"))
           html must include("GB29NWBK60161331926819")
           html must include(msgs("checkYourBankDetails.currency.label"))
-          html must include(play.twirl.api.HtmlFormat.escape(currency.description).toString)
+          html must include("United Kingdom (pounds)")
         }
       }
+      
       "must fall back to the currency code when it is not in config" in {
         val ua = applicantAnswers
           .set(BankDetailsPage, BankDetails("Joe Bloggs", "NWBKGB2LXXX", "GB29NWBK60161331926819", "XXX"))

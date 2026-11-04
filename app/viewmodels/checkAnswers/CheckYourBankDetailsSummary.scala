@@ -52,8 +52,14 @@ object CheckYourBankDetailsSummary {
     answers.get(BankDetailsPage).map { details =>
       val label = currencies
         .find(_.code == details.CurrencyOfAccount)
-        .map(_.description)
+        .map(c => formatCurrency(c.description))
         .getOrElse(details.CurrencyOfAccount)
       (messages("checkYourBankDetails.currency.label"), Some(label), Seq.empty)
+    }
+
+  private def formatCurrency(description: String): String =
+    description.split(",", 2).map(_.trim) match {
+      case Array(country, currency) => s"$country (${currency.toLowerCase})"
+      case _ => description
     }
 }
