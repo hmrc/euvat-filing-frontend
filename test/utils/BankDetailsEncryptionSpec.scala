@@ -23,24 +23,32 @@ import play.api.Configuration
 
 class BankDetailsEncryptionSpec extends AnyWordSpec with Matchers {
 
-  private val encryption = new BankDetailsEncryption(Configuration(ConfigFactory.load()))
-  private val iban = "DE89370400440532013000"
+  private val provider = new CryptoProvider(Configuration(ConfigFactory.load()))
+  private val iban     = "DE89370400440532013000"
+  private val bic      = "DEUTDEFF513"
 
-  "BankDetailsEncryption" should {
+  "CryptoProvider" should {
 
-    "decrypt an encrypted value back to the original" in {
-      val encrypted = encryption.encrypt(iban)
+    "decrypt encrypted IBAN and BIC back to the originals" in {
+      val (encIban, encBic) = provider.encrypt(iban, bic)
 
-      encrypted                       should not be iban
-      encryption.decrypt(encrypted) shouldBe Some(iban)
+      encIban should not be iban
+      encBic  should not be bic
+      provider.decrypt(encIban, encBic) shouldBe Some((iban, bic))
+    }
+
+    "produce a different encrypted value each time for the same input" in {
+      provider.encrypt(iban, bic) should not be provider.encrypt(iban, bic)
     }
 
     "produce a known cipher text that decrypts to the known text" in {
-      encryption.decrypt(encryption.knownCipherText) shouldBe Some("knowntext")
+      val known = provider.knownCipherText
+      provider.decrypt(known, known) shouldBe Some(("knowntext", "knowntext"))
     }
 
-    "return None when the value cannot be decrypted" in {
-      encryption.decrypt("not-a-valid-encrypted-value") shouldBe None
+    "return None when a value cannot be decrypted" in {
+      val (encIban, _) = provider.encrypt(iban, bic)
+      provider.decrypt(encIban, "not-a-valid-encrypted-value") shouldBe None
     }
   }
 }
