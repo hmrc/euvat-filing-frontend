@@ -20,26 +20,26 @@ import play.api.libs.json.{Json, OFormat}
 import java.time.LocalDateTime
 
 case class ImportDetailsResponse(
-                                  applicationId: Long,
-                                  itemNumber: Int,
-                                  issuingDate: Option[LocalDateTime],
-                                  supplierName: Option[String],
-                                  supplierAddressLine1: Option[String],
-                                  supplierAddressLine2: Option[String],
-                                  supplierAddressLine3: Option[String],
-                                  supplierCountryCode: Option[String],
-                                  goodsDescriptionCategory: String,
-                                  goodsDescriptionSubcategory: Option[String],
-                                  goodsDescriptionText: Option[String],
-                                  hasSadReferenceNumber: Option[String],
-                                  sadReferenceNumber: Option[String],
-                                  referenceInformation: Option[String],
-                                  currencyCode: Option[String],
-                                  taxableAmount: Option[BigDecimal],
-                                  vatAmount: Option[BigDecimal],
-                                  deductibleVatAmount: Option[BigDecimal],
-                                  updateSequenceNumber: Int
-                                )
+  applicationId: Long,
+  itemNumber: Int,
+  issuingDate: Option[LocalDateTime],
+  supplierName: Option[String],
+  supplierAddressLine1: Option[String],
+  supplierAddressLine2: Option[String],
+  supplierAddressLine3: Option[String],
+  supplierCountryCode: Option[String],
+  goodsDescriptionCategory: String,
+  goodsDescriptionSubcategory: Option[String],
+  goodsDescriptionText: Option[String],
+  hasSadReferenceNumber: Option[String],
+  sadReferenceNumber: Option[String],
+  referenceInformation: Option[String],
+  currencyCode: Option[String],
+  taxableAmount: Option[BigDecimal],
+  vatAmount: Option[BigDecimal],
+  deductibleVatAmount: Option[BigDecimal],
+  updateSequenceNumber: Int
+)
 
 object ImportDetailsResponse {
   implicit val format: OFormat[ImportDetailsResponse] = Json.format[ImportDetailsResponse]

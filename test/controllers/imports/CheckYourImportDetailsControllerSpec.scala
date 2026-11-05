@@ -399,7 +399,7 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
         status(result) mustBe OK
 
         val document = Jsoup.parse(contentAsString(result))
-        val msgs     = messages(application)
+        val msgs = messages(application)
 
         document.title() mustBe "Change your answers - EU VAT - GOV.UK"
         document.select("h1 > span.govuk-caption-l").text() mustBe msgs("import.caption")
@@ -486,7 +486,11 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
     "must load a saved false SAD answer as No with the document information" in {
       val repository = mock[SessionRepository]
       when(mockEuVatRefundsService.getImportDetails(any(), any())(any()))
-        .thenReturn(Future.successful(savedImport.copy(hasSadReferenceNumber = Some("false"), sadReferenceNumber = None, referenceInformation = Some("Doc info"))))
+        .thenReturn(
+          Future.successful(
+            savedImport.copy(hasSadReferenceNumber = Some("false"), sadReferenceNumber = None, referenceInformation = Some("Doc info"))
+          )
+        )
       val application = buildApplication(Some(claimAnswers), repository)
 
       running(application) {
@@ -500,7 +504,7 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
     }
 
     "must show the import from session without calling the backend once it has been loaded" in {
-      val repository  = mock[SessionRepository]
+      val repository = mock[SessionRepository]
       val application = buildApplication(Some(changingAnswers), repository)
 
       running(application) {
@@ -514,7 +518,7 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
     }
 
     "must show Save and continue once an answer has changed" in {
-      val answers     = changingAnswers.set(ImportSuppliersNamePage, "New Supplier").success.value
+      val answers = changingAnswers.set(ImportSuppliersNamePage, "New Supplier").success.value
       val application = buildApplication(Some(answers), mock[SessionRepository])
 
       running(application) {
@@ -526,14 +530,14 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
     }
 
     "must show Not provided and an Add action for a cleared answer" in {
-      val answers     = changingAnswers.remove(ImportSuppliersNamePage).success.value
+      val answers = changingAnswers.remove(ImportSuppliersNamePage).success.value
       val application = buildApplication(Some(answers), mock[SessionRepository])
 
       running(application) {
         val document = Jsoup.parse(contentAsString(route(application, FakeRequest(GET, changeUrl)).value))
-        val msgs     = messages(application)
+        val msgs = messages(application)
 
-        document.select(".govuk-summary-list__value").text() must include(msgs("site.notProvided"))
+        document.select(".govuk-summary-list__value").text()                                                   must include(msgs("site.notProvided"))
         document.select(s"a[href='${routes.ImportSuppliersNameController.onPageLoad(CheckMode).url}']").text() must include(msgs("site.add"))
       }
     }
@@ -592,7 +596,7 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
     "must save the changed import, clear the change journey and return to the summary on POST" in {
       val repository = mock[SessionRepository]
       when(mockEuVatRefundsService.updateImport(any())(any())).thenReturn(Future.successful(UpdateImportDetailsResponse(updateSequenceNumber = 3)))
-      val answers     = changingAnswers.set(ImportSuppliersNamePage, "New Supplier").success.value
+      val answers = changingAnswers.set(ImportSuppliersNamePage, "New Supplier").success.value
       val application = buildApplication(Some(answers), repository)
 
       running(application) {

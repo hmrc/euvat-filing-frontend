@@ -42,19 +42,19 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
 class CheckYourImportDetailsController @Inject() (
-                                                   override val messagesApi: MessagesApi,
-                                                   identify: IdentifierAction,
-                                                   getData: DataRetrievalAction,
-                                                   requireData: DataRequiredAction,
-                                                   val controllerComponents: MessagesControllerComponents,
-                                                   view: CheckYourImportDetailsView,
-                                                   configPurchaseOrImportMapping: ConfigPurchaseOrImportMapping,
-                                                   currencyConfig: CurrencyConfig,
-                                                   appConfig: FrontendAppConfig,
-                                                   sessionRepository: SessionRepository,
-                                                   euVatRefundsService: EuVatRefundsService
-                                                 )(implicit ec: ExecutionContext)
-  extends FrontendBaseController
+  override val messagesApi: MessagesApi,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  val controllerComponents: MessagesControllerComponents,
+  view: CheckYourImportDetailsView,
+  configPurchaseOrImportMapping: ConfigPurchaseOrImportMapping,
+  currencyConfig: CurrencyConfig,
+  appConfig: FrontendAppConfig,
+  sessionRepository: SessionRepository,
+  euVatRefundsService: EuVatRefundsService
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
     with I18nSupport
     with Logging {
 
@@ -80,7 +80,7 @@ class CheckYourImportDetailsController @Inject() (
       implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
       val answers = request.userAnswers
-      val route   = ImportDetailsRoute(applicationId, itemNumber)
+      val route = ImportDetailsRoute(applicationId, itemNumber)
 
       if (!answers.get(ClaimApplicationResponseQuery).map(_.applicationId).contains(applicationId)) {
         logger.warn(s"Change your answers requested for application $applicationId which is not the claim in session")
@@ -159,7 +159,7 @@ class CheckYourImportDetailsController @Inject() (
   private def isAmended(answers: UserAnswers)(implicit messages: Messages): Boolean =
     answers.get(ImportDetailsResponseQuery).exists { original =>
       val before = loadImport(answers, original).toOption.flatMap(updateRequest).map(_.copy(updateSequenceNumber = 0))
-      val now    = updateRequest(answers).map(_.copy(updateSequenceNumber = 0))
+      val now = updateRequest(answers).map(_.copy(updateSequenceNumber = 0))
       before != now
     }
 
@@ -190,7 +190,7 @@ class CheckYourImportDetailsController @Inject() (
 
       case Some(importType) =>
         importAnswerPages.foldLeft(Try(answers))((acc, page) => acc.flatMap(_.remove(page))).flatMap { cleared =>
-          val country  = CountryCode.findCountryCode(cleared)
+          val country = CountryCode.findCountryCode(cleared)
           val currency = response.currencyCode.filter(_ => country.exists(currencyConfig.requiresCurrencySelection))
           val hasSad = response.hasSadReferenceNumber.map(_.trim.toLowerCase).collect {
             case "true" | "y"  => true
@@ -222,15 +222,15 @@ class CheckYourImportDetailsController @Inject() (
     }
 
   private def restoreImportCategoryAnswers(
-                                            answers: UserAnswers,
-                                            importType: PurchaseOrImportType,
-                                            subCode: Option[String],
-                                            country: Option[String]
-                                          )(implicit messages: Messages): Try[UserAnswers] =
+    answers: UserAnswers,
+    importType: PurchaseOrImportType,
+    subCode: Option[String],
+    country: Option[String]
+  )(implicit messages: Messages): Try[UserAnswers] =
     (subCode, country) match {
       case (Some(selectedCode), Some(countryCode)) =>
         val parentKey = importType.toString
-        val subtypes  = configPurchaseOrImportMapping.subcodesFor(countryCode, parentKey)
+        val subtypes = configPurchaseOrImportMapping.subcodesFor(countryCode, parentKey)
         val matchingParent = subtypes
           .filter { case (code, _) => selectedCode == code || selectedCode.startsWith(s"$code.") }
           .maxByOption(_._1.length)
@@ -276,11 +276,11 @@ class CheckYourImportDetailsController @Inject() (
     value.fold(Try(answers))(answers.set(page, _))
 
   private def buildUpdateRequest(
-                                  answers: UserAnswers,
-                                  applicationId: Long,
-                                  addResponse: AddImportResponse,
-                                  importType: PurchaseOrImportType
-                                ): UpdateImportDetailsRequest = {
+    answers: UserAnswers,
+    applicationId: Long,
+    addResponse: AddImportResponse,
+    importType: PurchaseOrImportType
+  ): UpdateImportDetailsRequest = {
     def real(value: Option[String]): Option[String] =
       value.filter(v => v.trim.nonEmpty && v != ConfigPurchaseOrImportMapping.NoneValue)
 

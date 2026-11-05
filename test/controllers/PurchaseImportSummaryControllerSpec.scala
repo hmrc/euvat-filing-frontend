@@ -92,12 +92,14 @@ class PurchaseImportSummaryControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val result   = route(application, FakeRequest(GET, routes.PurchaseImportSummaryController.onPageLoad.url)).value
+        val result = route(application, FakeRequest(GET, routes.PurchaseImportSummaryController.onPageLoad.url)).value
         val document = Jsoup.parse(contentAsString(result))
 
         status(result) mustEqual OK
         document.select(s"a[href='${controllers.imports.routes.CheckYourImportDetailsController.changeYourAnswers(111, 456).url}']").size() mustBe 1
-        document.select(s"a[href='${controllers.purchase.routes.CheckYourPurchaseDetailsController.changeYourAnswers(111, 123).url}']").size() mustBe 1
+        document
+          .select(s"a[href='${controllers.purchase.routes.CheckYourPurchaseDetailsController.changeYourAnswers(111, 123).url}']")
+          .size() mustBe 1
       }
     }
 

@@ -33,8 +33,8 @@ import controllers.routes
 object PurchaseImportListSummary {
 
   def rows(userAnswers: UserAnswers, list: List[PurchaseImport], config: Map[String, Seq[Currency]])(implicit
-                                                                                                     messages: Messages,
-                                                                                                     request: DataRequest[?]
+    messages: Messages,
+    request: DataRequest[?]
   ): Seq[SummaryListRow] = {
     val (completeClaims, incompleteClaims) = list.partition(_.deductibleVatAmount > 0) // split between incomplete and complete items
     (incompleteClaims ++ completeClaims) // display incomplete first and the completed ones

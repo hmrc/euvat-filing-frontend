@@ -58,7 +58,8 @@ class ImportDetailsResponseSpec extends AnyFreeSpec with Matchers {
     }
 
     "must fail to read when the item number is missing" in {
-      Json.obj("applicationId" -> 404, "goodsDescriptionCategory" -> "1", "updateSequenceNumber" -> 1)
+      Json
+        .obj("applicationId" -> 404, "goodsDescriptionCategory" -> "1", "updateSequenceNumber" -> 1)
         .validate[ImportDetailsResponse]
         .isError mustBe true
     }

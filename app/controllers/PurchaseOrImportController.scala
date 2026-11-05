@@ -36,17 +36,17 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
 class PurchaseOrImportController @Inject() (
-                                             override val messagesApi: MessagesApi,
-                                             sessionRepository: SessionRepository,
-                                             navigator: Navigator,
-                                             identify: IdentifierAction,
-                                             getData: DataRetrievalAction,
-                                             requireData: DataRequiredAction,
-                                             formProvider: PurchaseOrImportFormProvider,
-                                             val controllerComponents: MessagesControllerComponents,
-                                             view: PurchaseOrImportView
-                                           )(implicit ec: ExecutionContext)
-  extends FrontendBaseController
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  navigator: Navigator,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: PurchaseOrImportFormProvider,
+  val controllerComponents: MessagesControllerComponents,
+  view: PurchaseOrImportView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
     with I18nSupport {
 
   val form: Form[PurchaseOrImport] = formProvider()
