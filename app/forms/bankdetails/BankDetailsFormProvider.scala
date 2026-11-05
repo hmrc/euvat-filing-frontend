@@ -31,11 +31,9 @@ class BankDetailsFormProvider @Inject() extends Mappings {
 
   private def normaliseBic(value: String): String =
     value.trim
-      .toUpperCase(Locale.ROOT)
 
   private def normaliseIban(value: String): String =
     value.trim
-      .toUpperCase(Locale.ROOT)
 
   private def normaliseCurrencyCode(value: String): String =
     value.trim

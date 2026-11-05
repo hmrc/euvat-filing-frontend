@@ -273,13 +273,13 @@ class BankDetailsFormProviderSpec extends AnyFreeSpec with Matchers {
           Some("NWBKGB2LXXX")
       }
 
-      "must trim and convert lowercase BIC to uppercase" in {
+      "must trim leading and trailing whitespace" in {
 
         val result =
           form.bind(
             validData.updated(
               fieldName,
-              "  nwbkgb2l  "
+              "  NWBKGB2L  "
             )
           )
 
@@ -287,6 +287,20 @@ class BankDetailsFormProviderSpec extends AnyFreeSpec with Matchers {
 
         result.value.map(_.BIC) mustBe
           Some("NWBKGB2L")
+      }
+
+      "must return invalid error for lowercase BIC" in {
+
+        val result =
+          form.bind(
+            validData.updated(
+              fieldName,
+              "nwbkgb2l"
+            )
+          )
+
+        result.error(fieldName).map(_.message) mustBe
+          Some(invalidKey)
       }
 
       "must return required error when empty" in {
@@ -383,13 +397,13 @@ class BankDetailsFormProviderSpec extends AnyFreeSpec with Matchers {
           Some("GB29NWBK60161331926819")
       }
 
-      "must trim leading and trailing spaces and convert lowercase IBAN to uppercase" in {
+      "must trim leading and trailing whitespace" in {
 
         val result =
           form.bind(
             validData.updated(
               fieldName,
-              "  gb29nwbk60161331926819  "
+              "  GB29NWBK60161331926819  "
             )
           )
 
@@ -397,6 +411,20 @@ class BankDetailsFormProviderSpec extends AnyFreeSpec with Matchers {
 
         result.value.map(_.accountNumber) mustBe
           Some("GB29NWBK60161331926819")
+      }
+
+      "must return invalid error for lowercase IBAN" in {
+
+        val result =
+          form.bind(
+            validData.updated(
+              fieldName,
+              "gb29nwbk60161331926819"
+            )
+          )
+
+        result.error(fieldName).map(_.message) mustBe
+          Some(invalidKey)
       }
 
       "must return required error when empty" in {
