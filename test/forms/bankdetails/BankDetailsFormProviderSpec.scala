@@ -379,20 +379,25 @@ class BankDetailsFormProviderSpec extends AnyFreeSpec with Matchers {
           Some("GB29NWBK60161331926819")
       }
 
-      "must remove spaces and convert lowercase IBAN to uppercase" in {
+      "must count spaces when validating maximum length" in {
+
+        val value =
+          "GB29NWBK60161331926819" + (" " * 13)
+
+        value.length must be > 34
 
         val result =
           form.bind(
             validData.updated(
               fieldName,
-              "gb29 nwbk 6016 1331 9268 19"
+              value
             )
           )
 
-        result.errors mustBe empty
+        result.errors(fieldName) must have size 1
 
-        result.value.map(_.accountNumber) mustBe
-          Some("GB29NWBK60161331926819")
+        result.error(fieldName).map(_.message) mustBe
+          Some(lengthKey)
       }
 
       "must return required error when empty" in {
@@ -409,7 +414,7 @@ class BankDetailsFormProviderSpec extends AnyFreeSpec with Matchers {
           Some(requiredKey)
       }
 
-      "must return required error when only whitespace is supplied" in {
+      "must return invalid error when only whitespace is supplied" in {
 
         val result =
           form.bind(
@@ -420,7 +425,7 @@ class BankDetailsFormProviderSpec extends AnyFreeSpec with Matchers {
           )
 
         result.error(fieldName).map(_.message) mustBe
-          Some(requiredKey)
+          Some(invalidKey)
       }
 
       "must return length error when longer than 34 characters" in {
