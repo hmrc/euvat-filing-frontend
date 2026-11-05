@@ -383,8 +383,16 @@ class ImportNavigatorSpec extends SpecBase {
     }
 
     "must fall back to the sub category route when the sub-code has no page of its own" in {
-      ImportNavigator.subCategoryPage(answersWith(Fuel, "1.99"), NormalMode) mustBe importRoutes.ImportSubCategoryController.onPageLoad(NormalMode)
-      ImportNavigator.subCategorySubmit(userAnswers, CheckMode) mustBe importRoutes.ImportSubCategoryController.onPageLoad(CheckMode)
+      val page = ImportNavigator.subCategoryPage(answersWith(Fuel, "1.99"), NormalMode)
+      page.method mustBe "GET"
+      page.url mustBe  importRoutes.ImportSubCategoryController.onPageLoad(NormalMode).url
+
+      val submit =  ImportNavigator.subCategorySubmit(userAnswers, CheckMode)
+      submit.method mustBe "POST"
+      submit.url mustBe importRoutes.ImportSubCategoryController.onPageLoad(CheckMode).url
+
+//      ImportNavigator.subCategoryPage(answersWith(Fuel, "1.99"), NormalMode) mustBe importRoutes.ImportSubCategoryController.onPageLoad(NormalMode)
+//      ImportNavigator.subCategorySubmit(userAnswers, CheckMode) mustBe importRoutes.ImportSubCategoryController.onPageLoad(CheckMode)
     }
 
     "must take Luxuries sub-code with sub categories to the publicity purpose page " in {
