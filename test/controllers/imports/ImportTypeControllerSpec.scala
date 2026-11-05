@@ -19,20 +19,22 @@ package controllers.imports
 import base.SpecBase
 import controllers.routes
 import forms.ImportTypeFormProvider
+import models.PurchaseOrImport.{Import, Purchase}
 import models.{CheckMode, Fuel, NormalMode, PurchaseOrImportType, Transport, UserAnswers}
-import models.responses.{AddImportResponse, ApplicationResponse}
+import models.responses.{AddImportResponse, ApplicationResponse, ImportDetailsResponse}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito.{never, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.imports.{AddImportResponsePage, ImportSubCodePage, ImportTypePage}
+import pages.PurchaseOrImportPage
+import pages.imports.{AddImportResponsePage, ImportSubCodePage, ImportSuppliersNamePage, ImportTotalVatClaimPage, ImportTypePage, SadReferenceCheckPage, TotalAmountWithoutVatPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import queries.ClaimApplicationResponseQuery
+import queries.{ClaimApplicationResponseQuery, ImportSubTypeLabelQuery}
 import repositories.SessionRepository
 import views.html.purchasesOrImports.PurchaseOrImportTypeView
 
@@ -319,5 +321,213 @@ class ImportTypeControllerSpec extends SpecBase with MockitoSugar {
         captor.getValue.get(ImportSubCodePage) mustBe None
       }
     }
+
+    "addDetails should fetch, map and persist purchase details" in {
+      val savedCaptor: ArgumentCaptor[models.UserAnswers] = ArgumentCaptor.forClass(classOf[models.UserAnswers])
+      when(mockSessionRepository.set(savedCaptor.capture())) thenReturn Future.successful(true)
+
+      val importDetail = ImportDetailsResponse(
+        applicationId               = 123L,
+        itemNumber                  = 7,
+        issuingDate                 = None,
+        supplierName                = None,
+        supplierAddressLine1        = None,
+        supplierAddressLine2        = None,
+        supplierAddressLine3        = None,
+        supplierCountryCode         = None,
+        goodsDescriptionCategory    = "1",
+        goodsDescriptionSubcategory = None,
+        goodsDescriptionText        = None,
+        hasSadReferenceNumber       = None,
+        sadReferenceNumber          = None,
+        referenceInformation        = None,
+        currencyCode                = None,
+        taxableAmount               = None,
+        vatAmount                   = None,
+        deductibleVatAmount         = None,
+        updateSequenceNumber        = 5
+      )
+
+      when(mockEuVatRefundsService.getImportDetails(org.mockito.ArgumentMatchers.eq(123L), org.mockito.ArgumentMatchers.eq(7))(any()))
+        .thenReturn(Future.successful(importDetail))
+
+      val ua = emptyUserAnswers
+        .set(ClaimApplicationResponseQuery, ApplicationResponse(123, "App1", 5))
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(ua))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.imports.routes.ImportTypeController.addDetails(123L, 7).url)
+        val result = route(application, request).value
+        val view = application.injector.instanceOf[PurchaseOrImportTypeView]
+
+        status(result) mustEqual OK
+
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
+          view(form.fill(Fuel), NormalMode, submitCall, "importType", "import.caption", showPurchaseIntro = false)(
+            request,
+            messages(application)
+          ).toString
+        )
+
+        val saved = savedCaptor.getValue
+        saved.get(PurchaseOrImportPage) mustBe Some(Import)
+        saved.get(ImportTypePage) mustBe Some(Fuel)
+        saved.get(AddImportResponsePage) mustBe Some(AddImportResponse(7, 5))
+      }
+    }
+
+    "addDetails should clear and replace stale import details when fetch" in {
+      val savedCaptor: ArgumentCaptor[models.UserAnswers] = ArgumentCaptor.forClass(classOf[models.UserAnswers])
+      when(mockSessionRepository.set(savedCaptor.capture())) thenReturn Future.successful(true)
+
+      val importDetail = ImportDetailsResponse(
+        applicationId               = 123L,
+        itemNumber                  = 7,
+        issuingDate                 = None,
+        supplierName                = None,
+        supplierAddressLine1        = None,
+        supplierAddressLine2        = None,
+        supplierAddressLine3        = None,
+        supplierCountryCode         = None,
+        goodsDescriptionCategory    = "1",
+        goodsDescriptionSubcategory = None,
+        goodsDescriptionText        = None,
+        hasSadReferenceNumber       = None,
+        sadReferenceNumber          = None,
+        referenceInformation        = None,
+        currencyCode                = None,
+        taxableAmount               = None,
+        vatAmount                   = None,
+        deductibleVatAmount         = None,
+        updateSequenceNumber        = 5
+      )
+
+      when(mockEuVatRefundsService.getImportDetails(org.mockito.ArgumentMatchers.eq(123L), org.mockito.ArgumentMatchers.eq(7))(any()))
+        .thenReturn(Future.successful(importDetail))
+
+      val ua = emptyUserAnswers
+        .set(ClaimApplicationResponseQuery, ApplicationResponse(123, "App1", 5))
+        .success
+        .value
+        .set(PurchaseOrImportPage, Purchase)
+        .success
+        .value
+        .set(ImportTypePage, Transport)
+        .success
+        .value
+        .set(ImportSubCodePage, "3.2")
+        .success
+        .value
+        .set(ImportSubTypeLabelQuery, "Transport cost")
+        .success
+        .value
+        .set(ImportSuppliersNamePage, "Test Name")
+        .success
+        .value
+        .set(SadReferenceCheckPage, false)
+        .success
+        .value
+        .set(TotalAmountWithoutVatPage, 99)
+        .success
+        .value
+        .set(ImportTotalVatClaimPage, 100)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(ua))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.imports.routes.ImportTypeController.addDetails(123L, 7).url)
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+
+        val saved = savedCaptor.getValue
+
+        saved.get(PurchaseOrImportPage) mustBe Some(Import)
+        saved.get(ImportTypePage) mustBe Some(Fuel)
+
+        saved.get(ImportSubCodePage) mustBe None
+        saved.get(ImportSubTypeLabelQuery) mustBe None
+        saved.get(ImportSuppliersNamePage) mustBe None
+        saved.get(SadReferenceCheckPage) mustBe None
+        saved.get(TotalAmountWithoutVatPage) mustBe None
+        saved.get(ImportTotalVatClaimPage) mustBe None
+      }
+    }
+
+    "addDetails should redirect to JourneyRecovery when fetching import details fails" in {
+      when(mockEuVatRefundsService.getImportDetails(org.mockito.ArgumentMatchers.eq(123L), org.mockito.ArgumentMatchers.eq(7))(any()))
+        .thenReturn(Future.failed(new RuntimeException("boom")))
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.imports.routes.ImportTypeController.addDetails(123L, 7).url)
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+
+        verify(mockSessionRepository, never()).set(any[UserAnswers])
+      }
+    }
+
+    "addDetails should redirect to JourneyRecovery when goodsDescriptionCategory does not match" in {
+      val savedCaptor: ArgumentCaptor[models.UserAnswers] = ArgumentCaptor.forClass(classOf[models.UserAnswers])
+      when(mockSessionRepository.set(savedCaptor.capture())) thenReturn Future.successful(true)
+
+      val importDetail = ImportDetailsResponse(
+        applicationId               = 123L,
+        itemNumber                  = 7,
+        issuingDate                 = None,
+        supplierName                = None,
+        supplierAddressLine1        = None,
+        supplierAddressLine2        = None,
+        supplierAddressLine3        = None,
+        supplierCountryCode         = None,
+        goodsDescriptionCategory    = "111",
+        goodsDescriptionSubcategory = None,
+        goodsDescriptionText        = None,
+        hasSadReferenceNumber       = None,
+        sadReferenceNumber          = None,
+        referenceInformation        = None,
+        currencyCode                = None,
+        taxableAmount               = None,
+        vatAmount                   = None,
+        deductibleVatAmount         = None,
+        updateSequenceNumber        = 5
+      )
+
+      when(mockEuVatRefundsService.getImportDetails(org.mockito.ArgumentMatchers.eq(123L), org.mockito.ArgumentMatchers.eq(7))(any()))
+        .thenReturn(Future.successful(importDetail))
+
+      val ua = emptyUserAnswers
+        .set(ClaimApplicationResponseQuery, ApplicationResponse(123, "App1", 5))
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(ua))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.imports.routes.ImportTypeController.addDetails(123L, 7).url)
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+
+        verify(mockSessionRepository, never()).set(any[UserAnswers])
+      }
+    }
+
   }
 }

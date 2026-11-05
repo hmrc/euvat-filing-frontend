@@ -1,5 +1,6 @@
 GET        /category                                        controllers.purchase.PurchaseTypeController.onPageLoad(mode: Mode = NormalMode)
 POST       /category                                        controllers.purchase.PurchaseTypeController.onSubmit(mode: Mode = NormalMode)
+GET        /category/:applicationId/:itemNumber             controllers.purchase.PurchaseTypeController.addDetails(applicationId: Long, itemNumber: Int)
 GET        /change-category                                 controllers.purchase.PurchaseTypeController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-category                                 controllers.purchase.PurchaseTypeController.onSubmit(mode: Mode = CheckMode)
 
