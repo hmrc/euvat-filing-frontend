@@ -18,6 +18,7 @@ package viewmodels.govuk
 
 import base.SpecBase
 import pages.PurchaseImportSummaryPage
+import pages.supportingdocuments.AnyDocumentsPage
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
 import viewmodels.TaskListViewModel
@@ -122,6 +123,19 @@ class TaskListViewModelSpec extends SpecBase {
         val item = taskList.items(2)
         item.href mustBe defined
         item.status.tag.map(_.content.asHtml.body) must contain("taskListDashboard.status1")
+      }
+
+      "must show supporting documents as completed when the user has none to upload" in {
+        val userAnswers = answers.set(AnyDocumentsPage, false).success.value
+        val taskList = viewModel.buildTaskList(userAnswers)
+        val item = taskList.items(2)
+        item.href mustBe defined
+        item.status.content.asHtml.body must include("taskListDashboard.status3")
+      }
+
+      "must link supporting documents to the start page" in {
+        val taskList = viewModel.buildTaskList(answers)
+        taskList.items(2).href mustBe Some(controllers.supportingdocuments.routes.AnyDocumentsController.onPageLoad().url)
       }
 
       "must show bank details as Not yet started with a link" in {
