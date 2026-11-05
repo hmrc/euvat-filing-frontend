@@ -63,7 +63,7 @@ class SadReferenceCheckControllerSpec extends SpecBase with MockitoSugar {
           .url
       }
     }
-    
+
     "must link back to the sub-code's own subcatergory page" in {
       val answers = emptyUserAnswers
         .set(pages.imports.ImportTypePage, models.Luxuries)
@@ -71,12 +71,12 @@ class SadReferenceCheckControllerSpec extends SpecBase with MockitoSugar {
         .flatMap(_.set(pages.imports.ImportSubCategoryPage, "9.3.1"))
         .success
         .value
-      
-      val application = applicationBuilder(userAnswers =  Some(answers)).build()
-      
+
+      val application = applicationBuilder(userAnswers = Some(answers)).build()
+
       running(application) {
         val result = route(application, FakeRequest(GET, controllers.imports.routes.SadReferenceCheckController.onPageLoad(NormalMode).url)).value
-        
+
         status(result) mustBe OK
         org.jsoup.Jsoup.parse(contentAsString(result)).select("a.govuk-back-link").attr("href") must endWith("/cost-for-publicity-purposes")
       }

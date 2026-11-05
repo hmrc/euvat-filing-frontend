@@ -33,7 +33,7 @@ class ImportSubCodeControllerSpec extends SpecBase {
   private def journeyRecoveryUrl = controllers.routes.JourneyRecoveryController.onPageLoad().url
   private def sadReferenceUrl = controllers.imports.routes.SadReferenceCheckController.onPageLoad(NormalMode).url
   private def taskListUrl = controllers.routes.TaskListDashboardController.onPageLoad().url
-  private def importSubCategoryUrl =  importPath("fuel-type-or-vehicle")
+  private def importSubCategoryUrl = importPath("fuel-type-or-vehicle")
   private def importPath(slug: String): String = {
     val typeUrl = controllers.imports.routes.ImportTypeController.onPageLoad(NormalMode).url
     typeUrl.take(typeUrl.lastIndexOf('/')) + s"/$slug"

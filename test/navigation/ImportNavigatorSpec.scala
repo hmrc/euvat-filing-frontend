@@ -364,12 +364,12 @@ class ImportNavigatorSpec extends SpecBase {
       userAnswers.set(ImportTypePage, importType).flatMap(_.set(ImportSubCodePage, subCode)).success.value
 
     "must use the sub-code's own page, not the first sub category route (/fuel-type)" in {
-      ImportNavigator.subCategoryPage(answersWith(Luxuries, "9.3"), NormalMode) mustBe Call ("GET", importPath("cost-for-publicity-purposes"))
-      ImportNavigator.subCategoryPage(answersWith(Fuel, "1.8"), NormalMode) mustBe Call ("GET", importPath("vehicle-use"))
-      ImportNavigator.subCategoryPage(answersWith(Transport, "3.1"), NormalMode) mustBe Call ("GET", importPath("what-transport-cost"))
-      ImportNavigator.subCategoryPage(answersWith(FoodAndDrink, "7.1"), NormalMode) mustBe Call ("GET", importPath("who-food-drink-for"))
+      ImportNavigator.subCategoryPage(answersWith(Luxuries, "9.3"), NormalMode) mustBe Call("GET", importPath("cost-for-publicity-purposes"))
+      ImportNavigator.subCategoryPage(answersWith(Fuel, "1.8"), NormalMode) mustBe Call("GET", importPath("vehicle-use"))
+      ImportNavigator.subCategoryPage(answersWith(Transport, "3.1"), NormalMode) mustBe Call("GET", importPath("what-transport-cost"))
+      ImportNavigator.subCategoryPage(answersWith(FoodAndDrink, "7.1"), NormalMode) mustBe Call("GET", importPath("who-food-drink-for"))
       ImportNavigator.subCategoryPage(answersWith(Other, "10.5"), NormalMode) mustBe Call("GET", importPath("property-purchase-type"))
-      ImportNavigator.subCategoryPage(answersWith(Other, "10.17"), NormalMode) mustBe Call ("GET", importPath("property-cost-type"))
+      ImportNavigator.subCategoryPage(answersWith(Other, "10.17"), NormalMode) mustBe Call("GET", importPath("property-cost-type"))
     }
 
     "must use the changed url in CheckMode" in {
@@ -385,20 +385,17 @@ class ImportNavigatorSpec extends SpecBase {
     "must fall back to the sub category route when the sub-code has no page of its own" in {
       val page = ImportNavigator.subCategoryPage(answersWith(Fuel, "1.99"), NormalMode)
       page.method mustBe "GET"
-      page.url mustBe  importRoutes.ImportSubCategoryController.onPageLoad(NormalMode).url
+      page.url mustBe importRoutes.ImportSubCategoryController.onPageLoad(NormalMode).url
 
-      val submit =  ImportNavigator.subCategorySubmit(userAnswers, CheckMode)
+      val submit = ImportNavigator.subCategorySubmit(userAnswers, CheckMode)
       submit.method mustBe "POST"
       submit.url mustBe importRoutes.ImportSubCategoryController.onPageLoad(CheckMode).url
-
-//      ImportNavigator.subCategoryPage(answersWith(Fuel, "1.99"), NormalMode) mustBe importRoutes.ImportSubCategoryController.onPageLoad(NormalMode)
-//      ImportNavigator.subCategorySubmit(userAnswers, CheckMode) mustBe importRoutes.ImportSubCategoryController.onPageLoad(CheckMode)
     }
 
     "must take Luxuries sub-code with sub categories to the publicity purpose page " in {
       val config = new ConfigPurchaseOrImportMapping() {
         override def subcategoriesFor(country: String, parentKey: String, subcode: String): Seq[(String, String)] =
-          if(subcode == "9.3") Seq ("9.3.1" -> "publicity.yes") else Seq.empty
+          if (subcode == "9.3") Seq("9.3.1" -> "publicity.yes") else Seq.empty
       }
       val answers = answersFor("AT", Luxuries, "9.3")
       navigatorWith(config).navigateFromImportSubCodePage(NormalMode)(answers).url mustBe importPath("cost-for-publicity-purposes")
