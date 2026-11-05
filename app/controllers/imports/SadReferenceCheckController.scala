@@ -23,7 +23,7 @@ import controllers.imports.routes as importRoutes
 import forms.imports.SadReferenceCheckFormProvider
 import models.requests.DataRequest
 import models.{CheckMode, Mode, NormalMode, Other}
-import navigation.Navigator
+import navigation.{ImportNavigator, Navigator}
 import pages.imports.*
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -56,7 +56,7 @@ class SadReferenceCheckController @Inject() (
     if (mode == CheckMode) importRoutes.CheckYourImportDetailsController.onPageLoad()
     else
       (request.userAnswers.get(ImportTypePage), request.userAnswers.get(ImportSubCodePage), request.userAnswers.get(ImportSubCategoryPage)) match {
-        case (Some(_), _, Some(_)) => importRoutes.ImportSubCategoryController.onPageLoad(NormalMode)
+        case (Some(_), _, Some(_)) => ImportNavigator.subCategoryPage(request.userAnswers, NormalMode)
         case (Some(Other), _, _) if request.userAnswers.get(DescribeItemsOnImportDocPage).isDefined =>
           importRoutes.DescribeItemsOnImportDocController.onPageLoad(NormalMode)
         case (Some(importType), Some(_), None) => importRoutes.ImportSubCodeController.onPageLoad(importType.toString, mode)
