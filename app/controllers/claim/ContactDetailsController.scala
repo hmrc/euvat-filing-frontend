@@ -50,14 +50,14 @@ class ContactDetailsController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(ContactDetailsPage).fold(form)(form.fill)
-    Ok(view(preparedForm, mode, routes.RefundPeriodController.onPageLoad(mode)))
+    Ok(view(preparedForm, mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, routes.RefundPeriodController.onPageLoad(NormalMode)))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
         value =>
           val isChanged = request.userAnswers.get(ContactDetailsPage) match {
             case Some(existing) => existing != value

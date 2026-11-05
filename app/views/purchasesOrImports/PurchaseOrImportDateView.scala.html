@@ -33,11 +33,11 @@
     govukButton: GovukButton
 )
 
-@(form: Form[_], submitCall: Call, backLink: Call, captionKey: String, titleKey: String, headingKey: String)(implicit request: play.api.mvc.Request[_], messages: play.api.i18n.Messages)
+@(form: Form[_], submitCall: Call, captionKey: String, titleKey: String, headingKey: String)(implicit request: play.api.mvc.Request[_], messages: play.api.i18n.Messages)
 
 @isError = @{form.error("value").isDefined}
 
-@layout(pageTitle = title(form, messages(titleKey)), backLinkUrl = Some(backLink.url)) {
+@layout(pageTitle = title(form, messages(titleKey))) {
 
     @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
         @defining({

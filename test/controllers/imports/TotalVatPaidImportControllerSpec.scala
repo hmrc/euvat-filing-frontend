@@ -47,32 +47,19 @@ class TotalVatPaidImportControllerSpec extends SpecBase with MockitoSugar {
 
   lazy val totalVatPaidImportRoute: String = routes.TotalVatPaidImportController.onPageLoad(NormalMode).url
 
-  def backLink(mode: Mode): Call =
-    routes.TotalAmountWithoutVatController.onPageLoad(mode)
-
   "TotalVatPaidImport Controller" - {
 
     "must return OK and the correct view for a GET" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, totalVatPaidImportRoute)
-
         val result = route(application, request).value
-
         val view = application.injector.instanceOf[PurchaseOrImportTotalVatPaidView]
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form,
-               routes.TotalVatPaidImportController.onSubmit(NormalMode),
-               backLink(NormalMode),
-               "import.caption",
-               "totalVatPaidImport.p1",
-               "€",
-               "Euro"
-              )(
+          view(form, routes.TotalVatPaidImportController.onSubmit(NormalMode), "import.caption", "totalVatPaidImport.p1", "€", "Euro")(
             request,
             messages(application)
           ).toString
@@ -93,14 +80,7 @@ class TotalVatPaidImportControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form,
-               routes.TotalVatPaidImportController.onSubmit(CheckMode),
-               backLink(CheckMode),
-               "import.caption",
-               "totalVatPaidImport.p1",
-               "€",
-               "Euro"
-              )(
+          view(form, routes.TotalVatPaidImportController.onSubmit(CheckMode), "import.caption", "totalVatPaidImport.p1", "€", "Euro")(
             request,
             messages(application)
           ).toString
@@ -109,16 +89,12 @@ class TotalVatPaidImportControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
-
       val userAnswers = emptyUserAnswers.set(TotalVatPaidImportPage, validVatAmount).success.value
-
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, totalVatPaidImportRoute)
-
         val view = application.injector.instanceOf[PurchaseOrImportTotalVatPaidView]
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
@@ -126,7 +102,6 @@ class TotalVatPaidImportControllerSpec extends SpecBase with MockitoSugar {
           view(
             form.fill(validVatAmount),
             routes.TotalVatPaidImportController.onSubmit(NormalMode),
-            backLink(NormalMode),
             "import.caption",
             "totalVatPaidImport.p1",
             "€",
@@ -140,9 +115,7 @@ class TotalVatPaidImportControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to the next page when VAT submitted is less than Total import amount without VAT" in {
-
       val userAnswers = emptyUserAnswers.set(TotalAmountWithoutVatPage, amountGreaterThanVat).success.value
-
       val mockSessionRepository = mock[SessionRepository]
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
@@ -168,9 +141,7 @@ class TotalVatPaidImportControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to the warning page when Total VAT paid is > Total import amount without VAT" in {
-
       val userAnswers = emptyUserAnswers.set(TotalAmountWithoutVatPage, amountLessThanVat).success.value
-
       val mockSessionRepository = mock[SessionRepository]
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
@@ -196,9 +167,7 @@ class TotalVatPaidImportControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to the warning page when Total VAT paid is equal to the Total import amount without VAT" in {
-
       val userAnswers = emptyUserAnswers.set(TotalAmountWithoutVatPage, validVatAmount).success.value
-
       val mockSessionRepository = mock[SessionRepository]
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
@@ -224,7 +193,6 @@ class TotalVatPaidImportControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -240,14 +208,7 @@ class TotalVatPaidImportControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual BAD_REQUEST
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(boundForm,
-               routes.TotalVatPaidImportController.onSubmit(NormalMode),
-               backLink(NormalMode),
-               "import.caption",
-               "totalVatPaidImport.p1",
-               "€",
-               "Euro"
-              )(
+          view(boundForm, routes.TotalVatPaidImportController.onSubmit(NormalMode), "import.caption", "totalVatPaidImport.p1", "€", "Euro")(
             request,
             messages(application)
           ).toString
@@ -256,12 +217,10 @@ class TotalVatPaidImportControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
         val request = FakeRequest(GET, totalVatPaidImportRoute)
-
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -270,7 +229,6 @@ class TotalVatPaidImportControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
@@ -279,9 +237,7 @@ class TotalVatPaidImportControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("value", validVatAmount.toString))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
-
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }

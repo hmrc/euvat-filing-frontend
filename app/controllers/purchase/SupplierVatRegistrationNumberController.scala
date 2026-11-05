@@ -55,20 +55,6 @@ class SupplierVatRegistrationNumberController @Inject() (
 
   val form: Form[String] = formProvider()
 
-  private def backLink(mode: Mode)(implicit request: DataRequest[?]): Call = {
-    val isGermany = request.userAnswers.get(RefundingCountryPage).exists(_.equalsIgnoreCase("DE"))
-    val isSimplified = request.userAnswers.get(InvoiceTypePage).contains(InvoiceType.SimplifiedInvoice)
-    val hasInvoiceNumber = request.userAnswers.get(InvoiceNumberFlagQuery).contains(true)
-
-    mode match {
-      case CheckMode if hasInvoiceNumber => routes.InvoiceNumberController.onPageLoad(CheckMode)
-      case CheckMode                     => routes.CheckYourPurchaseDetailsController.onPageLoad()
-      case _ if isGermany                => routes.SupplierTaxNumberCheckController.onPageLoad(NormalMode)
-      case _ if isSimplified             => routes.SupplierVatRegCheckController.onPageLoad(NormalMode)
-      case _                             => routes.SupplierAddressController.onPageLoad(NormalMode)
-    }
-  }
-
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     for {
       updatedAnswers <- Future.fromTry(request.userAnswers.remove(SupplierTaxIdentifierNumberPage))
@@ -77,7 +63,7 @@ class SupplierVatRegistrationNumberController @Inject() (
 
     val preparedForm = request.userAnswers.get(SupplierVatRegistrationNumberPage).fold(form)(form.fill)
     val isGermany = request.userAnswers.get(RefundingCountryPage).exists(_.equalsIgnoreCase("DE"))
-    Ok(view(preparedForm, mode, backLink(mode), isGermany))
+    Ok(view(preparedForm, mode, isGermany))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -86,7 +72,7 @@ class SupplierVatRegistrationNumberController @Inject() (
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode), isGermany))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, isGermany))),
         value =>
           buildSupplierVrnCountContext(request.userAnswers) match {
             case Some((applicationId, itemNumber, maybeInvoiceNumber)) =>

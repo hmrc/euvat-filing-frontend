@@ -50,18 +50,12 @@ class TotalVatClaimController @Inject() (
 
   val form: Form[BigDecimal] = formProvider()
 
-  private def backLink(mode: Mode): Call = if (mode == CheckMode) {
-    routes.CheckYourPurchaseDetailsController.onPageLoad()
-  } else {
-    routes.TotalVatPaidController.onPageLoad(NormalMode)
-  }
-
   private def formAction(mode: Mode): Call = routes.TotalVatClaimController.onSubmit(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(TotalVatClaimPage).fold(form)(form.fill)
     val currencySymbol = currencySymbolFromSession(request.userAnswers, currencyConfig.currencyConfig)
-    Ok(view(preparedForm, mode, formAction(mode), backLink(mode), "purchase.caption", currencySymbol))
+    Ok(view(preparedForm, mode, formAction(mode), "purchase.caption", currencySymbol))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -74,7 +68,6 @@ class TotalVatClaimController @Inject() (
               view(formWithErrors,
                    mode,
                    formAction(mode),
-                   backLink(mode),
                    "purchase.caption",
                    currencySymbolFromSession(request.userAnswers, currencyConfig.currencyConfig)
                   )

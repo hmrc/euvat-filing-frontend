@@ -50,16 +50,10 @@ class SupplierTaxNumberCheckController @Inject() (
   val form: Form[SupplierTaxNumberCheck] = formProvider()
   private val logger = Logger(getClass)
 
-  private def backLink(mode: Mode): Call = if (mode == CheckMode) {
-    routes.CheckYourPurchaseDetailsController.onPageLoad()
-  } else {
-    routes.SupplierAddressController.onPageLoad(NormalMode)
-  }
-
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(SupplierTaxNumberCheckPage).fold(form)(form.fill)
     val isSimplifiedInvoice: Boolean = request.userAnswers.get(InvoiceTypePage).contains(InvoiceType.SimplifiedInvoice)
-    Ok(view(preparedForm, mode, backLink(mode), isSimplifiedInvoice))
+    Ok(view(preparedForm, mode, isSimplifiedInvoice))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -67,7 +61,7 @@ class SupplierTaxNumberCheckController @Inject() (
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode), isSimplifiedInvoice))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, isSimplifiedInvoice))),
         value =>
           for {
             userAnswers <- Future.fromTry(request.userAnswers.set(SupplierTaxNumberCheckPage, value))

@@ -61,18 +61,6 @@ class RefundPeriodController @Inject() (
     with I18nSupport
     with Logging {
 
-  private def backLink(mode: Mode)(implicit request: DataRequest[?]): Call = {
-    CountryCode.findCountryCode(request.userAnswers) match {
-      case Some(code) =>
-        if (configLanguageMapping.languagesFor(code).size <= 1) {
-          routes.RefundingCountryController.onPageLoad(mode)
-        } else {
-          routes.RefundingLanguageController.onPageLoad(mode)
-        }
-      case None => routes.RefundingLanguageController.onPageLoad(mode)
-    }
-  }
-
   private def errorMessage(form: Form[RefundPeriodData], keys: Seq[String])(implicit messages: Messages): Option[String] = {
     val errors = form.errors.filter(e => keys.contains(e.key))
     if (errors.isEmpty) {
@@ -106,7 +94,7 @@ class RefundPeriodController @Inject() (
     val (mappedForm, highlighted) = formProvider.withMappedErrors(preparedForm, suppressCutoff = isExempt)
     val startMsg = errorMessage(mappedForm, Seq("start", "start.month", "start.year"))
     val endMsg = errorMessage(mappedForm, Seq("end", "end.month", "end.year"))
-    Ok(view(mappedForm, mode, backLink(mode), startMsg, endMsg, highlighted, errorLinkOverrides(mappedForm)))
+    Ok(view(mappedForm, mode, startMsg, endMsg, highlighted, errorLinkOverrides(mappedForm)))
   }
 
   private def renderError(form: Form[RefundPeriodData], mode: Mode, isExempt: Boolean)(implicit
@@ -117,7 +105,7 @@ class RefundPeriodController @Inject() (
     val startMsg = errorMessage(mappedForm, Seq("start", "start.month", "start.year"))
     val endMsg = errorMessage(mappedForm, Seq("end", "end.month", "end.year"))
 
-    Future.successful(BadRequest(view(mappedForm, mode, backLink(mode), startMsg, endMsg, highlighted, errorLinkOverrides(mappedForm))))
+    Future.successful(BadRequest(view(mappedForm, mode, startMsg, endMsg, highlighted, errorLinkOverrides(mappedForm))))
   }
 
   private def isStartDateValid(startDate: LocalDateTime, regDate: LocalDateTime): (Boolean, String) = {

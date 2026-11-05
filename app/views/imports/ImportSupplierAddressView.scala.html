@@ -29,11 +29,11 @@
   mainErrorSummary: MainErrorSummary
 )
 
-@(form: Form[?], countries: Map[String, String], mode: Mode, call: Call)(implicit request: Request[?], messages: Messages)
+@(form: Form[?], countries: Map[String, String], mode: Mode)(implicit request: Request[?], messages: Messages)
 
 @isCountryError = @{form.error("country").isDefined}
 
-@layout(pageTitle = views.ViewUtils.title(form, "supplierAddress.title"),backLinkUrl = Some(call.url)) {
+@layout(pageTitle = views.ViewUtils.title(form, "supplierAddress.title")) {
   @formHelper(action = controllers.imports.routes.ImportSupplierAddressController.onSubmit(mode),Symbol("novalidate") -> "novalidate",Symbol("autoComplete") -> "on") {
     @mainErrorSummary(form,Map("addressLine1" -> "addressLine1","addressLine2" -> "addressLine2","addressLine3" -> "addressLine3","country" -> (form("country").id + "-input")))
     <span class="govuk-caption-l">@messages("import.caption")</span>

@@ -50,23 +50,10 @@ class DescribeItemsOnInvoiceController @Inject() (
 
   val form: Form[String] = formProvider("describeItemsOnInvoice")
 
-  private def backLink(answers: UserAnswers): Call = {
-    val subTypePageWasSkipped = CountryCode
-      .findCountryCode(answers)
-      .exists { country =>
-        val options = configPurchaseMapping.subcodesFor(country, Other.toString)
-        options.size == 1 && options.head._1.split("\\.").lastOption.contains("99")
-      }
-
-    if (subTypePageWasSkipped) routes.PurchaseTypeController.onPageLoad(NormalMode)
-    else routes.PurchaseSubTypeController.onPageLoad(PurchaseOrImportType.urlSlugForPurchaseType(Other), NormalMode)
-  }
-
   private def renderView(form: Form[String], mode: Mode)(implicit request: DataRequest[AnyContent]) =
     view(
       form,
       routes.DescribeItemsOnInvoiceController.onSubmit(mode),
-      backLink(request.userAnswers),
       "describeItemsOnInvoice",
       "purchase.caption",
       Some(messagesApi.preferred(request)("describeItemsOnInvoice.hint"))

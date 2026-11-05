@@ -50,21 +50,11 @@ class ImportDateController @Inject() (
 
   private def form(implicit messages: Messages) = formProvider()
 
-  private def backLink(mode: Mode)(implicit request: DataRequest[?]): Call =
-    mode match {
-      case CheckMode => importRoutes.CheckYourImportDetailsController.onPageLoad()
-      case NormalMode =>
-        request.userAnswers.get(SadReferenceCheckPage) match {
-          case Some(true) => importRoutes.SadReferenceNumberController.onPageLoad(NormalMode)
-          case _          => importRoutes.ImportDetailsInfoController.onPageLoad(NormalMode)
-        }
-    }
-
   private def formAction(mode: Mode): Call = routes.ImportDateController.onSubmit(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(ImportDatePage).fold(form)(form.fill)
-    Ok(view(preparedForm, formAction(mode), backLink(mode), "import.caption", "importDate.title", "importDate.heading"))
+    Ok(view(preparedForm, formAction(mode), "import.caption", "importDate.title", "importDate.heading"))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -84,7 +74,7 @@ class ImportDateController @Inject() (
   }
 
   private def badRequestToImportDate(formWithErrors: Form[?], mode: Mode)(implicit request: DataRequest[AnyContent]): Future[Result] = {
-    val html = view(formWithErrors, formAction(mode), backLink(mode), "import.caption", "importDate.title", "importDate.heading")
+    val html = view(formWithErrors, formAction(mode), "import.caption", "importDate.title", "importDate.heading")
     Future.successful(BadRequest(html))
   }
 

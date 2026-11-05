@@ -52,9 +52,8 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[TotalAmountWithoutVatView]
 
         status(result) mustEqual OK
-        val expectedBack = routes.ImportSuppliersNameController.onPageLoad(models.NormalMode)
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, models.NormalMode, expectedBack, "€", "Euro")(request, messages(application)).toString
+          view(form, models.NormalMode, "€", "Euro")(request, messages(application)).toString
         )
       }
     }
@@ -69,9 +68,8 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        val expectedBack = routes.ImportSuppliersNameController.onPageLoad(models.NormalMode)
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form.fill(BigDecimal("12.34")), models.NormalMode, expectedBack, "€", "Euro")(request, messages(application)).toString
+          view(form.fill(BigDecimal("12.34")), models.NormalMode, "€", "Euro")(request, messages(application)).toString
         )
       }
     }
@@ -90,30 +88,12 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
         val request = FakeRequest(GET, totalAmountWithoutVatRoute)
         val view = application.injector.instanceOf[TotalAmountWithoutVatView]
         val result = route(application, request).value
-
         val currencyConfig = application.injector.instanceOf[utils.CurrencyConfig]
-        val expectedBack =
-          if (currencyConfig.requiresCurrencySelection("BG"))
-            routes.ImportCurrencyController.onPageLoad(models.NormalMode)
-          else
-            routes.ImportSuppliersNameController.onPageLoad(models.NormalMode)
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, models.NormalMode, expectedBack, "лв", "Bulgarian Lev")(request, messages(application)).toString
+          view(form, models.NormalMode, "лв", "Bulgarian Lev")(request, messages(application)).toString
         )
-      }
-    }
-
-    "must show back link to JourneyRecovery when no country present" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-
-      running(application) {
-        val request = FakeRequest(GET, totalAmountWithoutVatRoute)
-        val result = route(application, request).value
-
-        status(result) mustEqual OK
-        contentAsString(result) must include(routes.ImportSuppliersNameController.onPageLoad(models.NormalMode).url)
       }
     }
 
@@ -149,9 +129,8 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        val expectedBack = routes.ImportSuppliersNameController.onPageLoad(models.NormalMode)
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(boundForm, models.NormalMode, expectedBack, "€", "Euro")(request, messages(application)).toString
+          view(boundForm, models.NormalMode, "€", "Euro")(request, messages(application)).toString
         )
       }
     }

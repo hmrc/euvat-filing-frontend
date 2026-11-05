@@ -44,43 +44,6 @@ class RefundingCurrencyControllerSpec extends SpecBase with MockitoSugar {
   val userAnswersWithCzech: UserAnswers = emptyUserAnswers.set(RefundingCountryPage, "CZ").success.value
 
   "RefundingCurrency Controller" - {
-    "must show back link to the supplier VAT registration number page in NormalMode if vat reg check is selected Yes" in {
-      val userAnswers = userAnswersWithEstonia.set(SupplierVatRegCheckPage, true).success.value
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
-
-      running(application) {
-        val request = FakeRequest(GET, refundingCurrencyRoute)
-        val result = route(application, request).value
-
-        status(result) mustEqual OK
-        contentAsString(result) must include(routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode).url)
-      }
-    }
-
-    "must show back link to the Simplified invoice vat reg check page in NormalMode if it was selected No" in {
-      val userAnswers = userAnswersWithEstonia.set(SupplierVatRegCheckPage, false).success.value
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
-
-      running(application) {
-        val request = FakeRequest(GET, refundingCurrencyRoute)
-        val result = route(application, request).value
-
-        status(result) mustEqual OK
-        contentAsString(result) must include(routes.SupplierVatRegCheckController.onPageLoad(NormalMode).url)
-      }
-    }
-
-    "must show back link to the check your purchase details page in CheckMode" in {
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithCzech)).build()
-
-      running(application) {
-        val request = FakeRequest(GET, routes.RefundingCurrencyController.onPageLoad(CheckMode).url)
-        val result = route(application, request).value
-
-        status(result) mustEqual OK
-        contentAsString(result) must include(routes.CheckYourPurchaseDetailsController.onPageLoad().url)
-      }
-    }
 
     "must return OK and the correct view for a GET when country is Estonia" in {
       val application = applicationBuilder(userAnswers = Some(userAnswersWithEstonia)).build()

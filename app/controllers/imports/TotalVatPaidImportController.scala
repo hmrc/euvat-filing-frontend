@@ -54,15 +54,12 @@ class TotalVatPaidImportController @Inject() (
 
   val form: Form[BigDecimal] = formProvider()
 
-  private def backLink(mode: Mode): Call =
-    importRoutes.TotalAmountWithoutVatController.onPageLoad(mode)
-
   private def formAction(mode: Mode): Call = routes.TotalVatPaidImportController.onSubmit(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(TotalVatPaidImportPage).fold(form)(form.fill)
     val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)
-    Ok(view(preparedForm, formAction(mode), backLink(mode), "import.caption", "totalVatPaidImport.p1", prefix, currencyName))
+    Ok(view(preparedForm, formAction(mode), "import.caption", "totalVatPaidImport.p1", prefix, currencyName))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -72,7 +69,7 @@ class TotalVatPaidImportController @Inject() (
       .fold(
         formWithErrors =>
           Future.successful(
-            BadRequest(view(formWithErrors, formAction(mode), backLink(mode), "import.caption", "totalVatPaidImport.p1", prefix, currencyName))
+            BadRequest(view(formWithErrors, formAction(mode), "import.caption", "totalVatPaidImport.p1", prefix, currencyName))
           ),
         value =>
           saveAnswerAndResetDependents(

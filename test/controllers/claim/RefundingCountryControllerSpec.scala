@@ -22,7 +22,7 @@ import controllers.claim.routes
 import forms.claim.RefundingCountryFormProvider
 import models.requests.LatestApplicationRequest
 import models.responses.{LatestApplication, LatestApplicationResponse}
-import models.{Fuel, NormalMode, RefundingLanguage}
+import models.{CheckMode, Fuel, NormalMode, RefundingLanguage, UserAnswers}
 import navigation.FakeNavigator
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
@@ -49,7 +49,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.RefundingCountryController.onPageLoad(models.NormalMode).url)
+        val request = FakeRequest(GET, routes.RefundingCountryController.onPageLoad(NormalMode).url)
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[RefundingCountryView]
@@ -63,9 +63,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         body must not include s"href=\"$backUrl\""
         val viewRequest = request.withCSRFToken
         normalizeHtml(body) mustEqual normalizeHtml(
-          view(formProvider(), countries, controllers.routes.TaskListDashboardController.onPageLoad(), models.NormalMode)(viewRequest,
-                                                                                                                          messages(application)
-                                                                                                                         ).toString
+          view(formProvider(), countries, NormalMode)(viewRequest, messages(application)).toString
         )
       }
     }
@@ -74,7 +72,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.RefundingCountryController.onPageLoad(models.NormalMode).url)
+        val request = FakeRequest(GET, routes.RefundingCountryController.onPageLoad(NormalMode).url)
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -86,7 +84,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.RefundingCountryController.onPageLoad(models.NormalMode).url)
+        val request = FakeRequest(GET, routes.RefundingCountryController.onPageLoad(NormalMode).url)
           .withHeaders("Referer" -> controllers.routes.TaskListDashboardController.onPageLoad().url)
 
         val result = route(application, request).value
@@ -102,9 +100,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         body must not include s"href=\"$backUrl\""
         val viewRequest = request.withCSRFToken
         normalizeHtml(body) mustEqual normalizeHtml(
-          view(formProvider(), countries, controllers.routes.TaskListDashboardController.onPageLoad(), models.NormalMode)(viewRequest,
-                                                                                                                          messages(application)
-                                                                                                                         ).toString
+          view(formProvider(), countries, NormalMode)(viewRequest, messages(application)).toString
         )
       }
     }
@@ -121,7 +117,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
+        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody(("value", "DE"))
         val result = route(application, request).value
 
@@ -143,7 +139,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
+        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody(("value", "DE"))
 
         val result = route(application, request).value
@@ -160,7 +156,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
+        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody(("value", "DE"))
 
         val result = route(application, request).value
@@ -176,7 +172,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
+        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody(("value", "DE"))
 
         val result = route(application, request).value
@@ -217,7 +213,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
+        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody(("value", "DE"))
 
         val result = route(application, request).value
@@ -235,17 +231,17 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
+        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody(("value", "CZ"))
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.RefundPeriodController.onPageLoad(models.NormalMode).url
+        redirectLocation(result).value mustEqual routes.RefundPeriodController.onPageLoad(NormalMode).url
 
         // verify session saved with language set
         import org.mockito.ArgumentCaptor
-        val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
         val saved = captor.getValue
         saved.get(RefundingLanguagePage).isDefined mustBe true
@@ -269,7 +265,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         // Submit a different country
-        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
+        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody(("value", "DE"))
 
         val result = route(application, request).value
@@ -277,7 +273,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual SEE_OTHER
 
         import org.mockito.ArgumentCaptor
-        val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
         val saved = captor.getValue
         saved.get(RefundingLanguagePage).isDefined mustBe false
@@ -313,7 +309,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
+        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody(("value", "DE"))
 
         val result = route(application, request).value
@@ -321,7 +317,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual SEE_OTHER
 
         import org.mockito.ArgumentCaptor
-        val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
         val saved = captor.getValue
 
@@ -339,7 +335,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.RefundingCountryController.onPageLoad(models.NormalMode).url)
+        val request = FakeRequest(GET, routes.RefundingCountryController.onPageLoad(NormalMode).url)
           .withHeaders("Referer" -> controllers.routes.TaskListDashboardController.onPageLoad().url)
 
         val result = route(application, request).value
@@ -356,9 +352,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         body must not include s"href=\"$backUrl\""
         val viewRequest = request.withCSRFToken
         normalizeHtml(body) mustEqual normalizeHtml(
-          view(form, countries, controllers.routes.TaskListDashboardController.onPageLoad(), models.NormalMode)(viewRequest,
-                                                                                                                messages(application)
-                                                                                                               ).toString
+          view(form, countries, NormalMode)(viewRequest, messages(application)).toString
         )
       }
 
@@ -369,8 +363,8 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.RefundingCountryController.onPageLoad(models.NormalMode).url)
-          .withHeaders("Referer" -> routes.RefundingLanguageController.onPageLoad(models.NormalMode).url)
+        val request = FakeRequest(GET, routes.RefundingCountryController.onPageLoad(NormalMode).url)
+          .withHeaders("Referer" -> routes.RefundingLanguageController.onPageLoad(NormalMode).url)
 
         val result = route(application, request).value
 
@@ -386,9 +380,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         body must not include s"href=\"$backUrl\""
         val viewRequest = request.withCSRFToken
         normalizeHtml(body) mustEqual normalizeHtml(
-          view(form, countries, controllers.routes.TaskListDashboardController.onPageLoad(), models.NormalMode)(viewRequest,
-                                                                                                                messages(application)
-                                                                                                               ).toString
+          view(form, countries, NormalMode)(viewRequest, messages(application)).toString
         )
       }
     }
@@ -407,14 +399,14 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.CheckMode).url)
+        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(CheckMode).url)
           .withFormUrlEncodedBody(("value", "DE"))
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
 
         import org.mockito.ArgumentCaptor
-        val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
         val saved = captor.getValue
         saved.get(CountryChangedPage) mustBe Some(true)
@@ -435,14 +427,14 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
+        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody(("value", "EE"))
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
 
         import org.mockito.ArgumentCaptor
-        val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
         val saved = captor.getValue
         saved.get(RefundingCurrencyPage).isDefined mustBe false
@@ -455,14 +447,14 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
+        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody(("value", "CZ"))
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
 
         import org.mockito.ArgumentCaptor
-        val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
         val saved = captor.getValue
         saved.get(RefundingCurrencyPage) mustBe Some("CZK")
@@ -475,14 +467,14 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
+        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody(("value", "BE"))
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
 
         import org.mockito.ArgumentCaptor
-        val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
         val saved = captor.getValue
         saved.get(RefundingCurrencyPage) mustBe Some("EUR")
@@ -493,7 +485,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
+        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody(("value", ""))
 
         val result = route(application, request).value
@@ -505,7 +497,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         body must include(messages(application)("refundingCountry.error.summary"))
 
         // typed-but-unmatched input should show invalid message
-        val typedRequest = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
+        val typedRequest = FakeRequest(POST, routes.RefundingCountryController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody(("value", ""), ("valueTyped", "NotACountry"))
 
         val typedResult = route(application, typedRequest).value
@@ -515,7 +507,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         typedBody must include(messages(application)("refundingCountry.error.invalid.summary"))
 
         // non-existent code should also show invalid message
-        val rawInvalidRequest = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
+        val rawInvalidRequest = FakeRequest(POST, routes.RefundingCountryController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody(("value", "ZZ"))
 
         val rawInvalidResult = route(application, rawInvalidRequest).value
@@ -532,7 +524,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
+        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody(("value", "AT"))
 
         val result = route(application, request).value
@@ -540,7 +532,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual SEE_OTHER
 
         import org.mockito.ArgumentCaptor
-        val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
         val saved = captor.getValue
 
@@ -557,7 +549,7 @@ class RefundingCountryControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(models.NormalMode).url)
+        val request = FakeRequest(POST, routes.RefundingCountryController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody(("value", "DE"))
 
         val result = route(application, request).value

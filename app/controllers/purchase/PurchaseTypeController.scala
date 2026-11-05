@@ -61,14 +61,6 @@ class PurchaseTypeController @Inject() (
 
   val form: Form[PurchaseOrImportType] = formProvider()
 
-  private def backLink(mode: Mode) = {
-    if (mode == CheckMode) {
-      routes.CheckYourPurchaseDetailsController.onPageLoad()
-    } else {
-      controllers.routes.PurchaseOrImportController.onPageLoad
-    }
-  }
-
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     if (request.userAnswers.get(CountryChangedPage).contains(true)) {
       val clearedTry = for {
@@ -91,7 +83,6 @@ class PurchaseTypeController @Inject() (
                 view(
                   preparedForm,
                   mode,
-                  backLink(mode),
                   routes.PurchaseTypeController.onSubmit(mode),
                   "purchaseType",
                   "purchase.caption",
@@ -108,7 +99,6 @@ class PurchaseTypeController @Inject() (
           view(
             preparedForm,
             mode,
-            backLink(mode),
             routes.PurchaseTypeController.onSubmit(mode),
             "purchaseType",
             "purchase.caption",
@@ -130,7 +120,6 @@ class PurchaseTypeController @Inject() (
               view(
                 formWithErrors,
                 mode,
-                backLink(mode),
                 routes.PurchaseTypeController.onSubmit(mode),
                 "purchaseType",
                 "purchase.caption",

@@ -26,10 +26,10 @@
     govukButton: GovukButton
 )
 
-@(form: Form[_], mode: Mode, call: Call)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
 @errored = @{form.error("value").isDefined}
 
-@layout(pageTitle = views.ViewUtils.title(form, messages("invoiceType.title")), backLinkUrl = Some(call.url)) {
+@layout(pageTitle = views.ViewUtils.title(form, messages("invoiceType.title"))) {
 
     @formHelper(action = controllers.purchase.routes.InvoiceTypeController.onSubmit(mode)) {
         @mainErrorSummary(form, Map("standard invoice" -> "value_0"))

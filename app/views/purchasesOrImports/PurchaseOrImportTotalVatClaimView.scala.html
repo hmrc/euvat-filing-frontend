@@ -26,9 +26,9 @@
     mainErrorSummary: MainErrorSummary
 )
 
-@(form: Form[_], mode: Mode, submitCall: Call, call: Call, captionKey: String, currencySymbol: String)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, submitCall: Call, captionKey: String, currencySymbol: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("totalVatClaim.title")), backLinkUrl = Some(call.url)) {
+@layout(pageTitle = title(form, messages("totalVatClaim.title"))) {
 
     @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
 

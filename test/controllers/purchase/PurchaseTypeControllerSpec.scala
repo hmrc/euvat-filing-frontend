@@ -23,7 +23,7 @@ import models.responses.*
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{never, times, verify, verifyNoInteractions, when}
+import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar
 import pages.claim.{CountryChangedPage, RefundingCountryPage}
 import pages.purchase.*
@@ -43,7 +43,6 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
   val onwardRoute: Call = Call("GET", "/foo")
   lazy val purchaseTypeRoute: String = routes.PurchaseTypeController.onPageLoad(NormalMode).url
   lazy val purchaseTypeSubmitRoute: String = routes.PurchaseTypeController.onSubmit(NormalMode).url
-  lazy val backLinkCall: Call = controllers.routes.PurchaseOrImportController.onPageLoad
   lazy val purchaseTypeRouteCheck: String = routes.PurchaseTypeController.onPageLoad(CheckMode).url
   lazy val purchaseTypeSubmitRouteCheck: String = routes.PurchaseTypeController.onSubmit(CheckMode).url
 
@@ -64,7 +63,6 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
           view(form,
                NormalMode,
-               backLinkCall,
                routes.PurchaseTypeController.onSubmit(NormalMode),
                "purchaseType",
                "purchase.caption",
@@ -127,7 +125,6 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
           view(form,
                NormalMode,
-               backLinkCall,
                routes.PurchaseTypeController.onSubmit(NormalMode),
                "purchaseType",
                "purchase.caption",
@@ -153,7 +150,6 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
           view(
             form,
             CheckMode,
-            routes.CheckYourPurchaseDetailsController.onPageLoad(),
             routes.PurchaseTypeController.onSubmit(CheckMode),
             "purchaseType",
             "purchase.caption",
@@ -181,7 +177,6 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form,
                                                NormalMode,
-                                               backLinkCall,
                                                routes.PurchaseTypeController.onSubmit(NormalMode),
                                                "purchaseType",
                                                "purchase.caption",
@@ -206,7 +201,6 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
           view(form,
                NormalMode,
-               backLinkCall,
                routes.PurchaseTypeController.onSubmit(NormalMode),
                "purchaseType",
                "purchase.caption",
@@ -232,7 +226,6 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
           view(
             form,
             CheckMode,
-            routes.CheckYourPurchaseDetailsController.onPageLoad(),
             routes.PurchaseTypeController.onSubmit(CheckMode),
             "purchaseType",
             "purchase.caption",
@@ -258,7 +251,6 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(
           form,
           CheckMode,
-          routes.CheckYourPurchaseDetailsController.onPageLoad(),
           routes.PurchaseTypeController.onSubmit(CheckMode),
           "purchaseType",
           "purchase.caption",
@@ -295,7 +287,6 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
           view(form,
                NormalMode,
-               backLinkCall,
                routes.PurchaseTypeController.onSubmit(NormalMode),
                "purchaseType",
                "purchase.caption",

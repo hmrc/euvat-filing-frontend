@@ -65,7 +65,7 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
         val view = application.injector.instanceOf[SupplierVatRegistrationNumberView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, routes.SupplierAddressController.onPageLoad(NormalMode), false)(
+        contentAsString(result) mustEqual view(form, NormalMode, false)(
           request,
           messages(application)
         ).toString
@@ -81,7 +81,7 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
         val view = application.injector.instanceOf[SupplierVatRegistrationNumberView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, CheckMode, routes.CheckYourPurchaseDetailsController.onPageLoad(), false)(
+        contentAsString(result) mustEqual view(form, CheckMode, false)(
           request,
           messages(application)
         ).toString
@@ -98,7 +98,7 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
         val view = application.injector.instanceOf[SupplierVatRegistrationNumberView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, routes.SupplierTaxNumberCheckController.onPageLoad(NormalMode), true)(
+        contentAsString(result) mustEqual view(form, NormalMode, true)(
           request,
           messages(application)
         ).toString
@@ -122,7 +122,7 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
         val view = application.injector.instanceOf[SupplierVatRegistrationNumberView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, routes.SupplierVatRegCheckController.onPageLoad(NormalMode), false)(
+        contentAsString(result) mustEqual view(form, NormalMode, false)(
           request,
           messages(application)
         ).toString
@@ -143,7 +143,7 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
         val view = application.injector.instanceOf[SupplierVatRegistrationNumberView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, CheckMode, routes.InvoiceNumberController.onPageLoad(CheckMode), false)(
+        contentAsString(result) mustEqual view(form, CheckMode, false)(
           request,
           messages(application)
         ).toString
@@ -164,7 +164,7 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
 
           withClue(s"failed for country code: $countryCode") {
             status(result) mustEqual OK
-            contentAsString(result) mustEqual view(form, NormalMode, routes.SupplierTaxNumberCheckController.onPageLoad(NormalMode), true)(
+            contentAsString(result) mustEqual view(form, NormalMode, true)(
               request,
               messages(application)
             ).toString
@@ -183,7 +183,7 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode, routes.SupplierAddressController.onPageLoad(NormalMode), false)(
+        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode, false)(
           request,
           messages(application)
         ).toString
@@ -329,7 +329,7 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, routes.SupplierAddressController.onPageLoad(NormalMode), false)(
+        contentAsString(result) mustEqual view(boundForm, NormalMode, false)(
           request,
           messages(application)
         ).toString
@@ -349,7 +349,7 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, routes.SupplierAddressController.onPageLoad(NormalMode), false)(
+        contentAsString(result) mustEqual view(boundForm, NormalMode, false)(
           request,
           messages(application)
         ).toString
@@ -369,7 +369,7 @@ class SupplierVatRegistrationNumberControllerSpec extends SpecBase with MockitoS
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, CheckMode, routes.CheckYourPurchaseDetailsController.onPageLoad(), false)(
+        contentAsString(result) mustEqual view(boundForm, CheckMode, false)(
           request,
           messages(application)
         ).toString

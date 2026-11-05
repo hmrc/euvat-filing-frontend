@@ -27,11 +27,11 @@
     mainErrorSummary: MainErrorSummary
 )
 
-@(form: Form[_], call: Call, mode: models.Mode = models.NormalMode)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode = NormalMode)(implicit request: Request[_], messages: Messages)
 
 @isError = @{form.error("value").isDefined}
 
-@layout(pageTitle = title(form, messages("sadReferenceCheck.title")), backLinkUrl = Some(call.url)) {
+@layout(pageTitle = title(form, messages("sadReferenceCheck.title"))) {
 
 @formHelper(action = controllers.imports.routes.SadReferenceCheckController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
