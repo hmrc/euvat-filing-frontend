@@ -185,7 +185,7 @@ businessActivity.error.required = Select yes if you want to add another SIC code
 businessActivityCodeTwo.title = What is the second SIC code?
 businessActivityCodeTwo.heading = What is the second SIC code?
 businessActivityCodeTwo.textLabel = Enter the SIC code
-businessActivityCodeTwo.p = <p class="govuk-body">You can find the SIC codes on the <a href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2007" class="govuk-link" target="_blank" rel="noreferrer noopener">Office for National Statistics website (opens in a new tab)</a>.</p>
+businessActivityCodeTwo.p = <p class="govuk-body">You can find the SIC codes on the <a href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2007" class="govuk-link" target="_blank" rel="noreferrer noopener">Office for National Statistics website (opens in new tab)</a>.</p>
 businessActivityCodeTwo.error.summary = Enter a SIC code
 businessActivityCodeTwo.error.required = Enter a SIC code
 businessActivityCodeTwo.error.invalid = Enter a SIC code in the correct format
@@ -207,7 +207,7 @@ removeSecond.error.required = Select yes if you want to remove the second SIC co
 businessActivityCodeThree.title = What is the third SIC code?
 businessActivityCodeThree.heading = What is the third SIC code?
 businessActivityCodeThree.textLabel = Enter the SIC code
-businessActivityCodeThree.p = <p class="govuk-body">You can find the SIC codes on the <a href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2007" class="govuk-link" target="_blank" rel="noreferrer noopener">Office for National Statistics website (opens in a new tab)</a>.</p>
+businessActivityCodeThree.p = <p class="govuk-body">You can find the SIC codes on the <a href="https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2007" class="govuk-link" target="_blank" rel="noreferrer noopener">Office for National Statistics website (opens in new tab)</a>.</p>
 businessActivityCodeThree.error.summary = Enter a SIC code
 businessActivityCodeThree.error.required = Enter a SIC code
 businessActivityCodeThree.error.invalid = Enter a SIC code in the correct format
@@ -298,7 +298,7 @@ beforeYouStart.bullet2 = supplier details
 beforeYouStart.bullet3 = invoice details or import document
 beforeYouStart.bullet4 = Single Administrative Document (SAD) reference number for imports
 beforeYouStart.p2 = Find what you can or cannot claim from each member state in
-beforeYouStart.p2.link = Public Notice 723A (opens in a new tab)
+beforeYouStart.p2.link = Public Notice 723A (opens in new tab)
 
 purchaseOrImport.title = What do you want to add to this claim?
 purchaseOrImport.heading = What do you want to add to this claim?
@@ -426,7 +426,7 @@ supplierVatRegCheck.change.hidden = Change supplier VAT registration
 
 supplierVatRegistrationNumber.title = What is the supplier’s VAT registration number?
 supplierVatRegistrationNumber.heading = What is the supplier’s VAT registration number?
-supplierVatRegistrationNumber.hint = This can be up to 12 characters and may start with a 2-letter EU country code. For example, FR123456789
+supplierVatRegistrationNumber.hint = This can be up to 12 characters and may start with a 2-letter code, for example FR123456789
 supplierVatRegistrationNumber.hint.germany = Enter the supplier’s VAT registration number as it appears on the invoice. Do not include the 2-letter country code, for example 123456789
 supplierVatRegistrationNumber.error.required = Enter the supplier’s VAT registration number
 supplierVatRegistrationNumber.error.invalid = Enter the supplier’s VAT registration number in the correct format
@@ -445,8 +445,8 @@ supplierTaxIdentifierNumber.change.hidden = Change supplier’s tax identifier n
 totalPurchaseAmountBeforeVat.title = Total purchase amount before VAT
 totalPurchaseAmountBeforeVat.heading = Total purchase amount before VAT
 totalPurchaseAmountBeforeVat.h2 = How much did the purchase cost before VAT?
-totalPurchaseAmountBeforeVat.inset = The currency for this claim is in {0} ({1}). For invoices in any other currency, you must convert the amounts before adding them to your claim. Use the <a href="https://data.ecb.europa.eu/currency-converter" class="govuk-link" rel="noreferrer noopener" target="_blank">European Central Bank currency converter (opens in a new tab).</a>
-totalPurchaseAmountBeforeVat.p1 = This is the purchase amount before VAT is added. If your invoice does not show this amount, you’ll need to <a href="https://www.gov.uk/charge-reclaim-record-vat" class="govuk-link" target="_blank" rel="noreferrer noopener">calculate it (opens in a new tab)</a>.
+totalPurchaseAmountBeforeVat.inset = The currency for this claim is in {0} ({1}). For invoices in any other currency, you must convert the amounts before adding them to your claim. Use the <a href="https://data.ecb.europa.eu/currency-converter" class="govuk-link" rel="noreferrer noopener" target="_blank">European Central Bank currency converter (opens in new tab).</a>
+totalPurchaseAmountBeforeVat.p1 = This is the purchase amount before VAT is added. If your invoice does not show this amount, you’ll need to <a href="https://www.gov.uk/charge-reclaim-record-vat" class="govuk-link" target="_blank" rel="noreferrer noopener">calculate it (opens in new tab)</a>.
 totalPurchaseAmountBeforeVat.hint = For example, {0}150 or {0}120.45
 totalPurchaseAmountBeforeVat.checkYourAnswersLabel = Amount without VAT
 totalPurchaseAmountBeforeVat.change.hidden = Total purchase amount without VAT
@@ -549,7 +549,7 @@ purchaseOrImportDate.hint = For example, 27 3 2025
 
 totalAmountWithoutVat.title = Total amount without VAT
 totalAmountWithoutVat.heading = Total amount without VAT
-totalAmountWithoutVat.inset = The currency for this claim is in {0} ({1}). For import documents in any other currency, you must convert the amounts before adding them to your claim. Use the <a href="https://data.ecb.europa.eu/currency-converter" class="govuk-link" rel="noreferrer noopener" target="_blank">European Central Bank currency converter (opens in a new tab)</a>.
+totalAmountWithoutVat.inset = The currency for this claim is in {0} ({1}). For import documents in any other currency, you must convert the amounts before adding them to your claim. Use the <a href="https://data.ecb.europa.eu/currency-converter" class="govuk-link" rel="noreferrer noopener" target="_blank">European Central Bank currency converter (opens in new tab)</a>.
 totalAmountWithoutVat.p1 = If this amount is not on your import document, you’ll need to calculate it. Use the standard VAT rate of the country you’re claiming from.
 totalAmountWithoutVat.h2 = How much did the import cost without VAT?
 totalAmountWithoutVat.hint = For example, {0}150 or {0}120.45

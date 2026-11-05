@@ -28,10 +28,9 @@
 
 @layout(pageTitle = titleNoForm(messages("beforeYouStart.title")), backLinkUrl = Some(backLinkCall.url)) {
     @formHelper(action = routes.BeforeYouStartController.onSubmit()) {
-        <h1 class="govuk-heading-l">
-            <span class="govuk-caption-l">@messages("purchasesAndImports.caption")</span>
-            @messages("beforeYouStart.heading")
-        </h1>
+        <span class="govuk-caption-l">@messages("purchasesAndImports.caption")</span>
+        <h1 class="govuk-heading-l">@messages("beforeYouStart.heading")</h1>
+
         <p class="govuk-body">@messages("beforeYouStart.p1")</p>
 
         <ul class="govuk-list govuk-list--bullet">

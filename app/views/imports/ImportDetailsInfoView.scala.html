@@ -29,7 +29,7 @@
 
 @layout(pageTitle = title(form, messages("importDetailsInfo.title")), backLinkUrl = Some(call.url)) {
 
-    @formHelper(action = routes.ImportDetailsInfoController.onSubmit(mode)) {
+    @formHelper(action = routes.ImportDetailsInfoController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @mainErrorSummary(form, Map("value" -> "value"))
 

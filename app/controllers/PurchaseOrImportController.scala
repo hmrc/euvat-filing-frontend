@@ -21,7 +21,7 @@ import forms.PurchaseOrImportFormProvider
 import models.{NormalMode, PurchaseOrImport, UserAnswers}
 import navigation.Navigator
 import pages.PurchaseOrImportPage
-import pages.imports.{AddImportResponsePage, DescribeItemsOnImportDocPage, ImportCurrencyPage, ImportDatePage, ImportDetailsInfoPage, ImportSubCategoryPage, ImportSubCodePage, ImportSupplierAddressPage, ImportSuppliersNamePage, ImportTotalVatClaimPage, ImportTypePage, SadReferenceCheckPage, SadReferenceNumberPage, TotalAmountWithoutVatPage, TotalVatPaidImportPage}
+import pages.imports.*
 import pages.purchase.*
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -95,7 +95,8 @@ class PurchaseOrImportController @Inject() (
     SupplierTaxNumberCheckPage,
     TotalPurchaseAmountBeforeVatPage,
     TotalVatPaidPage,
-    TotalVatClaimPage
+    TotalVatClaimPage,
+    AddPurchaseResponsePage
   )
 
   // Without this a second import would open pre-filled with the previous import's answers, and the stale

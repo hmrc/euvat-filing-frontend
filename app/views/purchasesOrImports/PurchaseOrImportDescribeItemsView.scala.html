@@ -29,7 +29,7 @@
 @isError = @{form.error("value").isDefined}
 
 @layout(pageTitle = views.ViewUtils.title(form, s"$messagePrefix.title"), backLinkUrl = Some(backLink.url)) {
-    @formHelper(action = submitCall) {
+    @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
         @mainErrorSummary(form, Map("value" -> "value"))
 
         <div class="govuk-form-group @if(isError){govuk-form-group--error}">

@@ -129,6 +129,7 @@ class PurchaseOrImportControllerSpec extends SpecBase with MockitoSugar {
         savedAnswers.get(TotalPurchaseAmountBeforeVatPage) mustBe None
         savedAnswers.get(TotalVatPaidPage) mustBe None
         savedAnswers.get(TotalVatClaimPage) mustBe None
+        savedAnswers.get(AddPurchaseResponsePage) mustBe None
       }
     }
 

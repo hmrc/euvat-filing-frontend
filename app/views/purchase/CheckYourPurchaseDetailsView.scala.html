@@ -29,10 +29,8 @@
     pageTitle = titleNoForm(messages(if(isPostSubmission) s"${pageType}.title" else s"${pageType}.title")),
     showBackLink = false
 ) {
+    <span class="govuk-caption-l">@messages("purchase.caption")</span>
     <h1 class="govuk-heading-l">
-        @if(pageType == "changeYourPurchaseDetails") {
-            <span class="govuk-caption-l">@messages("purchase.caption")</span>
-        }
         @messages(if(isPostSubmission) s"${pageType}.heading" else s"${pageType}.heading")
     </h1>
 

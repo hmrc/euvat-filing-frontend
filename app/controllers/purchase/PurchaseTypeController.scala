@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.purchase.PurchaseTypeFormProvider
 import models.*
 import models.requests.{AddPurchaseRequest, DataRequest}
-import models.responses.AddPurchaseResponse
+import models.responses.{AddPurchaseResponse, ApplicationResponse}
 import navigation.Navigator
 import pages.QuestionPage
 import pages.claim.CountryChangedPage
@@ -403,34 +403,28 @@ class PurchaseTypeController @Inject() (
     mode: Mode
   )(implicit request: DataRequest[?]): Future[Result] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    answers
-      .get(ClaimApplicationResponseQuery)
-      .fold {
-        logger.warn("Missing applicationId for addPurchase")
-        Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-      } { claimResponse =>
-        val purchaseRequest = AddPurchaseRequest(
-          applicationId            = claimResponse.applicationId,
-          goodsDescriptionCategory = PurchaseOrImportType.codes(purchaseType),
-          updateSequenceNumber     = answers.get(UpdateSequenceNumberQuery).getOrElse(claimResponse.updateSeqNumber)
-        )
 
-        def persistAddPurchaseResponseAndRedirect(response: AddPurchaseResponse): Future[Result] =
-          for {
-            updatedAnswers1 <- Future.fromTry(answers.set(AddPurchaseResponsePage, response))
-            updatedAnswers2 <- Future.fromTry(updatedAnswers1.set(UpdateSequenceNumberQuery, response.updateSequenceNumber))
-            _               <- sessionRepository.set(updatedAnswers2)
-          } yield {
-            redirectWithPrefix(navigator.nextPage(PurchaseTypePage, mode, updatedAnswers2))(request)
-          }
+    def onward(ua: UserAnswers): Result = Redirect(navigator.nextPage(PurchaseTypePage, mode, ua))
 
+    (mode, answers.get(ClaimApplicationResponseQuery), answers.get(AddPurchaseResponsePage)) match {
+      case (NormalMode, Some(claimResponse), None) =>
         euVatRefundsService
-          .addPurchase(purchaseRequest)
-          .flatMap(persistAddPurchaseResponseAndRedirect)
+          .addPurchase(AddPurchaseRequest.from(answers, purchaseType, claimResponse))
+          .flatMap(addPurchaseResponse => persistAddPurchaseResponseToSession(answers, addPurchaseResponse))
+          .map(updatedAnswers => redirectWithPrefix(navigator.nextPage(PurchaseTypePage, mode, updatedAnswers)))
           .recover { case ex =>
             logger.error("Error while adding the purchase", ex)
             Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
           }
-      }
+      case _ =>
+        Future.successful(onward(answers))
+    }
   }
+
+  private def persistAddPurchaseResponseToSession(answers: UserAnswers, response: AddPurchaseResponse) =
+    for {
+      updatedAnswers1 <- Future.fromTry(answers.set(AddPurchaseResponsePage, response))
+      updatedAnswers2 <- Future.fromTry(updatedAnswers1.set(UpdateSequenceNumberQuery, response.updateSequenceNumber))
+      _               <- sessionRepository.set(updatedAnswers2)
+    } yield updatedAnswers2
 }
