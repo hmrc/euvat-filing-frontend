@@ -114,21 +114,25 @@ class BankDetailsFormProviderSpec extends AnyFreeSpec with Matchers {
           Some(value)
       }
 
-      "must trim leading and trailing whitespace" in {
+      "must preserve leading and trailing whitespace" in {
+
+        val value =
+          "  John Smith  "
 
         val result =
           form.bind(
             validData.updated(
               fieldName,
-              "  John Smith  "
+              value
             )
           )
 
         result.errors mustBe empty
 
         result.value.map(_.NameOnTheAccount) mustBe
-          Some("John Smith")
+          Some(value)
       }
+
 
       "must bind a value with exactly 70 characters" in {
 
@@ -379,25 +383,20 @@ class BankDetailsFormProviderSpec extends AnyFreeSpec with Matchers {
           Some("GB29NWBK60161331926819")
       }
 
-      "must count spaces when validating maximum length" in {
-
-        val value =
-          "GB29NWBK60161331926819" + (" " * 13)
-
-        value.length must be > 34
+      "must trim leading and trailing spaces and convert lowercase IBAN to uppercase" in {
 
         val result =
           form.bind(
             validData.updated(
               fieldName,
-              value
+              "  gb29nwbk60161331926819  "
             )
           )
 
-        result.errors(fieldName) must have size 1
+        result.errors mustBe empty
 
-        result.error(fieldName).map(_.message) mustBe
-          Some(lengthKey)
+        result.value.map(_.accountNumber) mustBe
+          Some("GB29NWBK60161331926819")
       }
 
       "must return required error when empty" in {
@@ -414,7 +413,7 @@ class BankDetailsFormProviderSpec extends AnyFreeSpec with Matchers {
           Some(requiredKey)
       }
 
-      "must return invalid error when only whitespace is supplied" in {
+      "must return required error when only whitespace is supplied" in {
 
         val result =
           form.bind(
@@ -425,7 +424,7 @@ class BankDetailsFormProviderSpec extends AnyFreeSpec with Matchers {
           )
 
         result.error(fieldName).map(_.message) mustBe
-          Some(invalidKey)
+          Some(requiredKey)
       }
 
       "must return length error when longer than 34 characters" in {

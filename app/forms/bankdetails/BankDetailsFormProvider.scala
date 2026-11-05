@@ -28,15 +28,14 @@ import javax.inject.Inject
 
 class BankDetailsFormProvider @Inject() extends Mappings {
 
-  private def trim(value: String): String =
-    value.trim
 
   private def normaliseBic(value: String): String =
     value.trim
       .toUpperCase(Locale.ROOT)
 
   private def normaliseIban(value: String): String =
-    value.toUpperCase(Locale.ROOT)
+    value.trim
+      .toUpperCase(Locale.ROOT)
 
   private def normaliseCurrencyCode(value: String): String =
     value.trim
@@ -50,7 +49,7 @@ class BankDetailsFormProvider @Inject() extends Mappings {
     pattern: String
   ): Constraint[String] =
     Constraint { value =>
-      if (value.isEmpty) {
+      if (value.trim.isEmpty) {
         Invalid(requiredKey)
       } else if (value.length > maximumLength) {
         Invalid(lengthKey, maximumLength)
@@ -81,7 +80,6 @@ class BankDetailsFormProvider @Inject() extends Mappings {
       mapping(
         "NameOnTheAccount" ->
           play.api.data.Forms.text
-            .transform(trim, identity)
             .verifying(
               requiredMaxLengthAndPattern(
                 requiredKey   = "bankDetails.internationalBankAccountDetails.error.NameOnTheAccount.required",
