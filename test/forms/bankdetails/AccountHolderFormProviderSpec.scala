@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package forms
+package forms.bankdetails
 
-import forms.bankdetails.AccountHolderFormProvider
 import forms.behaviours.OptionFieldBehaviours
 import models.AccountHolder
 import play.api.data.FormError
