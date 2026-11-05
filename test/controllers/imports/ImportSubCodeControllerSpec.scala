@@ -33,7 +33,11 @@ class ImportSubCodeControllerSpec extends SpecBase {
   private def journeyRecoveryUrl = controllers.routes.JourneyRecoveryController.onPageLoad().url
   private def sadReferenceUrl = controllers.imports.routes.SadReferenceCheckController.onPageLoad(NormalMode).url
   private def taskListUrl = controllers.routes.TaskListDashboardController.onPageLoad().url
-  private def importSubCategoryUrl = controllers.imports.routes.ImportSubCategoryController.onPageLoad(NormalMode).url
+  private def importSubCategoryUrl = importPath("fuel-type-or-vehicle")
+  private def importPath(slug: String): String = {
+    val typeUrl = controllers.imports.routes.ImportTypeController.onPageLoad(NormalMode).url
+    typeUrl.take(typeUrl.lastIndexOf('/')) + s"/$slug"
+  }
 
   private def answers(importType: PurchaseOrImportType = Fuel, country: String = "AT"): UserAnswers =
     emptyUserAnswers
@@ -331,7 +335,7 @@ class ImportSubCodeControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.imports.routes.ImportSubCategoryController.onPageLoad(CheckMode).url
+        redirectLocation(result).value mustEqual importPath("change-fuel-type-or-vehicle")
         savedAnswers.get(ImportSubCategoryPage) mustBe None
       }
     }
