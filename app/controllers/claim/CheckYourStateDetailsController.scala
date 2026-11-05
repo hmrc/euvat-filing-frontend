@@ -55,18 +55,16 @@ class CheckYourStateDetailsController @Inject() (
 
   val form: Form[Boolean] = formProvider()
 
-  private def backLink: Call = routes.CheckYourClaimDetailsController.onPageLoad()
-
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(CheckYourStateDetailsPage).fold(form)(form.fill)
-    Ok(view(preparedForm, mode, backLink))
+    Ok(view(preparedForm, mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
         value =>
           if (value) {
             implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)

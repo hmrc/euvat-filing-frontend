@@ -61,7 +61,6 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
             view(
               application.injector.instanceOf[InvoiceDateFormProvider].apply(),
               formAction(NormalMode),
-              routes.InvoiceNumberController.onPageLoad(models.NormalMode),
               captionKey,
               titleKey,
               headingKey
@@ -84,7 +83,6 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
             view(
               application.injector.instanceOf[InvoiceDateFormProvider].apply(),
               formAction(CheckMode),
-              routes.CheckYourPurchaseDetailsController.onPageLoad(),
               captionKey,
               titleKey,
               headingKey
@@ -112,7 +110,6 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
             view(
               application.injector.instanceOf[InvoiceDateFormProvider].apply().fill(LocalDate.of(2025, 4, 15)),
               formAction(NormalMode),
-              routes.InvoiceNumberController.onPageLoad(models.NormalMode),
               captionKey,
               titleKey,
               headingKey

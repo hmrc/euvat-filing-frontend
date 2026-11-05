@@ -69,8 +69,7 @@ class ImportSubCodeController @Inject() (
 
     resolved match {
       case Some((importType, options)) => block(importType, options)
-      case None =>
-        Future.successful(Ok(sadView(sadFormProvider(), routes.ImportTypeController.onPageLoad(NormalMode))))
+      case None                        => Future.successful(Ok(sadView(sadFormProvider(), NormalMode)))
     }
   }
 
@@ -84,9 +83,7 @@ class ImportSubCodeController @Inject() (
       messages(s"importSubCode.$importType.title"),
       messages(s"importSubCode.$importType.heading"),
       "import.caption",
-      routes.ImportSubCodeController.onSubmit(importType.toString, mode),
-      if (mode == CheckMode) importRoutes.CheckYourImportDetailsController.onPageLoad()
-      else importRoutes.ImportTypeController.onPageLoad(NormalMode)
+      routes.ImportSubCodeController.onSubmit(importType.toString, mode)
     )
   }
 

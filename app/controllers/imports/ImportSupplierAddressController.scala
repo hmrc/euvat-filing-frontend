@@ -48,10 +48,6 @@ class ImportSupplierAddressController @Inject() (
 
   private val form = formProvider()
 
-  private def backLink(mode: Mode): Call =
-    if (mode == CheckMode) importRoutes.CheckYourImportDetailsController.onPageLoad()
-    else importRoutes.ImportSuppliersNameController.onPageLoad(NormalMode)
-
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData) { implicit request =>
       val preparedForm =
@@ -64,8 +60,7 @@ class ImportSupplierAddressController @Inject() (
         view(
           preparedForm,
           config.supplierCountries,
-          mode,
-          backLink(mode)
+          mode
         )
       )
     }
@@ -112,8 +107,7 @@ class ImportSupplierAddressController @Inject() (
                 view(
                   adjustedForm,
                   config.supplierCountries,
-                  mode,
-                  backLink(mode)
+                  mode
                 )
               )
             )

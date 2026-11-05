@@ -26,17 +26,15 @@
     govukButton: GovukButton
 )
 
-@(form: Form[_], mode: Mode, call: Call)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
 @errored = @{form.error("value").isDefined}
 
-@layout(pageTitle = views.ViewUtils.title(form, messages("invoiceType.title")), backLinkUrl = Some(call.url)) {
+@layout(pageTitle = views.ViewUtils.title(form, messages("invoiceType.title"))) {
 
     @formHelper(action = controllers.purchase.routes.InvoiceTypeController.onSubmit(mode)) {
         @mainErrorSummary(form, Map("standard invoice" -> "value_0"))
-        <h1 class="govuk-heading-l">
-            <span class="govuk-caption-l">@messages("purchase.caption")</span>
-            @messages("invoiceType.heading")
-        </h1>
+        <span class="govuk-caption-l">@messages("purchase.caption")</span>
+        <h1 class="govuk-heading-l">@messages("invoiceType.heading")</h1>
 
         <p class="govuk-body-m">@messages("invoiceType.lead")</p>
 

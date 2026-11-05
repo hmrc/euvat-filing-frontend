@@ -35,37 +35,31 @@ class BeforeYouStartControllerSpec extends SpecBase {
   "BeforeYouStart Controller" - {
 
     "must return OK and the correct view for a GET" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, routes.BeforeYouStartController.onPageLoad().url)
-
         val result = route(application, request).value
-
         val view = application.injector.instanceOf[BeforeYouStartView]
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(routes.TaskListDashboardController.onPageLoad())(request, messages(application)).toString
+          view()(request, messages(application)).toString
         )
       }
     }
 
     "must render the correct back link" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, routes.BeforeYouStartController.onPageLoad().url)
-
         val result = route(application, request).value
-
         val view = application.injector.instanceOf[BeforeYouStartView]
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(routes.TaskListDashboardController.onPageLoad())(request, messages(application)).toString
+          view()(request, messages(application)).toString
         )
       }
     }
@@ -75,11 +69,8 @@ class BeforeYouStartControllerSpec extends SpecBase {
 
       running(application) {
         val request = FakeRequest(POST, routes.BeforeYouStartController.onSubmit().url)
-
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
-
         redirectLocation(result).value mustEqual controllers.routes.PurchaseOrImportController.onPageLoad.url
       }
     }
@@ -100,11 +91,8 @@ class BeforeYouStartControllerSpec extends SpecBase {
 
       running(application) {
         val request = FakeRequest(POST, routes.BeforeYouStartController.onSubmit().url)
-
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
-
         val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository).set(captor.capture())
 
@@ -117,11 +105,8 @@ class BeforeYouStartControllerSpec extends SpecBase {
 
       running(application) {
         val request = FakeRequest(GET, routes.BeforeYouStartController.onPageLoad().url)
-
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
-
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }

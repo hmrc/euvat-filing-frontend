@@ -34,12 +34,9 @@ import views.html.purchase.SupplierAddressView
 import scala.concurrent.Future
 
 class SupplierAddressControllerSpec extends SpecBase with MockitoSugar {
-
   private val onwardRoute = Call("GET", "/foo")
-
   private lazy val pageLoadRoute = routes.SupplierAddressController.onPageLoad(NormalMode).url
   private lazy val submitRoute = routes.SupplierAddressController.onSubmit(NormalMode).url
-  private lazy val backLink: Call = routes.SuppliersNameController.onPageLoad(NormalMode)
 
   private val validFormData = Map(
     "addressLine1" -> "1 High Street",
@@ -67,7 +64,7 @@ class SupplierAddressControllerSpec extends SpecBase with MockitoSugar {
         val form = formProvider()
 
         status(result) mustEqual OK
-        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(view(form, NormalMode, backLink)(request, messages(application)).toString)
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(view(form, NormalMode)(request, messages(application)).toString)
       }
     }
 
@@ -84,7 +81,7 @@ class SupplierAddressControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, CheckMode, routes.CheckYourPurchaseDetailsController.onPageLoad())(request, messages(application)).toString
+          view(form, CheckMode)(request, messages(application)).toString
         )
       }
     }
@@ -114,7 +111,7 @@ class SupplierAddressControllerSpec extends SpecBase with MockitoSugar {
         val form = formProvider().fill(supplierAddress)
 
         status(result) mustEqual OK
-        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(view(form, NormalMode, backLink)(request, messages(application)).toString)
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(view(form, NormalMode)(request, messages(application)).toString)
       }
     }
 

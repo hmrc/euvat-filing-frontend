@@ -46,15 +46,9 @@ class SuppliersNameController @Inject() (
     with I18nSupport {
 
   val form: Form[String] = formProvider()
-  private def backLink(mode: Mode) = if (mode == CheckMode) {
-    routes.CheckYourPurchaseDetailsController.onPageLoad()
-  } else {
-    routes.InvoiceDateController.onPageLoad(NormalMode)
-  }
-
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(SuppliersNamePage).fold(form)(form.fill)
-    Ok(view(preparedForm, routes.SuppliersNameController.onSubmit(mode), backLink(mode), "purchase.caption", "suppliersName.hint"))
+    Ok(view(preparedForm, routes.SuppliersNameController.onSubmit(mode), "purchase.caption", "suppliersName.hint"))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -63,7 +57,7 @@ class SuppliersNameController @Inject() (
       .fold(
         formWithErrors =>
           Future.successful(
-            BadRequest(view(formWithErrors, routes.SuppliersNameController.onSubmit(mode), backLink(mode), "purchase.caption", "suppliersName.hint"))
+            BadRequest(view(formWithErrors, routes.SuppliersNameController.onSubmit(mode), "purchase.caption", "suppliersName.hint"))
           ),
         value =>
           if (mode == CheckMode && request.userAnswers.isAnswerUnchanged(SuppliersNamePage, value)) {

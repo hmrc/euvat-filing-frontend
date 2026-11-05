@@ -76,7 +76,7 @@ class RemoveThirdBusinessActivityController @Inject() (
 
     val actionCall = Call("POST", routes.RemoveThirdBusinessActivityController.onSubmit().url)
 
-    val result = Ok(view(form, headingKey, actionCall, backLinkFrom(origin, mode), mode))
+    val result = Ok(view(form, headingKey, actionCall, mode))
 
     val withOrigin = request.getQueryString("origin") match {
       case Some(o) => result.addingToSession(SessionOriginKey -> o)(request)
@@ -101,7 +101,7 @@ class RemoveThirdBusinessActivityController @Inject() (
       .fold(
         formWithErrors => {
           val actionCall = Call("POST", routes.RemoveThirdBusinessActivityController.onSubmit().url)
-          Future.successful(BadRequest(view(formWithErrors, headingKey, actionCall, backLinkFrom(origin, mode), mode)))
+          Future.successful(BadRequest(view(formWithErrors, headingKey, actionCall, mode)))
         },
         {
           case true =>
@@ -117,8 +117,7 @@ class RemoveThirdBusinessActivityController @Inject() (
               }
             )
 
-          case false =>
-            Future.successful(Redirect(backLinkFrom(origin, mode)))
+          case false => Future.successful(Redirect(backLinkFrom(origin, mode)))
         }
       )
   }

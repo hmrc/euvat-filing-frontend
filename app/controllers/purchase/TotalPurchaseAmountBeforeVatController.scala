@@ -52,35 +52,10 @@ class TotalPurchaseAmountBeforeVatController @Inject() (
 
   val form: Form[BigDecimal] = formProvider()
 
-  private def germanyBackLink(userAnswers: UserAnswers): Call =
-    userAnswers.get(SupplierTaxNumberCheckPage) match {
-      case Some(SupplierTaxNumberCheck.VatRegistrationNumber) => routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode)
-      case Some(SupplierTaxNumberCheck.TaxIdentifierNumber)   => routes.SupplierTaxIdentifierNumberController.onPageLoad(NormalMode)
-      case _                                                  => routes.SupplierTaxNumberCheckController.onPageLoad(NormalMode)
-    }
-
-  private def defaultBackLink(userAnswers: UserAnswers): Call =
-    userAnswers.get(SupplierVatRegistrationNumberPage) match {
-      case Some(_) => routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode)
-      case None    => routes.SupplierVatRegCheckController.onPageLoad(NormalMode)
-    }
-
-  private def backLink(mode: Mode)(userAnswers: UserAnswers): Call = {
-    if (mode == CheckMode) {
-      routes.CheckYourPurchaseDetailsController.onPageLoad()
-    } else {
-      userAnswers.get(RefundingCountryPage) match {
-        case Some("EE") => routes.RefundingCurrencyController.onPageLoad(NormalMode)
-        case Some("DE") => germanyBackLink(userAnswers)
-        case _          => defaultBackLink(userAnswers)
-      }
-    }
-  }
-
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(TotalPurchaseAmountBeforeVatPage).fold(form)(form.fill)
     val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)
-    Ok(view(preparedForm, mode, backLink(mode)(request.userAnswers), prefix, currencyName))
+    Ok(view(preparedForm, mode, prefix, currencyName))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -106,6 +81,6 @@ class TotalPurchaseAmountBeforeVatController @Inject() (
 
   private def badRequestView(formWithErrors: Form[?], mode: Mode)(implicit request: DataRequest[?]) = {
     val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)
-    BadRequest(view(formWithErrors, mode, backLink(mode)(request.userAnswers), prefix, currencyName))
+    BadRequest(view(formWithErrors, mode, prefix, currencyName))
   }
 }

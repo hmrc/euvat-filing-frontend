@@ -26,16 +26,14 @@
     mainErrorSummary: MainErrorSummary
 )
 
-@(form: Form[_], mode: Mode, call:Call)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("contactDetails.title")), backLinkUrl = Some(call.url)) {
+@layout(pageTitle = title(form, messages("contactDetails.title"))) {
 
     @formHelper(action = controllers.claim.routes.ContactDetailsController.onSubmit(mode), Symbol("novalidate") -> "novalidate") {
         @mainErrorSummary(form)
-        <h1 class="govuk-heading-l">
-            <span class="govuk-caption-l">@messages("claim.caption")</span>
-            @messages("contactDetails.heading")
-        </h1>
+        <span class="govuk-caption-l">@messages("claim.caption")</span>
+        <h1 class="govuk-heading-l">@messages("contactDetails.heading")</h1>
 
         @govukInput(
             InputViewModel(

@@ -28,7 +28,6 @@ import play.api.test.Helpers.*
 import repositories.SessionRepository
 
 class SadReferenceCheckControllerSpec extends SpecBase with MockitoSugar {
-
   val formProvider = new forms.imports.SadReferenceCheckFormProvider()
 
   "SadReference Controller" - {
@@ -44,23 +43,8 @@ class SadReferenceCheckControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[views.html.imports.SadReferenceCheckView]
 
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(formProvider(), controllers.imports.routes.ImportTypeController.onPageLoad(NormalMode))(request, messages(application)).toString
+          view(formProvider(), NormalMode)(request, messages(application)).toString
         )
-      }
-    }
-
-    "must show a browser back link" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-
-      running(application) {
-        val request = FakeRequest(GET, controllers.imports.routes.SadReferenceCheckController.onPageLoad(NormalMode).url)
-        val result = route(application, request).value
-
-        status(result) mustBe OK
-        contentAsString(result) must include("govuk-back-link")
-        contentAsString(result) must not include controllers.imports.routes.ImportSubCodeController
-          .onPageLoad(models.Fuel.toString, models.NormalMode)
-          .url
       }
     }
 

@@ -19,7 +19,7 @@ package controllers.claim
 import base.SpecBase
 import controllers.claim.routes
 import forms.claim.BusinessActivityCodeTwoFormProvider
-import models.NormalMode
+import models.{CheckMode, NormalMode, UserAnswers}
 import navigation.FakeNavigator
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
@@ -44,7 +44,7 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.BusinessActivityCodeTwoController.onPageLoad(models.NormalMode).url)
+        val request = FakeRequest(GET, routes.BusinessActivityCodeTwoController.onPageLoad(NormalMode).url)
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[BusinessActivityCodeTwoView]
@@ -53,7 +53,7 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, Some(routes.BusinessActivityController.onPageLoad(models.NormalMode).url), models.NormalMode)(
+          view(form, NormalMode)(
             request,
             messages(application)
           ).toString
@@ -65,7 +65,7 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.BusinessActivityCodeTwoController.onPageLoad(models.NormalMode).url)
+        val request = FakeRequest(GET, routes.BusinessActivityCodeTwoController.onPageLoad(NormalMode).url)
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -110,7 +110,7 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, Some(routes.BusinessActivityController.onPageLoad(models.NormalMode).url), models.NormalMode)(
+          view(form, NormalMode)(
             request,
             messages(application)
           ).toString
@@ -122,7 +122,7 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.BusinessActivityCodeTwoController.onSubmit(models.NormalMode).url)
+        val request = FakeRequest(POST, routes.BusinessActivityCodeTwoController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody(("value", ""))
         val result = route(application, request).value
 
@@ -132,7 +132,7 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
         body must include(messages(application)("businessActivityCodeTwo.error.required"))
         body must include(messages(application)("businessActivityCodeTwo.error.summary"))
 
-        val typedRequest = FakeRequest(POST, routes.BusinessActivityCodeTwoController.onSubmit(models.NormalMode).url)
+        val typedRequest = FakeRequest(POST, routes.BusinessActivityCodeTwoController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody(("value", ""), ("valueTyped", "NotACode"))
         val typedResult = route(application, typedRequest).value
         status(typedResult) mustEqual BAD_REQUEST
@@ -175,7 +175,7 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.BusinessActivityCodeTwoController.onSubmit(models.NormalMode).url)
+        val request = FakeRequest(POST, routes.BusinessActivityCodeTwoController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody(("value", "7777"))
         val result = route(application, request).value
 
@@ -191,7 +191,7 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.BusinessActivityCodeTwoController.onSubmit(models.NormalMode).url)
+        val request = FakeRequest(POST, routes.BusinessActivityCodeTwoController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody(("value", "12345"))
         val result = route(application, request).value
 
@@ -206,7 +206,7 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.BusinessActivityCodeTwoController.onSubmit(models.NormalMode).url)
+        val request = FakeRequest(POST, routes.BusinessActivityCodeTwoController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody(("value", "12ab"))
         val result = route(application, request).value
 
@@ -233,7 +233,7 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.BusinessActivityCodeTwoController.onSubmit(models.CheckMode).url)
+        val request = FakeRequest(POST, routes.BusinessActivityCodeTwoController.onSubmit(CheckMode).url)
           .withFormUrlEncodedBody(("value", "5678"))
 
         val result = route(application, request).value
@@ -263,14 +263,14 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.BusinessActivityCodeTwoController.onSubmit(models.CheckMode).url)
+        val request = FakeRequest(POST, routes.BusinessActivityCodeTwoController.onSubmit(CheckMode).url)
           .withFormUrlEncodedBody(("value", "1234"))
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
 
         import org.mockito.ArgumentCaptor
-        val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
         captor.getValue.get(ClaimDetailsAmendedQuery).isDefined mustBe false
       }
@@ -285,14 +285,14 @@ class BusinessActivityCodeTwoControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.BusinessActivityCodeTwoController.onSubmit(models.NormalMode).url)
+        val request = FakeRequest(POST, routes.BusinessActivityCodeTwoController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody(("value", "1234"))
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
 
         import org.mockito.ArgumentCaptor
-        val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
         captor.getValue.get(ClaimDetailsAmendedQuery).isDefined mustBe false
       }

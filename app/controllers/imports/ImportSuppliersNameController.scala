@@ -51,21 +51,16 @@ class ImportSuppliersNameController @Inject() (
 
   private def formAction(mode: Mode): Call = routes.ImportSuppliersNameController.onSubmit(mode)
 
-  private def backLink(mode: Mode)(implicit request: DataRequest[AnyContent]): Call =
-    if (mode == CheckMode) importRoutes.CheckYourImportDetailsController.onPageLoad()
-    else importRoutes.ImportDateController.onPageLoad(NormalMode)
-
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(ImportSuppliersNamePage).fold(form)(form.fill)
-    Ok(view(preparedForm, formAction(mode), backLink(mode), "import.caption", "suppliersName.import.hint"))
+    Ok(view(preparedForm, formAction(mode), "import.caption", "suppliersName.import.hint"))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, formAction(mode), backLink(mode), "import.caption", "suppliersName.import.hint"))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, formAction(mode), "import.caption", "suppliersName.import.hint"))),
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(ImportSuppliersNamePage, value))

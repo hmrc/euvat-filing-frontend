@@ -24,7 +24,7 @@ import models.responses.*
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{never, times, verify, verifyNoInteractions, when}
+import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar
 import pages.PurchaseOrImportPage
 import pages.claim.{CountryChangedPage, RefundingCountryPage}

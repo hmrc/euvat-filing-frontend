@@ -25,7 +25,8 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.{any, eq as mockitoEq}
 import org.mockito.Mockito.{reset, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.imports.{AddImportResponsePage, ImportDetailsInfoPage, SadReferenceCheckPage, SadReferenceNumberPage}
+import pages.imports.{AddImportResponsePage, ImportDetailsInfoPage}
+import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -38,8 +39,7 @@ import views.html.imports.ImportDetailsInfoView
 import scala.concurrent.Future
 
 class ImportDetailsInfoControllerSpec extends SpecBase with MockitoSugar {
-
-  def onwardRoute = Call("GET", "/foo")
+  def onwardRoute: Call = Call("GET", "/foo")
 
   private val mockSessionRepository = mock[SessionRepository]
 
@@ -50,102 +50,51 @@ class ImportDetailsInfoControllerSpec extends SpecBase with MockitoSugar {
 
   private def importDetailsInfoRoute(mode: Mode = NormalMode): String = controllers.imports.routes.ImportDetailsInfoController.onPageLoad(mode).url
 
-  lazy val backLinkCall: Call = controllers.imports.routes.SadReferenceCheckController.onPageLoad(NormalMode)
-  lazy val checkModeBackLinkCall: Call = controllers.imports.routes.SadReferenceCheckController.onPageLoad(CheckMode)
-
   val formProvider = new ImportDetailsInfoFormProvider()
-  val form = formProvider()
+  val form: Form[String] = formProvider()
 
   "ImportDetailsInfo Controller" - {
 
     "must return OK and the correct view for a GET" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, importDetailsInfoRoute())
-
         val result = route(application, request).value
-
         val view = application.injector.instanceOf[ImportDetailsInfoView]
 
         status(result) mustEqual OK
-        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(view(form, NormalMode, backLinkCall)(request, messages(application)).toString)
-      }
-    }
-
-    "must show back link to SadReferenceNumber when SadReference was yes and number present" in {
-
-      val userAnswers = UserAnswers(userAnswersId)
-        .set(SadReferenceCheckPage, true)
-        .success
-        .value
-        .set(SadReferenceNumberPage, "ABC123")
-        .success
-        .value
-
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
-
-      running(application) {
-        val request = FakeRequest(GET, importDetailsInfoRoute())
-
-        val result = route(application, request).value
-
-        status(result) mustEqual OK
-        contentAsString(result) must include(controllers.imports.routes.SadReferenceNumberController.onPageLoad(NormalMode).url)
-      }
-    }
-
-    "must show back link to SadReference when SadReference was yes but number missing" in {
-
-      val userAnswers = UserAnswers(userAnswersId).set(SadReferenceCheckPage, true).success.value
-
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
-
-      running(application) {
-        val request = FakeRequest(GET, importDetailsInfoRoute())
-
-        val result = route(application, request).value
-
-        status(result) mustEqual OK
-        contentAsString(result) must include(controllers.imports.routes.SadReferenceCheckController.onPageLoad(NormalMode).url)
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(view(form, NormalMode)(request, messages(application)).toString)
       }
     }
 
     "must return OK and the correct view for a GET in Check Mode" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, controllers.imports.routes.ImportDetailsInfoController.onPageLoad(CheckMode).url)
-
         val result = route(application, request).value
-
         val view = application.injector.instanceOf[ImportDetailsInfoView]
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, CheckMode, checkModeBackLinkCall)(request, messages(application)).toString
+          view(form, CheckMode)(request, messages(application)).toString
         )
       }
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
-
       val userAnswers = UserAnswers(userAnswersId).set(ImportDetailsInfoPage, "answer").success.value
-
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, importDetailsInfoRoute())
-
         val view = application.injector.instanceOf[ImportDetailsInfoView]
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form.fill("answer"), NormalMode, backLinkCall)(request, messages(application)).toString
+          view(form.fill("answer"), NormalMode)(request, messages(application)).toString
         )
       }
     }
@@ -187,7 +136,6 @@ class ImportDetailsInfoControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("value", "answer"))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
       }
@@ -278,7 +226,6 @@ class ImportDetailsInfoControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return a Bad Request and errors when empty data is submitted" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -287,20 +234,17 @@ class ImportDetailsInfoControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("value", ""))
 
         val boundForm = form.bind(Map("value" -> ""))
-
         val view = application.injector.instanceOf[ImportDetailsInfoView]
-
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(boundForm, NormalMode, backLinkCall)(request, messages(application)).toString
+          view(boundForm, NormalMode)(request, messages(application)).toString
         )
       }
     }
 
     "must return a Bad Request and errors when data over 255 characters is submitted" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -310,34 +254,28 @@ class ImportDetailsInfoControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("value", tooLong))
 
         val boundForm = form.bind(Map("value" -> tooLong))
-
         val view = application.injector.instanceOf[ImportDetailsInfoView]
-
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(boundForm, NormalMode, backLinkCall)(request, messages(application)).toString
+          view(boundForm, NormalMode)(request, messages(application)).toString
         )
       }
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
         val request = FakeRequest(GET, importDetailsInfoRoute())
-
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
@@ -346,7 +284,6 @@ class ImportDetailsInfoControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("value", "answer"))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }

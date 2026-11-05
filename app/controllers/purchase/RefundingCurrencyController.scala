@@ -56,17 +56,6 @@ class RefundingCurrencyController @Inject() (
   val form: Form[RefundingCurrency] = formProvider()
   private val logger = Logger(getClass)
 
-  private def backLink(userAnswers: UserAnswers, mode: Mode): Call =
-    mode match {
-      case CheckMode => routes.CheckYourPurchaseDetailsController.onPageLoad()
-      case _ =>
-        if (userAnswers.get(SupplierVatRegCheckPage).contains(false)) {
-          routes.SupplierVatRegCheckController.onPageLoad(NormalMode)
-        } else {
-          routes.SupplierVatRegistrationNumberController.onPageLoad(NormalMode)
-        }
-    }
-
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     CountryCode.findCountryCode(request.userAnswers) match {
       case None =>
@@ -91,8 +80,7 @@ class RefundingCurrencyController @Inject() (
             items,
             routes.RefundingCurrencyController.onSubmit(mode),
             "refundingCurrency",
-            "purchase.caption",
-            Some(backLink(request.userAnswers, mode))
+            "purchase.caption"
           )
         )
     }
@@ -120,8 +108,7 @@ class RefundingCurrencyController @Inject() (
               items,
               routes.RefundingCurrencyController.onSubmit(mode),
               "refundingCurrency",
-              "purchase.caption",
-              Some(backLink(request.userAnswers, mode))
+              "purchase.caption"
             )
           )
         )

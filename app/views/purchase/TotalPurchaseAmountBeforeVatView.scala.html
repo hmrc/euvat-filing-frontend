@@ -22,23 +22,20 @@
 @this(
     layout: templates.Layout,
     formHelper: FormWithCSRF,
-    mainErrorSummary: views.html.components.MainErrorSummary,
+    mainErrorSummary: MainErrorSummary,
     govukInput: GovukInput,
     govukButton: GovukButton
 )
 
-@(form: Form[_], mode: Mode, call: Call, prefix: String, currencyName: String)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, prefix: String, currencyName: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("totalPurchaseAmountBeforeVat.title")), backLinkUrl = Some(call.url)) {
+@layout(pageTitle = title(form, messages("totalPurchaseAmountBeforeVat.title"))) {
 
     @formHelper(action = controllers.purchase.routes.TotalPurchaseAmountBeforeVatController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @mainErrorSummary(form, Map.empty)
-
-        <h1 class="govuk-heading-l">
-            <span class="govuk-caption-l">@messages("purchase.caption")</span>
-            @messages("totalPurchaseAmountBeforeVat.heading")
-        </h1>
+        <span class="govuk-caption-l">@messages("purchase.caption")</span>
+        <h1 class="govuk-heading-l">@messages("totalPurchaseAmountBeforeVat.heading")</h1>
 
         <div class="govuk-inset-text">
             @Html(messages("totalPurchaseAmountBeforeVat.inset", currencyName.toLowerCase, prefix))
