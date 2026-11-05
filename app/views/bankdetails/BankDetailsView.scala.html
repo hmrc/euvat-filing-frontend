@@ -14,164 +14,197 @@
  * limitations under the License.
  *@
 
-@import models.Currency
-@import viewmodels.InputWidth._
+@import models.{Currency, Mode}
+@import viewmodels.InputWidth.*
 @import views.html.components.MainErrorSummary
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.accessibleautocomplete.AccessibleAutocomplete
 
 @this(
-    layout: templates.Layout,
-    formHelper: FormWithCSRF,
-    govukErrorSummary: GovukErrorSummary,
-    govukSelect: GovukSelect,
-    govukInput: GovukInput,
-    govukButton: GovukButton
+layout: templates.Layout,
+formHelper: FormWithCSRF,
+govukSelect: GovukSelect,
+govukInput: GovukInput,
+govukButton: GovukButton,
+mainErrorSummary: MainErrorSummary
 )
 
 @(
-    form: Form[_],
-    mode: Mode,
-    currencies: Seq[Currency]
-)(implicit request: Request[_], messages: Messages)
+form: Form[?],
+mode: Mode,
+currencies: Seq[Currency]
+)(implicit request: Request[?], messages: Messages)
+
+@isCurrencyError = @{
+form.error("CurrencyOfAccount").isDefined
+}
 
 @layout(
-    pageTitle = title(
-    form,
-    messages("bankDetails.internationalBankAccountDetails.title")
-    )
+pageTitle = views.ViewUtils.title(
+form,
+"bankDetails.internationalBankAccountDetails.title"
+)
 ) {
 
 @formHelper(
-action = controllers.bankdetails.routes.BankDetailsController.onSubmit(mode),
-Symbol("autocomplete") -> "off"
+    action = controllers.bankdetails.routes.BankDetailsController.onSubmit(mode),
+    Symbol("novalidate") -> "novalidate"
 ) {
 
-    @if(form.errors.nonEmpty) {
-        @govukErrorSummary(ErrorSummaryViewModel(form))
-    }
+@mainErrorSummary(
+    form,
+    Map(
+        "NameOnTheAccount" -> form("NameOnTheAccount").id,
+        "BIC" -> form("BIC").id,
+        "accountNumber" -> form("accountNumber").id,
+        "CurrencyOfAccount" -> (form("CurrencyOfAccount").id + "-input")
+    )
+)
 
-    <h1 class="govuk-heading-l">
-                <span class="govuk-caption-l">
-                    @messages("bankDetails.internationalBankAccountDetails.caption")
-                </span>
-        @messages("bankDetails.internationalBankAccountDetails.heading")
-    </h1>
-
-    @govukInput(
-        InputViewModel(
-            field = form("NameOnTheAccount"),
-            label = LabelViewModel(
-            messages(
-            "bankDetails.internationalBankAccountDetails.NameOnTheAccount"
+<span class="govuk-caption-l">
+            @messages(
+                "bankDetails.internationalBankAccountDetails.caption"
             )
+        </span>
+
+<h1 class="govuk-heading-l">
+    @messages(
+        "bankDetails.internationalBankAccountDetails.heading"
+    )
+</h1>
+
+@govukInput(
+    InputViewModel(
+        field = form("NameOnTheAccount"),
+        label = LabelViewModel(
+            messages(
+                "bankDetails.internationalBankAccountDetails.NameOnTheAccount"
             )
         )
-        .withWidth(Full)
     )
+    .withWidth(Full)
+    .withAutocomplete("name-on-the-account")
+)
 
-    @govukInput(
-        InputViewModel(
-            field = form("BIC"),
-            label = LabelViewModel(
-                messages(
-                    "bankDetails.internationalBankAccountDetails.bicOrSwift"
-                )
-                )
+@govukInput(
+    InputViewModel(
+        field = form("BIC"),
+        label = LabelViewModel(
+            messages(
+                "bankDetails.internationalBankAccountDetails.bicOrSwift"
             )
-            .withHint(
-            HintViewModel(
+        )
+        )
+        .withHint(
+        HintViewModel(
             Text(
                 messages(
                     "bankDetails.internationalBankAccountDetails.bicOrSwift.hint"
                 )
             )
-            )
         )
-        .withWidth(Fixed10)
     )
+    .withWidth(Fixed10)
+    .withAutocomplete("bic")
+)
 
-    @govukInput(
-        InputViewModel(
-            field = form("accountNumber"),
-                label = LabelViewModel(
-                messages(
-                    "bankDetails.internationalBankAccountDetails.accountNumber"
-                )
-            )
+@govukInput(
+    InputViewModel(
+    field = form("accountNumber"),
+    label = LabelViewModel(
+        messages(
+            "bankDetails.internationalBankAccountDetails.accountNumber"
         )
-        .withHint(
+    )
+    )
+    .withHint(
         HintViewModel(
             Text(
                 messages(
                     "bankDetails.internationalBankAccountDetails.accountNumber.hint"
                 )
             )
+        )
+    )
+    .withWidth(Fixed20)
+    .withAutocomplete("account-number")
+)
+
+<div class="govuk-form-group @if(isCurrencyError){govuk-form-group--error}">
+    @govukSelect(
+    Select(
+    id = form("CurrencyOfAccount").id + "-input",
+    name = "CurrencyOfAccount",
+    classes = Fixed10.toString,
+    label = Label(
+    content = Text(
+    messages(
+    "bankDetails.internationalBankAccountDetails.CurrencyOfAccount"
+    )
+    )
+    ),
+    hint = Some(
+    Hint(
+    content = Text(
+    messages(
+    "bankDetails.internationalBankAccountDetails.CurrencyOfAccount.hint"
+    )
+    )
+    )
+    ),
+    items =
+    Seq(
+        SelectItem(
+            value = Some(""),
+            text = messages(
+            "bankDetails.internationalBankAccountDetails.CurrencyOfAccount.select"
+        ),
+        selected =
+            form("CurrencyOfAccount").value.isEmpty
+        )
+    ) ++
+    currencies
+    .sortBy(_.code)
+    .map { currency =>
+    SelectItem(
+        value = Some(currency.code),
+        text = currency.displayValue,
+        selected =
+            form("CurrencyOfAccount")
+            .value
+            .contains(currency.code)
+        )
+    },
+    attributes = Map(
+        "data-ac-typed" -> "#currencyTyped",
+        "data-ac-input-classes" ->
+        "govuk-input govuk-input--width-10"
+    ),
+    errorMessage =
+        form.error("CurrencyOfAccount").map { error =>
+        ErrorMessage(
+            content = Text(
+                messages(
+                    error.message,
+                    error.args*
+                )
             )
         )
-        .withWidth(Fixed20)
+        }
+    ).asAccessibleAutocomplete(
+        Some(
+            AccessibleAutocomplete(
+                showAllValues = false,
+                autoSelect = false,
+                minLength = None
+            )
+        )
     )
-
-    @govukSelect(
-        Select(
-            id = form("CurrencyOfAccount").id + "-input",
-            name = "CurrencyOfAccount",
-            classes = Fixed10.toString,
-            label = Label(
-                content = Text(
-                    messages("bankDetails.internationalBankAccountDetails.CurrencyOfAccount")
-                )
-            ),
-            hint = Some(
-                Hint(
-                    content = Text( messages("bankDetails.internationalBankAccountDetails.CurrencyOfAccount.hint")
-                )
-            )
-        ),
-        items =
-            Seq(
-                SelectItem(
-                value = Some(""),
-                text = "Select a currency",
-                selected = form("CurrencyOfAccount").value.isEmpty
-                )
-            ) ++
-            currencies
-            .sortBy(_.code)
-            .map { currency =>
-            SelectItem(
-                value = Some(currency.code),
-                text = s"${currency.code} - ${currency.description}",
-                selected = form("CurrencyOfAccount").value.contains(currency.code)
-            )
-            },
-            attributes = Map(
-                "data-ac-typed" -> "#currencyTyped",
-                "data-ac-input-classes" -> "govuk-input govuk-input--width-10"
-            ),
-            errorMessage = form.error("CurrencyOfAccount").map { error =>
-            ErrorMessage(
-                content = Text(
-                    messages(
-                        error.message,
-                        error.args*
-                    )
-                )
-            )
-            }
-            ).asAccessibleAutocomplete(
-                Some(
-                    AccessibleAutocomplete(
-                        showAllValues = false,
-                        autoSelect = false,
-                        minLength = None
-                    )
-                )
-            )
     )
+</div>
 
-    <input type="hidden" id="currencyTyped" name="currencyTyped" value="">
+<input id="currencyTyped" name="currencyTyped" type="hidden" value="">
 
-    @govukButton(ButtonViewModel(messages("site.continue")))
+@govukButton(ButtonViewModel(messages("site.continue")))
 }
 }

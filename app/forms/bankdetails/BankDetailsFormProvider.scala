@@ -21,9 +21,10 @@ import forms.mappings.Mappings
 import models.BankDetails
 import play.api.data.Form
 import play.api.data.Forms.*
+import play.api.data.validation.{Constraint, Invalid, Valid}
 
-import javax.inject.Inject
 import java.util.Locale
+import javax.inject.Inject
 
 class BankDetailsFormProvider @Inject() extends Mappings {
 
@@ -31,7 +32,8 @@ class BankDetailsFormProvider @Inject() extends Mappings {
     value.trim
 
   private def normaliseBic(value: String): String =
-    value.trim.toUpperCase(Locale.ROOT)
+    value.trim
+      .toUpperCase(Locale.ROOT)
 
   private def normaliseIban(value: String): String =
     value
@@ -39,63 +41,90 @@ class BankDetailsFormProvider @Inject() extends Mappings {
       .toUpperCase(Locale.ROOT)
 
   private def normaliseCurrencyCode(value: String): String =
-    value.trim.toUpperCase(Locale.ROOT)
+    value.trim
+      .toUpperCase(Locale.ROOT)
+
+  private def requiredMaxLengthAndPattern(
+    requiredKey: String,
+    lengthKey: String,
+    invalidKey: String,
+    maximumLength: Int,
+    pattern: String
+  ): Constraint[String] =
+    Constraint { value =>
+      if (value.isEmpty) {
+        Invalid(requiredKey)
+      } else if (value.length > maximumLength) {
+        Invalid(lengthKey, maximumLength)
+      } else if (!value.matches(pattern)) {
+        Invalid(invalidKey)
+      } else {
+        Valid
+      }
+    }
+
+  private def requiredAndPattern(
+    requiredKey: String,
+    invalidKey: String,
+    pattern: String
+  ): Constraint[String] =
+    Constraint { value =>
+      if (value.isEmpty) {
+        Invalid(requiredKey)
+      } else if (!value.matches(pattern)) {
+        Invalid(invalidKey)
+      } else {
+        Valid
+      }
+    }
 
   def apply(): Form[BankDetails] =
     Form(
       mapping(
         "NameOnTheAccount" ->
-          text("bankDetails.internationalBankAccountDetails.error.NameOnTheAccount.required")
+          play.api.data.Forms.text
             .transform(trim, identity)
             .verifying(
-              maxLength(
-                70,
-                "bankDetails.internationalBankAccountDetails.error.NameOnTheAccount.length"
-              )
-            )
-            .verifying(
-              regexp(
-                nameOnAccountRegex,
-                "bankDetails.internationalBankAccountDetails.error.NameOnTheAccount.invalid"
+              requiredMaxLengthAndPattern(
+                requiredKey   = "bankDetails.internationalBankAccountDetails.error.NameOnTheAccount.required",
+                lengthKey     = "bankDetails.internationalBankAccountDetails.error.NameOnTheAccount.length",
+                invalidKey    = "bankDetails.internationalBankAccountDetails.error.NameOnTheAccount.invalid",
+                maximumLength = 70,
+                pattern       = nameOnAccountRegex
               )
             ),
         "BIC" ->
-          text("bankDetails.internationalBankAccountDetails.error.BIC.required")
+          play.api.data.Forms.text
             .transform(normaliseBic, identity)
             .verifying(
-              maxLength(
-                11,
-                "bankDetails.internationalBankAccountDetails.error.BIC.length"
-              )
-            )
-            .verifying(
-              regexp(
-                bicRegex,
-                "bankDetails.internationalBankAccountDetails.error.BIC.invalid"
+              requiredMaxLengthAndPattern(
+                requiredKey   = "bankDetails.internationalBankAccountDetails.error.BIC.required",
+                lengthKey     = "bankDetails.internationalBankAccountDetails.error.BIC.length",
+                invalidKey    = "bankDetails.internationalBankAccountDetails.error.BIC.invalid",
+                maximumLength = 11,
+                pattern       = bicRegex
               )
             ),
         "accountNumber" ->
-          text("bankDetails.internationalBankAccountDetails.error.accountNumber.required")
+          play.api.data.Forms.text
             .transform(normaliseIban, identity)
             .verifying(
-              maxLength(
-                34,
-                "bankDetails.internationalBankAccountDetails.error.accountNumber.length"
-              )
-            )
-            .verifying(
-              regexp(
-                ibanRegex,
-                "bankDetails.internationalBankAccountDetails.error.accountNumber.invalid"
+              requiredMaxLengthAndPattern(
+                requiredKey   = "bankDetails.internationalBankAccountDetails.error.accountNumber.required",
+                lengthKey     = "bankDetails.internationalBankAccountDetails.error.accountNumber.length",
+                invalidKey    = "bankDetails.internationalBankAccountDetails.error.accountNumber.invalid",
+                maximumLength = 34,
+                pattern       = ibanRegex
               )
             ),
         "CurrencyOfAccount" ->
-          text("bankDetails.internationalBankAccountDetails.error.CurrencyOfAccount.required")
+          play.api.data.Forms.text
             .transform(normaliseCurrencyCode, identity)
             .verifying(
-              regexp(
-                currencyCodeRegex,
-                "bankDetails.internationalBankAccountDetails.error.CurrencyOfAccount.invalid"
+              requiredAndPattern(
+                requiredKey = "bankDetails.internationalBankAccountDetails.error.CurrencyOfAccount.required",
+                invalidKey  = "bankDetails.internationalBankAccountDetails.error.CurrencyOfAccount.invalid",
+                pattern     = currencyCodeRegex
               )
             )
       )(
