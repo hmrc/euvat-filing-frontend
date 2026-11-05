@@ -36,9 +36,7 @@ class BankDetailsFormProvider @Inject() extends Mappings {
       .toUpperCase(Locale.ROOT)
 
   private def normaliseIban(value: String): String =
-    value
-      .replaceAll("\\s+", "")
-      .toUpperCase(Locale.ROOT)
+    value.toUpperCase(Locale.ROOT)
 
   private def normaliseCurrencyCode(value: String): String =
     value.trim

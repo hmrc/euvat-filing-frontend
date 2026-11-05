@@ -83,7 +83,7 @@ form,
         )
     )
     .withWidth(Full)
-    .withAutocomplete("name-on-the-account")
+    .withAutocomplete("name")
 )
 
 @govukInput(
@@ -105,7 +105,7 @@ form,
         )
     )
     .withWidth(Fixed10)
-    .withAutocomplete("bic")
+    .withAutocomplete("off")
 )
 
 @govukInput(
@@ -127,7 +127,7 @@ form,
         )
     )
     .withWidth(Fixed20)
-    .withAutocomplete("account-number")
+    .withAutocomplete("off")
 )
 
 <div class="govuk-form-group @if(isCurrencyError){govuk-form-group--error}">
