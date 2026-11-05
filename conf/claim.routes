@@ -5,8 +5,8 @@ POST        /change-eu-member-state                 controllers.claim.RefundingC
 
 GET         /cannot-change-eu-state                 controllers.claim.CheckYourStateDetailsController.onPageLoad(mode: Mode = NormalMode)
 POST        /cannot-change-eu-state                 controllers.claim.CheckYourStateDetailsController.onSubmit(mode: Mode = NormalMode)
-GET         /change-cannot-change-eu-state          controllers.claim.CheckYourStateDetailsController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-cannot-change-eu-state          controllers.claim.CheckYourStateDetailsController.onSubmit(mode: Mode = CheckMode)
+GET         /cannot-change-eu-state                 controllers.claim.CheckYourStateDetailsController.onPageLoad(mode: Mode = CheckMode)
+POST        /cannot-change-eu-state                 controllers.claim.CheckYourStateDetailsController.onSubmit(mode: Mode = CheckMode)
 
 GET         /language                               controllers.claim.RefundingLanguageController.onPageLoad(mode: Mode = NormalMode)
 POST        /language                               controllers.claim.RefundingLanguageController.onSubmit(mode: Mode = NormalMode)
