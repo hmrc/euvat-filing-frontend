@@ -23,23 +23,20 @@ import javax.inject.{Inject, Singleton}
 import scala.util.{Failure, Success, Try}
 
 @Singleton
-class BankDetailsEncryption @Inject() (configuration: Configuration) extends Logging {
+class CryptoProvider @Inject() (config: Configuration) extends Logging {
 
-  private val KnownText = "knowntext"
+  private val crypto = SymmetricCryptoFactory.aesGcmCryptoFromConfig("encryption.config.key", config.underlying)
 
-  private val crypto =
-    SymmetricCryptoFactory.aesGcmCryptoFromConfig("bankDetails.encryption", configuration.underlying)
+  def encrypt(iban: String, bic: String): (String, String) =
+    (crypto.encrypt(PlainText(iban)).value, crypto.encrypt(PlainText(bic)).value)
 
-  def encrypt(plainText: String): String =
-    crypto.encrypt(PlainText(plainText)).value
-
-  def decrypt(cipherText: String): Option[String] =
-    Try(crypto.decrypt(Crypted(cipherText)).value) match {
-      case Success(value) => Some(value)
+  def decrypt(encryptedIban: String, encryptedBic: String): Option[(String, String)] =
+    Try((crypto.decrypt(Crypted(encryptedIban)).value, crypto.decrypt(Crypted(encryptedBic)).value)) match {
+      case Success(values) => Some(values)
       case Failure(_) =>
-        logger.warn("Failed to decrypt bank details value")
+        logger.warn("Failed to decrypt bank details")
         None
     }
 
-  def knownCipherText: String = encrypt(KnownText)
+  def knownCipherText: String = crypto.encrypt(PlainText("knowntext")).value
 }
