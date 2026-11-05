@@ -32,7 +32,7 @@
 
 @layout(pageTitle = title(form, messages("sadReferenceNumber.title"))) {
 
-    @formHelper(action = controllers.imports.routes.SadReferenceNumberController.onSubmit(mode)) {
+    @formHelper(action = controllers.imports.routes.SadReferenceNumberController.onSubmit(mode), Symbol("autoComplete") -> "on") {
 
         @mainErrorSummary(form, errorLinkOverrides = Map("value" -> "value"))
 
