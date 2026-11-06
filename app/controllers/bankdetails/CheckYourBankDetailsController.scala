@@ -18,10 +18,15 @@ package controllers.bankdetails
 
 import config.InternationalCurrencyProvider
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
-import models.CheckMode
+import models.requests.UpdateApplicationDetailsRequest
+import models.{AccountHolder, BankDetails, CheckMode, ApplicationDetails, UserAnswers}
+import pages.bankdetails.{AccountHolderPage, BankDetailsPage}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.*
+import queries.{BankDetailsCompletedQuery, ClaimApplicationResponseQuery, UpdateSequenceNumberQuery}
+import repositories.SessionRepository
+import services.EuVatRefundsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.checkAnswers.CheckYourBankDetailsSummary
 import views.html.bankdetails.CheckYourBankDetailsView
@@ -36,7 +41,9 @@ class CheckYourBankDetailsController @Inject() (
   requireData: DataRequiredAction,
   val controllerComponents: MessagesControllerComponents,
   view: CheckYourBankDetailsView,
-  currencyProvider: InternationalCurrencyProvider
+  currencyProvider: InternationalCurrencyProvider,
+  sessionRepository: SessionRepository,
+  service: EuVatRefundsService
 )(using ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
@@ -51,7 +58,72 @@ class CheckYourBankDetailsController @Inject() (
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    // TODO F5.2 (DTR-8857): build the update request with BIC/IBAN encrypted via F5.3
-    Future.successful(Redirect(controllers.routes.TaskListDashboardController.onPageLoad()))
+    val userAnswers = request.userAnswers
+
+    userAnswers.get(ClaimApplicationResponseQuery) match {
+      case Some(claimApplicationResponse) =>
+        val applicationId = claimApplicationResponse.applicationId
+        service
+          .getApplicationDetails(applicationId)
+          .flatMap { applicationDetailsResponse =>
+            applicationDetailsResponse.applicationDetails.headOption match {
+              case Some(application) =>
+                if (bankDetailsUnchanged(userAnswers, application)) {
+                  logger.info("No changes to save. Redirecting to task list")
+                  Future.successful(Redirect(controllers.routes.TaskListDashboardController.onPageLoad()))
+                } else {
+                  updateApplicationAndRedirect(userAnswers, application)
+                }
+              case _ =>
+                logger.error(s"No application details found for applicationId: $applicationId")
+                Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+            }
+          }
+          .recover { case ex =>
+            logger.error("Error while retrieving or saving application details", ex)
+            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+          }
+      case _ =>
+        logger.error("ClaimApplicationResponseQuery is missing in session")
+        Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+    }
+  }
+
+  private def updateApplicationAndRedirect(userAnswers: UserAnswers, applicationDetails: ApplicationDetails)(using RequestHeader) = {
+    val request = UpdateApplicationDetailsRequest.from(userAnswers, applicationDetails)
+    service
+      .updateApplicationDetails(request)
+      .flatMap { updateApplicationResponse =>
+        val updateSequenceNumber = updateApplicationResponse.updateSequenceNumber
+        for {
+          seqNumUpdated        <- Future.fromTry(userAnswers.set(UpdateSequenceNumberQuery, updateSequenceNumber))
+          bankDetailsCompleted <- Future.fromTry(seqNumUpdated.set(BankDetailsCompletedQuery, true))
+          _                    <- sessionRepository.set(bankDetailsCompleted)
+        } yield Redirect(controllers.routes.TaskListDashboardController.onPageLoad())
+      }
+  }
+
+  private def bankDetailsUnchanged(userAnswers: UserAnswers, applicationDetails: ApplicationDetails): Boolean = {
+
+    val bankDetailsUnchanged = userAnswers.get(BankDetailsPage) match {
+      case Some(bankDetails) =>
+        applicationDetails.bankAccountOwnerName.contains(bankDetails.NameOnTheAccount) &&
+        applicationDetails.bicCode.contains(bankDetails.BIC) &&
+        applicationDetails.ibanCode.contains(bankDetails.accountNumber) &&
+        applicationDetails.bankAccountCurrencyCode.contains(bankDetails.CurrencyOfAccount)
+      case _ =>
+        logger.error("Bank details not found in session")
+        throw new RuntimeException("Bank details missing from session")
+    }
+
+    val accountHolderUnchanged = userAnswers.get(AccountHolderPage) match {
+      case Some(accountHolder) =>
+        applicationDetails.bankAccountOwnerType.contains(accountHolder.toString)
+      case _ =>
+        logger.error("Account holder not found in session")
+        throw new RuntimeException("Account holder missing from session")
+    }
+
+    bankDetailsUnchanged && accountHolderUnchanged
   }
 }

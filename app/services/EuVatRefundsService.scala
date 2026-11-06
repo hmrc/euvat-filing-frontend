@@ -83,6 +83,9 @@ class EuVatRefundsService @Inject() (euVatRefundsConnector: EuVatRefundsConnecto
   def updateApplicationDetails(request: UpdateApplicationDetailsRequest)(implicit hc: HeaderCarrier): Future[UpdateApplicationDetailsResponse] =
     euVatRefundsConnector.updateApplicationDetails(request)
 
+  def getApplicationDetails(applicationId: Long)(implicit hc: HeaderCarrier): Future[ApplicationDetailsResponse] =
+    euVatRefundsConnector.getApplicationDetails(applicationId)
+
   def getSadReferenceCount(request: SadReferenceCountRequest)(implicit hc: HeaderCarrier): Future[SadReferenceCountResponse] = {
     euVatRefundsConnector.getSadReferenceCount(request)
   }
