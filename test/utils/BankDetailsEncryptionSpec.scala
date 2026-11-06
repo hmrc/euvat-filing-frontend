@@ -23,17 +23,38 @@ import play.api.Configuration
 
 class BankDetailsEncryptionSpec extends AnyWordSpec with Matchers {
 
-  private val provider = new CryptoProvider(Configuration(ConfigFactory.load()))
+  private val provider = new BankDetailsEncryption(Configuration(ConfigFactory.load()))
   private val iban = "DE89370400440532013000"
   private val bic = "DEUTDEFF513"
 
-  "CryptoProvider" should {
+  "BankDetailsEncryption" should {
 
     "decrypt an encrypted value back to the original" in {
       val encrypted = provider.encrypt(iban)
 
       encrypted                     should not be iban
       provider.decrypt(encrypted) shouldBe Some(iban)
+    }
+
+    "decrypt an encrypted BIC back to the original" in {
+      val encrypted = provider.encrypt(bic)
+
+      encrypted should not be bic
+      provider.decrypt(encrypted) shouldBe Some(bic)
+    }
+
+    "decrypt an encrypted 8-character BIC back to the original" in {
+      val shortBic = "DEUTDEFF"
+      val encrypted = provider.encrypt(shortBic)
+
+      provider.decrypt(encrypted) shouldBe Some(shortBic)
+    }
+
+    "decrypt an encrypted long IBAN back to the original" in {
+      val longIban = "MT84MALT011000012345MTLCAST001S"
+      val encrypted = provider.encrypt(longIban)
+
+      provider.decrypt(encrypted) shouldBe Some(longIban)
     }
 
     "produce a different encrypted value each time for the same input" in {
