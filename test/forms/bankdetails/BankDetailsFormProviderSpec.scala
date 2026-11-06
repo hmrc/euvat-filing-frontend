@@ -133,7 +133,6 @@ class BankDetailsFormProviderSpec extends AnyFreeSpec with Matchers {
           Some(value)
       }
 
-
       "must bind a value with exactly 70 characters" in {
 
         val value =
