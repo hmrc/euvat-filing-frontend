@@ -117,7 +117,7 @@ class BankDetailsControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must populate the view correctly on a GET when the question has previously been answered" in {
+    "must populate account-holder-name and currency but BIC and IBAN should be empty on a GET when the question has previously been answered" in {
 
       val application =
         applicationBuilder(
@@ -137,11 +137,12 @@ class BankDetailsControllerSpec extends SpecBase with MockitoSugar {
         val result =
           route(application, request).value
 
-        status(result) mustEqual OK
+        val bankDetailsWithBicAndAccountNumberEmpty = validBankDetails.copy(BIC = "", accountNumber = "")
 
+        status(result) mustEqual OK
         contentAsString(result) mustEqual
           view(
-            form.fill(validBankDetails),
+            form.fill(bankDetailsWithBicAndAccountNumberEmpty),
             NormalMode,
             internationalCurrencyProvider.currencies
           )(

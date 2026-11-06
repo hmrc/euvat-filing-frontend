@@ -17,36 +17,44 @@
 @import views.html.components.*
 
 @this(
-layout: templates.Layout,
-formHelper: FormWithCSRF,
-govukButton: GovukButton,
-customSummaryList: CustomSummaryList
+  layout: templates.Layout,
+  formHelper: FormWithCSRF,
+  govukButton: GovukButton,
+  customSummaryList: CustomSummaryList
 )
 
-@(rows: Seq[(String, Option[String], Seq[(String, String, String)])], changeUrl: String)(implicit request: Request[_], messages: Messages)
+@(rows: Seq[(String, Option[String], Seq[(String, String, String)])], changeUrl: String, bankDetailsCompleted: Boolean)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("bankDetails.checkYourBankDetails.title")), showBackLink = false) {
 
-<h1 class="govuk-heading-l">
-    <span class="govuk-caption-l">@messages("bankDetails.caption")</span>
+  <span class="govuk-caption-l">@messages("bankDetails.caption")</span>
+
+  <h1 class="govuk-heading-l">
     @messages("bankDetails.checkYourBankDetails.heading")
-</h1>
+  </h1>
 
-<div class="govuk-summary-card">
-    <div class="govuk-summary-card__title-wrapper">
-        <h2 class="govuk-summary-card__title">@messages("bankDetails.checkYourBankDetails.card.title")</h2>
-        <div class="govuk-summary-card__actions">
-            <a class="govuk-link" href="@changeUrl">
-                @messages("site.change")<span class="govuk-visually-hidden"> @messages("bankDetails.checkYourBankDetails.change.hidden")</span>
-            </a>
-        </div>
-    </div>
-    <div class="govuk-summary-card__content">
-        @customSummaryList(rows)
-    </div>
-</div>
 
-@formHelper(action = controllers.bankdetails.routes.CheckYourBankDetailsController.onSubmit(), Symbol("autoComplete") -> "off") {
-@govukButton(ButtonViewModel(messages("site.save.continue")))
-}
+  @if(bankDetailsCompleted) {
+    <p class="govuk-body">
+      @messages("bankDetails.checkYourBankDetails.paragraph")
+    </p>
+  }
+
+  <div class="govuk-summary-card">
+      <div class="govuk-summary-card__title-wrapper">
+          <h2 class="govuk-summary-card__title">@messages("bankDetails.checkYourBankDetails.card.title")</h2>
+          <div class="govuk-summary-card__actions">
+              <a class="govuk-link" href="@changeUrl">
+                  @messages("site.change")<span class="govuk-visually-hidden"> @messages("bankDetails.checkYourBankDetails.change.hidden")</span>
+              </a>
+          </div>
+      </div>
+      <div class="govuk-summary-card__content">
+          @customSummaryList(rows)
+      </div>
+  </div>
+
+  @formHelper(action = controllers.bankdetails.routes.CheckYourBankDetailsController.onSubmit(), Symbol("autoComplete") -> "off") {
+    @govukButton(ButtonViewModel(messages("site.save.continue")))
+  }
 }

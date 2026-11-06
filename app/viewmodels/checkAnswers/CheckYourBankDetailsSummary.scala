@@ -19,8 +19,12 @@ package viewmodels.checkAnswers
 import models.{Currency, UserAnswers}
 import pages.bankdetails.{AccountHolderPage, BankDetailsPage}
 import play.api.i18n.Messages
+import queries.BankDetailsCompletedQuery
+import utils.BankDetailsMaskUtils
 
 object CheckYourBankDetailsSummary {
+
+  private val hiddenFieldText = "Hidden for security reasons"
 
   type Row = (String, Option[String], Seq[(String, String, String)])
 
@@ -33,7 +37,7 @@ object CheckYourBankDetailsSummary {
       rowCurrency(answers, currencies)
     ).flatten
 
-  def rowAccountHolder(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
+  private def rowAccountHolder(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
     answers.get(AccountHolderPage).map { answer =>
       (
         messages("bankDetails.checkYourBankDetails.accountHolder.label"),
@@ -42,22 +46,26 @@ object CheckYourBankDetailsSummary {
       )
     }
 
-  def rowAccountName(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
+  private def rowAccountName(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
     answers.get(BankDetailsPage).map { details =>
       (messages("bankDetails.checkYourBankDetails.accountName.label"), Some(details.NameOnTheAccount), Seq.empty)
     }
 
-  def rowBic(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
+  private def rowBic(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
     answers.get(BankDetailsPage).map { details =>
-      (messages("bankDetails.checkYourBankDetails.bic.label"), Some(details.BIC), Seq.empty)
+      val bankDetailsCompleted = answers.get(BankDetailsCompletedQuery).getOrElse(false)
+      val bicCode = if (bankDetailsCompleted) BankDetailsMaskUtils.maskLastFour(details.BIC) else hiddenFieldText
+      (messages("bankDetails.checkYourBankDetails.bic.label"), Option(bicCode), Seq.empty)
     }
 
-  def rowIban(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
+  private def rowIban(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
     answers.get(BankDetailsPage).map { details =>
-      (messages("bankDetails.checkYourBankDetails.iban.label"), Some(details.accountNumber), Seq.empty)
+      val bankDetailsCompleted = answers.get(BankDetailsCompletedQuery).getOrElse(false)
+      val accountNumber = if (bankDetailsCompleted) BankDetailsMaskUtils.maskLastFour(details.accountNumber) else hiddenFieldText
+      (messages("bankDetails.checkYourBankDetails.iban.label"), Option(accountNumber), Seq.empty)
     }
 
-  def rowCurrency(answers: UserAnswers, currencies: Seq[Currency])(implicit messages: Messages): Option[Row] =
+  private def rowCurrency(answers: UserAnswers, currencies: Seq[Currency])(implicit messages: Messages): Option[Row] =
     answers.get(BankDetailsPage).map { details =>
       val label = currencies
         .find(_.code == details.CurrencyOfAccount)
