@@ -78,7 +78,7 @@ class TaskListViewModel @Inject() {
     TaskListItem(
       title  = TaskListItemTitle(content = Text(messages("taskListDashboard.listItem3"))),
       status = if (claimDetailsDone) notStartedStatus else cannotStartStatus,
-      href   = if (claimDetailsDone) Some("#") else None
+      href   = if (claimDetailsDone) Some(controllers.supportingdocuments.routes.BeforeYouStartSupportingDocsController.onPageLoad().url) else None
     )
   }
 

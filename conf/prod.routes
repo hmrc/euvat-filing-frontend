@@ -8,3 +8,4 @@
 ->      /file-eu-vat/import                 imports.Routes
 ->      /file-eu-vat/warning                warning.Routes
 ->      /file-eu-vat/bank-details           bankdetails.Routes
+->      /file-eu-vat/supporting-documents   supportingdocuments.Routes
