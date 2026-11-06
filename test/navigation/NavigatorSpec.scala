@@ -289,9 +289,9 @@ class NavigatorSpec extends SpecBase {
           controllers.bankdetails.routes.BankDetailsController.onPageLoad(NormalMode)
       }
 
-      "must go from BankDetailsPage to Journey Recovery" in {
+      "must go from BankDetailsPage to CheckYourBankDetailsController" in {
         navigator.nextPage(BankDetailsPage, NormalMode, userAnswers) mustBe
-          controllers.routes.JourneyRecoveryController.onPageLoad()
+          controllers.bankdetails.routes.CheckYourBankDetailsController.onPageLoad()
       }
 
       "must go from a page that doesn't exist in the route map to Index" in {
@@ -439,9 +439,9 @@ class NavigatorSpec extends SpecBase {
           controllers.bankdetails.routes.BankDetailsController.onPageLoad(CheckMode)
       }
 
-      "must go from BankDetailsPage to Journey Recovery" in {
+      "must go from BankDetailsPage to CheckYourBankDetailsController" in {
         navigator.nextPage(BankDetailsPage, CheckMode, userAnswers) mustBe
-          controllers.routes.JourneyRecoveryController.onPageLoad()
+          controllers.bankdetails.routes.CheckYourBankDetailsController.onPageLoad()
       }
 
       "must go from a page that doesn't exist in the edit route map to IndexController" in {

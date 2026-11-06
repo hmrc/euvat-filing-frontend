@@ -82,7 +82,7 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case ImportTotalVatClaimPage           => userAnswers => importNavigator.navigateFromImportTotalVatClaimPage(NormalMode)(userAnswers)
     case RemoveItemPage                    => userAnswers => navigateFromRemoveItemPage(userAnswers)
     case AccountHolderPage                 => _ => controllers.bankdetails.routes.BankDetailsController.onPageLoad(NormalMode)
-    case BankDetailsPage                   => _ => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: RA7.4 bank details CYA
+    case BankDetailsPage                   => _ => controllers.bankdetails.routes.CheckYourBankDetailsController.onPageLoad()
     case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 
@@ -126,7 +126,7 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case TotalVatPaidImportPage            => userAnswers => importNavigator.navigateFromTotalVatPaidImportPage(CheckMode)(userAnswers)
     case ImportTotalVatClaimPage           => userAnswers => importNavigator.navigateFromImportTotalVatClaimPage(CheckMode)(userAnswers)
     case AccountHolderPage                 => _ => controllers.bankdetails.routes.BankDetailsController.onPageLoad(CheckMode)
-    case BankDetailsPage                   => _ => controllers.routes.JourneyRecoveryController.onPageLoad() // TODO: RA7.4 bank details CYA
+    case BankDetailsPage                   => _ => controllers.bankdetails.routes.CheckYourBankDetailsController.onPageLoad()
     case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 
