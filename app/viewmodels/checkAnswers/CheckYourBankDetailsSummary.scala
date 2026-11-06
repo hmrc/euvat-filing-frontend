@@ -60,6 +60,6 @@ object CheckYourBankDetailsSummary {
   private def formatCurrency(description: String): String =
     description.split(",", 2).map(_.trim) match {
       case Array(country, currency) => s"$country (${currency.toLowerCase})"
-      case _ => description
+      case _                        => description
     }
 }

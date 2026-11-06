@@ -28,7 +28,6 @@ import javax.inject.Inject
 
 class BankDetailsFormProvider @Inject() extends Mappings {
 
-
   private def normaliseBic(value: String): String =
     value.trim
 

@@ -289,11 +289,6 @@ class NavigatorSpec extends SpecBase {
           controllers.bankdetails.routes.BankDetailsController.onPageLoad(NormalMode)
       }
 
-      "must go from BankDetailsPage to Journey Recovery" in {
-        navigator.nextPage(BankDetailsPage, NormalMode, userAnswers) mustBe
-          controllers.bankdetails.routes.BankDetailsController.onPageLoad(NormalMode)
-      }
-
       "must go from BankDetailsPage to CheckYourBankDetailsController" in {
         navigator.nextPage(BankDetailsPage, NormalMode, userAnswers) mustBe
           controllers.bankdetails.routes.CheckYourBankDetailsController.onPageLoad()
@@ -441,11 +436,6 @@ class NavigatorSpec extends SpecBase {
 
       "must go from AccountHolderPage to BankDetailsController" in {
         navigator.nextPage(AccountHolderPage, CheckMode, userAnswers) mustBe
-          controllers.bankdetails.routes.BankDetailsController.onPageLoad(CheckMode)
-      }
-
-      "must go from BankDetailsPage to Journey Recovery" in {
-        navigator.nextPage(BankDetailsPage, CheckMode, userAnswers) mustBe
           controllers.bankdetails.routes.BankDetailsController.onPageLoad(CheckMode)
       }
 

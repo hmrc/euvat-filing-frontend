@@ -107,7 +107,7 @@ class CheckYourBankDetailsControllerSpec extends SpecBase {
           html must include("United Kingdom (pounds)")
         }
       }
-      
+
       "must fall back to the currency code when it is not in config" in {
         val ua = applicantAnswers
           .set(BankDetailsPage, BankDetails("Joe Bloggs", "NWBKGB2LXXX", "GB29NWBK60161331926819", "XXX"))
