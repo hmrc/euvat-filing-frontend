@@ -578,6 +578,8 @@ import.refundingCurrency.error.required = Select a currency for this import
 
 checkYourImportDetails.title = Check your answers
 checkYourImportDetails.heading = Check your answers
+changeYourImportDetails.title = Change your answers
+changeYourImportDetails.heading = Change your answers
 checkYourImportDetails.importCategory = Import category
 checkYourImportDetails.importDocumentDetails = Import document details
 checkYourImportDetails.supplierDetails = Supplier details

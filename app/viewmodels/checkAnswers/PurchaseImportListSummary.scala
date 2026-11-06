@@ -19,6 +19,7 @@ package viewmodels.checkAnswers
 import models.requests.DataRequest
 import models.{PurchaseImport, PurchaseOrImportType, UserAnswers}
 import queries.ClaimApplicationResponseQuery
+import controllers.imports.routes as importRoutes
 import controllers.purchase.routes as purchaseRoutes
 import controllers.imports.routes as importsRoutes
 import play.api.i18n.Messages
@@ -53,8 +54,7 @@ object PurchaseImportListSummary {
           case Some(appId) if vatClaim == 0 && item.itemType == "P" => purchaseRoutes.PurchaseTypeController.addDetails(appId, itemNumber).url
           case Some(appId) if vatClaim == 0 && item.itemType == "I" => importsRoutes.ImportTypeController.addDetails(appId, itemNumber).url
           case Some(appId) if item.itemType == "P" => purchaseRoutes.CheckYourPurchaseDetailsController.changeYourAnswers(appId, itemNumber).url
-          // TODO update when DTR-8669 is merged to main importsRoutes.CheckYourPurchaseDetailsController.changeYourAnswers(appId, itemNumber).url
-          case Some(appId) if item.itemType == "I" => routes.JourneyRecoveryController.onPageLoad().url
+          case Some(appId) if item.itemType == "I" => importsRoutes.CheckYourImportDetailsController.changeYourAnswers(appId, itemNumber).url
           case _                                   => routes.JourneyRecoveryController.onPageLoad().url
 
         val currencySymbol = if (vatClaim == 0) "" else ControllerHelpers.currencySymbolFromSession(userAnswers, config)

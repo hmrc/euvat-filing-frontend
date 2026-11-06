@@ -17,7 +17,6 @@
 package models.responses
 
 import play.api.libs.json.{Json, OFormat}
-
 import java.time.LocalDateTime
 
 case class ImportDetailsResponse(
@@ -30,15 +29,15 @@ case class ImportDetailsResponse(
   supplierAddressLine3: Option[String],
   supplierCountryCode: Option[String],
   goodsDescriptionCategory: String,
+  goodsDescriptionSubcategory: Option[String],
+  goodsDescriptionText: Option[String],
+  hasSadReferenceNumber: Option[String],
+  sadReferenceNumber: Option[String],
+  referenceInformation: Option[String],
   currencyCode: Option[String],
   taxableAmount: Option[BigDecimal],
   vatAmount: Option[BigDecimal],
   deductibleVatAmount: Option[BigDecimal],
-  hasSadReferenceNumber: Option[String],
-  sadReferenceNumber: Option[String],
-  referenceInformation: Option[String],
-  goodsDescriptionText: Option[String],
-  goodsDescriptionSubcategory: Option[String],
   updateSequenceNumber: Int
 )
 
