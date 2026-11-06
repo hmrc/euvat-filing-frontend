@@ -25,6 +25,7 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
+import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatestplus.mockito.MockitoSugar
 import pages.PurchaseOrImportPage
 import pages.claim.{CountryChangedPage, RefundingCountryPage}
@@ -39,8 +40,9 @@ import utils.ConfigPurchaseOrImportMapping
 import views.html.purchasesOrImports.PurchaseOrImportTypeView
 
 import scala.concurrent.Future
+import scala.jdk.CollectionConverters.*
 
-class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
+class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar with TableDrivenPropertyChecks {
 
   val onwardRoute: Call = Call("GET", "/foo")
   lazy val purchaseTypeRoute: String = routes.PurchaseTypeController.onPageLoad(NormalMode).url
@@ -83,15 +85,10 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
       }
 
       val userAnswers = emptyUserAnswers
-        .set(PurchaseTypePage, Other)
-        .success
-        .value
-        .set(DescribeItemsArrivedFromCheckYourAnswersPage, true)
-        .success
-        .value
-        .set(RefundingCountryPage, "EE")
-        .success
-        .value
+        .set(PurchaseTypePage, Other).success.value
+        .set(PurchaseSubTypePage, "1.99").success.value
+        .set(DescribeItemsArrivedFromCheckYourAnswersPage, true).success.value
+        .set(RefundingCountryPage, "EE").success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
@@ -782,52 +779,6 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must clear the purchase chain when CountryChangedPage is true" in {
-      val mockSessionRepository = mock[SessionRepository]
-      when(mockSessionRepository.set(any())).thenReturn(scala.concurrent.Future.successful(true))
-
-      val userAnswers = emptyUserAnswers
-        .set(PurchaseTypePage, Fuel)
-        .success
-        .value
-        .set(PurchaseSubTypePage, "1")
-        .success
-        .value
-        .set(PurchaseSubTypeLabelPage, "lbl")
-        .success
-        .value
-        .set(PurchaseSubCategoryPage, "1.1")
-        .success
-        .value
-        .set(PurchaseSubCategoryLabelPage, "lbl2")
-        .success
-        .value
-        .set(CountryChangedPage, true)
-        .success
-        .value
-
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
-        .build()
-
-      running(application) {
-        val request = FakeRequest(GET, purchaseTypeRoute)
-        val result = route(application, request).value
-
-        status(result) mustEqual OK
-
-        val captor = org.mockito.ArgumentCaptor.forClass(classOf[UserAnswers])
-        verify(mockSessionRepository, times(1)).set(captor.capture())
-        val saved = captor.getValue
-        saved.get(PurchaseTypePage) mustBe None
-        saved.get(PurchaseSubTypePage) mustBe None
-        saved.get(PurchaseSubTypeLabelPage) mustBe None
-        saved.get(PurchaseSubCategoryPage) mustBe None
-        saved.get(PurchaseSubCategoryLabelPage) mustBe None
-        saved.get(CountryChangedPage) mustBe None
-      }
-    }
-
     "must add the purchase, persist the response, and redirect when valid data is submitted" in {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
@@ -1111,6 +1062,98 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar {
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
 
         verify(mockSessionRepository, never()).set(any[UserAnswers])
+      }
+    }
+    "must return a Bad Request and errors when invalid data is submitted" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(POST, purchaseTypeSubmitRoute).withFormUrlEncodedBody("value" -> "invalid")
+        val result = route(application, request).value
+        val view = application.injector.instanceOf[PurchaseOrImportTypeView]
+        val formProvider = application.injector.instanceOf[PurchaseTypeFormProvider]
+        val boundForm = formProvider().bind(Map("value" -> "invalid"))
+
+        status(result) mustEqual BAD_REQUEST
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
+          view(boundForm, NormalMode, routes.PurchaseTypeController.onSubmit(NormalMode), "purchaseType", "purchase.caption",
+            legendKey = Some("purchaseType.h2"))(request, messages(application)).toString
+        )
+      }
+    }
+
+    "must return to describe items when unchanged, Other + none, no description, but the country has real subcodes" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+
+      val fakeConfig = new ConfigPurchaseOrImportMapping() {
+        override def subcodesFor(country: String, parentKey: String) =
+          Seq(("10.1", "purchase.sub.other.1"), ("10.99", "purchase.sub.other.99"))
+      }
+
+      val userAnswers = emptyUserAnswers
+        .set(RefundingCountryPage, "BE").success.value
+        .set(PurchaseTypePage, Other).success.value
+        .set(PurchaseSubTypePage, "10.99").success.value
+        .set(DescribeItemsArrivedFromCheckYourAnswersPage, true).success.value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(
+          bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig),
+          bind[SessionRepository].toInstance(mockSessionRepository)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, purchaseTypeSubmitRouteCheck).withFormUrlEncodedBody("value" -> Other.toString)
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.DescribeItemsOnInvoiceController.onPageLoad(CheckMode).url
+
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(mockSessionRepository, atLeastOnce()).set(captor.capture())
+        captor.getAllValues.asScala.last.get(DescribeItemsArrivedFromCheckYourAnswersPage) mustBe None
+      }
+    }
+
+    "must redirect to the sub-type page and clear the arrival flag when value changed" - {
+      val flags = Table(
+        "flag",
+        DescribeItemsArrivedFromCheckYourAnswersPage,
+        PurchaseSubTypeArrivedFromCheckYourAnswersPage,
+        PurchaseSubCategoryArrivedFromCheckYourAnswersPage
+      )
+
+      forAll(flags) { flag =>
+        s"when $flag is set" in {
+          val mockSessionRepository = mock[SessionRepository]
+          when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+
+          val fakeConfig = new ConfigPurchaseOrImportMapping() {
+            override def subcodesFor(country: String, parentKey: String) = Seq(("1", "purchase.sub.fuel.1"))
+          }
+
+          val application = applicationBuilder(userAnswers = Some(emptyUserAnswers.set(flag, true).success.value))
+            .overrides(
+              bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig),
+              bind[SessionRepository].toInstance(mockSessionRepository)
+            )
+            .build()
+
+          running(application) {
+            val request = FakeRequest(POST, purchaseTypeSubmitRouteCheck).withFormUrlEncodedBody("value" -> Fuel.toString)
+            val result = route(application, request).value
+
+            status(result) mustEqual SEE_OTHER
+            redirectLocation(result).value mustEqual
+              routes.PurchaseSubTypeController.onPageLoad(PurchaseOrImportType.urlSlugForPurchaseType(Fuel), CheckMode).url
+
+            val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+            verify(mockSessionRepository, atLeastOnce()).set(captor.capture())
+            captor.getAllValues.asScala.last.get(flag) mustBe None
+          }
+        }
       }
     }
   }

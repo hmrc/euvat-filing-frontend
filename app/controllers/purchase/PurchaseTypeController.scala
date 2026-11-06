@@ -22,14 +22,14 @@ import models.*
 import models.requests.{AddPurchaseRequest, DataRequest}
 import models.responses.{AddPurchaseResponse, ApplicationResponse, PurchaseDetailsResponse}
 import navigation.Navigator
-import pages.{PurchaseOrImportPage, QuestionPage}
-import pages.claim.CountryChangedPage
 import pages.purchase.*
+import pages.{PurchaseOrImportPage, QuestionPage}
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.*
-import queries.{ClaimApplicationResponseQuery, InvoiceNumberFlagQuery, PurchaseDetailResponseQuery, PurchaseDetailRoute, PurchaseDetailRouteQuery, Settable, UpdateSequenceNumberQuery}
+import play.twirl.api.HtmlFormat
+import queries.*
 import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.http.HeaderCarrier
@@ -61,54 +61,13 @@ class PurchaseTypeController @Inject() (
 
   val form: Form[PurchaseOrImportType] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    if (request.userAnswers.get(CountryChangedPage).contains(true)) {
-      val clearedTry = for {
-        afterRemovedPurchaseType        <- request.userAnswers.remove(PurchaseTypePage)
-        afterRemovedPurchaseSubType     <- afterRemovedPurchaseType.remove(PurchaseSubTypePage)
-        afterRemovedPurchaseSubTypeLbl  <- afterRemovedPurchaseSubType.remove(PurchaseSubTypeLabelPage)
-        afterRemovedPurchaseSubCategory <- afterRemovedPurchaseSubTypeLbl.remove(PurchaseSubCategoryPage)
-        afterRemovedPurchaseSubCatLbl   <- afterRemovedPurchaseSubCategory.remove(PurchaseSubCategoryLabelPage)
-        afterClearedFlag                <- afterRemovedPurchaseSubCatLbl.remove(CountryChangedPage)
-      } yield afterClearedFlag
-
-      Future
-        .fromTry(clearedTry)
-        .flatMap(updated =>
-          sessionRepository
-            .set(updated)
-            .map(_ => {
-              val preparedForm = updated.get(PurchaseTypePage).fold(form)(form.fill)
-              Ok(
-                view(
-                  preparedForm,
-                  mode,
-                  routes.PurchaseTypeController.onSubmit(mode),
-                  "purchaseType",
-                  "purchase.caption",
-                  true,
-                  legendKey = Some("purchaseType.h2")
-                )
-              )
-            })
-        )
-    } else {
-      val preparedForm = request.userAnswers.get(PurchaseTypePage).fold(form)(form.fill)
-      Future.successful(
-        Ok(
-          view(
-            preparedForm,
-            mode,
-            routes.PurchaseTypeController.onSubmit(mode),
-            "purchaseType",
-            "purchase.caption",
-            true,
-            legendKey = Some("purchaseType.h2")
-          )
-        )
-      )
-    }
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+    val preparedForm = request.userAnswers.get(PurchaseTypePage).fold(form)(form.fill)
+    Ok(renderView(preparedForm, mode))
   }
+
+  private def renderView(form: Form[PurchaseOrImportType], mode: Mode)(implicit request: DataRequest[?]): HtmlFormat.Appendable =
+    view(form, mode, routes.PurchaseTypeController.onSubmit(mode), "purchaseType", "purchase.caption", true, legendKey = Some("purchaseType.h2"))
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
@@ -247,19 +206,6 @@ class PurchaseTypeController @Inject() (
         catch { case _: Throwable => None }
       }
       .getOrElse(true)
-
-  private def removeFlagThenRedirectToSubType(flagPage: QuestionPage[Boolean], answers: UserAnswers, value: PurchaseOrImportType)(implicit
-    req: RequestHeader
-  ): Future[Result] = {
-    val removeTry = answers.remove(flagPage)
-    Future.fromTry(removeTry).flatMap { ua =>
-      sessionRepository.set(ua).map { _ =>
-        redirectWithPrefix(
-          routes.PurchaseSubTypeController.onPageLoad(PurchaseOrImportType.urlSlugForPurchaseType(value), CheckMode)
-        )
-      }
-    }
-  }
 
   private def removeFlagAndRedirect(flagPage: QuestionPage[Boolean], answers: UserAnswers, call: => Call)(implicit
     req: RequestHeader
