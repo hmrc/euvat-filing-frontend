@@ -24,6 +24,15 @@ object CheckYourBankDetailsSummary {
 
   type Row = (String, Option[String], Seq[(String, String, String)])
 
+  def rows(answers: UserAnswers, currencies: Seq[Currency])(implicit messages: Messages): Seq[Row] =
+    Seq(
+      rowAccountHolder(answers),
+      rowAccountName(answers),
+      rowBic(answers),
+      rowIban(answers),
+      rowCurrency(answers, currencies)
+    ).flatten
+
   def rowAccountHolder(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
     answers.get(AccountHolderPage).map { answer =>
       (

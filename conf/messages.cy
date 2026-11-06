@@ -260,8 +260,8 @@ checkYourClaimDetails.paragraph = You cannot change the refunding EU member stat
 checkYourClaimDetails.claimDetails.title = Claim details
 checkYourClaimDetails.claimDetails.heading = Claim details
 
-checkYourStateDetails.title = EU member state details
-checkYourStateDetails.heading = EU member state details
+checkYourStateDetails.title = Cannot change EU member state
+checkYourStateDetails.heading = Cannot change EU member state
 checkYourStateDetails.p1 = You cannot change the refunding EU member state for an existing claim.
 checkYourStateDetails.p2 = If you want to claim a VAT refund from a different EU member state, you must delete this claim and start a new one. Any existing claim details will not be saved.
 checkYourStateDetails.legend = Do you want to delete this claim and start a new one for a different EU member state?
@@ -678,18 +678,18 @@ bankDetails.internationalBankAccountDetails.error.accountNumber.invalid = Enter 
 bankDetails.internationalBankAccountDetails.error.CurrencyOfAccount.required = Select the currency of account
 bankDetails.internationalBankAccountDetails.error.CurrencyOfAccount.invalid = Select the currency of account
 
-checkYourBankDetails.title = Check your answers
-checkYourBankDetails.heading = Check your answers
-checkYourBankDetails.caption = Bank details
-checkYourBankDetails.card.title = International bank account details
-checkYourBankDetails.change.hidden = international bank account details
-checkYourBankDetails.accountHolder.label = Account holder
-checkYourBankDetails.accountHolder.applicant = Applicant (you)
-checkYourBankDetails.accountHolder.thirdParty = Third party (someone else)
-checkYourBankDetails.accountName.label = Account name
-checkYourBankDetails.bic.label = BIC or SWIFT code
-checkYourBankDetails.iban.label = IBAN
-checkYourBankDetails.currency.label = Account currency
+bankDetails.checkYourBankDetails.title = Check your answers
+bankDetails.checkYourBankDetails.heading = Check your answers
+bankDetails.checkYourBankDetails.caption = Bank details
+bankDetails.checkYourBankDetails.card.title = International bank account details
+bankDetails.checkYourBankDetails.change.hidden = international bank account details
+bankDetails.checkYourBankDetails.accountHolder.label = Account holder
+bankDetails.checkYourBankDetails.accountHolder.applicant = Applicant (you)
+bankDetails.checkYourBankDetails.accountHolder.thirdParty = Third party (someone else)
+bankDetails.checkYourBankDetails.accountName.label = Account name
+bankDetails.checkYourBankDetails.bic.label = BIC or SWIFT code
+bankDetails.checkYourBankDetails.iban.label = IBAN
+bankDetails.checkYourBankDetails.currency.label = Account currency
 
 # Warning messages
 refundPeriodStartDateWarning.title = Are you sure the refund period start date is correct?

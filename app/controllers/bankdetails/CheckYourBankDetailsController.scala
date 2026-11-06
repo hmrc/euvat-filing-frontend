@@ -43,13 +43,7 @@ class CheckYourBankDetailsController @Inject() (
     with Logging {
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val rows = Seq(
-      CheckYourBankDetailsSummary.rowAccountHolder(request.userAnswers),
-      CheckYourBankDetailsSummary.rowAccountName(request.userAnswers),
-      CheckYourBankDetailsSummary.rowBic(request.userAnswers),
-      CheckYourBankDetailsSummary.rowIban(request.userAnswers),
-      CheckYourBankDetailsSummary.rowCurrency(request.userAnswers, currencyProvider.currencies)
-    ).flatten
+    val rows = CheckYourBankDetailsSummary.rows(request.userAnswers, currencyProvider.currencies)
 
     val changeUrl = routes.AccountHolderController.onPageLoad(CheckMode).url
 
@@ -57,7 +51,7 @@ class CheckYourBankDetailsController @Inject() (
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    // TODO F5.2 (DTR-8857): build the update request with BIC/IBAN encrypted via F5.3,
+    // TODO F5.2 (DTR-8857): build the update request with BIC/IBAN encrypted via F5.3
     Future.successful(Redirect(controllers.routes.TaskListDashboardController.onPageLoad()))
   }
 }
