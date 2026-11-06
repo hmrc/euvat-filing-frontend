@@ -46,7 +46,7 @@
     }
 }
 
-@layout(pageTitle = title(form, messages("purchaseImportSummary.title", totalItems, itemLabel)), showBackLink = false, useFullGrid = true) {
+@layout(pageTitle = title(form, messages("purchaseImportSummary.title", totalItems, itemLabel)), useFullGrid = true, showBackLink = false) {
     @formHelper(action = controllers.routes.PurchaseImportSummaryController.onSubmit) {
         @mainErrorSummary(form)
         <span class="govuk-caption-l">@messages("purchaseImportSummary.caption")</span>

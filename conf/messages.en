@@ -260,8 +260,8 @@ checkYourClaimDetails.paragraph = You cannot change the refunding EU member stat
 checkYourClaimDetails.claimDetails.title = Claim details
 checkYourClaimDetails.claimDetails.heading = Claim details
 
-checkYourStateDetails.title = EU member state details
-checkYourStateDetails.heading = EU member state details
+checkYourStateDetails.title = Cannot change EU member state
+checkYourStateDetails.heading = Cannot change EU member state
 checkYourStateDetails.p1 = You cannot change the refunding EU member state for an existing claim.
 checkYourStateDetails.p2 = If you want to claim a VAT refund from a different EU member state, you must delete this claim and start a new one. Any existing claim details will not be saved.
 checkYourStateDetails.legend = Do you want to delete this claim and start a new one for a different EU member state?
@@ -656,6 +656,29 @@ accountHolder.thirdParty.hint = The refunding country may need letters of author
 accountHolder.checkYourAnswersLabel = Account holder
 accountHolder.error.required = Select the account holder
 accountHolder.change.hidden = account holder
+
+bankDetails.internationalBankAccountDetails.title = International bank account details
+bankDetails.internationalBankAccountDetails.caption = Bank details
+bankDetails.internationalBankAccountDetails.heading = International bank account details
+bankDetails.internationalBankAccountDetails.NameOnTheAccount = Name on the account
+bankDetails.internationalBankAccountDetails.accountNumber = International Bank Account Number (IBAN)
+bankDetails.internationalBankAccountDetails.accountNumber.hint = You can ask your bank or check your bank statement
+bankDetails.internationalBankAccountDetails.CurrencyOfAccount = Currency of account
+bankDetails.internationalBankAccountDetails.CurrencyOfAccount.hint = For example, UK pounds or euro
+bankDetails.internationalBankAccountDetails.bicOrSwift = BIC (Business Identifier Code) or SWIFT code
+bankDetails.internationalBankAccountDetails.bicOrSwift.hint = Must be between 8 and 11 characters long – you can ask your bank or check your bank statement
+
+bankDetails.internationalBankAccountDetails.error.NameOnTheAccount.required = Enter the name on the account
+bankDetails.internationalBankAccountDetails.error.NameOnTheAccount.length = Name on the account must be 70 characters or less
+bankDetails.internationalBankAccountDetails.error.NameOnTheAccount.invalid = Enter the name on the account in the correct format
+bankDetails.internationalBankAccountDetails.error.BIC.required = Enter the BIC or SWIFT code
+bankDetails.internationalBankAccountDetails.error.BIC.length = BIC or SWIFT code must be 11 characters or less
+bankDetails.internationalBankAccountDetails.error.BIC.invalid = Enter the BIC or SWIFT code in the correct format
+bankDetails.internationalBankAccountDetails.error.accountNumber.required = Enter the IBAN
+bankDetails.internationalBankAccountDetails.error.accountNumber.length = IBAN must be 34 characters or less
+bankDetails.internationalBankAccountDetails.error.accountNumber.invalid = Enter the IBAN in the correct format
+bankDetails.internationalBankAccountDetails.error.CurrencyOfAccount.required = Select the currency of account
+bankDetails.internationalBankAccountDetails.error.CurrencyOfAccount.invalid = Select the currency of account
 
 # Warning messages
 refundPeriodStartDateWarning.title = Are you sure the refund period start date is correct?

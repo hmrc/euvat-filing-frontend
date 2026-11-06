@@ -39,7 +39,6 @@ class ImportSupplierAddressControllerSpec extends SpecBase with MockitoSugar {
   private val onwardRoute = Call("GET", "/foo")
   private lazy val pageLoadRoute = controllers.imports.routes.ImportSupplierAddressController.onPageLoad(NormalMode).url
   private lazy val submitRoute = controllers.imports.routes.ImportSupplierAddressController.onSubmit(NormalMode).url
-  private def backLink: Call = controllers.imports.routes.ImportSuppliersNameController.onPageLoad(NormalMode)
 
   private val validFormData = Map(
     "addressLine1" -> "1 High Street",
@@ -73,8 +72,7 @@ class ImportSupplierAddressControllerSpec extends SpecBase with MockitoSugar {
           view(
             form,
             config.supplierCountries,
-            NormalMode,
-            backLink
+            NormalMode
           )(request, messages(application)).toString
         )
       }
@@ -110,8 +108,7 @@ class ImportSupplierAddressControllerSpec extends SpecBase with MockitoSugar {
           view(
             form,
             config.supplierCountries,
-            NormalMode,
-            backLink
+            NormalMode
           )(request, messages(application)).toString
         )
       }

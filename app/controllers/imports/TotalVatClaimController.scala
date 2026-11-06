@@ -52,15 +52,12 @@ class TotalVatClaimController @Inject() (
 
   val form: Form[BigDecimal] = formProvider()
 
-  private def backLink(mode: Mode): Call =
-    importRoutes.TotalVatPaidImportController.onPageLoad(mode)
-
   private def formAction(mode: Mode): Call = routes.TotalVatClaimController.onSubmit(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(ImportTotalVatClaimPage).fold(form)(form.fill)
     val currencySymbol = currencySymbolFromSession(request.userAnswers, currencyConfig.currencyConfig)
-    Ok(view(preparedForm, mode, formAction(mode), backLink(mode), "import.caption", currencySymbol))
+    Ok(view(preparedForm, mode, formAction(mode), "import.caption", currencySymbol))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -68,8 +65,7 @@ class TotalVatClaimController @Inject() (
     form
       .bindFromRequest()
       .fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode, formAction(mode), backLink(mode), "import.caption", currencySymbol))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, formAction(mode), "import.caption", currencySymbol))),
         value =>
           for {
             userAnswers <- Future.fromTry(request.userAnswers.set(ImportTotalVatClaimPage, value))

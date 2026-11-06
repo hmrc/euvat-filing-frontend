@@ -25,12 +25,12 @@
     govukButton: GovukButton
 )
 
-@(form: Form[_], mode: Mode, call: Call, isGermany: Boolean)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, isGermany: Boolean)(implicit request: Request[_], messages: Messages)
 
 @isError = @{form.error("value").isDefined}
 @hintKey = @{ if (isGermany) "supplierVatRegistrationNumber.hint.germany" else "supplierVatRegistrationNumber.hint" }
 
-@layout(pageTitle = title(form, messages("supplierVatRegistrationNumber.title")), backLinkUrl = Some(call.url)) {
+@layout(pageTitle = title(form, messages("supplierVatRegistrationNumber.title"))) {
 
     @formHelper(action = controllers.purchase.routes.SupplierVatRegistrationNumberController.onSubmit(mode), Symbol("autocomplete") -> "off") {
 

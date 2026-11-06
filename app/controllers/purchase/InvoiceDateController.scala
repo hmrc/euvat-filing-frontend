@@ -48,16 +48,11 @@ class InvoiceDateController @Inject() (
     with I18nSupport {
 
   private def form(implicit messages: Messages) = formProvider()
-  private def backLink(mode: Mode) = if (mode == CheckMode) {
-    routes.CheckYourPurchaseDetailsController.onPageLoad()
-  } else {
-    routes.InvoiceNumberController.onPageLoad(NormalMode)
-  }
   private def formAction(mode: Mode): Call = routes.InvoiceDateController.onSubmit(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(InvoiceDatePage).fold(form)(form.fill)
-    Ok(view(preparedForm, formAction(mode), backLink(mode), "purchase.caption", "invoiceDate.title", "invoiceDate.heading"))
+    Ok(view(preparedForm, formAction(mode), "purchase.caption", "invoiceDate.title", "invoiceDate.heading"))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -66,14 +61,14 @@ class InvoiceDateController @Inject() (
       .fold(
         formWithErrors =>
           Future.successful(
-            BadRequest(view(formWithErrors, formAction(mode), backLink(mode), "purchase.caption", "invoiceDate.title", "invoiceDate.heading"))
+            BadRequest(view(formWithErrors, formAction(mode), "purchase.caption", "invoiceDate.title", "invoiceDate.heading"))
           ),
         value =>
           val today = java.time.LocalDate.now()
           if (value.isAfter(today)) {
             val errorForm = form.bindFromRequest().withError("value", "invoiceDate.error.past")
             Future.successful(
-              BadRequest(view(errorForm, formAction(mode), backLink(mode), "purchase.caption", "invoiceDate.title", "invoiceDate.heading"))
+              BadRequest(view(errorForm, formAction(mode), "purchase.caption", "invoiceDate.title", "invoiceDate.heading"))
             )
           } else {
             handleSubmission(value, mode)(request)

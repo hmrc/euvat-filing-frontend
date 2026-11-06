@@ -28,10 +28,10 @@
     mainErrorSummary: MainErrorSummary
 )
 
-@(form: Form[?], mode: Mode, call: Call, baCode1: String)(implicit request: Request[?], messages: Messages)
+@(form: Form[?], mode: Mode, baCode1: String)(implicit request: Request[?], messages: Messages)
 @isError = @{form.error("value").isDefined}
 
-@layout(pageTitle = views.ViewUtils.title(form, "businessActivity.title"), backLinkUrl = Some(call.url)) {
+@layout(pageTitle = views.ViewUtils.title(form, "businessActivity.title")) {
     @formHelper(action = controllers.claim.routes.BusinessActivityController.onSubmit(mode)) {
         @mainErrorSummary(form)
         <span class="govuk-caption-l">@messages("claim.caption")</span>

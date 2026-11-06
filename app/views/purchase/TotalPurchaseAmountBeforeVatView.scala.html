@@ -22,14 +22,14 @@
 @this(
     layout: templates.Layout,
     formHelper: FormWithCSRF,
-    mainErrorSummary: views.html.components.MainErrorSummary,
+    mainErrorSummary: MainErrorSummary,
     govukInput: GovukInput,
     govukButton: GovukButton
 )
 
-@(form: Form[_], mode: Mode, call: Call, prefix: String, currencyName: String)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, prefix: String, currencyName: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("totalPurchaseAmountBeforeVat.title")), backLinkUrl = Some(call.url)) {
+@layout(pageTitle = title(form, messages("totalPurchaseAmountBeforeVat.title"))) {
 
     @formHelper(action = controllers.purchase.routes.TotalPurchaseAmountBeforeVatController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 

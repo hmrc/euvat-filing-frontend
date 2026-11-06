@@ -48,8 +48,6 @@ class BusinessActivityController @Inject() (
 
   val form: Form[Boolean] = formProvider()
 
-  private def backLink(mode: Mode): Call = routes.ContactDetailsController.onPageLoad(mode)
-
   private def baCode(ua: UserAnswers) = ua.get(TraderKnownFactsQuery) match {
     case Some(traderResponse) => traderResponse.tradeClass.getOrElse("")
     case None                 => ""
@@ -57,14 +55,14 @@ class BusinessActivityController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     val preparedForm = request.userAnswers.get(BusinessActivityPage).fold(form)(form.fill)
-    Future.successful(Ok(view(preparedForm, mode, backLink(mode), baCode(request.userAnswers))))
+    Future.successful(Ok(view(preparedForm, mode, baCode(request.userAnswers))))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode), baCode(request.userAnswers)))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, baCode(request.userAnswers)))),
         value =>
           val isChanged = request.userAnswers.get(BusinessActivityPage) match {
             case Some(existing) => existing != value

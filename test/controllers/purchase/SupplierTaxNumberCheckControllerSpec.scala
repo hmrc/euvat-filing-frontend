@@ -41,7 +41,6 @@ class SupplierTaxNumberCheckControllerSpec extends SpecBase with MockitoSugar {
   lazy val supplierTaxNumberRoute: String = routes.SupplierTaxNumberCheckController.onPageLoad(NormalMode).url
   val formProvider = new SupplierTaxNumberCheckFormProvider()
   val form: Form[SupplierTaxNumberCheck] = formProvider()
-  def backLink: Call = routes.SupplierAddressController.onPageLoad(NormalMode)
   def germanUserAnswers: UserAnswers = UserAnswers(userAnswersId).set(RefundingCountryPage, "DE").success.value
 
   "SupplierTaxNumberCheck Controller" - {
@@ -56,7 +55,7 @@ class SupplierTaxNumberCheckControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, backLink, isSimplifiedInvoice = false)(request, messages(application)).toString
+          view(form, NormalMode, isSimplifiedInvoice = false)(request, messages(application)).toString
         )
       }
     }
@@ -71,9 +70,7 @@ class SupplierTaxNumberCheckControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, CheckMode, routes.CheckYourPurchaseDetailsController.onPageLoad(), isSimplifiedInvoice = false)(request,
-                                                                                                                     messages(application)
-                                                                                                                    ).toString
+          view(form, CheckMode, isSimplifiedInvoice = false)(request, messages(application)).toString
         )
       }
     }
@@ -89,7 +86,7 @@ class SupplierTaxNumberCheckControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, backLink, isSimplifiedInvoice = true)(request, messages(application)).toString
+          view(form, NormalMode, isSimplifiedInvoice = true)(request, messages(application)).toString
         )
       }
     }
@@ -105,7 +102,7 @@ class SupplierTaxNumberCheckControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form.fill(SupplierTaxNumberCheck.values.head), NormalMode, backLink, isSimplifiedInvoice = false)(
+          view(form.fill(SupplierTaxNumberCheck.values.head), NormalMode, isSimplifiedInvoice = false)(
             request,
             messages(application)
           ).toString
@@ -177,7 +174,7 @@ class SupplierTaxNumberCheckControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual BAD_REQUEST
         contentAsString(result) mustEqual
-          view(boundForm, NormalMode, backLink, isSimplifiedInvoice = true)(request, messages(application)).toString
+          view(boundForm, NormalMode, isSimplifiedInvoice = true)(request, messages(application)).toString
       }
     }
 
@@ -195,7 +192,7 @@ class SupplierTaxNumberCheckControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual BAD_REQUEST
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(boundForm, NormalMode, backLink, isSimplifiedInvoice = false)(request, messages(application)).toString
+          view(boundForm, NormalMode, isSimplifiedInvoice = false)(request, messages(application)).toString
         )
       }
     }

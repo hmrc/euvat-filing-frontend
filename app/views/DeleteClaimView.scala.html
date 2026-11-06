@@ -30,7 +30,7 @@
     @formHelper(action = routes.DeleteClaimController.onSubmit(), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
-        @govukErrorSummary(ErrorSummaryViewModel(form))
+            @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
         <h1 class="govuk-heading-l">@messages("deleteClaim.heading")</h1>

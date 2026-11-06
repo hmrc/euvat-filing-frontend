@@ -24,11 +24,11 @@
     govukRadios: GovukRadios,
     govukButton: GovukButton
 )
-@(form: Form[_], items: Seq[RadioItem], submitCall: Call, messagePrefix: String, captionKey: String, backLink: Option[Call] = None)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], items: Seq[RadioItem], submitCall: Call, messagePrefix: String, captionKey: String)(implicit request: Request[_], messages: Messages)
 
 @isError = @{form.error("value").isDefined}
 
-@layout(pageTitle = title(form, messages(s"$messagePrefix.title")), backLinkUrl = backLink.map(_.url)) {
+@layout(pageTitle = title(form, messages(s"$messagePrefix.title"))) {
 
     @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
 

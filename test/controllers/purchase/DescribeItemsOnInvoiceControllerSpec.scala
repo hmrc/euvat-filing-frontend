@@ -52,7 +52,6 @@ class DescribeItemsOnInvoiceControllerSpec extends SpecBase with MockitoSugar {
     view(
       form,
       routes.DescribeItemsOnInvoiceController.onSubmit(mode),
-      routes.PurchaseSubTypeController.onPageLoad(PurchaseOrImportType.urlSlugForPurchaseType(Other), NormalMode),
       "describeItemsOnInvoice",
       "purchase.caption",
       Some(messages(application)("describeItemsOnInvoice.hint"))

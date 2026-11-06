@@ -32,31 +32,26 @@
   govukButton: GovukButton
 )
 
+@(form: play.api.data.Form[_], headingKey: String, actionCall: Call, mode: models.Mode = models.NormalMode)(implicit request: play.api.mvc.Request[_], messages: play.api.i18n.Messages)
 
-@(form: play.api.data.Form[_], headingKey: String, actionCall: Call, backLinkCall: Call, mode: models.Mode = models.NormalMode)(implicit request: play.api.mvc.Request[_], messages: play.api.i18n.Messages)
-
-@layout(pageTitle = title(form, messages(headingKey)), backLinkUrl = Some(backLinkCall.url)) {
+@layout(pageTitle = title(form, messages(headingKey))) {
 
   @formHelper(action = actionCall) {
 
         @mainErrorSummary(form, Map("value" -> "value"))
         <span class="govuk-caption-l">@messages("claim.caption")</span>
 
-        @{
-            govukRadios(
-              RadiosViewModel(
-                field  = form("value"),
-                legend = LegendViewModel(messages(headingKey)).asPageHeading(LegendSize.Large),
-                items  = Seq(
-                  RadioItem(value = Some("true"), content = Text(messages("site.yes"))),
-                  RadioItem(value = Some("false"), content = Text(messages("site.no")))
-                )
-              )
+        @{govukRadios(
+          RadiosViewModel(
+            field  = form("value"),
+            legend = LegendViewModel(messages(headingKey)).asPageHeading(LegendSize.Large),
+            items  = Seq(
+              RadioItem(value = Some("true"), content = Text(messages("site.yes"))),
+              RadioItem(value = Some("false"), content = Text(messages("site.no")))
             )
-        }
+          )
+        )}
 
-        @govukButton(
-            ButtonViewModel(messages("site.continue"))
-        )
+        @govukButton(ButtonViewModel(messages("site.continue")))
     }
 }

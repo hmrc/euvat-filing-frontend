@@ -42,7 +42,6 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
 
   val form: Form[BigDecimal] = new TotalVatClaimFormProvider()()
   lazy val totalVatClaimRoute: String = routes.TotalVatClaimController.onPageLoad(NormalMode).url
-  lazy val backLink: Call = controllers.imports.routes.TotalAmountWithoutVatController.onPageLoad(NormalMode)
   def onwardRoute: Call = Call("GET", "/foo")
 
   "TotalVatClaim import controller" - {
@@ -56,9 +55,8 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[PurchaseOrImportTotalVatClaimView]
 
         status(result) mustEqual OK
-        val expectedBack = routes.TotalVatPaidImportController.onPageLoad(NormalMode)
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, controllers.imports.routes.TotalVatClaimController.onSubmit(NormalMode), expectedBack, "import.caption", "€")(
+          view(form, NormalMode, controllers.imports.routes.TotalVatClaimController.onSubmit(NormalMode), "import.caption", "€")(
             request,
             messages(application)
           ).toString
@@ -85,13 +83,11 @@ class TotalVatClaimControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[PurchaseOrImportTotalVatClaimView]
 
         status(result) mustEqual OK
-        val expectedBack = routes.TotalVatPaidImportController.onPageLoad(NormalMode)
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
           view(
             form.fill(BigDecimal("12.34")),
             NormalMode,
             routes.TotalVatClaimController.onSubmit(NormalMode),
-            expectedBack,
             "import.caption",
             "лв"
           )(request, messages(application)).toString

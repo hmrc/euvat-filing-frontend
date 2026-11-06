@@ -20,7 +20,7 @@ import base.SpecBase
 import com.typesafe.config.ConfigFactory
 import controllers.claim.routes
 import forms.claim.RefundingLanguageFormProvider
-import models.RefundingLanguage
+import models.{CheckMode, NormalMode, RefundingLanguage, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
@@ -44,9 +44,7 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
   "RefundingLanguage Controller" - {
 
     "must return OK and the correct view for a GET when country present" in {
-
       val userAnswers = emptyUserAnswers.set(RefundingCountryPage, "AT").success.value
-
       val cfg = Configuration(ConfigFactory.parseString("language.mapping.AT=[\"german\", \"english\"]"))
       val mappingSvc = new ConfigLanguageMapping(cfg)
 
@@ -57,7 +55,7 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.RefundingLanguageController.onPageLoad(models.NormalMode).url)
+        val request = FakeRequest(GET, routes.RefundingLanguageController.onPageLoad(NormalMode).url)
 
         val result = route(application, request).value
 
@@ -78,19 +76,19 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, items, routes.RefundingCountryController.onPageLoad(models.NormalMode), models.NormalMode)(
+          view(form, items, NormalMode)(
             request,
             messages(application)
           ).toString
         )
 
         // also supports CheckMode change route
-        val changeRequest = FakeRequest(GET, routes.RefundingLanguageController.onPageLoad(models.CheckMode).url)
+        val changeRequest = FakeRequest(GET, routes.RefundingLanguageController.onPageLoad(CheckMode).url)
         val changeResult = route(application, changeRequest).value
 
         status(changeResult) mustEqual OK
         normalizeHtml(contentAsString(changeResult)) mustEqual normalizeHtml(
-          view(form, items, routes.RefundingCountryController.onPageLoad(models.CheckMode), models.CheckMode)(
+          view(form, items, CheckMode)(
             changeRequest,
             messages(application)
           ).toString
@@ -103,7 +101,7 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.RefundingLanguageController.onPageLoad(models.NormalMode).url)
+        val request = FakeRequest(GET, routes.RefundingLanguageController.onPageLoad(NormalMode).url)
 
         val result = route(application, request).value
 
@@ -131,7 +129,7 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.RefundingLanguageController.onSubmit(models.NormalMode).url)
+        val request = FakeRequest(POST, routes.RefundingLanguageController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody(("value", "english"))
 
         val result = route(application, request).value
@@ -142,7 +140,7 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
         verify(mockSessionRepository).set(any())
 
         // also supports CheckMode submission
-        val checkRequest = FakeRequest(POST, routes.RefundingLanguageController.onSubmit(models.CheckMode).url)
+        val checkRequest = FakeRequest(POST, routes.RefundingLanguageController.onSubmit(CheckMode).url)
           .withFormUrlEncodedBody(("value", "english"))
 
         val checkResult = route(application, checkRequest).value
@@ -163,7 +161,7 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.RefundingLanguageController.onSubmit(models.NormalMode).url)
+        val request = FakeRequest(POST, routes.RefundingLanguageController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody(("value", ""))
 
         val result = route(application, request).value
@@ -187,7 +185,7 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.RefundingLanguageController.onPageLoad(models.NormalMode).url)
+        val request = FakeRequest(GET, routes.RefundingLanguageController.onPageLoad(NormalMode).url)
 
         val result = route(application, request).value
 
@@ -208,7 +206,7 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, items, routes.RefundingCountryController.onPageLoad(models.NormalMode), models.NormalMode)(
+          view(form, items, NormalMode)(
             request,
             messages(application)
           ).toString
@@ -224,7 +222,7 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
         .set(RefundingCountryPage, "BE")
         .success
         .value
-        .set(RefundingLanguagePage, models.RefundingLanguage.French)
+        .set(RefundingLanguagePage, RefundingLanguage.French)
         .success
         .value
         .set(ClaimDetailsCompletedQuery, true)
@@ -236,14 +234,14 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.RefundingLanguageController.onSubmit(models.CheckMode).url)
+        val request = FakeRequest(POST, routes.RefundingLanguageController.onSubmit(CheckMode).url)
           .withFormUrlEncodedBody(("value", "english"))
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
 
         import org.mockito.ArgumentCaptor
-        val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
         captor.getValue.get(ClaimDetailsAmendedQuery) mustBe Some(true)
       }
@@ -269,14 +267,14 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.RefundingLanguageController.onSubmit(models.CheckMode).url)
+        val request = FakeRequest(POST, routes.RefundingLanguageController.onSubmit(CheckMode).url)
           .withFormUrlEncodedBody(("value", "english"))
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
 
         import org.mockito.ArgumentCaptor
-        val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
         captor.getValue.get(ClaimDetailsAmendedQuery).isDefined mustBe false
       }
@@ -296,14 +294,14 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.RefundingLanguageController.onSubmit(models.NormalMode).url)
+        val request = FakeRequest(POST, routes.RefundingLanguageController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody(("value", "english"))
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
 
         import org.mockito.ArgumentCaptor
-        val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
         captor.getValue.get(ClaimDetailsAmendedQuery).isDefined mustBe false
       }
@@ -315,7 +313,7 @@ class RefundingLanguageControllerSpec extends SpecBase with MockitoSugar {
     val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
     running(application) {
-      val request = FakeRequest(POST, routes.RefundingLanguageController.onSubmit(models.NormalMode).url)
+      val request = FakeRequest(POST, routes.RefundingLanguageController.onSubmit(NormalMode).url)
         .withFormUrlEncodedBody(("value", ""))
 
       val result = route(application, request).value

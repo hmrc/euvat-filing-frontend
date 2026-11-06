@@ -1,5 +1,6 @@
 GET        /category                                    controllers.imports.ImportTypeController.onPageLoad(mode: Mode = NormalMode)
 POST       /category                                    controllers.imports.ImportTypeController.onSubmit(mode: Mode = NormalMode)
+GET        /category/:applicationId/:itemNumber         controllers.imports.ImportTypeController.addDetails(applicationId: Long, itemNumber: Int)
 GET        /change-category                             controllers.imports.ImportTypeController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-category                             controllers.imports.ImportTypeController.onSubmit(mode: Mode = CheckMode)
 

@@ -20,16 +20,16 @@ import controllers.actions.*
 import forms.purchase.PurchaseTypeFormProvider
 import models.*
 import models.requests.{AddPurchaseRequest, DataRequest}
-import models.responses.{AddPurchaseResponse, ApplicationResponse}
+import models.responses.{AddPurchaseResponse, ApplicationResponse, PurchaseDetailsResponse}
 import navigation.Navigator
-import pages.QuestionPage
+import pages.{PurchaseOrImportPage, QuestionPage}
 import pages.claim.CountryChangedPage
 import pages.purchase.*
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.*
-import queries.{ClaimApplicationResponseQuery, UpdateSequenceNumberQuery}
+import queries.{ClaimApplicationResponseQuery, InvoiceNumberFlagQuery, PurchaseDetailResponseQuery, PurchaseDetailRoute, PurchaseDetailRouteQuery, Settable, UpdateSequenceNumberQuery}
 import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.http.HeaderCarrier
@@ -40,7 +40,7 @@ import views.html.purchasesOrImports.PurchaseOrImportTypeView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 class PurchaseTypeController @Inject() (
   override val messagesApi: MessagesApi,
@@ -60,14 +60,6 @@ class PurchaseTypeController @Inject() (
     with Logging {
 
   val form: Form[PurchaseOrImportType] = formProvider()
-
-  private def backLink(mode: Mode) = {
-    if (mode == CheckMode) {
-      routes.CheckYourPurchaseDetailsController.onPageLoad()
-    } else {
-      controllers.routes.PurchaseOrImportController.onPageLoad
-    }
-  }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     if (request.userAnswers.get(CountryChangedPage).contains(true)) {
@@ -91,7 +83,6 @@ class PurchaseTypeController @Inject() (
                 view(
                   preparedForm,
                   mode,
-                  backLink(mode),
                   routes.PurchaseTypeController.onSubmit(mode),
                   "purchaseType",
                   "purchase.caption",
@@ -108,7 +99,6 @@ class PurchaseTypeController @Inject() (
           view(
             preparedForm,
             mode,
-            backLink(mode),
             routes.PurchaseTypeController.onSubmit(mode),
             "purchaseType",
             "purchase.caption",
@@ -130,7 +120,6 @@ class PurchaseTypeController @Inject() (
               view(
                 formWithErrors,
                 mode,
-                backLink(mode),
                 routes.PurchaseTypeController.onSubmit(mode),
                 "purchaseType",
                 "purchase.caption",
@@ -427,4 +416,90 @@ class PurchaseTypeController @Inject() (
       updatedAnswers2 <- Future.fromTry(updatedAnswers1.set(UpdateSequenceNumberQuery, response.updateSequenceNumber))
       _               <- sessionRepository.set(updatedAnswers2)
     } yield updatedAnswers2
+
+  def addDetails(applicationId: Long, itemNumber: Int): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+    implicit request =>
+      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+
+      val ua = request.userAnswers
+
+      euVatRefundsService
+        .getPurchaseDetails(applicationId, itemNumber)
+        .flatMap { response =>
+          for {
+            purchaseType   <- Future.fromTry(resolvePurchaseType(response, itemNumber))
+            clearedAnswers <- Future.fromTry(clearStaleAnswers(ua, pagesToRemoveAnswers))
+            loadedAnswers  <- Future.fromTry(loadPurchase(clearedAnswers, response, purchaseType, itemNumber))
+            _              <- sessionRepository.set(loadedAnswers)
+          } yield Ok(
+            view(
+              form.fill(purchaseType),
+              NormalMode,
+              routes.PurchaseTypeController.onSubmit(NormalMode),
+              "purchaseType",
+              "purchase.caption",
+              true,
+              legendKey = Some("purchaseType.h2")
+            )
+          )
+
+        }
+        .recover { case ex =>
+          logger.error(s"Error fetching purchase details for item $itemNumber", ex)
+          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+        }
+  }
+
+  private val pagesToRemoveAnswers: List[Settable[_]] = List(
+    CurrencyChangedPage,
+    DescribeItemsArrivedFromCheckYourAnswersPage,
+    DescribeItemsOnInvoicePage,
+    InvoiceDatePage,
+    InvoiceNumberPage,
+    InvoiceTypeChangedPage,
+    InvoiceTypePage,
+    PurchaseSubCategoryArrivedFromCheckYourAnswersPage,
+    PurchaseSubCategoryLabelPage,
+    PurchaseSubCategoryPage,
+    PurchaseSubTypeArrivedFromCheckYourAnswersPage,
+    PurchaseSubTypeLabelPage,
+    PurchaseSubTypePage,
+    RefundingCurrencyPage,
+    SupplierAddressPage,
+    SuppliersNamePage,
+    SupplierTaxIdentifierNumberPage,
+    SupplierTaxNumberCheckPage,
+    SupplierVatRegCheckPage,
+    SupplierVatRegistrationNumberPage,
+    TotalPurchaseAmountBeforeVatPage,
+    TotalVatClaimPage,
+    TotalVatPaidPage,
+    PurchaseDetailResponseQuery,
+    PurchaseDetailRouteQuery,
+    InvoiceNumberFlagQuery
+  )
+
+  private def clearStaleAnswers(userAnswers: UserAnswers, pagesToRemoveAnswers: List[Settable[_]]): Try[UserAnswers] =
+    pagesToRemoveAnswers.foldLeft(Try(userAnswers)) { (acc, page) =>
+      acc.flatMap(_.remove(page))
+    }
+
+  private def resolvePurchaseType(response: PurchaseDetailsResponse, itemNumber: Int): Try[PurchaseOrImportType] =
+    PurchaseOrImportType.codes.collectFirst { case (importType, code) if code == response.goodsDescriptionCode.trim => importType } match {
+      case None =>
+        Failure(new IllegalStateException(s"Unknown import category ${response.goodsDescriptionCode} for item $itemNumber"))
+
+      case Some(importType) =>
+        Success(importType)
+    }
+
+  private def loadPurchase(ua: UserAnswers,
+                           response: PurchaseDetailsResponse,
+                           purchaseType: PurchaseOrImportType,
+                           itemNumber: Int
+                          ): Try[UserAnswers] =
+    ua
+      .set(PurchaseOrImportPage, PurchaseOrImport.Purchase)
+      .flatMap(_.set(PurchaseTypePage, purchaseType))
+      .flatMap(_.set(AddPurchaseResponsePage, AddPurchaseResponse(itemNumber, response.updateSequenceNumber)))
 }

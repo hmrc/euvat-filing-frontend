@@ -14,17 +14,11 @@
  * limitations under the License.
  *@
 
-@* <!--TODO: Temporary Code to test wiring, override code when actual development is done in DTR-8186. --> *@
-
-@this(
-  layout: templates.Layout
-)
+@this(layout: templates.Layout)
 
 @(implicit request: Request[?], messages: Messages)
 
-@layout(
-  pageTitle = "Supplier name"
-) {
+@layout(pageTitle = "Supplier name") {
   <h1 class="govuk-heading-l">Supplier name</h1>
 
   <p class="govuk-body">

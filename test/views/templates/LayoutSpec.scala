@@ -42,7 +42,7 @@ class LayoutSpec extends SpecBase with Matchers {
       doc.text() must include("Test content")
     }
 
-    "must show back link by default" in new Setup {
+    "must show browser back link by default" in new Setup {
       val html = layout("Test Page")(Html("<p>Content</p>"))
       val doc = Jsoup.parse(html.body)
       doc.select("a.govuk-back-link").size() mustBe 1
