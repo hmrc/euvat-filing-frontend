@@ -680,7 +680,6 @@ bankDetails.internationalBankAccountDetails.error.CurrencyOfAccount.invalid = Se
 
 bankDetails.checkYourBankDetails.title = Check your answers
 bankDetails.checkYourBankDetails.heading = Check your answers
-bankDetails.checkYourBankDetails.caption = Bank details
 bankDetails.checkYourBankDetails.card.title = International bank account details
 bankDetails.checkYourBankDetails.change.hidden = international bank account details
 bankDetails.checkYourBankDetails.accountHolder.label = Account holder

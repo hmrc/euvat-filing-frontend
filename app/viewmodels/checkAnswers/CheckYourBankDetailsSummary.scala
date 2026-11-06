@@ -36,25 +36,25 @@ object CheckYourBankDetailsSummary {
   def rowAccountHolder(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
     answers.get(AccountHolderPage).map { answer =>
       (
-        messages("checkYourBankDetails.accountHolder.label"),
-        Some(messages(s"checkYourBankDetails.accountHolder.${answer.toString}")),
+        messages("bankDetails.checkYourBankDetails.accountHolder.label"),
+        Some(messages(s"bankDetails.checkYourBankDetails.accountHolder.${answer.toString}")),
         Seq.empty
       )
     }
 
   def rowAccountName(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
     answers.get(BankDetailsPage).map { details =>
-      (messages("checkYourBankDetails.accountName.label"), Some(details.NameOnTheAccount), Seq.empty)
+      (messages("bankDetails.checkYourBankDetails.accountName.label"), Some(details.NameOnTheAccount), Seq.empty)
     }
 
   def rowBic(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
     answers.get(BankDetailsPage).map { details =>
-      (messages("checkYourBankDetails.bic.label"), Some(details.BIC), Seq.empty)
+      (messages("bankDetails.checkYourBankDetails.bic.label"), Some(details.BIC), Seq.empty)
     }
 
   def rowIban(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
     answers.get(BankDetailsPage).map { details =>
-      (messages("checkYourBankDetails.iban.label"), Some(details.accountNumber), Seq.empty)
+      (messages("bankDetails.checkYourBankDetails.iban.label"), Some(details.accountNumber), Seq.empty)
     }
 
   def rowCurrency(answers: UserAnswers, currencies: Seq[Currency])(implicit messages: Messages): Option[Row] =
@@ -63,7 +63,7 @@ object CheckYourBankDetailsSummary {
         .find(_.code == details.CurrencyOfAccount)
         .map(c => formatCurrency(c.description))
         .getOrElse(details.CurrencyOfAccount)
-      (messages("checkYourBankDetails.currency.label"), Some(label), Seq.empty)
+      (messages("bankDetails.checkYourBankDetails.currency.label"), Some(label), Seq.empty)
     }
 
   private def formatCurrency(description: String): String =

@@ -25,19 +25,19 @@ customSummaryList: CustomSummaryList
 
 @(rows: Seq[(String, Option[String], Seq[(String, String, String)])], changeUrl: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("checkYourBankDetails.title")), showBackLink = false) {
+@layout(pageTitle = titleNoForm(messages("bankDetails.checkYourBankDetails.title")), showBackLink = false) {
 
 <h1 class="govuk-heading-l">
-    <span class="govuk-caption-l">@messages("checkYourBankDetails.caption")</span>
-    @messages("checkYourBankDetails.heading")
+    <span class="govuk-caption-l">@messages("bankDetails.caption")</span>
+    @messages("bankDetails.checkYourBankDetails.heading")
 </h1>
 
 <div class="govuk-summary-card">
     <div class="govuk-summary-card__title-wrapper">
-        <h2 class="govuk-summary-card__title">@messages("checkYourBankDetails.card.title")</h2>
+        <h2 class="govuk-summary-card__title">@messages("bankDetails.checkYourBankDetails.card.title")</h2>
         <div class="govuk-summary-card__actions">
             <a class="govuk-link" href="@changeUrl">
-                @messages("site.change")<span class="govuk-visually-hidden"> @messages("checkYourBankDetails.change.hidden")</span>
+                @messages("site.change")<span class="govuk-visually-hidden"> @messages("bankDetails.checkYourBankDetails.change.hidden")</span>
             </a>
         </div>
     </div>
