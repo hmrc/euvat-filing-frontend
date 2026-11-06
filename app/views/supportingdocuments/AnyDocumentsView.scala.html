@@ -28,7 +28,7 @@
 
 @(form: Form[_])(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("anyDocuments.title"))) {
+@layout(pageTitle = title(form, messages("supportingDocuments.anyDocuments.title"))) {
 
     @formHelper(action = controllers.supportingdocuments.routes.AnyDocumentsController.onSubmit(), Symbol("autoComplete") -> "off") {
         @mainErrorSummary(form, Map("value" -> "value_0"))

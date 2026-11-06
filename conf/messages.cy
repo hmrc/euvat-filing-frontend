@@ -784,6 +784,6 @@ removeItem.legend = Are you sure you want to remove this item?
 removeItem.notProvided = Not provided
 removeItem.error.required = Select yes if you want to remove this item
 
-anyDocuments.title = Do you have any supporting documents to upload?
-anyDocuments.heading = Do you have any supporting documents to upload?
-anyDocuments.error.required = Select yes if you have supporting documents to upload
+supportingDocuments.anyDocuments.title = Do you have any supporting documents to upload?
+supportingDocuments.anyDocuments.heading = Do you have any supporting documents to upload?
+supportingDocuments.anyDocuments.error.required = Select yes if you have supporting documents to upload
