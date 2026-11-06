@@ -66,5 +66,4 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   )
   val earliestRefundStart: YearMonth = getYearMonth("refund.start.earliest")
   val latestRefundStart: YearMonth = getYearMonth("refund.start.latest")
-
 }
