@@ -1,2 +1,5 @@
 GET         /before-you-start                     controllers.supportingdocuments.BeforeYouStartSupportingDocsController.onPageLoad()
 POST        /before-you-start                     controllers.supportingdocuments.BeforeYouStartSupportingDocsController.onSubmit()
+
+GET         /any-documents                        controllers.supportingdocuments.AnyDocumentsController.onPageLoad()
+POST        /any-documents                        controllers.supportingdocuments.AnyDocumentsController.onSubmit()

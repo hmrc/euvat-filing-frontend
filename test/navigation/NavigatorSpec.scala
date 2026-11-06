@@ -91,7 +91,8 @@ class NavigatorSpec extends SpecBase {
             """)
         )
       )
-    )
+    ),
+    new SupportingDocumentsNavigator()
   )
 
   private val userAnswers: UserAnswers = emptyUserAnswers
