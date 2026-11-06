@@ -18,7 +18,8 @@ package controllers.supportingdocuments
 
 import controllers.actions.*
 import models.NormalMode
-import pages.bankdetails.AccountHolderPage
+import navigation.Navigator
+import pages.supportingdocuments.BeforeYouStartSupportingDocsPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -31,6 +32,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class BeforeYouStartSupportingDocsController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
+  navigator: Navigator,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
@@ -45,6 +47,6 @@ class BeforeYouStartSupportingDocsController @Inject() (
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()) // TODO: next supporting documents page RA6.1.1
+    Redirect(navigator.nextPage(BeforeYouStartSupportingDocsPage, NormalMode, request.userAnswers))
   }
 }

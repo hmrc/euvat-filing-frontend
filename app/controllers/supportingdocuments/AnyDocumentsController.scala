@@ -18,6 +18,8 @@ package controllers.supportingdocuments
 
 import controllers.actions.*
 import forms.supportingdocuments.AnyDocumentsFormProvider
+import models.NormalMode
+import navigation.Navigator
 import pages.supportingdocuments.AnyDocumentsPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -31,6 +33,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class AnyDocumentsController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
+  navigator: Navigator,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
@@ -57,13 +60,7 @@ class AnyDocumentsController @Inject() (
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(AnyDocumentsPage, hasDocuments))
             _              <- sessionRepository.set(updatedAnswers)
-          } yield {
-            if (hasDocuments) {
-              Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-            } else {
-              Redirect(controllers.routes.TaskListDashboardController.onPageLoad())
-            }
-          }
+          } yield Redirect(navigator.nextPage(AnyDocumentsPage, NormalMode, updatedAnswers))
       )
   }
 }

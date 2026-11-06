@@ -81,9 +81,13 @@ class TaskListViewModel @Inject() {
                                    ): TaskListItem = {
     val supportingDocumentsComplete = answers.get(AnyDocumentsPage).contains(false)
     TaskListItem(
-      title  = TaskListItemTitle(content = Text(messages("taskListDashboard.listItem3"))),
-      status = if (claimDetailsDone) notStartedStatus else cannotStartStatus,
-      href   = if (claimDetailsDone) Some(controllers.supportingdocuments.routes.BeforeYouStartSupportingDocsController.onPageLoad().url) else None
+      title = TaskListItemTitle(content = Text(messages("taskListDashboard.listItem3"))),
+      status = if (claimDetailsDone) {
+        if (supportingDocumentsComplete) completedStatus else notStartedStatus
+      } else {
+        cannotStartStatus
+      },
+      href = if (claimDetailsDone) Some(controllers.supportingdocuments.routes.BeforeYouStartSupportingDocsController.onPageLoad().url) else None
     )
   }
 

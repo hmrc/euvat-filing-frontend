@@ -135,7 +135,7 @@ class TaskListViewModelSpec extends SpecBase {
 
       "must link supporting documents to the start page" in {
         val taskList = viewModel.buildTaskList(answers)
-        taskList.items(2).href mustBe Some(controllers.supportingdocuments.routes.AnyDocumentsController.onPageLoad().url)
+        taskList.items(2).href mustBe Some(controllers.supportingdocuments.routes.BeforeYouStartSupportingDocsController.onPageLoad().url)
       }
 
       "must show bank details as Not yet started with a link" in {

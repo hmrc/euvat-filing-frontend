@@ -27,13 +27,19 @@ import pages.bankdetails.*
 import pages.claim.*
 import pages.imports.*
 import pages.purchase.*
+import pages.supportingdocuments.{AnyDocumentsPage, BeforeYouStartSupportingDocsPage}
 import play.api.mvc.Call
 import queries.PurchaseImportTotalItemsQuery
 
 import javax.inject.{Inject, Singleton}
 
 @Singleton
-class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: PurchaseNavigator, importNavigator: ImportNavigator) {
+class Navigator @Inject() (
+  claimNavigator: ClaimNavigator,
+  purchaseNavigator: PurchaseNavigator,
+  importNavigator: ImportNavigator,
+  supportingDocumentsNavigator: SupportingDocumentsNavigator
+) {
 
   def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call = mode match {
     case NormalMode => normalRoutes(page)(userAnswers)
@@ -80,6 +86,8 @@ class Navigator @Inject() (claimNavigator: ClaimNavigator, purchaseNavigator: Pu
     case TotalAmountWithoutVatPage         => userAnswers => importNavigator.navigateFromTotalAmountWithoutVatPage(NormalMode)(userAnswers)
     case TotalVatPaidImportPage            => userAnswers => importNavigator.navigateFromTotalVatPaidImportPage(NormalMode)(userAnswers)
     case ImportTotalVatClaimPage           => userAnswers => importNavigator.navigateFromImportTotalVatClaimPage(NormalMode)(userAnswers)
+    case BeforeYouStartSupportingDocsPage  => _ => supportingDocumentsNavigator.navigateFromBeforeYouStartPage()
+    case AnyDocumentsPage                  => userAnswers => supportingDocumentsNavigator.navigateFromAnyDocumentsPage(userAnswers)
     case RemoveItemPage                    => userAnswers => navigateFromRemoveItemPage(userAnswers)
     case AccountHolderPage                 => _ => controllers.bankdetails.routes.BankDetailsController.onPageLoad(NormalMode)
     case BankDetailsPage                   => _ => controllers.bankdetails.routes.CheckYourBankDetailsController.onPageLoad()

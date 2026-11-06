@@ -57,7 +57,7 @@ class BeforeYouStartSupportingDocsControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to the next page for a POST" in {
+    "must redirect to the any documents page for a POST" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
@@ -67,8 +67,7 @@ class BeforeYouStartSupportingDocsControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        // TODO: update once the next supporting documents page exists
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.AnyDocumentsController.onPageLoad().url
       }
     }
 
