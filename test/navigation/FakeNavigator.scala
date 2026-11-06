@@ -81,7 +81,8 @@ class FakeNavigator(desiredRoute: Call)
             """)
           )
         )
-      )
+      ),
+      new SupportingDocumentsNavigator()
     ) {
 
   override def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call =
