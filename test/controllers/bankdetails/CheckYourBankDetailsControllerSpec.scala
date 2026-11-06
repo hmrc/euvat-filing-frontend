@@ -50,9 +50,9 @@ class CheckYourBankDetailsControllerSpec extends SpecBase {
           val msgs = messages(application)
 
           status(result) mustEqual OK
-          html must include(msgs("checkYourBankDetails.heading"))
-          html must include(msgs("checkYourBankDetails.caption"))
-          html must include(msgs("checkYourBankDetails.card.title"))
+          html must include(msgs("bankDetails.checkYourBankDetails.heading"))
+          html must include(msgs("bankDetails.caption"))
+          html must include(msgs("bankDetails.checkYourBankDetails.card.title"))
           html must include(msgs("site.save.continue"))
         }
       }
@@ -66,8 +66,8 @@ class CheckYourBankDetailsControllerSpec extends SpecBase {
           val html = contentAsString(result)
           val msgs = messages(application)
 
-          html must include(msgs("checkYourBankDetails.accountHolder.label"))
-          html must include(msgs("checkYourBankDetails.accountHolder.applicant"))
+          html must include(msgs("bankDetails.checkYourBankDetails.accountHolder.label"))
+          html must include(msgs("bankDetails.checkYourBankDetails.accountHolder.applicant"))
         }
       }
 
@@ -79,7 +79,7 @@ class CheckYourBankDetailsControllerSpec extends SpecBase {
           val request = FakeRequest(GET, routes.CheckYourBankDetailsController.onPageLoad().url).withCSRFToken
           val result = route(application, request).value
 
-          contentAsString(result) must include(messages(application)("checkYourBankDetails.accountHolder.thirdParty"))
+          contentAsString(result) must include(messages(application)("bankDetails.checkYourBankDetails.accountHolder.thirdParty"))
         }
       }
 
@@ -97,13 +97,13 @@ class CheckYourBankDetailsControllerSpec extends SpecBase {
           val html = contentAsString(result)
           val msgs = messages(application)
 
-          html must include(msgs("checkYourBankDetails.accountName.label"))
+          html must include(msgs("bankDetails.checkYourBankDetails.accountName.label"))
           html must include("Joe Bloggs")
-          html must include(msgs("checkYourBankDetails.bic.label"))
+          html must include(msgs("bankDetails.checkYourBankDetails.bic.label"))
           html must include("NWBKGB2LXXX")
-          html must include(msgs("checkYourBankDetails.iban.label"))
+          html must include(msgs("bankDetails.checkYourBankDetails.iban.label"))
           html must include("GB29NWBK60161331926819")
-          html must include(msgs("checkYourBankDetails.currency.label"))
+          html must include(msgs("bankDetails.checkYourBankDetails.currency.label"))
           html must include("United Kingdom (pounds)")
         }
       }
@@ -133,9 +133,9 @@ class CheckYourBankDetailsControllerSpec extends SpecBase {
           val msgs = messages(application)
 
           status(result) mustEqual OK
-          html must not include msgs("checkYourBankDetails.accountHolder.label")
-          html must not include msgs("checkYourBankDetails.accountName.label")
-          html must not include msgs("checkYourBankDetails.iban.label")
+          html must not include msgs("bankDetails.checkYourBankDetails.accountHolder.label")
+          html must not include msgs("bankDetails.checkYourBankDetails.accountName.label")
+          html must not include msgs("bankDetails.checkYourBankDetails.iban.label")
         }
       }
 
