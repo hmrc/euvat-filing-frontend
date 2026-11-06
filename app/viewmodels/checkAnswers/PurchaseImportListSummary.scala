@@ -54,7 +54,7 @@ object PurchaseImportListSummary {
           case Some(appId) if vatClaim == 0 && item.itemType == "P" => purchaseRoutes.PurchaseTypeController.addDetails(appId, itemNumber).url
           case Some(appId) if vatClaim == 0 && item.itemType == "I" => importsRoutes.ImportTypeController.addDetails(appId, itemNumber).url
           case Some(appId) if item.itemType == "P" => purchaseRoutes.CheckYourPurchaseDetailsController.changeYourAnswers(appId, itemNumber).url
-          case Some(appId) if item.itemType == "I" => importsRoutes.CheckYourPurchaseDetailsController.changeYourAnswers(appId, itemNumber).url
+          case Some(appId) if item.itemType == "I" => importsRoutes.CheckYourImportDetailsController.changeYourAnswers(appId, itemNumber).url
           case _                                   => routes.JourneyRecoveryController.onPageLoad().url
 
         val currencySymbol = if (vatClaim == 0) "" else ControllerHelpers.currencySymbolFromSession(userAnswers, config)
