@@ -23,7 +23,7 @@ import javax.inject.{Inject, Singleton}
 import scala.util.{Failure, Success, Try}
 
 @Singleton
-class CryptoProvider @Inject() (config: Configuration) extends Logging {
+class BankDetailsEncryption @Inject() (config: Configuration) extends Logging {
 
   private val crypto = SymmetricCryptoFactory.aesGcmCryptoFromConfig("encryption.config.key", config.underlying)
 
