@@ -16,13 +16,20 @@
 
 package models.requests
 
+import models.responses.ApplicationDetails
+import models.{AccountHolder, BankDetails, EncryptionStatus, UserAnswers}
+import org.mockito.Mockito.when
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.{OptionValues, TryValues}
+import org.scalatestplus.mockito.MockitoSugar
+import pages.bankdetails.{AccountHolderPage, BankDetailsPage}
 import play.api.libs.json.{JsObject, Json}
+import utils.BankDetailsEncryption
 
-import java.time.LocalDateTime
+import java.time.{Clock, LocalDateTime}
 
-class UpdateApplicationDetailsRequestSpec extends AnyWordSpec with Matchers {
+class UpdateApplicationDetailsRequestSpec extends AnyWordSpec with Matchers with TryValues with OptionValues with MockitoSugar {
 
   private val fullRequest = UpdateApplicationDetailsRequest(
     applicationId              = 133,
@@ -120,6 +127,138 @@ class UpdateApplicationDetailsRequestSpec extends AnyWordSpec with Matchers {
       s"fail to deserialize when $field is missing" in {
         (mandatoryOnlyJson - field).validate[UpdateApplicationDetailsRequest].isError shouldBe true
       }
+    }
+  }
+
+  "UpdateApplicationDetailsRequest.withEncryptedDetails" should {
+
+    val bankDetails = BankDetails("Joe Bloggs", "NWBKGB2LXXX", "GB29NWBK60161331926819", "GBP")
+    val userAnswers = UserAnswers("id")
+      .set(BankDetailsPage, bankDetails)
+      .success
+      .value
+      .set(AccountHolderPage, AccountHolder.Applicant)
+      .success
+      .value
+
+    val fixedTime = LocalDateTime.now(Clock.systemUTC())
+    val applicationDetails = ApplicationDetails(
+      applicationId              = 1L,
+      applicationNumber          = Option("123"),
+      refundingCountryCode       = Option("GB"),
+      applicationVersion         = Some(fixedTime),
+      periodStartDate            = Some(fixedTime),
+      periodEndDate              = Some(fixedTime),
+      applicantVatRegNumber      = Option("VAT reg 1234"),
+      applicantEmailAddress      = Option("applicant@mail.com"),
+      applicantTelephoneNumber   = Option("tel 12345678"),
+      representativeId           = Option("Rep 123"),
+      representativeIdType       = None,
+      representativeCountry      = Option("FR"),
+      representativeEmailAddress = Option("representative@mail.com"),
+      representativeTelephoneNum = Option("tel 87654321"),
+      applicationLanguage        = Some("EN"),
+      bankAccountOwnerName       = None,
+      bankAccountOwnerType       = None,
+      ibanCode                   = None,
+      bicCode                    = None,
+      bankAccountCurrencyCode    = None,
+      businessActivityCode1      = Some("10001"),
+      businessActivityCode2      = Some("10002"),
+      businessActivityCode3      = Some("10003"),
+      messageId                  = Some("message 123"),
+      correlationId              = Some("correlationId 123"),
+      cipherText                 = None,
+      encryptionStatus           = None,
+      updateSeqNumber            = 0,
+      applicationStatus          = Some("D"),
+      submissionStatus           = Some("S")
+    )
+
+    val encryptedIban = "encryptedIban"
+    val encryptedBIC = "encryptedBIC"
+    val encryptedKnownText = "encryptedKnownText"
+
+    val mockCryptoProvider = mock[BankDetailsEncryption]
+    when(mockCryptoProvider.encrypt(bankDetails.accountNumber)).thenReturn(encryptedIban)
+    when(mockCryptoProvider.encrypt(bankDetails.BIC)).thenReturn(encryptedBIC)
+    when(mockCryptoProvider.knownCipherText).thenReturn(encryptedKnownText)
+
+    "create encrypted UpdateApplicationDetailsRequest from userAnswers and applicationDetails" in {
+      val result = UpdateApplicationDetailsRequest.withEncryptedDetails(userAnswers, applicationDetails, mockCryptoProvider)
+
+      result shouldBe UpdateApplicationDetailsRequest(
+        applicationId              = applicationDetails.applicationId,
+        applicationLanguage        = applicationDetails.applicationLanguage.value,
+        refundingCountry           = applicationDetails.refundingCountryCode.value,
+        periodStartDate            = applicationDetails.periodStartDate.value,
+        periodEndDate              = applicationDetails.periodEndDate.value,
+        applicantEmailAddress      = applicationDetails.applicantEmailAddress.value,
+        applicantPhoneNumber       = applicationDetails.applicantTelephoneNumber,
+        representativeCountry      = applicationDetails.representativeCountry,
+        representativeEmailAddress = applicationDetails.representativeEmailAddress,
+        representativePhoneNumber  = applicationDetails.representativeTelephoneNum,
+        bankAccountOwnerName       = Some(bankDetails.NameOnTheAccount),
+        bankAccountOwnerType       = Some(AccountHolder.Applicant.toString),
+        ibanCode                   = Some(encryptedIban),
+        bicCode                    = Some(encryptedBIC),
+        bankAccountCurrencyCode    = Some(bankDetails.CurrencyOfAccount),
+        businessActivityCode2      = applicationDetails.businessActivityCode2,
+        businessActivityCode3      = applicationDetails.businessActivityCode3,
+        cipherText                 = Some(encryptedKnownText),
+        encryptionStatus           = Some(EncryptionStatus.E.toString),
+        updateSequenceNumber       = applicationDetails.updateSeqNumber
+      )
+    }
+
+    "fail when refundingCountryCode is missing in ApplicationDetails" in {
+      val updatedApplicationDetails = applicationDetails.copy(refundingCountryCode = None)
+
+      val exception = the[Exception] thrownBy {
+        UpdateApplicationDetailsRequest.withEncryptedDetails(userAnswers, updatedApplicationDetails, mockCryptoProvider)
+      }
+
+      exception should have message "Country code missing"
+    }
+
+    "fail when applicationLanguage is missing in ApplicationDetails" in {
+      val updatedApplicationDetails = applicationDetails.copy(applicationLanguage = None)
+
+      val exception = the[Exception] thrownBy {
+        UpdateApplicationDetailsRequest.withEncryptedDetails(userAnswers, updatedApplicationDetails, mockCryptoProvider)
+      }
+
+      exception should have message "Language code missing"
+    }
+
+    "fail when periodStartDate is missing in ApplicationDetails" in {
+      val updatedApplicationDetails = applicationDetails.copy(periodStartDate = None)
+
+      val exception = the[Exception] thrownBy {
+        UpdateApplicationDetailsRequest.withEncryptedDetails(userAnswers, updatedApplicationDetails, mockCryptoProvider)
+      }
+
+      exception should have message "Refund period start date missing"
+    }
+
+    "fail when periodEndDate is missing in ApplicationDetails" in {
+      val updatedApplicationDetails = applicationDetails.copy(periodEndDate = None)
+
+      val exception = the[Exception] thrownBy {
+        UpdateApplicationDetailsRequest.withEncryptedDetails(userAnswers, updatedApplicationDetails, mockCryptoProvider)
+      }
+
+      exception should have message "Refund period end date missing"
+    }
+
+    "fail when applicantEmailAddress is missing in ApplicationDetails" in {
+      val updatedApplicationDetails = applicationDetails.copy(applicantEmailAddress = None)
+
+      val exception = the[Exception] thrownBy {
+        UpdateApplicationDetailsRequest.withEncryptedDetails(userAnswers, updatedApplicationDetails, mockCryptoProvider)
+      }
+
+      exception should have message "Applicant email missing"
     }
   }
 }

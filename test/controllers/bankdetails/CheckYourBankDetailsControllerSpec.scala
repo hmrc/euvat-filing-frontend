@@ -17,14 +17,26 @@
 package controllers.bankdetails
 
 import base.SpecBase
-import controllers.bankdetails.routes
-import models.{AccountHolder, BankDetails, CheckMode}
+import models.requests.UpdateApplicationDetailsRequest
+import models.responses.*
+import models.{AccountHolder, BankDetails, CheckMode, EncryptionStatus}
+import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers.{any, eq as mockitoEq}
+import org.mockito.Mockito.when
 import pages.bankdetails.{AccountHolderPage, BankDetailsPage}
 import play.api.test.CSRFTokenHelper.*
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import queries.ClaimApplicationResponseQuery
+import uk.gov.hmrc.http.HeaderCarrier
+
+import java.time.{Clock, LocalDateTime}
+import scala.concurrent.{ExecutionContext, Future}
 
 class CheckYourBankDetailsControllerSpec extends SpecBase {
+
+  implicit val ec: ExecutionContext = ExecutionContext.global
+  implicit val hc: HeaderCarrier = HeaderCarrier()
 
   "CheckYourBankDetails Controller" - {
 
@@ -33,8 +45,9 @@ class CheckYourBankDetailsControllerSpec extends SpecBase {
       .success
       .value
 
+    val bankDetails = BankDetails("Joe Bloggs", "NWBKGB2LXXX", "GB29NWBK60161331926819", "GBP")
     lazy val fullAnswers = applicantAnswers
-      .set(BankDetailsPage, BankDetails("Joe Bloggs", "NWBKGB2LXXX", "GB29NWBK60161331926819", "GBP"))
+      .set(BankDetailsPage, bankDetails)
       .success
       .value
 
@@ -175,9 +188,58 @@ class CheckYourBankDetailsControllerSpec extends SpecBase {
     }
 
     "onSubmit" - {
+      val applicationId = 1L
+      val applicationNumber = "123"
+      val updateSeqNumber = 0
+      val fixedTime = LocalDateTime.now(Clock.systemUTC())
+      val applicationDetails = ApplicationDetails(
+        applicationId              = applicationId,
+        applicationNumber          = Option(applicationNumber),
+        refundingCountryCode       = Option("GB"),
+        applicationVersion         = Some(fixedTime),
+        periodStartDate            = Some(fixedTime),
+        periodEndDate              = Some(fixedTime),
+        applicantVatRegNumber      = Option("VAT reg 1234"),
+        applicantEmailAddress      = Option("applicant@mail.com"),
+        applicantTelephoneNumber   = Option("tel 12345678"),
+        representativeId           = Option("Rep 123"),
+        representativeIdType       = None,
+        representativeCountry      = Option("FR"),
+        representativeEmailAddress = Option("representative@mail.com"),
+        representativeTelephoneNum = Option("tel 87654321"),
+        applicationLanguage        = Some("EN"),
+        bankAccountOwnerName       = None,
+        bankAccountOwnerType       = None,
+        ibanCode                   = None,
+        bicCode                    = None,
+        bankAccountCurrencyCode    = None,
+        businessActivityCode1      = Some("10001"),
+        businessActivityCode2      = Some("10002"),
+        businessActivityCode3      = Some("10003"),
+        messageId                  = Some("message 123"),
+        correlationId              = Some("correlationId 123"),
+        cipherText                 = None,
+        encryptionStatus           = None,
+        updateSeqNumber            = updateSeqNumber,
+        applicationStatus          = Some("D"),
+        submissionStatus           = Some("S")
+      )
 
-      "must redirect to the task list" in {
-        val application = applicationBuilder(userAnswers = Some(fullAnswers)).build()
+      val applicationDetailsResponse = ApplicationDetailsResponse(applicationDetails = List(applicationDetails))
+
+      "must update application and redirect to the task list when ClaimApplicationResponseQuery is in session" in {
+        val accountHolder = AccountHolder.Applicant.toString
+        val applicationResponse = ApplicationResponse(applicationId, applicationNumber, updateSeqNumber)
+        val answers = fullAnswers.set(ClaimApplicationResponseQuery, applicationResponse).success.value
+        val applicationDetailsUpdateResponse = UpdateApplicationDetailsResponse(applicationDetails.updateSeqNumber + 1)
+        val updateRequestCaptor = ArgumentCaptor.forClass(classOf[UpdateApplicationDetailsRequest])
+
+        when(mockEuVatRefundsService.getApplicationDetails(mockitoEq(applicationId))(any[HeaderCarrier]()))
+          .thenReturn(Future.successful(applicationDetailsResponse))
+        when(mockEuVatRefundsService.updateApplicationDetails(updateRequestCaptor.capture())(any[HeaderCarrier]()))
+          .thenReturn(Future.successful(applicationDetailsUpdateResponse))
+
+        val application = applicationBuilder(userAnswers = Some(answers)).build()
 
         running(application) {
           val request = FakeRequest(POST, routes.CheckYourBankDetailsController.onSubmit().url)
@@ -185,6 +247,80 @@ class CheckYourBankDetailsControllerSpec extends SpecBase {
 
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual controllers.routes.TaskListDashboardController.onPageLoad().url
+
+          val actualUpdateRequest = updateRequestCaptor.getValue
+          actualUpdateRequest.applicationId mustBe applicationDetails.applicationId
+          actualUpdateRequest.bankAccountOwnerName.value mustBe "Joe Bloggs"
+          actualUpdateRequest.encryptionStatus.value mustBe EncryptionStatus.E.toString
+        }
+      }
+
+      "must redirect to Journey Recovery when service returns empty application details" in {
+        val applicationResponse = ApplicationResponse(applicationId = applicationId, applicationNumber = "123", updateSeqNumber = 2)
+        val emptyApplicationDetailsResponse = ApplicationDetailsResponse(applicationDetails = Nil)
+        val answers = fullAnswers.set(ClaimApplicationResponseQuery, applicationResponse).success.value
+
+        when(mockEuVatRefundsService.getApplicationDetails(any())(any[HeaderCarrier]()))
+          .thenReturn(Future.successful(emptyApplicationDetailsResponse))
+
+        val application = applicationBuilder(userAnswers = Some(answers)).build()
+
+        running(application) {
+          val request = FakeRequest(POST, routes.CheckYourBankDetailsController.onSubmit().url)
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        }
+      }
+
+      "must redirect to Journey Recovery when service.updateApplicationDetails returns an error" in {
+        val applicationResponse = ApplicationResponse(applicationId = applicationId, applicationNumber = "123", updateSeqNumber = 2)
+        val answers = fullAnswers.set(ClaimApplicationResponseQuery, applicationResponse).success.value
+
+        when(mockEuVatRefundsService.getApplicationDetails(any())(any[HeaderCarrier]()))
+          .thenReturn(Future.successful(applicationDetailsResponse))
+        when(mockEuVatRefundsService.updateApplicationDetails(any())(any[HeaderCarrier]()))
+          .thenReturn(Future.failed(Exception("Update application error")))
+
+        val application = applicationBuilder(userAnswers = Some(answers)).build()
+
+        running(application) {
+          val request = FakeRequest(POST, routes.CheckYourBankDetailsController.onSubmit().url)
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        }
+      }
+
+      "must redirect to Journey Recovery when service.getApplicationDetails returns an error" in {
+        val applicationResponse = ApplicationResponse(applicationId = applicationId, applicationNumber = "123", updateSeqNumber = 2)
+        val answers = fullAnswers.set(ClaimApplicationResponseQuery, applicationResponse).success.value
+
+        when(mockEuVatRefundsService.getApplicationDetails(any())(any[HeaderCarrier]()))
+          .thenReturn(Future.failed(Exception("Get application error")))
+
+        val application = applicationBuilder(userAnswers = Some(answers)).build()
+
+        running(application) {
+          val request = FakeRequest(POST, routes.CheckYourBankDetailsController.onSubmit().url)
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        }
+      }
+
+      "must redirect to Journey Recovery when ClaimApplicationResponseQuery is NOT in session" in {
+        val application = applicationBuilder(userAnswers = Some(fullAnswers)).build()
+
+        running(application) {
+          val request = FakeRequest(POST, routes.CheckYourBankDetailsController.onSubmit().url)
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
         }
       }
 

@@ -19,7 +19,7 @@ package viewmodels
 import models.{NormalMode, UserAnswers}
 import pages.PurchaseImportSummaryPage
 import play.api.i18n.Messages
-import queries.{ClaimDetailsCompletedQuery, PurchaseImportSummaryIncompleteQuery}
+import queries.{BankDetailsCompletedQuery, ClaimDetailsCompletedQuery, PurchaseImportSummaryIncompleteQuery}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 import uk.gov.hmrc.govukfrontend.views.viewmodels.tag.Tag
@@ -33,6 +33,8 @@ class TaskListViewModel @Inject() {
 
   def buildTaskList(answers: UserAnswers)(implicit messages: Messages): TaskList = {
     val claimDetailsDone = answers.get(ClaimDetailsCompletedQuery).contains(true)
+    val bankDetailsDone = answers.get(BankDetailsCompletedQuery).contains(true)
+
     def notStartedStatus = TaskListItemStatus(tag = Some(Tag(content = Text(messages("taskListDashboard.status1")))))
     def cannotStartStatus =
       TaskListItemStatus(content = Text(messages("taskListDashboard.status2")), classes = "govuk-task-list__status--cannot-start-yet")
@@ -42,7 +44,7 @@ class TaskListViewModel @Inject() {
     val purchaseImportItems =
       purchaseImportTaskList(answers, messages, claimDetailsDone, cannotStartStatus, notStartedStatus, completedStatus)
     val supportingDocsItem = supportingDocItemList(messages, claimDetailsDone, notStartedStatus, cannotStartStatus)
-    val bankDetailsItem = bankDetailsTaskList(messages, claimDetailsDone, notStartedStatus, cannotStartStatus)
+    val bankDetailsItem = bankDetailsTaskList(messages, claimDetailsDone, bankDetailsDone, notStartedStatus, cannotStartStatus, completedStatus)
     val submitClaimItem = submitClaimTaskList(messages, cannotStartStatus)
 
     TaskList(
@@ -60,13 +62,19 @@ class TaskListViewModel @Inject() {
 
   private def bankDetailsTaskList(messages: Messages,
                                   claimDetailsDone: Boolean,
+                                  bankDetailsDone: Boolean,
                                   notStartedStatus: TaskListItemStatus,
-                                  cannotStartStatus: TaskListItemStatus
+                                  cannotStartStatus: TaskListItemStatus,
+                                  completedStatus: TaskListItemStatus
                                  ): TaskListItem = {
     TaskListItem(
-      title  = TaskListItemTitle(content = Text(messages("taskListDashboard.listItem4"))),
-      status = if (claimDetailsDone) notStartedStatus else cannotStartStatus,
-      href   = if (claimDetailsDone) Some(controllers.bankdetails.routes.BeforeYouStartBankDetailsController.onPageLoad().url) else None
+      title = TaskListItemTitle(content = Text(messages("taskListDashboard.listItem4"))),
+      status = if (claimDetailsDone) {
+        if (bankDetailsDone) completedStatus else notStartedStatus
+      } else {
+        cannotStartStatus
+      },
+      href = if (claimDetailsDone) Some(controllers.bankdetails.routes.BeforeYouStartBankDetailsController.onPageLoad().url) else None
     )
   }
 
