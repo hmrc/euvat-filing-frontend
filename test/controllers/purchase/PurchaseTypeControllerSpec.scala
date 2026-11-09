@@ -85,10 +85,18 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar with TableDr
       }
 
       val userAnswers = emptyUserAnswers
-        .set(PurchaseTypePage, Other).success.value
-        .set(PurchaseSubTypePage, "1.99").success.value
-        .set(DescribeItemsArrivedFromCheckYourAnswersPage, true).success.value
-        .set(RefundingCountryPage, "EE").success.value
+        .set(PurchaseTypePage, Other)
+        .success
+        .value
+        .set(PurchaseSubTypePage, "1.99")
+        .success
+        .value
+        .set(DescribeItemsArrivedFromCheckYourAnswersPage, true)
+        .success
+        .value
+        .set(RefundingCountryPage, "EE")
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
@@ -1076,8 +1084,13 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar with TableDr
 
         status(result) mustEqual BAD_REQUEST
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(boundForm, NormalMode, routes.PurchaseTypeController.onSubmit(NormalMode), "purchaseType", "purchase.caption",
-            legendKey = Some("purchaseType.h2"))(request, messages(application)).toString
+          view(boundForm,
+               NormalMode,
+               routes.PurchaseTypeController.onSubmit(NormalMode),
+               "purchaseType",
+               "purchase.caption",
+               legendKey = Some("purchaseType.h2")
+              )(request, messages(application)).toString
         )
       }
     }
@@ -1092,10 +1105,18 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar with TableDr
       }
 
       val userAnswers = emptyUserAnswers
-        .set(RefundingCountryPage, "BE").success.value
-        .set(PurchaseTypePage, Other).success.value
-        .set(PurchaseSubTypePage, "10.99").success.value
-        .set(DescribeItemsArrivedFromCheckYourAnswersPage, true).success.value
+        .set(RefundingCountryPage, "BE")
+        .success
+        .value
+        .set(PurchaseTypePage, Other)
+        .success
+        .value
+        .set(PurchaseSubTypePage, "10.99")
+        .success
+        .value
+        .set(DescribeItemsArrivedFromCheckYourAnswersPage, true)
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
