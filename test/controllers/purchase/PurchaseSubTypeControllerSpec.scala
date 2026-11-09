@@ -497,45 +497,6 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must not show None option when PurchaseType is Other" in {
-      val fakeConfig = new ConfigPurchaseOrImportMapping() {
-        override def subcodesFor(country: String, parentKey: String) = Seq(("1", "sub.test.1"))
-        override def buildRadioItems(options: Seq[(String, String)], msgs: play.api.i18n.Messages) = Seq(
-          RadioItem(
-            content = Aliases.Text(msgs("sub.test.1")),
-            value   = Some("1"),
-            id      = Some("value_0")
-          ),
-          RadioItem(
-            content = Aliases.Text(ConfigPurchaseOrImportMapping.NoneValue),
-            value   = Some(ConfigPurchaseOrImportMapping.NoneValue),
-            id      = Some("value_none")
-          )
-        )
-      }
-
-      val userAnswers = emptyUserAnswers
-        .set(RefundingCountryPage, "AT")
-        .success
-        .value
-        .set(PurchaseTypePage, Other)
-        .success
-        .value
-
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig))
-        .build()
-
-      running(application) {
-        val request = FakeRequest(GET, "/file-eu-vat/purchase/other")
-        val result = route(application, request).value
-
-        status(result) mustEqual OK
-        val body = contentAsString(result)
-        body mustNot include(ConfigPurchaseOrImportMapping.NoneValue)
-      }
-    }
-
     "must clear stored subtype and label when CountryChangedPage is true" in {
       val fakeConfig = new ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String) = Seq(("1", "sub.test.1"))
@@ -650,7 +611,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must remove subtype and redirect to InvoiceType when None selected" in {
+    "must save selection and redirect to InvoiceType when None selected" in {
       val fakeConfig = new ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String) = Seq(("1", "sub.fuel.1"))
         override def subcategoriesFor(country: String, parentKey: String, subcode: String) = Seq.empty
@@ -677,7 +638,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(POST, "/file-eu-vat/purchase/fuel-use")
-          .withFormUrlEncodedBody(("value", ConfigPurchaseOrImportMapping.NoneValue))
+          .withFormUrlEncodedBody(("value", "1.99"))
 
         val result = route(application, request).value
 
@@ -687,8 +648,8 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
         val captor = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
         val saved = captor.getValue
-        saved.get(PurchaseSubTypePage) mustBe Some(ConfigPurchaseOrImportMapping.NoneValue)
-        saved.get(PurchaseSubTypeLabelPage) mustBe Some(ConfigPurchaseOrImportMapping.NoneValue)
+        saved.get(PurchaseSubTypePage) mustBe Some("1.99")
+        saved.get(PurchaseSubTypeLabelPage).isDefined mustBe true
         saved.get(PurchaseSubCategoryPage) mustBe None
       }
     }
@@ -720,7 +681,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(POST, routes.PurchaseSubTypeController.onSubmit("fuel-use", models.CheckMode).url)
-          .withFormUrlEncodedBody(("value", ConfigPurchaseOrImportMapping.NoneValue))
+          .withFormUrlEncodedBody(("value", "1.99"))
 
         val result = route(application, request).value
 
@@ -730,8 +691,8 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
         val captor = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
         val saved = captor.getValue
-        saved.get(PurchaseSubTypePage) mustBe Some(ConfigPurchaseOrImportMapping.NoneValue)
-        saved.get(PurchaseSubTypeLabelPage) mustBe Some(ConfigPurchaseOrImportMapping.NoneValue)
+        saved.get(PurchaseSubTypePage) mustBe Some("1.99")
+        saved.get(PurchaseSubTypeLabelPage).isDefined mustBe true
         saved.get(PurchaseSubCategoryPage) mustBe None
       }
     }

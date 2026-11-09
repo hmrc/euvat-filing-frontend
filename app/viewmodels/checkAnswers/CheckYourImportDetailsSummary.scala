@@ -57,20 +57,16 @@ object CheckYourImportDetailsSummary {
     options: Seq[(String, String)],
     config: ConfigPurchaseOrImportMapping
   )(implicit messages: Messages): Option[String] =
-    value.flatMap {
-      case ConfigPurchaseOrImportMapping.NoneValue =>
-        Some(messages("site.none"))
-
-      case code =>
-        config
-          .buildRadioItems(options, messages)
-          .find(_.value.contains(code))
-          .map(item =>
-            item.content match {
-              case uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text(value) => value
-              case content                                                        => content.asHtml.toString
-            }
-          )
+    value.flatMap { code =>
+      config
+        .buildRadioItems(options, messages)
+        .find(_.value.contains(code))
+        .map(item =>
+          item.content match {
+            case uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text(value) => value
+            case content                                                        => content.asHtml.toString
+          }
+        )
     }
 
   private def dynamicRow(

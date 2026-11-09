@@ -1,3 +1,5 @@
+sub.99 = None
+
 sub.fuel.heading = What is the fuel used for?
 sub.fuel.title = What is the fuel used for?
 sub.fuel.error.required = Select what the fuel is used for

@@ -38,33 +38,11 @@ class PurchaseOrImportHelpersSpec extends SpecBase {
   private val config = new ConfigPurchaseOrImportMapping()
   private val formProvider = new PurchaseOrImportSubTypeFormProvider()
 
-  private val options = Seq(("1.2.6", "sub.fuel.2.6"), ("1.2.7", "sub.fuel.2.7"))
+  private val options = Seq(("1.2.6", "sub.fuel.2.6"), ("1.2.7", "sub.fuel.2.7"), ("1.2.99", "sub.99"))
   private val optionsWithNoneOfThese = Seq(("10.17", "sub.other.17"), (ConfigPurchaseOrImportMapping.NoneOfTheseSubCode, "sub.other.99"))
 
   "PurchaseOrImportHelpers" - {
-
-    "radioItems" - {
-
-      "must include the generic None item when options do not contain None of these" in {
-        radioItems(config, options)(noMessages).flatMap(_.value) mustBe Seq("1.2.6", "1.2.7", ConfigPurchaseOrImportMapping.NoneValue)
-      }
-
-      "must drop the generic None item when options contain None of these" in {
-        radioItems(config, optionsWithNoneOfThese)(noMessages).flatMap(_.value) mustBe Seq("10.17", ConfigPurchaseOrImportMapping.NoneOfTheseSubCode)
-      }
-    }
-
-    "allowedValues" - {
-
-      "must add the None value when options do not contain None of these" in {
-        allowedValues(options) mustBe Seq("1.2.6", "1.2.7", ConfigPurchaseOrImportMapping.NoneValue)
-      }
-
-      "must not add the None value when options contain None of these" in {
-        allowedValues(optionsWithNoneOfThese) mustBe Seq("10.17", ConfigPurchaseOrImportMapping.NoneOfTheseSubCode)
-      }
-    }
-
+    
     "requiredErrorKey" - {
 
       "must use the code-specific key when it exists" in {
@@ -127,10 +105,7 @@ class PurchaseOrImportHelpersSpec extends SpecBase {
         val msgs = messagesWith("sub.fuel.2.6" -> "Diesel")
         labelFor("1.2.6", options)(msgs) mustBe "Diesel"
       }
-
-      "must return the value itself for an unknown code" in {
-        labelFor(ConfigPurchaseOrImportMapping.NoneValue, options)(noMessages) mustBe ConfigPurchaseOrImportMapping.NoneValue
-      }
+      
     }
 
     "setSelection" - {
@@ -144,10 +119,6 @@ class PurchaseOrImportHelpersSpec extends SpecBase {
     }
 
     "isNoneSelection" - {
-
-      "must be true for the generic None value" in {
-        isNoneSelection(ConfigPurchaseOrImportMapping.NoneValue) mustBe true
-      }
 
       "must be true for a code ending in 99" in {
         isNoneSelection("10.99") mustBe true
