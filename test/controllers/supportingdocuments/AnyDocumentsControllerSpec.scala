@@ -39,7 +39,7 @@ class AnyDocumentsControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) must include(messages(application)("anyDocuments.heading"))
+        contentAsString(result) must include(messages(application)("supportingDocuments.anyDocuments.heading"))
         contentAsString(result) must include(messages(application)("supportingDocuments.caption"))
       }
     }
