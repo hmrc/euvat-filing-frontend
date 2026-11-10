@@ -34,7 +34,7 @@ class AnyDocumentsFormProviderSpec extends BooleanFieldBehaviours {
     behave like mandatoryField(
       form,
       fieldName,
-      requiredError = FormError(fieldName, "anyDocuments.error.required")
+      requiredError = FormError(fieldName, "supportingDocuments.anyDocuments.error.required")
     )
   }
 }

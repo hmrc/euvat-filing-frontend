@@ -52,7 +52,7 @@ class AnyDocumentsControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) must include(messages(application)("anyDocuments.error.required"))
+        contentAsString(result) must include(messages(application)("supportingDocuments.anyDocuments.error.required"))
       }
     }
 
