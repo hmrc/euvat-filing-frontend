@@ -31,10 +31,7 @@ class BankDetailsEncryptionSpec extends AnyWordSpec with Matchers {
 
     "decrypt an encrypted value back to the original" in {
       val encrypted = provider.encrypt(iban)
-      println(s"***********encrypted: $encrypted")
-
-      encrypted should not be iban
-      println(s"***********decrypt: ${provider.decrypt(encrypted)}")
+      encrypted                     should not be iban
       provider.decrypt(encrypted) shouldBe iban
     }
 

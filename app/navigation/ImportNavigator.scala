@@ -17,7 +17,7 @@
 package navigation
 
 import controllers.imports.routes as importsRoutes
-import models.{CheckMode, Mode, Other, UserAnswers}
+import models.{CheckMode, Mode, NormalMode, Other, PurchaseOrImportSubCategoryType, UserAnswers}
 import pages.imports.*
 import play.api.libs.json.Reads
 import play.api.mvc.Call
@@ -56,7 +56,7 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
       case (Some(importType), Some(code), Some(country))
           if configPurchaseOrImportMapping.subcategoriesFor(country, importType.toString, code).nonEmpty =>
         if (answeredInCheckMode(mode, userAnswers, ImportSubCategoryPage)) cya
-        else importsRoutes.ImportSubCategoryController.onPageLoad(mode)
+        else ImportNavigator.subCategoryPage(userAnswers, mode)
       case (Some(_), Some(_), Some(_)) => if (mode == CheckMode) cya else importsRoutes.SadReferenceCheckController.onPageLoad(mode)
       case _                           => recovery
     }
@@ -108,4 +108,24 @@ class ImportNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchaseO
 
   def navigateFromImportTotalVatClaimPage(mode: Mode)(userAnswers: UserAnswers): Call =
     if (userAnswers.get(ImportTotalVatClaimPage).isDefined) cya else recovery
+
+}
+
+object ImportNavigator {
+  def subCategoryPage(userAnswers: UserAnswers, mode: Mode): Call =
+    Call("GET", subCategoryUrl(userAnswers, mode).getOrElse(importsRoutes.ImportSubCategoryController.onPageLoad(mode).url))
+
+  def subCategorySubmit(userAnswers: UserAnswers, mode: Mode): Call =
+    Call("POST", subCategoryUrl(userAnswers, mode).getOrElse(importsRoutes.ImportSubCategoryController.onSubmit(mode).url))
+
+  private def subCategoryUrl(userAnswers: UserAnswers, mode: Mode): Option[String] =
+    for {
+      importType <- userAnswers.get(ImportTypePage)
+      subCode    <- userAnswers.get(ImportSubCodePage)
+      slug       <- PurchaseOrImportSubCategoryType.purchaseOrImportSubCategoryUrlSlugFor(importType.toString, subCode)
+    } yield {
+      val typeUrl = importsRoutes.ImportTypeController.onPageLoad(NormalMode).url
+      val base = typeUrl.take(typeUrl.lastIndexOf('/'))
+      if (mode == CheckMode) s"$base/change-$slug" else s"$base/$slug"
+    }
 }
