@@ -16,94 +16,65 @@
 
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.FormGroup
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.errormessage.ErrorMessage
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.fileupload.FileUpload
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.label.Label
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.charactercount.CharacterCount
-@import forms.supportingdocuments.UploadFileFormProvider.{descriptionFieldName, descriptionMaxLength, fileErrorKey, fileInputName}
 @import views.html.components.*
 
 @this(
     layout: templates.Layout,
     formHelper: FormWithCSRF,
     govukFileUpload: GovukFileUpload,
-    govukHint: GovukHint,
-    govukErrorMessage: GovukErrorMessage,
     govukCharacterCount: GovukCharacterCount,
     govukButton: GovukButton,
     mainErrorSummary: MainErrorSummary
 )
 
-@(form: Form[Option[String]])(implicit request: RequestHeader, messages: Messages)
+@(form: Form[Option[String]])(implicit request: Request[_], messages: Messages)
 
-@fileUploadErrorId = @{ s"$fileInputName-error" }
-@fileUploadHintId = @{ s"$fileInputName-hint" }
-
-@fileUploadAdditionalContent = {
-    @govukHint(
-        Hint(
-            id = Some(fileUploadHintId),
-            content = Text(messages("supportingDocuments.uploadFile.file.hint"))
-        )
-    )
-    @form.error(fileErrorKey).map { error =>
-        @govukErrorMessage(
-            ErrorMessage(
-                id = Some(fileUploadErrorId),
-                content = Text(messages(error.message, error.args*))
-            )
-        )
-    }
+@uploadFileLabelContent = {
+    <span class="govuk-caption-l">@messages("supportingDocuments.caption")</span>
+    @messages("supportingDocuments.uploadFile.heading")
 }
 
-@layout(
-    pageTitle = title(form, messages("supportingDocuments.uploadFile.title")).trim
-) {
+@layout(pageTitle = titleNoForm(messages("supportingDocuments.uploadFile.title"))) {
     @formHelper(
         action = controllers.supportingdocuments.routes.UploadFileController.onSubmit(),
-        Symbol("autoComplete") -> "off",
         Symbol("enctype") -> "multipart/form-data",
         Symbol("novalidate") -> "novalidate"
     ) {
-        @mainErrorSummary(form, Map(fileErrorKey -> fileInputName, descriptionFieldName -> "fileupload-description"))
+        @mainErrorSummary(form, Map("file" -> "file-upload-1", "fileuploadDescription" -> "fileupload-description"))
 
-        <div class="govuk-form-group @if(form.error(fileErrorKey).isDefined){govuk-form-group--error}">
-            <span class="govuk-caption-l">@messages("supportingDocuments.caption")</span>
-            @govukFileUpload(
-                FileUpload(
-                    id = fileInputName,
-                    name = fileInputName,
-                    describedBy = Some(
-                        (form.error(fileErrorKey).map(_ => fileUploadErrorId).toSeq :+ fileUploadHintId).mkString(" ")
-                    ),
-                    label = Label(
-                        isPageHeading = true,
-                        classes = "govuk-label--l",
-                        content = Text(messages("supportingDocuments.uploadFile.heading"))
-                    ),
-                    formGroup = FormGroup(
-                        classes = Some("govuk-!-margin-bottom-0"),
-                        beforeInput = Some(HtmlContent(fileUploadAdditionalContent))
-                    ),
-                    classes = if (form.error(fileErrorKey).isDefined) "govuk-file-upload--error" else "",
-                    javascript = Some(true)
-                )
+        @govukFileUpload(
+            FileUpload(
+                id = "file-upload-1",
+                name = "file-upload-1",
+                label = Label(
+                    isPageHeading = true,
+                    classes = "govuk-label--l",
+                    content = HtmlContent(uploadFileLabelContent)
+                ),
+                hint = Some(Hint(content = Text(messages("supportingDocuments.uploadFile.file.hint")))),
+                errorMessage = form
+                    .error("file")
+                    .map(error => ErrorMessage(content = Text(messages(error.message)))),
+                javascript = Some(true)
             )
-        </div>
+        )
 
         @govukCharacterCount(
             CharacterCount(
                 id = "fileupload-description",
-                name = descriptionFieldName,
-                maxLength = Some(descriptionMaxLength),
+                name = "fileuploadDescription",
+                maxLength = Some(255),
                 label = Label(content = Text(messages("supportingDocuments.uploadFile.description.label"))),
                 hint = Some(Hint(content = Text(messages("supportingDocuments.uploadFile.description.hint")))),
-                value = form(descriptionFieldName).value,
+                value = form("fileuploadDescription").value,
                 errorMessage = form
-                    .error(descriptionFieldName)
-                    .map(error => ErrorMessage(content = Text(messages(error.message, error.args*)))),
+                    .error("fileuploadDescription")
+                    .map(error => ErrorMessage(content = Text(messages(error.message)))),
                 textareaDescriptionText = Some(messages("supportingDocuments.uploadFile.description.remaining"))
             )
         )
