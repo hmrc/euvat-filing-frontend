@@ -31,30 +31,32 @@ class BankDetailsEncryptionSpec extends AnyWordSpec with Matchers {
 
     "decrypt an encrypted value back to the original" in {
       val encrypted = provider.encrypt(iban)
+      println(s"***********encrypted: $encrypted")
 
-      encrypted                     should not be iban
-      provider.decrypt(encrypted) shouldBe Some(iban)
+      encrypted should not be iban
+      println(s"***********decrypt: ${provider.decrypt(encrypted)}")
+      provider.decrypt(encrypted) shouldBe iban
     }
 
     "decrypt an encrypted BIC back to the original" in {
       val encrypted = provider.encrypt(bic)
 
-      encrypted should not be bic
-      provider.decrypt(encrypted) shouldBe Some(bic)
+      encrypted                     should not be bic
+      provider.decrypt(encrypted) shouldBe bic
     }
 
     "decrypt an encrypted 8-character BIC back to the original" in {
       val shortBic = "DEUTDEFF"
       val encrypted = provider.encrypt(shortBic)
 
-      provider.decrypt(encrypted) shouldBe Some(shortBic)
+      provider.decrypt(encrypted) shouldBe shortBic
     }
 
     "decrypt an encrypted long IBAN back to the original" in {
       val longIban = "MT84MALT011000012345MTLCAST001S"
       val encrypted = provider.encrypt(longIban)
 
-      provider.decrypt(encrypted) shouldBe Some(longIban)
+      provider.decrypt(encrypted) shouldBe longIban
     }
 
     "produce a different encrypted value each time for the same input" in {
@@ -62,11 +64,8 @@ class BankDetailsEncryptionSpec extends AnyWordSpec with Matchers {
     }
 
     "produce a known cipher text that decrypts to the known text" in {
-      provider.decrypt(provider.knownCipherText) shouldBe Some("knowntext")
+      provider.decrypt(provider.knownCipherText) shouldBe "knowntext"
     }
 
-    "return None when a value cannot be decrypted" in {
-      provider.decrypt("not-a-valid-encrypted-value") shouldBe None
-    }
   }
 }

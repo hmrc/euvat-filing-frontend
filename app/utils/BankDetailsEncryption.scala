@@ -18,25 +18,16 @@ package utils
 
 import play.api.{Configuration, Logging}
 import uk.gov.hmrc.crypto.{Crypted, PlainText, SymmetricCryptoFactory}
-
 import javax.inject.{Inject, Singleton}
-import scala.util.{Failure, Success, Try}
 
 @Singleton
 class BankDetailsEncryption @Inject() (config: Configuration) extends Logging {
 
   private val crypto = SymmetricCryptoFactory.aesGcmCryptoFromConfig("encryption.config.key", config.underlying)
 
-  def encrypt(value: String): String =
-    crypto.encrypt(PlainText(value)).value
+  def encrypt(originalValue: String): Crypted = crypto.encrypt(PlainText(originalValue))
 
-  def decrypt(value: String): Option[String] =
-    Try(crypto.decrypt(Crypted(value)).value) match {
-      case Success(decrypted) => Some(decrypted)
-      case Failure(_) =>
-        logger.warn("Failed to decrypt bank details value")
-        None
-    }
+  def decrypt(encryptedValue: Crypted): String = crypto.decrypt(encryptedValue).value
 
-  def knownCipherText: String = encrypt("knowntext")
+  def knownCipherText: Crypted = encrypt("knowntext")
 }

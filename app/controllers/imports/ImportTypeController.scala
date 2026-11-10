@@ -16,21 +16,20 @@
 
 package controllers.imports
 
-import pages.imports.*
-import queries.*
 import com.google.inject.Inject
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
-import controllers.imports.routes as importRoutes
 import forms.ImportTypeFormProvider
 import models.requests.{AddImportRequest, DataRequest}
 import models.responses.{AddImportResponse, ImportDetailsResponse}
-import models.{CheckMode, Mode, NormalMode, PurchaseOrImport, PurchaseOrImportType, Transport, UserAnswers}
+import models.{Mode, NormalMode, PurchaseOrImport, PurchaseOrImportType, UserAnswers}
 import navigation.Navigator
 import pages.PurchaseOrImportPage
+import pages.imports.*
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import queries.*
 import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.http.HeaderCarrier
