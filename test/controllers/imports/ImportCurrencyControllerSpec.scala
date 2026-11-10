@@ -35,7 +35,6 @@ import repositories.SessionRepository
 import scala.concurrent.Future
 
 class ImportCurrencyControllerSpec extends SpecBase with MockitoSugar {
-
   def onwardRoute: Call = Call("GET", "/foo")
   lazy val importCurrencyRoute: String = routes.ImportCurrencyController.onPageLoad(NormalMode).url
   val userAnswersWithEstonia: UserAnswers = emptyUserAnswers.set(RefundingCountryPage, "EE").success.value
@@ -54,7 +53,6 @@ class ImportCurrencyControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) must include(messages(application)("import.caption"))
         contentAsString(result) must include("Euro (€)")
         contentAsString(result) must include("Estonian Kroon (kr)")
-        contentAsString(result) must include(routes.ImportSuppliersNameController.onPageLoad(NormalMode).url)
       }
     }
 

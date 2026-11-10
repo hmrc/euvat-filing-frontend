@@ -35,39 +35,21 @@ class BeforeYouStartBankDetailsControllerSpec extends SpecBase {
   "BeforeYouStartBankDetails Controller" - {
 
     "must return OK and the correct view for a GET" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, routes.BeforeYouStartBankDetailsController.onPageLoad().url)
-
         val result = route(application, request).value
-
         val view = application.injector.instanceOf[BeforeYouStartBankDetailsView]
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(controllers.routes.TaskListDashboardController.onPageLoad())(request, messages(application)).toString
+          view()(request, messages(application)).toString
         )
       }
     }
 
-    "must render a back link to the task list dashboard" in {
-
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-
-      running(application) {
-        val request = FakeRequest(GET, routes.BeforeYouStartBankDetailsController.onPageLoad().url)
-
-        val result = route(application, request).value
-
-        status(result) mustEqual OK
-        contentAsString(result) must include(controllers.routes.TaskListDashboardController.onPageLoad().url)
-      }
-    }
-
     "must redirect to the Account Holder page for a POST" in {
-
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
@@ -78,16 +60,13 @@ class BeforeYouStartBankDetailsControllerSpec extends SpecBase {
 
       running(application) {
         val request = FakeRequest(POST, routes.BeforeYouStartBankDetailsController.onSubmit().url)
-
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.AccountHolderController.onPageLoad(NormalMode).url
       }
     }
 
     "must clear the Account Holder answer from the session on submit" in {
-
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
@@ -103,11 +82,8 @@ class BeforeYouStartBankDetailsControllerSpec extends SpecBase {
 
       running(application) {
         val request = FakeRequest(POST, routes.BeforeYouStartBankDetailsController.onSubmit().url)
-
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
-
         val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository).set(captor.capture())
 
@@ -116,28 +92,22 @@ class BeforeYouStartBankDetailsControllerSpec extends SpecBase {
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
         val request = FakeRequest(GET, routes.BeforeYouStartBankDetailsController.onPageLoad().url)
-
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
         val request = FakeRequest(POST, routes.BeforeYouStartBankDetailsController.onSubmit().url)
-
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }

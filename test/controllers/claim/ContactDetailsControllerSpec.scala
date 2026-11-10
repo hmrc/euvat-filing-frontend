@@ -40,11 +40,8 @@ import scala.concurrent.Future
 class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
 
   private def onwardRoute = Call("GET", "/foo")
-  private def backUrl: Call = routes.RefundPeriodController.onPageLoad(NormalMode)
-
   private val formProvider = new ContactDetailsFormProvider()
   private val form = formProvider()
-
   private lazy val contactDetailsNormalRoute = routes.ContactDetailsController.onPageLoad(NormalMode).url
   private lazy val contactDetailsCheckRoute = routes.ContactDetailsController.onPageLoad(CheckMode).url
 
@@ -86,7 +83,7 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
           val view = application.injector.instanceOf[ContactDetailsView]
 
           status(result) mustEqual OK
-          normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(view(form, NormalMode, backUrl)(request, messages(application)).toString)
+          normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(view(form, NormalMode)(request, messages(application)).toString)
         }
       }
 
@@ -101,7 +98,7 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
 
           status(result) mustEqual OK
           normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-            view(form.fill(contactDetails), NormalMode, backUrl)(request, messages(application)).toString
+            view(form.fill(contactDetails), NormalMode)(request, messages(application)).toString
           )
         }
       }
@@ -168,8 +165,7 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar with Befor
           normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
             view(
               form.bind(Map("contactEmail" -> "")),
-              NormalMode,
-              backUrl
+              NormalMode
             )(request, messages(application)).toString
           )
           verify(mockSessionRepository, never).set(any())

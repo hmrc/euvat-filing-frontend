@@ -19,6 +19,7 @@ package controllers.claim
 import base.SpecBase
 import controllers.claim.routes
 import forms.claim.BusinessActivityCodeThreeFormProvider
+import models.NormalMode
 import navigation.FakeNavigator
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
@@ -44,7 +45,6 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
 
       running(application) {
         val request = FakeRequest(GET, routes.BusinessActivityCodeThreeController.onPageLoad(models.NormalMode).url)
-
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[BusinessActivityCodeThreeView]
@@ -53,7 +53,7 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, Some(routes.BusinessActivityTwoController.onPageLoad(models.NormalMode).url), models.NormalMode)(
+          view(form, NormalMode)(
             request,
             messages(application)
           ).toString
@@ -65,8 +65,7 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.BusinessActivityCodeThreeController.onPageLoad(models.NormalMode).url)
-
+        val request = FakeRequest(GET, routes.BusinessActivityCodeThreeController.onPageLoad(NormalMode).url)
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -112,7 +111,7 @@ class BusinessActivityCodeThreeControllerSpec extends SpecBase with MockitoSugar
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, Some(routes.BusinessActivityTwoController.onPageLoad(models.NormalMode).url), models.NormalMode)(
+          view(form, NormalMode)(
             request,
             messages(application)
           ).toString

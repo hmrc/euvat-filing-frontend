@@ -1,7 +1,15 @@
 GET         /before-you-start                     controllers.bankdetails.BeforeYouStartBankDetailsController.onPageLoad()
 POST        /before-you-start                     controllers.bankdetails.BeforeYouStartBankDetailsController.onSubmit()
 
+GET         /international-bank-account-details                         controllers.bankdetails.BankDetailsController.onPageLoad(mode: Mode = NormalMode)
+POST        /international-bank-account-details                         controllers.bankdetails.BankDetailsController.onSubmit(mode: Mode = NormalMode)
+GET         /change-international-bank-account-details                  controllers.bankdetails.BankDetailsController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-international-bank-account-details                  controllers.bankdetails.BankDetailsController.onSubmit(mode: Mode = CheckMode)
+
 GET         /account-holder                       controllers.bankdetails.AccountHolderController.onPageLoad(mode: Mode = NormalMode)
 POST        /account-holder                       controllers.bankdetails.AccountHolderController.onSubmit(mode: Mode = NormalMode)
 GET         /change-account-holder                controllers.bankdetails.AccountHolderController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-account-holder                controllers.bankdetails.AccountHolderController.onSubmit(mode: Mode = CheckMode)
+
+GET         /check-your-answers                   controllers.bankdetails.CheckYourBankDetailsController.onPageLoad()
+POST        /check-your-answers                   controllers.bankdetails.CheckYourBankDetailsController.onSubmit()

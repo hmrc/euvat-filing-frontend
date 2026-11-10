@@ -26,11 +26,11 @@
     mainErrorSummary: MainErrorSummary
 )
 
-@(form: Form[_], backLinkCall: Option[String], mode: models.Mode = models.NormalMode)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: models.Mode = models.NormalMode)(implicit request: Request[_], messages: Messages)
 
 @isError = @{form.error("value").isDefined}
 
-@layout(pageTitle = views.ViewUtils.title(form, "businessActivityCodeTwo.title"), backLinkUrl = backLinkCall) {
+@layout(pageTitle = views.ViewUtils.title(form, "businessActivityCodeTwo.title")) {
 
     @formHelper(action = controllers.claim.routes.BusinessActivityCodeTwoController.onSubmit(mode)) {
         @mainErrorSummary(form, Map("value" -> form("value").id))

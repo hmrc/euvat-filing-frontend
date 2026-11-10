@@ -53,10 +53,6 @@ class PurchaseSubTypeController @Inject() (
     with I18nSupport
     with play.api.Logging:
 
-  private def backUrlFor(mode: Mode): Call =
-    if (mode == CheckMode) routes.CheckYourPurchaseDetailsController.onPageLoad()
-    else routes.PurchaseTypeController.onPageLoad(NormalMode)
-
   private def resolveParentAndCountry(purchaseTypeSlug: String, userAnswers: UserAnswers): Option[(String, String)] =
     val parentKey =
       PurchaseOrImportType.valueFromUrlSlug
@@ -189,7 +185,7 @@ class PurchaseSubTypeController @Inject() (
       mode,
       userAnswers,
       sessionRepository
-    )(_ => Future.successful(Ok(view(preparedForm, items, heading, heading, "purchase.caption", formAction, backUrlFor(mode)))))
+    )(_ => Future.successful(Ok(view(preparedForm, items, heading, heading, "purchase.caption", formAction))))
 
   private def redirectWhenNoOptions(mode: Mode): Future[Result] =
     Future.successful(ControllerHelpers.redirectToInvoiceTypeOrCYA(mode))
@@ -353,7 +349,7 @@ class PurchaseSubTypeController @Inject() (
           formWithErrors =>
             Future.successful(
               BadRequest(
-                view(formWithErrors, items, parentHeading, parentHeading, "purchase.caption", formActionFor(resolvedSlug, mode), backUrlFor(mode))
+                view(formWithErrors, items, parentHeading, parentHeading, "purchase.caption", formActionFor(resolvedSlug, mode))
               )
             ),
           value => handleSubmitValue(value, parentKey, country, resolvedSlug, mode, userAnswers)

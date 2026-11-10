@@ -109,7 +109,7 @@ class RemoveItemController @Inject() (
                 Future.fromTry(updatedAnswersTry).flatMap { updatedAnswers =>
                   sessionRepository.set(updatedAnswers).map { _ =>
                     val (displayType, vatClaim) = summaryValues(itemType, amount, updatedAnswers)
-                    val page = view(formToRender, displayType, vatClaim, backLink)
+                    val page = view(formToRender, displayType, vatClaim)
                     if (badRequest) BadRequest(page) else Ok(page)
                   }
                 }

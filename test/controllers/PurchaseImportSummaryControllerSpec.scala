@@ -20,6 +20,7 @@ import base.SpecBase
 import forms.PurchaseImportSummaryFormProvider
 import models.PurchaseImport
 import models.responses.{ApplicationResponse, PurchaseImportListResponse}
+import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import pages.PurchaseImportSummaryPage
@@ -81,6 +82,24 @@ class PurchaseImportSummaryControllerSpec extends SpecBase {
         val savedAnswers = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
         org.mockito.Mockito.verify(mockSessionRepository).set(savedAnswers.capture())
         savedAnswers.getValue.get(PurchaseImportTotalItemsQuery) mustEqual Some(2)
+      }
+    }
+
+    "link the Change action of a saved import and purchase to its change your answers page" in {
+      val userAnswers = emptyUserAnswers.set(ClaimApplicationResponseQuery, ApplicationResponse(111, "App1", 1)).success.value
+      when(mockEuVatRefundsService.getPurchaseImportList(any())(any())).thenReturn(Future.successful(purchaseImportResponse))
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val result = route(application, FakeRequest(GET, routes.PurchaseImportSummaryController.onPageLoad.url)).value
+        val document = Jsoup.parse(contentAsString(result))
+
+        status(result) mustEqual OK
+        document.select(s"a[href='${controllers.imports.routes.CheckYourImportDetailsController.changeYourAnswers(111, 456).url}']").size() mustBe 1
+        document
+          .select(s"a[href='${controllers.purchase.routes.CheckYourPurchaseDetailsController.changeYourAnswers(111, 123).url}']")
+          .size() mustBe 1
       }
     }
 

@@ -63,7 +63,7 @@ class RefundingCountryController @Inject() (
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val countryCode = CountryCode.findCountryCode(request.userAnswers)
     val preparedForm = countryCode.fold(form)(code => form.fill(code))
-    Ok(view(preparedForm, config.countriesInEU, controllers.routes.TaskListDashboardController.onPageLoad(), mode))
+    Ok(view(preparedForm, config.countriesInEU, mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -77,9 +77,7 @@ class RefundingCountryController @Inject() (
               val filtered = formWithErrors.errors.filterNot(e => e.key == "value" && e.message == "refundingCountry.error.required")
               formWithErrors.copy(errors = filtered :+ FormError("value", "refundingCountry.error.invalid"))
             else formWithErrors
-          Future.successful(
-            BadRequest(view(adjustedForm, config.countriesInEU, controllers.routes.TaskListDashboardController.onPageLoad(), mode))
-          )
+          Future.successful(BadRequest(view(adjustedForm, config.countriesInEU, mode)))
         },
         value => {
           val latestReq = LatestApplicationRequest(
@@ -94,9 +92,7 @@ class RefundingCountryController @Inject() (
               if (latestResponse.totalApplication > 0) {
                 // duplicate application - show error on the form
                 val formWithError = form.fill(value).withError("value", "refundingCountry.error.duplicate")
-                Future.successful(
-                  BadRequest(view(formWithError, config.countriesInEU, controllers.routes.TaskListDashboardController.onPageLoad(), mode))
-                )
+                Future.successful(BadRequest(view(formWithError, config.countriesInEU, mode)))
               } else {
                 val baseAnswers: UserAnswers = request.userAnswers
                 val countryName = config.countriesInEU(value)
@@ -159,7 +155,7 @@ class RefundingCountryController @Inject() (
       .set(answers)
       .map(_ => Redirect(navigator.nextPage(RefundingCountryPage, mode, answers)))
       .recover { case NonFatal(_) =>
-        BadRequest(view(form.fill(value), countries, controllers.routes.TaskListDashboardController.onPageLoad(), mode))
+        BadRequest(view(form.fill(value), countries, mode))
       }
 
 }

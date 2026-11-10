@@ -47,7 +47,6 @@ class VatPaidWarningController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val userAnswers = request.userAnswers
-
     val totalVatPaidPage = userAnswers.get(TotalVatPaidPage)
     val totalPurchaseAmountBeforeVatPage = userAnswers.get(TotalPurchaseAmountBeforeVatPage)
     val totalImportVatPaidPage = userAnswers.get(TotalVatPaidImportPage)

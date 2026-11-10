@@ -53,17 +53,10 @@ class TotalAmountWithoutVatController @Inject() (
 
   val form: Form[BigDecimal] = formProvider()
 
-  private def backLink(mode: Mode)(userAnswers: models.UserAnswers): Call =
-    CountryCode.findCountryCode(userAnswers) match {
-      case Some(country) if currencyConfig.requiresCurrencySelection(country) => importRoutes.ImportCurrencyController.onPageLoad(mode)
-      // TODO: Wire this to supplier address page when it is ready
-      case _ => importRoutes.ImportSuppliersNameController.onPageLoad(mode)
-    }
-
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(TotalAmountWithoutVatPage).fold(form)(form.fill)
     val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)
-    Ok(view(preparedForm, mode, backLink(mode)(request.userAnswers), prefix, currencyName))
+    Ok(view(preparedForm, mode, prefix, currencyName))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -71,7 +64,7 @@ class TotalAmountWithoutVatController @Inject() (
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)(request.userAnswers), prefix, currencyName))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, prefix, currencyName))),
         value =>
           saveAnswerAndResetDependents(
             page              = TotalAmountWithoutVatPage,

@@ -63,7 +63,7 @@ class BusinessActivityCodeTwoController @Inject() (
     } yield None
 
     val preparedForm = userAnswers.get(BusinessActivityCodeTwoPage).fold(form)(form.fill)
-    Ok(view(preparedForm, Some(routes.BusinessActivityController.onPageLoad(mode).url), mode))
+    Ok(view(preparedForm, mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -91,7 +91,7 @@ class BusinessActivityCodeTwoController @Inject() (
             val duplicateError = FormError("value", "businessActivityCodeTwo.error.duplicate", Seq(duplicateFrom.get, submitted))
             val filtered = formWithErrors.errors.filterNot(e => e.key == "value")
             val adjustedForm = formWithErrors.copy(errors = filtered :+ duplicateError)
-            Future.successful(BadRequest(view(adjustedForm, Some(routes.BusinessActivityController.onPageLoad(mode).url), mode)))
+            Future.successful(BadRequest(view(adjustedForm, mode)))
           } else {
             val adjustedForm = if (typed.trim.nonEmpty) {
               val filtered = formWithErrors.errors.filterNot(e => e.key == "value" && e.message == "businessActivityCodeTwo.error.required")
@@ -99,14 +99,14 @@ class BusinessActivityCodeTwoController @Inject() (
             } else {
               formWithErrors
             }
-            Future.successful(BadRequest(view(adjustedForm, Some(routes.BusinessActivityController.onPageLoad(mode).url), mode)))
+            Future.successful(BadRequest(view(adjustedForm, mode)))
           }
         },
         value => {
           if (ba1.contains(value) || ba3.contains(value)) {
             val from = if (ba3.contains(value)) "Business activity 3" else "Business activity 1"
             val duplicateForm = form.fill(value).withError("value", "businessActivityCodeTwo.error.duplicate")
-            Future.successful(BadRequest(view(duplicateForm, Some(routes.BusinessActivityController.onPageLoad(mode).url), mode)))
+            Future.successful(BadRequest(view(duplicateForm, mode)))
           } else {
             val isChanged = baseAnswers.get(BusinessActivityCodeTwoPage) match {
               case Some(existing) => existing != value
@@ -134,7 +134,7 @@ class BusinessActivityCodeTwoController @Inject() (
 
     boundResult.recover { case NonFatal(e) =>
       Logger(getClass).error("Error in BusinessActivityCodeTwoController.onSubmit", e)
-      BadRequest(view(form.bindFromRequest(), Some(routes.BusinessActivityController.onPageLoad(mode).url), mode))
+      BadRequest(view(form.bindFromRequest(), mode))
     }
   }
 }

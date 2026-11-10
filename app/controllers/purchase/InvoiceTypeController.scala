@@ -52,34 +52,16 @@ class InvoiceTypeController @Inject() (
 
   val form: Form[InvoiceType] = formProvider()
 
-  private def computeBackTarget(mode: Mode)(implicit request: DataRequest[?]): Call = {
-    def parentIsNone = request.userAnswers.get(PurchaseSubTypePage).exists(v => v.split("\\.").lastOption.contains("99"))
-    def childIsNone = request.userAnswers.get(PurchaseSubCategoryPage).exists(v => v.split("\\.").lastOption.contains("99"))
-    def isOther = request.userAnswers.get(PurchaseTypePage).contains(Other)
-
-    if (mode == CheckMode) {
-      routes.CheckYourPurchaseDetailsController.onPageLoad()
-    } else {
-      if (!isOther) {
-        PurchaseOrImportHelpers.computeBackTarget(NormalMode)
-      } else if (parentIsNone || childIsNone) {
-        routes.DescribeItemsOnInvoiceController.onPageLoad(NormalMode)
-      } else {
-        PurchaseOrImportHelpers.computeBackTarget(NormalMode)
-      }
-    }
-  }
-
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     val preparedForm = request.userAnswers.get(InvoiceTypePage).fold(form)(form.fill)
-    Future.successful(Ok(view(preparedForm, mode, computeBackTarget(mode))))
+    Future.successful(Ok(view(preparedForm, mode)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, computeBackTarget(mode))(request, messagesApi.preferred(request)))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode)(request, messagesApi.preferred(request)))),
         value =>
           for {
             answers <- Future.fromTry(request.userAnswers.set(InvoiceTypePage, value))

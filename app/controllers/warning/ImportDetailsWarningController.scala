@@ -36,8 +36,7 @@ class ImportDetailsWarningController @Inject() (
     with I18nSupport {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val call = routes.ImportDetailsInfoController.onPageLoad(mode)
-    Ok(view(routes.SadReferenceNumberController.onPageLoad(mode), call, mode))
+    Ok(view(routes.SadReferenceNumberController.onPageLoad(mode), mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>

@@ -19,7 +19,9 @@ package viewmodels.checkAnswers
 import models.requests.DataRequest
 import models.{PurchaseImport, PurchaseOrImportType, UserAnswers}
 import queries.ClaimApplicationResponseQuery
+import controllers.imports.routes as importRoutes
 import controllers.purchase.routes as purchaseRoutes
+import controllers.imports.routes as importsRoutes
 import play.api.i18n.Messages
 import play.twirl.api.Html
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
@@ -48,16 +50,16 @@ object PurchaseImportListSummary {
 
         val maybeAppId = userAnswers.get(ClaimApplicationResponseQuery).map(_.applicationId)
 
-        val changeUrl = maybeAppId.map { appId =>
-          purchaseRoutes.CheckYourPurchaseDetailsController.changeYourAnswers(appId, itemNumber).url
-        }
+        val changeOrAddDetailsHref = maybeAppId match
+          case Some(appId) if vatClaim == 0 && item.itemType == "P" => purchaseRoutes.PurchaseTypeController.addDetails(appId, itemNumber).url
+          case Some(appId) if vatClaim == 0 && item.itemType == "I" => importsRoutes.ImportTypeController.addDetails(appId, itemNumber).url
+          case Some(appId) if item.itemType == "P" => purchaseRoutes.CheckYourPurchaseDetailsController.changeYourAnswers(appId, itemNumber).url
+          case Some(appId) if item.itemType == "I" => importsRoutes.CheckYourImportDetailsController.changeYourAnswers(appId, itemNumber).url
+          case _                                   => routes.JourneyRecoveryController.onPageLoad().url
 
-        if (vatClaim == 0) {
-          displaySummaryListRow(itemNumber, itemType, itemTypeCode, category, changeHref = changeUrl)
-        } else {
-          val currencySymbol = ControllerHelpers.currencySymbolFromSession(userAnswers, config)
-          displaySummaryListRow(itemNumber, itemType, itemTypeCode, category, currencySymbol, vatClaim, changeHref = changeUrl)
-        }
+        val currencySymbol = if (vatClaim == 0) "" else ControllerHelpers.currencySymbolFromSession(userAnswers, config)
+
+        displaySummaryListRow(itemNumber, itemType, itemTypeCode, category, currencySymbol, vatClaim, changeOrAddDetailsHref)
       }
   }
 
@@ -67,7 +69,7 @@ object PurchaseImportListSummary {
                                     category: String,
                                     currencySymbol: String = "",
                                     vatClaim: BigDecimal = 0,
-                                    changeHref: Option[String] = None
+                                    changeOrAddDetailsHref: String
                                    )(implicit
     messages: Messages
   ): SummaryListRow = {
@@ -81,7 +83,7 @@ object PurchaseImportListSummary {
       },
       actions = if (vatClaim == 0) {
         Seq(
-          ActionItemViewModel("site.add", changeHref.getOrElse("#")).withVisuallyHiddenText(
+          ActionItemViewModel("site.add", changeOrAddDetailsHref).withVisuallyHiddenText(
             messages("purchaseImportSummary.incomplete.add.hidden", itemType, category)
           ),
           ActionItemViewModel("site.remove", removeUrl).withVisuallyHiddenText(
@@ -90,7 +92,7 @@ object PurchaseImportListSummary {
         )
       } else {
         Seq(
-          ActionItemViewModel("site.change", changeHref.getOrElse("#")).withVisuallyHiddenText(
+          ActionItemViewModel("site.change", changeOrAddDetailsHref).withVisuallyHiddenText(
             messages("purchaseImportSummary.complete.change.hidden", itemType, category, currencySymbol + vatClaim)
           ),
           ActionItemViewModel("site.remove", removeUrl).withVisuallyHiddenText(

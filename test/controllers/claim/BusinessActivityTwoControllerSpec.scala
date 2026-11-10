@@ -42,7 +42,6 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
   private val baCode1 = "49200"
   val formProvider = new BusinessActivityTwoFormProvider()
   val form: Form[Boolean] = formProvider()
-  private def backLink: Call = routes.BusinessActivityCodeTwoController.onPageLoad(NormalMode)
   lazy val businessActivityTwoRoute: String = routes.BusinessActivityTwoController.onPageLoad(NormalMode).url
 
   "BusinessActivityTwo Controller" - {
@@ -66,7 +65,7 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, backLink, baCode1, "48120")(request, messages(application)).toString
+          view(form, NormalMode, baCode1, "48120")(request, messages(application)).toString
         )
       }
     }
@@ -91,7 +90,7 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, backLink, baCode1, "48120")(request, messages(application)).toString
+          view(form, NormalMode, baCode1, "48120")(request, messages(application)).toString
         )
       }
     }
@@ -217,30 +216,6 @@ class BusinessActivityTwoControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
-      }
-    }
-
-    "must have the correct back link" in {
-      val userAnswers = emptyUserAnswers
-        .set(BusinessActivityCodePage, "49200")
-        .success
-        .value
-        .set(BusinessActivityCodeTwoPage, "48120")
-        .success
-        .value
-        .set(BusinessActivityTwoPage, true)
-        .success
-        .value
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
-
-      running(application) {
-        val request = FakeRequest(GET, businessActivityTwoRoute).withCSRFToken
-        val result = route(application, request).value
-
-        status(result) mustEqual OK
-        contentAsString(result) must include(
-          routes.BusinessActivityCodeTwoController.onPageLoad(NormalMode).url
-        )
       }
     }
 

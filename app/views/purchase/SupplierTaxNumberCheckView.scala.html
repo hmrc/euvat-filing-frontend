@@ -27,9 +27,9 @@
     govukButton: GovukButton
 )
 
-@(form: Form[SupplierTaxNumberCheck], mode: Mode, call: Call, isSimplifiedInvoice: Boolean)(implicit request: Request[_], messages: Messages)
+@(form: Form[SupplierTaxNumberCheck], mode: Mode, isSimplifiedInvoice: Boolean)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = views.ViewUtils.title(form, messages("supplierTaxNumberCheck.title")), backLinkUrl = Some(call.url)) {
+@layout(pageTitle = views.ViewUtils.title(form, messages("supplierTaxNumberCheck.title"))) {
 
     @formHelper(action = controllers.purchase.routes.SupplierTaxNumberCheckController.onSubmit(mode)) {
 

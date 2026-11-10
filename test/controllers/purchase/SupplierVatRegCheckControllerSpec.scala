@@ -40,7 +40,6 @@ class SupplierVatRegCheckControllerSpec extends SpecBase with MockitoSugar {
   val formProvider = new SupplierVatRegCheckFormProvider()
   val form: Form[Boolean] = formProvider()
   lazy val supplierVatRegCheckRoute: String = routes.SupplierVatRegCheckController.onPageLoad(NormalMode).url
-  private lazy val backLink: Call = routes.SupplierAddressController.onPageLoad(NormalMode)
 
   val userAnswersWithAddress: UserAnswers = emptyUserAnswers
     .set(SupplierAddressPage, SupplierAddress("1 High Street", None, None))
@@ -58,7 +57,7 @@ class SupplierVatRegCheckControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[SupplierVatRegCheckView]
 
         status(result) mustEqual OK
-        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(view(form, NormalMode, backLink)(request, messages(application)).toString)
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(view(form, NormalMode)(request, messages(application)).toString)
       }
     }
 
@@ -72,7 +71,7 @@ class SupplierVatRegCheckControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, CheckMode, routes.CheckYourPurchaseDetailsController.onPageLoad())(request, messages(application)).toString
+          view(form, CheckMode)(request, messages(application)).toString
         )
       }
     }
@@ -88,7 +87,7 @@ class SupplierVatRegCheckControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form.fill(true), NormalMode, backLink)(request, messages(application)).toString
+          view(form.fill(true), NormalMode)(request, messages(application)).toString
         )
       }
     }
@@ -258,7 +257,7 @@ class SupplierVatRegCheckControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(view(boundForm, NormalMode, backLink)(request, messages(application)).toString)
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(view(boundForm, NormalMode)(request, messages(application)).toString)
       }
     }
 

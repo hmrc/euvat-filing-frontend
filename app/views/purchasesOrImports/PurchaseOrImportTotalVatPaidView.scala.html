@@ -27,9 +27,9 @@
     govukButton: GovukButton
 )
 
-@(form: Form[_], submitCall: Call, backLink: Call, captionKey: String, paragraphKey: String, prefix: String, currencyName: String)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], submitCall: Call, captionKey: String, paragraphKey: String, prefix: String, currencyName: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("totalVatPaid.title")), backLinkUrl = Some(backLink.url)) {
+@layout(pageTitle = title(form, messages("totalVatPaid.title"))) {
 
     @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
 

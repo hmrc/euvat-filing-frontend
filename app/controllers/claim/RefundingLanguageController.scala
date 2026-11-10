@@ -74,7 +74,7 @@ class RefundingLanguageController @Inject() (
             )
           }
         }
-        Ok(view(preparedForm, items, routes.RefundingCountryController.onPageLoad(mode), mode))
+        Ok(view(preparedForm, items, mode))
     }
   }
 
@@ -101,7 +101,7 @@ class RefundingLanguageController @Inject() (
                   )
                 }
               }
-              Future.successful(BadRequest(view(formWithErrors, items, routes.RefundingCountryController.onPageLoad(mode), mode)))
+              Future.successful(BadRequest(view(formWithErrors, items, mode)))
           },
         value =>
           val isChanged = request.userAnswers.get(RefundingLanguagePage) match {

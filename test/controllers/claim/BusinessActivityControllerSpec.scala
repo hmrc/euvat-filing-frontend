@@ -20,7 +20,7 @@ import base.SpecBase
 import controllers.claim.routes
 import forms.claim.BusinessActivityFormProvider
 import models.responses.TraderKnownFactsResponse
-import models.{NormalMode, UserAnswers}
+import models.{CheckMode, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
@@ -45,7 +45,6 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar with Sca
   private val onwardRoute = Call("GET", "/foo")
   private lazy val pageLoadRoute = routes.BusinessActivityController.onPageLoad(NormalMode).url
   private lazy val submitRoute = routes.BusinessActivityController.onSubmit(NormalMode).url
-  private lazy val backLink: Call = routes.ContactDetailsController.onPageLoad(NormalMode)
   private val baCode1 = "49200"
 
   "BusinessActivity Controller" - {
@@ -69,7 +68,7 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar with Sca
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, backLink, baCode1)(request, messages(application)).toString
+          view(form, NormalMode, baCode1)(request, messages(application)).toString
         )
       }
     }
@@ -108,7 +107,7 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar with Sca
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, backLink, baCode1)(request, messages(application)).toString
+          view(form, NormalMode, baCode1)(request, messages(application)).toString
         )
       }
     }
@@ -202,14 +201,14 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar with Sca
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.BusinessActivityController.onSubmit(models.CheckMode).url)
+        val request = FakeRequest(POST, routes.BusinessActivityController.onSubmit(CheckMode).url)
           .withFormUrlEncodedBody(("value", "true"))
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
 
         import org.mockito.ArgumentCaptor
-        val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
         captor.getValue.get(ClaimDetailsAmendedQuery) mustBe Some(true)
       }
@@ -254,14 +253,14 @@ class BusinessActivityControllerSpec extends SpecBase with MockitoSugar with Sca
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.BusinessActivityController.onSubmit(models.NormalMode).url)
+        val request = FakeRequest(POST, routes.BusinessActivityController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody(("value", "true"))
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
 
         import org.mockito.ArgumentCaptor
-        val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
         captor.getValue.get(ClaimDetailsAmendedQuery).isDefined mustBe false
       }

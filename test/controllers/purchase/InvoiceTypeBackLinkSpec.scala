@@ -57,7 +57,7 @@ class InvoiceTypeBackLinkSpec extends SpecBase {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, routes.PurchaseTypeController.onPageLoad(NormalMode))(request, messages(application)).toString
+          view(form, NormalMode)(request, messages(application)).toString
         )
       }
     }
@@ -80,7 +80,7 @@ class InvoiceTypeBackLinkSpec extends SpecBase {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, routes.PurchaseTypeController.onPageLoad(NormalMode))(request, messages(application)).toString
+          view(form, NormalMode)(request, messages(application)).toString
         )
       }
     }
@@ -108,7 +108,7 @@ class InvoiceTypeBackLinkSpec extends SpecBase {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, Call("GET", "/file-eu-vat/purchase/fuel-type"))(request, messages(application)).toString
+          view(form, NormalMode)(request, messages(application)).toString
         )
       }
     }

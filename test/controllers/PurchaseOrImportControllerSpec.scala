@@ -39,10 +39,7 @@ import scala.concurrent.Future
 class PurchaseOrImportControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute: Call = Call("GET", "/foo")
-
   lazy val purchaseOrImportRoute: String = routes.PurchaseOrImportController.onPageLoad.url
-  lazy val backLinkCall: Call = routes.BeforeYouStartController.onPageLoad()
-
   val formProvider = new PurchaseOrImportFormProvider()
   val form: Form[PurchaseOrImport] = formProvider()
 
@@ -63,7 +60,7 @@ class PurchaseOrImportControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[PurchaseOrImportView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, backLinkCall)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form)(request, messages(application)).toString
       }
     }
 
@@ -83,7 +80,7 @@ class PurchaseOrImportControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(PurchaseOrImport.values.head), backLinkCall)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(PurchaseOrImport.values.head))(request, messages(application)).toString
       }
     }
 
@@ -133,6 +130,30 @@ class PurchaseOrImportControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must clear a saved import that was being changed on a GET" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(queries.ImportDetailsRouteQuery, queries.ImportDetailsRoute(404, 4))
+        .success
+        .value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+          .build()
+
+      running(application) {
+        val result = route(application, FakeRequest(GET, purchaseOrImportRoute)).value
+        status(result) mustEqual OK
+
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(mockSessionRepository).set(captor.capture())
+        captor.getValue.get(queries.ImportDetailsRouteQuery) mustBe None
+      }
+    }
+
     "must redirect to the next page when valid data is submitted" in {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
@@ -169,7 +190,7 @@ class PurchaseOrImportControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, backLinkCall)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm)(request, messages(application)).toString
       }
     }
 

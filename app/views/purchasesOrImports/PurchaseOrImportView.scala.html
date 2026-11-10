@@ -22,9 +22,9 @@
     govukButton: GovukButton
 )
 
-@(form: Form[_], call: Call)(implicit request: Request[_], messages: Messages)
+@(form: Form[_])(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("purchaseOrImport.title")), backLinkUrl = Some(call.url)) {
+@layout(pageTitle = title(form, messages("purchaseOrImport.title"))) {
 
     @formHelper(action = routes.PurchaseOrImportController.onSubmit, Symbol("autoComplete") -> "off") {
 

@@ -52,7 +52,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
         val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
         running(application) {
-          val request = FakeRequest(GET, routes.ImportDateController.onPageLoad(models.NormalMode).url)
+          val request = FakeRequest(GET, routes.ImportDateController.onPageLoad(NormalMode).url)
           val result = route(application, request).value
           val view = application.injector.instanceOf[PurchaseOrImportDateView]
           implicit val msgs: Messages = messages(application)
@@ -61,8 +61,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
           normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
             view(
               application.injector.instanceOf[ImportDateFormProvider].apply(),
-              formAction(models.NormalMode),
-              controllers.imports.routes.ImportDetailsInfoController.onPageLoad(models.NormalMode),
+              formAction(NormalMode),
               captionKey,
               titleKey,
               headingKey
@@ -76,7 +75,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
         val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
         running(application) {
-          val request = FakeRequest(GET, routes.ImportDateController.onPageLoad(models.NormalMode).url)
+          val request = FakeRequest(GET, routes.ImportDateController.onPageLoad(NormalMode).url)
           val result = route(application, request).value
           val view = application.injector.instanceOf[PurchaseOrImportDateView]
           implicit val msgs: Messages = messages(application)
@@ -85,8 +84,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
           normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
             view(
               application.injector.instanceOf[ImportDateFormProvider].apply(),
-              formAction(models.NormalMode),
-              controllers.imports.routes.SadReferenceNumberController.onPageLoad(models.NormalMode),
+              formAction(NormalMode),
               captionKey,
               titleKey,
               headingKey
@@ -99,7 +97,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
         running(application) {
-          val request = FakeRequest(GET, routes.ImportDateController.onPageLoad(models.CheckMode).url)
+          val request = FakeRequest(GET, routes.ImportDateController.onPageLoad(CheckMode).url)
           val result = route(application, request).value
           val view = application.injector.instanceOf[PurchaseOrImportDateView]
           implicit val msgs: Messages = messages(application)
@@ -108,8 +106,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
           normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
             view(
               application.injector.instanceOf[ImportDateFormProvider].apply(),
-              formAction(models.CheckMode),
-              routes.CheckYourImportDetailsController.onPageLoad(),
+              formAction(CheckMode),
               captionKey,
               titleKey,
               headingKey
@@ -130,7 +127,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
         val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
         running(application) {
-          val request = FakeRequest(GET, routes.ImportDateController.onPageLoad(models.NormalMode).url)
+          val request = FakeRequest(GET, routes.ImportDateController.onPageLoad(NormalMode).url)
           val result = route(application, request).value
           val view = application.injector.instanceOf[PurchaseOrImportDateView]
           implicit val msgs: Messages = messages(application)
@@ -139,8 +136,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
           normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
             view(
               application.injector.instanceOf[ImportDateFormProvider].apply().fill(LocalDate.of(2025, 3, 14)),
-              formAction(models.NormalMode),
-              controllers.imports.routes.ImportDetailsInfoController.onPageLoad(models.NormalMode),
+              formAction(NormalMode),
               captionKey,
               titleKey,
               headingKey
@@ -153,7 +149,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
         val application = applicationBuilder(userAnswers = None).build()
 
         running(application) {
-          val request = FakeRequest(GET, routes.ImportDateController.onPageLoad(models.NormalMode).url)
+          val request = FakeRequest(GET, routes.ImportDateController.onPageLoad(NormalMode).url)
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
@@ -176,7 +172,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
           .build()
 
         running(application) {
-          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.NormalMode).url)
+          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(NormalMode).url)
             .withFormUrlEncodedBody(
               "value.day"   -> "15",
               "value.month" -> "04",
@@ -195,7 +191,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
 
         running(application) {
           val future = LocalDate.now().plusDays(1)
-          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.NormalMode).url)
+          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(NormalMode).url)
             .withFormUrlEncodedBody(
               "value.day"   -> f"${future.getDayOfMonth}%02d",
               "value.month" -> f"${future.getMonthValue}%02d",
@@ -214,7 +210,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
         running(application) {
-          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.NormalMode).url)
+          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(NormalMode).url)
             .withFormUrlEncodedBody(
               "value.day"   -> "15",
               "value.month" -> "",
@@ -236,7 +232,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
         running(application) {
-          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.NormalMode).url)
+          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(NormalMode).url)
             .withFormUrlEncodedBody(
               "value.day"   -> "15",
               "value.month" -> "04",
@@ -258,7 +254,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
         running(application) {
-          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.NormalMode).url)
+          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(NormalMode).url)
             .withFormUrlEncodedBody(
               "value.day"   -> "",
               "value.month" -> "",
@@ -280,7 +276,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
         running(application) {
-          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.NormalMode).url)
+          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(NormalMode).url)
             .withFormUrlEncodedBody(
               "value.day"   -> "",
               "value.month" -> "",
@@ -300,7 +296,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
         running(application) {
-          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.NormalMode).url)
+          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(NormalMode).url)
             .withFormUrlEncodedBody(
               "value.day"   -> "39",
               "value.month" -> "04",
@@ -321,7 +317,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
         running(application) {
-          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.NormalMode).url)
+          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(NormalMode).url)
             .withFormUrlEncodedBody(
               "value.day"   -> "14",
               "value.month" -> "45",
@@ -342,7 +338,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
         running(application) {
-          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.NormalMode).url)
+          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(NormalMode).url)
             .withFormUrlEncodedBody(
               "value.day"   -> "14",
               "value.month" -> "04",
@@ -362,7 +358,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
         running(application) {
-          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.NormalMode).url)
+          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(NormalMode).url)
             .withFormUrlEncodedBody(
               "value.day"   -> "45",
               "value.month" -> "67",
@@ -383,7 +379,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
         running(application) {
-          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.NormalMode).url)
+          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(NormalMode).url)
             .withFormUrlEncodedBody(
               "value.day"   -> "45",
               "value.month" -> "67",
@@ -411,7 +407,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
           .build()
 
         running(application) {
-          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.NormalMode).url)
+          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(NormalMode).url)
             .withFormUrlEncodedBody(
               "value.day"   -> "16",
               "value.month" -> "Feb",
@@ -437,7 +433,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
           .build()
 
         running(application) {
-          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.CheckMode).url)
+          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(CheckMode).url)
             .withFormUrlEncodedBody(
               "value.day"   -> "14",
               "value.month" -> "03",
@@ -465,7 +461,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
           .build()
 
         running(application) {
-          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(models.CheckMode).url)
+          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(CheckMode).url)
             .withFormUrlEncodedBody(
               "value.day"   -> "16",
               "value.month" -> "03",
@@ -477,7 +473,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual controllers.imports.routes.CheckYourImportDetailsController.onPageLoad().url
 
-          val captor = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
+          val captor = org.mockito.ArgumentCaptor.forClass(classOf[UserAnswers])
           org.mockito.Mockito.verify(mockSessionRepository).set(captor.capture())
           val saved = captor.getValue
           saved.get(ImportDatePage) mustBe Some(LocalDate.of(2025, 3, 16))

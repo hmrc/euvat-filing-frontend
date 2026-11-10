@@ -47,22 +47,16 @@ class SupplierAddressController @Inject() (
 
   val form: Form[SupplierAddress] = formProvider()
 
-  private def backLink(mode: Mode): Call = if (mode == CheckMode) {
-    routes.CheckYourPurchaseDetailsController.onPageLoad()
-  } else {
-    routes.SuppliersNameController.onPageLoad(NormalMode)
-  }
-
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(SupplierAddressPage).fold(form)(form.fill)
-    Ok(view(preparedForm, mode, backLink(mode)))
+    Ok(view(preparedForm, mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, backLink(mode)))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
         value =>
           for {
             userAnswers <- Future.fromTry(request.userAnswers.set(SupplierAddressPage, value))

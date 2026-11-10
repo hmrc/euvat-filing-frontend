@@ -159,7 +159,7 @@ class PurchaseSubCategoryController @Inject() (
   }
 
   private def renderView(data: SubCategoryViewData, form: Form[String])(implicit request: DataRequest[AnyContent]) =
-    view(form, data.items, data.title, data.title, "purchase.caption", data.formAction, data.backUrl)
+    view(form, data.items, data.title, data.title, "purchase.caption", data.formAction)
 
   private def markArrivalAndRender(data: SubCategoryViewData, mode: Mode, userAnswers: UserAnswers)(implicit
     request: DataRequest[AnyContent]

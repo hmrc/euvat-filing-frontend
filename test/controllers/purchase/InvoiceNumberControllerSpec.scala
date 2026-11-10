@@ -54,7 +54,7 @@ class InvoiceNumberControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, routes.InvoiceTypeController.onPageLoad(NormalMode))(request, messages(application)).toString
+          view(form, NormalMode)(request, messages(application)).toString
         )
       }
     }
@@ -70,7 +70,7 @@ class InvoiceNumberControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, CheckMode, routes.CheckYourPurchaseDetailsController.onPageLoad())(request, messages(application)).toString
+          view(form, CheckMode)(request, messages(application)).toString
         )
       }
     }
@@ -86,7 +86,7 @@ class InvoiceNumberControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form.fill("answer"), NormalMode, routes.InvoiceTypeController.onPageLoad(NormalMode))(
+          view(form.fill("answer"), NormalMode)(
             request,
             messages(application)
           ).toString
@@ -162,7 +162,7 @@ class InvoiceNumberControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual BAD_REQUEST
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(boundForm, NormalMode, routes.InvoiceTypeController.onPageLoad(NormalMode))(request, messages(application)).toString
+          view(boundForm, NormalMode)(request, messages(application)).toString
         )
       }
     }

@@ -26,7 +26,7 @@ import pages.purchase.*
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import queries.{ImportSubCategoryLabelQuery, ImportSubTypeLabelQuery, Settable}
+import queries.{ImportDetailsResponseQuery, ImportDetailsRouteQuery, ImportSubCategoryLabelQuery, ImportSubTypeLabelQuery, Settable}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.purchasesOrImports.PurchaseOrImportView
@@ -51,15 +51,13 @@ class PurchaseOrImportController @Inject() (
 
   val form: Form[PurchaseOrImport] = formProvider()
 
-  private def backLink = routes.BeforeYouStartController.onPageLoad()
-
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     for {
       cleared <- Future.fromTry(clearPurchaseJourney(request.userAnswers))
       _       <- sessionRepository.set(cleared)
     } yield {
       val preparedForm = cleared.get(PurchaseOrImportPage).fold(form)(form.fill)
-      Ok(view(preparedForm, backLink))
+      Ok(view(preparedForm))
     }
   }
 
@@ -68,7 +66,7 @@ class PurchaseOrImportController @Inject() (
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, backLink))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors))),
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(PurchaseOrImportPage, value))
@@ -118,7 +116,9 @@ class PurchaseOrImportController @Inject() (
     TotalAmountWithoutVatPage,
     TotalVatPaidImportPage,
     ImportTotalVatClaimPage,
-    AddImportResponsePage
+    AddImportResponsePage,
+    ImportDetailsRouteQuery,
+    ImportDetailsResponseQuery
   )
 
   private def clearPurchaseJourney(userAnswers: UserAnswers): Try[UserAnswers] =
