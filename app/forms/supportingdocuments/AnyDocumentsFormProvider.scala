@@ -25,6 +25,6 @@ class AnyDocumentsFormProvider @Inject() extends Mappings {
 
   def apply(): Form[Boolean] =
     Form(
-      "value" -> boolean("anyDocuments.error.required")
+      "value" -> boolean("supportingDocuments.anyDocuments.error.required")
     )
 }
