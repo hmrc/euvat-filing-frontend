@@ -560,8 +560,8 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar with TableDr
         redirectLocation(result).value mustEqual controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad().url
 
         val captor = ArgumentCaptor.forClass(classOf[models.UserAnswers])
-        verify(mockSessionRepository, times(2)).set(captor.capture())
-        val savedAfterFlagCleanup = captor.getAllValues.get(1)
+        verify(mockSessionRepository, times(1)).set(captor.capture())
+        val savedAfterFlagCleanup = captor.getValue
 
         savedAfterFlagCleanup.get(DescribeItemsArrivedFromCheckYourAnswersQuery) mustBe None
         savedAfterFlagCleanup.get(DescribeItemsOnInvoicePage) mustBe None

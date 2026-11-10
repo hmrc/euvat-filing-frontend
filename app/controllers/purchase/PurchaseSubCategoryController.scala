@@ -163,7 +163,7 @@ class PurchaseSubCategoryController @Inject() (
     view(form, data.items, data.title, data.title, "purchase.caption", data.formAction)
 
   private def markArrivalAndRender(data: SubCategoryViewData, mode: Mode, userAnswers: UserAnswers)(implicit
-                                                                                                    request: DataRequest[AnyContent]
+    request: DataRequest[AnyContent]
   ): Future[Result] =
     ControllerHelpers.markArrivalAndRender(
       PurchaseSubCategoryArrivedFromCheckYourAnswersQuery,

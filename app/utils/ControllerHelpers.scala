@@ -164,11 +164,11 @@ object ControllerHelpers {
     }
 
   def markArrivalAndRender(
-                            page: Gettable[Boolean] & Settable[Boolean],
-                            mode: Mode,
-                            userAnswers: UserAnswers,
-                            sessionRepository: SessionRepository
-                          )(
+    page: Gettable[Boolean] & Settable[Boolean],
+    mode: Mode,
+    userAnswers: UserAnswers,
+    sessionRepository: SessionRepository
+  )(
     render: UserAnswers => Future[Result]
   )(implicit ec: ExecutionContext, request: DataRequest[?]): Future[Result] = {
     val shouldMarkArrival =
