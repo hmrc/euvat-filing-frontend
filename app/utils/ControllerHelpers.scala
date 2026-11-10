@@ -24,7 +24,7 @@ import pages.purchase.PurchaseTypePage
 import play.api.libs.json.{Format, Reads, Writes}
 import play.api.mvc.Results.*
 import play.api.mvc.{Call, Result}
-import queries.Settable
+import queries.{Gettable, Settable}
 import repositories.SessionRepository
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -164,11 +164,11 @@ object ControllerHelpers {
     }
 
   def markArrivalAndRender(
-    page: QuestionPage[Boolean],
-    mode: Mode,
-    userAnswers: UserAnswers,
-    sessionRepository: SessionRepository
-  )(
+                            page: Gettable[Boolean] & Settable[Boolean],
+                            mode: Mode,
+                            userAnswers: UserAnswers,
+                            sessionRepository: SessionRepository
+                          )(
     render: UserAnswers => Future[Result]
   )(implicit ec: ExecutionContext, request: DataRequest[?]): Future[Result] = {
     val shouldMarkArrival =

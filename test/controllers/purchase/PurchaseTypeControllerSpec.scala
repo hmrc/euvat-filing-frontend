@@ -34,7 +34,7 @@ import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import queries.ClaimApplicationResponseQuery
+import queries.{ClaimApplicationResponseQuery, DescribeItemsArrivedFromCheckYourAnswersQuery, PurchaseSubCategoryArrivedFromCheckYourAnswersQuery, PurchaseSubTypeArrivedFromCheckYourAnswersQuery}
 import repositories.SessionRepository
 import utils.ConfigPurchaseOrImportMapping
 import views.html.purchasesOrImports.PurchaseOrImportTypeView
@@ -91,7 +91,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar with TableDr
         .set(PurchaseSubTypePage, "1.99")
         .success
         .value
-        .set(DescribeItemsArrivedFromCheckYourAnswersPage, true)
+        .set(DescribeItemsArrivedFromCheckYourAnswersQuery, true)
         .success
         .value
         .set(RefundingCountryPage, "EE")
@@ -396,7 +396,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar with TableDr
         .set(DescribeItemsOnInvoicePage, "details")
         .success
         .value
-        .set(DescribeItemsArrivedFromCheckYourAnswersPage, true)
+        .set(DescribeItemsArrivedFromCheckYourAnswersQuery, true)
         .success
         .value
 
@@ -430,7 +430,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar with TableDr
         .set(DescribeItemsOnInvoicePage, "details")
         .success
         .value
-        .set(DescribeItemsArrivedFromCheckYourAnswersPage, true)
+        .set(DescribeItemsArrivedFromCheckYourAnswersQuery, true)
         .success
         .value
 
@@ -467,10 +467,10 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar with TableDr
         .set(DescribeItemsOnInvoicePage, "details")
         .success
         .value
-        .set(DescribeItemsArrivedFromCheckYourAnswersPage, true)
+        .set(DescribeItemsArrivedFromCheckYourAnswersQuery, true)
         .success
         .value
-        .set(PurchaseSubTypeArrivedFromCheckYourAnswersPage, true)
+        .set(PurchaseSubTypeArrivedFromCheckYourAnswersQuery, true)
         .success
         .value
 
@@ -539,7 +539,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar with TableDr
         .set(DescribeItemsOnInvoicePage, "old details")
         .success
         .value
-        .set(DescribeItemsArrivedFromCheckYourAnswersPage, true)
+        .set(DescribeItemsArrivedFromCheckYourAnswersQuery, true)
         .success
         .value
 
@@ -563,7 +563,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar with TableDr
         verify(mockSessionRepository, times(2)).set(captor.capture())
         val savedAfterFlagCleanup = captor.getAllValues.get(1)
 
-        savedAfterFlagCleanup.get(DescribeItemsArrivedFromCheckYourAnswersPage) mustBe None
+        savedAfterFlagCleanup.get(DescribeItemsArrivedFromCheckYourAnswersQuery) mustBe None
         savedAfterFlagCleanup.get(DescribeItemsOnInvoicePage) mustBe None
       }
     }
@@ -861,7 +861,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar with TableDr
         .set(PurchaseSubTypePage, "10.99")
         .success
         .value
-        .set(DescribeItemsArrivedFromCheckYourAnswersPage, true)
+        .set(DescribeItemsArrivedFromCheckYourAnswersQuery, true)
         .success
         .value
 
@@ -881,16 +881,16 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar with TableDr
 
         val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository, atLeastOnce()).set(captor.capture())
-        captor.getAllValues.asScala.last.get(DescribeItemsArrivedFromCheckYourAnswersPage) mustBe None
+        captor.getAllValues.asScala.last.get(DescribeItemsArrivedFromCheckYourAnswersQuery) mustBe None
       }
     }
 
     "must redirect to the sub-type page and clear the arrival flag when value changed" - {
       val flags = Table(
         "flag",
-        DescribeItemsArrivedFromCheckYourAnswersPage,
-        PurchaseSubTypeArrivedFromCheckYourAnswersPage,
-        PurchaseSubCategoryArrivedFromCheckYourAnswersPage
+        DescribeItemsArrivedFromCheckYourAnswersQuery,
+        PurchaseSubTypeArrivedFromCheckYourAnswersQuery,
+        PurchaseSubCategoryArrivedFromCheckYourAnswersQuery
       )
 
       forAll(flags) { flag =>

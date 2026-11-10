@@ -21,7 +21,8 @@ import forms.DescribeItemsFormProvider
 import models.*
 import models.requests.DataRequest
 import navigation.Navigator
-import pages.purchase.{DescribeItemsArrivedFromCheckYourAnswersPage, DescribeItemsOnInvoicePage}
+import pages.purchase.DescribeItemsOnInvoicePage
+import queries.DescribeItemsArrivedFromCheckYourAnswersQuery
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
@@ -62,8 +63,8 @@ class DescribeItemsOnInvoiceController @Inject() (
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     val preparedForm = request.userAnswers.get(DescribeItemsOnInvoicePage).fold(form)(form.fill)
 
-    if (mode == CheckMode && !request.userAnswers.get(DescribeItemsArrivedFromCheckYourAnswersPage).contains(true)) {
-      val markedTry = request.userAnswers.set(DescribeItemsArrivedFromCheckYourAnswersPage, true)
+    if (mode == CheckMode && !request.userAnswers.get(DescribeItemsArrivedFromCheckYourAnswersQuery).contains(true)) {
+      val markedTry = request.userAnswers.set(DescribeItemsArrivedFromCheckYourAnswersQuery, true)
       Future.fromTry(markedTry).flatMap { updated =>
         sessionRepository.set(updated).map(_ => Ok(renderView(preparedForm, mode)))
       }

@@ -22,8 +22,8 @@ import models.*
 import models.requests.{AddPurchaseRequest, DataRequest}
 import models.responses.{AddPurchaseResponse, PurchaseDetailsResponse}
 import navigation.Navigator
+import pages.PurchaseOrImportPage
 import pages.purchase.*
-import pages.{PurchaseOrImportPage, QuestionPage}
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -95,14 +95,14 @@ class PurchaseTypeController @Inject() (
   }
 
   private def arrivedFromDescribe(implicit request: DataRequest[?]): Boolean =
-    request.userAnswers.get(DescribeItemsArrivedFromCheckYourAnswersPage).contains(true)
+    request.userAnswers.get(DescribeItemsArrivedFromCheckYourAnswersQuery).contains(true)
 
   private def arrivedFromSubTypeOrCategory(implicit request: DataRequest[?]): Boolean = {
     val isPurchaseSubTypeArrivedFromCheckYourAnswers = request.userAnswers
-      .get(PurchaseSubTypeArrivedFromCheckYourAnswersPage)
+      .get(PurchaseSubTypeArrivedFromCheckYourAnswersQuery)
       .contains(true)
     val isPurchaseSubCategoryArrivedFromCheckYourAnswers = request.userAnswers
-      .get(PurchaseSubCategoryArrivedFromCheckYourAnswersPage)
+      .get(PurchaseSubCategoryArrivedFromCheckYourAnswersQuery)
       .contains(true)
     isPurchaseSubTypeArrivedFromCheckYourAnswers || isPurchaseSubCategoryArrivedFromCheckYourAnswers
   }
@@ -130,7 +130,7 @@ class PurchaseTypeController @Inject() (
                                                                                      value
                                                                                     ) && (describePresent || hasMeaningfulSubcodes(value))
     ) {
-      Future.fromTry(request.userAnswers.remove(DescribeItemsArrivedFromCheckYourAnswersPage)).flatMap { ua =>
+      Future.fromTry(request.userAnswers.remove(DescribeItemsArrivedFromCheckYourAnswersQuery)).flatMap { ua =>
         sessionRepository.set(ua).map(_ => redirectWithPrefix(routes.DescribeItemsOnInvoiceController.onPageLoad(CheckMode)))
       }
     } else {
@@ -170,7 +170,7 @@ class PurchaseTypeController @Inject() (
       }
     }
 
-  private def removeFlagAndRedirect(flagPage: QuestionPage[Boolean], answers: UserAnswers, call: => Call)(implicit
+  private def removeFlagAndRedirect(flagPage: Gettable[Boolean] & Settable[Boolean], answers: UserAnswers, call: => Call)(implicit
     req: RequestHeader
   ): Future[Result] = {
     val removeTry = answers.remove(flagPage)
@@ -182,9 +182,9 @@ class PurchaseTypeController @Inject() (
   }
 
   private def clearDescribeArrivalFlagIfPresent(answers: UserAnswers): Future[UserAnswers] =
-    if (answers.get(DescribeItemsArrivedFromCheckYourAnswersPage).contains(true)) {
+    if (answers.get(DescribeItemsArrivedFromCheckYourAnswersQuery).contains(true)) {
       Future
-        .fromTry(answers.remove(DescribeItemsArrivedFromCheckYourAnswersPage))
+        .fromTry(answers.remove(DescribeItemsArrivedFromCheckYourAnswersQuery))
         .flatMap { ua =>
           sessionRepository.set(ua).map(_ => ua)
         }
@@ -200,17 +200,17 @@ class PurchaseTypeController @Inject() (
   ): Future[Result] = {
     if (!hasSubcodesFor(updatedAnswers, value)) {
       handleNoSubcodesCase(updatedAnswers)
-    } else if (updatedAnswers.get(DescribeItemsArrivedFromCheckYourAnswersPage).contains(true)) {
+    } else if (updatedAnswers.get(DescribeItemsArrivedFromCheckYourAnswersQuery).contains(true)) {
       handleDescribeArrivedCase(updatedAnswers, value)
-    } else if (updatedAnswers.get(PurchaseSubTypeArrivedFromCheckYourAnswersPage).contains(true)) {
+    } else if (updatedAnswers.get(PurchaseSubTypeArrivedFromCheckYourAnswersQuery).contains(true)) {
       removeFlagAndRedirect(
-        PurchaseSubTypeArrivedFromCheckYourAnswersPage,
+        PurchaseSubTypeArrivedFromCheckYourAnswersQuery,
         updatedAnswers,
         routes.PurchaseSubTypeController.onPageLoad(PurchaseOrImportType.urlSlugForPurchaseType(value), CheckMode)
       )(request)
-    } else if (updatedAnswers.get(PurchaseSubCategoryArrivedFromCheckYourAnswersPage).contains(true)) {
+    } else if (updatedAnswers.get(PurchaseSubCategoryArrivedFromCheckYourAnswersQuery).contains(true)) {
       removeFlagAndRedirect(
-        PurchaseSubCategoryArrivedFromCheckYourAnswersPage,
+        PurchaseSubCategoryArrivedFromCheckYourAnswersQuery,
         updatedAnswers,
         routes.PurchaseSubTypeController.onPageLoad(PurchaseOrImportType.urlSlugForPurchaseType(value), CheckMode)
       )(request)
@@ -225,9 +225,9 @@ class PurchaseTypeController @Inject() (
     removeFirstFlagThen(
       updatedAnswers,
       Seq(
-        (DescribeItemsArrivedFromCheckYourAnswersPage, (_: UserAnswers) => cya),
-        (PurchaseSubTypeArrivedFromCheckYourAnswersPage, (_: UserAnswers) => cya),
-        (PurchaseSubCategoryArrivedFromCheckYourAnswersPage, (_: UserAnswers) => cya)
+        (DescribeItemsArrivedFromCheckYourAnswersQuery, (_: UserAnswers) => cya),
+        (PurchaseSubTypeArrivedFromCheckYourAnswersQuery, (_: UserAnswers) => cya),
+        (PurchaseSubCategoryArrivedFromCheckYourAnswersQuery, (_: UserAnswers) => cya)
       )
     ).flatMap {
       case Some(result) => Future.successful(result)
@@ -239,7 +239,7 @@ class PurchaseTypeController @Inject() (
     request: DataRequest[?]
   ): Future[Result] = {
     if (shouldReturnToDescribe(updatedAnswers, value)) {
-      removeFlagAndRedirect(DescribeItemsArrivedFromCheckYourAnswersPage,
+      removeFlagAndRedirect(DescribeItemsArrivedFromCheckYourAnswersQuery,
                             updatedAnswers,
                             routes.DescribeItemsOnInvoiceController.onPageLoad(CheckMode)
                            )(request)
@@ -248,10 +248,10 @@ class PurchaseTypeController @Inject() (
         removeFirstFlagThen(
           clearedAnswers,
           Seq(
-            (PurchaseSubTypeArrivedFromCheckYourAnswersPage,
+            (PurchaseSubTypeArrivedFromCheckYourAnswersQuery,
              (_: UserAnswers) => routes.PurchaseSubTypeController.onPageLoad(PurchaseOrImportType.urlSlugForPurchaseType(value), CheckMode)
             ),
-            (PurchaseSubCategoryArrivedFromCheckYourAnswersPage,
+            (PurchaseSubCategoryArrivedFromCheckYourAnswersQuery,
              (_: UserAnswers) => routes.PurchaseSubTypeController.onPageLoad(PurchaseOrImportType.urlSlugForPurchaseType(value), CheckMode)
             )
           )
@@ -265,7 +265,7 @@ class PurchaseTypeController @Inject() (
 
   private def removeFirstFlagThen(
     answers: UserAnswers,
-    pairs: Seq[(QuestionPage[Boolean], UserAnswers => Call)]
+    pairs: Seq[(Gettable[Boolean] & Settable[Boolean], UserAnswers => Call)]
   )(implicit request: DataRequest[?]): Future[Option[Result]] = {
     pairs.collectFirst { case (page, callF) if answers.get(page).contains(true) => (page, callF) } match {
       case Some((page, callF)) =>
@@ -334,16 +334,16 @@ class PurchaseTypeController @Inject() (
 
   private val pagesToRemoveAnswers: List[Settable[_]] = List(
     CurrencyChangedPage,
-    DescribeItemsArrivedFromCheckYourAnswersPage,
+    DescribeItemsArrivedFromCheckYourAnswersQuery,
     DescribeItemsOnInvoicePage,
     InvoiceDatePage,
     InvoiceNumberPage,
     InvoiceTypeChangedPage,
     InvoiceTypePage,
-    PurchaseSubCategoryArrivedFromCheckYourAnswersPage,
+    PurchaseSubCategoryArrivedFromCheckYourAnswersQuery,
     PurchaseSubCategoryLabelPage,
     PurchaseSubCategoryPage,
-    PurchaseSubTypeArrivedFromCheckYourAnswersPage,
+    PurchaseSubTypeArrivedFromCheckYourAnswersQuery,
     PurchaseSubTypeLabelPage,
     PurchaseSubTypePage,
     RefundingCurrencyPage,

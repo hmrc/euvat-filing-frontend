@@ -18,15 +18,15 @@ package controllers.purchase
 
 import controllers.actions.*
 import forms.PurchaseOrImportSubTypeFormProvider
-import models.requests.DataRequest
 import models.*
+import models.requests.DataRequest
 import navigation.Navigator
-import pages.purchase.*
 import pages.claim.CountryChangedPage
-import pages.purchase.{DescribeItemsArrivedFromCheckYourAnswersPage, DescribeItemsOnInvoicePage}
+import pages.purchase.*
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.*
+import queries.{DescribeItemsArrivedFromCheckYourAnswersQuery, PurchaseSubTypeArrivedFromCheckYourAnswersQuery}
 import repositories.SessionRepository
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -109,7 +109,7 @@ class PurchaseSubTypeController @Inject() (
           case Some(previousSelection) if isTransitionAwayFromNoneForOther(parentKey, previousSelection, value) =>
             for {
               afterRemovedDescribe <- removedSubCategoryLabel.remove(DescribeItemsOnInvoicePage)
-              afterRemovedFlag     <- afterRemovedDescribe.remove(DescribeItemsArrivedFromCheckYourAnswersPage)
+              afterRemovedFlag     <- afterRemovedDescribe.remove(DescribeItemsArrivedFromCheckYourAnswersQuery)
             } yield afterRemovedFlag
           case _ => scala.util.Success(removedSubCategoryLabel)
         }
@@ -181,7 +181,7 @@ class PurchaseSubTypeController @Inject() (
                                           userAnswers: UserAnswers
                                          )(implicit request: DataRequest[AnyContent]): Future[Result] =
     ControllerHelpers.markArrivalAndRender(
-      PurchaseSubTypeArrivedFromCheckYourAnswersPage,
+      PurchaseSubTypeArrivedFromCheckYourAnswersQuery,
       mode,
       userAnswers,
       sessionRepository
