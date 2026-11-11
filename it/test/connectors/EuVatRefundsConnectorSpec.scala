@@ -16,16 +16,16 @@
 
 package connectors
 
-import models.{ApplicationDetails, EncryptionStatus, PurchaseImport}
 import models.requests.*
 import models.responses.*
+import models.{ApplicationDetails, EncryptionStatus, PurchaseImport}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as mockitoEq}
 import org.mockito.Mockito.*
-import org.scalatest.{BeforeAndAfterEach, LoneElement}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.{BeforeAndAfterEach, LoneElement}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.crypto.Crypted
@@ -175,7 +175,7 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
       submissionStatus           = None
     )
 
-    "call the correct URL and NOT decrypt the bank details in the response when encryptionStatus = M" in {
+    "call the correct URL and return correct response" in {
       val backendResponse = ApplicationDetailsResponse(applicationDetails = List(unEncryptedApplicationDetails))
 
       when(mockHttp.get(mockitoEq(url"$baseUrl/get-application-details/$applicationId"))(any())).thenReturn(mockRequestBuilder)
@@ -186,53 +186,6 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
 
       result shouldBe backendResponse
       verifyNoInteractions(mockCryptoProvider)
-    }
-
-    "call the correct URL and NOT decrypt but set the encryptionStatus to M when encryptionStatus = None" in {
-      val backendResponse = ApplicationDetailsResponse(applicationDetails = List(unEncryptedApplicationDetails.copy(encryptionStatus = None)))
-
-      when(mockHttp.get(mockitoEq(url"$baseUrl/get-application-details/$applicationId"))(any())).thenReturn(mockRequestBuilder)
-      when(mockRequestBuilder.execute[ApplicationDetailsResponse](any(), any()))
-        .thenReturn(Future.successful(backendResponse))
-
-      val result = connector.getApplicationDetails(applicationId).futureValue
-
-      result shouldBe ApplicationDetailsResponse(applicationDetails =
-        List(unEncryptedApplicationDetails.copy(encryptionStatus = Some(EncryptionStatus.M.toString)))
-      )
-      verifyNoInteractions(mockCryptoProvider)
-    }
-
-    "call the correct URL and decrypt the bank details in the response when encryptionStatus = E" in {
-      val encryptedBackendResponse = ApplicationDetailsResponse(
-        applicationDetails = List(
-          unEncryptedApplicationDetails.copy(
-            ibanCode         = Some("encrypted IBAN code"),
-            bicCode          = Some("encrypted BIC code"),
-            cipherText       = Some("encrypted cipherText"),
-            encryptionStatus = Some(EncryptionStatus.E.toString)
-          )
-        )
-      )
-
-      val decryptedApplicationDetails = unEncryptedApplicationDetails.copy(
-        ibanCode         = Some("decrypted IBAN code"),
-        bicCode          = Some("decrypted BIC code"),
-        cipherText       = Some("decrypted cipherText"),
-        encryptionStatus = Some(EncryptionStatus.M.toString)
-      )
-
-      when(mockCryptoProvider.decrypt(Crypted("encrypted IBAN code"))).thenReturn("decrypted IBAN code")
-      when(mockCryptoProvider.decrypt(Crypted("encrypted BIC code"))).thenReturn("decrypted BIC code")
-      when(mockCryptoProvider.decrypt(Crypted("encrypted cipherText"))).thenReturn("decrypted cipherText")
-
-      when(mockHttp.get(mockitoEq(url"$baseUrl/get-application-details/$applicationId"))(any())).thenReturn(mockRequestBuilder)
-      when(mockRequestBuilder.execute[ApplicationDetailsResponse](any(), any()))
-        .thenReturn(Future.successful(encryptedBackendResponse))
-
-      val result = connector.getApplicationDetails(applicationId).futureValue
-
-      result.applicationDetails.loneElement shouldBe decryptedApplicationDetails
     }
 
     "propagate failures from the HTTP client" in {
@@ -604,23 +557,23 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
     "call the item details URL and return the purchase details response" in {
       reset(mockHttp, mockRequestBuilder)
       val expectedResponse = PurchaseDetailsResponse(
-        goodsDescriptionCode        = "1",
-        goodsDescriptionSubCode     = Some("1.2.3"),
-        goodsDescriptionText        = Some("Purchase details"),
+        goodsDescriptionCode       = "1",
+        goodsDescriptionSubCode    = Some("1.2.3"),
+        goodsDescriptionText       = Some("Purchase details"),
         simplifiedInvoiceIndicator = Some("false"),
-        supplierName                = Some("Supplier"),
-        supplierAddressLine1        = Some("Address line 1"),
-        supplierAddressLine2        = Some("Address line 2"),
-        supplierAddressLine3        = Some("Address line 3"),
-        supplierVatNumber           = Some("VAT123"),
-        supplierTaxIdentifier       = Some("TAX123"),
-        invoiceDate                 = Some(java.time.LocalDateTime.of(2026, 10, 21, 0, 0)),
-        invoiceNumber               = Some("INV123"),
-        currencyCode                = Some("EUR"),
-        taxableAmount               = Some(BigDecimal(300)),
-        vatAmount                   = Some(BigDecimal(200)),
-        deductibleVatAmount         = Some(BigDecimal(100)),
-        updateSequenceNumber        = 7
+        supplierName               = Some("Supplier"),
+        supplierAddressLine1       = Some("Address line 1"),
+        supplierAddressLine2       = Some("Address line 2"),
+        supplierAddressLine3       = Some("Address line 3"),
+        supplierVatNumber          = Some("VAT123"),
+        supplierTaxIdentifier      = Some("TAX123"),
+        invoiceDate                = Some(java.time.LocalDateTime.of(2026, 10, 21, 0, 0)),
+        invoiceNumber              = Some("INV123"),
+        currencyCode               = Some("EUR"),
+        taxableAmount              = Some(BigDecimal(300)),
+        vatAmount                  = Some(BigDecimal(200)),
+        deductibleVatAmount        = Some(BigDecimal(100)),
+        updateSequenceNumber       = 7
       )
 
       when(mockHttp.get(any())(any())).thenReturn(mockRequestBuilder)
@@ -765,11 +718,11 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
       verify(mockCryptoProvider).knownCipherText
     }
 
-    "fail when encryptionStatus = E" in {
+    "call the correct URL, but NOT encrypt bank details and return the expected response when encryptionStatus = E" in {
       val requestWithEncryptionStatusE = updateRequest.copy(
-        ibanCode = Some("encrypted IBAN code"),
-        bicCode = Some("encrypted BIC code"),
-        cipherText = Some("encrypted cipherText"),
+        ibanCode         = Some("encrypted IBAN code"),
+        bicCode          = Some("encrypted BIC code"),
+        cipherText       = Some("encrypted cipherText"),
         encryptionStatus = Some(EncryptionStatus.E.toString)
       )
 

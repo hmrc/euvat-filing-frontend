@@ -54,7 +54,7 @@ class BankDetailsController @Inject() (
       val preparedForm =
         request.userAnswers
           .get(BankDetailsPage)
-          .fold(form)(details => form.fill(details.copy(BIC = "", accountNumber = "")))
+          .fold(form)(form.fill)
 
       Ok(
         view(

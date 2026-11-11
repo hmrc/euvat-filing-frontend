@@ -19,8 +19,6 @@ package viewmodels.checkAnswers
 import models.{Currency, UserAnswers}
 import pages.bankdetails.{AccountHolderPage, BankDetailsPage}
 import play.api.i18n.Messages
-import queries.BankDetailsCompletedQuery
-import utils.BankDetailsMaskUtils
 
 object CheckYourBankDetailsSummary {
 
@@ -28,12 +26,12 @@ object CheckYourBankDetailsSummary {
 
   type Row = (String, Option[String], Seq[(String, String, String)])
 
-  def rows(answers: UserAnswers, currencies: Seq[Currency])(implicit messages: Messages): Seq[Row] =
+  def rows(answers: UserAnswers, currencies: Seq[Currency], isChanged: Boolean)(implicit messages: Messages): Seq[Row] =
     Seq(
       rowAccountHolder(answers),
       rowAccountName(answers),
-      rowBic(answers),
-      rowIban(answers),
+      rowBic(answers, isChanged),
+      rowIban(answers, isChanged),
       rowCurrency(answers, currencies)
     ).flatten
 
@@ -51,17 +49,15 @@ object CheckYourBankDetailsSummary {
       (messages("bankDetails.checkYourBankDetails.accountName.label"), Some(details.NameOnTheAccount), Seq.empty)
     }
 
-  private def rowBic(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
+  private def rowBic(answers: UserAnswers, isChanged: Boolean)(implicit messages: Messages): Option[Row] =
     answers.get(BankDetailsPage).map { details =>
-      val bankDetailsCompleted = answers.get(BankDetailsCompletedQuery).getOrElse(false)
-      val bicCode = if (bankDetailsCompleted) BankDetailsMaskUtils.maskLastFour(details.BIC) else hiddenFieldText
+      val bicCode = if (isChanged) details.BIC else hiddenFieldText
       (messages("bankDetails.checkYourBankDetails.bic.label"), Option(bicCode), Seq.empty)
     }
 
-  private def rowIban(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
+  private def rowIban(answers: UserAnswers, isChanged: Boolean)(implicit messages: Messages): Option[Row] =
     answers.get(BankDetailsPage).map { details =>
-      val bankDetailsCompleted = answers.get(BankDetailsCompletedQuery).getOrElse(false)
-      val accountNumber = if (bankDetailsCompleted) BankDetailsMaskUtils.maskLastFour(details.accountNumber) else hiddenFieldText
+      val accountNumber = if (isChanged) details.accountNumber else hiddenFieldText
       (messages("bankDetails.checkYourBankDetails.iban.label"), Option(accountNumber), Seq.empty)
     }
 

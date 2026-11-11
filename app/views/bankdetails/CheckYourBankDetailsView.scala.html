@@ -23,7 +23,7 @@
   customSummaryList: CustomSummaryList
 )
 
-@(rows: Seq[(String, Option[String], Seq[(String, String, String)])], changeUrl: String, bankDetailsCompleted: Boolean)(implicit request: Request[_], messages: Messages)
+@(rows: Seq[(String, Option[String], Seq[(String, String, String)])], changeUrl: String, bankDetailsCompleted: Boolean, isChanged: Boolean = false)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("bankDetails.checkYourBankDetails.title")), showBackLink = false) {
 
@@ -34,7 +34,7 @@
   </h1>
 
 
-  @if(bankDetailsCompleted) {
+  @if(bankDetailsCompleted && !isChanged) {
     <p class="govuk-body">
       @messages("bankDetails.checkYourBankDetails.paragraph")
     </p>
@@ -55,6 +55,6 @@
   </div>
 
   @formHelper(action = controllers.bankdetails.routes.CheckYourBankDetailsController.onSubmit(), Symbol("autoComplete") -> "off") {
-    @govukButton(ButtonViewModel(messages("site.save.continue")))
+    @govukButton(ButtonViewModel(messages(if (isChanged) "site.save.continue" else "site.continue")))
   }
 }

@@ -17,10 +17,9 @@
 package controllers.bankdetails
 
 import base.SpecBase
-import models.ApplicationDetails
 import models.requests.UpdateApplicationDetailsRequest
 import models.responses.*
-import models.{AccountHolder, BankDetails, CheckMode, EncryptionStatus}
+import models.{AccountHolder, ApplicationDetails, BankDetails, CheckMode}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as mockitoEq}
 import org.mockito.Mockito.when
@@ -28,7 +27,7 @@ import pages.bankdetails.{AccountHolderPage, BankDetailsPage}
 import play.api.test.CSRFTokenHelper.*
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import queries.{BankDetailsCompletedQuery, ClaimApplicationResponseQuery}
+import queries.ClaimApplicationResponseQuery
 import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.{Clock, LocalDateTime}
@@ -41,12 +40,61 @@ class CheckYourBankDetailsControllerSpec extends SpecBase {
 
   "CheckYourBankDetails Controller" - {
 
+    val applicationId = 1L
+    val applicationNumber = "123"
+    val updateSeqNumber = 0
+    val fixedTime = LocalDateTime.now(Clock.systemUTC())
+    val applicationDetails = ApplicationDetails(
+      applicationId              = applicationId,
+      applicationNumber          = Option(applicationNumber),
+      refundingCountryCode       = Option("GB"),
+      applicationVersion         = Some(fixedTime),
+      periodStartDate            = Some(fixedTime),
+      periodEndDate              = Some(fixedTime),
+      applicantVatRegNumber      = Option("VAT reg 1234"),
+      applicantEmailAddress      = Option("applicant@mail.com"),
+      applicantTelephoneNumber   = Option("tel 12345678"),
+      representativeId           = Option("Rep 123"),
+      representativeIdType       = None,
+      representativeCountry      = Option("FR"),
+      representativeEmailAddress = Option("representative@mail.com"),
+      representativeTelephoneNum = Option("tel 87654321"),
+      applicationLanguage        = Some("EN"),
+      bankAccountOwnerName       = None,
+      bankAccountOwnerType       = None,
+      ibanCode                   = None,
+      bicCode                    = None,
+      bankAccountCurrencyCode    = None,
+      businessActivityCode1      = Some("10001"),
+      businessActivityCode2      = Some("10002"),
+      businessActivityCode3      = Some("10003"),
+      messageId                  = Some("message 123"),
+      correlationId              = Some("correlationId 123"),
+      cipherText                 = None,
+      encryptionStatus           = None,
+      updateSeqNumber            = updateSeqNumber,
+      applicationStatus          = Some("D"),
+      submissionStatus           = Some("S")
+    )
+
+    val bankDetails = BankDetails("Joe Bloggs", "NWBKGB2LXXX", "GB29NWBK60161331926819", "GBP")
+    val applicationDetailsWithBankDetails = applicationDetails.copy(
+      bankAccountOwnerName    = Some(bankDetails.NameOnTheAccount),
+      bicCode                 = Some(bankDetails.BIC),
+      ibanCode                = Some(bankDetails.accountNumber),
+      bankAccountCurrencyCode = Some(bankDetails.CurrencyOfAccount)
+    )
+
+    val emptyBankDetails = bankDetails.copy(BIC = "", accountNumber = "")
+    val applicationDetailsResponse = ApplicationDetailsResponse(applicationDetails = List(applicationDetails))
+    val applicationDetailsResponseWithBankDetails = ApplicationDetailsResponse(applicationDetails = List(applicationDetailsWithBankDetails))
+    val emptyApplicationDetailsResponse = ApplicationDetailsResponse(applicationDetails = Nil)
+
     lazy val applicantAnswers = emptyUserAnswers
       .set(AccountHolderPage, AccountHolder.Applicant)
       .success
       .value
 
-    val bankDetails = BankDetails("Joe Bloggs", "NWBKGB2LXXX", "GB29NWBK60161331926819", "GBP")
     lazy val fullAnswers = applicantAnswers
       .set(BankDetailsPage, bankDetails)
       .success
@@ -54,7 +102,10 @@ class CheckYourBankDetailsControllerSpec extends SpecBase {
 
     "onPageLoad" - {
 
-      "must return OK and render the heading, caption and card title" in {
+      "must return OK and render the heading, caption, card title and 'Save and continue' button" in {
+        when(mockEuVatRefundsService.getApplicationDetails(mockitoEq(applicationId))(any[HeaderCarrier]()))
+          .thenReturn(Future.successful(emptyApplicationDetailsResponse))
+
         val application = applicationBuilder(userAnswers = Some(fullAnswers)).build()
 
         running(application) {
@@ -71,7 +122,32 @@ class CheckYourBankDetailsControllerSpec extends SpecBase {
         }
       }
 
+      "must return OK and render the heading, caption, card title and 'Continue' button when bank details have not changed" in {
+        when(mockEuVatRefundsService.getApplicationDetails(mockitoEq(applicationId))(any[HeaderCarrier]()))
+          .thenReturn(Future.successful(emptyApplicationDetailsResponse))
+
+        val answersWithEmptyBankDetails = fullAnswers.set(BankDetailsPage, emptyBankDetails).success.value
+
+        val application = applicationBuilder(userAnswers = Some(answersWithEmptyBankDetails)).build()
+
+        running(application) {
+          val request = FakeRequest(GET, routes.CheckYourBankDetailsController.onPageLoad().url).withCSRFToken
+          val result = route(application, request).value
+          val html = contentAsString(result)
+          val msgs = messages(application)
+
+          status(result) mustEqual OK
+          html must include(msgs("bankDetails.checkYourBankDetails.heading"))
+          html must include(msgs("bankDetails.caption"))
+          html must include(msgs("bankDetails.checkYourBankDetails.card.title"))
+          html must include(msgs("site.continue"))
+        }
+      }
+
       "must show the account holder row as Applicant" in {
+        when(mockEuVatRefundsService.getApplicationDetails(mockitoEq(applicationId))(any[HeaderCarrier]()))
+          .thenReturn(Future.successful(emptyApplicationDetailsResponse))
+
         val application = applicationBuilder(userAnswers = Some(applicantAnswers)).build()
 
         running(application) {
@@ -89,6 +165,9 @@ class CheckYourBankDetailsControllerSpec extends SpecBase {
         val ua = emptyUserAnswers.set(AccountHolderPage, AccountHolder.ThirdParty).success.value
         val application = applicationBuilder(userAnswers = Some(ua)).build()
 
+        when(mockEuVatRefundsService.getApplicationDetails(mockitoEq(applicationId))(any[HeaderCarrier]()))
+          .thenReturn(Future.successful(emptyApplicationDetailsResponse))
+
         running(application) {
           val request = FakeRequest(GET, routes.CheckYourBankDetailsController.onPageLoad().url).withCSRFToken
           val result = route(application, request).value
@@ -97,11 +176,14 @@ class CheckYourBankDetailsControllerSpec extends SpecBase {
         }
       }
 
-      "must show account name, BIC (hidden), IBAN (hidden) and currency rows when BankDetailsCompletedQuery is not set" in {
+      "must show account name, BIC (hidden), IBAN (hidden) and currency rows when there is existing bank details and bank details have not changed" in {
         val answers = applicantAnswers
-          .set(BankDetailsPage, BankDetails("Joe Bloggs", "NWBKGB2LXXX", "GB29NWBK60161331926819", "GBP"))
+          .set(BankDetailsPage, emptyBankDetails)
           .success
           .value
+
+        when(mockEuVatRefundsService.getApplicationDetails(mockitoEq(applicationId))(any[HeaderCarrier]()))
+          .thenReturn(Future.successful(applicationDetailsResponseWithBankDetails))
 
         val application = applicationBuilder(userAnswers = Some(answers)).build()
 
@@ -122,14 +204,14 @@ class CheckYourBankDetailsControllerSpec extends SpecBase {
         }
       }
 
-      "must show account name, BIC (hidden), IBAN (hidden) and currency rows when BankDetailsCompletedQuery is set to false" in {
+      "must not show hidden text for BIC and IBAN when there is existing bank details and bank details have changed" in {
         val answers = applicantAnswers
           .set(BankDetailsPage, BankDetails("Joe Bloggs", "NWBKGB2LXXX", "GB29NWBK60161331926819", "GBP"))
           .success
           .value
-          .set(BankDetailsCompletedQuery, false)
-          .success
-          .value
+
+        when(mockEuVatRefundsService.getApplicationDetails(mockitoEq(applicationId))(any[HeaderCarrier]()))
+          .thenReturn(Future.successful(applicationDetailsResponseWithBankDetails))
 
         val application = applicationBuilder(userAnswers = Some(answers)).build()
 
@@ -139,40 +221,13 @@ class CheckYourBankDetailsControllerSpec extends SpecBase {
           val html = contentAsString(result)
           val msgs = messages(application)
 
+          html must not include msgs("bankDetails.checkYourBankDetails.paragraph")
           html must include(msgs("bankDetails.checkYourBankDetails.accountName.label"))
           html must include("Joe Bloggs")
           html must include(msgs("bankDetails.checkYourBankDetails.bic.label"))
-          html must include("Hidden for security reasons")
+          html must not include "Hidden for security reasons"
           html must include(msgs("bankDetails.checkYourBankDetails.iban.label"))
-          html must include("Hidden for security reasons")
-          html must include(msgs("bankDetails.checkYourBankDetails.currency.label"))
-          html must include("United Kingdom (pounds)")
-        }
-      }
-
-      "must show account name, BIC (masked), IBAN (masked) and currency rows when BankDetailsCompletedQuery is set to true" in {
-        val answers = applicantAnswers
-          .set(BankDetailsPage, BankDetails("Joe Bloggs", "NWBKGB2LXXX", "GB29NWBK60161331926819", "GBP"))
-          .success
-          .value
-          .set(BankDetailsCompletedQuery, true)
-          .success
-          .value
-
-        val application = applicationBuilder(userAnswers = Some(answers)).build()
-
-        running(application) {
-          val request = FakeRequest(GET, routes.CheckYourBankDetailsController.onPageLoad().url).withCSRFToken
-          val result = route(application, request).value
-          val html = contentAsString(result)
-          val msgs = messages(application)
-
-          html must include(msgs("bankDetails.checkYourBankDetails.accountName.label"))
-          html must include("Joe Bloggs")
-          html must include(msgs("bankDetails.checkYourBankDetails.bic.label"))
-          html must include("*******LXXX")
-          html must include(msgs("bankDetails.checkYourBankDetails.iban.label"))
-          html must include("******************6819")
+          html must not include "Hidden for security reasons"
           html must include(msgs("bankDetails.checkYourBankDetails.currency.label"))
           html must include("United Kingdom (pounds)")
         }
@@ -183,6 +238,10 @@ class CheckYourBankDetailsControllerSpec extends SpecBase {
           .set(BankDetailsPage, BankDetails("Joe Bloggs", "NWBKGB2LXXX", "GB29NWBK60161331926819", "XXX"))
           .success
           .value
+
+        when(mockEuVatRefundsService.getApplicationDetails(mockitoEq(applicationId))(any[HeaderCarrier]()))
+          .thenReturn(Future.successful(emptyApplicationDetailsResponse))
+
         val application = applicationBuilder(userAnswers = Some(ua)).build()
 
         running(application) {
@@ -194,6 +253,9 @@ class CheckYourBankDetailsControllerSpec extends SpecBase {
       }
 
       "must not show any rows when no answers are saved" in {
+        when(mockEuVatRefundsService.getApplicationDetails(mockitoEq(applicationId))(any[HeaderCarrier]()))
+          .thenReturn(Future.successful(emptyApplicationDetailsResponse))
+
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
         running(application) {
@@ -210,6 +272,9 @@ class CheckYourBankDetailsControllerSpec extends SpecBase {
       }
 
       "must link the card Change action to the account holder page in CheckMode" in {
+        when(mockEuVatRefundsService.getApplicationDetails(mockitoEq(applicationId))(any[HeaderCarrier]()))
+          .thenReturn(Future.successful(emptyApplicationDetailsResponse))
+
         val application = applicationBuilder(userAnswers = Some(fullAnswers)).build()
 
         running(application) {
@@ -221,6 +286,9 @@ class CheckYourBankDetailsControllerSpec extends SpecBase {
       }
 
       "must not render a back link" in {
+        when(mockEuVatRefundsService.getApplicationDetails(mockitoEq(applicationId))(any[HeaderCarrier]()))
+          .thenReturn(Future.successful(emptyApplicationDetailsResponse))
+
         val application = applicationBuilder(userAnswers = Some(fullAnswers)).build()
 
         running(application) {
@@ -232,6 +300,9 @@ class CheckYourBankDetailsControllerSpec extends SpecBase {
       }
 
       "must redirect to Journey Recovery if no existing data is found" in {
+        when(mockEuVatRefundsService.getApplicationDetails(mockitoEq(applicationId))(any[HeaderCarrier]()))
+          .thenReturn(Future.successful(emptyApplicationDetailsResponse))
+
         val application = applicationBuilder(userAnswers = None).build()
 
         running(application) {
@@ -245,49 +316,14 @@ class CheckYourBankDetailsControllerSpec extends SpecBase {
     }
 
     "onSubmit" - {
-      val applicationId = 1L
-      val applicationNumber = "123"
-      val updateSeqNumber = 0
-      val fixedTime = LocalDateTime.now(Clock.systemUTC())
-      val applicationDetails = ApplicationDetails(
-        applicationId              = applicationId,
-        applicationNumber          = Option(applicationNumber),
-        refundingCountryCode       = Option("GB"),
-        applicationVersion         = Some(fixedTime),
-        periodStartDate            = Some(fixedTime),
-        periodEndDate              = Some(fixedTime),
-        applicantVatRegNumber      = Option("VAT reg 1234"),
-        applicantEmailAddress      = Option("applicant@mail.com"),
-        applicantTelephoneNumber   = Option("tel 12345678"),
-        representativeId           = Option("Rep 123"),
-        representativeIdType       = None,
-        representativeCountry      = Option("FR"),
-        representativeEmailAddress = Option("representative@mail.com"),
-        representativeTelephoneNum = Option("tel 87654321"),
-        applicationLanguage        = Some("EN"),
-        bankAccountOwnerName       = None,
-        bankAccountOwnerType       = None,
-        ibanCode                   = None,
-        bicCode                    = None,
-        bankAccountCurrencyCode    = None,
-        businessActivityCode1      = Some("10001"),
-        businessActivityCode2      = Some("10002"),
-        businessActivityCode3      = Some("10003"),
-        messageId                  = Some("message 123"),
-        correlationId              = Some("correlationId 123"),
-        cipherText                 = None,
-        encryptionStatus           = None,
-        updateSeqNumber            = updateSeqNumber,
-        applicationStatus          = Some("D"),
-        submissionStatus           = Some("S")
-      )
-
-      val applicationDetailsResponse = ApplicationDetailsResponse(applicationDetails = List(applicationDetails))
 
       "must update application and redirect to the task list when ClaimApplicationResponseQuery is in session" in {
         val accountHolder = AccountHolder.Applicant.toString
         val applicationResponse = ApplicationResponse(applicationId, applicationNumber, updateSeqNumber)
-        val answers = fullAnswers.set(ClaimApplicationResponseQuery, applicationResponse).success.value
+        val answers = fullAnswers
+          .set(ClaimApplicationResponseQuery, applicationResponse)
+          .success
+          .value
         val applicationDetailsUpdateResponse = UpdateApplicationDetailsResponse(applicationDetails.updateSeqNumber + 1)
         val updateRequestCaptor = ArgumentCaptor.forClass(classOf[UpdateApplicationDetailsRequest])
 
