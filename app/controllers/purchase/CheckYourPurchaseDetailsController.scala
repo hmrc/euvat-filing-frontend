@@ -81,8 +81,8 @@ class CheckYourPurchaseDetailsController @Inject() (
     }
 
     val simplifiedInvoiceIndicator = userAnswers.get(InvoiceTypePage) match {
-      case Some(InvoiceType.StandardInvoice)   => None
-      case Some(InvoiceType.SimplifiedInvoice) => userAnswers.get(SupplierVatRegCheckPage).map(_.toString).orElse(Some("true"))
+      case Some(InvoiceType.StandardInvoice)   => Some(false.toString)
+      case Some(InvoiceType.SimplifiedInvoice) => Some(true.toString)
       case None                                => userAnswers.get(SupplierVatRegCheckPage).map(_.toString)
     }
 
@@ -334,9 +334,11 @@ class CheckYourPurchaseDetailsController @Inject() (
                 PurchaseOrImportType.codes.find(_._2 == resp.goodsDescriptionCode).map(_._1)
 
               val invoiceTypeOpt: Option[InvoiceType] =
-                Some(if (resp.simplifiedInvoiceIndicator.isDefined) InvoiceType.SimplifiedInvoice else InvoiceType.StandardInvoice)
+                Some(if (resp.simplifiedInvoiceIndicator.exists(_.equalsIgnoreCase(true.toString))) InvoiceType.SimplifiedInvoice else InvoiceType.StandardInvoice)
               val supplierVatRegCheckOpt: Option[Boolean] =
-                resp.simplifiedInvoiceIndicator.map(_.equalsIgnoreCase("true"))
+                Option.when(invoiceTypeOpt.contains(InvoiceType.SimplifiedInvoice))(
+                  resp.supplierVatNumber.flatMap(s => Option(s).filter(_.nonEmpty)).isDefined
+                )
 
               val supplierAddressOpt: Option[SupplierAddress] =
                 resp.supplierAddressLine1.map(l1 => SupplierAddress(l1, resp.supplierAddressLine2, resp.supplierAddressLine3))
