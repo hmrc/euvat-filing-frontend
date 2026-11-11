@@ -238,7 +238,7 @@ class ImportSupplierAddressControllerSpec extends SpecBase with MockitoSugar {
 
         contentAsString(result) must include(
           messages(application)(
-            "supplierAddress.error.line1.maxLength",
+            "supplierAddress.error.maxLength.withLabel",
             messages(application)("supplierAddress.line1.label.short"),
             messages(application)("supplierAddress.error.maxLength")
           )
