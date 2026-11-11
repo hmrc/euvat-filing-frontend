@@ -20,7 +20,7 @@ import base.SpecBase
 import controllers.routes
 import forms.ImportTypeFormProvider
 import models.PurchaseOrImport.{Import, Purchase}
-import models.{CheckMode, Fuel, NormalMode, PurchaseOrImportType, Transport, UserAnswers}
+import models.{CheckMode, Fuel, NormalMode, Other, PurchaseOrImportType, Transport, UserAnswers}
 import models.responses.{AddImportResponse, ApplicationResponse, ImportDetailsResponse}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
@@ -28,6 +28,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{never, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.PurchaseOrImportPage
+import pages.claim.RefundingCountryPage
 import pages.imports.{AddImportResponsePage, ImportSubCodePage, ImportSuppliersNamePage, ImportTotalVatClaimPage, ImportTypePage, SadReferenceCheckPage, TotalAmountWithoutVatPage}
 import play.api.data.Form
 import play.api.inject.bind
@@ -50,7 +51,12 @@ class ImportTypeControllerSpec extends SpecBase with MockitoSugar {
   "ImportType Controller" - {
 
     "must return OK and the correct view for a GET" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val userAnswers = emptyUserAnswers
+        .set(RefundingCountryPage, "AT")
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, importTypeRoute)
@@ -87,11 +93,16 @@ class ImportTypeControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to the next page when valid data is submitted" in {
+      val userAnswers = emptyUserAnswers
+        .set(RefundingCountryPage, "AT")
+        .success
+        .value
+
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        applicationBuilder(userAnswers = Some(userAnswers))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
             bind[SessionRepository].toInstance(mockSessionRepository)
@@ -109,6 +120,40 @@ class ImportTypeControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must set sub-code to '10.99' when Other is submit and no subcodes under ‘Other’" in {
+      val userAnswers = emptyUserAnswers
+        .set(RefundingCountryPage, "AT")
+        .success
+        .value
+
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, importTypeRoute)
+            .withFormUrlEncodedBody(("value", Other.toString))
+
+        val result = route(application, request).value
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(mockSessionRepository, times(1)).set(captor.capture())
+        captor.getValue.get(ImportTypePage) mustBe Some(Other)
+        captor.getValue.get(ImportSubCodePage) mustBe Some("10.99")
+        captor.getValue.get(ImportSubTypeLabelQuery) mustBe Some(messages(application)("sub.other.99"))
+      }
+    }
+
     "must call addImport and persist the response when ClaimApplicationResponseQuery is present and no AddImportResponsePage exists" in {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
@@ -117,6 +162,9 @@ class ImportTypeControllerSpec extends SpecBase with MockitoSugar {
       when(mockEuVatRefundsService.addImport(any())(any())) thenReturn Future.successful(addImportResponse)
 
       val userAnswers = emptyUserAnswers
+        .set(RefundingCountryPage, "AT")
+        .success
+        .value
         .set(ClaimApplicationResponseQuery, ApplicationResponse(134, "GB123134", 1))
         .success
         .value
@@ -149,6 +197,9 @@ class ImportTypeControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val userAnswers = emptyUserAnswers
+        .set(RefundingCountryPage, "AT")
+        .success
+        .value
         .set(ClaimApplicationResponseQuery, ApplicationResponse(134, "GB123134", 1))
         .success
         .value
@@ -182,6 +233,9 @@ class ImportTypeControllerSpec extends SpecBase with MockitoSugar {
       when(mockEuVatRefundsService.addImport(any())(any())) thenReturn Future.failed(new RuntimeException("boom"))
 
       val userAnswers = emptyUserAnswers
+        .set(RefundingCountryPage, "AT")
+        .success
+        .value
         .set(ClaimApplicationResponseQuery, ApplicationResponse(134, "GB123134", 1))
         .success
         .value
@@ -252,10 +306,27 @@ class ImportTypeControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "redirect to Journey Recovery for a POST if refunding country code is noy found" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, importTypeRoute)
+            .withFormUrlEncodedBody(("value", Fuel.toString))
+
+        val result = route(application, request).value
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
     "must keep the sub-code when the import type is unchanged in CheckMode" in {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       val userAnswers = emptyUserAnswers
+        .set(RefundingCountryPage, "AT")
+        .success
+        .value
         .set(ImportTypePage, Fuel)
         .success
         .value
@@ -291,6 +362,9 @@ class ImportTypeControllerSpec extends SpecBase with MockitoSugar {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       val userAnswers = emptyUserAnswers
+        .set(RefundingCountryPage, "AT")
+        .success
+        .value
         .set(ImportTypePage, Fuel)
         .success
         .value

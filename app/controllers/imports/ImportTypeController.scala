@@ -20,22 +20,22 @@ import pages.imports.*
 import queries.*
 import com.google.inject.Inject
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
-import controllers.imports.routes as importRoutes
 import forms.ImportTypeFormProvider
 import models.requests.{AddImportRequest, DataRequest}
 import models.responses.{AddImportResponse, ImportDetailsResponse}
-import models.{CheckMode, Mode, NormalMode, PurchaseOrImport, PurchaseOrImportType, Transport, UserAnswers}
+import models.{Mode, NormalMode, Other, PurchaseOrImport, PurchaseOrImportType, UserAnswers}
 import navigation.Navigator
 import pages.PurchaseOrImportPage
 import play.api.Logging
 import play.api.data.Form
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
+import utils.{ConfigPurchaseOrImportMapping, CountryCode}
 import utils.ControllerHelpers.saveAnswerAndResetDependents
 import views.html.purchasesOrImports.PurchaseOrImportTypeView
 
@@ -50,6 +50,7 @@ class ImportTypeController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: ImportTypeFormProvider,
+  configPurchaseOrImportMapping: ConfigPurchaseOrImportMapping,
   val controllerComponents: MessagesControllerComponents,
   view: PurchaseOrImportTypeView,
   euVatRefundsService: EuVatRefundsService
@@ -84,13 +85,23 @@ class ImportTypeController @Inject() (
             )
           ),
         value =>
-          saveAnswerAndResetDependents(
-            page              = ImportTypePage,
-            newValue          = value,
-            userAnswers       = request.userAnswers,
-            dependents        = dependentAnswers,
-            sessionRepository = sessionRepository
-          )(updated => addImportIfRequired(updated, value, mode))
+          CountryCode
+            .findCountryCode(request.userAnswers)
+            .fold(Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))) { country =>
+              saveAnswerAndResetDependents(
+                page              = ImportTypePage,
+                newValue          = value,
+                userAnswers       = request.userAnswers,
+                dependents        = dependentAnswers,
+                sessionRepository = sessionRepository,
+                alsoSet = answers =>
+                  if (value == Other && configPurchaseOrImportMapping.selectableSubcodes(country, Other.toString).isEmpty) {
+                    answers
+                      .set(ImportSubCodePage, ConfigPurchaseOrImportMapping.NoneOfTheseSubCode)
+                      .flatMap(_.set(ImportSubTypeLabelQuery, Messages("sub.other.99")))
+                  } else { Success(answers) }
+              )(updated => addImportIfRequired(updated, value, mode))
+            }
       )
   }
 
