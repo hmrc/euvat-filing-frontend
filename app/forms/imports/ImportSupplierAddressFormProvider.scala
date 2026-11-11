@@ -70,16 +70,16 @@ class ImportSupplierAddressFormProvider @Inject() (
           text("supplierAddress.error.line1.required")
             .verifying(
               fieldMaxLengthConstraint(
-                "import.supplierAddress.line1.label.short",
-                "import.supplierAddress.error.line1.maxLength"
+                "supplierAddress.line1.label.short",
+                "supplierAddress.error.maxLength.withLabel"
               )
             ),
         "addressLine2" ->
           optional(
             text().verifying(
               fieldMaxLengthConstraint(
-                "import.supplierAddress.line2.label.short",
-                "import.supplierAddress.error.line2.maxLength"
+                "supplierAddress.line2.label.short",
+                "supplierAddress.error.maxLength.withLabel"
               )
             )
           ),
@@ -87,8 +87,8 @@ class ImportSupplierAddressFormProvider @Inject() (
           optional(
             text().verifying(
               fieldMaxLengthConstraint(
-                "import.supplierAddress.line3.label.short",
-                "import.supplierAddress.error.line3.maxLength"
+                "supplierAddress.line3.label.short",
+                "supplierAddress.error.maxLength.withLabel"
               )
             )
           ),

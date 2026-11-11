@@ -104,7 +104,7 @@ class ImportSupplierAddressFormProviderSpec extends SpecBase with MockitoSugar {
         form.bind(data)
 
       result.errors("addressLine1").head.message mustEqual
-        "import.supplierAddress.error.line1.maxLength"
+        "supplierAddress.error.maxLength.withLabel"
     }
 
     "must fail when address line 2 is longer than 35 characters" in {
@@ -116,7 +116,7 @@ class ImportSupplierAddressFormProviderSpec extends SpecBase with MockitoSugar {
         form.bind(data)
 
       result.errors("addressLine2").head.message mustEqual
-        "import.supplierAddress.error.line2.maxLength"
+        "supplierAddress.error.maxLength.withLabel"
     }
 
     "must fail when address line 3 is longer than 35 characters" in {
@@ -128,7 +128,7 @@ class ImportSupplierAddressFormProviderSpec extends SpecBase with MockitoSugar {
         form.bind(data)
 
       result.errors("addressLine3").head.message mustEqual
-        "import.supplierAddress.error.line3.maxLength"
+        "supplierAddress.error.maxLength.withLabel"
     }
 
     "must fail when country is empty" in {
