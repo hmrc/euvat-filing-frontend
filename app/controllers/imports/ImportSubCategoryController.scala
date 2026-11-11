@@ -21,7 +21,7 @@ import controllers.routes
 import forms.PurchaseOrImportSubTypeFormProvider
 import models.requests.DataRequest
 import models.{CheckMode, Mode, PurchaseOrImportType}
-import navigation.Navigator
+import navigation.{ImportNavigator, Navigator}
 import pages.imports.{ImportSubCategoryPage, ImportSubCodePage, ImportTypePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -77,7 +77,8 @@ class ImportSubCategoryController @Inject() (
       title,
       title,
       "import.caption",
-      controllers.imports.routes.ImportSubCategoryController.onSubmit(mode)
+      ImportNavigator.subCategorySubmit(request.userAnswers, mode)
+      
     )
   }
 

@@ -18,6 +18,7 @@ package viewmodels
 
 import models.{NormalMode, UserAnswers}
 import pages.PurchaseImportSummaryPage
+import pages.supportingdocuments.AnyDocumentsPage
 import play.api.i18n.Messages
 import queries.{ClaimDetailsCompletedQuery, PurchaseImportSummaryIncompleteQuery}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
@@ -41,7 +42,8 @@ class TaskListViewModel @Inject() {
     val claimDetailsItem = claimTaskList(messages, claimDetailsDone, notStartedStatus, completedStatus)
     val purchaseImportItems =
       purchaseImportTaskList(answers, messages, claimDetailsDone, cannotStartStatus, notStartedStatus, completedStatus)
-    val supportingDocsItem = supportingDocItemList(messages, claimDetailsDone, notStartedStatus, cannotStartStatus)
+    val supportingDocsItem =
+      supportingDocItemList(answers, messages, claimDetailsDone, notStartedStatus, cannotStartStatus, completedStatus)
     val bankDetailsItem = bankDetailsTaskList(messages, claimDetailsDone, notStartedStatus, cannotStartStatus)
     val submitClaimItem = submitClaimTaskList(messages, cannotStartStatus)
 
@@ -70,15 +72,22 @@ class TaskListViewModel @Inject() {
     )
   }
 
-  private def supportingDocItemList(messages: Messages,
+  private def supportingDocItemList(answers: UserAnswers,
+                                    messages: Messages,
                                     claimDetailsDone: Boolean,
                                     notStartedStatus: TaskListItemStatus,
-                                    cannotStartStatus: TaskListItemStatus
+                                    cannotStartStatus: TaskListItemStatus,
+                                    completedStatus: TaskListItemStatus
                                    ): TaskListItem = {
+    val supportingDocumentsComplete = answers.get(AnyDocumentsPage).contains(false)
     TaskListItem(
-      title  = TaskListItemTitle(content = Text(messages("taskListDashboard.listItem3"))),
-      status = if (claimDetailsDone) notStartedStatus else cannotStartStatus,
-      href   = if (claimDetailsDone) Some("#") else None
+      title = TaskListItemTitle(content = Text(messages("taskListDashboard.listItem3"))),
+      status = if (claimDetailsDone) {
+        if (supportingDocumentsComplete) completedStatus else notStartedStatus
+      } else {
+        cannotStartStatus
+      },
+      href = if (claimDetailsDone) Some(controllers.supportingdocuments.routes.BeforeYouStartSupportingDocsController.onPageLoad().url) else None
     )
   }
 

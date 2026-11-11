@@ -54,6 +54,7 @@ purchase.caption = Purchase details
 purchasesAndImports.caption = Purchases and imports
 import.caption = Import details
 bankDetails.caption = Bank details
+supportingDocuments.caption = 	Supporting documents
 
 taskListDashboard.title = Make a claim for an EU VAT refund
 taskListDashboard.heading = Make a claim for an EU VAT refund
@@ -231,8 +232,8 @@ removeThird.heading = Are you sure you want to remove the third SIC code?
 removeThird.title = Are you sure you want to remove the third SIC code?
 removeThird.error.required = Select yes if you want to remove the third SIC code
 
-checkYourClaimDetails.title = Check your claim details
-checkYourClaimDetails.heading = Check your claim details
+checkYourClaimDetails.title = Check your answers
+checkYourClaimDetails.heading = Check your answers
 checkYourClaimDetails.refundingCountry.label = Refunding EU member state
 checkYourClaimDetails.refundingCountry.change.hidden = Change EU member state
 checkYourClaimDetails.refundingCountry.subLabel = EU member state
@@ -249,7 +250,7 @@ checkYourClaimDetails.Email.change.hidden = Change email address
 checkYourClaimDetails.Phone.change.hidden = Change phone number
 checkYourClaimDetails.contactEmail.subLabel = Email address
 checkYourClaimDetails.contactPhone.subLabel = Phone number
-checkYourClaimDetails.businessActivity.label = Business activity
+checkYourClaimDetails.businessActivity.label = SIC codes
 checkYourClaimDetails.businessActivity.subLabel = First SIC code
 checkYourClaimDetails.businessActivity2.subLabel = Second SIC code
 checkYourClaimDetails.businessActivity3.subLabel = Third SIC code
@@ -692,6 +693,23 @@ bankDetails.checkYourBankDetails.bic.label = BIC or SWIFT code
 bankDetails.checkYourBankDetails.iban.label = IBAN
 bankDetails.checkYourBankDetails.currency.label = Account currency
 
+supportingDocuments.beforeYouStart.title = Before you start
+supportingDocuments.beforeYouStart.heading = Before you start
+supportingDocuments.beforeYouStart.paragraph1 = You need to provide evidence of your purchase or import (for example, an invoice) if the value is:
+supportingDocuments.beforeYouStart.evidence.bullet1 = €1,000 or more
+supportingDocuments.beforeYouStart.evidence.bullet2 = €250 or more for road fuel
+supportingDocuments.beforeYouStart.subheading = VAT receipts and invoices
+supportingDocuments.beforeYouStart.paragraph2 = To be accepted, VAT receipts and invoices must show the following information:
+supportingDocuments.beforeYouStart.invoice.bullet1 = invoice number and date
+supportingDocuments.beforeYouStart.invoice.bullet2 = supplier’s name or trading address
+supportingDocuments.beforeYouStart.invoice.bullet3 = supplier’s VAT registration number (or tax identifier in Germany)
+supportingDocuments.beforeYouStart.invoice.bullet4 = time of supply (if different from the invoice date)
+supportingDocuments.beforeYouStart.invoice.bullet5 = description of the goods or services
+supportingDocuments.beforeYouStart.invoice.bullet6 = unit price or rate, excluding VAT and the rate of any discount
+supportingDocuments.beforeYouStart.invoice.bullet7 = total amount of VAT charged
+supportingDocuments.beforeYouStart.simplifiedInvoice.summary = If you have a simplified invoice
+supportingDocuments.beforeYouStart.simplifiedInvoice.detail = You can still upload a simplified invoice if it does not include the supplier’s VAT registration number or tax identifier.
+
 # Warning messages
 refundPeriodStartDateWarning.title = Are you sure the refund period start date is correct?
 refundPeriodStartDateWarning.heading = Are you sure the refund period start date is correct?
@@ -779,3 +797,7 @@ removeItem.list2 = VAT claim
 removeItem.legend = Are you sure you want to remove this item?
 removeItem.notProvided = Not provided
 removeItem.error.required = Select yes if you want to remove this item
+
+supportingDocuments.anyDocuments.title = Do you have any supporting documents to upload?
+supportingDocuments.anyDocuments.heading = Do you have any supporting documents to upload?
+supportingDocuments.anyDocuments.error.required = Select yes if you have supporting documents to upload

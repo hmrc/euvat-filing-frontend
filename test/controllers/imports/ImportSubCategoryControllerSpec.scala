@@ -17,7 +17,7 @@
 package controllers.imports
 
 import base.SpecBase
-import models.{Fuel, NormalMode, UserAnswers}
+import models.{CheckMode, Fuel, NormalMode, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.{times, verify}
 import pages.claim.RefundingCountryPage
@@ -70,6 +70,29 @@ class ImportSubCategoryControllerSpec extends SpecBase {
         content must include("What is the type of fuel or vehicle?")
         content must include("Passenger car (PKW)")
         content must not include "value=\"1.3\""
+      }
+    }
+
+    "must post from teh sub code's own page, not the first subcategory route" in {
+      val application = applicationBuilder(userAnswers = Some(answers())).build()
+      running(application) {
+        val result = route(application, FakeRequest(GET, subCategoryRoute)).value
+        val action = org.jsoup.Jsoup.parse(contentAsString(result)).select("form").attr("action")
+
+        status(result) mustEqual OK
+        action mustEqual navigation.ImportNavigator.subCategorySubmit(answers(), NormalMode).url
+        action must endWith("/fuel-type-or-vehicle")
+      }
+    }
+
+    "must post from the change url in CheckMode " in {
+      val application = applicationBuilder(userAnswers = Some(answers())).build()
+      running(application) {
+        val changeRoute = controllers.imports.routes.ImportSubCategoryController.onPageLoad(models.CheckMode).url
+        val result = route(application, FakeRequest(GET, changeRoute)).value
+
+        status(result) mustEqual OK
+        org.jsoup.Jsoup.parse(contentAsString(result)).select("form").attr("action") must endWith("/change-fuel-type-or-vehicle")
       }
     }
 
