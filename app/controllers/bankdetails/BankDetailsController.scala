@@ -27,6 +27,7 @@ import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.bankdetails.BankDetailsView
 import config.InternationalCurrencyProvider
+import queries.BankDetailsChangedQuery
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -91,14 +92,16 @@ class BankDetailsController @Inject() (
                   )
                 )
 
+              bankDetailsChanged <- Future.fromTry(updatedAnswers.set(BankDetailsChangedQuery, true))
+
               _ <-
-                sessionRepository.set(updatedAnswers)
+                sessionRepository.set(bankDetailsChanged)
 
             } yield Redirect(
               navigator.nextPage(
                 BankDetailsPage,
                 mode,
-                updatedAnswers
+                bankDetailsChanged
               )
             )
         )
