@@ -309,7 +309,11 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) must include(messages(application)("checkYourClaimDetails.claimDetails.heading"))
+        val html = contentAsString(result)
+        html                            must include("<title>Check your answers - EU VAT - GOV.UK</title>")
+        html                            must include(messages(application)("checkYourClaimDetails.heading"))
+        html                            must include(messages(application)("claim.caption"))
+        html.indexOf("govuk-caption-l") must be < html.indexOf("<h1")
       }
     }
 
@@ -322,10 +326,10 @@ class CheckYourClaimDetailsControllerSpec extends SpecBase with SummaryListFluen
 
         status(result) mustEqual OK
         val html = contentAsString(result)
-        html must include("<title>Check your answers - EU VAT - GOV.UK</title>")
-        html must include(messages(application)("checkYourClaimDetails.heading"))
-        html must include(messages(application)("claim.caption"))
-        html must include(messages(application)("checkYourClaimDetails.businessActivity.label"))
+        html                            must include("<title>Check your answers - EU VAT - GOV.UK</title>")
+        html                            must include(messages(application)("checkYourClaimDetails.heading"))
+        html                            must include(messages(application)("claim.caption"))
+        html                            must include(messages(application)("checkYourClaimDetails.businessActivity.label"))
         html.indexOf("govuk-caption-l") must be < html.indexOf("<h1")
       }
     }
