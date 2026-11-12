@@ -16,7 +16,6 @@
 
 package forms.purchase
 
-import config.CurrencyFormatter.currencyFormat
 import forms.mappings.Mappings
 import play.api.data.Form
 import play.api.data.validation.{Constraint, Invalid, Valid}

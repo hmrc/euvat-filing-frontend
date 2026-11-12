@@ -16,6 +16,7 @@
 
 package forms.mappings
 
+import config.CurrencyFormatter.currencyFormat
 import play.api.data.FormError
 import play.api.data.format.Formatter
 import models.Enumerable
@@ -146,6 +147,6 @@ trait Formatters {
           }
 
       override def unbind(key: String, value: BigDecimal): Map[String, String] =
-        baseFormatter.unbind(key, value.setScale(2).bigDecimal.toPlainString)
+        baseFormatter.unbind(key, currencyFormat(value))
     }
 }

@@ -16,7 +16,6 @@
 
 package forms
 
-import config.CurrencyFormatter.currencyFormat
 import forms.behaviours.CurrencyFieldBehaviours
 import forms.purchase.TotalVatClaimFormProvider
 import org.scalacheck.Gen

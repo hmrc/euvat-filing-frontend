@@ -33,8 +33,6 @@ class TotalVatPaidFormProviderSpec extends CurrencyFieldBehaviours with StringFi
 
   behave like currencyField(form, "value", FormError("value", nonNumeric), FormError("value", invalidNumeric))
 
-  val fmt = (amt: BigDecimal) => f"$amt%,1.2f".replace(".00", "")
-
   behave like currencyFieldWithMaximum(form, "value", max, FormError("value", aboveMaximum))
 
   behave like mandatoryField(form, "value", FormError("value", requiredKey))

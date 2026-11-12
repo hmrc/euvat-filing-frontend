@@ -16,6 +16,7 @@
 
 package viewmodels.checkAnswers
 
+import config.CurrencyFormatter.currencyFormat
 import controllers.imports.routes
 import models.{CheckMode, Other, PurchaseOrImportSubCategoryType, PurchaseOrImportType, UserAnswers}
 import pages.imports.*
@@ -284,10 +285,7 @@ object CheckYourImportDetailsSummary {
     currency: Option[Currency]
   ): Option[String] =
     value.map { number =>
-      val formatted = number.bigDecimal
-        .setScale(2, java.math.RoundingMode.HALF_UP)
-        .toPlainString
-
+      val formatted = currencyFormat(number)
       currency.map(_.symbol).getOrElse("") + formatted
     }
 
