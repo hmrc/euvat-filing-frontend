@@ -19,6 +19,7 @@ package controllers.supportingdocuments
 import controllers.actions.*
 import forms.supportingdocuments.UploadFileFormProvider
 import forms.supportingdocuments.UploadFileFormProvider.{descriptionFieldName, fileErrorKey, fileInputName}
+import pages.supportingdocuments.YourFileNamePage
 import play.api.data.Form
 import play.api.http.Status.REQUEST_ENTITY_TOO_LARGE
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -26,7 +27,9 @@ import play.api.Logging
 import play.api.libs.Files.TemporaryFile
 import play.api.mvc.{Action, AnyContent, BodyParser, MessagesControllerComponents, MultipartFormData, Results}
 import play.api.mvc.MultipartFormData.FilePart
+import queries.UploadedFileStatusQuery
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import repositories.SessionRepository
 import views.html.supportingdocuments.UploadFileView
 
 import java.io.IOException
@@ -40,6 +43,7 @@ class UploadFileController @Inject() (
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
+  sessionRepository: SessionRepository,
   formProvider: UploadFileFormProvider,
   val controllerComponents: MessagesControllerComponents,
   view: UploadFileView
@@ -87,8 +91,19 @@ class UploadFileController @Inject() (
         if (orderedForm.hasErrors) {
           Future.successful(BadRequest(view(orderedForm)).withHeaders("Cache-Control" -> "no-store"))
         } else {
-          // TODO: redirect to the RA6.2 uploading page when it is implemented.
-          Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+          val filename = request.body.file("file-upload-1").map(_.filename).get
+          val updatedAnswers = for {
+            withFilename <- request.userAnswers.set(YourFileNamePage, filename)
+            withStatus   <- withFilename.set(UploadedFileStatusQuery, YourFileController.AwaitingUpload)
+          } yield withStatus
+
+          for {
+            answers <- Future.fromTry(updatedAnswers)
+            _       <- sessionRepository.set(answers)
+          } yield {
+            // TODO: call Upscan initiate and add-attachment instead of using the UI-only placeholder status.
+            Redirect(routes.YourFileController.onPageLoad())
+          }
         }
       }
 

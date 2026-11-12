@@ -20,21 +20,32 @@ import base.SpecBase
 import forms.supportingdocuments.UploadFileFormProvider
 import forms.supportingdocuments.UploadFileFormProvider.{descriptionFieldName, descriptionMaxLength, fileInputName}
 import play.api.http.Status.REQUEST_ENTITY_TOO_LARGE
+import org.mockito.ArgumentCaptor
+import org.mockito.Mockito.verify
+import play.api.inject.bind
+import models.UserAnswers
+import pages.supportingdocuments.YourFileNamePage
 import play.api.libs.Files.{TemporaryFile, TemporaryFileCreator}
 import play.api.mvc.MultipartFormData
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import org.jsoup.Jsoup
+import queries.UploadedFileStatusQuery
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 
 class UploadFileControllerSpec extends SpecBase {
 
+  private def applicationWithMockSessionRepository =
+    applicationBuilder(userAnswers = Some(emptyUserAnswers))
+      .overrides(bind[repositories.SessionRepository].toInstance(mockSessionRepository))
+      .build()
+
   "UploadFileController" - {
 
     "must display the supporting document upload form" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationWithMockSessionRepository
 
       running(application) {
         val result = route(application, FakeRequest(GET, "/file-eu-vat/supporting-documents/upload-file")).value
@@ -58,8 +69,8 @@ class UploadFileControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect a valid upload to journey recovery until the uploading page exists" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+    "must redirect a valid upload to the uploading page and retain the filename for the UI" in {
+      val application = applicationWithMockSessionRepository
 
       running(application) {
         val temporaryFile = application.injector.instanceOf[TemporaryFileCreator].create()
@@ -75,7 +86,11 @@ class UploadFileControllerSpec extends SpecBase {
 
         try {
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+          redirectLocation(result).value mustEqual routes.YourFileController.onPageLoad().url
+          val savedAnswers = ArgumentCaptor.forClass(classOf[UserAnswers])
+          verify(mockSessionRepository).set(savedAnswers.capture())
+          savedAnswers.getValue.get(YourFileNamePage) mustBe Some("receipt.pdf")
+          savedAnswers.getValue.get(UploadedFileStatusQuery) mustBe Some(YourFileController.AwaitingUpload)
         } finally {
           Files.deleteIfExists(temporaryFile.path)
         }

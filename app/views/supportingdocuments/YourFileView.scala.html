@@ -1,0 +1,85 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import controllers.supportingdocuments.YourFileController
+@import views.html.components.*
+
+@this(
+    layout: templates.Layout,
+    formHelper: FormWithCSRF
+)
+
+@(filename: String, status: String)(implicit request: Request[_], messages: Messages)
+
+@uploaded = @{ status == YourFileController.Validated }
+@layout(pageTitle = titleNoForm(messages("supportingDocuments.uploadFile.title"))) {
+    <h1 class="govuk-heading-l govuk-!-margin-bottom-3">
+        <span class="govuk-caption-l">@messages("supportingDocuments.caption")</span>
+        @messages("supportingDocuments.uploadFile.heading")
+    </h1>
+
+    <p id="file-upload-1-hint" class="govuk-hint">@messages("supportingDocuments.uploadFile.file.hint")</p>
+
+    <div class="govuk-visually-hidden" aria-live="polite" id="statusInformation">
+        @if(uploaded) {
+            @messages("supportingDocuments.uploadFile.status.uploaded")
+        } else {
+            @messages("supportingDocuments.uploadFile.status.uploading")
+        }
+    </div>
+
+    @if(!uploaded) {
+        <p class="govuk-body govuk-!-display-none" id="refreshPageProgress">
+            <a class="govuk-link" href="@controllers.supportingdocuments.routes.YourFileController.onPageLoad()">@messages("supportingDocuments.uploadFile.refresh")</a>
+        </p>
+    }
+
+    <dl class="govuk-summary-list govuk-summary-list--long-key">
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                @if(uploaded) {
+                    <a class="govuk-link" href="#">@filename</a>
+                } else {
+                    @filename
+                }
+            </dt>
+            <dd class="govuk-summary-list__value">
+                @if(uploaded) {
+                    <strong class="govuk-tag govuk-tag--green">@messages("supportingDocuments.uploadFile.status.uploadedTag")</strong>
+                } else {
+                    <strong class="govuk-tag govuk-tag--yellow">@messages("supportingDocuments.uploadFile.status.uploadingTag")</strong>
+                }
+            </dd>
+            <dd class="govuk-summary-list__actions">
+                @formHelper(action = controllers.supportingdocuments.routes.YourFileController.onRemove()) {
+                    <button class="govuk-link" type="submit" style="background: none; border: 0; padding: 0; font: inherit; cursor: pointer;">
+                        @messages("supportingDocuments.uploadFile.remove")<span class="govuk-visually-hidden"> @filename</span>
+                    </button>
+                }
+            </dd>
+        </div>
+    </dl>
+
+    @if(uploaded) {
+        @formHelper(action = controllers.supportingdocuments.routes.YourFileController.onSubmit()) {
+            <button class="govuk-button" type="submit" data-module="govuk-button">
+                @messages("site.continue")
+            </button>
+        }
+    } else {
+        <button class="govuk-button" type="button" disabled aria-disabled="true">@messages("site.continue")</button>
+    }
+}
