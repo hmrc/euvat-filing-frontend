@@ -35,7 +35,7 @@ import services.EuVatRefundsService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import utils.{ConfigPurchaseOrImportMapping, CountryCode, MountPrefix}
+import utils.{ConfigPurchaseOrImportMapping, CountryCode}
 import views.html.purchasesOrImports.PurchaseOrImportTypeView
 
 import javax.inject.Inject
@@ -139,15 +139,6 @@ class PurchaseTypeController @Inject() (
       )
   }
 
-  private def redirectWithPrefix(call: Call)(implicit request: RequestHeader): Result = {
-    val prefix = MountPrefix.getFromRequest
-    if (prefix.isEmpty || call.url.startsWith(prefix)) {
-      Redirect(call)
-    } else {
-      Redirect(Call(call.method, s"$prefix${call.url}"))
-    }
-  }
-
   private def arrivedFromDescribe(implicit request: DataRequest[?]): Boolean =
     request.userAnswers.get(DescribeItemsArrivedFromCheckYourAnswersPage).contains(true)
 
@@ -184,7 +175,7 @@ class PurchaseTypeController @Inject() (
         val removedTry = request.userAnswers.remove(DescribeItemsArrivedFromCheckYourAnswersPage)
         Future.fromTry(removedTry).flatMap { ua =>
           sessionRepository.set(ua).map { _ =>
-            redirectWithPrefix(routes.DescribeItemsOnInvoiceController.onPageLoad(CheckMode))
+            Redirect(routes.DescribeItemsOnInvoiceController.onPageLoad(CheckMode))
           }
         }
       } else {
@@ -254,7 +245,7 @@ class PurchaseTypeController @Inject() (
     val removeTry = answers.remove(flagPage)
     Future.fromTry(removeTry).flatMap { ua =>
       sessionRepository.set(ua).map { _ =>
-        redirectWithPrefix(
+        Redirect(
           routes.PurchaseSubTypeController.onPageLoad(PurchaseOrImportType.urlSlugForPurchaseType(value), CheckMode)
         )
       }
@@ -267,7 +258,7 @@ class PurchaseTypeController @Inject() (
     val removeTry = answers.remove(flagPage)
     Future.fromTry(removeTry).flatMap { ua =>
       sessionRepository.set(ua).map { _ =>
-        redirectWithPrefix(call)
+        Redirect(call)
       }
     }
   }
@@ -286,12 +277,8 @@ class PurchaseTypeController @Inject() (
   private def shouldReturnToDescribeForAnswers(answers: UserAnswers, value: PurchaseOrImportType): Boolean =
     value == models.Other && answers.get(PurchaseSubTypePage).exists(isNoneSubTypeSelection)
 
-  private def redirectChangePath(value: PurchaseOrImportType)(implicit request: RequestHeader): Future[Result] = {
-    val slug = PurchaseOrImportType.urlSlugForPurchaseType(value)
-    val prefix = MountPrefix.getFromRequest
-    val changePath = s"${if (prefix.isEmpty) "" else prefix}/change-$slug"
-    Future.successful(Redirect(Call("GET", changePath)))
-  }
+  private def redirectChangePath(value: PurchaseOrImportType): Future[Result] =
+    Future.successful(Redirect(routes.PurchaseSubTypeController.onPageLoad(PurchaseOrImportType.urlSlugForPurchaseType(value), CheckMode)))
 
   private def handleCheckModePostPersist(updatedAnswers: UserAnswers, value: PurchaseOrImportType)(implicit
     request: DataRequest[?]
@@ -379,12 +366,8 @@ class PurchaseTypeController @Inject() (
     }
   }
 
-  private def handleNormalModeRedirect(updatedAnswers: UserAnswers, mode: Mode)(implicit request: DataRequest[?]): Future[Result] = {
-    val call = navigator.nextPage(PurchaseTypePage, mode, updatedAnswers)
-    val prefix = MountPrefix.getFromRequest
-    if (prefix.isEmpty || call.url.startsWith(prefix)) Future.successful(Redirect(call))
-    else Future.successful(Redirect(Call(call.method, s"$prefix${call.url}")))
-  }
+  private def handleNormalModeRedirect(updatedAnswers: UserAnswers, mode: Mode): Future[Result] =
+    Future.successful(Redirect(navigator.nextPage(PurchaseTypePage, mode, updatedAnswers)))
 
   private def addPurchaseAndPersist(
     answers: UserAnswers,
@@ -400,7 +383,7 @@ class PurchaseTypeController @Inject() (
         euVatRefundsService
           .addPurchase(AddPurchaseRequest.from(answers, purchaseType, claimResponse))
           .flatMap(addPurchaseResponse => persistAddPurchaseResponseToSession(answers, addPurchaseResponse))
-          .map(updatedAnswers => redirectWithPrefix(navigator.nextPage(PurchaseTypePage, mode, updatedAnswers)))
+          .map(updatedAnswers => Redirect(navigator.nextPage(PurchaseTypePage, mode, updatedAnswers)))
           .recover { case ex =>
             logger.error("Error while adding the purchase", ex)
             Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())

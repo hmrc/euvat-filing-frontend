@@ -18,7 +18,7 @@ package controllers.purchase
 
 import base.SpecBase
 import forms.PurchaseOrImportSubTypeFormProvider
-import models.{Fuel, Other}
+import models.{CheckMode, FoodAndDrink, Fuel, NormalMode, Other}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
@@ -579,6 +579,114 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
         saved.get(PurchaseSubTypePage) mustBe None
         saved.get(PurchaseSubTypeLabelPage) mustBe None
         saved.get(CountryChangedPage) mustBe None
+      }
+    }
+
+    "must stay on the change page when CountryChangedPage is true in CheckMode" in {
+      val fakeConfig = new ConfigPurchaseOrImportMapping() {
+        override def subcodesFor(country: String, parentKey: String) = Seq(("1", "sub.test.1"))
+        override def buildRadioItems(options: Seq[(String, String)], msgs: play.api.i18n.Messages) = Seq.empty
+      }
+
+      val mockSessionRepository = mock[repositories.SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn scala.concurrent.Future.successful(true)
+
+      val userAnswers = emptyUserAnswers
+        .set(RefundingCountryPage, "DE")
+        .success
+        .value
+        .set(PurchaseSubTypePage, "1")
+        .success
+        .value
+        .set(CountryChangedPage, true)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(
+          bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig),
+          bind[repositories.SessionRepository].toInstance(mockSessionRepository)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.PurchaseSubTypeController.onPageLoad("fuel-use", CheckMode).url)
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual "/file-eu-vat/purchase/change-fuel-use"
+      }
+    }
+
+    "must redirect to the who-food-drink-for sub category page using its reverse route" in {
+      val fakeConfig = new ConfigPurchaseOrImportMapping() {
+        override def subcodesFor(country: String, parentKey: String) = Seq(("7.1", "sub.foodAndDrink.7.1"))
+        override def subcategoriesFor(country: String, parentKey: String, subcode: String) = Seq(("7.1.1", "sub.foodAndDrink.7.1.1"))
+        override def buildRadioItems(options: Seq[(String, String)], msgs: play.api.i18n.Messages) = Seq.empty
+      }
+
+      val mockSessionRepository = mock[repositories.SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn scala.concurrent.Future.successful(true)
+
+      val userAnswers = emptyUserAnswers
+        .set(RefundingCountryPage, "DE")
+        .success
+        .value
+        .set(PurchaseTypePage, FoodAndDrink)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(
+          bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig),
+          bind[repositories.SessionRepository].toInstance(mockSessionRepository)
+        )
+        .build()
+
+      running(application) {
+        val normalRequest = FakeRequest(POST, routes.PurchaseSubTypeController.onSubmit("food-drink-restaurant-cost", NormalMode).url)
+          .withFormUrlEncodedBody(("value", "7.1"))
+        val normalResult = route(application, normalRequest).value
+
+        status(normalResult) mustEqual SEE_OTHER
+        redirectLocation(normalResult).value mustEqual "/file-eu-vat/purchase/who-food-drink-for"
+
+        val checkRequest = FakeRequest(POST, routes.PurchaseSubTypeController.onSubmit("food-drink-restaurant-cost", CheckMode).url)
+          .withFormUrlEncodedBody(("value", "7.1"))
+        val checkResult = route(application, checkRequest).value
+
+        status(checkResult) mustEqual SEE_OTHER
+        redirectLocation(checkResult).value mustEqual "/file-eu-vat/purchase/change-who-food-drink-for"
+      }
+    }
+
+    "must redirect to InvoiceType when the sub type has children but no sub category page" in {
+      val fakeConfig = new ConfigPurchaseOrImportMapping() {
+        override def subcodesFor(country: String, parentKey: String) = Seq(("1.5", "sub.fuel.5"))
+        override def subcategoriesFor(country: String, parentKey: String, subcode: String) = Seq(("1.5.1", "sub.fuel.5.1"))
+        override def buildRadioItems(options: Seq[(String, String)], msgs: play.api.i18n.Messages) = Seq.empty
+      }
+
+      val mockSessionRepository = mock[repositories.SessionRepository]
+      when(mockSessionRepository.set(any())) thenReturn scala.concurrent.Future.successful(true)
+
+      val userAnswers = emptyUserAnswers.set(RefundingCountryPage, "DE").success.value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(
+          bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig),
+          bind[repositories.SessionRepository].toInstance(mockSessionRepository)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, "/file-eu-vat/purchase/fuel-use")
+          .withFormUrlEncodedBody(("value", "1.5"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.InvoiceTypeController.onPageLoad(NormalMode).url
       }
     }
 

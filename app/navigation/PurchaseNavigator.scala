@@ -133,3 +133,18 @@ class PurchaseNavigator @Inject() (currencyConfig: CurrencyConfig, configPurchas
     }
 
 }
+
+object PurchaseNavigator {
+
+  def subCategoryPage(slug: String, mode: Mode): Call =
+    Call("GET", subCategoryUrl(slug, mode))
+
+  def subCategorySubmit(slug: String, mode: Mode): Call =
+    Call("POST", subCategoryUrl(slug, mode))
+
+  private def subCategoryUrl(slug: String, mode: Mode): String = {
+    val typeUrl = purchaseRoutes.PurchaseTypeController.onPageLoad(NormalMode).url
+    val base = typeUrl.take(typeUrl.lastIndexOf('/'))
+    if (mode == CheckMode) s"$base/change-$slug" else s"$base/$slug"
+  }
+}

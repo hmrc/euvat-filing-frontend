@@ -18,7 +18,7 @@ package controllers.purchase
 
 import base.SpecBase
 import forms.PurchaseOrImportSubTypeFormProvider
-import models.{CheckMode, Fuel}
+import models.{CheckMode, FoodAndDrink, Fuel}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
@@ -80,6 +80,43 @@ class PurchaseSubCategoryControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) must include("change-fuel")
+      }
+    }
+
+    "must post the form back to the sub category page for the selected sub type" in {
+      val fakeConfig = new ConfigPurchaseOrImportMapping() {
+        override def subcategoriesFor(country: String, parentKey: String, subcode: String) = Seq(("7.1.1", "sub.foodAndDrink.7.1.1"))
+        override def subcodesFor(country: String, parentKey: String) = Seq(("7.1", "sub.foodAndDrink.7.1"))
+        override def buildRadioItems(options: Seq[(String, String)], msgs: play.api.i18n.Messages) = Seq.empty
+      }
+
+      val userAnswers = emptyUserAnswers
+        .set(RefundingCountryPage, "DE")
+        .success
+        .value
+        .set(PurchaseTypePage, FoodAndDrink)
+        .success
+        .value
+        .set(PurchaseSubTypePage, "7.1")
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(bind[ConfigPurchaseOrImportMapping].toInstance(fakeConfig))
+        .build()
+
+      running(application) {
+        val normalRequest = FakeRequest(GET, "/file-eu-vat/purchase/who-food-drink-for")
+        val normalResult = route(application, normalRequest).value
+
+        status(normalResult) mustEqual OK
+        contentAsString(normalResult) must include("""action="/file-eu-vat/purchase/who-food-drink-for"""")
+
+        val checkRequest = FakeRequest(GET, "/file-eu-vat/purchase/change-who-food-drink-for")
+        val checkResult = route(application, checkRequest).value
+
+        status(checkResult) mustEqual OK
+        contentAsString(checkResult) must include("""action="/file-eu-vat/purchase/change-who-food-drink-for"""")
       }
     }
 

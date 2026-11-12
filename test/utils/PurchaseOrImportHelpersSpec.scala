@@ -18,14 +18,9 @@ package utils
 
 import base.SpecBase
 import forms.PurchaseOrImportSubTypeFormProvider
-import models.{Fuel, NormalMode}
-import models.requests.DataRequest
 import pages.imports.ImportSubCategoryPage
-import pages.purchase.{PurchaseSubCategoryPage, PurchaseSubTypePage, PurchaseTypePage}
 import play.api.i18n.{Lang, Messages, MessagesImpl}
-import play.api.mvc.{AnyContent, AnyContentAsEmpty, Call}
-import play.api.test.FakeRequest
-import play.api.test.Helpers.{GET, stubMessages, stubMessagesApi}
+import play.api.test.Helpers.stubMessagesApi
 import queries.ImportSubCategoryLabelQuery
 import utils.PurchaseOrImportHelpers.*
 
@@ -160,69 +155,6 @@ class PurchaseOrImportHelpersSpec extends SpecBase {
       "must be false for a sub category code" in {
         isNoneSelection("1.2.6") mustBe false
       }
-    }
-
-    "computeBackTarget" - {
-      implicit val messages: Messages = stubMessages()
-      "should return PurchaseTypeController when no user answers available" in {
-        implicit val request: DataRequest[AnyContent] = DataRequest(FakeRequest(GET, "/"), userAnswersId, "", "", emptyUserAnswers)
-
-        val result: Call = PurchaseOrImportHelpers.computeBackTarget(NormalMode)
-
-        result mustEqual controllers.purchase.routes.PurchaseTypeController.onPageLoad(NormalMode)
-      }
-
-      "should return mounted slug when PurchaseType and PurchaseSubType present and no subcategory" in {
-        val userAnswers = emptyUserAnswers
-          .set(PurchaseTypePage, Fuel)
-          .success
-          .value
-          .set(PurchaseSubTypePage, "1")
-          .success
-          .value
-
-        implicit val request: DataRequest[AnyContent] = DataRequest(FakeRequest(GET, "/file-eu-vat/foo"), userAnswersId, "", "", userAnswers)
-
-        val result: Call = PurchaseOrImportHelpers.computeBackTarget(NormalMode)
-
-        result.method mustEqual "GET"
-        result.url mustEqual "/file-eu-vat/fuel-use"
-      }
-
-      "should fallback to PurchaseType when child present but parent missing (child without dot)" in {
-        val userAnswers: models.UserAnswers = emptyUserAnswers
-          .set(PurchaseTypePage, Fuel)
-          .success
-          .value
-          .set(PurchaseSubCategoryPage, "1")
-          .success
-          .value
-
-        implicit val request: DataRequest[AnyContent] = DataRequest(FakeRequest(GET, "/file-eu-vat/foo"), userAnswersId, "", "", userAnswers)
-
-        val result: Call = PurchaseOrImportHelpers.computeBackTarget(NormalMode)
-
-        result mustEqual controllers.purchase.routes.PurchaseTypeController.onPageLoad(NormalMode)
-      }
-
-      "should map to first available slug when child contains dot and parent missing" in {
-        val userAnswers: models.UserAnswers = emptyUserAnswers
-          .set(PurchaseTypePage, Fuel)
-          .success
-          .value
-          .set(PurchaseSubCategoryPage, "1.1")
-          .success
-          .value
-
-        implicit val request: DataRequest[AnyContentAsEmpty.type] =
-          DataRequest(FakeRequest(GET, "/file-eu-vat/foo"), userAnswersId, "", "", userAnswers)
-
-        val result: Call = PurchaseOrImportHelpers.computeBackTarget(NormalMode)
-
-        result.method mustEqual "GET"
-        result.url must startWith("/file-eu-vat/fuel-type")
-      }
-
     }
   }
 }

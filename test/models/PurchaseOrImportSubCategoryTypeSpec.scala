@@ -32,5 +32,26 @@ class PurchaseOrImportSubCategoryTypeSpec extends SpecBase {
     "pathFor should fall back to parentKey-parentCode when no mapping" in {
       PurchaseOrImportSubCategoryType.pathFor("unknownKey", "2.4") mustBe "unknownKey-2-4"
     }
+
+    "subCategoryPageSlugFor" - {
+      "must return the slug for an exact parent code" in {
+        PurchaseOrImportSubCategoryType.subCategoryPageSlugFor("foodAndDrink", "7.1") mustBe Some("who-food-drink-for")
+      }
+
+      "must walk up a nested sub category code to its parent slug" in {
+        PurchaseOrImportSubCategoryType.subCategoryPageSlugFor("fuel", "1.1.2") mustBe Some("fuel-type")
+        PurchaseOrImportSubCategoryType.subCategoryPageSlugFor("fuel", "1.2.6") mustBe Some("fuel-type-or-vehicle")
+        PurchaseOrImportSubCategoryType.subCategoryPageSlugFor("fuel", "1.10.1") mustBe Some("fuel-type")
+      }
+
+      "must use the first child slug for a top-level code" in {
+        PurchaseOrImportSubCategoryType.subCategoryPageSlugFor("fuel", "1") mustBe Some("fuel-type")
+      }
+
+      "must return None when there is no sub category page for the code" in {
+        PurchaseOrImportSubCategoryType.subCategoryPageSlugFor("fuel", "1.5") mustBe None
+        PurchaseOrImportSubCategoryType.subCategoryPageSlugFor("unknownKey", "2.4") mustBe None
+      }
+    }
   }
 }
