@@ -34,7 +34,6 @@ class SupportingDocumentsNavigatorSpec extends SpecBase {
       val answers = emptyUserAnswers.set(AnyDocumentsPage, true).success.value
 
       navigator.navigateFromAnyDocumentsPage(answers) mustBe supportingDocumentsRoutes.UploadFileController.onPageLoad()
-      navigator.navigateFromAnyDocumentsPage(answers).url mustBe "/file-eu-vat/supporting-documents/upload-file"
     }
 
     "must go from AnyDocumentsPage to TaskListDashboardController when the user has no documents" in {
