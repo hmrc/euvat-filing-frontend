@@ -5,3 +5,7 @@ GET         /any-documents                        controllers.supportingdocument
 POST        /any-documents                        controllers.supportingdocuments.AnyDocumentsController.onSubmit()
 
 GET         /upload-file                          controllers.supportingdocuments.UploadFileController.onPageLoad()
+
+GET         /your-file                            controllers.supportingdocuments.YourFileController.onPageLoad()
+POST        /your-file                            controllers.supportingdocuments.YourFileController.onSubmit()
+POST        /your-file/remove                     controllers.supportingdocuments.YourFileController.onRemove()
