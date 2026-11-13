@@ -69,18 +69,13 @@ object PurchaseOrImportSubCategoryType {
   private def firstSubCodeSlugFor(parentKey: String, topLevelCode: String): Option[String] =
     mapping.get(parentKey).flatMap(m => m.toSeq.filter { case (k, _) => k.startsWith(topLevelCode + ".") }.sortBy(_._1).headOption.map(_._2))
 
-  /** Resolves the sub-category page slug for a sub code.
-    *
-    * Exact match first. A nested code (e.g. "1.1.2") walks up to its parent ("1.1") until a slug is found. A top-level code (e.g. "1") reuses its
-    * first sub code's slug. Only returns slugs that have a sub-category page.
-    */
   def subCategoryPageSlugFor(parentKey: String, subCode: String): Option[String] = {
-    def walkUp(code: String): Option[String] =
+    def slugForCodeHierarchy(code: String): Option[String] =
       purchaseOrImportSubCategoryUrlSlugFor(parentKey, code).orElse(
-        if (code.contains('.')) walkUp(code.substring(0, code.lastIndexOf('.'))) else None
+        if (code.contains('.')) slugForCodeHierarchy(code.substring(0, code.lastIndexOf('.'))) else None
       )
 
-    if (subCode.contains('.')) walkUp(subCode)
+    if (subCode.contains('.')) slugForCodeHierarchy(subCode)
     else purchaseOrImportSubCategoryUrlSlugFor(parentKey, subCode).orElse(firstSubCodeSlugFor(parentKey, subCode))
   }
 
