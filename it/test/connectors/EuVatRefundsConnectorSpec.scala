@@ -708,4 +708,38 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
     }
   }
 
+  "EuVatRefundsConnector.createUploadTracking" should {
+    val expectedResponse = CreateUploadTrackingResponse(
+      reference = "ref-123",
+      uploadUrl = "https://upscan.example/upload",
+      fields = Map("key" -> "ref-123")
+    )
+
+    "call the correct URL and return the expected response" in {
+      reset(mockHttp, mockRequestBuilder)
+
+      when(mockHttp.post(any())(any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.execute[CreateUploadTrackingResponse](any(), any()))
+        .thenReturn(Future.successful(expectedResponse))
+
+      connector.createUploadTracking(133L).futureValue shouldBe expectedResponse
+
+      verify(mockHttp).post(url"$baseUrl/133/create-upload-tracking")
+      verify(mockRequestBuilder).execute[CreateUploadTrackingResponse](any(), any())
+    }
+
+    "propagate failures from the HTTP client" in {
+      reset(mockHttp, mockRequestBuilder)
+      val failure = UpstreamErrorResponse("No application found", 404)
+
+      when(mockHttp.post(any())(any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.execute[CreateUploadTrackingResponse](any(), any()))
+        .thenReturn(Future.failed(failure))
+
+      whenReady(connector.createUploadTracking(133L).failed) { ex =>
+        ex shouldBe failure
+      }
+    }
+  }
+
 }
