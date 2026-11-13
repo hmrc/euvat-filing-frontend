@@ -19,8 +19,8 @@ package controllers.purchase
 import controllers.actions.*
 import forms.PurchaseOrImportSubTypeFormProvider
 import models.requests.DataRequest
-import models.{CheckMode, Mode, NormalMode, PurchaseOrImportSubCategoryType, PurchaseOrImportType, UserAnswers}
-import navigation.Navigator
+import models.{CheckMode, Mode, PurchaseOrImportSubCategoryType, UserAnswers}
+import navigation.{Navigator, PurchaseNavigator}
 import pages.purchase.*
 import pages.claim.CountryChangedPage
 import play.api.Logging
@@ -31,7 +31,7 @@ import repositories.SessionRepository
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.PurchaseOrImportHelpers.*
-import utils.{ConfigPurchaseOrImportMapping, ControllerHelpers, CountryCode, MountPrefix}
+import utils.{ConfigPurchaseOrImportMapping, ControllerHelpers, CountryCode}
 import views.html.purchasesOrImports.PurchaseOrImportSubTypeView
 
 import javax.inject.Inject
@@ -59,46 +59,16 @@ class PurchaseSubCategoryController @Inject() (
     title: String,
     form: Form[String],
     formAction: Call,
-    backUrl: Call,
     parentBase: String,
     childToPersist: String,
     parentLabelKeyOpt: Option[String]
   )
 
-  private def backUrlFor(userAnswers: UserAnswers, mode: Mode)(implicit request: RequestHeader): String =
-    userAnswers.get(PurchaseTypePage).map(PurchaseOrImportType.urlSlugForPurchaseType) match {
-      case Some(_) if mode == CheckMode => routes.CheckYourPurchaseDetailsController.onPageLoad().url
-      case Some(slug)                   => ControllerHelpers.pathForSlug(slug, mode, MountPrefix.getFromRequest)
-      case None                         => routes.PurchaseTypeController.onPageLoad(NormalMode).url
-    }
-
-  private def tryReverseParent(parentKey: String, candidate: String, mode: Mode)(implicit request: RequestHeader): Option[Call] =
-    try {
-      val slug = PurchaseOrImportSubCategoryType.pathFor(parentKey, candidate)
-      val url = ControllerHelpers.pathForSlug(slug, mode, MountPrefix.getFromRequest)
-      Some(Call("POST", url))
-    } catch { case _: Throwable => None }
-
-  private def computeFormAction(parentKey: String, candidates: Seq[String], userAnswers: UserAnswers, mode: Mode)(implicit
-    request: RequestHeader
-  ): Call = {
-    val prefix = MountPrefix.getFromRequest
-    val maybeSessionSlug = userAnswers.get(PurchaseTypePage).map(PurchaseOrImportType.urlSlugForPurchaseType)
-    candidates.iterator
-      .flatMap(c => tryReverseParent(parentKey, c, mode))
-      .find(_ => true)
-      .getOrElse(
-        maybeSessionSlug
-          .map(slug => Call("POST", ControllerHelpers.pathForSlug(slug, mode, prefix)))
-          .getOrElse(Call("POST", if (prefix.isEmpty) "/" else s"$prefix/"))
-      )
-  }
-
-  private def formActionCandidates(resolvedParentCode: String): Seq[String] = {
-    val head = resolvedParentCode.split("\\.").headOption.getOrElse(resolvedParentCode)
-    val last = resolvedParentCode.split("\\.").lastOption.getOrElse(resolvedParentCode)
-    Seq(resolvedParentCode, last, head).distinct
-  }
+  private def formActionFor(parentKey: String, resolvedParentCode: String, mode: Mode): Call =
+    PurchaseOrImportSubCategoryType
+      .subCategoryPageSlugFor(parentKey, resolvedParentCode)
+      .map(slug => PurchaseNavigator.subCategorySubmit(slug, mode))
+      .getOrElse(routes.PurchaseSubCategoryController.onSubmit(mode))
 
   private def childToPersistFor(resolvedParentCode: String, options: Seq[(String, String)]): String =
     if (resolvedParentCode.contains(".")) resolvedParentCode else options.headOption.map(_._1).getOrElse(resolvedParentCode)
@@ -141,8 +111,7 @@ class PurchaseSubCategoryController @Inject() (
       items             = radioItems(config, options)(msgs),
       title             = subCategoryTitle(parentKey, resolvedParentCode, options)(msgs),
       form              = preparedForm(formProvider, requiredKey, userAnswers.get(PurchaseSubCategoryPage)),
-      formAction        = computeFormAction(parentKey, formActionCandidates(resolvedParentCode), userAnswers, mode),
-      backUrl           = Call("GET", backUrlFor(userAnswers, mode)),
+      formAction        = formActionFor(parentKey, resolvedParentCode, mode),
       parentBase        = resolvedParentCode.split("\\.").headOption.getOrElse(resolvedParentCode),
       childToPersist    = childToPersistFor(resolvedParentCode, options),
       parentLabelKeyOpt = config.subcodesFor(country, parentKey).find(_._1 == resolvedParentCode).map(_._2)

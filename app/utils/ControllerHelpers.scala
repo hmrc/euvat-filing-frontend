@@ -64,13 +64,6 @@ object ControllerHelpers {
       }
     }
 
-  def pathForSlug(slug: String, mode: Mode, prefix: String): String =
-    if (mode == CheckMode) {
-      if (prefix.isEmpty) s"/change-$slug" else s"$prefix/change-$slug"
-    } else {
-      if (prefix.isEmpty) s"/$slug" else s"$prefix/$slug"
-    }
-
   def redirectToInvoiceTypeOrCYA(mode: Mode): Result = {
     if (mode == CheckMode) {
       Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad())

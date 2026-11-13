@@ -66,18 +66,31 @@ object PurchaseOrImportSubCategoryType {
     // Choose a deterministic first slug by sorting parent codes numerically/alphabetically
     mapping.get(parentKey).flatMap(m => m.toSeq.sortBy(_._1).headOption.map(_._2))
 
+  private def firstSubCodeSlugFor(parentKey: String, topLevelCode: String): Option[String] =
+    mapping.get(parentKey).flatMap(m => m.toSeq.filter { case (k, _) => k.startsWith(topLevelCode + ".") }.sortBy(_._1).headOption.map(_._2))
+
+  /** Resolves the sub-category page slug for a sub code.
+    *
+    * Exact match first. A nested code (e.g. "1.1.2") walks up to its parent ("1.1") until a slug is found. A top-level code (e.g. "1") reuses its
+    * first sub code's slug. Only returns slugs that have a sub-category page.
+    */
+  def subCategoryPageSlugFor(parentKey: String, subCode: String): Option[String] = {
+    def walkUp(code: String): Option[String] =
+      purchaseOrImportSubCategoryUrlSlugFor(parentKey, code).orElse(
+        if (code.contains('.')) walkUp(code.substring(0, code.lastIndexOf('.'))) else None
+      )
+
+    if (subCode.contains('.')) walkUp(subCode)
+    else purchaseOrImportSubCategoryUrlSlugFor(parentKey, subCode).orElse(firstSubCodeSlugFor(parentKey, subCode))
+  }
+
   /** Builds a friendly path fragment for a parent. Falls back to a generic `parentKey-parentCode` form when no explicit mapping exists.
     */
   def pathFor(parentKey: String, parentCode: String): String =
-    // Prefer an exact slug mapping. If none exists for the given parentCode
-    // and the parentCode is a top-level code (e.g. "1"), try to find a
-    // child's mapping (e.g. "1.1" -> "fuel-type") and reuse that slug so
-    // friendly routes like `/fuel-type` still work when the parent code is
-    // the shorter form.
     purchaseOrImportSubCategoryUrlSlugFor(parentKey, parentCode)
       .orElse(
         if (!parentCode.contains('.'))
-          mapping.get(parentKey).flatMap(m => m.toSeq.filter { case (k, _) => k.startsWith(parentCode + ".") }.sortBy(_._1).headOption.map(_._2))
+          firstSubCodeSlugFor(parentKey, parentCode)
         else None
       )
       .getOrElse(s"$parentKey-${parentCode.replace('.', '-')}")

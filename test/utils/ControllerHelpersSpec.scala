@@ -291,20 +291,6 @@ class ControllerHelpersSpec extends SpecBase {
     }
   }
 
-  "pathForSlug" - {
-    "builds change path in CheckMode without prefix" in {
-      ControllerHelpers.pathForSlug("foo", CheckMode, "") mustBe "/change-foo"
-    }
-
-    "builds change path in CheckMode with prefix" in {
-      ControllerHelpers.pathForSlug("bar", CheckMode, "/prefix") mustBe "/prefix/change-bar"
-    }
-
-    "builds normal path in NormalMode without prefix" in {
-      ControllerHelpers.pathForSlug("baz", NormalMode, "") mustBe "/baz"
-    }
-  }
-
   "redirectToInvoiceTypeOrCYA" - {
     "redirects to purchase CYA in CheckMode" in {
       val res = ControllerHelpers.redirectToInvoiceTypeOrCYA(CheckMode)

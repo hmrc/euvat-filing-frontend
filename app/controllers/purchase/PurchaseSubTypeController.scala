@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.PurchaseOrImportSubTypeFormProvider
 import models.requests.DataRequest
 import models.*
-import navigation.Navigator
+import navigation.{Navigator, PurchaseNavigator}
 import pages.purchase.*
 import pages.claim.CountryChangedPage
 import pages.purchase.{DescribeItemsArrivedFromCheckYourAnswersPage, DescribeItemsOnInvoicePage}
@@ -31,7 +31,7 @@ import repositories.SessionRepository
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.PurchaseOrImportHelpers.isNoneSelection
-import utils.{ConfigPurchaseOrImportMapping, ControllerHelpers, CountryCode, MountPrefix}
+import utils.{ConfigPurchaseOrImportMapping, ControllerHelpers, CountryCode}
 import views.html.purchasesOrImports.PurchaseOrImportSubTypeView
 
 import javax.inject.Inject
@@ -150,12 +150,10 @@ class PurchaseSubTypeController @Inject() (
   private def resolvedSlugFor(parentKey: String, fallback: String): String =
     PurchaseOrImportType.values.find(_.toString == parentKey).map(PurchaseOrImportType.urlSlugForPurchaseType).getOrElse(fallback)
 
-  private def formActionFor(uri: String, mode: Mode)(implicit request: RequestHeader) = {
-    val isChangeMode = if (mode == models.CheckMode) "change-" else ""
-    Call("POST", s"${MountPrefix.getFromRequest}/$isChangeMode$uri")
-  }
+  private def formActionFor(purchaseTypeSlug: String, mode: Mode): Call =
+    routes.PurchaseSubTypeController.onSubmit(purchaseTypeSlug, mode)
 
-  private def handleCountryChanged(purchaseTypeSlug: String, userAnswers: UserAnswers)(implicit request: RequestHeader) = {
+  private def handleCountryChanged(purchaseTypeSlug: String, mode: Mode, userAnswers: UserAnswers) = {
     val clearedAnswers = for {
       afterRemovedSubType      <- userAnswers.remove(PurchaseSubTypePage)
       afterRemovedSubTypeLabel <- afterRemovedSubType.remove(PurchaseSubTypeLabelPage)
@@ -164,13 +162,7 @@ class PurchaseSubTypeController @Inject() (
 
     Future
       .fromTry(clearedAnswers)
-      .flatMap(updated =>
-        sessionRepository.set(updated).map { _ =>
-          val prefix = MountPrefix.getFromRequest
-          val path = if (prefix.isEmpty) s"/$purchaseTypeSlug" else s"$prefix/$purchaseTypeSlug"
-          Redirect(Call("GET", path))
-        }
-      )
+      .flatMap(updated => sessionRepository.set(updated).map(_ => Redirect(routes.PurchaseSubTypeController.onPageLoad(purchaseTypeSlug, mode))))
   }
 
   private def markArrivalAndRenderSubType(preparedForm: Form[?],
@@ -232,7 +224,7 @@ class PurchaseSubTypeController @Inject() (
   def onPageLoad(purchaseTypeSlug: String, mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
       if (request.userAnswers.get(CountryChangedPage).contains(true)) {
-        handleCountryChanged(purchaseTypeSlug, request.userAnswers)
+        handleCountryChanged(purchaseTypeSlug, mode, request.userAnswers)
       } else {
         resolveParentAndCountry(purchaseTypeSlug, request.userAnswers) match {
           case Some((parentKey, country)) =>
@@ -265,23 +257,8 @@ class PurchaseSubTypeController @Inject() (
     } yield result
   }
 
-  private def routeToSubCategory(parentKey: String, value: String, mode: Mode)(implicit request: RequestHeader): Option[Call] = {
-    val routeParentCodeCandidate = value
-    val candidates = Seq(routeParentCodeCandidate).distinct
-
-    candidates.iterator
-      .map { c =>
-        try {
-          val slug = PurchaseOrImportSubCategoryType.pathFor(parentKey, c)
-          val prefix = MountPrefix.getFromRequest
-          val path = ControllerHelpers.pathForSlug(slug, mode, prefix)
-          Some(Call("GET", path))
-        } catch {
-          case _: Throwable => None
-        }
-      }
-      .collectFirst { case Some(call) => call }
-  }
+  private def routeToSubCategory(parentKey: String, value: String, mode: Mode): Option[Call] =
+    PurchaseOrImportSubCategoryType.subCategoryPageSlugFor(parentKey, value).map(slug => PurchaseNavigator.subCategoryPage(slug, mode))
 
   private def noChildrenRedirect(value: String, resolvedSlug: String, mode: Mode): Result = {
     val lastSeg = value.split("\\.").lastOption.getOrElse(value)
