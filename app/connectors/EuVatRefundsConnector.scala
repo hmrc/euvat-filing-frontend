@@ -22,6 +22,7 @@ import models.responses.*
 import play.api.Logging
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
+import uk.gov.hmrc.crypto.Crypted
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReadsInstances, HttpResponse, StringContextOps}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -32,9 +33,9 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV2, cryptoProvider: BankDetailsEncryption)(implicit
-  ec: ExecutionContext
+                                                                                                                          ec: ExecutionContext
 ) extends HttpReadsInstances
-    with Logging {
+  with Logging {
 
   private val euVatRefundsBaseUrl: String = config.baseUrl("euvat-refunds") + "/euvat-refunds"
 
@@ -124,10 +125,30 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
     http
       .get(url"$euVatRefundsBaseUrl/get-application-details/$applicationId")
       .execute[ApplicationDetailsResponse]
+      .flatMap { response =>
+        val details = response.applicationDetails.map { applicationDetails =>
+          val isEncrypted = applicationDetails.encryptionStatus.contains(EncryptionStatus.E.toString)
+          if (isEncrypted) {
+            val maybeEncryptedIbanCode = applicationDetails.ibanCode
+            val maybeEncryptedBicCode = applicationDetails.bicCode
+            val maybeEncryptedCipherText = applicationDetails.cipherText
+            applicationDetails.copy(
+              ibanCode         = maybeEncryptedIbanCode.map(encryptedIbanCode => cryptoProvider.decrypt(Crypted(encryptedIbanCode))),
+              bicCode          = maybeEncryptedBicCode.map(encryptedBicCode => cryptoProvider.decrypt(Crypted(encryptedBicCode))),
+              cipherText       = maybeEncryptedCipherText.map(encryptedCipherText => cryptoProvider.decrypt(Crypted(encryptedCipherText))),
+              encryptionStatus = Option(EncryptionStatus.M.toString)
+            )
+          } else {
+            applicationDetails.copy(encryptionStatus = Option(EncryptionStatus.M.toString))
+          }
+        }
+
+        Future.successful(ApplicationDetailsResponse(details))
+      }
 
   def getSupplierTaxIdentifierCount(
-    request: SupplierTaxIdentifierCountRequest
-  )(implicit hc: HeaderCarrier): Future[SupplierTaxIdentifierCountResponse] = {
+                                     request: SupplierTaxIdentifierCountRequest
+                                   )(implicit hc: HeaderCarrier): Future[SupplierTaxIdentifierCountResponse] = {
     http
       .post(url"$euVatRefundsBaseUrl/get-supplier-taxIdentifier-count")
       .withBody(Json.toJson(request))
@@ -180,8 +201,8 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
   }
 
   def getReferenceInfoCount(
-    request: ReferenceInfoCountRequest
-  )(implicit hc: HeaderCarrier): Future[ReferenceInfoCountResponse] =
+                             request: ReferenceInfoCountRequest
+                           )(implicit hc: HeaderCarrier): Future[ReferenceInfoCountResponse] =
     http
       .post(url"$euVatRefundsBaseUrl/get-reference-information-count")
       .withBody(Json.toJson(request))
