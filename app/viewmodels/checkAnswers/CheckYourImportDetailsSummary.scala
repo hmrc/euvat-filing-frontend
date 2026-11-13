@@ -20,7 +20,7 @@ import controllers.imports.routes
 import models.{CheckMode, Other, PurchaseOrImportSubCategoryType, PurchaseOrImportType, UserAnswers}
 import pages.imports.*
 import play.api.i18n.{Lang, Messages}
-import utils.{ConfigPurchaseOrImportMapping, CountryCode, Currency, CurrencyConfig, DateTimeFormats}
+import utils.*
 import utils.PurchaseOrImportHelpers.isNoneSelection
 
 object CheckYourImportDetailsSummary {
@@ -129,6 +129,13 @@ object CheckYourImportDetailsSummary {
     if (descriptionRequired) {
       Seq(
         typeRow,
+        row(
+          "otherImportType",
+          text(answers.get(ImportDetailsInfoPage)),
+          routes.ImportDetailsInfoController
+            .onPageLoad(CheckMode)
+            .url
+        ),
         row(
           "importDescription",
           text(answers.get(DescribeItemsOnImportDocPage)),

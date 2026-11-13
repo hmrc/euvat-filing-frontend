@@ -30,7 +30,7 @@ import play.api.Application
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import queries.{ClaimApplicationResponseQuery, ImportDetailsResponseQuery, ImportDetailsRoute, ImportDetailsRouteQuery, UpdateSequenceNumberQuery}
+import queries.*
 import repositories.SessionRepository
 import utils.ConfigPurchaseOrImportMapping
 
@@ -43,7 +43,9 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
     emptyUserAnswers
       .set(RefundingCountryPage, "AT")
       .flatMap(_.set(ImportTypePage, Other))
+      .flatMap(_.set(ImportSubCodePage, "10.99")) // None of these – give more details
       .flatMap(_.set(DescribeItemsOnImportDocPage, "Imported equipment"))
+      .flatMap(_.set(ImportDetailsInfoPage, "Example import details"))
       .flatMap(_.set(SadReferenceCheckPage, true))
       .flatMap(_.set(SadReferenceNumberPage, "SAD123"))
       .flatMap(_.set(ImportDatePage, LocalDate.of(2026, 10, 1)))
@@ -108,6 +110,10 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
         values must include("Example Supplier")
         values must include("SAD123")
         values must include("Imported equipment")
+        values must include("Example import details")
+
+        val labels = document.select(".govuk-summary-list__key").text()
+        labels must include("Other import type")
 
         document.select("form").attr("action") mustBe
           routes.CheckYourImportDetailsController.onSubmit().url
@@ -208,21 +214,22 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
         val requestCaptor = ArgumentCaptor.forClass(classOf[UpdateImportDetailsRequest])
         verify(mockEuVatRefundsService).updateImport(requestCaptor.capture())(any())
         requestCaptor.getValue mustBe UpdateImportDetailsRequest(
-          applicationId            = 404,
-          itemNumber               = 4,
-          goodsDescriptionCategory = "10",
-          goodsDescriptionText     = Some("Imported equipment"),
-          hasSadReferenceNumber    = Some("true"),
-          sadReferenceNumber       = Some("SAD123"),
-          supplierName             = Some("Example Supplier"),
-          supplierAddressLine1     = Some("10 Street"),
-          supplierCountryCode      = Some("IN"),
-          issuingDate              = Some(LocalDateTime.of(2026, 10, 1, 0, 0)),
-          currencyCode             = Some("EUR"),
-          taxableAmount            = Some(BigDecimal(100)),
-          vatAmount                = Some(BigDecimal(20)),
-          deductibleVatAmount      = Some(BigDecimal(10)),
-          updateSequenceNumber     = 2
+          applicationId               = 404,
+          itemNumber                  = 4,
+          goodsDescriptionCategory    = "10",
+          goodsDescriptionSubCategory = Some("10.99"),
+          goodsDescriptionText        = Some("Imported equipment"),
+          hasSadReferenceNumber       = Some("true"),
+          sadReferenceNumber          = Some("SAD123"),
+          supplierName                = Some("Example Supplier"),
+          supplierAddressLine1        = Some("10 Street"),
+          supplierCountryCode         = Some("IN"),
+          issuingDate                 = Some(LocalDateTime.of(2026, 10, 1, 0, 0)),
+          currencyCode                = Some("EUR"),
+          taxableAmount               = Some(BigDecimal(100)),
+          vatAmount                   = Some(BigDecimal(20)),
+          deductibleVatAmount         = Some(BigDecimal(10)),
+          updateSequenceNumber        = 2
         )
 
         val answersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
@@ -352,7 +359,7 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
       supplierAddressLine3        = None,
       supplierCountryCode         = Some("IN"),
       goodsDescriptionCategory    = "10",
-      goodsDescriptionSubcategory = None,
+      goodsDescriptionSubcategory = Some("10.99"),
       goodsDescriptionText        = Some("Imported equipment"),
       hasSadReferenceNumber       = Some("true"),
       sadReferenceNumber          = Some("SAD123"),
