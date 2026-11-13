@@ -35,19 +35,7 @@ object PurchaseOrImportHelpers {
 
   private def lastSegment(code: String): String =
     code.split("\\.").lastOption.getOrElse(code)
-
-  def radioItems(config: ConfigPurchaseOrImportMapping, options: Seq[(String, String)])(implicit messages: Messages): Seq[RadioItem] = {
-    val items = config.buildRadioItems(options, messages)
-    if (options.exists(_._1 == ConfigPurchaseOrImportMapping.NoneOfTheseSubCode))
-      items.filterNot(_.value.contains(ConfigPurchaseOrImportMapping.NoneValue))
-    else items
-  }
-
-  def allowedValues(options: Seq[(String, String)]): Seq[String] = {
-    val codes = options.map(_._1)
-    if (codes.contains(ConfigPurchaseOrImportMapping.NoneOfTheseSubCode)) codes else codes :+ ConfigPurchaseOrImportMapping.NoneValue
-  }
-
+  
   def requiredErrorKey(parentKey: String, parentCode: Option[String] = None)(implicit messages: Messages): String = {
     val candidates =
       parentCode.map(code => s"sub.$parentKey.${lastSegment(code)}.error.required").toSeq :+ s"sub.$parentKey.error.required"
@@ -79,7 +67,7 @@ object PurchaseOrImportHelpers {
     answers.set(valuePage, value).flatMap(_.set(labelQuery, label))
 
   def isNoneSelection(code: String): Boolean =
-    code == ConfigPurchaseOrImportMapping.NoneValue || code.split("\\.").lastOption.contains("99")
+    code.split("\\.").lastOption.contains("99")
 
   def currencyRadioItems(currencies: Seq[Currency], msgs: Messages): Seq[RadioItem] =
     currencies.zipWithIndex

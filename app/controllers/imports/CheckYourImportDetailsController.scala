@@ -263,9 +263,6 @@ class CheckYourImportDetailsController @Inject() (
           case None => answers.set(ImportSubCodePage, selectedCode)
         }
 
-      case (None, Some(countryCode)) if importType == Other && configPurchaseOrImportMapping.selectableSubcodes(countryCode, "other").isDefined =>
-        answers.set(ImportSubCodePage, ConfigPurchaseOrImportMapping.NoneValue)
-
       case _ => Success(answers)
     }
 
@@ -281,8 +278,7 @@ class CheckYourImportDetailsController @Inject() (
     addResponse: AddImportResponse,
     importType: PurchaseOrImportType
   ): UpdateImportDetailsRequest = {
-    def real(value: Option[String]): Option[String] =
-      value.filter(v => v.trim.nonEmpty && v != ConfigPurchaseOrImportMapping.NoneValue)
+    def real(value: Option[String]): Option[String] = value.filter(v => v.trim.nonEmpty)
 
     val subCategory = real(answers.get(ImportSubCategoryPage)).orElse(real(answers.get(ImportSubCodePage)))
     val hasSad = answers.get(SadReferenceCheckPage)

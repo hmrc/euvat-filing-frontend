@@ -138,7 +138,7 @@ class PurchaseSubCategoryController @Inject() (
 
     SubCategoryViewData(
       options           = options,
-      items             = radioItems(config, options)(msgs),
+      items             = config.buildRadioItems(options, msgs),
       title             = subCategoryTitle(parentKey, resolvedParentCode, options)(msgs),
       form              = preparedForm(formProvider, requiredKey, userAnswers.get(PurchaseSubCategoryPage)),
       formAction        = computeFormAction(parentKey, formActionCandidates(resolvedParentCode), userAnswers, mode),

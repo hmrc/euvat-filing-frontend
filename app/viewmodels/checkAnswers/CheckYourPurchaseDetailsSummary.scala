@@ -66,7 +66,7 @@ object CheckYourPurchaseDetailsSummary {
           None
         } else {
           answers.get(PurchaseSubTypePage) match {
-            case Some(v) if v == ConfigPurchaseOrImportMapping.NoneValue || v.split("\\.").lastOption.contains("99") =>
+            case Some(v) if v.split("\\.").lastOption.contains("99") =>
               val singleBypass = countryOpt.flatMap { c =>
                 try {
                   val opts = config.subcodesFor(c, parentKey)
@@ -95,10 +95,7 @@ object CheckYourPurchaseDetailsSummary {
     val valueOpt: Option[String] = answers.get(PurchaseSubTypeLabelPage)
     val displayValueOpt: Option[String] = answers
       .get(PurchaseSubTypeLabelPage)
-      .map {
-        case ConfigPurchaseOrImportMapping.NoneValue => messages("site.none")
-        case value                                   => value
-      }
+
     val changeUrl = routes.PurchaseSubTypeController.onPageLoad(parentSlug, CheckMode).url
 
     Some((keyLabel, displayValueOpt, Seq((changeUrl, "site.change", "purchase.subType.change.hidden"))))
@@ -122,15 +119,13 @@ object CheckYourPurchaseDetailsSummary {
         loop(c).getOrElse(models.PurchaseOrImportSubCategoryType.pathFor(pk, c))
       }
 
-      val codeToResolve = if (code == ConfigPurchaseOrImportMapping.NoneValue) answers.get(PurchaseSubTypePage).getOrElse(code) else code
-      val slug = findSlug(parentKey, codeToResolve)
+      val slug = findSlug(parentKey, code)
       val msgKey = s"purchase.subCategory.$slug"
       val keyLabel = if (messages.isDefinedAt(msgKey)) messages(msgKey) else slug.replace('-', ' ').capitalize
-      val displayValue = if (label == ConfigPurchaseOrImportMapping.NoneValue) messages("site.none") else label
       val mount = MountPrefix.getFromRequest
       val url = if (mount.isEmpty) s"/change-$slug" else s"$mount/change-$slug"
 
-      (keyLabel, Some(displayValue), Seq((url, "site.change", "purchase.subCategory.change.hidden")))
+      (keyLabel, Some(label), Seq((url, "site.change", "purchase.subCategory.change.hidden")))
     }
 
   private def rowInvoiceType(answers: UserAnswers)(implicit messages: Messages): Option[Row] =

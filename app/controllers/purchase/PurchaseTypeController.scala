@@ -164,7 +164,7 @@ class PurchaseTypeController @Inject() (
   private def describePresent(implicit request: DataRequest[?]): Boolean = request.userAnswers.get(DescribeItemsOnInvoicePage).exists(_.trim.nonEmpty)
 
   private def isNoneSubTypeSelection(subType: String): Boolean =
-    subType == ConfigPurchaseOrImportMapping.NoneValue || subType.split("\\.").lastOption.contains("99")
+    subType.split("\\.").lastOption.contains("99")
 
   private def shouldReturnToDescribeForOtherNone(value: PurchaseOrImportType)(implicit request: DataRequest[?]): Boolean =
     value == models.Other && request.userAnswers.get(PurchaseSubTypePage).exists(isNoneSubTypeSelection)
