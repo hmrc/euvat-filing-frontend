@@ -22,17 +22,16 @@ import models.responses.*
 import play.api.Logging
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
-import uk.gov.hmrc.crypto.Crypted
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReadsInstances, HttpResponse, StringContextOps}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import utils.BankDetailsEncryption
+import utils.AesEncryption
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV2, cryptoProvider: BankDetailsEncryption)(implicit
+class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV2, aesEncryptionProvider: AesEncryption)(implicit
   ec: ExecutionContext
 ) extends HttpReadsInstances
     with Logging {
@@ -106,9 +105,9 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
       case Some(encryptionStatus) =>
         if (encryptionStatus == EncryptionStatus.M.toString) {
           val encryptedRequest = request.copy(
-            ibanCode         = request.ibanCode.map(ibanCode => cryptoProvider.encrypt(ibanCode).value),
-            bicCode          = request.bicCode.map(bicCode => cryptoProvider.encrypt(bicCode).value),
-            cipherText       = Option(cryptoProvider.knownCipherText.value),
+            ibanCode         = request.ibanCode.map(ibanCode => aesEncryptionProvider.encrypt(ibanCode)),
+            bicCode          = request.bicCode.map(bicCode => aesEncryptionProvider.encrypt(bicCode)),
+            cipherText       = Option(aesEncryptionProvider.knownCipherText),
             encryptionStatus = Option(EncryptionStatus.E.toString)
           )
           sendUpdateRequest(encryptedRequest)
@@ -133,9 +132,9 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
             val maybeEncryptedBicCode = applicationDetails.bicCode
             val maybeEncryptedCipherText = applicationDetails.cipherText
             applicationDetails.copy(
-              ibanCode         = maybeEncryptedIbanCode.map(encryptedIbanCode => cryptoProvider.decrypt(Crypted(encryptedIbanCode))),
-              bicCode          = maybeEncryptedBicCode.map(encryptedBicCode => cryptoProvider.decrypt(Crypted(encryptedBicCode))),
-              cipherText       = maybeEncryptedCipherText.map(encryptedCipherText => cryptoProvider.decrypt(Crypted(encryptedCipherText))),
+              ibanCode         = maybeEncryptedIbanCode.map(encryptedIbanCode => aesEncryptionProvider.decrypt(encryptedIbanCode)),
+              bicCode          = maybeEncryptedBicCode.map(encryptedBicCode => aesEncryptionProvider.decrypt(encryptedBicCode)),
+              cipherText       = maybeEncryptedCipherText.map(encryptedCipherText => aesEncryptionProvider.decrypt(encryptedCipherText)),
               encryptionStatus = Option(EncryptionStatus.M.toString)
             )
           } else {
