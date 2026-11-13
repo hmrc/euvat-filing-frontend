@@ -19,14 +19,14 @@ package controllers.bankdetails
 import controllers.actions.*
 import models.NormalMode
 import pages.bankdetails.AccountHolderPage
-
-import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import queries.BankDetailsCompletedQuery
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.bankdetails.BeforeYouStartBankDetailsView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class BeforeYouStartBankDetailsController @Inject() (
@@ -42,7 +42,12 @@ class BeforeYouStartBankDetailsController @Inject() (
     with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    Ok(view())
+    val bankDetailsCompleted = request.userAnswers.get(BankDetailsCompletedQuery).contains(true)
+    if (bankDetailsCompleted) {
+      Redirect(controllers.bankdetails.routes.CheckYourBankDetailsController.onPageLoad())
+    } else {
+      Ok(view())
+    }
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>

@@ -22,18 +22,20 @@ import play.api.i18n.Messages
 
 object CheckYourBankDetailsSummary {
 
+  private val hiddenFieldText = "Hidden for security reasons"
+
   type Row = (String, Option[String], Seq[(String, String, String)])
 
-  def rows(answers: UserAnswers, currencies: Seq[Currency])(implicit messages: Messages): Seq[Row] =
+  def rows(answers: UserAnswers, currencies: Seq[Currency], isChanged: Boolean)(implicit messages: Messages): Seq[Row] =
     Seq(
       rowAccountHolder(answers),
       rowAccountName(answers),
-      rowBic(answers),
-      rowIban(answers),
+      rowBic(answers, isChanged),
+      rowIban(answers, isChanged),
       rowCurrency(answers, currencies)
     ).flatten
 
-  def rowAccountHolder(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
+  private def rowAccountHolder(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
     answers.get(AccountHolderPage).map { answer =>
       (
         messages("bankDetails.checkYourBankDetails.accountHolder.label"),
@@ -42,22 +44,24 @@ object CheckYourBankDetailsSummary {
       )
     }
 
-  def rowAccountName(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
+  private def rowAccountName(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
     answers.get(BankDetailsPage).map { details =>
       (messages("bankDetails.checkYourBankDetails.accountName.label"), Some(details.NameOnTheAccount), Seq.empty)
     }
 
-  def rowBic(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
+  private def rowBic(answers: UserAnswers, isChanged: Boolean)(implicit messages: Messages): Option[Row] =
     answers.get(BankDetailsPage).map { details =>
-      (messages("bankDetails.checkYourBankDetails.bic.label"), Some(details.BIC), Seq.empty)
+      val bicCode = if (isChanged) details.BIC else hiddenFieldText
+      (messages("bankDetails.checkYourBankDetails.bic.label"), Option(bicCode), Seq.empty)
     }
 
-  def rowIban(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
+  private def rowIban(answers: UserAnswers, isChanged: Boolean)(implicit messages: Messages): Option[Row] =
     answers.get(BankDetailsPage).map { details =>
-      (messages("bankDetails.checkYourBankDetails.iban.label"), Some(details.accountNumber), Seq.empty)
+      val accountNumber = if (isChanged) details.accountNumber else hiddenFieldText
+      (messages("bankDetails.checkYourBankDetails.iban.label"), Option(accountNumber), Seq.empty)
     }
 
-  def rowCurrency(answers: UserAnswers, currencies: Seq[Currency])(implicit messages: Messages): Option[Row] =
+  private def rowCurrency(answers: UserAnswers, currencies: Seq[Currency])(implicit messages: Messages): Option[Row] =
     answers.get(BankDetailsPage).map { details =>
       val label = currencies
         .find(_.code == details.CurrencyOfAccount)

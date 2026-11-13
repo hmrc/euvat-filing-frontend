@@ -681,6 +681,7 @@ bankDetails.internationalBankAccountDetails.error.CurrencyOfAccount.invalid = Se
 
 bankDetails.checkYourBankDetails.title = Check your answers
 bankDetails.checkYourBankDetails.heading = Check your answers
+bankDetails.checkYourBankDetails.paragraph = We have hidden your BIC and IBAN details for security reasons. If you change your bank details, you will need to enter them again.
 bankDetails.checkYourBankDetails.card.title = International bank account details
 bankDetails.checkYourBankDetails.change.hidden = international bank account details
 bankDetails.checkYourBankDetails.accountHolder.label = Account holder
