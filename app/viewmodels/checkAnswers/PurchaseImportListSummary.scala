@@ -16,6 +16,7 @@
 
 package viewmodels.checkAnswers
 
+import config.CurrencyFormatter.currencyFormat
 import models.requests.DataRequest
 import models.{PurchaseImport, PurchaseOrImportType, UserAnswers}
 import queries.ClaimApplicationResponseQuery
@@ -79,7 +80,7 @@ object PurchaseImportListSummary {
       value = if (vatClaim == 0) {
         Value(content = HtmlContent(Html("<strong class='govuk-tag'>Incomplete</strong>")))
       } else {
-        Value(content = Text(s"$currencySymbol" + vatClaim.toString() + " VAT claim"))
+        Value(content = Text(s"$currencySymbol" + currencyFormat(vatClaim) + " VAT claim"))
       },
       actions = if (vatClaim == 0) {
         Seq(
@@ -93,10 +94,10 @@ object PurchaseImportListSummary {
       } else {
         Seq(
           ActionItemViewModel("site.change", changeOrAddDetailsHref).withVisuallyHiddenText(
-            messages("purchaseImportSummary.complete.change.hidden", itemType, category, currencySymbol + vatClaim)
+            messages("purchaseImportSummary.complete.change.hidden", itemType, category, currencySymbol + currencyFormat(vatClaim))
           ),
           ActionItemViewModel("site.remove", removeUrl).withVisuallyHiddenText(
-            messages("purchaseImportSummary.complete.remove.hidden", itemType, category, currencySymbol + vatClaim)
+            messages("purchaseImportSummary.complete.remove.hidden", itemType, category, currencySymbol + currencyFormat(vatClaim))
           )
         )
       }

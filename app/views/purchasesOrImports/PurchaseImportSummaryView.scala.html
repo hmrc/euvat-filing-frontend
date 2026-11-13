@@ -17,6 +17,7 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Content
 @import viewmodels.LegendSize
 @import views.html.components.MainErrorSummary
+@import config.CurrencyFormatter.currencyFormat
 
 @this(
     layout: templates.Layout,
@@ -51,7 +52,7 @@
         @mainErrorSummary(form)
         <span class="govuk-caption-l">@messages("purchaseImportSummary.caption")</span>
         <h1 class="govuk-heading-l">@messages("purchaseImportSummary.heading", totalItems, itemLabel)</h1>
-        <p class = "govuk-body">@messages("purchaseImportSummary.p1", totalVatClaim)</p>
+        <p class = "govuk-body">@messages("purchaseImportSummary.p1", currencyFormat(totalVatClaim))</p>
 
         @govukDetails(Details(
             summary = Text(messages("purchaseImportSummary.details.summary")),
