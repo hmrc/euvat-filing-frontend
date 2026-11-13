@@ -16,8 +16,8 @@
 
 package config
 
-trait CurrencyFormatter {
-  def currencyFormat(amt: BigDecimal): String = f"$amt%,1.2f"
+trait AmountFormatter {
+  def amountFormat(amt: BigDecimal): String = f"$amt%,1.2f"
 }
 
-object CurrencyFormatter extends CurrencyFormatter
+object AmountFormatter extends AmountFormatter

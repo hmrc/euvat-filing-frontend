@@ -16,7 +16,7 @@
 
 package viewmodels.checkAnswers
 
-import config.CurrencyFormatter.currencyFormat
+import config.AmountFormatter.amountFormat
 import controllers.imports.routes
 import models.{CheckMode, Other, PurchaseOrImportSubCategoryType, PurchaseOrImportType, UserAnswers}
 import pages.imports.*
@@ -285,7 +285,7 @@ object CheckYourImportDetailsSummary {
     currency: Option[Currency]
   ): Option[String] =
     value.map { number =>
-      val formatted = currencyFormat(number)
+      val formatted = amountFormat(number)
       currency.map(_.symbol).getOrElse("") + formatted
     }
 

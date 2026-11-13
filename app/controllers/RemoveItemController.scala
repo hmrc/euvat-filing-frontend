@@ -15,6 +15,7 @@
  */
 
 package controllers
+import config.AmountFormatter.amountFormat
 import controllers.actions.*
 import forms.RemoveItemFormProvider
 import models.{NormalMode, UserAnswers}
@@ -180,7 +181,7 @@ class RemoveItemController @Inject() (
       if (deductibleVatAmount == 0) messagesApi.preferred(request)("removeItem.notProvided")
       else {
         val currencySymbol = ControllerHelpers.currencySymbolFromSession(userAnswers, currencyConfig.currencyConfig)
-        s"$currencySymbol$deductibleVatAmount"
+        s"$currencySymbol${amountFormat(deductibleVatAmount)}"
       }
     (displayType, vatClaim)
   }

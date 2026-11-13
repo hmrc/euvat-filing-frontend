@@ -16,19 +16,19 @@
 
 package config
 
-import config.CurrencyFormatter.currencyFormat
+import config.AmountFormatter.amountFormat
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
-class CurrencyFormatterSpec extends AnyWordSpec with Matchers {
+class AmountFormatterSpec extends AnyWordSpec with Matchers {
 
-  "currencyFormat" should {
+  "amountFormat" should {
 
     "format amounts to 2 decimal places with thousands separators" in  {
-      currencyFormat(BigDecimal("156")) shouldBe "156.00"
-      currencyFormat(BigDecimal("150.1")) shouldBe "150.10"
-      currencyFormat(BigDecimal("34.90")) shouldBe "34.90"
-      currencyFormat(BigDecimal("1000")) shouldBe "1,000.00"
+      amountFormat(BigDecimal("156")) shouldBe "156.00"
+      amountFormat(BigDecimal("150.1")) shouldBe "150.10"
+      amountFormat(BigDecimal("34.90")) shouldBe "34.90"
+      amountFormat(BigDecimal("1000")) shouldBe "1,000.00"
     }
   }
 }
