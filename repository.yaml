@@ -3,3 +3,8 @@ type: service
 service-type: frontend
 tags: []
 digital-service: European Union VAT Refunds
+
+leakDetectionExemptions:
+  - ruleId: 'filename_private_key_11'
+    filePaths:
+      - '/app/keystore.jks'
