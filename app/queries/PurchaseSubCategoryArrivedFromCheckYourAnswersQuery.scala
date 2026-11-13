@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-package pages.purchase
+package queries
 
-import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-case object DescribeItemsArrivedFromCheckYourAnswersPage extends QuestionPage[Boolean] {
-
+case object PurchaseSubCategoryArrivedFromCheckYourAnswersQuery extends Gettable[Boolean] with Settable[Boolean] {
   override def path: JsPath = JsPath \ toString
-
-  override def toString: String = "describeItemsArrivedFromCheckYourAnswers"
-
+  override def toString: String = "purchaseSubCategoryArrivedFromCheckYourAnswers"
 }

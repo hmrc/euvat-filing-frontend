@@ -25,13 +25,14 @@ import org.mockito.Mockito.when
 import org.mockito.{ArgumentCaptor, Mockito}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.purchase
-import pages.purchase.{DescribeItemsArrivedFromCheckYourAnswersPage, DescribeItemsOnInvoicePage}
+import pages.purchase.DescribeItemsOnInvoicePage
 import play.api.Application
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.{Call, Request}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import queries.DescribeItemsArrivedFromCheckYourAnswersQuery
 import repositories.SessionRepository
 import views.html.purchasesOrImports.PurchaseOrImportDescribeItemsView
 
@@ -101,7 +102,7 @@ class DescribeItemsOnInvoiceControllerSpec extends SpecBase with MockitoSugar {
 
         val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         Mockito.verify(mockSessionRepository, Mockito.times(1)).set(captor.capture())
-        captor.getValue.get(DescribeItemsArrivedFromCheckYourAnswersPage).value mustBe true
+        captor.getValue.get(DescribeItemsArrivedFromCheckYourAnswersQuery).value mustBe true
       }
     }
 
@@ -109,7 +110,7 @@ class DescribeItemsOnInvoiceControllerSpec extends SpecBase with MockitoSugar {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
-      val userAnswers = emptyUserAnswers.set(purchase.DescribeItemsArrivedFromCheckYourAnswersPage, true).success.value
+      val userAnswers = emptyUserAnswers.set(queries.DescribeItemsArrivedFromCheckYourAnswersQuery, true).success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(bind[SessionRepository].toInstance(mockSessionRepository))

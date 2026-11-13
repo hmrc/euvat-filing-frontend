@@ -23,6 +23,7 @@ import models.{CheckMode, Mode, NormalMode, PurchaseOrImportSubCategoryType, Pur
 import navigation.Navigator
 import pages.purchase.*
 import pages.claim.CountryChangedPage
+import queries.{Gettable, PurchaseSubCategoryArrivedFromCheckYourAnswersQuery, Settable}
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -165,7 +166,7 @@ class PurchaseSubCategoryController @Inject() (
     request: DataRequest[AnyContent]
   ): Future[Result] =
     ControllerHelpers.markArrivalAndRender(
-      PurchaseSubCategoryArrivedFromCheckYourAnswersPage,
+      PurchaseSubCategoryArrivedFromCheckYourAnswersQuery,
       mode,
       userAnswers,
       sessionRepository
