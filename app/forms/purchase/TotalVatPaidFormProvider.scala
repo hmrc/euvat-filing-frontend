@@ -20,7 +20,7 @@ import forms.mappings.Mappings
 import play.api.data.validation.{Constraint, Invalid, Valid}
 
 import javax.inject.Inject
-// currencyFormat not used for error args here to avoid symbol in messages
+// amountFormat not used for error args here to avoid symbol in messages
 import play.api.data.Form
 
 class TotalVatPaidFormProvider @Inject() () extends Mappings {

@@ -227,7 +227,22 @@ class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mapp
 
     "must unbind a valid value" in {
       val result = testForm.fill(1)
-      result.apply("value").value.value mustEqual "1"
+      result.apply("value").value.value mustEqual "1.00"
+    }
+
+    "must unbind a value with 1 decimal place to 2 decimal places" in {
+      val result = testForm.fill(BigDecimal("10.0"))
+      result.apply("value").value.value mustEqual "10.00"
+    }
+
+    "must unbind a value with 2 decimal places unchanged" in {
+      val result = testForm.fill(BigDecimal("27.60"))
+      result.apply("value").value.value mustEqual "27.60"
+    }
+
+    "must unbind a large value with a comma and 2 decimal places" in {
+      val result = testForm.fill(BigDecimal("1000"))
+      result.apply("value").value.value mustEqual "1,000.00"
     }
   }
 }
