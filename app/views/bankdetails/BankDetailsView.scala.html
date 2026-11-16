@@ -133,73 +133,73 @@ form,
 <div class="govuk-form-group @if(isCurrencyError){govuk-form-group--error}">
     @govukSelect(
     Select(
-    id = form("CurrencyOfAccount").id + "-input",
-    name = "CurrencyOfAccount",
-    classes = Fixed10.toString,
-    label = Label(
-    content = Text(
-    messages(
-    "bankDetails.internationalBankAccountDetails.CurrencyOfAccount"
-    )
-    )
-    ),
-    hint = Some(
-    Hint(
-    content = Text(
-    messages(
-    "bankDetails.internationalBankAccountDetails.CurrencyOfAccount.hint"
-    )
-    )
-    )
-    ),
-    items =
-    Seq(
-        SelectItem(
-            value = Some(""),
-            text = messages(
-            "bankDetails.internationalBankAccountDetails.CurrencyOfAccount.select"
-        ),
-        selected =
-            form("CurrencyOfAccount").value.isEmpty
-        )
-    ) ++
-    currencies
-    .sortBy(_.code)
-    .map { currency =>
-    SelectItem(
-        value = Some(currency.code),
-        text = currency.displayValue,
-        selected =
-            form("CurrencyOfAccount")
-            .value
-            .contains(currency.code)
-        )
-    },
-    attributes = Map(
-        "data-ac-typed" -> "#currencyTyped",
-        "data-ac-input-classes" ->
-        "govuk-input govuk-input--width-10"
-    ),
-    errorMessage =
-        form.error("CurrencyOfAccount").map { error =>
-        ErrorMessage(
+        id = form("CurrencyOfAccount").id + "-input",
+        name = "CurrencyOfAccount",
+        classes = Full.toString,
+        label = Label(
             content = Text(
                 messages(
-                    error.message,
-                    error.args*
+                    "bankDetails.internationalBankAccountDetails.CurrencyOfAccount"
+                )
+            )
+        ),
+        hint = Some(
+            Hint(
+                content = Text(
+                    messages(
+                        "bankDetails.internationalBankAccountDetails.CurrencyOfAccount.hint"
+                    )
+                )
+            )
+        ),
+        items =
+        Seq(
+            SelectItem(
+                value = Some(""),
+                text = messages(
+                "bankDetails.internationalBankAccountDetails.CurrencyOfAccount.select"
+            ),
+            selected =
+                form("CurrencyOfAccount").value.isEmpty
+            )
+        ) ++
+        currencies
+        .sortBy(_.code)
+        .map { currency =>
+        SelectItem(
+            value = Some(currency.code),
+            text = currency.displayValue,
+            selected =
+                form("CurrencyOfAccount")
+                .value
+                .contains(currency.code)
+            )
+        },
+        attributes = Map(
+            "data-ac-typed" -> "#currencyTyped",
+            "data-ac-input-classes" ->
+            "govuk-input govuk-!-width-full"
+        ),
+        errorMessage =
+            form.error("CurrencyOfAccount").map { error =>
+            ErrorMessage(
+                content = Text(
+                    messages(
+                        error.message,
+                        error.args*
+                    )
+                )
+            )
+            }
+        ).asAccessibleAutocomplete(
+            Some(
+                AccessibleAutocomplete(
+                    showAllValues = false,
+                    autoSelect = false,
+                    minLength = None
                 )
             )
         )
-        }
-    ).asAccessibleAutocomplete(
-        Some(
-            AccessibleAutocomplete(
-                showAllValues = false,
-                autoSelect = false,
-                minLength = None
-            )
-        )
-    )
     )
 </div>
 

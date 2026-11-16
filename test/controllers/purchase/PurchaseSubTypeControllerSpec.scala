@@ -30,6 +30,7 @@ import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import queries.DescribeItemsArrivedFromCheckYourAnswersQuery
 import uk.gov.hmrc.govukfrontend.views.Aliases
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import utils.ConfigPurchaseOrImportMapping
@@ -381,7 +382,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
         .set(DescribeItemsOnInvoicePage, "previous purchase description")
         .success
         .value
-        .set(DescribeItemsArrivedFromCheckYourAnswersPage, true)
+        .set(DescribeItemsArrivedFromCheckYourAnswersQuery, true)
         .success
         .value
 
@@ -407,7 +408,7 @@ class PurchaseSubTypeControllerSpec extends SpecBase with MockitoSugar {
 
         saved.get(PurchaseSubTypePage) mustBe Some("10.6")
         saved.get(DescribeItemsOnInvoicePage) mustBe None
-        saved.get(DescribeItemsArrivedFromCheckYourAnswersPage) mustBe None
+        saved.get(DescribeItemsArrivedFromCheckYourAnswersQuery) mustBe None
       }
     }
 

@@ -18,12 +18,13 @@ package controllers.bankdetails
 
 import base.SpecBase
 import forms.bankdetails.AccountHolderFormProvider
-import models.{AccountHolder, NormalMode, UserAnswers}
+import models.{AccountHolder, BankDetails, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.bankdetails.AccountHolderPage
+import pages.bankdetails.{AccountHolderPage, BankDetailsPage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -101,6 +102,45 @@ class AccountHolderControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
+      }
+    }
+
+    "must redirect to the next page when and clear previous bank details when account holder is changed" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+
+      val bankDetails = BankDetails("Some Name", "Some BIC", "Some IBAN", "EUR")
+
+      val previousUserAnswers = emptyUserAnswers
+        .set(AccountHolderPage, AccountHolder.Applicant)
+        .success
+        .value
+        .set(BankDetailsPage, bankDetails)
+        .success
+        .value
+
+      val userAnswerCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
+      when(mockSessionRepository.set(userAnswerCaptor.capture())).thenReturn(Future.successful(true))
+
+      val application =
+        applicationBuilder(userAnswers = Some(previousUserAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, accountHolderRoute)
+            .withFormUrlEncodedBody(("value", AccountHolder.ThirdParty.toString))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+
+        userAnswerCaptor.getValue.get(BankDetailsPage) mustBe None
       }
     }
 

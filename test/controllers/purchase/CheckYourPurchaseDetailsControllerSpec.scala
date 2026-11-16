@@ -185,7 +185,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
       }
     }
 
-    "should submit no simplified indicator when invoice type is standard even if simplified flag remains true" in {
+    "should submit false simplified indicator when invoice type is standard even if simplified flag remains true" in {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val captor: ArgumentCaptor[UpdatePurchaseRequest] = ArgumentCaptor.forClass(classOf[UpdatePurchaseRequest])
@@ -216,11 +216,11 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
         status(result) mustEqual SEE_OTHER
 
         val sent = captor.getValue
-        sent.simplifiedInvoiceIndicator mustBe None
+        sent.simplifiedInvoiceIndicator mustBe Some("false")
       }
     }
 
-    "should submit simplified false indicator when invoice type is simplified and vat reg check is no" in {
+    "should submit simplified true indicator when invoice type is simplified and vat reg check is no" in {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val captor: ArgumentCaptor[UpdatePurchaseRequest] = ArgumentCaptor.forClass(classOf[UpdatePurchaseRequest])
@@ -251,7 +251,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
         status(result) mustEqual SEE_OTHER
 
         val sent = captor.getValue
-        sent.simplifiedInvoiceIndicator must contain("false")
+        sent.simplifiedInvoiceIndicator must contain("true")
       }
     }
 
@@ -376,7 +376,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
         goodsDescriptionCode       = "1",
         goodsDescriptionSubCode    = Some("1.2"),
         goodsDescriptionText       = Some("Fuel"),
-        simplifiedInvoiceIndicator = Some("false"),
+        simplifiedInvoiceIndicator = Some("true"),
         supplierName               = Some("Supplier"),
         supplierAddressLine1       = None,
         supplierAddressLine2       = None,
@@ -648,7 +648,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
         goodsDescriptionCode       = "1",
         goodsDescriptionSubCode    = Some("1.2.6"),
         goodsDescriptionText       = Some("Fuel purchase"),
-        simplifiedInvoiceIndicator = Some("false"),
+        simplifiedInvoiceIndicator = Some("true"),
         supplierName               = Some("Supplier Ltd"),
         supplierAddressLine1       = Some("Line 1"),
         supplierAddressLine2       = Some("Line 2"),
@@ -695,7 +695,7 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
         body must include("Passenger car (PKW)")
         saved.get(DescribeItemsOnInvoicePage) mustBe Some("Fuel purchase")
         saved.get(InvoiceTypePage) mustBe Some(InvoiceType.SimplifiedInvoice)
-        saved.get(SupplierVatRegCheckPage) mustBe Some(false)
+        saved.get(SupplierVatRegCheckPage) mustBe Some(true)
         saved.get(SuppliersNamePage) mustBe Some("Supplier Ltd")
         saved.get(SupplierVatRegistrationNumberPage) mustBe Some("FR123456789")
         saved.get(queries.PurchaseDetailResponseQuery).map(_.goodsDescriptionCode) mustBe Some("1")

@@ -258,8 +258,6 @@ checkYourClaimDetails.businessActivity1.view.hidden = View first SIC code
 checkYourClaimDetails.businessActivity2.change.hidden = Change second SIC code
 checkYourClaimDetails.businessActivity3.change.hidden = Change third SIC code
 checkYourClaimDetails.paragraph = You cannot change the refunding EU member state after you save and continue.
-checkYourClaimDetails.claimDetails.title = Claim details
-checkYourClaimDetails.claimDetails.heading = Claim details
 
 checkYourStateDetails.title = Cannot change EU member state
 checkYourStateDetails.heading = Cannot change EU member state
@@ -662,7 +660,7 @@ bankDetails.internationalBankAccountDetails.title = International bank account d
 bankDetails.internationalBankAccountDetails.caption = Bank details
 bankDetails.internationalBankAccountDetails.heading = International bank account details
 bankDetails.internationalBankAccountDetails.NameOnTheAccount = Name on the account
-bankDetails.internationalBankAccountDetails.accountNumber = International Bank Account Number (IBAN)
+bankDetails.internationalBankAccountDetails.accountNumber = IBAN (International Bank Account Number)
 bankDetails.internationalBankAccountDetails.accountNumber.hint = You can ask your bank or check your bank statement
 bankDetails.internationalBankAccountDetails.CurrencyOfAccount = Currency of account
 bankDetails.internationalBankAccountDetails.CurrencyOfAccount.hint = For example, UK pounds or euro
@@ -683,6 +681,7 @@ bankDetails.internationalBankAccountDetails.error.CurrencyOfAccount.invalid = Se
 
 bankDetails.checkYourBankDetails.title = Check your answers
 bankDetails.checkYourBankDetails.heading = Check your answers
+bankDetails.checkYourBankDetails.paragraph = We have hidden your BIC and IBAN details for security reasons. If you change your bank details, you will need to enter them again.
 bankDetails.checkYourBankDetails.card.title = International bank account details
 bankDetails.checkYourBankDetails.change.hidden = international bank account details
 bankDetails.checkYourBankDetails.accountHolder.label = Account holder

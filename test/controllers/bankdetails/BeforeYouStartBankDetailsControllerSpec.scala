@@ -25,6 +25,7 @@ import pages.bankdetails.AccountHolderPage
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import queries.BankDetailsCompletedQuery
 import repositories.SessionRepository
 import views.html.bankdetails.BeforeYouStartBankDetailsView
 
@@ -34,7 +35,7 @@ class BeforeYouStartBankDetailsControllerSpec extends SpecBase {
 
   "BeforeYouStartBankDetails Controller" - {
 
-    "must return OK and the correct view for a GET" in {
+    "must return OK and the correct view for a GET when BankDetailsCompletedQuery is not set" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -46,6 +47,20 @@ class BeforeYouStartBankDetailsControllerSpec extends SpecBase {
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
           view()(request, messages(application)).toString
         )
+      }
+    }
+
+    "must return OK and redirect to CheckYourBankDetailsController for a GET when BankDetailsCompletedQuery is set" in {
+      val updatedAnswers = emptyUserAnswers.set(BankDetailsCompletedQuery, true).success.value
+      val application = applicationBuilder(userAnswers = Some(updatedAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.BeforeYouStartBankDetailsController.onPageLoad().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.CheckYourBankDetailsController.onPageLoad().url
       }
     }
 

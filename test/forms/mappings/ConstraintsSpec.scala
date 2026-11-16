@@ -18,7 +18,7 @@ package forms.mappings
 
 import java.time.LocalDate
 
-import config.CurrencyFormatter
+import config.AmountFormatter
 import generators.Generators
 import org.scalacheck.Gen
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
@@ -195,7 +195,7 @@ class ConstraintsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyC
 
     "must return Invalid for a number below the threshold" in {
       val result = minimumCurrency(1, "error.min").apply(0.99)
-      result mustEqual Invalid("error.min", CurrencyFormatter.currencyFormat(1))
+      result mustEqual Invalid("error.min", AmountFormatter.amountFormat(1))
     }
   }
 
@@ -213,7 +213,7 @@ class ConstraintsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyC
 
     "must return Invalid for a number above the threshold" in {
       val result = maximumCurrency(1, "error.max").apply(1.01)
-      result mustEqual Invalid("error.max", CurrencyFormatter.currencyFormat(1))
+      result mustEqual Invalid("error.max", AmountFormatter.amountFormat(1))
     }
   }
 }

@@ -16,6 +16,7 @@
 
 package viewmodels.checkAnswers
 
+import config.AmountFormatter.amountFormat
 import controllers.purchase.routes
 import models.{CheckMode, InvoiceType, PurchaseOrImportType, SupplierTaxNumberCheck, UserAnswers}
 import pages.claim.*
@@ -229,7 +230,7 @@ object CheckYourPurchaseDetailsSummary {
   private def rowAmountBeforeVat(answers: UserAnswers, maybeSymbol: Option[String])(implicit messages: Messages): Option[Row] =
     answers.get(TotalPurchaseAmountBeforeVatPage).map { amt =>
       val url = routes.TotalPurchaseAmountBeforeVatController.onPageLoad(CheckMode).url
-      val formattedNumber = f"$amt%,1.2f".replace(".00", "")
+      val formattedNumber = amountFormat(amt)
       val display = maybeSymbol.map(_ + formattedNumber).getOrElse(formattedNumber)
       (messages("totalPurchaseAmountBeforeVat.checkYourAnswersLabel"),
        Some(display),
@@ -240,7 +241,7 @@ object CheckYourPurchaseDetailsSummary {
   private def rowVatPaid(answers: UserAnswers, maybeSymbol: Option[String])(implicit messages: Messages): Option[Row] =
     answers.get(TotalVatPaidPage).map { amt =>
       val url = routes.TotalVatPaidController.onPageLoad(CheckMode).url
-      val formattedNumber = f"$amt%,1.2f".replace(".00", "")
+      val formattedNumber = amountFormat(amt)
       val display = maybeSymbol.map(_ + formattedNumber).getOrElse(formattedNumber)
       (messages("totalVatPaid.checkYourAnswersLabel"), Some(display), Seq((url, "site.change", "totalVatPaid.change.hidden")))
     }
@@ -248,7 +249,7 @@ object CheckYourPurchaseDetailsSummary {
   private def rowVatClaim(answers: UserAnswers, maybeSymbol: Option[String])(implicit messages: Messages): Option[Row] =
     answers.get(TotalVatClaimPage).map { amt =>
       val url = routes.TotalVatClaimController.onPageLoad(CheckMode).url
-      val formattedNumber = f"$amt%,1.2f".replace(".00", "")
+      val formattedNumber = amountFormat(amt)
       val display = maybeSymbol.map(_ + formattedNumber).getOrElse(formattedNumber)
       (messages("totalVatClaim.checkYourAnswersLabel"), Some(display), Seq((url, "site.change", "totalVatClaim.change.hidden")))
     }

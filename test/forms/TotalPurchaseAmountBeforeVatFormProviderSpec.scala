@@ -17,9 +17,7 @@
 package forms
 
 import forms.behaviours.{CurrencyFieldBehaviours, StringFieldBehaviours}
-import forms.mappings.Mappings
 import play.api.data.FormError
-import config.CurrencyFormatter.currencyFormat
 import forms.purchase.TotalPurchaseAmountBeforeVatFormProvider
 
 class TotalPurchaseAmountBeforeVatFormProviderSpec extends CurrencyFieldBehaviours with StringFieldBehaviours {

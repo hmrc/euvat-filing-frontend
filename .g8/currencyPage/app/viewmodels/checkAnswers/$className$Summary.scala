@@ -1,6 +1,6 @@
 package viewmodels.checkAnswers
 
-import config.CurrencyFormatter.currencyFormat
+import config.AmountFormatter.amountFormat
 import controllers.routes
 import models.{CheckMode, UserAnswers}
 import pages.$className$Page
@@ -17,7 +17,7 @@ object $className$Summary  {
 
         SummaryListRowViewModel(
           key     = "$className;format="decap"$.checkYourAnswersLabel",
-          value   = ValueViewModel(currencyFormat(answer)),
+          value   = ValueViewModel(amountFormat(answer)),
           actions = Seq(
             ActionItemViewModel("site.change", routes.$className$Controller.onPageLoad(CheckMode).url)
               .withVisuallyHiddenText(messages("$className;format="decap"$.change.hidden"))
