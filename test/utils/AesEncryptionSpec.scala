@@ -20,13 +20,15 @@ import com.typesafe.config.ConfigFactory
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.Configuration
-import utils.{AesEncryption, EncryptionKeyStore}
 
 class AesEncryptionSpec extends AnyWordSpec with Matchers {
 
   private val keyStoreService = new EncryptionKeyStore(Configuration(ConfigFactory.load()))
   private val aesService = new AesEncryption(keyStoreService)
   private val plainText = "AB123456C"
+  private val iBan = "d67BQJZWtL3pqprT23Wp9gYyJtBOIc4/9miKcdXwLh0="
+  private val bicCode = "RJAsIwOAF0TBXkk1KUIJALpZF26O84DbqppSd/sSHh4="
+  private val cipherText = "ofqMcMn1FmiqJePk+xik5365lyhiZNlF7jdDg9RN5O8="
 
   "AesEncryption" should {
     "Encrypt and decrypt the data" in {
@@ -36,8 +38,23 @@ class AesEncryptionSpec extends AnyWordSpec with Matchers {
       decrypted shouldBe "AB123456C"
     }
 
+    "Decrypt the IBAN number" in {
+      val decrypted = aesService.decrypt(iBan)
+      decrypted shouldBe "GB00TESTIBANXX"
+    }
+
+    "Decrypt the Bic code number" in {
+      val decrypted = aesService.decrypt(bicCode)
+      decrypted shouldBe "TESTXX00"
+    }
+
+    "Decrypt the cipher text" in {
+      val decrypted = aesService.decrypt(cipherText)
+      decrypted shouldBe "knowntext"
+    }
+
     "produce a different encrypted value each time for the same input" in {
-      aesService.encrypt(plainText) should not be aesService.encrypt(plainText)
+      aesService.encrypt(iBan) should not be aesService.encrypt(iBan)
     }
 
     "produce a known cipher text that decrypts to the known text" in {

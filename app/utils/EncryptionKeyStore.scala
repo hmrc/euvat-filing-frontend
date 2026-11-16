@@ -19,28 +19,32 @@ package utils
 import play.api.Configuration
 
 import java.io.FileInputStream
+import java.nio.file.{Path, Paths}
 import java.security.KeyStore
 import javax.crypto.SecretKey
-import javax.inject.{Inject, Singleton}
+import javax.inject.Inject
+import scala.util.Using
 
-@Singleton
-class EncryptionKeyStore @Inject()(config: Configuration) {
+class EncryptionKeyStore @Inject() (config: Configuration) {
   private val keyStoreLocation = config.get[String]("encryption.keystore.keyStoreLocation")
+  private val keyStoreFile = config.get[String]("encryption.keystore.keyStore")
   private val keyStoreType = config.get[String]("encryption.keystore.type")
-  private val alias = config.get[String]("encryption.keystore.alias")
-  private val pwdKeyEntry = config.get[String]("encryption.keystore.pwdkeyEntry")
-  private val pwdKeyStore = config.get[String]("encryption.keystore.pwdkeyStore")
+  private val keyAlias = config.get[String]("encryption.keystore.alias")
+  private val keyEntryPwd = config.get[String]("encryption.keystore.keyEntryPwd").toCharArray
+  private val keyStorePwd = config.get[String]("encryption.keystore.keyStorePwd").toCharArray
+  private val keyStorePath: Path = Paths.get(keyStoreLocation, keyStoreFile)
 
   lazy val secretKey: SecretKey = {
     val keyStore = KeyStore.getInstance(keyStoreType)
-    val inputStream = new FileInputStream(keyStoreLocation)
 
-    try {
-      keyStore.load(inputStream, pwdKeyEntry.toCharArray)
-    } finally {
-      inputStream.close()
+    Using.resource(new FileInputStream(keyStorePath.toFile)) { inputStream =>
+      keyStore.load(inputStream, keyStorePwd)
     }
 
-    keyStore.getKey(alias, pwdKeyStore.toCharArray).asInstanceOf[SecretKey]
+    keyStore.getKey(keyAlias, keyEntryPwd) match {
+      case key: SecretKey => key
+      case _              => throw new Exception(s"Secret key '$keyAlias' does not exist")
+    }
   }
+
 }
