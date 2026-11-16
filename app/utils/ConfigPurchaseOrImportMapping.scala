@@ -40,7 +40,6 @@ case class PurchaseNode(parent: String, code: String, label: String, children: S
   */
 
 object ConfigPurchaseOrImportMapping {
-  val NoneValue: String = "__none__"
   val NoneOfTheseSubCode: String = "10.99"
 }
 
@@ -278,9 +277,5 @@ class ConfigPurchaseOrImportMapping @Inject() (config: Configuration = Configura
         value   = Some(code),
         id      = Some(s"value_$idx")
       )
-    } :+ RadioItem(
-      content = Text("None"),
-      value   = Some(ConfigPurchaseOrImportMapping.NoneValue),
-      id      = Some(s"value_${options.size}")
-    )
+    }
 }

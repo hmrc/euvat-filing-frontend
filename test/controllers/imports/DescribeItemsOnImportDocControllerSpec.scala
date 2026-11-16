@@ -56,7 +56,7 @@ class DescribeItemsOnImportDocControllerSpec extends SpecBase {
       .set(ImportTypePage, Other)
       .success
       .value
-      .set(ImportSubCodePage, "__none__")
+      .set(ImportSubCodePage, "10.99")
       .success
       .value
       .set(RefundingLanguagePage, RefundingLanguage.French)

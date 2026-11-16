@@ -66,7 +66,7 @@ class ImportSubCategoryControllerSpec extends SpecBase {
         content must include("Import details")
         content must include("value=\"1.2.6\"")
         content must include("value=\"1.2.7\"")
-        content must include("value=\"__none__\"")
+        content must include("value=\"1.2.99\"")
         content must include("What is the type of fuel or vehicle?")
         content must include("Passenger car (PKW)")
         content must not include "value=\"1.3\""
@@ -184,18 +184,18 @@ class ImportSubCategoryControllerSpec extends SpecBase {
       }
     }
 
-    "must save the none marker and redirect to Journey Recovery when None is submitted" in {
+    "must save the none marker and redirect to the SAD reference page when None is submitted" in {
       val application = applicationBuilder(userAnswers = Some(answers()))
         .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, submitRoute).withFormUrlEncodedBody("value" -> "__none__")
+        val request = FakeRequest(POST, submitRoute).withFormUrlEncodedBody("value" -> "1.2.99")
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual sadReferenceUrl
-        savedAnswers.get(ImportSubCategoryPage) mustBe Some("__none__")
+        savedAnswers.get(ImportSubCategoryPage) mustBe Some("1.2.99")
       }
     }
 

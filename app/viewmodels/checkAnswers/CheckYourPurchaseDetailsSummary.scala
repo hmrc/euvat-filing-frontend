@@ -68,7 +68,7 @@ object CheckYourPurchaseDetailsSummary {
           None
         } else {
           answers.get(PurchaseSubTypePage) match {
-            case Some(v) if v == ConfigPurchaseOrImportMapping.NoneValue || v.split("\\.").lastOption.contains("99") =>
+            case Some(v) if v.split("\\.").lastOption.contains("99") =>
               val singleBypass = countryOpt.flatMap { c =>
                 try {
                   val opts = config.subcodesFor(c, parentKey)
@@ -97,10 +97,7 @@ object CheckYourPurchaseDetailsSummary {
     val valueOpt: Option[String] = answers.get(PurchaseSubTypeLabelPage)
     val displayValueOpt: Option[String] = answers
       .get(PurchaseSubTypeLabelPage)
-      .map {
-        case ConfigPurchaseOrImportMapping.NoneValue => messages("site.none")
-        case value                                   => value
-      }
+
     val changeUrl = routes.PurchaseSubTypeController.onPageLoad(parentSlug, CheckMode).url
 
     Some((keyLabel, displayValueOpt, Seq((changeUrl, "site.change", "purchase.subType.change.hidden"))))
@@ -114,19 +111,17 @@ object CheckYourPurchaseDetailsSummary {
     } yield {
       val parentKey = pt.toString
 
-      val codeToResolve = if (code == ConfigPurchaseOrImportMapping.NoneValue) answers.get(PurchaseSubTypePage).getOrElse(code) else code
-      val slugOpt = PurchaseOrImportSubCategoryType.subCategoryPageSlugFor(parentKey, codeToResolve)
-      val slug = slugOpt.getOrElse(PurchaseOrImportSubCategoryType.pathFor(parentKey, codeToResolve))
+      val slugOpt = PurchaseOrImportSubCategoryType.subCategoryPageSlugFor(parentKey, code)
+      val slug = slugOpt.getOrElse(PurchaseOrImportSubCategoryType.pathFor(parentKey, code))
       val msgKey = s"purchase.subCategory.$slug"
       val keyLabel = if (messages.isDefinedAt(msgKey)) messages(msgKey) else slug.replace('-', ' ').capitalize
-      val displayValue = if (label == ConfigPurchaseOrImportMapping.NoneValue) messages("site.none") else label
       val actions = slugOpt
         .map(subCategorySlug =>
           Seq((PurchaseNavigator.subCategoryPage(subCategorySlug, CheckMode).url, "site.change", "purchase.subCategory.change.hidden"))
         )
         .getOrElse(Seq.empty)
 
-      (keyLabel, Some(displayValue), actions)
+      (keyLabel, Some(label), actions)
     }
 
   private def rowInvoiceType(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
