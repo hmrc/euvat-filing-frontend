@@ -33,6 +33,7 @@ class EncryptionKeyStore @Inject() (config: Configuration) {
   private val keyEntryPwd = config.get[String]("encryption.keystore.keyEntryPwd").toCharArray
   private val keyStorePwd = config.get[String]("encryption.keystore.keyStorePwd").toCharArray
   private val keyStorePath: Path = Paths.get(keyStoreLocation, keyStoreFile)
+  val knownCipherText: String = config.get[String]("encryption.keystore.knownCipher")
 
   lazy val secretKey: SecretKey = {
     val keyStore = KeyStore.getInstance(keyStoreType)

@@ -16,8 +16,6 @@
 
 package utils
 
-import utils.EncryptionKeyStore
-
 import java.nio.charset.StandardCharsets.UTF_8
 import java.security.SecureRandom
 import java.util.Base64
@@ -26,7 +24,7 @@ import javax.crypto.spec.IvParameterSpec
 import javax.inject.{Inject, Singleton}
 
 @Singleton
-class AesEncryption @Inject()(keyStoreService: EncryptionKeyStore) {
+class AesEncryption @Inject() (keyStoreService: EncryptionKeyStore) {
   private val Transformation = "AES/CBC/PKCS5Padding"
   private val IvLength = 16
   private val secureRandom = new SecureRandom()
@@ -50,6 +48,6 @@ class AesEncryption @Inject()(keyStoreService: EncryptionKeyStore) {
     new String(cipher.doFinal(encrypted), UTF_8)
   }
 
-  def knownCipherText: String = encrypt("knowntext")
+  def knownCipherText: String = encrypt(keyStoreService.knownCipherText)
 
 }
