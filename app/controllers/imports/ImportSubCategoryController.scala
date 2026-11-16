@@ -78,7 +78,6 @@ class ImportSubCategoryController @Inject() (
       title,
       "import.caption",
       ImportNavigator.subCategorySubmit(request.userAnswers, mode)
-      
     )
   }
 

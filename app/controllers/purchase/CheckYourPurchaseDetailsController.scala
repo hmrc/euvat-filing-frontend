@@ -334,7 +334,10 @@ class CheckYourPurchaseDetailsController @Inject() (
                 PurchaseOrImportType.codes.find(_._2 == resp.goodsDescriptionCode).map(_._1)
 
               val invoiceTypeOpt: Option[InvoiceType] =
-                Some(if (resp.simplifiedInvoiceIndicator.exists(_.equalsIgnoreCase(true.toString))) InvoiceType.SimplifiedInvoice else InvoiceType.StandardInvoice)
+                Some(
+                  if (resp.simplifiedInvoiceIndicator.exists(_.equalsIgnoreCase(true.toString))) InvoiceType.SimplifiedInvoice
+                  else InvoiceType.StandardInvoice
+                )
               val supplierVatRegCheckOpt: Option[Boolean] =
                 Option.when(invoiceTypeOpt.contains(InvoiceType.SimplifiedInvoice))(
                   resp.supplierVatNumber.flatMap(s => Option(s).filter(_.nonEmpty)).isDefined
