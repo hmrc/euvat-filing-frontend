@@ -708,6 +708,23 @@ supportingDocuments.beforeYouStart.invoice.bullet7 = total amount of VAT charged
 supportingDocuments.beforeYouStart.simplifiedInvoice.summary = If you have a simplified invoice
 supportingDocuments.beforeYouStart.simplifiedInvoice.detail = You can still upload a simplified invoice if it does not include the supplier’s VAT registration number or tax identifier.
 
+supportingDocuments.anyDocuments.title = Do you have any supporting documents to upload?
+supportingDocuments.anyDocuments.heading = Do you have any supporting documents to upload?
+supportingDocuments.anyDocuments.error.required = Select yes if you have supporting documents to upload
+supportingDocuments.uploadFile.title = Upload file
+supportingDocuments.uploadFile.heading = Upload file
+supportingDocuments.uploadFile.file.label = Upload file
+supportingDocuments.uploadFile.file.hint = Upload a scanned version or photo of the original document. We accept the following file types: JPEG, TIFF, PDF or ZIP.
+supportingDocuments.uploadFile.description.label = Additional information (optional)
+supportingDocuments.uploadFile.description.hint = You can give the details in your preferred language
+supportingDocuments.uploadFile.description.remaining = You have '%{count}' characters remaining
+supportingDocuments.uploadFile.error.required = Select a file
+supportingDocuments.uploadFile.error.empty = The selected file is empty
+supportingDocuments.uploadFile.error.size = Total selected files must be smaller than 5MB
+supportingDocuments.uploadFile.error.type = The selected file must be a JPEG, TIFF, PDF or ZIP
+supportingDocuments.uploadFile.error.description.maxLength = Additional information must be 255 characters or less
+supportingDocuments.uploadFile.error.unknown = The selected file could not be uploaded
+
 # Warning messages
 refundPeriodStartDateWarning.title = Are you sure the refund period start date is correct?
 refundPeriodStartDateWarning.heading = Are you sure the refund period start date is correct?
@@ -795,19 +812,3 @@ removeItem.list2 = VAT claim
 removeItem.legend = Are you sure you want to remove this item?
 removeItem.notProvided = Not provided
 removeItem.error.required = Select yes if you want to remove this item
-
-supportingDocuments.anyDocuments.title = Do you have any supporting documents to upload?
-supportingDocuments.anyDocuments.heading = Do you have any supporting documents to upload?
-supportingDocuments.anyDocuments.error.required = Select yes if you have supporting documents to upload
-supportingDocuments.uploadFile.title = Upload file
-supportingDocuments.uploadFile.heading = Upload file
-supportingDocuments.uploadFile.file.label = Upload file
-supportingDocuments.uploadFile.file.hint = Upload a scanned version or photo of the original document. We accept the following file types: JPEG, TIFF, PDF or ZIP.
-supportingDocuments.uploadFile.description.label = Additional information (optional)
-supportingDocuments.uploadFile.description.hint = You can give the details in your preferred language
-supportingDocuments.uploadFile.description.remaining = You have '%{count}' characters remaining
-supportingDocuments.uploadFile.error.required = Select a file
-supportingDocuments.uploadFile.error.empty = The selected file is empty
-supportingDocuments.uploadFile.error.size = Total selected files must be smaller than 5MB
-supportingDocuments.uploadFile.error.type = The selected file must be a JPEG, TIFF, PDF or ZIP
-supportingDocuments.uploadFile.error.description.maxLength = Additional information must be 255 characters or less
