@@ -399,6 +399,9 @@ supplierAddress.lead = Enter the supplier’s address as it appears on the invoi
 supplierAddress.line1.label = Address line 1
 supplierAddress.line2.label = Address line 2 (optional)
 supplierAddress.line3.label = Address line 3 (optional)
+supplierAddress.line1.label.short = Address line 1
+supplierAddress.line2.label.short = Address line 2
+supplierAddress.line3.label.short = Address line 3
 supplierAddress.error.line1.required = Enter address line 1, typically the building and street
 supplierAddress.error.maxLength = must be 35 characters or less
 supplierAddress.error.maxLength.withLabel = {0} {1}
@@ -562,14 +565,9 @@ totalVatPaidImport.p1 = If this amount is not on your import document, you’ll 
 
 import.supplierAddress.lead = Enter the supplier’s address as it appears on the import document.
 import.supplierAddress.country.label = Country
-import.supplierAddress.line1.label.short=Address line 1
-import.supplierAddress.line2.label.short=Address line 2
-import.supplierAddress.line3.label.short=Address line 3
-import.supplierAddress.error.line1.maxLength={0} {1}
-import.supplierAddress.error.line2.maxLength={0} {1}
-import.supplierAddress.error.line3.maxLength={0} {1}
-import.supplierAddress.error.country.required=Select a country
-import.supplierAddress.error.country.invalid=Select a country from the list
+import.supplierAddress.country.placeholder = Select a country
+import.supplierAddress.error.country.required = Select a country
+import.supplierAddress.error.country.invalid = Select a country from the list
 
 import.refundingCurrency.title = Which currency do you want to use for this import?
 import.refundingCurrency.heading = Which currency do you want to use for this import?
