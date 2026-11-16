@@ -322,7 +322,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar with TableDr
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
+        redirectLocation(result).value mustEqual ("/file-eu-vat/purchase" + onwardRoute.url)
         verify(mockEuVatRefundsService, times(1)).addPurchase(any())(any())
 
         val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
@@ -448,7 +448,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar with TableDr
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-//        redirectLocation(result).value mustEqual "/prefix" + routes.DescribeItemsOnInvoiceController.onPageLoad(CheckMode).url
+        redirectLocation(result).value mustEqual "/prefix" + routes.DescribeItemsOnInvoiceController.onPageLoad(CheckMode).url
         verify(mockSessionRepository, times(1)).set(any())
       }
     }
@@ -620,7 +620,7 @@ class PurchaseTypeControllerSpec extends SpecBase with MockitoSugar with TableDr
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
+        redirectLocation(result).value mustEqual ("/file-eu-vat/purchase" + onwardRoute.url)
         verify(mockEuVatRefundsService, never).addPurchase(any())(any())
       }
     }

@@ -35,7 +35,7 @@ import services.EuVatRefundsService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import utils.{ConfigPurchaseOrImportMapping, CountryCode}
+import utils.{ConfigPurchaseOrImportMapping, CountryCode, MountPrefix}
 import views.html.purchasesOrImports.PurchaseOrImportTypeView
 
 import javax.inject.Inject
@@ -201,7 +201,7 @@ class PurchaseTypeController @Inject() (
         euVatRefundsService
           .addPurchase(AddPurchaseRequest.from(answers, purchaseType, claimResponse))
           .flatMap(addPurchaseResponse => persistAddPurchaseResponseToSession(answers, addPurchaseResponse))
-          .map(updatedAnswers => Redirect(navigator.nextPage(PurchaseTypePage, mode, updatedAnswers)))
+          .map(updatedAnswers => redirectWithPrefix(navigator.nextPage(PurchaseTypePage, mode, updatedAnswers)))
           .recover { case ex =>
             logger.error("Error while adding the purchase", ex)
             Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
