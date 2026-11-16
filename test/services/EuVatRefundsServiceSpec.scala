@@ -19,12 +19,16 @@ package services
 import base.SpecBase
 import config.FrontendAppConfig
 import connectors.EuVatRefundsConnector
+import models.ApplicationDetails
 import models.requests.*
 import models.responses.*
 import org.mockito.ArgumentMatchers.*
+import org.mockito.ArgumentMatchers.eq as mockitoEq
 import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
+import com.typesafe.config.ConfigFactory
+import play.api.Configuration
 import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.LocalDateTime
@@ -88,6 +92,69 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
         .thenReturn(Future.failed(failure))
 
       val result = service.getLatestApplications(request)
+
+      whenReady(result.failed) { ex =>
+        ex mustEqual failure
+      }
+    }
+  }
+
+  "EuVatRefundsService.getApplicationDetails" - {
+
+    val applicationId = 1L
+
+    val expectedResponse = ApplicationDetailsResponse(
+      applicationDetails = List(
+        ApplicationDetails(
+          applicationId              = applicationId,
+          applicationNumber          = None,
+          refundingCountryCode       = None,
+          applicationVersion         = None,
+          periodStartDate            = None,
+          periodEndDate              = None,
+          applicantVatRegNumber      = None,
+          applicantEmailAddress      = None,
+          applicantTelephoneNumber   = None,
+          representativeId           = None,
+          representativeIdType       = None,
+          representativeCountry      = None,
+          representativeEmailAddress = None,
+          representativeTelephoneNum = None,
+          applicationLanguage        = None,
+          bankAccountOwnerName       = None,
+          bankAccountOwnerType       = None,
+          ibanCode                   = None,
+          bicCode                    = None,
+          bankAccountCurrencyCode    = None,
+          businessActivityCode1      = None,
+          businessActivityCode2      = None,
+          businessActivityCode3      = None,
+          messageId                  = None,
+          correlationId              = None,
+          cipherText                 = None,
+          encryptionStatus           = None,
+          updateSeqNumber            = 1,
+          applicationStatus          = None,
+          submissionStatus           = None
+        )
+      )
+    )
+
+    "should return applicationDetails from the connector" in {
+      when(mockConnector.getApplicationDetails(mockitoEq(applicationId))(any()))
+        .thenReturn(Future.successful(expectedResponse))
+
+      val result = service.getApplicationDetails(applicationId)(hc).futureValue
+      result mustEqual expectedResponse
+    }
+
+    "should propagate an exception from the connector" in {
+      val failure = new RuntimeException("Connector failed")
+
+      when(mockConnector.getApplicationDetails(any())(any()))
+        .thenReturn(Future.failed(failure))
+
+      val result = service.getApplicationDetails(applicationId)(hc)
 
       whenReady(result.failed) { ex =>
         ex mustEqual failure

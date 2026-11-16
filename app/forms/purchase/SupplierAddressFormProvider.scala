@@ -31,7 +31,7 @@ class SupplierAddressFormProvider @Inject() (messagesApi: MessagesApi) extends M
 
   private val defaultMessages = messagesApi.preferred(Seq(Lang("en")))
 
-  private def fieldMaxLengthConstraint(labelKey: String, errorKey: String): Constraint[String] =
+  private def fieldMaxLengthConstraint(labelKey: String): Constraint[String] =
     Constraint { str =>
       if (str.length <= addressLineMaxLength) Valid
       else Invalid("supplierAddress.error.maxLength.withLabel", defaultMessages(labelKey), defaultMessages("supplierAddress.error.maxLength"))
@@ -41,12 +41,12 @@ class SupplierAddressFormProvider @Inject() (messagesApi: MessagesApi) extends M
     Form(
       mapping(
         "addressLine1" -> text("supplierAddress.error.line1.required")
-          .verifying(fieldMaxLengthConstraint("supplierAddress.line1.label", "supplierAddress.error.line1.maxLength")),
+          .verifying(fieldMaxLengthConstraint("supplierAddress.line1.label.short")),
         "addressLine2" -> optional(
-          text().verifying(fieldMaxLengthConstraint("supplierAddress.line2.label.short", "supplierAddress.error.line2.maxLength"))
+          text().verifying(fieldMaxLengthConstraint("supplierAddress.line2.label.short"))
         ),
         "addressLine3" -> optional(
-          text().verifying(fieldMaxLengthConstraint("supplierAddress.line3.label.short", "supplierAddress.error.line3.maxLength"))
+          text().verifying(fieldMaxLengthConstraint("supplierAddress.line3.label.short"))
         )
       )(SupplierAddress.apply)(o => Some(Tuple.fromProductTyped(o)))
     )
