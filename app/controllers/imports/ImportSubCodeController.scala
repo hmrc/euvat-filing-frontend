@@ -79,7 +79,7 @@ class ImportSubCodeController @Inject() (
     val messages = request2Messages
     view(
       form,
-      radioItems(config, options),
+      config.buildRadioItems(options, messages),
       messages(s"importSubCode.$importType.title"),
       messages(s"importSubCode.$importType.heading"),
       "import.caption",
@@ -101,7 +101,7 @@ class ImportSubCodeController @Inject() (
         .fold(
           formWithErrors => Future.successful(BadRequest(renderView(importType, options, formWithErrors, mode))),
           value =>
-            if (allowedValues(options).contains(value)) {
+            if (options.map(_._1).contains(value)) {
               val label = labelFor(value, options)
               saveAnswerAndResetDependents(
                 page              = ImportSubCodePage,

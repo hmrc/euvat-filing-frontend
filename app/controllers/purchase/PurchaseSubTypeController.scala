@@ -74,14 +74,13 @@ class PurchaseSubTypeController @Inject() (
   ) = {
     val options = config.subcodesFor(country, parentKey)
     val rawItems = config.buildRadioItems(options, messagesApi.preferred(request))
-    val items = if (parentKey == "other") rawItems.filterNot(_.value.contains(ConfigPurchaseOrImportMapping.NoneValue)) else rawItems
     val msgs = messagesApi.preferred(request)
     val requiredKeyCandidates = Seq(s"sub.$parentKey.error.required")
     val requiredKey = requiredKeyCandidates.find(k => msgs.isDefinedAt(k)).getOrElse("error.required")
     val preparedForm = userAnswers.get(PurchaseSubTypePage).fold(formProvider(requiredKey))(formProvider(requiredKey).fill)
     val resolvedSlug = resolvedSlugFor(parentKey, purchaseTypeSlug)
-
-    (options, items, parentHeadingFor(parentKey), preparedForm, resolvedSlug, formActionFor(resolvedSlug, mode))
+    
+    (options, rawItems, parentHeadingFor(parentKey), preparedForm, resolvedSlug, formActionFor(resolvedSlug, mode))
   }
 
   private def ensurePurchaseTypeWhenMissing(currentAnswers: UserAnswers,
@@ -249,22 +248,6 @@ class PurchaseSubTypeController @Inject() (
       }
   }
 
-  private def persistNoneSelection(mode: Mode, userAnswers: UserAnswers)(implicit request: DataRequest[AnyContent]): Future[Result] = {
-    val noneLabel = ConfigPurchaseOrImportMapping.NoneValue
-    val savedTry = for {
-      a1 <- userAnswers.set(PurchaseSubTypePage, ConfigPurchaseOrImportMapping.NoneValue)
-      a2 <- a1.set(PurchaseSubTypeLabelPage, noneLabel)
-      a3 <- a2.remove(PurchaseSubCategoryPage)
-      a4 <- a3.remove(PurchaseSubCategoryLabelPage)
-    } yield a4
-
-    for {
-      updatedAnswers <- Future.fromTry(savedTry)
-      _              <- sessionRepository.set(updatedAnswers)
-      result         <- redirectWhenNoOptions(mode)
-    } yield result
-  }
-
   private def routeToSubCategory(parentKey: String, value: String, mode: Mode)(implicit request: RequestHeader): Option[Call] = {
     val routeParentCodeCandidate = value
     val candidates = Seq(routeParentCodeCandidate).distinct
@@ -327,11 +310,7 @@ class PurchaseSubTypeController @Inject() (
     if (mode == CheckMode && userAnswers.isAnswerUnchanged(PurchaseSubTypePage, value)) {
       Future.successful(Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad()))
     } else {
-      if (value == ConfigPurchaseOrImportMapping.NoneValue) {
-        persistNoneSelection(mode, userAnswers)
-      } else {
-        persistNormalSelection(parentKey, country, value, resolvedSlug, mode, userAnswers)
-      }
+      persistNormalSelection(parentKey, country, value, resolvedSlug, mode, userAnswers)
     }
 
   private def submitForResolvedParent(purchaseTypeSlug: String, parentKey: String, country: String, mode: Mode, userAnswers: UserAnswers)(implicit

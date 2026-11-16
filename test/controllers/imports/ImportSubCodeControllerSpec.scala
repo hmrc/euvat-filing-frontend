@@ -67,24 +67,7 @@ class ImportSubCodeControllerSpec extends SpecBase {
         content must include("What is the fuel used for?")
         content must include("Import details")
         content must include("value=\"1.3\"")
-        content must include("value=\"__none__\"")
-        """>\s*None\s*<""".r.findFirstIn(content) mustBe defined
-        content must not include "value=\"1.2.6\""
-      }
-    }
-
-    "must render the back link to the Import type page" in {
-      val application = applicationBuilder(userAnswers = Some(answers())).build()
-
-      running(application) {
-        val result = route(application, FakeRequest(GET, fuelRoute)).value
-
-        status(result) mustEqual OK
-        val content = contentAsString(result)
-        content must include("What is the fuel used for?")
-        content must include("Import details")
-        content must include("value=\"1.3\"")
-        content must include("value=\"__none__\"")
+        content must include("value=\"1.99\"")
         """>\s*None\s*<""".r.findFirstIn(content) mustBe defined
         content must not include "value=\"1.2.6\""
       }
@@ -211,12 +194,12 @@ class ImportSubCodeControllerSpec extends SpecBase {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, fuelRoute).withFormUrlEncodedBody("value" -> "__none__")
+        val request = FakeRequest(POST, fuelRoute).withFormUrlEncodedBody("value" -> "1.99")
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual sadReferenceUrl
-        savedAnswers.get(ImportSubCodePage) mustBe Some("__none__")
+        savedAnswers.get(ImportSubCodePage) mustBe Some("1.99")
       }
     }
 

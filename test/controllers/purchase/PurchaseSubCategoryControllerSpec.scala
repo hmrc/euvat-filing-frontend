@@ -262,8 +262,8 @@ class PurchaseSubCategoryControllerSpec extends SpecBase with MockitoSugar {
         captor.getValue.get(PurchaseSubCategoryPage) mustBe Some("1.1")
       }
     }
-
-    "must remove subcategory and redirect to InvoiceType when None selected" in {
+    
+    "must save selection and redirect to InvoiceType when None selected" in {
       val fakeConfig = new ConfigPurchaseOrImportMapping() {
         override def subcategoriesFor(country: String, parentKey: String, subcode: String) = Seq(("1.1", "sub.fuel.1.1"))
         override def buildRadioItems(options: Seq[(String, String)], msgs: play.api.i18n.Messages) = Seq.empty
@@ -279,7 +279,7 @@ class PurchaseSubCategoryControllerSpec extends SpecBase with MockitoSugar {
         .set(PurchaseTypePage, Fuel)
         .success
         .value
-        .set(PurchaseSubCategoryPage, "1.1")
+        .set(PurchaseSubCategoryPage, "1.1.1")
         .success
         .value
 
@@ -292,7 +292,7 @@ class PurchaseSubCategoryControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(POST, "/file-eu-vat/purchase/fuel-type")
-          .withFormUrlEncodedBody(("value", ConfigPurchaseOrImportMapping.NoneValue))
+          .withFormUrlEncodedBody(("value", "1.1.99"))
 
         val result = route(application, request).value
 
@@ -302,8 +302,8 @@ class PurchaseSubCategoryControllerSpec extends SpecBase with MockitoSugar {
         val captor = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
         val saved = captor.getValue
-        saved.get(PurchaseSubCategoryPage) mustBe Some(ConfigPurchaseOrImportMapping.NoneValue)
-        saved.get(PurchaseSubCategoryLabelPage) mustBe Some(ConfigPurchaseOrImportMapping.NoneValue)
+        saved.get(PurchaseSubCategoryPage) mustBe Some("1.1.99")
+        saved.get(PurchaseSubCategoryLabelPage).isDefined mustBe true
       }
     }
 
