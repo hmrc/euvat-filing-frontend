@@ -17,219 +17,158 @@
 package controllers.supportingdocuments
 
 import base.SpecBase
-import play.api.libs.Files.{TemporaryFile, TemporaryFileCreator}
-import play.api.mvc.MultipartFormData
+import models.responses.{ApplicationResponse, CreateUploadTrackingResponse}
+import org.mockito.ArgumentMatchers.{any, eq as mockitoEq}
+import org.mockito.Mockito.{never, verify, when}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import queries.ClaimApplicationResponseQuery
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
-import java.nio.charset.StandardCharsets
-import java.nio.file.Files
+import scala.concurrent.Future
 
 class UploadFileControllerSpec extends SpecBase {
 
-  private val formTokenKey = "uploadFile.formToken"
-  private val formTokenField = "uploadFileFormToken"
+  private val applicationId = 133L
+  private lazy val onPageLoadUrl = routes.UploadFileController.onPageLoad().url
 
-  private def formTokenFrom(content: String): String =
-    """name="uploadFileFormToken" value="([^"]+)"""".r.findFirstMatchIn(content).map(_.group(1)).get
+  private val uploadTracking = CreateUploadTrackingResponse(
+    reference = "ref-123",
+    uploadUrl = "http://localhost:9570/upscan/upload-proxy",
+    fields    = Map("key" -> "ref-123", "x-amz-algorithm" -> "AWS4-HMAC-SHA256")
+  )
 
-  "UploadFileController" - {
+  // adjust to match the fields of the ApplicationResponse stored by ClaimApplicationResponseQuery
+  private val userAnswersWithApplication =
+    emptyUserAnswers
+      .set(ClaimApplicationResponseQuery, ApplicationResponse(applicationId = applicationId, applicationNumber = "GB123456789", updateSeqNumber = 1))
+      .success
+      .value
 
-    "must display the supporting document upload form" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+  // SpecBase binds mockEuVatRefundsService into every application and resets it before each test,
+  // so each test only needs to stub it
+  private def uploadTrackingReturns(result: Future[CreateUploadTrackingResponse]): Unit =
+    when(mockEuVatRefundsService.createUploadTracking(any[Long]())(any())).thenReturn(result)
+
+  private def applicationWithUpload = {
+    uploadTrackingReturns(Future.successful(uploadTracking))
+    applicationBuilder(userAnswers = Some(userAnswersWithApplication)).build()
+  }
+
+  "UploadFileController.onPageLoad" - {
+
+    "must start an upscan upload for the application" in {
+      val application = applicationWithUpload
 
       running(application) {
-        val result = route(application, FakeRequest(GET, "/file-eu-vat/supporting-documents/upload-file")).value
+        status(route(application, FakeRequest(GET, onPageLoadUrl)).value) mustEqual OK
+        verify(mockEuVatRefundsService).createUploadTracking(mockitoEq(applicationId))(any())
+      }
+    }
+
+    "must display the upload page as designed" in {
+      val application = applicationWithUpload
+
+      running(application) {
+        val result = route(application, FakeRequest(GET, onPageLoadUrl)).value
         val content = contentAsString(result)
 
         status(result) mustEqual OK
         header("Cache-Control", result).value mustEqual "no-store"
-        routes.UploadFileController.onPageLoad().url mustEqual "/file-eu-vat/supporting-documents/upload-file"
+        onPageLoadUrl mustEqual "/file-eu-vat/supporting-documents/upload-file"
         content must include("<title>Upload file - EU VAT - GOV.UK</title>")
         content must include("<h1 class=\"govuk-label-wrapper\">")
         content must include(s"""<span class="govuk-caption-l">${messages(application)("supportingDocuments.caption")}</span>""")
         content must include(messages(application)("supportingDocuments.uploadFile.file.hint"))
         content must include(messages(application)("supportingDocuments.uploadFile.description.label"))
-        content must include("""autoComplete="off"""")
-        content must include("name=\"file-upload-1\"")
-        content must include("name=\"fileuploadDescription\"")
-        content must include(s"""name="$formTokenField"""")
         content must include("data-module=\"govuk-file-upload\"")
         content must include("""href="#" class="govuk-back-link" data-module="hmrc-back-link">Back</a>""")
         content must include("You have 255 characters remaining")
       }
     }
 
-    "must redirect a valid upload to journey recovery until the uploading page exists" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+    "must post the file straight to upscan with the upscan fields" in {
+      val application = applicationWithUpload
 
       running(application) {
-        val temporaryFile = application.injector.instanceOf[TemporaryFileCreator].create()
-        Files.write(temporaryFile.path, "receipt contents".getBytes(StandardCharsets.UTF_8))
-        val multipartData: MultipartFormData[TemporaryFile] = MultipartFormData(
-          dataParts = Map(formTokenField -> Seq("test-token")),
-          files     = Seq(MultipartFormData.FilePart("file-upload-1", "receipt.pdf", Some("application/pdf"), temporaryFile)),
-          badParts  = Seq.empty
-        )
-        val request = FakeRequest(POST, routes.UploadFileController.onSubmit().url)
-          .withSession(formTokenKey -> "test-token")
-          .withMultipartFormDataBody(multipartData)
-        val result = route(application, request).value
+        val content = contentAsString(route(application, FakeRequest(GET, onPageLoadUrl)).value)
 
-        try {
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
-        } finally {
-          Files.deleteIfExists(temporaryFile.path)
-        }
+        content must include(s"""action="${uploadTracking.uploadUrl}"""")
+        content must include("""enctype="multipart/form-data"""")
+        content must include("""name="key" value="ref-123"""")
+        content must include("""name="x-amz-algorithm" value="AWS4-HMAC-SHA256"""")
+        content must include("""name="file"""")
+        content must not include "csrfToken"
       }
     }
 
-    "must show an error when the uploaded file is empty" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+    "must keep the description and the button outside the upscan form" in {
+      val application = applicationWithUpload
 
       running(application) {
-        val temporaryFile = application.injector.instanceOf[TemporaryFileCreator].create()
-        val multipartData = MultipartFormData(
-          dataParts = Map(formTokenField -> Seq("test-token")),
-          files     = Seq(MultipartFormData.FilePart("file-upload-1", "empty.pdf", Some("application/pdf"), temporaryFile)),
-          badParts  = Seq.empty
-        )
-        val request = FakeRequest(POST, routes.UploadFileController.onSubmit().url)
-          .withSession(formTokenKey -> "test-token")
-          .withMultipartFormDataBody(multipartData)
-        val result = route(application, request).value
+        val content = contentAsString(route(application, FakeRequest(GET, onPageLoadUrl)).value)
+        val formStart = content.indexOf("""id="upscan-form"""")
+        val formEnd = content.indexOf("</form>", formStart)
+        val upscanForm = content.substring(formStart, formEnd)
 
-        try {
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.UploadFileController.onPageLoad().url
-          flash(result).get("uploadFile.fileError") mustBe Some("supportingDocuments.uploadFile.error.empty")
-
-          val errorPageRequest = FakeRequest(GET, routes.UploadFileController.onPageLoad().url)
-            .withFlash("uploadFile.fileError" -> "supportingDocuments.uploadFile.error.empty")
-          val errorPage = route(application, errorPageRequest).value
-
-          status(errorPage) mustEqual OK
-          val errorContent = contentAsString(errorPage)
-          errorContent must include(
-            s"""<title>${messages(application)("error.title.prefix")} ${messages(application)("supportingDocuments.uploadFile.title")}"""
-          )
-          errorContent must include(messages(application)("supportingDocuments.uploadFile.error.empty"))
-          errorContent must include("""id="file-upload-1-error"""")
-          errorContent must include("""aria-describedby="file-upload-1-error file-upload-1-hint"""")
-          val errorGroupStart = errorContent.indexOf("""class="govuk-form-group govuk-form-group--error"""")
-          val captionPosition = errorContent.indexOf(
-            s"""<span class="govuk-caption-l">${messages(application)("supportingDocuments.caption")}</span>"""
-          )
-          val headingPosition = errorContent.indexOf("<h1 class=\"govuk-label-wrapper\">")
-          errorGroupStart must be >= 0
-          captionPosition must be > errorGroupStart
-          headingPosition must be > captionPosition
-          header("Cache-Control", errorPage).value mustEqual "no-store"
-          val freshToken = formTokenFrom(contentAsString(errorPage))
-
-          val noFileMultipartData: MultipartFormData[TemporaryFile] = MultipartFormData(
-            dataParts = Map(formTokenField -> Seq(freshToken)),
-            files     = Seq.empty,
-            badParts  = Seq.empty
-          )
-          val noFileRequest = FakeRequest(POST, routes.UploadFileController.onSubmit().url)
-            .withSession(formTokenKey -> freshToken)
-            .withMultipartFormDataBody(noFileMultipartData)
-          val noFileResult = route(application, noFileRequest).value
-
-          status(noFileResult) mustEqual SEE_OTHER
-          flash(noFileResult).get("uploadFile.fileError") mustBe Some("supportingDocuments.uploadFile.error.required")
-        } finally {
-          Files.deleteIfExists(temporaryFile.path)
-        }
+        formStart must be >= 0
+        upscanForm must include("""name="file"""")
+        upscanForm must not include "fileuploadDescription"
+        content.indexOf("""name="fileuploadDescription"""") must be > formEnd
+        content must include("""form="upscan-form"""")
       }
     }
 
-    "must show a select-file error when no file is submitted" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+    "must show an error when upscan sends the user back with an error code" in {
+      val application = applicationWithUpload
 
       running(application) {
-        val multipartData: MultipartFormData[TemporaryFile] = MultipartFormData(
-          dataParts = Map(formTokenField -> Seq("test-token")),
-          files     = Seq.empty,
-          badParts  = Seq.empty
+        val result = route(application, FakeRequest(GET, s"$onPageLoadUrl?key=ref-123&errorCode=EntityTooLarge")).value
+        val content = contentAsString(result)
+
+        status(result) mustEqual OK
+        content must include(
+          s"""<title>${messages(application)("error.title.prefix")} ${messages(application)("supportingDocuments.uploadFile.title")}"""
         )
-        val request = FakeRequest(POST, routes.UploadFileController.onSubmit().url)
-          .withSession(formTokenKey -> "test-token")
-          .withMultipartFormDataBody(multipartData)
-        val result = route(application, request).value
+        content must include(messages(application)("supportingDocuments.uploadFile.error.size"))
+        content must include("""id="file-error"""")
+        content must include("""aria-describedby="file-error file-hint"""")
+        content must include("""href="#file"""")
+      }
+    }
+
+    "must show the empty-file error when upscan reports the file is too small" in {
+      val application = applicationWithUpload
+
+      running(application) {
+        val content = contentAsString(route(application, FakeRequest(GET, s"$onPageLoadUrl?errorCode=EntityTooSmall")).value)
+
+        content must include(messages(application)("supportingDocuments.uploadFile.error.empty"))
+        content must not include messages(application)("supportingDocuments.uploadFile.error.required")
+      }
+    }
+
+    "must redirect to Journey Recovery when the upload cannot be started" in {
+      uploadTrackingReturns(Future.failed(UpstreamErrorResponse("No application found", 404)))
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithApplication)).build()
+
+      running(application) {
+        val result = route(application, FakeRequest(GET, onPageLoadUrl)).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.UploadFileController.onPageLoad().url
-        flash(result).get("uploadFile.fileError") mustBe Some("supportingDocuments.uploadFile.error.required")
-
-        val errorPageRequest = FakeRequest(GET, routes.UploadFileController.onPageLoad().url)
-          .withFlash("uploadFile.fileError" -> "supportingDocuments.uploadFile.error.required")
-        val errorPage = route(application, errorPageRequest).value
-
-        status(errorPage) mustEqual OK
-        contentAsString(errorPage) must include(messages(application)("supportingDocuments.uploadFile.error.required"))
-        contentAsString(errorPage) must not include messages(application)("supportingDocuments.uploadFile.error.empty")
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 
-    "must show a select-file error when the browser submits an empty file part after a size error" in {
+    "must redirect to Journey Recovery without starting an upload when there is no application id" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val oversizedFile = application.injector.instanceOf[TemporaryFileCreator].create()
-        val emptyFile = application.injector.instanceOf[TemporaryFileCreator].create()
-        Files.write(oversizedFile.path, Array.fill(5 * 1024 * 1024 + 1)(0.toByte))
-        val oversizedMultipartData = MultipartFormData(
-          dataParts = Map(formTokenField -> Seq("old-token")),
-          files = Seq(
-            MultipartFormData.FilePart("file-upload-1", "large.pdf", Some("application/pdf"), oversizedFile)
-          ),
-          badParts = Seq.empty
-        )
-        val oversizedRequest = FakeRequest(POST, routes.UploadFileController.onSubmit().url)
-          .withSession(formTokenKey -> "old-token")
-          .withMultipartFormDataBody(oversizedMultipartData)
-        val oversizedResult = route(application, oversizedRequest).value
+        val result = route(application, FakeRequest(GET, onPageLoadUrl)).value
 
-        try {
-          status(oversizedResult) mustEqual SEE_OTHER
-          flash(oversizedResult).get("uploadFile.fileError") mustBe Some("supportingDocuments.uploadFile.error.size")
-
-          val errorPageRequest = FakeRequest(GET, routes.UploadFileController.onPageLoad().url)
-            .withFlash("uploadFile.fileError" -> "supportingDocuments.uploadFile.error.size")
-            .withSession(formTokenKey -> "old-token")
-          val errorPage = route(application, errorPageRequest).value
-          status(errorPage) mustEqual OK
-          val freshToken = formTokenFrom(contentAsString(errorPage))
-
-          val staleFileRequest = FakeRequest(POST, routes.UploadFileController.onSubmit().url)
-            .withSession(formTokenKey -> freshToken)
-            .withMultipartFormDataBody(oversizedMultipartData)
-          val staleFileResult = route(application, staleFileRequest).value
-
-          status(staleFileResult) mustEqual SEE_OTHER
-          flash(staleFileResult).get("uploadFile.fileError") mustBe Some("supportingDocuments.uploadFile.error.required")
-
-          val noSelectionMultipartData = MultipartFormData(
-            dataParts = Map(formTokenField -> Seq(freshToken)),
-            files = Seq(
-              MultipartFormData.FilePart("file-upload-1", "", Some("application/octet-stream"), emptyFile)
-            ),
-            badParts = Seq.empty
-          )
-          val noSelectionRequest = FakeRequest(POST, routes.UploadFileController.onSubmit().url)
-            .withSession(formTokenKey -> freshToken)
-            .withMultipartFormDataBody(noSelectionMultipartData)
-          val noSelectionResult = route(application, noSelectionRequest).value
-
-          status(noSelectionResult) mustEqual SEE_OTHER
-          flash(noSelectionResult).get("uploadFile.fileError") mustBe Some("supportingDocuments.uploadFile.error.required")
-        } finally {
-          Files.deleteIfExists(oversizedFile.path)
-          Files.deleteIfExists(emptyFile.path)
-        }
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        verify(mockEuVatRefundsService, never()).createUploadTracking(any[Long]())(any())
       }
     }
   }

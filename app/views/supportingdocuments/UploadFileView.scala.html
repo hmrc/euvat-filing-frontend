@@ -26,19 +26,17 @@
 
 @this(
     layout: templates.Layout,
-    formHelper: FormWithCSRF,
     govukFileUpload: GovukFileUpload,
     govukHint: GovukHint,
     govukErrorMessage: GovukErrorMessage,
     govukCharacterCount: GovukCharacterCount,
-    govukButton: GovukButton,
     mainErrorSummary: MainErrorSummary
 )
 
-@(form: Form[Option[String]], formToken: String)(implicit request: Request[_], messages: Messages)
+@(form: Form[Option[String]], uploadUrl: String, fields: Map[String, String])(implicit request: Request[_], messages: Messages)
 
-@fileUploadErrorId = @{ "file-upload-1-error" }
-@fileUploadHintId = @{ "file-upload-1-hint" }
+@fileUploadErrorId = @{ "file-error" }
+@fileUploadHintId = @{ "file-hint" }
 
 @fileUploadAdditionalContent = {
     @form.error("file").map { error =>
@@ -59,24 +57,23 @@
 
 @layout(
     pageTitle = title(form, messages("supportingDocuments.uploadFile.title")).trim
-) {
-    @formHelper(
-        action = controllers.supportingdocuments.routes.UploadFileController.onSubmit(),
-        Symbol("autoComplete") -> "off",
-        Symbol("enctype") -> "multipart/form-data",
-        Symbol("novalidate") -> "novalidate"
     ) {
-        <input type="hidden" name="uploadFileFormToken" value="@formToken">
-        @mainErrorSummary(form, Map("file" -> "file-upload-1", "fileuploadDescription" -> "fileupload-description"))
+    @mainErrorSummary(form, Map("file" -> "file", "fileuploadDescription" -> "fileupload-description"))
+
+    <form id="upscan-form" action="@uploadUrl" method="post" enctype="multipart/form-data" autocomplete="off" novalidate>
+
+        @for((fieldName, fieldValue) <- fields) {
+        <input type="hidden" name="@fieldName" value="@fieldValue">
+    }
 
         <div class="govuk-form-group @if(form.error("file").isDefined){govuk-form-group--error}">
             <span class="govuk-caption-l">@messages("supportingDocuments.caption")</span>
             @govukFileUpload(
                 FileUpload(
-                    id = "file-upload-1",
-                    name = "file-upload-1",
+                    id = "file",
+                    name = "file",
                     describedBy = Some(
-                        (form.error("file").map(_ => fileUploadErrorId).toSeq :+ fileUploadHintId).mkString(" ")
+                    (form.error("file").map(_ => fileUploadErrorId).toSeq :+ fileUploadHintId).mkString(" ")
                     ),
                     label = Label(
                         isPageHeading = true,
@@ -88,26 +85,29 @@
                         beforeInput = Some(HtmlContent(fileUploadAdditionalContent))
                     ),
                     classes = if (form.error("file").isDefined) "govuk-file-upload--error" else "",
-                    javascript = Some(true)
-                )
+                    javascript = Some(true),
+                    attributes = Map("accept" -> ".jpg,.jpeg,.tif,.tiff,.pdf,.zip")
+                    )
             )
         </div>
+</form>
 
-        @govukCharacterCount(
-            CharacterCount(
-                id = "fileupload-description",
-                name = "fileuploadDescription",
-                maxLength = Some(255),
-                label = Label(content = Text(messages("supportingDocuments.uploadFile.description.label"))),
-                hint = Some(Hint(content = Text(messages("supportingDocuments.uploadFile.description.hint")))),
-                value = form("fileuploadDescription").value,
-                errorMessage = form
-                    .error("fileuploadDescription")
-                    .map(error => ErrorMessage(content = Text(messages(error.message)))),
-                textareaDescriptionText = Some(messages("supportingDocuments.uploadFile.description.remaining"))
-            )
+    @govukCharacterCount(
+        CharacterCount(
+            id = "fileupload-description",
+            name = "fileuploadDescription",
+            maxLength = Some(255),
+            label = Label(content = Text(messages("supportingDocuments.uploadFile.description.label"))),
+            hint = Some(Hint(content = Text(messages("supportingDocuments.uploadFile.description.hint")))),
+            value = form("fileuploadDescription").value,
+            errorMessage = form
+                .error("fileuploadDescription")
+                .map(error => ErrorMessage(content = Text(messages(error.message)))),
+            textareaDescriptionText = Some(messages("supportingDocuments.uploadFile.description.remaining"))
         )
+    )
 
-        @govukButton(ButtonViewModel(messages("site.continue")))
-    }
+    <button type="submit" form="upscan-form" class="govuk-button" data-module="govuk-button">
+        @messages("site.continue")
+    </button>
 }
