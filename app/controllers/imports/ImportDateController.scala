@@ -68,7 +68,7 @@ class ImportDateController @Inject() (
             val errorForm = form.bindFromRequest().withError("value", "importDate.error.past")
             badRequestToImportDate(errorForm, mode)
           } else if (value.isBefore(LocalDate.of(2021, 1, 1))) {
-            val errorForm = form.bindFromRequest().withError("value", "importDate.error.minimum")
+            val errorForm = form.bindFromRequest().withError("value", "importDate.error.minimum", messagesApi.preferred(request)("date.error.year"))
             badRequestToImportDate(errorForm, mode)
           } else {
             handleSubmission(value, mode)(request)
