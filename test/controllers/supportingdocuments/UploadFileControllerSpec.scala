@@ -117,6 +117,12 @@ class UploadFileControllerSpec extends SpecBase {
           errorContent must include(messages(application)("supportingDocuments.uploadFile.error.empty"))
           errorContent must include("""id="file-upload-1-error"""")
           errorContent must include("""aria-describedby="file-upload-1-error file-upload-1-hint"""")
+          val hintPosition = errorContent.indexOf("""id="file-upload-1-hint"""")
+          val errorPosition = errorContent.indexOf("""id="file-upload-1-error"""")
+          val fileInputPosition = errorContent.indexOf("""type="file"""")
+          hintPosition must be >= 0
+          errorPosition must be > hintPosition
+          fileInputPosition must be > errorPosition
           val errorGroupStart = errorContent.indexOf("""class="govuk-form-group govuk-form-group--error"""")
           val captionPosition = errorContent.indexOf(
             s"""<span class="govuk-caption-l">${messages(application)("supportingDocuments.caption")}</span>"""
