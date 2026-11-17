@@ -41,6 +41,12 @@
 @fileUploadHintId = @{ "file-upload-1-hint" }
 
 @fileUploadAdditionalContent = {
+    @govukHint(
+        Hint(
+            id = Some(fileUploadHintId),
+            content = Text(messages("supportingDocuments.uploadFile.file.hint"))
+        )
+    )
     @form.error("file").map { error =>
         @govukErrorMessage(
             ErrorMessage(
@@ -49,12 +55,6 @@
             )
         )
     }
-    @govukHint(
-        Hint(
-            id = Some(fileUploadHintId),
-            content = Text(messages("supportingDocuments.uploadFile.file.hint"))
-        )
-    )
 }
 
 @layout(
