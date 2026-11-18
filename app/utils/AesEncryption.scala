@@ -17,7 +17,6 @@
 package utils
 
 import java.nio.charset.StandardCharsets.UTF_8
-import java.security.SecureRandom
 import java.util.Base64
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
@@ -25,27 +24,32 @@ import javax.inject.{Inject, Singleton}
 
 @Singleton
 class AesEncryption @Inject() (keyStoreService: EncryptionKeyStore) {
-  private val Transformation = "AES/CBC/PKCS5Padding"
-  private val IvLength = 16
-  private val secureRandom = new SecureRandom()
+  private val transformation = "AES/CBC/PKCS5Padding"
 
   def encrypt(value: String): String = {
-    val iv = new Array[Byte](IvLength)
-    secureRandom.nextBytes(iv)
+    val cipher = Cipher.getInstance(transformation)
+    val iv = new Array[Byte](cipher.getBlockSize)
 
-    val cipher = Cipher.getInstance(Transformation)
     cipher.init(Cipher.ENCRYPT_MODE, keyStoreService.secretKey, new IvParameterSpec(iv))
     val encrypted = cipher.doFinal(value.getBytes(UTF_8))
 
     Base64.getEncoder.encodeToString(iv ++ encrypted)
   }
 
-  def decrypt(value: String): String = {
-    val decoded = Base64.getDecoder.decode(value)
-    val (iv, encrypted) = decoded.splitAt(IvLength)
-    val cipher = Cipher.getInstance(Transformation)
+  def decrypt(encryptedValue: String): String = {
+    val cipher = Cipher.getInstance(transformation)
+    val decoded = Base64.getDecoder.decode(encryptedValue)
+    var (iv, encrypted) = decoded.splitAt(cipher.getBlockSize) // works for to-be encrypted data
+    if (decoded.length == cipher.getBlockSize) {
+      iv = new Array[Byte](cipher.getBlockSize) // works for as-is encrypted data
+    }
+
     cipher.init(Cipher.DECRYPT_MODE, keyStoreService.secretKey, new IvParameterSpec(iv))
-    new String(cipher.doFinal(encrypted), UTF_8)
+    if (decoded.length == cipher.getBlockSize) {
+      new String(cipher.doFinal(decoded), UTF_8)
+    } else {
+      new String(cipher.doFinal(encrypted), UTF_8)
+    }
   }
 
   def knownCipherText: String = encrypt(keyStoreService.knownCipherText)
