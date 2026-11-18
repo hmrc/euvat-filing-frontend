@@ -18,12 +18,13 @@ package viewmodels.checkAnswers
 
 import config.AmountFormatter.amountFormat
 import controllers.purchase.routes
-import models.{CheckMode, InvoiceType, PurchaseOrImportType, SupplierTaxNumberCheck, UserAnswers}
+import models.{CheckMode, InvoiceType, PurchaseOrImportSubCategoryType, PurchaseOrImportType, SupplierTaxNumberCheck, UserAnswers}
+import navigation.PurchaseNavigator
 import pages.claim.*
 import pages.purchase.*
 import play.api.i18n.{Lang, Messages}
 import play.api.mvc.RequestHeader
-import utils.{ConfigPurchaseOrImportMapping, MountPrefix}
+import utils.ConfigPurchaseOrImportMapping
 
 object CheckYourPurchaseDetailsSummary {
   type Row = (String, Option[String], Seq[(String, String, String)])
@@ -102,7 +103,7 @@ object CheckYourPurchaseDetailsSummary {
     Some((keyLabel, displayValueOpt, Seq((changeUrl, "site.change", "purchase.subType.change.hidden"))))
   }
 
-  private def rowPurchaseSubCategoryLabel(answers: UserAnswers)(implicit messages: Messages, request: RequestHeader): Option[Row] =
+  private def rowPurchaseSubCategoryLabel(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
     for {
       pt    <- answers.get(PurchaseTypePage)
       code  <- answers.get(PurchaseSubCategoryPage)
@@ -110,23 +111,17 @@ object CheckYourPurchaseDetailsSummary {
     } yield {
       val parentKey = pt.toString
 
-      def findSlug(pk: String, c: String): String = {
-        def loop(curr: String): Option[String] =
-          models.PurchaseOrImportSubCategoryType.purchaseOrImportSubCategoryUrlSlugFor(pk, curr) match {
-            case s @ Some(_) => s
-            case None        => if (curr.contains('.')) loop(curr.substring(0, curr.lastIndexOf('.'))) else None
-          }
-
-        loop(c).getOrElse(models.PurchaseOrImportSubCategoryType.pathFor(pk, c))
-      }
-
-      val slug = findSlug(parentKey, code)
+      val slugOpt = PurchaseOrImportSubCategoryType.subCategoryPageSlugFor(parentKey, code)
+      val slug = slugOpt.getOrElse(PurchaseOrImportSubCategoryType.pathFor(parentKey, code))
       val msgKey = s"purchase.subCategory.$slug"
       val keyLabel = if (messages.isDefinedAt(msgKey)) messages(msgKey) else slug.replace('-', ' ').capitalize
-      val mount = MountPrefix.getFromRequest
-      val url = if (mount.isEmpty) s"/change-$slug" else s"$mount/change-$slug"
+      val actions = slugOpt
+        .map(subCategorySlug =>
+          Seq((PurchaseNavigator.subCategoryPage(subCategorySlug, CheckMode).url, "site.change", "purchase.subCategory.change.hidden"))
+        )
+        .getOrElse(Seq.empty)
 
-      (keyLabel, Some(label), Seq((url, "site.change", "purchase.subCategory.change.hidden")))
+      (keyLabel, Some(label), actions)
     }
 
   private def rowInvoiceType(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
