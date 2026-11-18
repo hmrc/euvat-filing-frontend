@@ -37,7 +37,7 @@ class PurchaseOrImportHelpersSpec extends SpecBase {
   private val optionsWithNoneOfThese = Seq(("10.17", "sub.other.17"), (ConfigPurchaseOrImportMapping.NoneOfTheseSubCode, "sub.other.99"))
 
   "PurchaseOrImportHelpers" - {
-    
+
     "requiredErrorKey" - {
 
       "must use the code-specific key when it exists" in {
@@ -100,7 +100,7 @@ class PurchaseOrImportHelpersSpec extends SpecBase {
         val msgs = messagesWith("sub.fuel.2.6" -> "Diesel")
         labelFor("1.2.6", options)(msgs) mustBe "Diesel"
       }
-      
+
     }
 
     "setSelection" - {
