@@ -184,9 +184,9 @@ class CheckYourImportDetailsController @Inject() (
   )
 
   private def loadImport(answers: UserAnswers, response: ImportDetailsResponse)(implicit messages: Messages): Try[UserAnswers] =
-    PurchaseOrImportType.codes.collectFirst { case (importType, code) if code == response.goodsDescriptionCategory.trim => importType } match {
+    PurchaseOrImportType.codes.collectFirst { case (importType, code) if code == response.goodsDescriptionCode.trim => importType } match {
       case None =>
-        Failure(new IllegalStateException(s"Unknown import category ${response.goodsDescriptionCategory} for item ${response.itemNumber}"))
+        Failure(new IllegalStateException(s"Unknown import category ${response.goodsDescriptionCode} for item ${response.itemNumber}"))
 
       case Some(importType) =>
         importAnswerPages.foldLeft(Try(answers))((acc, page) => acc.flatMap(_.remove(page))).flatMap { cleared =>
@@ -203,7 +203,7 @@ class CheckYourImportDetailsController @Inject() (
 
           cleared
             .set(ImportTypePage, importType)
-            .flatMap(restoreImportCategoryAnswers(_, importType, text(response.goodsDescriptionSubcategory), country))
+            .flatMap(restoreImportCategoryAnswers(_, importType, text(response.goodsDescriptionSubCode), country))
             .flatMap(setIfPresent(_, DescribeItemsOnImportDocPage, text(response.goodsDescriptionText)))
             .flatMap(setIfPresent(_, SadReferenceCheckPage, hasSad))
             .flatMap(setIfPresent(_, SadReferenceNumberPage, text(response.sadReferenceNumber)))
@@ -295,8 +295,8 @@ class CheckYourImportDetailsController @Inject() (
     UpdateImportDetailsRequest(
       applicationId               = applicationId,
       itemNumber                  = addResponse.itemNumber,
-      goodsDescriptionCategory    = PurchaseOrImportType.codes(importType),
-      goodsDescriptionSubCategory = subCategory,
+      goodsDescriptionCode    = PurchaseOrImportType.codes(importType),
+      goodsDescriptionSubCode = subCategory,
       goodsDescriptionText        = real(answers.get(DescribeItemsOnImportDocPage)),
       hasSadReferenceNumber       = hasSad.map(_.toString),
       sadReferenceNumber          = if (hasSad.contains(true)) real(answers.get(SadReferenceNumberPage)) else None,

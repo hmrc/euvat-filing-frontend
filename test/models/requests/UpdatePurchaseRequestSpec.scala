@@ -41,8 +41,8 @@ class UpdatePurchaseRequestSpec extends SpecBase {
   private val request = UpdatePurchaseRequest(
     applicationId               = 404,
     itemNumber                  = 4,
-    goodsDescriptionCategory    = "10",
-    goodsDescriptionSubCategory = Some("10.4.1"),
+    goodsDescriptionCode    = "10",
+    goodsDescriptionSubCode = Some("10.4.1"),
     goodsDescriptionText        = Some("Some goods"),
     simplifiedInvoiceIndicator  = Some("true"),
     supplierName                = Some("Finnish International"),
@@ -69,8 +69,8 @@ class UpdatePurchaseRequestSpec extends SpecBase {
           {
              "applicationId" : ${request.applicationId},
              "itemNumber" : ${request.itemNumber},
-             "goodsDescriptionCategory" : "${request.goodsDescriptionCategory}",
-             "goodsDescriptionSubCategory" : "${request.goodsDescriptionSubCategory.value}",
+             "goodsDescriptionCode" : "${request.goodsDescriptionCode}",
+             "goodsDescriptionSubCode" : "${request.goodsDescriptionSubCode.value}",
              "goodsDescriptionText" : "${request.goodsDescriptionText.value}",
              "simplifiedInvoiceIndicator" : "${request.simplifiedInvoiceIndicator.value}",
              "supplierName" : "${request.supplierName.value}",

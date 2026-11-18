@@ -242,8 +242,8 @@ class CheckYourPurchaseDetailsController @Inject() (
         val updateReq = UpdatePurchaseRequest(
           applicationId               = appId,
           itemNumber                  = itemNumber,
-          goodsDescriptionCategory    = currentDetails.goodsDescriptionCode,
-          goodsDescriptionSubCategory = currentDetails.goodsDescriptionSubCode,
+          goodsDescriptionCode    = currentDetails.goodsDescriptionCode,
+          goodsDescriptionSubCode = currentDetails.goodsDescriptionSubCode,
           goodsDescriptionText        = currentDetails.goodsDescriptionText,
           simplifiedInvoiceIndicator  = currentDetails.simplifiedInvoiceIndicator,
           supplierName                = currentDetails.supplierName,

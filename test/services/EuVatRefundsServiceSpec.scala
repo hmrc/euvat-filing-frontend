@@ -222,9 +222,9 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
 
     val request = AddPurchaseRequest(
       applicationId              = 123456,
-      goodsDescriptionCategory   = "1",
+      goodsDescriptionCode   = "1",
       goodsDescriptionText       = Some("Fuel"),
-      purchaseSubcategory        = None,
+      goodsDescriptionSubCode        = None,
       simplifiedInvoiceIndicator = None,
       supplierName               = None,
       supplierAddress1           = None,
@@ -266,7 +266,7 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
 
     val request = AddImportRequest(
       applicationId            = 123456,
-      goodsDescriptionCategory = "1",
+      goodsDescriptionCode = "1",
       updateSequenceNumber     = 1
     )
 
@@ -296,8 +296,8 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
     val updateRequest = models.requests.UpdatePurchaseRequest(
       applicationId               = 123L,
       itemNumber                  = 1,
-      goodsDescriptionCategory    = "1.2",
-      goodsDescriptionSubCategory = None,
+      goodsDescriptionCode    = "1.2",
+      goodsDescriptionSubCode = None,
       goodsDescriptionText        = Some("Fuel"),
       simplifiedInvoiceIndicator  = Some("true"),
       supplierName                = Some("Supplier"),
@@ -340,8 +340,8 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
     val updateRequest = UpdateImportDetailsRequest(
       applicationId               = 123L,
       itemNumber                  = 4,
-      goodsDescriptionCategory    = "10",
-      goodsDescriptionSubCategory = Some("10.4.1"),
+      goodsDescriptionCode    = "10",
+      goodsDescriptionSubCode = Some("10.4.1"),
       goodsDescriptionText        = Some("Equipment"),
       hasSadReferenceNumber       = Some("true"),
       sadReferenceNumber          = Some("SAD123456789"),
@@ -426,8 +426,8 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
       supplierAddressLine2        = None,
       supplierAddressLine3        = None,
       supplierCountryCode         = Some("GB"),
-      goodsDescriptionCategory    = "10",
-      goodsDescriptionSubcategory = None,
+      goodsDescriptionCode    = "10",
+      goodsDescriptionSubCode = None,
       goodsDescriptionText        = Some("Equipment"),
       hasSadReferenceNumber       = Some("false"),
       sadReferenceNumber          = None,

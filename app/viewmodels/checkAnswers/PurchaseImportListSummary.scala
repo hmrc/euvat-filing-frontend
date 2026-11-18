@@ -43,7 +43,7 @@ object PurchaseImportListSummary {
       .map { item =>
         val itemNumber = item.itemNumber
         val vatClaim = item.deductibleVatAmount
-        val category = PurchaseOrImportType.codeToType.getOrElse(item.goodsDescriptionCategory, "Unknown")
+        val category = PurchaseOrImportType.codeToType.getOrElse(item.goodsDescriptionCode, "Unknown")
         val itemTypeCode = item.itemType
 
         val itemType = if (item.itemType == "P") { "Purchase" }

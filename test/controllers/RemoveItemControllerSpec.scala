@@ -45,7 +45,7 @@ class RemoveItemControllerSpec extends SpecBase {
       supplierAddressLine2        = None,
       supplierAddressLine3        = None,
       supplierCountryCode         = Some("FR"),
-      goodsDescriptionCategory    = "1",
+      goodsDescriptionCode    = "1",
       currencyCode                = Some("EU"),
       taxableAmount               = Some(BigDecimal(300)),
       vatAmount                   = Some(BigDecimal(200)),
@@ -54,7 +54,7 @@ class RemoveItemControllerSpec extends SpecBase {
       sadReferenceNumber          = None,
       referenceInformation        = None,
       goodsDescriptionText        = Some("Import details"),
-      goodsDescriptionSubcategory = Some("1.2.3"),
+      goodsDescriptionSubCode = Some("1.2.3"),
       updateSequenceNumber        = 7
     )
 

@@ -25,17 +25,17 @@ class AddImportRequestSpec extends AnyFreeSpec with Matchers {
   "AddImportRequest" - {
 
     "must serialise the mandatory fields" in {
-      val request = AddImportRequest(applicationId = 404, goodsDescriptionCategory = "1", updateSequenceNumber = 5)
+      val request = AddImportRequest(applicationId = 404, goodsDescriptionCode = "1", updateSequenceNumber = 5)
 
       val json = Json.toJson(request)
 
       (json \ "applicationId").as[Long] mustEqual 404
-      (json \ "goodsDescriptionCategory").as[String] mustEqual "1"
+      (json \ "goodsDescriptionCode").as[String] mustEqual "1"
       (json \ "updateSequenceNumber").as[Int] mustEqual 5
     }
 
     "must round trip through JSON" in {
-      val request = AddImportRequest(applicationId = 404, goodsDescriptionCategory = "1", updateSequenceNumber = 5)
+      val request = AddImportRequest(applicationId = 404, goodsDescriptionCode = "1", updateSequenceNumber = 5)
 
       Json.toJson(request).as[AddImportRequest] mustEqual request
     }
