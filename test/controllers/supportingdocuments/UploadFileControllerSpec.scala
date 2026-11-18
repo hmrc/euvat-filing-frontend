@@ -17,6 +17,8 @@
 package controllers.supportingdocuments
 
 import base.SpecBase
+import forms.supportingdocuments.UploadFileFormProvider
+import forms.supportingdocuments.UploadFileFormProvider.{descriptionFieldName, descriptionMaxLength, fileInputName}
 import play.api.libs.Files.{TemporaryFile, TemporaryFileCreator}
 import play.api.mvc.MultipartFormData
 import play.api.test.FakeRequest
@@ -120,8 +122,8 @@ class UploadFileControllerSpec extends SpecBase {
           val hintPosition = errorContent.indexOf("""id="file-upload-1-hint"""")
           val errorPosition = errorContent.indexOf("""id="file-upload-1-error"""")
           val fileInputPosition = errorContent.indexOf("""type="file"""")
-          hintPosition must be >= 0
-          errorPosition must be > hintPosition
+          hintPosition      must be >= 0
+          errorPosition     must be > hintPosition
           fileInputPosition must be > errorPosition
           val errorGroupStart = errorContent.indexOf("""class="govuk-form-group govuk-form-group--error"""")
           val captionPosition = errorContent.indexOf(
@@ -146,6 +148,34 @@ class UploadFileControllerSpec extends SpecBase {
 
           status(noFileResult) mustEqual SEE_OTHER
           flash(noFileResult).get("uploadFile.fileError") mustBe Some("supportingDocuments.uploadFile.error.required")
+        } finally {
+          Files.deleteIfExists(temporaryFile.path)
+        }
+      }
+    }
+
+    "must represent file-size I/O errors as validation failures" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val temporaryFile = application.injector.instanceOf[TemporaryFileCreator].create()
+        Files.write(temporaryFile.path, "receipt contents".getBytes(StandardCharsets.UTF_8))
+        Files.delete(temporaryFile.path)
+        val filePart = MultipartFormData.FilePart(
+          fileInputName,
+          "receipt.pdf",
+          Some("application/pdf"),
+          temporaryFile
+        )
+        val controller = application.injector.instanceOf[UploadFileController]
+        val formProvider = application.injector.instanceOf[UploadFileFormProvider]
+        val result = controller.validateFile(
+          filePart,
+          formProvider()
+        )
+
+        try {
+          result.isLeft mustBe true
         } finally {
           Files.deleteIfExists(temporaryFile.path)
         }
@@ -177,6 +207,166 @@ class UploadFileControllerSpec extends SpecBase {
         status(errorPage) mustEqual OK
         contentAsString(errorPage) must include(messages(application)("supportingDocuments.uploadFile.error.required"))
         contentAsString(errorPage) must not include messages(application)("supportingDocuments.uploadFile.error.empty")
+      }
+    }
+
+    "must reject an upload when the submitted form token is missing" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val temporaryFile = application.injector.instanceOf[TemporaryFileCreator].create()
+        Files.write(temporaryFile.path, "receipt contents".getBytes(StandardCharsets.UTF_8))
+        val multipartData = MultipartFormData(
+          dataParts = Map.empty,
+          files = Seq(
+            MultipartFormData.FilePart(fileInputName, "receipt.pdf", Some("application/pdf"), temporaryFile)
+          ),
+          badParts = Seq.empty
+        )
+        val request = FakeRequest(POST, routes.UploadFileController.onSubmit().url)
+          .withSession(formTokenKey -> "test-token")
+          .withMultipartFormDataBody(multipartData)
+        val result = route(application, request).value
+
+        try {
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UploadFileController.onPageLoad().url
+          flash(result).get("uploadFile.fileError") mustBe Some("supportingDocuments.uploadFile.error.required")
+        } finally {
+          Files.deleteIfExists(temporaryFile.path)
+        }
+      }
+    }
+
+    "must reject an upload when the session form token is missing" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val temporaryFile = application.injector.instanceOf[TemporaryFileCreator].create()
+        Files.write(temporaryFile.path, "receipt contents".getBytes(StandardCharsets.UTF_8))
+        val multipartData = MultipartFormData(
+          dataParts = Map(formTokenField -> Seq("test-token")),
+          files = Seq(
+            MultipartFormData.FilePart(fileInputName, "receipt.pdf", Some("application/pdf"), temporaryFile)
+          ),
+          badParts = Seq.empty
+        )
+        val request = FakeRequest(POST, routes.UploadFileController.onSubmit().url)
+          .withMultipartFormDataBody(multipartData)
+        val result = route(application, request).value
+
+        try {
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UploadFileController.onPageLoad().url
+          flash(result).get("uploadFile.fileError") mustBe Some("supportingDocuments.uploadFile.error.required")
+        } finally {
+          Files.deleteIfExists(temporaryFile.path)
+        }
+      }
+    }
+
+    "must reject an unsupported file extension" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val temporaryFile = application.injector.instanceOf[TemporaryFileCreator].create()
+        Files.write(temporaryFile.path, "receipt contents".getBytes(StandardCharsets.UTF_8))
+        val multipartData = MultipartFormData(
+          dataParts = Map(formTokenField -> Seq("test-token")),
+          files = Seq(
+            MultipartFormData.FilePart(fileInputName,
+                                       "receipt.docx",
+                                       Some("application/vnd.openxmlformats-officedocument.wordprocessingml.document"),
+                                       temporaryFile
+                                      )
+          ),
+          badParts = Seq.empty
+        )
+        val request = FakeRequest(POST, routes.UploadFileController.onSubmit().url)
+          .withSession(formTokenKey -> "test-token")
+          .withMultipartFormDataBody(multipartData)
+        val result = route(application, request).value
+
+        try {
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UploadFileController.onPageLoad().url
+          flash(result).get("uploadFile.fileError") mustBe Some("supportingDocuments.uploadFile.error.type")
+        } finally {
+          Files.deleteIfExists(temporaryFile.path)
+        }
+      }
+    }
+
+    "must reject a filename without an extension separator" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val temporaryFile = application.injector.instanceOf[TemporaryFileCreator].create()
+        Files.write(temporaryFile.path, "receipt contents".getBytes(StandardCharsets.UTF_8))
+        val multipartData = MultipartFormData(
+          dataParts = Map(formTokenField -> Seq("test-token")),
+          files = Seq(
+            MultipartFormData.FilePart(fileInputName, "pdf", Some("application/pdf"), temporaryFile)
+          ),
+          badParts = Seq.empty
+        )
+        val request = FakeRequest(POST, routes.UploadFileController.onSubmit().url)
+          .withSession(formTokenKey -> "test-token")
+          .withMultipartFormDataBody(multipartData)
+        val result = route(application, request).value
+
+        try {
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UploadFileController.onPageLoad().url
+          flash(result).get("uploadFile.fileError") mustBe Some("supportingDocuments.uploadFile.error.type")
+        } finally {
+          Files.deleteIfExists(temporaryFile.path)
+        }
+      }
+    }
+
+    "must show the description limit using the shared maximum length" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val temporaryFile = application.injector.instanceOf[TemporaryFileCreator].create()
+        Files.write(temporaryFile.path, "receipt contents".getBytes(StandardCharsets.UTF_8))
+        val multipartData = MultipartFormData(
+          dataParts = Map(
+            formTokenField       -> Seq("test-token"),
+            descriptionFieldName -> Seq("x" * (descriptionMaxLength + 1))
+          ),
+          files = Seq(
+            MultipartFormData.FilePart("file-upload-1", "receipt.pdf", Some("application/pdf"), temporaryFile)
+          ),
+          badParts = Seq.empty
+        )
+        val request = FakeRequest(POST, routes.UploadFileController.onSubmit().url)
+          .withSession(formTokenKey -> "test-token")
+          .withMultipartFormDataBody(multipartData)
+        val result = route(application, request).value
+
+        try {
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UploadFileController.onPageLoad().url
+          flash(result).get("uploadFile.descriptionError") mustBe Some(
+            "supportingDocuments.uploadFile.error.description.maxLength"
+          )
+          flash(result).get("uploadFile.fileError") mustBe None
+
+          val errorPageRequest = FakeRequest(GET, routes.UploadFileController.onPageLoad().url)
+            .withFlash(
+              "uploadFile.descriptionError" -> "supportingDocuments.uploadFile.error.description.maxLength"
+            )
+          val errorPage = route(application, errorPageRequest).value
+          val errorMessage =
+            messages(application)("supportingDocuments.uploadFile.error.description.maxLength", descriptionMaxLength)
+
+          status(errorPage) mustEqual OK
+          contentAsString(errorPage) must include(errorMessage)
+        } finally {
+          Files.deleteIfExists(temporaryFile.path)
+        }
       }
     }
 

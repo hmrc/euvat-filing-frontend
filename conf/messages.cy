@@ -811,4 +811,5 @@ supportingDocuments.uploadFile.error.required = Select a file
 supportingDocuments.uploadFile.error.empty = The selected file is empty
 supportingDocuments.uploadFile.error.size = Total selected files must be smaller than 5MB
 supportingDocuments.uploadFile.error.type = The selected file must be a JPEG, TIFF, PDF or ZIP
-supportingDocuments.uploadFile.error.description.maxLength = Additional information must be 255 characters or less
+supportingDocuments.uploadFile.error.upload = The selected file could not be uploaded
+supportingDocuments.uploadFile.error.description.maxLength = Additional information must be {0} characters or less

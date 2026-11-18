@@ -22,6 +22,7 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.label.Label
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.charactercount.CharacterCount
+@import forms.supportingdocuments.UploadFileFormProvider.{descriptionFieldName, descriptionMaxLength, fileErrorKey, fileInputName}
 @import views.html.components.*
 
 @this(
@@ -37,8 +38,8 @@
 
 @(form: Form[Option[String]], formToken: String)(implicit request: Request[_], messages: Messages)
 
-@fileUploadErrorId = @{ "file-upload-1-error" }
-@fileUploadHintId = @{ "file-upload-1-hint" }
+@fileUploadErrorId = @{ s"$fileInputName-error" }
+@fileUploadHintId = @{ s"$fileInputName-hint" }
 
 @fileUploadAdditionalContent = {
     @govukHint(
@@ -47,11 +48,11 @@
             content = Text(messages("supportingDocuments.uploadFile.file.hint"))
         )
     )
-    @form.error("file").map { error =>
+    @form.error(fileErrorKey).map { error =>
         @govukErrorMessage(
             ErrorMessage(
                 id = Some(fileUploadErrorId),
-                content = Text(messages(error.message))
+                content = Text(messages(error.message, error.args*))
             )
         )
     }
@@ -67,16 +68,16 @@
         Symbol("novalidate") -> "novalidate"
     ) {
         <input type="hidden" name="uploadFileFormToken" value="@formToken">
-        @mainErrorSummary(form, Map("file" -> "file-upload-1", "fileuploadDescription" -> "fileupload-description"))
+        @mainErrorSummary(form, Map(fileErrorKey -> fileInputName, descriptionFieldName -> "fileupload-description"))
 
-        <div class="govuk-form-group @if(form.error("file").isDefined){govuk-form-group--error}">
+        <div class="govuk-form-group @if(form.error(fileErrorKey).isDefined){govuk-form-group--error}">
             <span class="govuk-caption-l">@messages("supportingDocuments.caption")</span>
             @govukFileUpload(
                 FileUpload(
-                    id = "file-upload-1",
-                    name = "file-upload-1",
+                    id = fileInputName,
+                    name = fileInputName,
                     describedBy = Some(
-                        (form.error("file").map(_ => fileUploadErrorId).toSeq :+ fileUploadHintId).mkString(" ")
+                        (form.error(fileErrorKey).map(_ => fileUploadErrorId).toSeq :+ fileUploadHintId).mkString(" ")
                     ),
                     label = Label(
                         isPageHeading = true,
@@ -87,7 +88,7 @@
                         classes = Some("govuk-!-margin-bottom-0"),
                         beforeInput = Some(HtmlContent(fileUploadAdditionalContent))
                     ),
-                    classes = if (form.error("file").isDefined) "govuk-file-upload--error" else "",
+                    classes = if (form.error(fileErrorKey).isDefined) "govuk-file-upload--error" else "",
                     javascript = Some(true)
                 )
             )
@@ -96,14 +97,14 @@
         @govukCharacterCount(
             CharacterCount(
                 id = "fileupload-description",
-                name = "fileuploadDescription",
-                maxLength = Some(255),
+                name = descriptionFieldName,
+                maxLength = Some(descriptionMaxLength),
                 label = Label(content = Text(messages("supportingDocuments.uploadFile.description.label"))),
                 hint = Some(Hint(content = Text(messages("supportingDocuments.uploadFile.description.hint")))),
-                value = form("fileuploadDescription").value,
+                value = form(descriptionFieldName).value,
                 errorMessage = form
-                    .error("fileuploadDescription")
-                    .map(error => ErrorMessage(content = Text(messages(error.message)))),
+                    .error(descriptionFieldName)
+                    .map(error => ErrorMessage(content = Text(messages(error.message, error.args*)))),
                 textareaDescriptionText = Some(messages("supportingDocuments.uploadFile.description.remaining"))
             )
         )
