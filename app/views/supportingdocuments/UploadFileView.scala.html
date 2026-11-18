@@ -36,7 +36,7 @@
     mainErrorSummary: MainErrorSummary
 )
 
-@(form: Form[Option[String]], formToken: String)(implicit request: Request[_], messages: Messages)
+@(form: Form[Option[String]])(implicit request: RequestHeader, messages: Messages)
 
 @fileUploadErrorId = @{ s"$fileInputName-error" }
 @fileUploadHintId = @{ s"$fileInputName-hint" }
@@ -67,7 +67,6 @@
         Symbol("enctype") -> "multipart/form-data",
         Symbol("novalidate") -> "novalidate"
     ) {
-        <input type="hidden" name="uploadFileFormToken" value="@formToken">
         @mainErrorSummary(form, Map(fileErrorKey -> fileInputName, descriptionFieldName -> "fileupload-description"))
 
         <div class="govuk-form-group @if(form.error(fileErrorKey).isDefined){govuk-form-group--error}">
