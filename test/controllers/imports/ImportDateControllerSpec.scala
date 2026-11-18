@@ -261,7 +261,7 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must not return hte minimum error when date is 1 January 2021" in {
+      "must not return the minimum error when date is 1 January 2021" in {
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
         running(application) {
