@@ -19,6 +19,7 @@ package controllers.supportingdocuments
 import base.SpecBase
 import forms.supportingdocuments.UploadFileFormProvider
 import forms.supportingdocuments.UploadFileFormProvider.{descriptionFieldName, descriptionMaxLength, fileInputName}
+import play.api.http.Status.REQUEST_ENTITY_TOO_LARGE
 import play.api.libs.Files.{TemporaryFile, TemporaryFileCreator}
 import play.api.mvc.MultipartFormData
 import play.api.test.FakeRequest
@@ -340,7 +341,7 @@ class UploadFileControllerSpec extends SpecBase {
           .withBody(requestBody)
         val result = route(application, request).value
 
-        status(result) mustEqual 413
+        status(result) mustEqual REQUEST_ENTITY_TOO_LARGE
         contentAsString(result) must include(messages(application)("supportingDocuments.uploadFile.error.size"))
         contentAsString(result) must include(
           s"""<title>${messages(application)("error.title.prefix")} ${messages(application)("supportingDocuments.uploadFile.title")}"""
