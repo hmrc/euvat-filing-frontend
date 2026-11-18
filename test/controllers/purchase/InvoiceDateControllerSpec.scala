@@ -194,7 +194,7 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
           status(result) mustEqual BAD_REQUEST
           val body = contentAsString(result)
           body must include(messages(application)("invoiceDate.error.minimum"))
-          body must include("href=\"#value.day\"")
+          body must include("href=\"#value.year\"")
         }
       }
 
