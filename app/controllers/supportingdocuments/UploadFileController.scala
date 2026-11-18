@@ -18,12 +18,12 @@ package controllers.supportingdocuments
 
 import controllers.actions.*
 import forms.supportingdocuments.UploadFileFormProvider
-import forms.supportingdocuments.UploadFileFormProvider.{descriptionFieldName, descriptionMaxLength, fileErrorKey, fileInputName}
+import forms.supportingdocuments.UploadFileFormProvider.{descriptionFieldName, fileErrorKey, fileInputName}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.Logging
 import play.api.libs.Files.TemporaryFile
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, MultipartFormData}
+import play.api.mvc.{Action, AnyContent, BodyParser, MessagesControllerComponents, MultipartFormData, Results}
 import play.api.mvc.MultipartFormData.FilePart
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.supportingdocuments.UploadFileView
@@ -31,7 +31,6 @@ import views.html.supportingdocuments.UploadFileView
 import java.io.IOException
 import java.nio.file.Files
 import java.util.Locale
-import java.util.UUID
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -51,77 +50,65 @@ class UploadFileController @Inject() (
   private val maxFileSize = 5 * 1024 * 1024
   private val maxRequestSize = 6 * 1024 * 1024
   private val acceptedExtensions = Set("jpg", "jpeg", "tif", "tiff", "pdf", "zip")
-  private val fileErrorFlashKey = "uploadFile.fileError"
-  private val descriptionErrorFlashKey = "uploadFile.descriptionError"
-  private val descriptionFlashKey = "uploadFile.description"
-  private val formTokenKey = "uploadFile.formToken"
-  private val formTokenField = "uploadFileFormToken"
 
   private def form: Form[Option[String]] = formProvider()
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val formToken = UUID.randomUUID().toString
-    val preparedForm = request.flash
-      .get(descriptionFlashKey)
-      .fold(form)(description => form.fill(Some(description)))
-    val formWithErrors = request.flash
-      .get(fileErrorFlashKey)
-      .fold(preparedForm)(error => preparedForm.withError(fileErrorKey, error))
-    val formWithAllErrors = request.flash
-      .get(descriptionErrorFlashKey)
-      .fold(formWithErrors)(error => formWithErrors.withError(descriptionFieldName, error, descriptionMaxLength))
-
-    Ok(view(formWithAllErrors, formToken))
-      .addingToSession(formTokenKey -> formToken)
+    Ok(view(form))
       .withHeaders("Cache-Control" -> "no-store")
   }
 
   def onSubmit(): Action[MultipartFormData[TemporaryFile]] =
     (identify andThen getData andThen requireData)
-      .async(parse.multipartFormData(maxLength = maxRequestSize, allowEmptyFiles = true)) { implicit request =>
+      .async(multipartFormDataParser) { implicit request =>
         val boundForm = form.bind(request.body.dataParts.view.mapValues(_.headOption.getOrElse("")).toMap)
-        val validFormToken = request.session
-          .get(formTokenKey)
-          .exists(token => request.body.dataParts.get(formTokenField).flatMap(_.headOption).contains(token))
         val formWithFileErrors =
-          if (!validFormToken) {
-            boundForm.withError(fileErrorKey, "supportingDocuments.uploadFile.error.required")
-          } else {
-            request.body.file(fileInputName) match {
-              case None =>
-                boundForm.withError(fileErrorKey, "supportingDocuments.uploadFile.error.required")
-              case Some(file) if file.filename.trim.isEmpty =>
-                boundForm.withError(fileErrorKey, "supportingDocuments.uploadFile.error.required")
-              case Some(file) =>
-                validateFile(file, boundForm) match {
-                  case Right(validatedForm) =>
-                    validatedForm
-                  case Left(error) =>
-                    logger.error("Unable to determine the size of the selected supporting document", error)
-                    boundForm.withError(fileErrorKey, "supportingDocuments.uploadFile.error.upload")
-                }
-            }
+          request.body.file(fileInputName) match {
+            case None =>
+              boundForm.withError(fileErrorKey, "supportingDocuments.uploadFile.error.required")
+            case Some(file) if file.filename.trim.isEmpty =>
+              boundForm.withError(fileErrorKey, "supportingDocuments.uploadFile.error.required")
+            case Some(file) =>
+              validateFile(file, boundForm) match {
+                case Right(validatedForm) =>
+                  validatedForm
+                case Left(error) =>
+                  logger.error("Unable to determine the size of the selected supporting document", error)
+                  boundForm.withError(fileErrorKey, "supportingDocuments.uploadFile.error.upload")
+              }
           }
 
-        if (formWithFileErrors.hasErrors) {
-          val flashValues =
-            formWithFileErrors.error(fileErrorKey).map(error => fileErrorFlashKey -> error.message).toSeq ++
-              formWithFileErrors
-                .error(descriptionFieldName)
-                .map(error => descriptionErrorFlashKey -> error.message)
-                .toSeq ++
-              formWithFileErrors(descriptionFieldName).value.filter(_.length <= descriptionMaxLength).map(descriptionFlashKey -> _).toSeq
+        val orderedForm = formWithFileErrors.copy(
+          errors = formWithFileErrors.errors.filter(_.key == fileErrorKey) ++
+            formWithFileErrors.errors.filterNot(_.key == fileErrorKey)
+        )
 
-          Future.successful(
-            Redirect(controllers.supportingdocuments.routes.UploadFileController.onPageLoad())
-              .flashing(flashValues*)
-              .withHeaders("Cache-Control" -> "no-store")
-          )
+        if (orderedForm.hasErrors) {
+          Future.successful(BadRequest(view(orderedForm)).withHeaders("Cache-Control" -> "no-store"))
         } else {
           // TODO: redirect to the RA6.2 uploading page when it is implemented.
           Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
         }
       }
+
+  private def multipartFormDataParser: BodyParser[MultipartFormData[TemporaryFile]] = {
+    val parser = parse.multipartFormData(maxLength = maxRequestSize, allowEmptyFiles = true)
+
+    BodyParser("supporting-document-upload") { request =>
+      parser(request).map {
+        case Left(result) if result.header.status == 413 =>
+          val errorForm = form.withError(fileErrorKey, "supportingDocuments.uploadFile.error.size")
+          val messages = messagesApi.preferred(request)
+          Left(
+            Results
+              .Status(413)(view(errorForm)(request, messages))
+              .withHeaders("Cache-Control" -> "no-store")
+          )
+        case parseResult =>
+          parseResult
+      }
+    }
+  }
 
   private[supportingdocuments] def validateFile(
     file: FilePart[TemporaryFile],

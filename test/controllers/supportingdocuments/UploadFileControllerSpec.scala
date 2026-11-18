@@ -23,17 +23,12 @@ import play.api.libs.Files.{TemporaryFile, TemporaryFileCreator}
 import play.api.mvc.MultipartFormData
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import org.jsoup.Jsoup
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 
 class UploadFileControllerSpec extends SpecBase {
-
-  private val formTokenKey = "uploadFile.formToken"
-  private val formTokenField = "uploadFileFormToken"
-
-  private def formTokenFrom(content: String): String =
-    """name="uploadFileFormToken" value="([^"]+)"""".r.findFirstMatchIn(content).map(_.group(1)).get
 
   "UploadFileController" - {
 
@@ -55,7 +50,7 @@ class UploadFileControllerSpec extends SpecBase {
         content must include("""autoComplete="off"""")
         content must include("name=\"file-upload-1\"")
         content must include("name=\"fileuploadDescription\"")
-        content must include(s"""name="$formTokenField"""")
+        content must not include "uploadFileFormToken"
         content must include("data-module=\"govuk-file-upload\"")
         content must include("""href="#" class="govuk-back-link" data-module="hmrc-back-link">Back</a>""")
         content must include("You have 255 characters remaining")
@@ -69,12 +64,11 @@ class UploadFileControllerSpec extends SpecBase {
         val temporaryFile = application.injector.instanceOf[TemporaryFileCreator].create()
         Files.write(temporaryFile.path, "receipt contents".getBytes(StandardCharsets.UTF_8))
         val multipartData: MultipartFormData[TemporaryFile] = MultipartFormData(
-          dataParts = Map(formTokenField -> Seq("test-token")),
+          dataParts = Map.empty,
           files     = Seq(MultipartFormData.FilePart("file-upload-1", "receipt.pdf", Some("application/pdf"), temporaryFile)),
           badParts  = Seq.empty
         )
         val request = FakeRequest(POST, routes.UploadFileController.onSubmit().url)
-          .withSession(formTokenKey -> "test-token")
           .withMultipartFormDataBody(multipartData)
         val result = route(application, request).value
 
@@ -93,26 +87,17 @@ class UploadFileControllerSpec extends SpecBase {
       running(application) {
         val temporaryFile = application.injector.instanceOf[TemporaryFileCreator].create()
         val multipartData = MultipartFormData(
-          dataParts = Map(formTokenField -> Seq("test-token")),
+          dataParts = Map.empty,
           files     = Seq(MultipartFormData.FilePart("file-upload-1", "empty.pdf", Some("application/pdf"), temporaryFile)),
           badParts  = Seq.empty
         )
         val request = FakeRequest(POST, routes.UploadFileController.onSubmit().url)
-          .withSession(formTokenKey -> "test-token")
           .withMultipartFormDataBody(multipartData)
         val result = route(application, request).value
 
         try {
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.UploadFileController.onPageLoad().url
-          flash(result).get("uploadFile.fileError") mustBe Some("supportingDocuments.uploadFile.error.empty")
-
-          val errorPageRequest = FakeRequest(GET, routes.UploadFileController.onPageLoad().url)
-            .withFlash("uploadFile.fileError" -> "supportingDocuments.uploadFile.error.empty")
-          val errorPage = route(application, errorPageRequest).value
-
-          status(errorPage) mustEqual OK
-          val errorContent = contentAsString(errorPage)
+          status(result) mustEqual BAD_REQUEST
+          val errorContent = contentAsString(result)
           errorContent must include(
             s"""<title>${messages(application)("error.title.prefix")} ${messages(application)("supportingDocuments.uploadFile.title")}"""
           )
@@ -133,21 +118,7 @@ class UploadFileControllerSpec extends SpecBase {
           errorGroupStart must be >= 0
           captionPosition must be > errorGroupStart
           headingPosition must be > captionPosition
-          header("Cache-Control", errorPage).value mustEqual "no-store"
-          val freshToken = formTokenFrom(contentAsString(errorPage))
-
-          val noFileMultipartData: MultipartFormData[TemporaryFile] = MultipartFormData(
-            dataParts = Map(formTokenField -> Seq(freshToken)),
-            files     = Seq.empty,
-            badParts  = Seq.empty
-          )
-          val noFileRequest = FakeRequest(POST, routes.UploadFileController.onSubmit().url)
-            .withSession(formTokenKey -> freshToken)
-            .withMultipartFormDataBody(noFileMultipartData)
-          val noFileResult = route(application, noFileRequest).value
-
-          status(noFileResult) mustEqual SEE_OTHER
-          flash(noFileResult).get("uploadFile.fileError") mustBe Some("supportingDocuments.uploadFile.error.required")
+          header("Cache-Control", result).value mustEqual "no-store"
         } finally {
           Files.deleteIfExists(temporaryFile.path)
         }
@@ -187,81 +158,16 @@ class UploadFileControllerSpec extends SpecBase {
 
       running(application) {
         val multipartData: MultipartFormData[TemporaryFile] = MultipartFormData(
-          dataParts = Map(formTokenField -> Seq("test-token")),
+          dataParts = Map.empty,
           files     = Seq.empty,
           badParts  = Seq.empty
         )
-        val request = FakeRequest(POST, routes.UploadFileController.onSubmit().url)
-          .withSession(formTokenKey -> "test-token")
-          .withMultipartFormDataBody(multipartData)
+        val request = FakeRequest(POST, routes.UploadFileController.onSubmit().url).withMultipartFormDataBody(multipartData)
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.UploadFileController.onPageLoad().url
-        flash(result).get("uploadFile.fileError") mustBe Some("supportingDocuments.uploadFile.error.required")
-
-        val errorPageRequest = FakeRequest(GET, routes.UploadFileController.onPageLoad().url)
-          .withFlash("uploadFile.fileError" -> "supportingDocuments.uploadFile.error.required")
-        val errorPage = route(application, errorPageRequest).value
-
-        status(errorPage) mustEqual OK
-        contentAsString(errorPage) must include(messages(application)("supportingDocuments.uploadFile.error.required"))
-        contentAsString(errorPage) must not include messages(application)("supportingDocuments.uploadFile.error.empty")
-      }
-    }
-
-    "must reject an upload when the submitted form token is missing" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-
-      running(application) {
-        val temporaryFile = application.injector.instanceOf[TemporaryFileCreator].create()
-        Files.write(temporaryFile.path, "receipt contents".getBytes(StandardCharsets.UTF_8))
-        val multipartData = MultipartFormData(
-          dataParts = Map.empty,
-          files = Seq(
-            MultipartFormData.FilePart(fileInputName, "receipt.pdf", Some("application/pdf"), temporaryFile)
-          ),
-          badParts = Seq.empty
-        )
-        val request = FakeRequest(POST, routes.UploadFileController.onSubmit().url)
-          .withSession(formTokenKey -> "test-token")
-          .withMultipartFormDataBody(multipartData)
-        val result = route(application, request).value
-
-        try {
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.UploadFileController.onPageLoad().url
-          flash(result).get("uploadFile.fileError") mustBe Some("supportingDocuments.uploadFile.error.required")
-        } finally {
-          Files.deleteIfExists(temporaryFile.path)
-        }
-      }
-    }
-
-    "must reject an upload when the session form token is missing" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-
-      running(application) {
-        val temporaryFile = application.injector.instanceOf[TemporaryFileCreator].create()
-        Files.write(temporaryFile.path, "receipt contents".getBytes(StandardCharsets.UTF_8))
-        val multipartData = MultipartFormData(
-          dataParts = Map(formTokenField -> Seq("test-token")),
-          files = Seq(
-            MultipartFormData.FilePart(fileInputName, "receipt.pdf", Some("application/pdf"), temporaryFile)
-          ),
-          badParts = Seq.empty
-        )
-        val request = FakeRequest(POST, routes.UploadFileController.onSubmit().url)
-          .withMultipartFormDataBody(multipartData)
-        val result = route(application, request).value
-
-        try {
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.UploadFileController.onPageLoad().url
-          flash(result).get("uploadFile.fileError") mustBe Some("supportingDocuments.uploadFile.error.required")
-        } finally {
-          Files.deleteIfExists(temporaryFile.path)
-        }
+        status(result) mustEqual BAD_REQUEST
+        contentAsString(result) must include(messages(application)("supportingDocuments.uploadFile.error.required"))
+        contentAsString(result) must not include messages(application)("supportingDocuments.uploadFile.error.empty")
       }
     }
 
@@ -272,7 +178,7 @@ class UploadFileControllerSpec extends SpecBase {
         val temporaryFile = application.injector.instanceOf[TemporaryFileCreator].create()
         Files.write(temporaryFile.path, "receipt contents".getBytes(StandardCharsets.UTF_8))
         val multipartData = MultipartFormData(
-          dataParts = Map(formTokenField -> Seq("test-token")),
+          dataParts = Map.empty,
           files = Seq(
             MultipartFormData.FilePart(fileInputName,
                                        "receipt.docx",
@@ -282,15 +188,12 @@ class UploadFileControllerSpec extends SpecBase {
           ),
           badParts = Seq.empty
         )
-        val request = FakeRequest(POST, routes.UploadFileController.onSubmit().url)
-          .withSession(formTokenKey -> "test-token")
-          .withMultipartFormDataBody(multipartData)
+        val request = FakeRequest(POST, routes.UploadFileController.onSubmit().url).withMultipartFormDataBody(multipartData)
         val result = route(application, request).value
 
         try {
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.UploadFileController.onPageLoad().url
-          flash(result).get("uploadFile.fileError") mustBe Some("supportingDocuments.uploadFile.error.type")
+          status(result) mustEqual BAD_REQUEST
+          contentAsString(result) must include(messages(application)("supportingDocuments.uploadFile.error.type"))
         } finally {
           Files.deleteIfExists(temporaryFile.path)
         }
@@ -304,21 +207,18 @@ class UploadFileControllerSpec extends SpecBase {
         val temporaryFile = application.injector.instanceOf[TemporaryFileCreator].create()
         Files.write(temporaryFile.path, "receipt contents".getBytes(StandardCharsets.UTF_8))
         val multipartData = MultipartFormData(
-          dataParts = Map(formTokenField -> Seq("test-token")),
+          dataParts = Map.empty,
           files = Seq(
             MultipartFormData.FilePart(fileInputName, "pdf", Some("application/pdf"), temporaryFile)
           ),
           badParts = Seq.empty
         )
-        val request = FakeRequest(POST, routes.UploadFileController.onSubmit().url)
-          .withSession(formTokenKey -> "test-token")
-          .withMultipartFormDataBody(multipartData)
+        val request = FakeRequest(POST, routes.UploadFileController.onSubmit().url).withMultipartFormDataBody(multipartData)
         val result = route(application, request).value
 
         try {
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.UploadFileController.onPageLoad().url
-          flash(result).get("uploadFile.fileError") mustBe Some("supportingDocuments.uploadFile.error.type")
+          status(result) mustEqual BAD_REQUEST
+          contentAsString(result) must include(messages(application)("supportingDocuments.uploadFile.error.type"))
         } finally {
           Files.deleteIfExists(temporaryFile.path)
         }
@@ -331,101 +231,121 @@ class UploadFileControllerSpec extends SpecBase {
       running(application) {
         val temporaryFile = application.injector.instanceOf[TemporaryFileCreator].create()
         Files.write(temporaryFile.path, "receipt contents".getBytes(StandardCharsets.UTF_8))
+        val description = "x" * (descriptionMaxLength + 1)
         val multipartData = MultipartFormData(
-          dataParts = Map(
-            formTokenField       -> Seq("test-token"),
-            descriptionFieldName -> Seq("x" * (descriptionMaxLength + 1))
-          ),
+          dataParts = Map(descriptionFieldName -> Seq(description)),
           files = Seq(
             MultipartFormData.FilePart("file-upload-1", "receipt.pdf", Some("application/pdf"), temporaryFile)
           ),
           badParts = Seq.empty
         )
-        val request = FakeRequest(POST, routes.UploadFileController.onSubmit().url)
-          .withSession(formTokenKey -> "test-token")
-          .withMultipartFormDataBody(multipartData)
+        val request = FakeRequest(POST, routes.UploadFileController.onSubmit().url).withMultipartFormDataBody(multipartData)
         val result = route(application, request).value
 
         try {
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.UploadFileController.onPageLoad().url
-          flash(result).get("uploadFile.descriptionError") mustBe Some(
-            "supportingDocuments.uploadFile.error.description.maxLength"
-          )
-          flash(result).get("uploadFile.fileError") mustBe None
-
-          val errorPageRequest = FakeRequest(GET, routes.UploadFileController.onPageLoad().url)
-            .withFlash(
-              "uploadFile.descriptionError" -> "supportingDocuments.uploadFile.error.description.maxLength"
-            )
-          val errorPage = route(application, errorPageRequest).value
+          status(result) mustEqual BAD_REQUEST
           val errorMessage =
             messages(application)("supportingDocuments.uploadFile.error.description.maxLength", descriptionMaxLength)
+          val errorContent = contentAsString(result)
 
-          status(errorPage) mustEqual OK
-          contentAsString(errorPage) must include(errorMessage)
+          errorContent must include(errorMessage)
+          errorContent must include(description)
+          val summaryErrors = Jsoup.parse(errorContent).select(".govuk-error-summary__list a")
+          summaryErrors.size mustBe 1
+          summaryErrors.get(0).text mustBe errorMessage
+          summaryErrors.get(0).attr("href") mustBe "#fileupload-description"
         } finally {
           Files.deleteIfExists(temporaryFile.path)
         }
       }
     }
 
-    "must show a select-file error when the browser submits an empty file part after a size error" in {
+    "must show file and description errors in the summary with the file error first" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val temporaryFile = application.injector.instanceOf[TemporaryFileCreator].create()
+        Files.write(temporaryFile.path, "receipt contents".getBytes(StandardCharsets.UTF_8))
+        val description = "x" * (descriptionMaxLength + 1)
+        val multipartData = MultipartFormData(
+          dataParts = Map(descriptionFieldName -> Seq(description)),
+          files = Seq(
+            MultipartFormData.FilePart(fileInputName, "receipt.docx", Some("application/octet-stream"), temporaryFile)
+          ),
+          badParts = Seq.empty
+        )
+        val request = FakeRequest(POST, routes.UploadFileController.onSubmit().url).withMultipartFormDataBody(multipartData)
+        val result = route(application, request).value
+
+        try {
+          status(result) mustEqual BAD_REQUEST
+          val errorLinks = Jsoup.parse(contentAsString(result)).select(".govuk-error-summary__list a")
+
+          errorLinks.size mustBe 2
+          errorLinks.get(0).attr("href") mustBe "#file-upload-1"
+          errorLinks.get(0).text mustBe messages(application)("supportingDocuments.uploadFile.error.type")
+          errorLinks.get(1).attr("href") mustBe "#fileupload-description"
+          errorLinks.get(1).text mustBe messages(application)(
+            "supportingDocuments.uploadFile.error.description.maxLength",
+            descriptionMaxLength
+          )
+        } finally {
+          Files.deleteIfExists(temporaryFile.path)
+        }
+      }
+    }
+
+    "must show the file size error for a file above the upload limit" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
         val oversizedFile = application.injector.instanceOf[TemporaryFileCreator].create()
-        val emptyFile = application.injector.instanceOf[TemporaryFileCreator].create()
         Files.write(oversizedFile.path, Array.fill(5 * 1024 * 1024 + 1)(0.toByte))
         val oversizedMultipartData = MultipartFormData(
-          dataParts = Map(formTokenField -> Seq("old-token")),
+          dataParts = Map.empty,
           files = Seq(
             MultipartFormData.FilePart("file-upload-1", "large.pdf", Some("application/pdf"), oversizedFile)
           ),
           badParts = Seq.empty
         )
-        val oversizedRequest = FakeRequest(POST, routes.UploadFileController.onSubmit().url)
-          .withSession(formTokenKey -> "old-token")
-          .withMultipartFormDataBody(oversizedMultipartData)
+        val oversizedRequest =
+          FakeRequest(POST, routes.UploadFileController.onSubmit().url).withMultipartFormDataBody(oversizedMultipartData)
         val oversizedResult = route(application, oversizedRequest).value
 
         try {
-          status(oversizedResult) mustEqual SEE_OTHER
-          flash(oversizedResult).get("uploadFile.fileError") mustBe Some("supportingDocuments.uploadFile.error.size")
-
-          val errorPageRequest = FakeRequest(GET, routes.UploadFileController.onPageLoad().url)
-            .withFlash("uploadFile.fileError" -> "supportingDocuments.uploadFile.error.size")
-            .withSession(formTokenKey -> "old-token")
-          val errorPage = route(application, errorPageRequest).value
-          status(errorPage) mustEqual OK
-          val freshToken = formTokenFrom(contentAsString(errorPage))
-
-          val staleFileRequest = FakeRequest(POST, routes.UploadFileController.onSubmit().url)
-            .withSession(formTokenKey -> freshToken)
-            .withMultipartFormDataBody(oversizedMultipartData)
-          val staleFileResult = route(application, staleFileRequest).value
-
-          status(staleFileResult) mustEqual SEE_OTHER
-          flash(staleFileResult).get("uploadFile.fileError") mustBe Some("supportingDocuments.uploadFile.error.required")
-
-          val noSelectionMultipartData = MultipartFormData(
-            dataParts = Map(formTokenField -> Seq(freshToken)),
-            files = Seq(
-              MultipartFormData.FilePart("file-upload-1", "", Some("application/octet-stream"), emptyFile)
-            ),
-            badParts = Seq.empty
-          )
-          val noSelectionRequest = FakeRequest(POST, routes.UploadFileController.onSubmit().url)
-            .withSession(formTokenKey -> freshToken)
-            .withMultipartFormDataBody(noSelectionMultipartData)
-          val noSelectionResult = route(application, noSelectionRequest).value
-
-          status(noSelectionResult) mustEqual SEE_OTHER
-          flash(noSelectionResult).get("uploadFile.fileError") mustBe Some("supportingDocuments.uploadFile.error.required")
+          status(oversizedResult) mustEqual BAD_REQUEST
+          contentAsString(oversizedResult) must include(messages(application)("supportingDocuments.uploadFile.error.size"))
         } finally {
           Files.deleteIfExists(oversizedFile.path)
-          Files.deleteIfExists(emptyFile.path)
         }
+      }
+    }
+
+    "must show the file size error when the multipart request exceeds the parser limit" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val boundary = "upload-boundary"
+        val multipartStart =
+          s"""--$boundary\r
+             |Content-Disposition: form-data; name="file-upload-1"; filename="large.pdf"\r
+             |Content-Type: application/pdf\r
+             |\r
+             |""".stripMargin.getBytes(StandardCharsets.UTF_8)
+        val multipartEnd = s"\r\n--$boundary--\r\n".getBytes(StandardCharsets.UTF_8)
+        val requestBody =
+          multipartStart ++ Array.fill(7 * 1024 * 1024)(0.toByte) ++ multipartEnd
+        val request = FakeRequest(POST, routes.UploadFileController.onSubmit().url)
+          .withHeaders("Content-Type" -> s"multipart/form-data; boundary=$boundary")
+          .withBody(requestBody)
+        val result = route(application, request).value
+
+        status(result) mustEqual 413
+        contentAsString(result) must include(messages(application)("supportingDocuments.uploadFile.error.size"))
+        contentAsString(result) must include(
+          s"""<title>${messages(application)("error.title.prefix")} ${messages(application)("supportingDocuments.uploadFile.title")}"""
+        )
+        header("Cache-Control", result).value mustEqual "no-store"
       }
     }
   }
