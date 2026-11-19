@@ -21,6 +21,7 @@ import forms.supportingdocuments.UploadFileFormProvider
 import forms.supportingdocuments.UploadFileFormProvider.{descriptionFieldName, fileErrorKey, fileInputName}
 import pages.supportingdocuments.YourFileNamePage
 import play.api.data.Form
+import play.api.http.Status.REQUEST_ENTITY_TOO_LARGE
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.Logging
 import play.api.libs.Files.TemporaryFile
@@ -111,12 +112,12 @@ class UploadFileController @Inject() (
 
     BodyParser("supporting-document-upload") { request =>
       parser(request).map {
-        case Left(result) if result.header.status == 413 =>
+        case Left(result) if result.header.status == REQUEST_ENTITY_TOO_LARGE =>
           val errorForm = form.withError(fileErrorKey, "supportingDocuments.uploadFile.error.size")
           val messages = messagesApi.preferred(request)
           Left(
             Results
-              .Status(413)(view(errorForm)(request, messages))
+              .Status(REQUEST_ENTITY_TOO_LARGE)(view(errorForm)(request, messages))
               .withHeaders("Cache-Control" -> "no-store")
           )
         case parseResult =>

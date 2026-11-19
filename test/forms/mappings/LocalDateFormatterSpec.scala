@@ -95,5 +95,19 @@ class LocalDateFormatterSpec extends AnyFreeSpec with Matchers {
       val result5 = formatter.bind("value", Map("value.day" -> "01", "value.month" -> "01", "value.year" -> "12345"))
       result5 mustBe Left(List(FormError("value", "invoiceDate.error.invalid.year", List(messages("date.error.year")))))
     }
+
+    "rejects years with leading zeros as invalid" in {
+      val result1 = formatter.bind("value", Map("value.day" -> "01", "value.month" -> "01", "value.year" -> "0001"))
+      result1 mustBe Left(List(FormError("value", "invoiceDate.error.invalid.year", List(messages("date.error.year")))))
+
+      val result2 = formatter.bind("value", Map("value.day" -> "01", "value.month" -> "01", "value.year" -> "0111"))
+      result2 mustBe Left(List(FormError("value", "invoiceDate.error.invalid.year", List(messages("date.error.year")))))
+    }
+
+    "accepts a valid four-digit year" in {
+      val result = formatter.bind("value", Map("value.day" -> "01", "value.month" -> "01", "value.year" -> "2021"))
+      result.isRight mustBe true
+      result.toOption.get.getYear mustEqual 2021
+    }
   }
 }
