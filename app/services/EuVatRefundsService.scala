@@ -92,4 +92,10 @@ class EuVatRefundsService @Inject() (euVatRefundsConnector: EuVatRefundsConnecto
 
   def getReferenceInfoCount(request: ReferenceInfoCountRequest)(implicit headerCarrier: HeaderCarrier): Future[ReferenceInfoCountResponse] =
     euVatRefundsConnector.getReferenceInfoCount(request)
+
+  def getAttachmentDetails(applicationId: Long, attachmentNumber: Int)(implicit hc: HeaderCarrier): Future[AttachmentDetailsResponse] =
+    euVatRefundsConnector.getAttachmentDetails(applicationId, attachmentNumber)
+
+//  def deleteAttachment(request: DeleteAttachmentRequest)(implicit hc: HeaderCarrier): Future[DeleteAttachmentResponse] =
+//    connector.deleteAttachment(request)
 }

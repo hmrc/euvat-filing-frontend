@@ -1,0 +1,76 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
+
+@this(
+    layout: templates.Layout,
+    formHelper: FormWithCSRF,
+    govukErrorSummary: GovukErrorSummary,
+    govukSummaryList: GovukSummaryList,
+    govukRadios: GovukRadios,
+    govukButton: GovukButton
+)
+
+@(form: Form[Boolean], attachmentNumber: Int, fileName: String, fileDescription: String, fileSize: Int)(implicit request: Request[_], messages: Messages)
+
+@layout(pageTitle = title(form, messages("removeFile.title"))) {
+
+    @formHelper(action = controllers.supportingdocuments.routes.RemoveFileController.onSubmit(attachmentNumber), Symbol("autoComplete") -> "off") {
+
+        @if(form.errors.nonEmpty) {
+            @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value_0")))
+        }
+
+        <h1 class="govuk-heading-l">@messages("removeFile.heading")</h1>
+
+        @govukSummaryList(
+            SummaryList(
+                rows = Seq(
+                    SummaryListRow(
+                        key = Key(content = Text(messages("removeFile.list1"))),
+                        value = Value(content = Text(fileName))
+                    ),
+                    SummaryListRow(
+                        key = Key(content = Text(messages("removeFile.list2"))),
+                        value = Value(content = Text(fileDescription))
+                    ),
+                    SummaryListRow(
+                        key = Key(content = Text(messages("removeFile.list3"))),
+                        value = Value(content = Text(fileDescription))
+                    )
+                )
+            )
+        )
+
+        @govukRadios(
+            RadiosViewModel(
+                field = form("value"),
+                legend = LegendViewModel(messages("removeFile.legend"))
+                    .withCssClass("govuk-fieldset__legend--m"),
+                items = Seq(
+                    RadioItem(id = Some("value_0"), value = Some("true"), content = Text(messages("site.yes"))),
+                    RadioItem(id = Some("value_1"), value = Some("false"), content = Text(messages("site.no")))
+                )
+            ).copy(classes = "govuk-radios")
+        )
+
+        @govukButton(
+            ButtonViewModel(messages("site.continue"))
+        )
+    }
+}
+
