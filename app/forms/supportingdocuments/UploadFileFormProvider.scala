@@ -18,16 +18,34 @@ package forms.supportingdocuments
 
 import play.api.data.Form
 import play.api.data.Forms.{optional, text}
+import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
 
 import javax.inject.Inject
+
+object UploadFileFormProvider {
+  val fileErrorKey = "file"
+  val fileInputName = "file-upload-1"
+  val descriptionFieldName = "fileuploadDescription"
+  val descriptionMaxLength = 255
+}
 
 class UploadFileFormProvider @Inject() {
 
   def apply(): Form[Option[String]] =
     Form(
-      "fileuploadDescription" -> optional(text).verifying(
-        "supportingDocuments.uploadFile.error.description.maxLength",
-        _.forall(_.length <= 255)
+      UploadFileFormProvider.descriptionFieldName -> optional(text).verifying(
+        Constraint[Option[String]] { description =>
+          if (description.forall(_.length <= UploadFileFormProvider.descriptionMaxLength)) {
+            Valid
+          } else {
+            Invalid(
+              ValidationError(
+                "supportingDocuments.uploadFile.error.description.maxLength",
+                UploadFileFormProvider.descriptionMaxLength
+              )
+            )
+          }
+        }
       )
     )
 }

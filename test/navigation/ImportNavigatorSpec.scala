@@ -131,7 +131,7 @@ class ImportNavigatorSpec extends SpecBase {
       }
 
       "must go from ImportSubCodePage to the free text page when Other and None of these was selected" in {
-        val ua = answersFor("BE", Other, "__none__")
+        val ua = answersFor("BE", Other, "10.99")
         navigator.navigateFromImportSubCodePage(NormalMode)(ua) mustBe
           importRoutes.DescribeItemsOnImportDocController.onPageLoad(NormalMode)
       }

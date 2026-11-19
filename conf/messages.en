@@ -380,6 +380,7 @@ invoiceDate.error.required = Enter a {0}
 invoiceDate.error.required.all = Enter a date
 invoiceDate.error.required.two = Enter a {0} and {1}
 invoiceDate.error.past = The invoice date must be in the past
+invoiceDate.error.minimum = The invoice date must be after 2021
 invoiceDate.error.outsideRefundPeriod = The invoice date must be within the refund period
 invoiceDate.checkYourAnswersLabel = Date
 invoiceDate.change.hidden = Change invoice date
@@ -399,6 +400,9 @@ supplierAddress.lead = Enter the supplier’s address as it appears on the invoi
 supplierAddress.line1.label = Address line 1
 supplierAddress.line2.label = Address line 2 (optional)
 supplierAddress.line3.label = Address line 3 (optional)
+supplierAddress.line1.label.short = Address line 1
+supplierAddress.line2.label.short = Address line 2
+supplierAddress.line3.label.short = Address line 3
 supplierAddress.error.line1.required = Enter address line 1, typically the building and street
 supplierAddress.error.maxLength = must be 35 characters or less
 supplierAddress.error.maxLength.withLabel = {0} {1}
@@ -541,6 +545,7 @@ importDate.error.required = Enter a {0}
 importDate.error.required.all = Enter a date
 importDate.error.required.two = Enter a {0} and {1}
 importDate.error.past = The import date must be in the past
+importDate.error.minimum = The import date must be after 2021
 importDate.checkYourAnswersLabel = Import date
 importDate.change.hidden = Change import date
 
@@ -562,14 +567,9 @@ totalVatPaidImport.p1 = If this amount is not on your import document, you’ll 
 
 import.supplierAddress.lead = Enter the supplier’s address as it appears on the import document.
 import.supplierAddress.country.label = Country
-import.supplierAddress.line1.label.short=Address line 1
-import.supplierAddress.line2.label.short=Address line 2
-import.supplierAddress.line3.label.short=Address line 3
-import.supplierAddress.error.line1.maxLength={0} {1}
-import.supplierAddress.error.line2.maxLength={0} {1}
-import.supplierAddress.error.line3.maxLength={0} {1}
-import.supplierAddress.error.country.required=Select a country
-import.supplierAddress.error.country.invalid=Select a country from the list
+import.supplierAddress.country.placeholder = Select a country
+import.supplierAddress.error.country.required = Select a country
+import.supplierAddress.error.country.invalid = Select a country from the list
 
 import.refundingCurrency.title = Which currency do you want to use for this import?
 import.refundingCurrency.heading = Which currency do you want to use for this import?
@@ -681,6 +681,7 @@ bankDetails.internationalBankAccountDetails.error.CurrencyOfAccount.invalid = Se
 
 bankDetails.checkYourBankDetails.title = Check your answers
 bankDetails.checkYourBankDetails.heading = Check your answers
+bankDetails.checkYourBankDetails.paragraph = We have hidden your BIC and IBAN details for security reasons. If you change your bank details, you will need to enter them again.
 bankDetails.checkYourBankDetails.card.title = International bank account details
 bankDetails.checkYourBankDetails.change.hidden = international bank account details
 bankDetails.checkYourBankDetails.accountHolder.label = Account holder
@@ -725,7 +726,7 @@ supportingDocuments.uploadFile.error.type = The selected file must be a JPEG, TI
 supportingDocuments.uploadFile.error.description.maxLength = Additional information must be 255 characters or less
 supportingDocuments.uploadFile.error.unknown = The selected file could not be uploaded
 
-# Warning messages
+# Warning messages - start
 refundPeriodStartDateWarning.title = Are you sure the refund period start date is correct?
 refundPeriodStartDateWarning.heading = Are you sure the refund period start date is correct?
 refundPeriodStartDateWarning.paragraph = You’ve told us the refund period start date is {0}. The refund period start date cannot be before {1}.
@@ -804,6 +805,7 @@ sadReferenceNumberWarning.p = You’ve already added an import with the same SAD
 sadReferenceNumberWarning.warning = If you submit a claim with inaccurate information, it may be rejected.
 sadReferenceNumberWarning.correct = Yes, this is correct
 sadReferenceNumberWarning.backLink = No, change SAD reference number
+# Warning messages - end
 
 removeItem.title = Remove item
 removeItem.heading = Remove item
@@ -812,3 +814,20 @@ removeItem.list2 = VAT claim
 removeItem.legend = Are you sure you want to remove this item?
 removeItem.notProvided = Not provided
 removeItem.error.required = Select yes if you want to remove this item
+
+supportingDocuments.anyDocuments.title = Do you have any supporting documents to upload?
+supportingDocuments.anyDocuments.heading = Do you have any supporting documents to upload?
+supportingDocuments.anyDocuments.error.required = Select yes if you have supporting documents to upload
+supportingDocuments.uploadFile.title = Upload file
+supportingDocuments.uploadFile.heading = Upload file
+supportingDocuments.uploadFile.file.label = Upload file
+supportingDocuments.uploadFile.file.hint = Upload a scanned version or photo of the original document. We accept the following file types: JPEG, TIFF, PDF or ZIP.
+supportingDocuments.uploadFile.description.label = Additional information (optional)
+supportingDocuments.uploadFile.description.hint = You can give the details in your preferred language
+supportingDocuments.uploadFile.description.remaining = You have '%{count}' characters remaining
+supportingDocuments.uploadFile.error.required = Select a file
+supportingDocuments.uploadFile.error.empty = The selected file is empty
+supportingDocuments.uploadFile.error.size = Total selected files must be smaller than 5MB
+supportingDocuments.uploadFile.error.type = The selected file must be a JPEG, TIFF, PDF or ZIP
+supportingDocuments.uploadFile.error.upload = The selected file could not be uploaded
+supportingDocuments.uploadFile.error.description.maxLength = Additional information must be {0} characters or less

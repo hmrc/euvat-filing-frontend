@@ -25,6 +25,7 @@ import pages.claim.{CountryChangedPage, RefundingCountryNamePage, RefundingCount
 import pages.purchase.*
 import pages.warning.SupplierVatRegistrationWarningPage
 import play.api.Configuration
+import play.api.mvc.Call
 import utils.{ConfigPurchaseOrImportMapping, CurrencyConfig}
 
 class PurchaseNavigatorSpec extends SpecBase {
@@ -414,5 +415,32 @@ class PurchaseNavigatorSpec extends SpecBase {
       }
     }
 
+  }
+
+  "PurchaseNavigator sub category urls" - {
+
+    "must build the sub category page url for every sub category slug" in {
+      Seq(
+        "fuel-type",
+        "fuel-type-or-vehicle",
+        "vehicle-use",
+        "what-transport-cost",
+        "who-food-drink-for",
+        "cost-for-publicity-purposes",
+        "property-purchase-type",
+        "property-cost-type"
+      ).foreach { slug =>
+        PurchaseNavigator.subCategoryPage(slug, NormalMode) mustBe Call("GET", s"/file-eu-vat/purchase/$slug")
+      }
+    }
+
+    "must use the change url in CheckMode" in {
+      PurchaseNavigator.subCategoryPage("who-food-drink-for", CheckMode) mustBe Call("GET", "/file-eu-vat/purchase/change-who-food-drink-for")
+    }
+
+    "must post the sub category from the same url" in {
+      PurchaseNavigator.subCategorySubmit("who-food-drink-for", NormalMode) mustBe Call("POST", "/file-eu-vat/purchase/who-food-drink-for")
+      PurchaseNavigator.subCategorySubmit("who-food-drink-for", CheckMode) mustBe Call("POST", "/file-eu-vat/purchase/change-who-food-drink-for")
+    }
   }
 }

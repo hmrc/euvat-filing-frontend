@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.bankdetails.AccountHolderFormProvider
 import models.Mode
 import navigation.Navigator
-import pages.bankdetails.AccountHolderPage
+import pages.bankdetails.{AccountHolderPage, BankDetailsPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -29,6 +29,7 @@ import views.html.bankdetails.AccountHolderView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Success
 
 class AccountHolderController @Inject() (
   override val messagesApi: MessagesApi,
@@ -63,9 +64,14 @@ class AccountHolderController @Inject() (
       .fold(
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
         value =>
+          val answers = request.userAnswers
+          val accountHolderUnchanged = answers.get(AccountHolderPage).contains(value)
+          val clearedBankDetailsTry = if (accountHolderUnchanged) Success(answers) else answers.remove(BankDetailsPage)
+
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(AccountHolderPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
+            clearedBankDetails <- Future.fromTry(clearedBankDetailsTry)
+            updatedAnswers     <- Future.fromTry(clearedBankDetails.set(AccountHolderPage, value))
+            _                  <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(AccountHolderPage, mode, updatedAnswers))
       )
   }

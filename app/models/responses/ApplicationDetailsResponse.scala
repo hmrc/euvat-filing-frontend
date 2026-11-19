@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package pages.purchase
+package models.responses
 
-import pages.QuestionPage
-import play.api.libs.json.JsPath
+import models.ApplicationDetails
+import play.api.libs.json.{Json, OFormat}
 
-case object PurchaseSubCategoryArrivedFromCheckYourAnswersPage extends QuestionPage[Boolean] {
+case class ApplicationDetailsResponse(applicationDetails: List[ApplicationDetails])
 
-  override def path: JsPath = JsPath \ toString
-
-  override def toString: String = "purchaseSubCategoryArrivedFromCheckYourAnswers"
-
+object ApplicationDetailsResponse {
+  implicit val format: OFormat[ApplicationDetailsResponse] = Json.format[ApplicationDetailsResponse]
 }

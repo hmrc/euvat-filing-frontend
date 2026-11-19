@@ -1,6 +1,6 @@
 package forms
 
-import config.CurrencyFormatter.currencyFormat
+import config.AmountFormatter.amountFormat
 import forms.behaviours.CurrencyFieldBehaviours
 import org.scalacheck.Gen
 import play.api.data.FormError
@@ -40,7 +40,7 @@ class $className$FormProviderSpec extends CurrencyFieldBehaviours {
       form,
       fieldName,
       maximum,
-      FormError(fieldName, "$className;format="decap"$.error.aboveMaximum", Seq(currencyFormat(maximum)))
+      FormError(fieldName, "$className;format="decap"$.error.aboveMaximum", Seq(amountFormat(maximum)))
     )
 
     behave like mandatoryField(

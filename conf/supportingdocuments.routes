@@ -5,3 +5,4 @@ GET         /any-documents                        controllers.supportingdocument
 POST        /any-documents                        controllers.supportingdocuments.AnyDocumentsController.onSubmit()
 
 GET         /upload-file                          controllers.supportingdocuments.UploadFileController.onPageLoad()
+POST        /upload-file                          controllers.supportingdocuments.UploadFileController.onSubmit()

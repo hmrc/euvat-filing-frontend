@@ -18,14 +18,9 @@ package utils
 
 import base.SpecBase
 import forms.PurchaseOrImportSubTypeFormProvider
-import models.{Fuel, NormalMode}
-import models.requests.DataRequest
 import pages.imports.ImportSubCategoryPage
-import pages.purchase.{PurchaseSubCategoryPage, PurchaseSubTypePage, PurchaseTypePage}
 import play.api.i18n.{Lang, Messages, MessagesImpl}
-import play.api.mvc.{AnyContent, AnyContentAsEmpty, Call}
-import play.api.test.FakeRequest
-import play.api.test.Helpers.{GET, stubMessages, stubMessagesApi}
+import play.api.test.Helpers.stubMessagesApi
 import queries.ImportSubCategoryLabelQuery
 import utils.PurchaseOrImportHelpers.*
 
@@ -38,32 +33,10 @@ class PurchaseOrImportHelpersSpec extends SpecBase {
   private val config = new ConfigPurchaseOrImportMapping()
   private val formProvider = new PurchaseOrImportSubTypeFormProvider()
 
-  private val options = Seq(("1.2.6", "sub.fuel.2.6"), ("1.2.7", "sub.fuel.2.7"))
+  private val options = Seq(("1.2.6", "sub.fuel.2.6"), ("1.2.7", "sub.fuel.2.7"), ("1.2.99", "sub.99"))
   private val optionsWithNoneOfThese = Seq(("10.17", "sub.other.17"), (ConfigPurchaseOrImportMapping.NoneOfTheseSubCode, "sub.other.99"))
 
   "PurchaseOrImportHelpers" - {
-
-    "radioItems" - {
-
-      "must include the generic None item when options do not contain None of these" in {
-        radioItems(config, options)(noMessages).flatMap(_.value) mustBe Seq("1.2.6", "1.2.7", ConfigPurchaseOrImportMapping.NoneValue)
-      }
-
-      "must drop the generic None item when options contain None of these" in {
-        radioItems(config, optionsWithNoneOfThese)(noMessages).flatMap(_.value) mustBe Seq("10.17", ConfigPurchaseOrImportMapping.NoneOfTheseSubCode)
-      }
-    }
-
-    "allowedValues" - {
-
-      "must add the None value when options do not contain None of these" in {
-        allowedValues(options) mustBe Seq("1.2.6", "1.2.7", ConfigPurchaseOrImportMapping.NoneValue)
-      }
-
-      "must not add the None value when options contain None of these" in {
-        allowedValues(optionsWithNoneOfThese) mustBe Seq("10.17", ConfigPurchaseOrImportMapping.NoneOfTheseSubCode)
-      }
-    }
 
     "requiredErrorKey" - {
 
@@ -128,9 +101,6 @@ class PurchaseOrImportHelpersSpec extends SpecBase {
         labelFor("1.2.6", options)(msgs) mustBe "Diesel"
       }
 
-      "must return the value itself for an unknown code" in {
-        labelFor(ConfigPurchaseOrImportMapping.NoneValue, options)(noMessages) mustBe ConfigPurchaseOrImportMapping.NoneValue
-      }
     }
 
     "setSelection" - {
@@ -145,10 +115,6 @@ class PurchaseOrImportHelpersSpec extends SpecBase {
 
     "isNoneSelection" - {
 
-      "must be true for the generic None value" in {
-        isNoneSelection(ConfigPurchaseOrImportMapping.NoneValue) mustBe true
-      }
-
       "must be true for a code ending in 99" in {
         isNoneSelection("10.99") mustBe true
       }
@@ -160,69 +126,6 @@ class PurchaseOrImportHelpersSpec extends SpecBase {
       "must be false for a sub category code" in {
         isNoneSelection("1.2.6") mustBe false
       }
-    }
-
-    "computeBackTarget" - {
-      implicit val messages: Messages = stubMessages()
-      "should return PurchaseTypeController when no user answers available" in {
-        implicit val request: DataRequest[AnyContent] = DataRequest(FakeRequest(GET, "/"), userAnswersId, "", "", emptyUserAnswers)
-
-        val result: Call = PurchaseOrImportHelpers.computeBackTarget(NormalMode)
-
-        result mustEqual controllers.purchase.routes.PurchaseTypeController.onPageLoad(NormalMode)
-      }
-
-      "should return mounted slug when PurchaseType and PurchaseSubType present and no subcategory" in {
-        val userAnswers = emptyUserAnswers
-          .set(PurchaseTypePage, Fuel)
-          .success
-          .value
-          .set(PurchaseSubTypePage, "1")
-          .success
-          .value
-
-        implicit val request: DataRequest[AnyContent] = DataRequest(FakeRequest(GET, "/file-eu-vat/foo"), userAnswersId, "", "", userAnswers)
-
-        val result: Call = PurchaseOrImportHelpers.computeBackTarget(NormalMode)
-
-        result.method mustEqual "GET"
-        result.url mustEqual "/file-eu-vat/fuel-use"
-      }
-
-      "should fallback to PurchaseType when child present but parent missing (child without dot)" in {
-        val userAnswers: models.UserAnswers = emptyUserAnswers
-          .set(PurchaseTypePage, Fuel)
-          .success
-          .value
-          .set(PurchaseSubCategoryPage, "1")
-          .success
-          .value
-
-        implicit val request: DataRequest[AnyContent] = DataRequest(FakeRequest(GET, "/file-eu-vat/foo"), userAnswersId, "", "", userAnswers)
-
-        val result: Call = PurchaseOrImportHelpers.computeBackTarget(NormalMode)
-
-        result mustEqual controllers.purchase.routes.PurchaseTypeController.onPageLoad(NormalMode)
-      }
-
-      "should map to first available slug when child contains dot and parent missing" in {
-        val userAnswers: models.UserAnswers = emptyUserAnswers
-          .set(PurchaseTypePage, Fuel)
-          .success
-          .value
-          .set(PurchaseSubCategoryPage, "1.1")
-          .success
-          .value
-
-        implicit val request: DataRequest[AnyContentAsEmpty.type] =
-          DataRequest(FakeRequest(GET, "/file-eu-vat/foo"), userAnswersId, "", "", userAnswers)
-
-        val result: Call = PurchaseOrImportHelpers.computeBackTarget(NormalMode)
-
-        result.method mustEqual "GET"
-        result.url must startWith("/file-eu-vat/fuel-type")
-      }
-
     }
   }
 }

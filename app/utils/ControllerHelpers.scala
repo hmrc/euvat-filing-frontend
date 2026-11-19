@@ -24,7 +24,7 @@ import pages.purchase.PurchaseTypePage
 import play.api.libs.json.{Format, Reads, Writes}
 import play.api.mvc.Results.*
 import play.api.mvc.{Call, Result}
-import queries.Settable
+import queries.{Gettable, Settable}
 import repositories.SessionRepository
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -62,13 +62,6 @@ object ControllerHelpers {
         case Some(value) => Future.fromTry(userAnswers.set(page, value))
         case None        => Future.successful(userAnswers)
       }
-    }
-
-  def pathForSlug(slug: String, mode: Mode, prefix: String): String =
-    if (mode == CheckMode) {
-      if (prefix.isEmpty) s"/change-$slug" else s"$prefix/change-$slug"
-    } else {
-      if (prefix.isEmpty) s"/$slug" else s"$prefix/$slug"
     }
 
   def redirectToInvoiceTypeOrCYA(mode: Mode): Result = {
@@ -164,7 +157,7 @@ object ControllerHelpers {
     }
 
   def markArrivalAndRender(
-    page: QuestionPage[Boolean],
+    page: Gettable[Boolean] & Settable[Boolean],
     mode: Mode,
     userAnswers: UserAnswers,
     sessionRepository: SessionRepository

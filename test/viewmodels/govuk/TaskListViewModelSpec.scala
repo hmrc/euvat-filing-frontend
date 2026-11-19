@@ -22,7 +22,7 @@ import pages.supportingdocuments.AnyDocumentsPage
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
 import viewmodels.TaskListViewModel
-import queries.{ClaimDetailsCompletedQuery, PurchaseImportSummaryIncompleteQuery}
+import queries.{BankDetailsCompletedQuery, ClaimDetailsCompletedQuery, PurchaseImportSummaryIncompleteQuery}
 
 class TaskListViewModelSpec extends SpecBase {
   implicit val messages: Messages = stubMessages()
@@ -150,6 +150,37 @@ class TaskListViewModelSpec extends SpecBase {
         val item = taskList.items(4)
         item.href mustBe None
         item.status.content.asHtml.body mustBe "taskListDashboard.status2"
+      }
+    }
+
+    "when bank details are completed" - {
+      val claimDetailsCompleted = emptyUserAnswers.set(ClaimDetailsCompletedQuery, true).success.value
+      val bankDetailsCompleted = claimDetailsCompleted.set(BankDetailsCompletedQuery, true).success.value
+
+      "must return 5 items" in {
+        val taskList = viewModel.buildTaskList(bankDetailsCompleted)
+        taskList.items.size mustEqual 5
+      }
+
+      "must show claim details as Completed with a link" in {
+        val taskList = viewModel.buildTaskList(bankDetailsCompleted)
+        val item = taskList.items.head
+        item.href mustBe defined
+        item.status.content.asHtml.body must include("taskListDashboard.status3")
+      }
+
+      "must show purchase and import as Not yet started with a link" in {
+        val taskList = viewModel.buildTaskList(bankDetailsCompleted)
+        val item = taskList.items(1)
+        item.href mustBe defined
+        item.status.tag.map(_.content.asHtml.body) must contain("taskListDashboard.status1")
+      }
+
+      "must show bank details as Completed with a link" in {
+        val taskList = viewModel.buildTaskList(bankDetailsCompleted)
+        val item = taskList.items(3)
+        item.href mustBe defined
+        item.status.content.asHtml.body must include("taskListDashboard.status3")
       }
     }
 

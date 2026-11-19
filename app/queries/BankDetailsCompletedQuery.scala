@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package config
+package queries
 
-trait CurrencyFormatter {
-  def currencyFormat(amt: BigDecimal): String = f"£$amt%,1.2f".replace(".00", "")
+import play.api.libs.json.JsPath
+
+case object BankDetailsCompletedQuery extends Gettable[Boolean] with Settable[Boolean] {
+  override def path: JsPath = JsPath \ "bankDetailsCompleted"
 }
-
-object CurrencyFormatter extends CurrencyFormatter

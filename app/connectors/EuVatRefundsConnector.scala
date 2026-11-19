@@ -16,21 +16,25 @@
 
 package connectors
 
+import models.EncryptionStatus
 import models.requests.*
 import models.responses.*
 import play.api.Logging
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
+import uk.gov.hmrc.crypto.Crypted
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReadsInstances, HttpResponse, StringContextOps}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import utils.BankDetailsEncryption
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV2)(implicit ec: ExecutionContext)
-    extends HttpReadsInstances
+class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV2, cryptoProvider: BankDetailsEncryption)(implicit
+  ec: ExecutionContext
+) extends HttpReadsInstances
     with Logging {
 
   private val euVatRefundsBaseUrl: String = config.baseUrl("euvat-refunds") + "/euvat-refunds"
@@ -90,11 +94,57 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
       .execute[SupplierVrnCountResponse]
   }
 
-  def updateApplicationDetails(request: UpdateApplicationDetailsRequest)(implicit hc: HeaderCarrier): Future[UpdateApplicationDetailsResponse] =
+  def updateApplicationDetails(request: UpdateApplicationDetailsRequest)(implicit hc: HeaderCarrier): Future[UpdateApplicationDetailsResponse] = {
+    def sendUpdateRequest(request: UpdateApplicationDetailsRequest) = {
+      http
+        .put(url"$euVatRefundsBaseUrl/update-application-details")
+        .withBody(Json.toJson(request))
+        .execute[UpdateApplicationDetailsResponse]
+    }
+
+    request.encryptionStatus match {
+      case Some(encryptionStatus) =>
+        if (encryptionStatus == EncryptionStatus.M.toString) {
+          val encryptedRequest = request.copy(
+            ibanCode         = request.ibanCode.map(ibanCode => cryptoProvider.encrypt(ibanCode).value),
+            bicCode          = request.bicCode.map(bicCode => cryptoProvider.encrypt(bicCode).value),
+            cipherText       = Option(cryptoProvider.knownCipherText.value),
+            encryptionStatus = Option(EncryptionStatus.E.toString)
+          )
+          sendUpdateRequest(encryptedRequest)
+        } else {
+          logger.error("Cannot re-encrypt already encrypted bank details")
+          Future.failed(new RuntimeException("Failed to update application request"))
+        }
+      case _ =>
+        sendUpdateRequest(request)
+    }
+  }
+
+  def getApplicationDetails(applicationId: Long)(implicit hc: HeaderCarrier): Future[ApplicationDetailsResponse] =
     http
-      .put(url"$euVatRefundsBaseUrl/update-application-details")
-      .withBody(Json.toJson(request))
-      .execute[UpdateApplicationDetailsResponse]
+      .get(url"$euVatRefundsBaseUrl/get-application-details/$applicationId")
+      .execute[ApplicationDetailsResponse]
+      .flatMap { response =>
+        val details = response.applicationDetails.map { applicationDetails =>
+          val isEncrypted = applicationDetails.encryptionStatus.contains(EncryptionStatus.E.toString)
+          if (isEncrypted) {
+            val maybeEncryptedIbanCode = applicationDetails.ibanCode
+            val maybeEncryptedBicCode = applicationDetails.bicCode
+            val maybeEncryptedCipherText = applicationDetails.cipherText
+            applicationDetails.copy(
+              ibanCode         = maybeEncryptedIbanCode.map(encryptedIbanCode => cryptoProvider.decrypt(Crypted(encryptedIbanCode))),
+              bicCode          = maybeEncryptedBicCode.map(encryptedBicCode => cryptoProvider.decrypt(Crypted(encryptedBicCode))),
+              cipherText       = maybeEncryptedCipherText.map(encryptedCipherText => cryptoProvider.decrypt(Crypted(encryptedCipherText))),
+              encryptionStatus = Option(EncryptionStatus.M.toString)
+            )
+          } else {
+            applicationDetails.copy(encryptionStatus = Option(EncryptionStatus.M.toString))
+          }
+        }
+
+        Future.successful(ApplicationDetailsResponse(details))
+      }
 
   def getSupplierTaxIdentifierCount(
     request: SupplierTaxIdentifierCountRequest

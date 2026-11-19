@@ -18,11 +18,15 @@ package controllers.supportingdocuments
 
 import controllers.actions.*
 import forms.supportingdocuments.UploadFileFormProvider
+import forms.supportingdocuments.UploadFileFormProvider.{descriptionFieldName, fileErrorKey, fileInputName}
 import models.UploadFileError
 import play.api.Logging
 import play.api.data.Form
+import play.api.http.Status.REQUEST_ENTITY_TOO_LARGE
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.libs.Files.TemporaryFile
+import play.api.mvc.*
+import play.api.mvc.MultipartFormData.FilePart
 import queries.ClaimApplicationResponseQuery
 import services.EuVatRefundsService
 import uk.gov.hmrc.http.HeaderCarrier
@@ -30,6 +34,9 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.supportingdocuments.UploadFileView
 
+import java.io.IOException
+import java.nio.file.Files
+import java.util.Locale
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -47,6 +54,9 @@ class UploadFileController @Inject() (
     with I18nSupport
     with Logging {
 
+  private val maxFileSize = 5 * 1024 * 1024
+  private val maxRequestSize = 6 * 1024 * 1024
+  private val acceptedExtensions = Set("jpg", "jpeg", "tif", "tiff", "pdf", "zip")
   private def form: Form[Option[String]] = formProvider()
 
   // TODO: check for a reusable upload first (F6.1 - Get Upload Summary) once it is built.
@@ -76,4 +86,86 @@ class UploadFileController @Inject() (
           }
     }
   }
+
+  def onSubmit(): Action[MultipartFormData[TemporaryFile]] =
+    (identify andThen getData andThen requireData)
+      .async(multipartFormDataParser) { implicit request =>
+        val boundForm = form.bind(request.body.dataParts.view.mapValues(_.headOption.getOrElse("")).toMap)
+        val formWithFileErrors =
+          request.body.file(fileInputName) match {
+            case None =>
+              boundForm.withError(fileErrorKey, "supportingDocuments.uploadFile.error.required")
+            case Some(file) if file.filename.trim.isEmpty =>
+              boundForm.withError(fileErrorKey, "supportingDocuments.uploadFile.error.required")
+            case Some(file) =>
+              validateFile(file, boundForm) match {
+                case Right(validatedForm) =>
+                  validatedForm
+                case Left(error) =>
+                  logger.error("Unable to determine the size of the selected supporting document", error)
+                  boundForm.withError(fileErrorKey, "supportingDocuments.uploadFile.error.upload")
+              }
+          }
+
+        val orderedForm = formWithFileErrors.copy(
+          errors = formWithFileErrors.errors.filter(_.key == fileErrorKey) ++
+            formWithFileErrors.errors.filterNot(_.key == fileErrorKey)
+        )
+
+        if (orderedForm.hasErrors) {
+          Future.successful(BadRequest(view(orderedForm)).withHeaders("Cache-Control" -> "no-store"))
+        } else {
+          // TODO: redirect to the RA6.2 uploading page when it is implemented.
+          Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+        }
+      }
+
+  private def multipartFormDataParser: BodyParser[MultipartFormData[TemporaryFile]] = {
+    val parser = parse.multipartFormData(maxLength = maxRequestSize, allowEmptyFiles = true)
+
+    BodyParser("supporting-document-upload") { request =>
+      parser(request).map {
+        case Left(result) if result.header.status == REQUEST_ENTITY_TOO_LARGE =>
+          val errorForm = form.withError(fileErrorKey, "supportingDocuments.uploadFile.error.size")
+          val messages = messagesApi.preferred(request)
+          Left(
+            Results
+              .Status(REQUEST_ENTITY_TOO_LARGE)(view(errorForm)(request, messages))
+              .withHeaders("Cache-Control" -> "no-store")
+          )
+        case parseResult =>
+          parseResult
+      }
+    }
+  }
+
+  private[supportingdocuments] def validateFile(
+    file: FilePart[TemporaryFile],
+    form: Form[Option[String]]
+  ): Either[IOException, Form[Option[String]]] =
+    try {
+      val fileSize = Files.size(file.ref.path)
+      Right(
+        if (fileSize == 0) {
+          form.withError(fileErrorKey, "supportingDocuments.uploadFile.error.empty")
+        } else if (fileSize > maxFileSize) {
+          form.withError(fileErrorKey, "supportingDocuments.uploadFile.error.size")
+        } else if (!hasAcceptedExtension(file.filename)) {
+          form.withError(fileErrorKey, "supportingDocuments.uploadFile.error.type")
+        } else {
+          form
+        }
+      )
+    } catch {
+      case error: IOException => Left(error)
+    }
+
+  private def hasAcceptedExtension(filename: String): Boolean =
+    filename.lastIndexOf('.') match {
+      case dotIndex if dotIndex >= 0 =>
+        acceptedExtensions.contains(filename.substring(dotIndex + 1).toLowerCase(Locale.ROOT))
+      case _ =>
+        false
+    }
+
 }

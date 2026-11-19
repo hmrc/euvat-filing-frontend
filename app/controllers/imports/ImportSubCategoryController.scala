@@ -73,7 +73,7 @@ class ImportSubCategoryController @Inject() (
     val title = subCategoryTitle(data.parentKey, data.subCode, data.options)
     view(
       form,
-      radioItems(config, data.options),
+      config.buildRadioItems(data.options, messagesApi.preferred(request)),
       title,
       title,
       "import.caption",
@@ -95,7 +95,7 @@ class ImportSubCategoryController @Inject() (
         .fold(
           formWithErrors => Future.successful(BadRequest(renderView(data, formWithErrors, mode))),
           value =>
-            if (allowedValues(data.options).contains(value)) {
+            if (data.options.map(_._1).contains(value)) {
               val label = labelFor(value, data.options)
               for {
                 updatedAnswers <- Future.fromTry(

@@ -32,6 +32,7 @@ import play.api.mvc.Call
 import play.api.mvc.Results.*
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import queries.PurchaseSubTypeArrivedFromCheckYourAnswersQuery
 import repositories.SessionRepository
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -217,7 +218,7 @@ class ControllerHelpersSpec extends SpecBase {
 
   "markArrivalAndRender" - {
     "marks arrival and persists when in CheckMode and flag missing" in {
-      val page = PurchaseSubTypeArrivedFromCheckYourAnswersPage
+      val query = PurchaseSubTypeArrivedFromCheckYourAnswersQuery
 
       val ua = emptyUserAnswers
 
@@ -226,7 +227,7 @@ class ControllerHelpersSpec extends SpecBase {
 
       implicit val request: DataRequest[?] = DataRequest(FakeRequest("GET", "/"), userAnswersId, "", "", ua)
 
-      val fut = ControllerHelpers.markArrivalAndRender(page, CheckMode, ua, mockRepo) { updated =>
+      val fut = ControllerHelpers.markArrivalAndRender(query, CheckMode, ua, mockRepo) { updated =>
         Future.successful(Ok("rendered"))
       }
 
@@ -236,20 +237,20 @@ class ControllerHelpersSpec extends SpecBase {
       val captor = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
       verify(mockRepo, times(1)).set(captor.capture())
       val saved = captor.getValue
-      saved.get(page).value mustBe true
+      saved.get(query).value mustBe true
     }
 
     "does not persist when flag already set in CheckMode" in {
-      val page = PurchaseSubTypeArrivedFromCheckYourAnswersPage
+      val query = PurchaseSubTypeArrivedFromCheckYourAnswersQuery
 
-      val ua = emptyUserAnswers.set(page, true).success.value
+      val ua = emptyUserAnswers.set(query, true).success.value
 
       val mockRepo = mock[SessionRepository]
       when(mockRepo.set(anyA[models.UserAnswers])) thenReturn Future.successful(true)
 
       implicit val request: DataRequest[?] = DataRequest(FakeRequest("GET", "/"), userAnswersId, "", "", ua)
 
-      val fut = ControllerHelpers.markArrivalAndRender(page, CheckMode, ua, mockRepo) { updated =>
+      val fut = ControllerHelpers.markArrivalAndRender(query, CheckMode, ua, mockRepo) { updated =>
         Future.successful(Ok("rendered"))
       }
 
@@ -260,7 +261,7 @@ class ControllerHelpersSpec extends SpecBase {
     }
 
     "does not persist when in NormalMode" in {
-      val page = PurchaseSubTypeArrivedFromCheckYourAnswersPage
+      val query = PurchaseSubTypeArrivedFromCheckYourAnswersQuery
 
       val ua = emptyUserAnswers
 
@@ -269,7 +270,7 @@ class ControllerHelpersSpec extends SpecBase {
 
       implicit val request: DataRequest[?] = DataRequest(FakeRequest("GET", "/"), userAnswersId, "", "", ua)
 
-      val fut = ControllerHelpers.markArrivalAndRender(page, NormalMode, ua, mockRepo) { updated =>
+      val fut = ControllerHelpers.markArrivalAndRender(query, NormalMode, ua, mockRepo) { updated =>
         Future.successful(Ok("rendered"))
       }
 
@@ -288,20 +289,6 @@ class ControllerHelpersSpec extends SpecBase {
     "returns None when either is missing" in {
       ControllerHelpers.bothDefined(None, Some("a")) mustBe None
       ControllerHelpers.bothDefined(Some(1), None) mustBe None
-    }
-  }
-
-  "pathForSlug" - {
-    "builds change path in CheckMode without prefix" in {
-      ControllerHelpers.pathForSlug("foo", CheckMode, "") mustBe "/change-foo"
-    }
-
-    "builds change path in CheckMode with prefix" in {
-      ControllerHelpers.pathForSlug("bar", CheckMode, "/prefix") mustBe "/prefix/change-bar"
-    }
-
-    "builds normal path in NormalMode without prefix" in {
-      ControllerHelpers.pathForSlug("baz", NormalMode, "") mustBe "/baz"
     }
   }
 
