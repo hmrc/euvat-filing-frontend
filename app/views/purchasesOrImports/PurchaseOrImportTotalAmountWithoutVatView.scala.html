@@ -17,45 +17,40 @@
 @import viewmodels.InputWidth.*
 @import viewmodels.LabelSize
 @import views.html.components.MainErrorSummary
-@import models.Mode
 
 @this(
     layout: templates.Layout,
     formHelper: FormWithCSRF,
-    mainErrorSummary: views.html.components.MainErrorSummary,
+    mainErrorSummary: MainErrorSummary,
     govukInput: GovukInput,
     govukButton: GovukButton
 )
 
-@(form: Form[_], mode: Mode, prefix: String, currencyName: String)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], formAction: Call, messagePrefix: String, captionKey: String, currencySymbol: String, currencyName: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("totalAmountWithoutVat.title"))) {
 
-    @formHelper(action = controllers.imports.routes.TotalAmountWithoutVatController.onSubmit(mode), Symbol("autoComplete") -> "off") {
+    @formHelper(action = formAction, Symbol("autoComplete") -> "off") {
 
         @mainErrorSummary(form, Map.empty)
 
-        <span class="govuk-caption-l">@messages("import.caption")</span>
-        <h1 class="govuk-heading-l">
-            @messages("totalAmountWithoutVat.heading")
-        </h1>
+        <span class="govuk-caption-l">@messages(captionKey)</span>
+        <h1 class="govuk-heading-l">@messages("totalAmountWithoutVat.heading")</h1>
 
-        <div id="total-amount-without-vat-inset" class="govuk-body">@Html(messages("totalAmountWithoutVat.inset", currencyName.toLowerCase, prefix))</div>
+        <div id="total-amount-without-vat-inset" class="govuk-body">@Html(messages(s"$messagePrefix.inset", currencyName.toLowerCase, currencySymbol))</div>
 
-        <p class="govuk-body">@messages("totalAmountWithoutVat.p1")</p>
+        <p class="govuk-body">@messages(s"$messagePrefix.p1")</p>
 
         @govukInput(
             InputViewModel(
                 field = form("value"),
-                label = LabelViewModel(messages("totalAmountWithoutVat.h2")).withCssClass(LabelSize.Medium.toString)
+                label = LabelViewModel(messages(s"$messagePrefix.h2")).withCssClass(LabelSize.Medium.toString)
             )
-            .withPrefix(PrefixOrSuffix(content = prefix))
+            .withPrefix(PrefixOrSuffix(content = Text(currencySymbol)))
             .withWidth(Fixed5)
-            .withHint(HintViewModel(messages("totalAmountWithoutVat.hint", prefix)))
+            .withHint(HintViewModel(messages("totalAmountWithoutVat.hint", currencySymbol)))
         )
 
-        @govukButton(
-            ButtonViewModel(messages("site.continue"))
-        )
+        @govukButton(ButtonViewModel(messages("site.continue")))
     }
 }
