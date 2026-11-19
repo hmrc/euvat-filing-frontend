@@ -25,7 +25,7 @@
     govukButton: GovukButton
 )
 
-@(form: Form[Boolean], attachmentNumber: Int, fileName: String, fileDescription: String, fileSize: String)(implicit request: Request[_], messages: Messages)
+@(form: Form[Boolean], attachmentNumber: Int, fileName: String, fileDescription: String, fileSize: Int)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("removeFile.title"))) {
 
@@ -50,7 +50,7 @@
                     ),
                     SummaryListRow(
                         key = Key(content = Text(messages("removeFile.list3"))),
-                        value = Value(content = Text(fileSize))
+                        value = Value(content = Text(fileDescription))
                     )
                 )
             )
