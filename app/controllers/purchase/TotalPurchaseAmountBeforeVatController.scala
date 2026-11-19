@@ -18,19 +18,18 @@ package controllers.purchase
 
 import controllers.actions.*
 import forms.purchase.TotalPurchaseAmountBeforeVatFormProvider
+import models.Mode
 import models.requests.DataRequest
-import models.{CheckMode, Mode, NormalMode, SupplierTaxNumberCheck, UserAnswers}
 import navigation.Navigator
-import pages.claim.RefundingCountryPage
 import pages.purchase.*
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ControllerHelpers.*
 import utils.CurrencyConfig
-import views.html.purchase.TotalPurchaseAmountBeforeVatView
+import views.html.purchasesOrImports.PurchaseOrImportTotalAmountWithoutVatView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -45,7 +44,7 @@ class TotalPurchaseAmountBeforeVatController @Inject() (
   requireData: DataRequiredAction,
   formProvider: TotalPurchaseAmountBeforeVatFormProvider,
   val controllerComponents: MessagesControllerComponents,
-  view: TotalPurchaseAmountBeforeVatView
+  view: PurchaseOrImportTotalAmountWithoutVatView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
@@ -54,20 +53,19 @@ class TotalPurchaseAmountBeforeVatController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(TotalPurchaseAmountBeforeVatPage).fold(form)(form.fill)
-    val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)
-    Ok(view(preparedForm, mode, prefix, currencyName))
+    Ok(renderView(preparedForm, mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(badRequestView(formWithErrors, mode)),
+        formWithErrors => Future.successful(BadRequest(renderView(formWithErrors, mode))),
         value => handleSubmit(value, mode)
       )
   }
 
-  private def handleSubmit(value: BigDecimal, mode: Mode)(implicit request: DataRequest[?]) = {
+  private def handleSubmit(value: BigDecimal, mode: Mode)(implicit request: DataRequest[?]) =
     shortCircuit(
       TotalPurchaseAmountBeforeVatPage,
       value,
@@ -77,10 +75,16 @@ class TotalPurchaseAmountBeforeVatController @Inject() (
       routes.CheckYourPurchaseDetailsController.onPageLoad(),
       Some(sessionRepository)
     )(updated => Future.successful(Redirect(navigator.nextPage(TotalPurchaseAmountBeforeVatPage, mode, updated))))
-  }
 
-  private def badRequestView(formWithErrors: Form[?], mode: Mode)(implicit request: DataRequest[?]) = {
+  private def renderView(form: Form[?], mode: Mode)(implicit request: DataRequest[?]) = {
     val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)
-    BadRequest(view(formWithErrors, mode, prefix, currencyName))
+    view(
+      form,
+      routes.TotalPurchaseAmountBeforeVatController.onSubmit(mode),
+      "totalAmountWithoutVat",
+      "purchase.caption",
+      prefix,
+      currencyName
+    )
   }
 }

@@ -18,20 +18,22 @@ package controllers.imports
 
 import base.SpecBase
 import forms.imports.TotalAmountWithoutVatFormProvider
-import models.{CheckMode, NormalMode, UserAnswers}
+import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.claim.RefundingCountryPage
-import pages.imports.{ImportTotalVatClaimPage, SadReferenceCheckPage, SadReferenceNumberPage, TotalAmountWithoutVatPage, TotalVatPaidImportPage}
+import pages.imports.{ImportTotalVatClaimPage, TotalAmountWithoutVatPage, TotalVatPaidImportPage}
 import pages.purchase.RefundingCurrencyPage
+import play.api.Application
 import play.api.data.Form
 import play.api.inject.bind
+import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.imports.TotalAmountWithoutVatView
+import views.html.purchasesOrImports.PurchaseOrImportTotalAmountWithoutVatView
 
 import scala.concurrent.Future
 
@@ -39,7 +41,26 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
 
   val formProvider = new TotalAmountWithoutVatFormProvider()
   val form: Form[BigDecimal] = formProvider()
-  lazy val totalAmountWithoutVatRoute: String = routes.TotalAmountWithoutVatController.onPageLoad(models.NormalMode).url
+  lazy val totalAmountWithoutVatRoute: String = routes.TotalAmountWithoutVatController.onPageLoad(NormalMode).url
+
+  private def expectedView(
+                            application: Application,
+                            request: Request[?],
+                            boundForm: Form[?],
+                            mode: Mode = NormalMode,
+                            currencySymbol: String = "€",
+                            currencyName: String = "Euro"
+                          ): String = {
+    val view = application.injector.instanceOf[PurchaseOrImportTotalAmountWithoutVatView]
+    view(
+      boundForm,
+      routes.TotalAmountWithoutVatController.onSubmit(mode),
+      "import.totalAmountWithoutVat",
+      "import.caption",
+      currencySymbol,
+      currencyName
+    )(request, messages(application)).toString
+  }
 
   "TotalAmountWithoutVat Controller" - {
 
@@ -49,12 +70,9 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request = FakeRequest(GET, totalAmountWithoutVatRoute)
         val result = route(application, request).value
-        val view = application.injector.instanceOf[TotalAmountWithoutVatView]
 
         status(result) mustEqual OK
-        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, models.NormalMode, "€", "Euro")(request, messages(application)).toString
-        )
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(expectedView(application, request, form))
       }
     }
 
@@ -64,12 +82,11 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(GET, totalAmountWithoutVatRoute)
-        val view = application.injector.instanceOf[TotalAmountWithoutVatView]
         val result = route(application, request).value
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form.fill(BigDecimal("12.34")), models.NormalMode, "€", "Euro")(request, messages(application)).toString
+          expectedView(application, request, form.fill(BigDecimal("12.34")))
         )
       }
     }
@@ -86,18 +103,16 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(GET, totalAmountWithoutVatRoute)
-        val view = application.injector.instanceOf[TotalAmountWithoutVatView]
         val result = route(application, request).value
-        val currencyConfig = application.injector.instanceOf[utils.CurrencyConfig]
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, models.NormalMode, "лв", "Bulgarian Lev")(request, messages(application)).toString
+          expectedView(application, request, form, currencySymbol = "лв", currencyName = "Bulgarian Lev")
         )
       }
     }
 
-    "must redirect to Journey Recovery when valid data is submitted" in {
+    "must redirect to the total VAT paid page when valid data is submitted" in {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
@@ -107,7 +122,7 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
           .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.TotalAmountWithoutVatController.onSubmit(models.NormalMode).url)
+        val request = FakeRequest(POST, routes.TotalAmountWithoutVatController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody(("value", "123.45"))
         val result = route(application, request).value
 
@@ -121,17 +136,14 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.TotalAmountWithoutVatController.onSubmit(models.NormalMode).url)
+        val request = FakeRequest(POST, routes.TotalAmountWithoutVatController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody(("value", ""))
 
         val boundForm = form.bind(Map("value" -> ""))
-        val view = application.injector.instanceOf[TotalAmountWithoutVatView]
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(boundForm, models.NormalMode, "€", "Euro")(request, messages(application)).toString
-        )
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(expectedView(application, request, boundForm))
       }
     }
 
@@ -150,7 +162,7 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.TotalAmountWithoutVatController.onSubmit(models.NormalMode).url)
+        val request = FakeRequest(POST, routes.TotalAmountWithoutVatController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody(("value", "123.45"))
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
@@ -180,7 +192,7 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.imports.routes.CheckYourImportDetailsController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.CheckYourImportDetailsController.onPageLoad().url
 
         val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository, times(1)).set(captor.capture())
