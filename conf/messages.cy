@@ -798,3 +798,12 @@ removeItem.error.required = Select yes if you want to remove this item
 supportingDocuments.anyDocuments.title = Do you have any supporting documents to upload?
 supportingDocuments.anyDocuments.heading = Do you have any supporting documents to upload?
 supportingDocuments.anyDocuments.error.required = Select yes if you have supporting documents to upload
+
+removeFile.title = Remove file
+removeFile.heading = Remove file
+removeFile.list1 = File name
+removeFile.list2 = Description
+removeFile.list3 = File size
+removeFile.legend = Are you sure you want to remove this file?
+removeFile.notProvided = Not provided
+removeFile.error.required = Select yes if you want to remove this file
