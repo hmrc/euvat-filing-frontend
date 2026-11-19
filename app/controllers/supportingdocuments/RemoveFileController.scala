@@ -19,6 +19,7 @@ package controllers.supportingdocuments
 import controllers.actions.*
 import forms.RemoveFileFormProvider
 import models.NormalMode
+import models.requests.{DataRequest, DeleteAttachmentRequest}
 import navigation.Navigator
 import pages.RemoveFilePage
 import play.api.Logging
@@ -52,9 +53,9 @@ class RemoveFileController @Inject() (
 
   val form: Form[Boolean] = formProvider()
 
-  // todo wire it after rebase 
+  // todo wire it after rebase
 //  private val uploadedFilesPage = controllers.supportingdocuments.routes.UploadedFilesController.onPageLoad()
-  private val uploadedFilesPage = controllers.routes.JourneyRecoveryController.onPageLoad()
+  private val uploadedFilesPage = controllers.routes.PurchaseImportSummaryController.onPageLoad
   private val journeyRecovery = controllers.routes.JourneyRecoveryController.onPageLoad()
 
   def onPageLoad(attachmentNumber: Int): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -68,32 +69,60 @@ class RemoveFileController @Inject() (
           .flatMap { response =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(UpdateSequenceNumberQuery, response.updateSequenceNumber))
-              _ <- sessionRepository.set(updatedAnswers)
+              _              <- sessionRepository.set(updatedAnswers)
             } yield Ok(view(form, response))
           }
           .recoverWith { case e: Exception =>
-            logger.error(s"Failed to retrieve attachments for applicationId: $applicationId", e)
-            recoveryPage("Get all attachments failed")
+            logger.error(s"Failed to retrieve attachment for applicationId: $applicationId,attachmentNumber: $attachmentNumber ", e)
+            recoveryPage("Get attachment failed")
           }
-
-        //        renderPage(form, attachmentNumber, badRequest = false)
       }
 
   }
 
   def onSubmit(attachmentNumber: Int): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-//    form
-//      .bindFromRequest()
-//      .fold(
-//        formWithErrors => renderPage(formWithErrors, attachmentNumber, badRequest = true),
-//        value =>
-//          if (!value) {
-//            Future.successful(Redirect(uploadedFilesPage))
-//          } else {
-//            deleteAttachment(attachmentNumber)
-//          }
-//      )
-    recoveryPage("Get all attachments failed")
+
+    val ua = request.userAnswers
+
+    (ua.get(ClaimApplicationResponseQuery).map(_.applicationId), ua.get(UpdateSequenceNumberQuery)) match {
+      case (Some(applicationId), Some(updateSequenceNumber)) =>
+        form
+          .bindFromRequest()
+          .fold(
+            formWithErrors => {
+              service
+                .getAttachmentDetails(applicationId, attachmentNumber)
+                .flatMap { response =>
+
+                  for {
+                    updatedAnswers <- Future.fromTry(request.userAnswers.set(UpdateSequenceNumberQuery, response.updateSequenceNumber))
+                    _              <- sessionRepository.set(updatedAnswers)
+                  } yield BadRequest(view(formWithErrors, response))
+
+                }
+            },
+            value =>
+              if (!value) {
+                Future.successful(Redirect(uploadedFilesPage))
+              } else {
+                service
+                  .deleteAttachment(DeleteAttachmentRequest(applicationId, attachmentNumber, updateSequenceNumber))
+                  .flatMap { response =>
+
+                    for {
+                      updatedAnswers <- Future.fromTry(request.userAnswers.set(UpdateSequenceNumberQuery, response.updateSequenceNumber))
+                      _              <- sessionRepository.set(updatedAnswers)
+                    } yield Redirect(uploadedFilesPage)
+                  }
+                  .recoverWith { case e: Exception =>
+                    logger.error(s"Failed to delete attachments for applicationId: $applicationId", e)
+                    recoveryPage("Delete attachments failed")
+                  }
+              }
+          )
+
+      case _ => recoveryPage("Missing or invalid applicationId, updateSequenceNumber")
+    }
   }
 
   private def recoveryPage(msg: String): Future[Result] = {
@@ -101,18 +130,4 @@ class RemoveFileController @Inject() (
     Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
   }
 
-//  private def renderPage(formToRender: Form[Boolean], attachmentNumber: Int, badRequest: Boolean)(implicit
-//    request: DataRequest[AnyContent]
-//  ): Future[Result] =
-//    getApplicationId match {
-//      case None =>
-//        logger.error("Application id missing from user answers")
-//        Future.successful(Redirect(journeyRecovery))
-//      case Some(applicationId) =>
-//        euvatRefundsService
-//          .getAttachmentDetails(applicationId, attachmentNumber)
-//          .map(attachment)
-//    }
-  
-  
 }
