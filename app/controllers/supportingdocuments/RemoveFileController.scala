@@ -25,7 +25,7 @@ import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.*
-import queries.ClaimApplicationResponseQuery
+import queries.{ClaimApplicationResponseQuery, UpdateSequenceNumberQuery}
 import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -65,16 +65,18 @@ class RemoveFileController @Inject() (
       .fold(recoveryPage("Missing or invalid applicationId")) { applicationId =>
         service
           .getAttachmentDetails(applicationId, attachmentNumber)
-          .map { response =>
+          .flatMap { response =>
 
             val attachmentNumber = response.attachmentNumber
             val fileName = response.fileName.getOrElse("not provided")
             val fileDescription = response.fileDescription.getOrElse("not provided")
             val fileSize = response.fileSize.getOrElse(0)
 
-            Ok(view(form, response.attachmentNumber, fileName, fileDescription, fileSize))
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(UpdateSequenceNumberQuery, response.updateSequenceNumber))
+              _ <- sessionRepository.set(updatedAnswers)
+            } yield Ok(view(form, response.attachmentNumber, fileName, fileDescription, fileSize))
           }
-        // TODO recoverWith or recover?
           .recoverWith { case e: Exception =>
             logger.error(s"Failed to retrieve attachments for applicationId: $applicationId", e)
             recoveryPage("Get all attachments failed")
