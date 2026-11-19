@@ -38,8 +38,20 @@ class EncryptionKeyStore @Inject() (config: Configuration) {
   lazy val secretKey: SecretKey = {
     val keyStore = KeyStore.getInstance(keyStoreType)
 
-    Using.resource(new FileInputStream(keyStorePath.toFile)) { inputStream =>
-      keyStore.load(inputStream, keyStorePwd)
+//    Using.resource(new FileInputStream(keyStorePath.toFile)) { inputStream =>
+//      keyStore.load(inputStream, keyStorePwd)
+//    }
+
+    val inputStream =
+      Option(getClass.getClassLoader.getResourceAsStream(keyStoreFile))
+        .getOrElse {
+          throw new IllegalStateException(
+            s"Keystore '$keyStoreFile' not found on classpath"
+          )
+        }
+
+    Using.resource(inputStream) { stream =>
+      keyStore.load(stream, keyStorePwd)
     }
 
     keyStore.getKey(keyAlias, keyEntryPwd) match {
