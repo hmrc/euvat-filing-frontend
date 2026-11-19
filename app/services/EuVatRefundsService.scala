@@ -99,4 +99,10 @@ class EuVatRefundsService @Inject() (euVatRefundsConnector: EuVatRefundsConnecto
 
   def createUploadTracking(applicationId: Long)(implicit hc: HeaderCarrier): Future[CreateUploadTrackingResponse] =
     euVatRefundsConnector.createUploadTracking(applicationId)
+
+  def getAttachmentDetails(applicationId: Long, attachmentNumber: Int)(implicit hc: HeaderCarrier): Future[AttachmentDetailsResponse] =
+    euVatRefundsConnector.getAttachmentDetails(applicationId, attachmentNumber)
+
+  def deleteAttachment(request: DeleteAttachmentRequest)(implicit hc: HeaderCarrier): Future[DeleteAttachmentResponse] =
+    connector.deleteAttachment(request)
 }
