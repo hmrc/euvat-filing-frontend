@@ -14,13 +14,29 @@
  * limitations under the License.
  */
 
+/*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package viewmodels
 
 import models.{NormalMode, UserAnswers}
 import pages.PurchaseImportSummaryPage
 import pages.supportingdocuments.AnyDocumentsPage
 import play.api.i18n.Messages
-import queries.{BankDetailsCompletedQuery, ClaimDetailsCompletedQuery, PurchaseImportSummaryIncompleteQuery}
+import queries.{BankDetailsCompletedQuery, ClaimDetailsCompletedQuery, PurchaseImportSummaryIncompleteQuery, SupportingDocumentsCompletedQuery, UploadedFilesQuery}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 import uk.gov.hmrc.govukfrontend.views.viewmodels.tag.Tag
@@ -86,7 +102,9 @@ class TaskListViewModel @Inject() {
                                     cannotStartStatus: TaskListItemStatus,
                                     completedStatus: TaskListItemStatus
                                    ): TaskListItem = {
-    val supportingDocumentsComplete = answers.get(AnyDocumentsPage).contains(false)
+    val supportingDocumentsComplete =
+      answers.get(AnyDocumentsPage).contains(false) || answers.get(SupportingDocumentsCompletedQuery).contains(true)
+    val hasUploadedFiles = answers.get(UploadedFilesQuery).exists(_.nonEmpty)
     TaskListItem(
       title = TaskListItemTitle(content = Text(messages("taskListDashboard.listItem3"))),
       status = if (claimDetailsDone) {
@@ -94,7 +112,10 @@ class TaskListViewModel @Inject() {
       } else {
         cannotStartStatus
       },
-      href = if (claimDetailsDone) Some(controllers.supportingdocuments.routes.BeforeYouStartSupportingDocsController.onPageLoad().url) else None
+      href = if (claimDetailsDone) {
+        if (hasUploadedFiles) Some(controllers.supportingdocuments.routes.UploadedFilesController.onPageLoad().url)
+        else Some(controllers.supportingdocuments.routes.BeforeYouStartSupportingDocsController.onPageLoad().url)
+      } else None
     )
   }
 

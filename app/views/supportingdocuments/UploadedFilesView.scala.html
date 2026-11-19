@@ -1,0 +1,102 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import models.Attachment
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.table.{HeadCell, Table, TableRow}
+@import viewmodels.govuk.PaginationFluency.PaginationViewModel
+@import views.html.components.PageNavigator
+
+@this(
+    layout: templates.Layout,
+    formHelper: FormWithCSRF,
+    govukTable: GovukTable,
+    pageNavigator: PageNavigator,
+    govukButton: GovukButton
+)
+
+@(attachments: List[Attachment], totalAttachments: Int, paginationViewModel: PaginationViewModel, currentPage: Int, totalPages: Int)(implicit request: Request[_], messages: Messages)
+
+@fileNameLink(attachment: Attachment) = {
+    <a class="govuk-link" href="#">@attachment.fileName.getOrElse("")</a>
+}
+
+@removeLink(attachment: Attachment) = {
+    <a class="govuk-link" href="/file-eu-vat/supporting-documents/remove-file/@attachment.attachmentNumber">@messages("site.remove")<span class="govuk-visually-hidden"> @attachment.fileName.getOrElse("")</span></a>
+}
+
+@fileSizeInMb(fileSize: Option[Int]) = @{
+    fileSize
+        .map(kb => (BigDecimal(kb) / BigDecimal(1024)).setScale(2, BigDecimal.RoundingMode.HALF_UP).toString + "MB")
+        .getOrElse("")
+}
+
+@layout(pageTitle = titleNoForm(withPagination(messages("supportingDocuments.uploadedFiles.title"), currentPage, totalPages)), useFullGrid = true) {
+
+    <span class="govuk-caption-l">@messages("supportingDocuments.caption")</span>
+    <h1 class="govuk-heading-l">@messages("supportingDocuments.uploadedFiles.heading")</h1>
+
+    <div class="govuk-hint">@messages("supportingDocuments.uploadedFiles.hint")</div>
+
+    <p class="govuk-body">
+        @if(totalAttachments == 0) {
+            @messages("supportingDocuments.uploadedFiles.count.none")
+        } else if(totalAttachments == 1) {
+            @messages("supportingDocuments.uploadedFiles.count.single")
+        } else {
+            @messages("supportingDocuments.uploadedFiles.count.multiple", totalAttachments)
+        }
+    </p>
+
+    @govukButton(
+        ButtonViewModel(messages(
+            if (totalAttachments == 0) "supportingDocuments.uploadedFiles.uploadFile"
+            else "supportingDocuments.uploadedFiles.uploadAnother"
+        ))
+            .asSecondaryButton()
+            .asLink(controllers.supportingdocuments.routes.UploadFileController.onPageLoad().url)
+    )
+
+    @if(attachments.nonEmpty) {
+        @govukTable(Table(
+            caption           = Some(messages("supportingDocuments.uploadedFiles.table.caption")),
+            captionClasses    = "govuk-visually-hidden",
+            firstCellIsHeader = true,
+            head = Some(Seq(
+                HeadCell(content = Text(messages("supportingDocuments.uploadedFiles.table.fileName"))),
+                HeadCell(content = Text(messages("supportingDocuments.uploadedFiles.table.description")), classes = "govuk-!-width-one-half"),
+                HeadCell(content = Text(messages("supportingDocuments.uploadedFiles.table.fileSize"))),
+                HeadCell(content = Text(messages("supportingDocuments.uploadedFiles.table.action")))
+            )),
+            rows = attachments.map { attachment =>
+                Seq(
+                    TableRow(content = HtmlContent(fileNameLink(attachment))),
+                    TableRow(content = Text(attachment.fileDescription.filter(_.trim.nonEmpty).getOrElse(messages("supportingDocuments.uploadedFiles.notProvided")))),
+                    TableRow(content = Text(fileSizeInMb(attachment.fileSize))),
+                    TableRow(content = HtmlContent(removeLink(attachment)))
+                )
+            }
+        ))
+    }
+
+    @if(paginationViewModel.items.nonEmpty) {
+        @pageNavigator(paginationViewModel)
+    }
+
+    @formHelper(action = controllers.supportingdocuments.routes.UploadedFilesController.onSubmit(), Symbol("autoComplete") -> "off") {
+        @govukButton(ButtonViewModel(messages("site.continue")))
+    }
+}

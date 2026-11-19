@@ -90,7 +90,7 @@ class YourFileControllerSpec extends SpecBase {
       }
     }
 
-    "navigate to journey recovery when Continue is submitted for a validated file" in {
+    "navigate to your uploaded files when Continue is submitted for a validated file" in {
       val application = applicationWithMockSessionRepository(validatedUploadAnswers)
 
       running(application) {
@@ -98,7 +98,7 @@ class YourFileControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustBe routes.UploadedFilesController.onPageLoad().url
       }
     }
 

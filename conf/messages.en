@@ -18,6 +18,12 @@ site.notProvided = Not provided
 site.none = None
 site.add = Add details
 
+site.pagination.goToPage = Go to page {0}
+site.pagination.landmark = Pagination
+site.pagination.previous = Previous
+site.pagination.next = Next
+site.pagination.pageTitle = (page {0} of {1})
+
 date.day = Day
 date.month = Month
 date.year = Year
@@ -820,3 +826,19 @@ supportingDocuments.uploadFile.status.uploadingTag = Uploading
 supportingDocuments.uploadFile.status.uploadedTag = Uploaded
 supportingDocuments.uploadFile.remove = Remove
 supportingDocuments.uploadFile.refresh = Refresh page to update file upload progress
+
+supportingDocuments.uploadedFiles.title = Your uploaded files
+supportingDocuments.uploadedFiles.heading = Your uploaded files
+supportingDocuments.uploadedFiles.hint = Total size of all uploaded files must be less than 5MB.
+supportingDocuments.uploadedFiles.count.none = You have no files uploaded
+supportingDocuments.uploadedFiles.count.single = 1 file uploaded
+supportingDocuments.uploadedFiles.count.multiple = {0} files uploaded
+supportingDocuments.uploadedFiles.uploadFile = Upload a file
+supportingDocuments.uploadedFiles.uploadAnother = Upload another file
+supportingDocuments.uploadedFiles.table.caption = List of files uploaded
+supportingDocuments.uploadedFiles.table.fileName = File name
+supportingDocuments.uploadedFiles.table.description = Description
+supportingDocuments.uploadedFiles.table.fileSize = File size
+supportingDocuments.uploadedFiles.table.action = Action
+supportingDocuments.uploadedFiles.notProvided = Not provided
+
