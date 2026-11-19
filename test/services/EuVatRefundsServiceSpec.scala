@@ -629,12 +629,12 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
 
   "EuVatRefundsService.getFullAttachmentDetails" - {
     val expectedResponse = GetFullAttachmentDetailsResponse(
-      attachmentNumber = 4,
-      fileName = Some("test.pdf"),
-      fileType = Some("pdf"),
-      fileDescription = Some("pdf file attached"),
-      fileSize = Some(596),
-      fileContent = Some("dGVzdCBmaWxlIGNvbnRlbnQ="),
+      attachmentNumber     = 4,
+      fileName             = Some("test.pdf"),
+      fileType             = Some("pdf"),
+      fileDescription      = Some("pdf file attached"),
+      fileSize             = Some(596),
+      fileContent          = Some("dGVzdCBmaWxlIGNvbnRlbnQ="),
       updateSequenceNumber = 10
     )
 
