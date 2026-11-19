@@ -211,9 +211,9 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
       .get(url"$euVatRefundsBaseUrl/get-attachment-details/$applicationId/$attachmentNumber")
       .execute[AttachmentDetailsResponse]
 
-//  def deleteAttachment(request: DeleteAttachmentRequest)(implicit hc: HeaderCarrier): Future[DeleteAttachmentResponse] =
-//    http
-//      .post(url"$euVatRefundsBaseUrl/delete-attachment")
-//      .withBody(Json.toJson(request))
-//      .execute[DeleteAttachmentResponse]
+  def deleteAttachment(request: DeleteAttachmentRequest)(implicit hc: HeaderCarrier): Future[DeleteAttachmentResponse] =
+    http
+      .delete(url"$euVatRefundsBaseUrl/delete-attachment")
+      .withBody(Json.toJson(request))
+      .execute[DeleteAttachmentResponse]
 }
