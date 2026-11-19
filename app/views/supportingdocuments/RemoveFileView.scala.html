@@ -27,6 +27,11 @@
 )
 
 @(form: Form[Boolean], attachment: AttachmentDetailsResponse)(implicit request: Request[_], messages: Messages)
+@fileSizeInMb(fileSize: Option[Int]) = @{
+  fileSize
+   .map(kb => (BigDecimal(kb) / BigDecimal(1024)).setScale(2, BigDecimal.RoundingMode.HALF_UP).toString + "MB")
+   .getOrElse("")
+}
 
 @layout(pageTitle = title(form, messages("removeFile.title"))) {
 
@@ -51,7 +56,7 @@
                     ),
                     SummaryListRow(
                         key = Key(content = Text(messages("removeFile.list3"))),
-                        value = Value(content = Text(attachment.fileSize.map(kb => f"${kb / 1024.0}%.1fMB").getOrElse("")))
+                        value = Value(content = Text(fileSizeInMb(attachment.fileSize)))
                     )
                 )
             )
