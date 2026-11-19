@@ -24,11 +24,11 @@ class AmountFormatterSpec extends AnyWordSpec with Matchers {
 
   "amountFormat" should {
 
-    "format amounts to 2 decimal places with thousands separators" in  {
-      amountFormat(BigDecimal("156")) shouldBe "156.00"
+    "format amounts to 2 decimal places with thousands separators" in {
+      amountFormat(BigDecimal("156"))   shouldBe "156.00"
       amountFormat(BigDecimal("150.1")) shouldBe "150.10"
       amountFormat(BigDecimal("34.90")) shouldBe "34.90"
-      amountFormat(BigDecimal("1000")) shouldBe "1,000.00"
+      amountFormat(BigDecimal("1000"))  shouldBe "1,000.00"
     }
   }
 }

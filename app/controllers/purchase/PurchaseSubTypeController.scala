@@ -79,7 +79,7 @@ class PurchaseSubTypeController @Inject() (
     val requiredKey = requiredKeyCandidates.find(k => msgs.isDefinedAt(k)).getOrElse("error.required")
     val preparedForm = userAnswers.get(PurchaseSubTypePage).fold(formProvider(requiredKey))(formProvider(requiredKey).fill)
     val resolvedSlug = resolvedSlugFor(parentKey, purchaseTypeSlug)
-    
+
     (options, rawItems, parentHeadingFor(parentKey), preparedForm, resolvedSlug, formActionFor(resolvedSlug, mode))
   }
 

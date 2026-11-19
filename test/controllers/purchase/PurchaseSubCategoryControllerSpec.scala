@@ -299,7 +299,7 @@ class PurchaseSubCategoryControllerSpec extends SpecBase with MockitoSugar {
         captor.getValue.get(PurchaseSubCategoryPage) mustBe Some("1.1")
       }
     }
-    
+
     "must save selection and redirect to InvoiceType when None selected" in {
       val fakeConfig = new ConfigPurchaseOrImportMapping() {
         override def subcategoriesFor(country: String, parentKey: String, subcode: String) = Seq(("1.1", "sub.fuel.1.1"))
