@@ -15,6 +15,7 @@
  *@
 
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
+@import models.responses.AttachmentDetailsResponse
 
 @this(
     layout: templates.Layout,
@@ -25,11 +26,11 @@
     govukButton: GovukButton
 )
 
-@(form: Form[Boolean], attachmentNumber: Int, fileName: String, fileDescription: String, fileSize: Int)(implicit request: Request[_], messages: Messages)
+@(form: Form[Boolean], attachment: AttachmentDetailsResponse)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("removeFile.title"))) {
 
-    @formHelper(action = controllers.supportingdocuments.routes.RemoveFileController.onSubmit(attachmentNumber), Symbol("autoComplete") -> "off") {
+    @formHelper(action = controllers.supportingdocuments.routes.RemoveFileController.onSubmit(attachment.attachmentNumber), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value_0")))
@@ -42,15 +43,15 @@
                 rows = Seq(
                     SummaryListRow(
                         key = Key(content = Text(messages("removeFile.list1"))),
-                        value = Value(content = Text(fileName))
+                        value = Value(content = Text(attachment.fileName.getOrElse("")))
                     ),
                     SummaryListRow(
                         key = Key(content = Text(messages("removeFile.list2"))),
-                        value = Value(content = Text(fileDescription))
+                        value = Value(content = Text(attachment.fileDescription.getOrElse(messages("removeFile.notProvided"))))
                     ),
                     SummaryListRow(
                         key = Key(content = Text(messages("removeFile.list3"))),
-                        value = Value(content = Text(fileDescription))
+                        value = Value(content = Text(attachment.fileSize.map(kb => f"${kb / 1024.0}%.1fMB").getOrElse("")))
                     )
                 )
             )

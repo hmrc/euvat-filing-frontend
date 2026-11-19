@@ -66,16 +66,10 @@ class RemoveFileController @Inject() (
         service
           .getAttachmentDetails(applicationId, attachmentNumber)
           .flatMap { response =>
-
-            val attachmentNumber = response.attachmentNumber
-            val fileName = response.fileName.getOrElse("not provided")
-            val fileDescription = response.fileDescription.getOrElse("not provided")
-            val fileSize = response.fileSize.getOrElse(0)
-
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(UpdateSequenceNumberQuery, response.updateSequenceNumber))
               _ <- sessionRepository.set(updatedAnswers)
-            } yield Ok(view(form, response.attachmentNumber, fileName, fileDescription, fileSize))
+            } yield Ok(view(form, response))
           }
           .recoverWith { case e: Exception =>
             logger.error(s"Failed to retrieve attachments for applicationId: $applicationId", e)
