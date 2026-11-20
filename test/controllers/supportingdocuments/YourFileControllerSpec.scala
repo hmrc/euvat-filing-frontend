@@ -23,21 +23,12 @@ import pages.supportingdocuments.YourFileNamePage
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import queries.UploadedFileStatusQuery
 import repositories.SessionRepository
 
 class YourFileControllerSpec extends SpecBase {
 
   private val uploadAnswers = emptyUserAnswers
     .set(YourFileNamePage, "receipt1.jpg")
-    .success
-    .value
-    .set(UploadedFileStatusQuery, YourFileController.AwaitingUpload)
-    .success
-    .value
-
-  private val validatedUploadAnswers = uploadAnswers
-    .set(UploadedFileStatusQuery, YourFileController.Validated)
     .success
     .value
 
@@ -48,11 +39,11 @@ class YourFileControllerSpec extends SpecBase {
 
   "YourFileController" - {
 
-    "show the uploading state, disable continue and refresh while upload is pending" in {
+    "always show the uploaded state and ignore the status query parameter" in {
       val application = applicationWithMockSessionRepository()
 
       running(application) {
-        val request = FakeRequest(GET, routes.YourFileController.onPageLoad().url)
+        val request = FakeRequest(GET, s"${routes.YourFileController.onPageLoad().url}?status=AWAITING_UPLOAD")
         val result = route(application, request).value
         val content = contentAsString(result)
 
@@ -64,34 +55,21 @@ class YourFileControllerSpec extends SpecBase {
           .select("#main-content > .govuk-grid-row > .govuk-grid-column-two-thirds > h1")
           .size mustBe 1
         content must include("receipt1.jpg")
-        content must include("govuk-tag--yellow")
-        content must include("Uploading")
-        content must include("disabled")
-        header("Refresh", result) mustBe Some("5")
-      }
-    }
-
-    "show the uploaded state and an enabled continue link for VALIDATED" in {
-      val application = applicationWithMockSessionRepository(validatedUploadAnswers)
-
-      running(application) {
-        val request = FakeRequest(GET, routes.YourFileController.onPageLoad().url)
-        val result = route(application, request).value
-        val content = contentAsString(result)
-
-        status(result) mustEqual OK
         content must include("govuk-tag--green")
         content must include("Uploaded")
+        content must include("File uploaded.")
+        content must not include "govuk-tag--yellow"
+        content must not include "disabled"
+        content must not include "Refresh page to update file upload progress"
         val continueButton = Jsoup.parse(content).select(s"form[action='${routes.YourFileController.onSubmit().url}'] button")
         continueButton.text() mustBe messages(application)("site.continue")
         continueButton.attr("type") mustBe "submit"
-        content must not include "disabled"
         header("Refresh", result) mustBe None
       }
     }
 
-    "navigate to journey recovery when Continue is submitted for a validated file" in {
-      val application = applicationWithMockSessionRepository(validatedUploadAnswers)
+    "navigate to journey recovery when Continue is submitted for a file" in {
+      val application = applicationWithMockSessionRepository()
 
       running(application) {
         val request = FakeRequest(POST, routes.YourFileController.onSubmit().url)
@@ -99,31 +77,6 @@ class YourFileControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
-      }
-    }
-
-    "keep the user on the page when Continue is submitted before the file is validated" in {
-      val application = applicationWithMockSessionRepository()
-
-      running(application) {
-        val request = FakeRequest(POST, routes.YourFileController.onSubmit().url)
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe routes.YourFileController.onPageLoad().url
-      }
-    }
-
-    "return verification failures to the upload form with its matching error" in {
-      val application = applicationWithMockSessionRepository()
-
-      running(application) {
-        val request = FakeRequest(GET, s"${routes.YourFileController.onPageLoad().url}?status=VERIFICATION_FAILED")
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.UploadFileController.onPageLoad().url
-        flash(result).get("uploadError") mustBe Some("supportingDocuments.uploadFile.error.verificationFailed")
       }
     }
 
@@ -139,7 +92,6 @@ class YourFileControllerSpec extends SpecBase {
         val savedAnswers = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
         org.mockito.Mockito.verify(mockSessionRepository).set(savedAnswers.capture())
         savedAnswers.getValue.get(YourFileNamePage) mustBe None
-        savedAnswers.getValue.get(UploadedFileStatusQuery) mustBe None
       }
     }
   }

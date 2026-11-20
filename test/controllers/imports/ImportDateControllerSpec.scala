@@ -212,9 +212,9 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
         running(application) {
           val request = FakeRequest(POST, routes.ImportDateController.onSubmit(NormalMode).url)
             .withFormUrlEncodedBody(
-              "value.day" -> "01",
+              "value.day"   -> "01",
               "value.month" -> "01",
-              "value.year" -> "1111"
+              "value.year"  -> "1111"
             )
           val result = route(application, request).value
 
@@ -231,9 +231,9 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
         running(application) {
           val request = FakeRequest(POST, routes.ImportDateController.onSubmit(NormalMode).url)
             .withFormUrlEncodedBody(
-              "value.day" -> "31",
+              "value.day"   -> "31",
               "value.month" -> "12",
-              "value.year" -> "2020"
+              "value.year"  -> "2020"
             )
           val result = route(application, request).value
 
@@ -248,9 +248,9 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
         running(application) {
           val request = FakeRequest(POST, routes.ImportDateController.onSubmit(NormalMode).url)
             .withFormUrlEncodedBody(
-              "value.day" -> "01",
+              "value.day"   -> "01",
               "value.month" -> "01",
-              "value.year" -> "0001"
+              "value.year"  -> "0001"
             )
           val result = route(application, request).value
 
@@ -267,9 +267,9 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
         running(application) {
           val request = FakeRequest(POST, routes.ImportDateController.onSubmit(NormalMode).url)
             .withFormUrlEncodedBody(
-              "value.day" -> "01",
+              "value.day"   -> "01",
               "value.month" -> "01",
-              "value.year" -> "2021"
+              "value.year"  -> "2021"
             )
           val result = route(application, request).value
 

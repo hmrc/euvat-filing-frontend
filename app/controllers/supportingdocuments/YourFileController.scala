@@ -21,7 +21,6 @@ import navigation.SupportingDocumentsNavigator
 import pages.supportingdocuments.YourFileNamePage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import queries.UploadedFileStatusQuery
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.supportingdocuments.YourFileView
 
@@ -42,33 +41,10 @@ class YourFileController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  import YourFileController.*
-
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     request.userAnswers.get(YourFileNamePage) match {
-      case None => Future.successful(Redirect(routes.UploadFileController.onPageLoad()))
-      case Some(filename) =>
-        val status = request.getQueryString("status").orElse(request.userAnswers.get(UploadedFileStatusQuery)).getOrElse(AwaitingUpload)
-        status match {
-          case VerificationFailed =>
-            clearUpload(request.userAnswers).map { _ =>
-              Redirect(routes.UploadFileController.onPageLoad())
-                .flashing("uploadError" -> "supportingDocuments.uploadFile.error.verificationFailed")
-            }
-          case ValidationFailed =>
-            clearUpload(request.userAnswers).map { _ =>
-              Redirect(routes.UploadFileController.onPageLoad())
-                .flashing("uploadError" -> "supportingDocuments.uploadFile.error.validationFailed")
-            }
-          case AwaitingUpload | Verifying | Validating | Validated =>
-            val response = Ok(view(filename, status))
-            Future.successful(if (isUploading(status)) response.withHeaders("Refresh" -> "5") else response)
-          case _ =>
-            clearUpload(request.userAnswers).map { _ =>
-              Redirect(routes.UploadFileController.onPageLoad())
-                .flashing("uploadError" -> "supportingDocuments.uploadFile.error.uploadFailed")
-            }
-        }
+      case None           => Redirect(routes.UploadFileController.onPageLoad())
+      case Some(filename) => Ok(view(filename))
     }
   }
 
@@ -78,23 +54,12 @@ class YourFileController @Inject() (
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    Redirect(navigator.navigateFromYourFilePage(request.userAnswers))
+    request.userAnswers.get(YourFileNamePage) match {
+      case Some(_) => Redirect(navigator.navigateFromYourFilePage())
+      case None    => Redirect(routes.UploadFileController.onPageLoad())
+    }
   }
 
-  private def clearUpload(userAnswers: models.UserAnswers): Future[Boolean] =
-    Future
-      .fromTry(userAnswers.remove(YourFileNamePage).flatMap(_.remove(UploadedFileStatusQuery)))
-      .flatMap(sessionRepository.set)
-}
-
-object YourFileController {
-  val AwaitingUpload = "AWAITING_UPLOAD"
-  val Verifying = "VERIFYING"
-  val Validating = "VALIDATING"
-  val Validated = "VALIDATED"
-  val VerificationFailed = "VERIFICATION_FAILED"
-  val ValidationFailed = "VALIDATION_FAILED"
-
-  private def isUploading(status: String): Boolean =
-    status == AwaitingUpload || status == Verifying || status == Validating
+  private def clearUpload(userAnswers: models.UserAnswers): Future[Unit] =
+    Future.fromTry(userAnswers.remove(YourFileNamePage)).flatMap(sessionRepository.set).map(_ => ())
 }
