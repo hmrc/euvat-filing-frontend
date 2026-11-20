@@ -17,8 +17,11 @@
 package controllers.supportingdocuments
 
 import controllers.actions.*
+import forms.supportingdocuments.YourFileFormProvider
 import navigation.SupportingDocumentsNavigator
-import pages.supportingdocuments.YourFileNamePage
+import models.YourFile
+import pages.supportingdocuments.YourFilePage
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -35,20 +38,30 @@ class YourFileController @Inject() (
   requireData: DataRequiredAction,
   navigator: SupportingDocumentsNavigator,
   sessionRepository: SessionRepository,
+  formProvider: YourFileFormProvider,
   val controllerComponents: MessagesControllerComponents,
   view: YourFileView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    request.userAnswers.get(YourFileNamePage) match {
-      // TODO: F6.1/F6.4 - show the real filename from the backend upload summary; the upscan reference is a placeholder
+  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+    request.userAnswers.get(YourFilePage) match {
+      case Some(yourFile) =>
+        Future.successful(Ok(view(yourFile, formProvider().fill(yourFile.description))))
+
       case None =>
-        request.getQueryString("key")
-          .map(reference => Ok(view(reference)))
-          .getOrElse(Redirect(routes.UploadFileController.onPageLoad()))
-      case Some(filename) => Ok(view(filename))
+        // TODO: F6.1/F6.4 - use the real filename from the backend upload summary; the upscan reference is a placeholder
+        request.getQueryString("key") match {
+          case Some(reference) =>
+            val yourFile = YourFile(fileName = reference, description = None)
+            Future
+              .fromTry(request.userAnswers.set(YourFilePage, yourFile))
+              .flatMap(sessionRepository.set)
+              .map(_ => Ok(view(yourFile, formProvider())))
+          case None =>
+            Future.successful(Redirect(routes.UploadFileController.onPageLoad()))
+        }
     }
   }
 
@@ -57,13 +70,24 @@ class YourFileController @Inject() (
     clearUpload(request.userAnswers).map(_ => Redirect(routes.UploadFileController.onPageLoad()))
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    request.userAnswers.get(YourFileNamePage) match {
-      case Some(_) => Redirect(navigator.navigateFromYourFilePage())
-      case None    => Redirect(routes.UploadFileController.onPageLoad())
+  def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+    request.userAnswers.get(YourFilePage) match {
+      case None => Future.successful(Redirect(routes.UploadFileController.onPageLoad()))
+      case Some(yourFile) =>
+        val boundForm = formProvider().bindFromRequest()
+        if (boundForm.hasErrors) {
+          Future.successful(BadRequest(view(yourFile, boundForm)))
+        } else {
+          val updatedAnswers =
+            request.userAnswers.set(YourFilePage, yourFile.copy(description = boundForm.value.flatten))
+          Future
+            .fromTry(updatedAnswers)
+            .flatMap(sessionRepository.set)
+            .map(_ => Redirect(navigator.navigateFromYourFilePage()))
+        }
     }
   }
 
   private def clearUpload(userAnswers: models.UserAnswers): Future[Unit] =
-    Future.fromTry(userAnswers.remove(YourFileNamePage)).flatMap(sessionRepository.set).map(_ => ())
+    Future.fromTry(userAnswers.remove(YourFilePage)).flatMap(sessionRepository.set).map(_ => ())
 }
