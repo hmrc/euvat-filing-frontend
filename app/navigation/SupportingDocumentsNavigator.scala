@@ -35,4 +35,7 @@ class SupportingDocumentsNavigator @Inject() () {
       case Some(false) => controllers.routes.TaskListDashboardController.onPageLoad()
       case None        => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
+
+  def navigateFromYourFilePage(): Call =
+    controllers.routes.JourneyRecoveryController.onPageLoad()
 }
