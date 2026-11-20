@@ -87,7 +87,8 @@ class UploadedFilesController @Inject() (
               totalAttachments    = response.totalAttachments,
               paginationViewModel = paginationService.paginate(response.totalAttachments, page, routes.UploadedFilesController.onPageLoad().url),
               currentPage         = page,
-              totalPages          = totalPages
+              totalPages          = totalPages,
+              firstRecord         = paginationService.startAt(page) + 1
             )
           )
         }

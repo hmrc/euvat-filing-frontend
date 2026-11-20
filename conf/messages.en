@@ -835,6 +835,7 @@ supportingDocuments.uploadedFiles.hint = Total size of all uploaded files must b
 supportingDocuments.uploadedFiles.count.none = You have no files uploaded
 supportingDocuments.uploadedFiles.count.single = 1 file uploaded
 supportingDocuments.uploadedFiles.count.multiple = {0} files uploaded
+supportingDocuments.uploadedFiles.pagination.viewCount = Showing {0} to {1} of {2} files
 supportingDocuments.uploadedFiles.uploadFile = Upload a file
 supportingDocuments.uploadedFiles.uploadAnother = Upload another file
 supportingDocuments.uploadedFiles.table.caption = List of files uploaded

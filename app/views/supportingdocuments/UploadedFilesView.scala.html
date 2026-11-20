@@ -28,7 +28,7 @@
     govukButton: GovukButton
 )
 
-@(attachments: List[Attachment], totalAttachments: Int, paginationViewModel: PaginationViewModel, currentPage: Int, totalPages: Int)(implicit request: Request[_], messages: Messages)
+@(attachments: List[Attachment], totalAttachments: Int, paginationViewModel: PaginationViewModel, currentPage: Int, totalPages: Int, firstRecord: Int)(implicit request: Request[_], messages: Messages)
 
 @fileNameLink(attachment: Attachment) = {
     <a class="govuk-link" href="#">@attachment.fileName.getOrElse("")</a>
@@ -69,6 +69,12 @@
             .asSecondaryButton()
             .asLink(controllers.supportingdocuments.routes.UploadFileController.onPageLoad().url)
     )
+
+    @if(totalPages > 1) {
+        <p class = "govuk-body">
+            @messages("supportingDocuments.uploadedFiles.pagination.viewCount", firstRecord, firstRecord + attachments.size -1, totalAttachments)
+        </p>
+    }
 
     @if(attachments.nonEmpty) {
         @govukTable(Table(
