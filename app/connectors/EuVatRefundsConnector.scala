@@ -161,6 +161,13 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
       .execute[PurchaseImportListResponse]
   }
 
+  def getAllAttachments(request: GetAllAttachmentsRequest)(implicit hc: HeaderCarrier): Future[GetAllAttachmentsResponse] = {
+    http
+      .post(url"$euVatRefundsBaseUrl/get-all-attachments")
+      .withBody(Json.toJson(request))
+      .execute[GetAllAttachmentsResponse]
+  }
+
   def getImportDetails(applicationId: Long, itemNumber: Int)(implicit hc: HeaderCarrier): Future[ImportDetailsResponse] =
     http
       .get(url"$euVatRefundsBaseUrl/get-import-details/$applicationId/$itemNumber")

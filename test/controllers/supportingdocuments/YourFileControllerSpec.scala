@@ -124,6 +124,7 @@ class YourFileControllerSpec extends SpecBase {
         val savedAnswers = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
         org.mockito.Mockito.verify(mockSessionRepository).set(savedAnswers.capture())
         savedAnswers.getValue.get(YourFilePage) mustBe None
+        savedAnswers.getValue.get(UploadedFileStatusQuery) mustBe None
       }
     }
   }

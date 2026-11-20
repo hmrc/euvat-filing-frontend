@@ -28,6 +28,7 @@ import play.api.Logging
 import play.api.libs.Files.TemporaryFile
 import play.api.mvc.{Action, AnyContent, BodyParser, MessagesControllerComponents, MultipartFormData, Results}
 import play.api.mvc.MultipartFormData.FilePart
+import queries.UploadedFileStatusQuery
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import repositories.SessionRepository
 import views.html.supportingdocuments.UploadFileView

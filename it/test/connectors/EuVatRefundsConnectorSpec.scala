@@ -18,7 +18,7 @@ package connectors
 
 import models.requests.*
 import models.responses.*
-import models.{ApplicationDetails, EncryptionStatus, PurchaseImport}
+import models.{ApplicationDetails, Attachment, EncryptionStatus, PurchaseImport}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as mockitoEq}
 import org.mockito.Mockito.*
@@ -833,4 +833,43 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
     }
   }
 
+  "EuVatRefundsConnector.getAllAttachments" should {
+    val requestPayload = GetAllAttachmentsRequest(
+      applicationId = 111,
+      orderBy       = Some(0),
+      sortOrder     = Some("ASC"),
+      startAt       = Some(0),
+      maxNumber     = Some(10)
+    )
+    val expectedResponse = GetAllAttachmentsResponse(
+      attachments      = List(Attachment(1, Some("hotel-invoice.pdf"), Some("pdf"), Some("Hotel invoice"), Some(1825))),
+      totalAttachments = 1
+    )
+
+    "call the correct URL and return the expected response" in {
+      reset(mockHttp, mockRequestBuilder)
+
+      when(mockHttp.post(any())(any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.execute[GetAllAttachmentsResponse](any(), any()))
+        .thenReturn(Future.successful(expectedResponse))
+
+      val result = connector.getAllAttachments(requestPayload).futureValue
+      result shouldBe expectedResponse
+
+      verify(mockHttp).post(url"$baseUrl/get-all-attachments")
+      verify(mockRequestBuilder).execute[GetAllAttachmentsResponse](any(), any())
+    }
+
+    "propagate failures from the HTTP client" in {
+      when(mockHttp.post(any())(any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.execute[GetAllAttachmentsResponse](any(), any()))
+        .thenReturn(Future.failed(new RuntimeException("boom")))
+
+      whenReady(connector.getAllAttachments(requestPayload).failed) { ex =>
+        ex shouldBe a[RuntimeException]
+      }
+    }
+  }
 }
