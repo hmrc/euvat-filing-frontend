@@ -33,7 +33,7 @@
     @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
-            @govukErrorSummary(ErrorSummaryViewModel(form,  errorLinkOverrides = Map("value" -> "value")))
+        @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value_0")))
         }
 
         <div class="govuk-form-group @if(isError){govuk-form-group--error}">
@@ -46,7 +46,9 @@
                         classes = "govuk-fieldset__legend--l",
                         isPageHeading = true
                     ),
-                    items  = items
+                    items = items.zipWithIndex.map { case (item, index) =>
+                    item.copy(id = Some(s"value_$index"))
+            }
                 )
             )
 
