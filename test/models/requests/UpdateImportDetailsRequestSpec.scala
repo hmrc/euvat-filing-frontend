@@ -27,8 +27,8 @@ class UpdateImportDetailsRequestSpec extends AnyFreeSpec with Matchers {
   private val request = UpdateImportDetailsRequest(
     applicationId               = 404,
     itemNumber                  = 4,
-    goodsDescriptionCategory    = "10",
-    goodsDescriptionSubCategory = Some("10.4.1"),
+    goodsDescriptionCode    = "10",
+    goodsDescriptionSubCode = Some("10.4.1"),
     goodsDescriptionText        = Some("Equipment"),
     hasSadReferenceNumber       = Some("true"),
     sadReferenceNumber          = Some("SAD123456789"),
@@ -54,8 +54,8 @@ class UpdateImportDetailsRequestSpec extends AnyFreeSpec with Matchers {
       json.keys mustEqual Set(
         "applicationId",
         "itemNumber",
-        "goodsDescriptionCategory",
-        "goodsDescriptionSubCategory",
+        "goodsDescriptionCode",
+        "goodsDescriptionSubCode",
         "goodsDescriptionText",
         "hasSadReferenceNumber",
         "sadReferenceNumber",

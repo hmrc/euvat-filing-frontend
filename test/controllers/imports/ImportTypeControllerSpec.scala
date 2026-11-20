@@ -409,8 +409,8 @@ class ImportTypeControllerSpec extends SpecBase with MockitoSugar {
         supplierAddressLine2        = None,
         supplierAddressLine3        = None,
         supplierCountryCode         = None,
-        goodsDescriptionCategory    = "1",
-        goodsDescriptionSubcategory = None,
+        goodsDescriptionCode    = "1",
+        goodsDescriptionSubCode = None,
         goodsDescriptionText        = None,
         hasSadReferenceNumber       = None,
         sadReferenceNumber          = None,
@@ -468,8 +468,8 @@ class ImportTypeControllerSpec extends SpecBase with MockitoSugar {
         supplierAddressLine2        = None,
         supplierAddressLine3        = None,
         supplierCountryCode         = None,
-        goodsDescriptionCategory    = "1",
-        goodsDescriptionSubcategory = None,
+        goodsDescriptionCode    = "1",
+        goodsDescriptionSubCode = None,
         goodsDescriptionText        = None,
         hasSadReferenceNumber       = None,
         sadReferenceNumber          = None,
@@ -554,7 +554,7 @@ class ImportTypeControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "addDetails should redirect to JourneyRecovery when goodsDescriptionCategory does not match" in {
+    "addDetails should redirect to JourneyRecovery when goodsDescriptionCode does not match" in {
       val savedCaptor: ArgumentCaptor[models.UserAnswers] = ArgumentCaptor.forClass(classOf[models.UserAnswers])
       when(mockSessionRepository.set(savedCaptor.capture())) thenReturn Future.successful(true)
 
@@ -567,8 +567,8 @@ class ImportTypeControllerSpec extends SpecBase with MockitoSugar {
         supplierAddressLine2        = None,
         supplierAddressLine3        = None,
         supplierCountryCode         = None,
-        goodsDescriptionCategory    = "111",
-        goodsDescriptionSubcategory = None,
+        goodsDescriptionCode    = "111",
+        goodsDescriptionSubCode = None,
         goodsDescriptionText        = None,
         hasSadReferenceNumber       = None,
         sadReferenceNumber          = None,

@@ -216,8 +216,8 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
         requestCaptor.getValue mustBe UpdateImportDetailsRequest(
           applicationId               = 404,
           itemNumber                  = 4,
-          goodsDescriptionCategory    = "10",
-          goodsDescriptionSubCategory = Some("10.99"),
+          goodsDescriptionCode    = "10",
+          goodsDescriptionSubCode = Some("10.99"),
           goodsDescriptionText        = Some("Imported equipment"),
           hasSadReferenceNumber       = Some("true"),
           sadReferenceNumber          = Some("SAD123"),
@@ -358,8 +358,8 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
       supplierAddressLine2        = None,
       supplierAddressLine3        = None,
       supplierCountryCode         = Some("IN"),
-      goodsDescriptionCategory    = "10",
-      goodsDescriptionSubcategory = Some("10.99"),
+      goodsDescriptionCode    = "10",
+      goodsDescriptionSubCode = Some("10.99"),
       goodsDescriptionText        = Some("Imported equipment"),
       hasSadReferenceNumber       = Some("true"),
       sadReferenceNumber          = Some("SAD123"),
@@ -431,7 +431,7 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
       val repository = mock[SessionRepository]
       when(repository.set(any[UserAnswers]())).thenReturn(Future.successful(true))
       when(mockEuVatRefundsService.getImportDetails(any(), any())(any()))
-        .thenReturn(Future.successful(savedImport.copy(goodsDescriptionCategory = "1", goodsDescriptionSubcategory = Some("1.1.2"))))
+        .thenReturn(Future.successful(savedImport.copy(goodsDescriptionCode = "1", goodsDescriptionSubCode = Some("1.1.2"))))
 
       val fuelMapping = new ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String): Seq[(String, String)] =
@@ -465,7 +465,7 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
       val repository = mock[SessionRepository]
       when(repository.set(any[UserAnswers]())).thenReturn(Future.successful(true))
       when(mockEuVatRefundsService.getImportDetails(any(), any())(any()))
-        .thenReturn(Future.successful(savedImport.copy(goodsDescriptionCategory = "1", goodsDescriptionSubcategory = Some("1.3"))))
+        .thenReturn(Future.successful(savedImport.copy(goodsDescriptionCode = "1", goodsDescriptionSubCode = Some("1.3"))))
 
       val fuelMapping = new ConfigPurchaseOrImportMapping() {
         override def subcodesFor(country: String, parentKey: String): Seq[(String, String)] =
