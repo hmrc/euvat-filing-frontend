@@ -20,7 +20,6 @@ import controllers.supportingdocuments.routes as supportingDocumentsRoutes
 import models.UserAnswers
 import pages.supportingdocuments.AnyDocumentsPage
 import play.api.mvc.Call
-import queries.UploadedFileStatusQuery
 
 import javax.inject.{Inject, Singleton}
 
@@ -37,9 +36,6 @@ class SupportingDocumentsNavigator @Inject() () {
       case None        => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
-  def navigateFromYourFilePage(userAnswers: UserAnswers): Call =
-    userAnswers.get(UploadedFileStatusQuery) match {
-      case Some("VALIDATED") => controllers.routes.JourneyRecoveryController.onPageLoad()
-      case _                 => supportingDocumentsRoutes.YourFileController.onPageLoad()
-    }
+  def navigateFromYourFilePage(): Call =
+    controllers.routes.JourneyRecoveryController.onPageLoad()
 }

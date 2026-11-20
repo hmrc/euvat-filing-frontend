@@ -185,9 +185,9 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
         running(application) {
           val request = FakeRequest(POST, routes.InvoiceDateController.onSubmit(models.NormalMode).url)
             .withFormUrlEncodedBody(
-              "value.day"   -> "01",
+              "value.day" -> "01",
               "value.month" -> "01",
-              "value.year"  -> "0001"
+              "value.year" -> "0001"
             )
           val result = route(application, request).value
 
@@ -255,9 +255,9 @@ class InvoiceDateControllerSpec extends SpecBase with MockitoSugar {
           status(result) mustEqual BAD_REQUEST
           val body = contentAsString(result)
           val expected = messages(application)("invoiceDate.error.required.two",
-                                               messages(application)("date.error.day"),
-                                               messages(application)("date.error.month")
-                                              )
+            messages(application)("date.error.day"),
+            messages(application)("date.error.month")
+          )
           body must include(expected)
           body must include("href=\"#value.day\"")
           body must include("value=\"2025\"")
