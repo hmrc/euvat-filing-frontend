@@ -693,6 +693,8 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
         saved.get(PurchaseSubCategoryLabelPage) mustBe Some("Passenger car (PKW)")
         body must include(messages(application)("purchase.subCategory.fuel-type-or-vehicle"))
         body must include("Passenger car (PKW)")
+        body must include("""href="/file-eu-vat/purchase/change-fuel-type-or-vehicle"""")
+        body must not include "change-your-answers/123/change-"
         saved.get(DescribeItemsOnInvoicePage) mustBe Some("Fuel purchase")
         saved.get(InvoiceTypePage) mustBe Some(InvoiceType.SimplifiedInvoice)
         saved.get(SupplierVatRegCheckPage) mustBe Some(true)

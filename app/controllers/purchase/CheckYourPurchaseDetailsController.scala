@@ -63,10 +63,8 @@ class CheckYourPurchaseDetailsController @Inject() (
     val purchaseSubCategory = userAnswers.get(PurchaseSubCategoryPage)
 
     val goodsDescriptionSubCode: Option[String] = {
-      if (purchaseSubType.contains(ConfigPurchaseOrImportMapping.NoneValue) && purchaseSubCategory.contains(ConfigPurchaseOrImportMapping.NoneValue))
-        None
-      else if (purchaseSubCategory.exists(v => v != ConfigPurchaseOrImportMapping.NoneValue)) purchaseSubCategory
-      else if (purchaseSubType.exists(v => v != ConfigPurchaseOrImportMapping.NoneValue)) purchaseSubType
+      if (purchaseSubCategory.exists(_.trim.nonEmpty)) purchaseSubCategory
+      else if (purchaseSubType.exists(_.trim.nonEmpty)) purchaseSubType
       else None
     }
 
@@ -76,8 +74,8 @@ class CheckYourPurchaseDetailsController @Inject() (
       .getOrElse("")
 
     val goodsDescriptionText = userAnswers.get(DescribeItemsOnInvoicePage) match {
-      case Some(text) if text.trim.nonEmpty && text != ConfigPurchaseOrImportMapping.NoneValue => Some(text)
-      case _                                                                                   => None
+      case Some(text) if text.trim.nonEmpty => Some(text)
+      case _                                => None
     }
 
     val simplifiedInvoiceIndicator = userAnswers.get(InvoiceTypePage) match {
@@ -334,7 +332,10 @@ class CheckYourPurchaseDetailsController @Inject() (
                 PurchaseOrImportType.codes.find(_._2 == resp.goodsDescriptionCode).map(_._1)
 
               val invoiceTypeOpt: Option[InvoiceType] =
-                Some(if (resp.simplifiedInvoiceIndicator.exists(_.equalsIgnoreCase(true.toString))) InvoiceType.SimplifiedInvoice else InvoiceType.StandardInvoice)
+                Some(
+                  if (resp.simplifiedInvoiceIndicator.exists(_.equalsIgnoreCase(true.toString))) InvoiceType.SimplifiedInvoice
+                  else InvoiceType.StandardInvoice
+                )
               val supplierVatRegCheckOpt: Option[Boolean] =
                 Option.when(invoiceTypeOpt.contains(InvoiceType.SimplifiedInvoice))(
                   resp.supplierVatNumber.flatMap(s => Option(s).filter(_.nonEmpty)).isDefined

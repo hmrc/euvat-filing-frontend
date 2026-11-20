@@ -16,13 +16,15 @@
 
 package viewmodels.checkAnswers
 
+import config.AmountFormatter.amountFormat
 import controllers.purchase.routes
-import models.{CheckMode, InvoiceType, PurchaseOrImportType, SupplierTaxNumberCheck, UserAnswers}
+import models.{CheckMode, InvoiceType, PurchaseOrImportSubCategoryType, PurchaseOrImportType, SupplierTaxNumberCheck, UserAnswers}
+import navigation.PurchaseNavigator
 import pages.claim.*
 import pages.purchase.*
 import play.api.i18n.{Lang, Messages}
 import play.api.mvc.RequestHeader
-import utils.{ConfigPurchaseOrImportMapping, MountPrefix}
+import utils.ConfigPurchaseOrImportMapping
 
 object CheckYourPurchaseDetailsSummary {
   type Row = (String, Option[String], Seq[(String, String, String)])
@@ -66,7 +68,7 @@ object CheckYourPurchaseDetailsSummary {
           None
         } else {
           answers.get(PurchaseSubTypePage) match {
-            case Some(v) if v == ConfigPurchaseOrImportMapping.NoneValue || v.split("\\.").lastOption.contains("99") =>
+            case Some(v) if v.split("\\.").lastOption.contains("99") =>
               val singleBypass = countryOpt.flatMap { c =>
                 try {
                   val opts = config.subcodesFor(c, parentKey)
@@ -95,16 +97,13 @@ object CheckYourPurchaseDetailsSummary {
     val valueOpt: Option[String] = answers.get(PurchaseSubTypeLabelPage)
     val displayValueOpt: Option[String] = answers
       .get(PurchaseSubTypeLabelPage)
-      .map {
-        case ConfigPurchaseOrImportMapping.NoneValue => messages("site.none")
-        case value                                   => value
-      }
+
     val changeUrl = routes.PurchaseSubTypeController.onPageLoad(parentSlug, CheckMode).url
 
     Some((keyLabel, displayValueOpt, Seq((changeUrl, "site.change", "purchase.subType.change.hidden"))))
   }
 
-  private def rowPurchaseSubCategoryLabel(answers: UserAnswers)(implicit messages: Messages, request: RequestHeader): Option[Row] =
+  private def rowPurchaseSubCategoryLabel(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
     for {
       pt    <- answers.get(PurchaseTypePage)
       code  <- answers.get(PurchaseSubCategoryPage)
@@ -112,25 +111,17 @@ object CheckYourPurchaseDetailsSummary {
     } yield {
       val parentKey = pt.toString
 
-      def findSlug(pk: String, c: String): String = {
-        def loop(curr: String): Option[String] =
-          models.PurchaseOrImportSubCategoryType.purchaseOrImportSubCategoryUrlSlugFor(pk, curr) match {
-            case s @ Some(_) => s
-            case None        => if (curr.contains('.')) loop(curr.substring(0, curr.lastIndexOf('.'))) else None
-          }
-
-        loop(c).getOrElse(models.PurchaseOrImportSubCategoryType.pathFor(pk, c))
-      }
-
-      val codeToResolve = if (code == ConfigPurchaseOrImportMapping.NoneValue) answers.get(PurchaseSubTypePage).getOrElse(code) else code
-      val slug = findSlug(parentKey, codeToResolve)
+      val slugOpt = PurchaseOrImportSubCategoryType.subCategoryPageSlugFor(parentKey, code)
+      val slug = slugOpt.getOrElse(PurchaseOrImportSubCategoryType.pathFor(parentKey, code))
       val msgKey = s"purchase.subCategory.$slug"
       val keyLabel = if (messages.isDefinedAt(msgKey)) messages(msgKey) else slug.replace('-', ' ').capitalize
-      val displayValue = if (label == ConfigPurchaseOrImportMapping.NoneValue) messages("site.none") else label
-      val mount = MountPrefix.getFromRequest
-      val url = if (mount.isEmpty) s"/change-$slug" else s"$mount/change-$slug"
+      val actions = slugOpt
+        .map(subCategorySlug =>
+          Seq((PurchaseNavigator.subCategoryPage(subCategorySlug, CheckMode).url, "site.change", "purchase.subCategory.change.hidden"))
+        )
+        .getOrElse(Seq.empty)
 
-      (keyLabel, Some(displayValue), Seq((url, "site.change", "purchase.subCategory.change.hidden")))
+      (keyLabel, Some(label), actions)
     }
 
   private def rowInvoiceType(answers: UserAnswers)(implicit messages: Messages): Option[Row] =
@@ -234,7 +225,7 @@ object CheckYourPurchaseDetailsSummary {
   private def rowAmountBeforeVat(answers: UserAnswers, maybeSymbol: Option[String])(implicit messages: Messages): Option[Row] =
     answers.get(TotalPurchaseAmountBeforeVatPage).map { amt =>
       val url = routes.TotalPurchaseAmountBeforeVatController.onPageLoad(CheckMode).url
-      val formattedNumber = f"$amt%,1.2f".replace(".00", "")
+      val formattedNumber = amountFormat(amt)
       val display = maybeSymbol.map(_ + formattedNumber).getOrElse(formattedNumber)
       (messages("totalPurchaseAmountBeforeVat.checkYourAnswersLabel"),
        Some(display),
@@ -245,7 +236,7 @@ object CheckYourPurchaseDetailsSummary {
   private def rowVatPaid(answers: UserAnswers, maybeSymbol: Option[String])(implicit messages: Messages): Option[Row] =
     answers.get(TotalVatPaidPage).map { amt =>
       val url = routes.TotalVatPaidController.onPageLoad(CheckMode).url
-      val formattedNumber = f"$amt%,1.2f".replace(".00", "")
+      val formattedNumber = amountFormat(amt)
       val display = maybeSymbol.map(_ + formattedNumber).getOrElse(formattedNumber)
       (messages("totalVatPaid.checkYourAnswersLabel"), Some(display), Seq((url, "site.change", "totalVatPaid.change.hidden")))
     }
@@ -253,7 +244,7 @@ object CheckYourPurchaseDetailsSummary {
   private def rowVatClaim(answers: UserAnswers, maybeSymbol: Option[String])(implicit messages: Messages): Option[Row] =
     answers.get(TotalVatClaimPage).map { amt =>
       val url = routes.TotalVatClaimController.onPageLoad(CheckMode).url
-      val formattedNumber = f"$amt%,1.2f".replace(".00", "")
+      val formattedNumber = amountFormat(amt)
       val display = maybeSymbol.map(_ + formattedNumber).getOrElse(formattedNumber)
       (messages("totalVatClaim.checkYourAnswersLabel"), Some(display), Seq((url, "site.change", "totalVatClaim.change.hidden")))
     }

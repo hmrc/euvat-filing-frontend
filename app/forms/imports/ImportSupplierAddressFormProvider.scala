@@ -37,15 +37,14 @@ class ImportSupplierAddressFormProvider @Inject() (
     messagesApi.preferred(Seq(Lang("en")))
 
   private def fieldMaxLengthConstraint(
-    labelKey: String,
-    errorKey: String
+    labelKey: String
   ): Constraint[String] =
     Constraint { str =>
       if (str.length <= addressLineMaxLength) {
         Valid
       } else {
         Invalid(
-          errorKey,
+          "supplierAddress.error.maxLength.withLabel",
           defaultMessages(labelKey),
           defaultMessages("supplierAddress.error.maxLength")
         )
@@ -68,28 +67,15 @@ class ImportSupplierAddressFormProvider @Inject() (
       mapping(
         "addressLine1" ->
           text("supplierAddress.error.line1.required")
-            .verifying(
-              fieldMaxLengthConstraint(
-                "import.supplierAddress.line1.label.short",
-                "import.supplierAddress.error.line1.maxLength"
-              )
-            ),
+            .verifying(fieldMaxLengthConstraint("supplierAddress.line1.label.short")),
         "addressLine2" ->
           optional(
-            text().verifying(
-              fieldMaxLengthConstraint(
-                "import.supplierAddress.line2.label.short",
-                "import.supplierAddress.error.line2.maxLength"
-              )
-            )
+            text().verifying(fieldMaxLengthConstraint("supplierAddress.line2.label.short"))
           ),
         "addressLine3" ->
           optional(
             text().verifying(
-              fieldMaxLengthConstraint(
-                "import.supplierAddress.line3.label.short",
-                "import.supplierAddress.error.line3.maxLength"
-              )
+              fieldMaxLengthConstraint("supplierAddress.line3.label.short")
             )
           ),
         "country" ->

@@ -16,11 +16,12 @@
 
 package viewmodels.checkAnswers
 
+import config.AmountFormatter.amountFormat
 import controllers.imports.routes
 import models.{CheckMode, Other, PurchaseOrImportSubCategoryType, PurchaseOrImportType, UserAnswers}
 import pages.imports.*
 import play.api.i18n.{Lang, Messages}
-import utils.{ConfigPurchaseOrImportMapping, CountryCode, Currency, CurrencyConfig, DateTimeFormats}
+import utils.*
 import utils.PurchaseOrImportHelpers.isNoneSelection
 
 object CheckYourImportDetailsSummary {
@@ -57,20 +58,16 @@ object CheckYourImportDetailsSummary {
     options: Seq[(String, String)],
     config: ConfigPurchaseOrImportMapping
   )(implicit messages: Messages): Option[String] =
-    value.flatMap {
-      case ConfigPurchaseOrImportMapping.NoneValue =>
-        Some(messages("site.none"))
-
-      case code =>
-        config
-          .buildRadioItems(options, messages)
-          .find(_.value.contains(code))
-          .map(item =>
-            item.content match {
-              case uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text(value) => value
-              case content                                                        => content.asHtml.toString
-            }
-          )
+    value.flatMap { code =>
+      config
+        .buildRadioItems(options, messages)
+        .find(_.value.contains(code))
+        .map(item =>
+          item.content match {
+            case uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text(value) => value
+            case content                                                        => content.asHtml.toString
+          }
+        )
     }
 
   private def dynamicRow(
@@ -129,6 +126,13 @@ object CheckYourImportDetailsSummary {
     if (descriptionRequired) {
       Seq(
         typeRow,
+        row(
+          "otherImportType",
+          text(answers.get(ImportDetailsInfoPage)),
+          routes.ImportDetailsInfoController
+            .onPageLoad(CheckMode)
+            .url
+        ),
         row(
           "importDescription",
           text(answers.get(DescribeItemsOnImportDocPage)),
@@ -284,10 +288,7 @@ object CheckYourImportDetailsSummary {
     currency: Option[Currency]
   ): Option[String] =
     value.map { number =>
-      val formatted = number.bigDecimal
-        .setScale(2, java.math.RoundingMode.HALF_UP)
-        .toPlainString
-
+      val formatted = amountFormat(number)
       currency.map(_.symbol).getOrElse("") + formatted
     }
 

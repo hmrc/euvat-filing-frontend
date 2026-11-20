@@ -19,10 +19,10 @@ package controllers.purchase
 import controllers.actions.*
 import forms.PurchaseOrImportSubTypeFormProvider
 import models.*
+import navigation.{Navigator, PurchaseNavigator}
 import models.requests.DataRequest
-import navigation.Navigator
-import pages.claim.CountryChangedPage
 import pages.purchase.*
+import pages.claim.CountryChangedPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.*
@@ -31,7 +31,7 @@ import repositories.SessionRepository
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.PurchaseOrImportHelpers.isNoneSelection
-import utils.{ConfigPurchaseOrImportMapping, ControllerHelpers, CountryCode, MountPrefix}
+import utils.{ConfigPurchaseOrImportMapping, ControllerHelpers, CountryCode}
 import views.html.purchasesOrImports.PurchaseOrImportSubTypeView
 
 import javax.inject.Inject
@@ -74,14 +74,13 @@ class PurchaseSubTypeController @Inject() (
   ) = {
     val options = config.subcodesFor(country, parentKey)
     val rawItems = config.buildRadioItems(options, messagesApi.preferred(request))
-    val items = if (parentKey == "other") rawItems.filterNot(_.value.contains(ConfigPurchaseOrImportMapping.NoneValue)) else rawItems
     val msgs = messagesApi.preferred(request)
     val requiredKeyCandidates = Seq(s"sub.$parentKey.error.required")
     val requiredKey = requiredKeyCandidates.find(k => msgs.isDefinedAt(k)).getOrElse("error.required")
     val preparedForm = userAnswers.get(PurchaseSubTypePage).fold(formProvider(requiredKey))(formProvider(requiredKey).fill)
     val resolvedSlug = resolvedSlugFor(parentKey, purchaseTypeSlug)
 
-    (options, items, parentHeadingFor(parentKey), preparedForm, resolvedSlug, formActionFor(resolvedSlug, mode))
+    (options, rawItems, parentHeadingFor(parentKey), preparedForm, resolvedSlug, formActionFor(resolvedSlug, mode))
   }
 
   private def ensurePurchaseTypeWhenMissing(currentAnswers: UserAnswers,
@@ -150,12 +149,10 @@ class PurchaseSubTypeController @Inject() (
   private def resolvedSlugFor(parentKey: String, fallback: String): String =
     PurchaseOrImportType.values.find(_.toString == parentKey).map(PurchaseOrImportType.urlSlugForPurchaseType).getOrElse(fallback)
 
-  private def formActionFor(uri: String, mode: Mode)(implicit request: RequestHeader) = {
-    val isChangeMode = if (mode == models.CheckMode) "change-" else ""
-    Call("POST", s"${MountPrefix.getFromRequest}/$isChangeMode$uri")
-  }
+  private def formActionFor(purchaseTypeSlug: String, mode: Mode): Call =
+    routes.PurchaseSubTypeController.onSubmit(purchaseTypeSlug, mode)
 
-  private def handleCountryChanged(purchaseTypeSlug: String, userAnswers: UserAnswers)(implicit request: RequestHeader) = {
+  private def handleCountryChanged(purchaseTypeSlug: String, mode: Mode, userAnswers: UserAnswers) = {
     val clearedAnswers = for {
       afterRemovedSubType      <- userAnswers.remove(PurchaseSubTypePage)
       afterRemovedSubTypeLabel <- afterRemovedSubType.remove(PurchaseSubTypeLabelPage)
@@ -164,13 +161,7 @@ class PurchaseSubTypeController @Inject() (
 
     Future
       .fromTry(clearedAnswers)
-      .flatMap(updated =>
-        sessionRepository.set(updated).map { _ =>
-          val prefix = MountPrefix.getFromRequest
-          val path = if (prefix.isEmpty) s"/$purchaseTypeSlug" else s"$prefix/$purchaseTypeSlug"
-          Redirect(Call("GET", path))
-        }
-      )
+      .flatMap(updated => sessionRepository.set(updated).map(_ => Redirect(routes.PurchaseSubTypeController.onPageLoad(purchaseTypeSlug, mode))))
   }
 
   private def markArrivalAndRenderSubType(preparedForm: Form[?],
@@ -232,7 +223,7 @@ class PurchaseSubTypeController @Inject() (
   def onPageLoad(purchaseTypeSlug: String, mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
       if (request.userAnswers.get(CountryChangedPage).contains(true)) {
-        handleCountryChanged(purchaseTypeSlug, request.userAnswers)
+        handleCountryChanged(purchaseTypeSlug, mode, request.userAnswers)
       } else {
         resolveParentAndCountry(purchaseTypeSlug, request.userAnswers) match {
           case Some((parentKey, country)) =>
@@ -249,39 +240,8 @@ class PurchaseSubTypeController @Inject() (
       }
   }
 
-  private def persistNoneSelection(mode: Mode, userAnswers: UserAnswers)(implicit request: DataRequest[AnyContent]): Future[Result] = {
-    val noneLabel = ConfigPurchaseOrImportMapping.NoneValue
-    val savedTry = for {
-      a1 <- userAnswers.set(PurchaseSubTypePage, ConfigPurchaseOrImportMapping.NoneValue)
-      a2 <- a1.set(PurchaseSubTypeLabelPage, noneLabel)
-      a3 <- a2.remove(PurchaseSubCategoryPage)
-      a4 <- a3.remove(PurchaseSubCategoryLabelPage)
-    } yield a4
-
-    for {
-      updatedAnswers <- Future.fromTry(savedTry)
-      _              <- sessionRepository.set(updatedAnswers)
-      result         <- redirectWhenNoOptions(mode)
-    } yield result
-  }
-
-  private def routeToSubCategory(parentKey: String, value: String, mode: Mode)(implicit request: RequestHeader): Option[Call] = {
-    val routeParentCodeCandidate = value
-    val candidates = Seq(routeParentCodeCandidate).distinct
-
-    candidates.iterator
-      .map { c =>
-        try {
-          val slug = PurchaseOrImportSubCategoryType.pathFor(parentKey, c)
-          val prefix = MountPrefix.getFromRequest
-          val path = ControllerHelpers.pathForSlug(slug, mode, prefix)
-          Some(Call("GET", path))
-        } catch {
-          case _: Throwable => None
-        }
-      }
-      .collectFirst { case Some(call) => call }
-  }
+  private def routeToSubCategory(parentKey: String, value: String, mode: Mode): Option[Call] =
+    PurchaseOrImportSubCategoryType.subCategoryPageSlugFor(parentKey, value).map(slug => PurchaseNavigator.subCategoryPage(slug, mode))
 
   private def noChildrenRedirect(value: String, resolvedSlug: String, mode: Mode): Result = {
     val lastSeg = value.split("\\.").lastOption.getOrElse(value)
@@ -327,11 +287,7 @@ class PurchaseSubTypeController @Inject() (
     if (mode == CheckMode && userAnswers.isAnswerUnchanged(PurchaseSubTypePage, value)) {
       Future.successful(Redirect(routes.CheckYourPurchaseDetailsController.onPageLoad()))
     } else {
-      if (value == ConfigPurchaseOrImportMapping.NoneValue) {
-        persistNoneSelection(mode, userAnswers)
-      } else {
-        persistNormalSelection(parentKey, country, value, resolvedSlug, mode, userAnswers)
-      }
+      persistNormalSelection(parentKey, country, value, resolvedSlug, mode, userAnswers)
     }
 
   private def submitForResolvedParent(purchaseTypeSlug: String, parentKey: String, country: String, mode: Mode, userAnswers: UserAnswers)(implicit
