@@ -18,20 +18,21 @@ package controllers.purchase
 
 import base.SpecBase
 import forms.purchase.TotalPurchaseAmountBeforeVatFormProvider
-import models.{CheckMode, Fuel, InvoiceType, NormalMode, PurchaseOrImportType, SupplierTaxNumberCheck, UserAnswers}
+import models.{CheckMode, Fuel, InvoiceType, Mode, NormalMode, SupplierTaxNumberCheck, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.claim.RefundingCountryPage
 import pages.purchase.*
+import play.api.Application
 import play.api.data.Form
 import play.api.inject.bind
-import play.api.mvc.Call
+import play.api.mvc.{Call, Request}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.purchase.TotalPurchaseAmountBeforeVatView
+import views.html.purchasesOrImports.PurchaseOrImportTotalAmountWithoutVatView
 
 import scala.concurrent.Future
 
@@ -42,6 +43,25 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
   val form: Form[BigDecimal] = formProvider()
   lazy val totalPurchaseAmountBeforeVatRoute: String = routes.TotalPurchaseAmountBeforeVatController.onPageLoad(NormalMode).url
 
+  private def expectedView(
+                            application: Application,
+                            request: Request[?],
+                            boundForm: Form[?],
+                            mode: Mode = NormalMode,
+                            currencySymbol: String = "€",
+                            currencyName: String = "Euro"
+                          ): String = {
+    val view = application.injector.instanceOf[PurchaseOrImportTotalAmountWithoutVatView]
+    view(
+      boundForm,
+      routes.TotalPurchaseAmountBeforeVatController.onSubmit(mode),
+      "totalAmountWithoutVat",
+      "purchase.caption",
+      currencySymbol,
+      currencyName
+    )(request, messages(application)).toString
+  }
+
   "TotalPurchaseAmountBeforeVat Controller" - {
 
     "must return OK and the correct view for a GET" in {
@@ -50,15 +70,9 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
       running(application) {
         val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
         val result = route(application, request).value
-        val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
 
         status(result) mustEqual OK
-        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, "€", "Euro")(
-            request,
-            messages(application)
-          ).toString
-        )
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(expectedView(application, request, form))
       }
     }
 
@@ -68,15 +82,9 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
       running(application) {
         val request = FakeRequest(GET, routes.TotalPurchaseAmountBeforeVatController.onPageLoad(CheckMode).url)
         val result = route(application, request).value
-        val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
 
         status(result) mustEqual OK
-        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, CheckMode, "€", "Euro")(
-            request,
-            messages(application)
-          ).toString
-        )
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(expectedView(application, request, form, CheckMode))
       }
     }
 
@@ -87,13 +95,9 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
       running(application) {
         val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
         val result = route(application, request).value
-        val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, "€", "Euro")(
-          request,
-          messages(application)
-        ).toString
+        contentAsString(result) mustEqual expectedView(application, request, form)
       }
     }
 
@@ -104,13 +108,9 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
       running(application) {
         val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
         val result = route(application, request).value
-        val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, "€", "Euro")(
-          request,
-          messages(application)
-        ).toString
+        contentAsString(result) mustEqual expectedView(application, request, form)
       }
     }
 
@@ -121,15 +121,9 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
       running(application) {
         val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
         val result = route(application, request).value
-        val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
 
         status(result) mustEqual OK
-        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, "€", "Euro")(
-            request,
-            messages(application)
-          ).toString
-        )
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(expectedView(application, request, form))
       }
     }
 
@@ -139,15 +133,11 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
 
       running(application) {
         val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
-        val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
         val result = route(application, request).value
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form.fill(BigDecimal("12.34")), NormalMode, "€", "Euro")(
-            request,
-            messages(application)
-          ).toString
+          expectedView(application, request, form.fill(BigDecimal("12.34")))
         )
       }
     }
@@ -184,16 +174,10 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
             .withFormUrlEncodedBody(("value", ""))
 
         val boundForm = form.bind(Map("value" -> ""))
-        val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(boundForm, NormalMode, "€", "Euro")(
-            request,
-            messages(application)
-          ).toString
-        )
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(expectedView(application, request, boundForm))
       }
     }
 
@@ -236,7 +220,7 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
           .withFormUrlEncodedBody(("value", "123.45"))
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.purchase.routes.CheckYourPurchaseDetailsController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.CheckYourPurchaseDetailsController.onPageLoad().url
       }
     }
 
@@ -249,7 +233,7 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
         applicationBuilder(userAnswers = Some(userAnswers))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[repositories.SessionRepository].toInstance(mockSessionRepository)
+            bind[SessionRepository].toInstance(mockSessionRepository)
           )
           .build()
 
@@ -273,7 +257,6 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
-
     }
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
@@ -296,16 +279,10 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
 
       running(application) {
         val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
-        val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, "€", "Euro")(
-            request,
-            messages(application)
-          ).toString
-        )
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(expectedView(application, request, form))
       }
     }
 
@@ -322,12 +299,11 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
 
       running(application) {
         val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
-        val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
         val result = route(application, request).value
 
         status(result) mustEqual OK
         normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, "лв", "Bulgarian Lev")(request, messages(application)).toString
+          expectedView(application, request, form, currencySymbol = "лв", currencyName = "Bulgarian Lev")
         )
       }
     }
@@ -338,16 +314,10 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
 
       running(application) {
         val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
-        val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(
-          view(form, NormalMode, "€", "Euro")(
-            request,
-            messages(application)
-          ).toString
-        )
+        normalizeHtml(contentAsString(result)) mustEqual normalizeHtml(expectedView(application, request, form))
       }
     }
 
@@ -368,14 +338,10 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
 
         running(application) {
           val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
-          val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
           val result = route(application, request).value
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(form, NormalMode, "€", "Euro")(
-            request,
-            messages(application)
-          ).toString
+          contentAsString(result) mustEqual expectedView(application, request, form)
         }
       }
 
@@ -395,17 +361,12 @@ class TotalPurchaseAmountBeforeVatControllerSpec extends SpecBase with MockitoSu
 
         running(application) {
           val request = FakeRequest(GET, totalPurchaseAmountBeforeVatRoute)
-          val view = application.injector.instanceOf[TotalPurchaseAmountBeforeVatView]
           val result = route(application, request).value
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(form, NormalMode, "€", "Euro")(
-            request,
-            messages(application)
-          ).toString
+          contentAsString(result) mustEqual expectedView(application, request, form)
         }
       }
-
     }
   }
 }
