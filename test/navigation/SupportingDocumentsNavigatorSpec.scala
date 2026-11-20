@@ -45,5 +45,9 @@ class SupportingDocumentsNavigatorSpec extends SpecBase {
     "must go from AnyDocumentsPage to Journey Recovery when no answer is saved" in {
       navigator.navigateFromAnyDocumentsPage(emptyUserAnswers) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
     }
+
+    "must go from YourFilePage to Journey Recovery" in {
+      navigator.navigateFromYourFilePage() mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
+    }
   }
 }

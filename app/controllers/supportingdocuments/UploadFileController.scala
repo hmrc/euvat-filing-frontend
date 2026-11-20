@@ -27,7 +27,6 @@ import play.api.Logging
 import play.api.libs.Files.TemporaryFile
 import play.api.mvc.{Action, AnyContent, BodyParser, MessagesControllerComponents, MultipartFormData, Results}
 import play.api.mvc.MultipartFormData.FilePart
-import queries.UploadedFileStatusQuery
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import repositories.SessionRepository
 import views.html.supportingdocuments.UploadFileView
@@ -92,16 +91,13 @@ class UploadFileController @Inject() (
           Future.successful(BadRequest(view(orderedForm)).withHeaders("Cache-Control" -> "no-store"))
         } else {
           val filename = request.body.file("file-upload-1").map(_.filename).get
-          val updatedAnswers = for {
-            withFilename <- request.userAnswers.set(YourFileNamePage, filename)
-            withStatus   <- withFilename.set(UploadedFileStatusQuery, YourFileController.AwaitingUpload)
-          } yield withStatus
+          val updatedAnswers = request.userAnswers.set(YourFileNamePage, filename)
 
           for {
             answers <- Future.fromTry(updatedAnswers)
             _       <- sessionRepository.set(answers)
           } yield {
-            // TODO: call Upscan initiate and add-attachment instead of using the UI-only placeholder status.
+            // TODO: Initiate Upscan, upload the file, and save it as an attachment before showing this page.
             Redirect(routes.YourFileController.onPageLoad())
           }
         }

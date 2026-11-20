@@ -36,9 +36,9 @@ class RefundPeriodFormProvider @Inject() extends Mappings {
     case "refundPeriod.end.error.required" | "refundPeriod.end.error.afterVatDeRegDate" =>
       Set("end.month", "end.year")
     case "refundPeriod.error.startAndEndInSameYear" => Set("start.year", "end.year")
-    case "refundPeriod.error.beforeEarliest.start" => Set("start.year")
-    case "refundPeriod.error.beforeEarliest.end" => Set("end.year")
-    case "refundPeriod.error.beforeEarliest.both" => Set("start.year", "end.year")
+    case "refundPeriod.error.beforeEarliest.start"  => Set("start.year")
+    case "refundPeriod.error.beforeEarliest.end"    => Set("end.year")
+    case "refundPeriod.error.beforeEarliest.both"   => Set("start.year", "end.year")
     case _                                          => Set.empty
   }
 
