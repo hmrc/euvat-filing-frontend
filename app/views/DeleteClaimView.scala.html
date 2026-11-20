@@ -30,7 +30,7 @@
     @formHelper(action = routes.DeleteClaimController.onSubmit(), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
-            @govukErrorSummary(ErrorSummaryViewModel(form))
+            @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value_0")))
         }
 
         <h1 class="govuk-heading-l">@messages("deleteClaim.heading")</h1>
@@ -53,11 +53,14 @@
         ))
 
         @govukRadios(
-            RadiosViewModel.yesNo(
-                field = form("value"),
-                legend = LegendViewModel(messages("deleteClaim.legend"))
-            .withCssClass("govuk-fieldset__legend--m")
-            ).copy(classes = "govuk-radios")
+            RadiosViewModel(
+                field  = form("value"),
+                legend = LegendViewModel(messages("deleteClaim.legend")).withCssClass("govuk-fieldset__legend--m"),
+                items  = Seq(
+                    RadioItem(id = Some("value_0"), value = Some("true"),  content = Text(messages("site.yes"))),
+                    RadioItem(id = Some("value_1"), value = Some("false"), content = Text(messages("site.no")))
+                )
+            )
         )
 
         @govukButton(
