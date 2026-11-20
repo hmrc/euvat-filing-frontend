@@ -21,8 +21,8 @@ import play.api.libs.json.{Json, OFormat}
 case class PurchaseImport(
   itemNumber: Int,
   itemType: String,
-  goodsDescriptionCategory: String,
-  goodsDescriptionSubCategory: Option[String],
+  goodsDescriptionCode: String,
+  goodsDescriptionSubCode: Option[String],
   currencyCode: Option[String],
   taxableAmount: BigDecimal,
   vatAmount: BigDecimal,

@@ -247,7 +247,7 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
   "EuVatRefundsConnector.addPurchase" should {
     val request = AddPurchaseRequest(
       applicationId            = 123456,
-      goodsDescriptionCategory = "1",
+      goodsDescriptionCode = "1",
       goodsDescriptionText     = Some("Fuel"),
       updateSequenceNumber     = 1
     )
@@ -287,7 +287,7 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
 
     val request = AddImportRequest(
       applicationId            = 123456,
-      goodsDescriptionCategory = "1",
+      goodsDescriptionCode = "1",
       goodsDescriptionText     = Some("Fuel"),
       updateSequenceNumber     = 1
     )
@@ -359,8 +359,8 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
     val updateRequest = models.requests.UpdatePurchaseRequest(
       applicationId               = 123L,
       itemNumber                  = 1,
-      goodsDescriptionCategory    = "1.2",
-      goodsDescriptionSubCategory = None,
+      goodsDescriptionCode    = "1.2",
+      goodsDescriptionSubCode = None,
       goodsDescriptionText        = Some("Fuel"),
       simplifiedInvoiceIndicator  = Some("true"),
       supplierName                = Some("Supplier"),
@@ -470,8 +470,8 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
         PurchaseImport(
           itemNumber                  = 123,
           itemType                    = "P",
-          goodsDescriptionCategory    = "1",
-          goodsDescriptionSubCategory = Some("1.2.3"),
+          goodsDescriptionCode    = "1",
+          goodsDescriptionSubCode = Some("1.2.3"),
           currencyCode                = Some("EU"),
           taxableAmount               = BigDecimal(300),
           vatAmount                   = BigDecimal(200),
@@ -480,8 +480,8 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
         PurchaseImport(
           itemNumber                  = 456,
           itemType                    = "I",
-          goodsDescriptionCategory    = "7",
-          goodsDescriptionSubCategory = Some("7.9"),
+          goodsDescriptionCode    = "7",
+          goodsDescriptionSubCode = Some("7.9"),
           currencyCode                = Some("EU"),
           taxableAmount               = BigDecimal(456),
           vatAmount                   = BigDecimal(345),
@@ -530,7 +530,7 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
         supplierAddressLine2        = None,
         supplierAddressLine3        = None,
         supplierCountryCode         = Some("FR"),
-        goodsDescriptionCategory    = "1",
+        goodsDescriptionCode    = "1",
         currencyCode                = Some("EUR"),
         taxableAmount               = Some(BigDecimal(300)),
         vatAmount                   = Some(BigDecimal(200)),
@@ -539,7 +539,7 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
         sadReferenceNumber          = None,
         referenceInformation        = None,
         goodsDescriptionText        = Some("Import details"),
-        goodsDescriptionSubcategory = Some("1.2.3"),
+        goodsDescriptionSubCode = Some("1.2.3"),
         updateSequenceNumber        = 7
       )
 

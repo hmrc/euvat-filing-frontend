@@ -115,7 +115,7 @@ class ImportTypeController @Inject() (
         implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
         val addRequest = AddImportRequest(
           applicationId            = claim.applicationId,
-          goodsDescriptionCategory = PurchaseOrImportType.codes(importType),
+          goodsDescriptionCode = PurchaseOrImportType.codes(importType),
           updateSequenceNumber     = answers.get(UpdateSequenceNumberQuery).getOrElse(claim.updateSeqNumber)
         )
         euVatRefundsService
@@ -193,9 +193,9 @@ class ImportTypeController @Inject() (
     }
 
   private def resolveImportType(response: ImportDetailsResponse): Try[PurchaseOrImportType] =
-    PurchaseOrImportType.codes.collectFirst { case (importType, code) if code == response.goodsDescriptionCategory.trim => importType } match {
+    PurchaseOrImportType.codes.collectFirst { case (importType, code) if code == response.goodsDescriptionCode.trim => importType } match {
       case None =>
-        Failure(new IllegalStateException(s"Unknown import category ${response.goodsDescriptionCategory} for item ${response.itemNumber}"))
+        Failure(new IllegalStateException(s"Unknown import category ${response.goodsDescriptionCode} for item ${response.itemNumber}"))
 
       case Some(importType) =>
         Success(importType)
