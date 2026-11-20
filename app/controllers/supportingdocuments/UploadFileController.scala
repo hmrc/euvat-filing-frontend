@@ -18,11 +18,12 @@ package controllers.supportingdocuments
 
 import controllers.actions.*
 import forms.supportingdocuments.UploadFileFormProvider
+import forms.supportingdocuments.UploadFileFormProvider.fileErrorKey
 import models.UploadFileError
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.*
 import queries.ClaimApplicationResponseQuery
 import services.EuVatRefundsService
 import uk.gov.hmrc.http.HeaderCarrier
@@ -49,7 +50,6 @@ class UploadFileController @Inject() (
 
   private def form: Form[Option[String]] = formProvider()
 
-  // TODO: check for a reusable upload first (F6.1 - Get Upload Summary) once it is built.
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
@@ -62,7 +62,7 @@ class UploadFileController @Inject() (
         val preparedForm = request
           .getQueryString("errorCode")
           .map(UploadFileError.fromUpscanErrorCode)
-          .fold(form)(error => form.withError("file", error.messageKey))
+          .fold(form)(error => form.withError(fileErrorKey, error.messageKey))
 
         euVatRefundsService
           .createUploadTracking(applicationId)

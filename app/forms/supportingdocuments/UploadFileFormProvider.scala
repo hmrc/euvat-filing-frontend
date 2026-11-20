@@ -21,13 +21,14 @@ import play.api.data.Forms.{optional, text}
 
 import javax.inject.Inject
 
+object UploadFileFormProvider {
+
+  val fileInputName = "file"
+  val fileErrorKey = "file"
+}
+
 class UploadFileFormProvider @Inject() {
 
   def apply(): Form[Option[String]] =
-    Form(
-      "fileuploadDescription" -> optional(text).verifying(
-        "supportingDocuments.uploadFile.error.description.maxLength",
-        _.forall(_.length <= 255)
-      )
-    )
+    Form(UploadFileFormProvider.fileErrorKey -> optional(text))
 }

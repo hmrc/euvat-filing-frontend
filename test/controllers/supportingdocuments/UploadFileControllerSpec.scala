@@ -18,6 +18,7 @@ package controllers.supportingdocuments
 
 import base.SpecBase
 import models.responses.{ApplicationResponse, CreateUploadTrackingResponse}
+import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.{any, eq as mockitoEq}
 import org.mockito.Mockito.{never, verify, when}
 import play.api.test.FakeRequest
@@ -38,7 +39,6 @@ class UploadFileControllerSpec extends SpecBase {
     fields    = Map("key" -> "ref-123", "x-amz-algorithm" -> "AWS4-HMAC-SHA256")
   )
 
-  // adjust to match the fields of the ApplicationResponse stored by ClaimApplicationResponseQuery
   private val userAnswersWithApplication =
     emptyUserAnswers
       .set(ClaimApplicationResponseQuery, ApplicationResponse(applicationId = applicationId, applicationNumber = "GB123456789", updateSeqNumber = 1))
@@ -80,10 +80,9 @@ class UploadFileControllerSpec extends SpecBase {
         content must include("<h1 class=\"govuk-label-wrapper\">")
         content must include(s"""<span class="govuk-caption-l">${messages(application)("supportingDocuments.caption")}</span>""")
         content must include(messages(application)("supportingDocuments.uploadFile.file.hint"))
-        content must include(messages(application)("supportingDocuments.uploadFile.description.label"))
         content must include("data-module=\"govuk-file-upload\"")
         content must include("""href="#" class="govuk-back-link" data-module="hmrc-back-link">Back</a>""")
-        content must include("You have 255 characters remaining")
+        content must not include "fileuploadDescription"
       }
     }
 
@@ -97,25 +96,19 @@ class UploadFileControllerSpec extends SpecBase {
         content must include("""enctype="multipart/form-data"""")
         content must include("""name="key" value="ref-123"""")
         content must include("""name="x-amz-algorithm" value="AWS4-HMAC-SHA256"""")
-        content must include("""name="file"""")
         content must not include "csrfToken"
       }
     }
 
-    "must keep the description and the button outside the upscan form" in {
+    "must make the file the last field in the upscan form, with the button inside the form" in {
       val application = applicationWithUpload
 
       running(application) {
-        val content = contentAsString(route(application, FakeRequest(GET, onPageLoadUrl)).value)
-        val formStart = content.indexOf("""id="upscan-form"""")
-        val formEnd = content.indexOf("</form>", formStart)
-        val upscanForm = content.substring(formStart, formEnd)
+        val upscanForm = Jsoup.parse(contentAsString(route(application, FakeRequest(GET, onPageLoadUrl)).value)).getElementById("upscan-form")
+        val fieldNames = upscanForm.select("input[name]").eachAttr("name")
 
-        formStart must be >= 0
-        upscanForm must include("""name="file"""")
-        upscanForm must not include "fileuploadDescription"
-        content.indexOf("""name="fileuploadDescription"""") must be > formEnd
-        content must include("""form="upscan-form"""")
+        fieldNames.get(fieldNames.size - 1) mustBe "file"
+        upscanForm.select("button[type=submit]").size mustBe 1
       }
     }
 
