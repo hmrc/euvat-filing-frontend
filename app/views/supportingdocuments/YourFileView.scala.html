@@ -1,0 +1,90 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+ @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+ @import uk.gov.hmrc.govukfrontend.views.viewmodels.errormessage.ErrorMessage
+ @import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
+ @import uk.gov.hmrc.govukfrontend.views.viewmodels.label.Label
+ @import uk.gov.hmrc.govukfrontend.views.viewmodels.charactercount.CharacterCount
+ @import forms.supportingdocuments.YourFileFormProvider.{descriptionFieldName, descriptionMaxLength}
+ @import views.html.components.*
+
+ @this(
+     layout: templates.Layout,
+     formHelper: FormWithCSRF,
+     govukCharacterCount: GovukCharacterCount,
+     mainErrorSummary: MainErrorSummary
+ )
+
+ @(yourFile: models.YourFile, form: Form[Option[String]])(implicit request: RequestHeader, messages: Messages)
+
+ @layout(pageTitle = title(form, messages("supportingDocuments.uploadFile.title")).trim) {
+    <h1 class="govuk-heading-l govuk-!-margin-bottom-3">
+        <span class="govuk-caption-l">@messages("supportingDocuments.caption")</span>
+        @messages("supportingDocuments.uploadFile.heading")
+    </h1>
+
+    <p id="file-upload-1-hint" class="govuk-hint">@messages("supportingDocuments.uploadFile.file.hint")</p>
+
+    @mainErrorSummary(form, Map(descriptionFieldName -> "fileupload-description"))
+
+    <div class="govuk-visually-hidden" aria-live="polite" id="statusInformation">
+        @messages("supportingDocuments.uploadFile.status.uploaded")
+    </div>
+
+    <dl class="govuk-summary-list govuk-summary-list--long-key">
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                @* TODO: Replace with proper download link perhaps? *@
+                <a class="govuk-link" href="#">@yourFile.filename</a>
+            </dt>
+            <dd class="govuk-summary-list__value">
+                <strong class="govuk-tag govuk-tag--green">@messages("supportingDocuments.uploadFile.status.uploadedTag")</strong>
+            </dd>
+            <dd class="govuk-summary-list__actions">
+                @formHelper(action = controllers.supportingdocuments.routes.YourFileController.onRemove()) {
+                    <button class="govuk-link" type="submit" style="background: none; border: 0; padding: 0; font: inherit; cursor: pointer;">
+                        @messages("supportingDocuments.uploadFile.remove")<span class="govuk-visually-hidden"> @yourFile.filename</span>
+                    </button>
+                }
+            </dd>
+        </div>
+    </dl>
+
+    @formHelper(
+        action = controllers.supportingdocuments.routes.YourFileController.onSubmit(),
+        Symbol("novalidate") -> "novalidate"
+    ) {
+        @govukCharacterCount(
+            CharacterCount(
+                id = "fileupload-description",
+                name = descriptionFieldName,
+                maxLength = Some(descriptionMaxLength),
+                label = Label(content = Text(messages("supportingDocuments.yourFile.description.label"))),
+                hint = Some(Hint(content = Text(messages("supportingDocuments.yourFile.description.hint")))),
+                value = form(descriptionFieldName).value,
+                errorMessage = form
+                    .error(descriptionFieldName)
+                    .map(error => ErrorMessage(content = Text(messages(error.message, error.args*)))),
+                textareaDescriptionText = Some(messages("supportingDocuments.yourFile.description.remaining"))
+            )
+        )
+
+        <button class="govuk-button" type="submit" data-module="govuk-button">
+            @messages("site.continue")
+        </button>
+    }
+}

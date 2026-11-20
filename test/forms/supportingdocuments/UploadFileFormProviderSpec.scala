@@ -16,21 +16,29 @@
 
 package forms.supportingdocuments
 
+import forms.supportingdocuments.UploadFileFormProvider.{fileErrorKey, fileInputName}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
 class UploadFileFormProviderSpec extends AnyWordSpec with Matchers {
 
+  private val form = new UploadFileFormProvider()()
+
   "UploadFileFormProvider" should {
 
-    "accept an optional description of up to 255 characters" in {
-      val form = new UploadFileFormProvider()()
+    "use the field name upscan requires" in {
+      fileInputName mustBe "file"
+      fileErrorKey mustBe "file"
+    }
 
-      form.bind(Map("fileuploadDescription" -> ("a" * 255))).hasErrors mustBe false
-      form.bind(Map.empty[String, String]).hasErrors mustBe false
-      form.bind(Map("fileuploadDescription" -> ("a" * 256))).errors.map(_.message) must contain(
-        "supportingDocuments.uploadFile.error.description.maxLength"
-      )
+    "start with no errors" in {
+      form.hasErrors mustBe false
+    }
+
+    "hold an upscan error against the file field" in {
+      val formWithError = form.withError(fileErrorKey, "supportingDocuments.uploadFile.error.size")
+
+      formWithError.error(fileErrorKey).map(_.message) mustBe Some("supportingDocuments.uploadFile.error.size")
     }
   }
 }
