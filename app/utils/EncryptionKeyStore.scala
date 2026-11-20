@@ -16,7 +16,7 @@
 
 package utils
 
-import play.api.Configuration
+import play.api.{Configuration, Logging}
 
 import java.io.FileInputStream
 import java.nio.file.{Path, Paths}
@@ -25,7 +25,7 @@ import javax.crypto.SecretKey
 import javax.inject.Inject
 import scala.util.Using
 
-class EncryptionKeyStore @Inject() (config: Configuration) {
+class EncryptionKeyStore @Inject() (config: Configuration) extends Logging {
   private val keyStoreLocation = config.get[String]("encryption.keystore.keyStoreLocation")
   private val keyStoreFile = config.get[String]("encryption.keystore.keyStore")
   private val keyStoreType = config.get[String]("encryption.keystore.type")
@@ -37,6 +37,9 @@ class EncryptionKeyStore @Inject() (config: Configuration) {
 
   lazy val secretKey: SecretKey = {
     val keyStore = KeyStore.getInstance(keyStoreType)
+
+    logger.info(s"******* keyStorePath: $keyStorePath")
+    logger.info(s"******** keyStoreLocation+keyStoreFile: $keyStoreLocation/$keyStoreFile ")
 
     Using.resource(new FileInputStream(keyStorePath.toFile)) { inputStream =>
       keyStore.load(inputStream, keyStorePwd)
