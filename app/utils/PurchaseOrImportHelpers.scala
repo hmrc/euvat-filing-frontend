@@ -30,7 +30,7 @@ object PurchaseOrImportHelpers {
 
   private def lastSegment(code: String): String =
     code.split("\\.").lastOption.getOrElse(code)
-  
+
   def requiredErrorKey(parentKey: String, parentCode: Option[String] = None)(implicit messages: Messages): String = {
     val candidates =
       parentCode.map(code => s"sub.$parentKey.${lastSegment(code)}.error.required").toSeq :+ s"sub.$parentKey.error.required"

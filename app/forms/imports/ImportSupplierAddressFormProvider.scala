@@ -67,19 +67,15 @@ class ImportSupplierAddressFormProvider @Inject() (
       mapping(
         "addressLine1" ->
           text("supplierAddress.error.line1.required")
-            .verifying(
-              fieldMaxLengthConstraint("supplierAddress.line1.label.short")),
+            .verifying(fieldMaxLengthConstraint("supplierAddress.line1.label.short")),
         "addressLine2" ->
           optional(
-            text().verifying(
-              fieldMaxLengthConstraint(
-                "supplierAddress.line2.label.short"))
+            text().verifying(fieldMaxLengthConstraint("supplierAddress.line2.label.short"))
           ),
         "addressLine3" ->
           optional(
             text().verifying(
-              fieldMaxLengthConstraint(
-                "supplierAddress.line3.label.short")
+              fieldMaxLengthConstraint("supplierAddress.line3.label.short")
             )
           ),
         "country" ->
