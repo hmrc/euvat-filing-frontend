@@ -97,10 +97,8 @@ class CheckYourBankDetailsController @Inject() (
             applicationDetailsResponse.applicationDetails.headOption match {
               case Some(application) =>
                 if (bankDetailsHasChanged(userAnswers)) {
-                  logger.error(s"Updating application for applicationId: $applicationId")
                   updateApplicationAndRedirect(userAnswers, application)
                 } else {
-                  logger.info("No changes to save. Redirecting to task list")
                   Future.successful(Redirect(controllers.routes.TaskListDashboardController.onPageLoad()))
                 }
               case _ =>
