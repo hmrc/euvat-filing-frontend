@@ -61,6 +61,8 @@ class SupportingDocumentsNavigatorSpec extends SpecBase {
 
     "must go from the uploaded files page to TaskListDashboardController" in {
       navigator.navigateFromUploadedFilesPage() mustBe controllers.routes.TaskListDashboardController.onPageLoad()
+    "must go from YourFilePage to Journey Recovery" in {
+      navigator.navigateFromYourFilePage() mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
     }
   }
 }

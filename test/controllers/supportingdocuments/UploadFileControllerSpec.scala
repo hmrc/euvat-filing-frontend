@@ -18,13 +18,14 @@ package controllers.supportingdocuments
 
 import base.SpecBase
 import forms.supportingdocuments.UploadFileFormProvider
-import forms.supportingdocuments.UploadFileFormProvider.{descriptionFieldName, descriptionMaxLength, fileInputName}
+import forms.supportingdocuments.UploadFileFormProvider.fileInputName
 import play.api.http.Status.REQUEST_ENTITY_TOO_LARGE
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.verify
 import play.api.inject.bind
 import models.UserAnswers
-import pages.supportingdocuments.YourFileNamePage
+import models.YourFile
+import pages.supportingdocuments.YourFilePage
 import play.api.libs.Files.{TemporaryFile, TemporaryFileCreator}
 import play.api.mvc.MultipartFormData
 import play.api.test.FakeRequest
@@ -58,18 +59,16 @@ class UploadFileControllerSpec extends SpecBase {
         content must include("<h1 class=\"govuk-label-wrapper\">")
         content must include(s"""<span class="govuk-caption-l">${messages(application)("supportingDocuments.caption")}</span>""")
         content must include(messages(application)("supportingDocuments.uploadFile.file.hint"))
-        content must include(messages(application)("supportingDocuments.uploadFile.description.label"))
         content must include("""autoComplete="off"""")
         content must include("name=\"file-upload-1\"")
-        content must include("name=\"fileuploadDescription\"")
+        content must not include "fileuploadDescription"
         content must not include "uploadFileFormToken"
         content must include("data-module=\"govuk-file-upload\"")
         content must include("""href="#" class="govuk-back-link" data-module="hmrc-back-link">Back</a>""")
-        content must include("You have 255 characters remaining")
       }
     }
 
-    "must redirect a valid upload to the uploading page and retain the filename for the UI" in {
+    "must redirect a valid upload to the your file page and retain the filename for the UI" in {
       val application = applicationWithMockSessionRepository
 
       running(application) {
@@ -89,7 +88,7 @@ class UploadFileControllerSpec extends SpecBase {
           redirectLocation(result).value mustEqual routes.YourFileController.onPageLoad().url
           val savedAnswers = ArgumentCaptor.forClass(classOf[UserAnswers])
           verify(mockSessionRepository).set(savedAnswers.capture())
-          savedAnswers.getValue.get(YourFileNamePage) mustBe Some("receipt.pdf")
+          savedAnswers.getValue.get(YourFilePage) mustBe Some(YourFile("receipt.pdf", None))
           savedAnswers.getValue.get(UploadedFileStatusQuery) mustBe Some(YourFileController.AwaitingUpload)
         } finally {
           Files.deleteIfExists(temporaryFile.path)
@@ -155,10 +154,9 @@ class UploadFileControllerSpec extends SpecBase {
           temporaryFile
         )
         val controller = application.injector.instanceOf[UploadFileController]
-        val formProvider = application.injector.instanceOf[UploadFileFormProvider]
         val result = controller.validateFile(
           filePart,
-          formProvider()
+          new UploadFileFormProvider()()
         )
 
         try {
@@ -235,76 +233,6 @@ class UploadFileControllerSpec extends SpecBase {
         try {
           status(result) mustEqual BAD_REQUEST
           contentAsString(result) must include(messages(application)("supportingDocuments.uploadFile.error.type"))
-        } finally {
-          Files.deleteIfExists(temporaryFile.path)
-        }
-      }
-    }
-
-    "must show the description limit using the shared maximum length" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-
-      running(application) {
-        val temporaryFile = application.injector.instanceOf[TemporaryFileCreator].create()
-        Files.write(temporaryFile.path, "receipt contents".getBytes(StandardCharsets.UTF_8))
-        val description = "x" * (descriptionMaxLength + 1)
-        val multipartData = MultipartFormData(
-          dataParts = Map(descriptionFieldName -> Seq(description)),
-          files = Seq(
-            MultipartFormData.FilePart("file-upload-1", "receipt.pdf", Some("application/pdf"), temporaryFile)
-          ),
-          badParts = Seq.empty
-        )
-        val request = FakeRequest(POST, routes.UploadFileController.onSubmit().url).withMultipartFormDataBody(multipartData)
-        val result = route(application, request).value
-
-        try {
-          status(result) mustEqual BAD_REQUEST
-          val errorMessage =
-            messages(application)("supportingDocuments.uploadFile.error.description.maxLength", descriptionMaxLength)
-          val errorContent = contentAsString(result)
-
-          errorContent must include(errorMessage)
-          errorContent must include(description)
-          val summaryErrors = Jsoup.parse(errorContent).select(".govuk-error-summary__list a")
-          summaryErrors.size mustBe 1
-          summaryErrors.get(0).text mustBe errorMessage
-          summaryErrors.get(0).attr("href") mustBe "#fileupload-description"
-        } finally {
-          Files.deleteIfExists(temporaryFile.path)
-        }
-      }
-    }
-
-    "must show file and description errors in the summary with the file error first" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-
-      running(application) {
-        val temporaryFile = application.injector.instanceOf[TemporaryFileCreator].create()
-        Files.write(temporaryFile.path, "receipt contents".getBytes(StandardCharsets.UTF_8))
-        val description = "x" * (descriptionMaxLength + 1)
-        val multipartData = MultipartFormData(
-          dataParts = Map(descriptionFieldName -> Seq(description)),
-          files = Seq(
-            MultipartFormData.FilePart(fileInputName, "receipt.docx", Some("application/octet-stream"), temporaryFile)
-          ),
-          badParts = Seq.empty
-        )
-        val request = FakeRequest(POST, routes.UploadFileController.onSubmit().url).withMultipartFormDataBody(multipartData)
-        val result = route(application, request).value
-
-        try {
-          status(result) mustEqual BAD_REQUEST
-          val errorLinks = Jsoup.parse(contentAsString(result)).select(".govuk-error-summary__list a")
-
-          errorLinks.size mustBe 2
-          errorLinks.get(0).attr("href") mustBe "#file-upload-1"
-          errorLinks.get(0).text mustBe messages(application)("supportingDocuments.uploadFile.error.type")
-          errorLinks.get(1).attr("href") mustBe "#fileupload-description"
-          errorLinks.get(1).text mustBe messages(application)(
-            "supportingDocuments.uploadFile.error.description.maxLength",
-            descriptionMaxLength
-          )
         } finally {
           Files.deleteIfExists(temporaryFile.path)
         }

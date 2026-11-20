@@ -14,18 +14,24 @@
  * limitations under the License.
  *@
 
-@import controllers.supportingdocuments.YourFileController
-@import views.html.components.*
+ @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+ @import uk.gov.hmrc.govukfrontend.views.viewmodels.errormessage.ErrorMessage
+ @import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
+ @import uk.gov.hmrc.govukfrontend.views.viewmodels.label.Label
+ @import uk.gov.hmrc.govukfrontend.views.viewmodels.charactercount.CharacterCount
+ @import forms.supportingdocuments.YourFileFormProvider.{descriptionFieldName, descriptionMaxLength}
+ @import views.html.components.*
 
-@this(
-    layout: templates.Layout,
-    formHelper: FormWithCSRF
-)
+ @this(
+     layout: templates.Layout,
+     formHelper: FormWithCSRF,
+     govukCharacterCount: GovukCharacterCount,
+     mainErrorSummary: MainErrorSummary
+ )
 
-@(filename: String, status: String)(implicit request: Request[_], messages: Messages)
+ @(yourFile: models.YourFile, form: Form[Option[String]])(implicit request: RequestHeader, messages: Messages)
 
-@uploaded = @{ status == YourFileController.Validated }
-@layout(pageTitle = titleNoForm(messages("supportingDocuments.uploadFile.title"))) {
+ @layout(pageTitle = title(form, messages("supportingDocuments.uploadFile.title")).trim) {
     <h1 class="govuk-heading-l govuk-!-margin-bottom-3">
         <span class="govuk-caption-l">@messages("supportingDocuments.caption")</span>
         @messages("supportingDocuments.uploadFile.heading")
@@ -33,53 +39,52 @@
 
     <p id="file-upload-1-hint" class="govuk-hint">@messages("supportingDocuments.uploadFile.file.hint")</p>
 
-    <div class="govuk-visually-hidden" aria-live="polite" id="statusInformation">
-        @if(uploaded) {
-            @messages("supportingDocuments.uploadFile.status.uploaded")
-        } else {
-            @messages("supportingDocuments.uploadFile.status.uploading")
-        }
-    </div>
+    @mainErrorSummary(form, Map(descriptionFieldName -> "fileupload-description"))
 
-    @if(!uploaded) {
-        <p class="govuk-body govuk-!-display-none" id="refreshPageProgress">
-            <a class="govuk-link" href="@controllers.supportingdocuments.routes.YourFileController.onPageLoad()">@messages("supportingDocuments.uploadFile.refresh")</a>
-        </p>
-    }
+    <div class="govuk-visually-hidden" aria-live="polite" id="statusInformation">
+        @messages("supportingDocuments.uploadFile.status.uploaded")
+    </div>
 
     <dl class="govuk-summary-list govuk-summary-list--long-key">
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">
-                @if(uploaded) {
-                    <a class="govuk-link" href="#">@filename</a>
-                } else {
-                    @filename
-                }
+                @* TODO: Replace with proper download link perhaps? *@
+                <a class="govuk-link" href="#">@yourFile.filename</a>
             </dt>
             <dd class="govuk-summary-list__value">
-                @if(uploaded) {
-                    <strong class="govuk-tag govuk-tag--green">@messages("supportingDocuments.uploadFile.status.uploadedTag")</strong>
-                } else {
-                    <strong class="govuk-tag govuk-tag--yellow">@messages("supportingDocuments.uploadFile.status.uploadingTag")</strong>
-                }
+                <strong class="govuk-tag govuk-tag--green">@messages("supportingDocuments.uploadFile.status.uploadedTag")</strong>
             </dd>
             <dd class="govuk-summary-list__actions">
                 @formHelper(action = controllers.supportingdocuments.routes.YourFileController.onRemove()) {
                     <button class="govuk-link" type="submit" style="background: none; border: 0; padding: 0; font: inherit; cursor: pointer;">
-                        @messages("supportingDocuments.uploadFile.remove")<span class="govuk-visually-hidden"> @filename</span>
+                        @messages("supportingDocuments.uploadFile.remove")<span class="govuk-visually-hidden"> @yourFile.filename</span>
                     </button>
                 }
             </dd>
         </div>
     </dl>
 
-    @if(uploaded) {
-        @formHelper(action = controllers.supportingdocuments.routes.YourFileController.onSubmit()) {
-            <button class="govuk-button" type="submit" data-module="govuk-button">
-                @messages("site.continue")
-            </button>
-        }
-    } else {
-        <button class="govuk-button" type="button" disabled aria-disabled="true">@messages("site.continue")</button>
+    @formHelper(
+        action = controllers.supportingdocuments.routes.YourFileController.onSubmit(),
+        Symbol("novalidate") -> "novalidate"
+    ) {
+        @govukCharacterCount(
+            CharacterCount(
+                id = "fileupload-description",
+                name = descriptionFieldName,
+                maxLength = Some(descriptionMaxLength),
+                label = Label(content = Text(messages("supportingDocuments.yourFile.description.label"))),
+                hint = Some(Hint(content = Text(messages("supportingDocuments.yourFile.description.hint")))),
+                value = form(descriptionFieldName).value,
+                errorMessage = form
+                    .error(descriptionFieldName)
+                    .map(error => ErrorMessage(content = Text(messages(error.message, error.args*)))),
+                textareaDescriptionText = Some(messages("supportingDocuments.yourFile.description.remaining"))
+            )
+        )
+
+        <button class="govuk-button" type="submit" data-module="govuk-button">
+            @messages("site.continue")
+        </button>
     }
 }

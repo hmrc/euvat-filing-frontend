@@ -21,8 +21,7 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.fileupload.FileUpload
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.label.Label
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.charactercount.CharacterCount
-@import forms.supportingdocuments.UploadFileFormProvider.{descriptionFieldName, descriptionMaxLength, fileErrorKey, fileInputName}
+@import forms.supportingdocuments.UploadFileFormProvider.{fileErrorKey, fileInputName}
 @import views.html.components.*
 
 @this(
@@ -31,7 +30,6 @@
     govukFileUpload: GovukFileUpload,
     govukHint: GovukHint,
     govukErrorMessage: GovukErrorMessage,
-    govukCharacterCount: GovukCharacterCount,
     govukButton: GovukButton,
     mainErrorSummary: MainErrorSummary
 )
@@ -67,7 +65,7 @@
         Symbol("enctype") -> "multipart/form-data",
         Symbol("novalidate") -> "novalidate"
     ) {
-        @mainErrorSummary(form, Map(fileErrorKey -> fileInputName, descriptionFieldName -> "fileupload-description"))
+        @mainErrorSummary(form, Map(fileErrorKey -> fileInputName))
 
         <div class="govuk-form-group @if(form.error(fileErrorKey).isDefined){govuk-form-group--error}">
             <span class="govuk-caption-l">@messages("supportingDocuments.caption")</span>
@@ -92,21 +90,6 @@
                 )
             )
         </div>
-
-        @govukCharacterCount(
-            CharacterCount(
-                id = "fileupload-description",
-                name = descriptionFieldName,
-                maxLength = Some(descriptionMaxLength),
-                label = Label(content = Text(messages("supportingDocuments.uploadFile.description.label"))),
-                hint = Some(Hint(content = Text(messages("supportingDocuments.uploadFile.description.hint")))),
-                value = form(descriptionFieldName).value,
-                errorMessage = form
-                    .error(descriptionFieldName)
-                    .map(error => ErrorMessage(content = Text(messages(error.message, error.args*)))),
-                textareaDescriptionText = Some(messages("supportingDocuments.uploadFile.description.remaining"))
-            )
-        )
 
         @govukButton(ButtonViewModel(messages("site.continue")))
     }

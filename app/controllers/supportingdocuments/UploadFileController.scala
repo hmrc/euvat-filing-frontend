@@ -18,8 +18,8 @@ package controllers.supportingdocuments
 
 import controllers.actions.*
 import forms.supportingdocuments.UploadFileFormProvider
-import forms.supportingdocuments.UploadFileFormProvider.{descriptionFieldName, fileErrorKey, fileInputName}
-import pages.supportingdocuments.YourFileNamePage
+import models.YourFile
+import pages.supportingdocuments.YourFilePage
 import play.api.data.Form
 import play.api.http.Status.REQUEST_ENTITY_TOO_LARGE
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -92,16 +92,13 @@ class UploadFileController @Inject() (
           Future.successful(BadRequest(view(orderedForm)).withHeaders("Cache-Control" -> "no-store"))
         } else {
           val filename = request.body.file("file-upload-1").map(_.filename).get
-          val updatedAnswers = for {
-            withFilename <- request.userAnswers.set(YourFileNamePage, filename)
-            withStatus   <- withFilename.set(UploadedFileStatusQuery, YourFileController.AwaitingUpload)
-          } yield withStatus
+          val updatedAnswers = request.userAnswers.set(YourFilePage, YourFile(filename, None))
 
           for {
             answers <- Future.fromTry(updatedAnswers)
             _       <- sessionRepository.set(answers)
           } yield {
-            // TODO: call Upscan initiate and add-attachment instead of using the UI-only placeholder status.
+            // TODO: Initiate Upscan, upload the file, and save it as an attachment before showing this page.
             Redirect(routes.YourFileController.onPageLoad())
           }
         }
