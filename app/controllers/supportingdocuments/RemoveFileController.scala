@@ -55,8 +55,8 @@ class RemoveFileController @Inject() (
 
   // todo wire it after rebase
 //  private val uploadedFilesPage = controllers.supportingdocuments.routes.UploadedFilesController.onPageLoad()
-  private val uploadedFilesPage = controllers.routes.PurchaseImportSummaryController.onPageLoad
-  private val journeyRecovery = controllers.routes.JourneyRecoveryController.onPageLoad()
+  private def uploadedFilesPage = controllers.routes.PurchaseImportSummaryController.onPageLoad
+//  private val journeyRecovery = controllers.routes.JourneyRecoveryController.onPageLoad()
 
   def onPageLoad(attachmentNumber: Int): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
 
@@ -73,7 +73,7 @@ class RemoveFileController @Inject() (
             } yield Ok(view(form, response))
           }
           .recoverWith { case e: Exception =>
-            logger.error(s"Failed to retrieve attachment for applicationId: $applicationId,attachmentNumber: $attachmentNumber ", e)
+            logger.error(s"Failed to retrieve attachment for applicationId: $applicationId,attachmentNumber: $attachmentNumber", e)
             recoveryPage("Get attachment failed")
           }
       }
@@ -115,7 +115,7 @@ class RemoveFileController @Inject() (
                     } yield Redirect(uploadedFilesPage)
                   }
                   .recoverWith { case e: Exception =>
-                    logger.error(s"Failed to delete attachments for applicationId: $applicationId", e)
+                    logger.error(s"Failed to delete attachments for applicationId: $applicationId, attachmentNumber: $attachmentNumber", e)
                     recoveryPage("Delete attachments failed")
                   }
               }
