@@ -45,8 +45,8 @@ class PurchaseImportSummaryControllerSpec extends SpecBase {
         PurchaseImport(
           itemNumber                  = 123,
           itemType                    = "P",
-          goodsDescriptionCategory    = "1",
-          goodsDescriptionSubCategory = Some("1.2.3"),
+          goodsDescriptionCode    = "1",
+          goodsDescriptionSubCode = Some("1.2.3"),
           currencyCode                = Some("EU"),
           taxableAmount               = BigDecimal(300),
           vatAmount                   = BigDecimal(200),
@@ -55,8 +55,8 @@ class PurchaseImportSummaryControllerSpec extends SpecBase {
         PurchaseImport(
           itemNumber                  = 456,
           itemType                    = "I",
-          goodsDescriptionCategory    = "7",
-          goodsDescriptionSubCategory = Some("7.9"),
+          goodsDescriptionCode    = "7",
+          goodsDescriptionSubCode = Some("7.9"),
           currencyCode                = Some("EU"),
           taxableAmount               = BigDecimal(456),
           vatAmount                   = BigDecimal(345),
@@ -146,8 +146,8 @@ class PurchaseImportSummaryControllerSpec extends SpecBase {
           PurchaseImport(
             itemNumber                  = 123,
             itemType                    = "P",
-            goodsDescriptionCategory    = "1",
-            goodsDescriptionSubCategory = Some("1.2.3"),
+            goodsDescriptionCode    = "1",
+            goodsDescriptionSubCode = Some("1.2.3"),
             currencyCode                = Some("EU"),
             taxableAmount               = BigDecimal(300),
             vatAmount                   = BigDecimal(200),
@@ -156,8 +156,8 @@ class PurchaseImportSummaryControllerSpec extends SpecBase {
           PurchaseImport(
             itemNumber                  = 456,
             itemType                    = "I",
-            goodsDescriptionCategory    = "7",
-            goodsDescriptionSubCategory = None,
+            goodsDescriptionCode    = "7",
+            goodsDescriptionSubCode = None,
             currencyCode                = None,
             taxableAmount               = 0,
             vatAmount                   = 0,

@@ -35,7 +35,7 @@ class ImportDetailsResponseSpec extends AnyFreeSpec with Matchers {
           "supplierName": "Example Supplier",
           "supplierAddressLine1": "10 Street",
           "supplierCountryCode": "IN",
-          "goodsDescriptionCategory": "10",
+          "goodsDescriptionCode": "10",
           "goodsDescriptionText": "Imported equipment",
           "hasSadReferenceNumber": "true",
           "sadReferenceNumber": "SAD123",
@@ -52,14 +52,14 @@ class ImportDetailsResponseSpec extends AnyFreeSpec with Matchers {
 
       result.issuingDate mustBe Some(LocalDateTime.of(2026, 10, 1, 0, 0))
       result.hasSadReferenceNumber mustBe Some("true")
-      result.goodsDescriptionSubcategory mustBe None
+      result.goodsDescriptionSubCode mustBe None
       result.deductibleVatAmount mustBe Some(BigDecimal(10))
       result.updateSequenceNumber mustBe 2
     }
 
     "must fail to read when the item number is missing" in {
       Json
-        .obj("applicationId" -> 404, "goodsDescriptionCategory" -> "1", "updateSequenceNumber" -> 1)
+        .obj("applicationId" -> 404, "goodsDescriptionCode" -> "1", "updateSequenceNumber" -> 1)
         .validate[ImportDetailsResponse]
         .isError mustBe true
     }

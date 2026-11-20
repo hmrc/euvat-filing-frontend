@@ -28,11 +28,10 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.{BeforeAndAfterEach, LoneElement}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.crypto.Crypted
 import uk.gov.hmrc.http.*
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import utils.BankDetailsEncryption
+import utils.AesEncryption
 
 import java.time.LocalDateTime
 import scala.concurrent.{ExecutionContext, Future}
@@ -45,17 +44,17 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
   val mockHttp: HttpClientV2 = mock[HttpClientV2]
   val mockRequestBuilder: RequestBuilder = mock[RequestBuilder]
   val mockConfig: ServicesConfig = mock[ServicesConfig]
-  val mockCryptoProvider: BankDetailsEncryption = mock[BankDetailsEncryption]
+  val mockAesEncryptionProvider: AesEncryption = mock[AesEncryption]
   val baseUrl = "http://localhost:9000/euvat-refunds"
 
   when(mockConfig.baseUrl("euvat-refunds")).thenReturn("http://localhost:9000")
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(mockHttp, mockRequestBuilder, mockCryptoProvider)
+    reset(mockHttp, mockRequestBuilder, mockAesEncryptionProvider)
   }
 
-  val connector = new EuVatRefundsConnector(mockConfig, mockHttp, mockCryptoProvider)
+  val connector = new EuVatRefundsConnector(mockConfig, mockHttp, mockAesEncryptionProvider)
 
   "EuVatRefundsConnector.retrieveTradersKnownFacts" should {
 
@@ -185,7 +184,7 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
       val result = connector.getApplicationDetails(applicationId).futureValue
 
       result shouldBe backendResponse
-      verifyNoInteractions(mockCryptoProvider)
+      verifyNoInteractions(mockAesEncryptionProvider)
     }
 
     "propagate failures from the HTTP client" in {
@@ -247,7 +246,7 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
   "EuVatRefundsConnector.addPurchase" should {
     val request = AddPurchaseRequest(
       applicationId            = 123456,
-      goodsDescriptionCategory = "1",
+      goodsDescriptionCode = "1",
       goodsDescriptionText     = Some("Fuel"),
       updateSequenceNumber     = 1
     )
@@ -287,7 +286,7 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
 
     val request = AddImportRequest(
       applicationId            = 123456,
-      goodsDescriptionCategory = "1",
+      goodsDescriptionCode = "1",
       goodsDescriptionText     = Some("Fuel"),
       updateSequenceNumber     = 1
     )
@@ -359,8 +358,8 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
     val updateRequest = models.requests.UpdatePurchaseRequest(
       applicationId               = 123L,
       itemNumber                  = 1,
-      goodsDescriptionCategory    = "1.2",
-      goodsDescriptionSubCategory = None,
+      goodsDescriptionCode    = "1.2",
+      goodsDescriptionSubCode = None,
       goodsDescriptionText        = Some("Fuel"),
       simplifiedInvoiceIndicator  = Some("true"),
       supplierName                = Some("Supplier"),
@@ -470,8 +469,8 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
         PurchaseImport(
           itemNumber                  = 123,
           itemType                    = "P",
-          goodsDescriptionCategory    = "1",
-          goodsDescriptionSubCategory = Some("1.2.3"),
+          goodsDescriptionCode    = "1",
+          goodsDescriptionSubCode = Some("1.2.3"),
           currencyCode                = Some("EU"),
           taxableAmount               = BigDecimal(300),
           vatAmount                   = BigDecimal(200),
@@ -480,8 +479,8 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
         PurchaseImport(
           itemNumber                  = 456,
           itemType                    = "I",
-          goodsDescriptionCategory    = "7",
-          goodsDescriptionSubCategory = Some("7.9"),
+          goodsDescriptionCode    = "7",
+          goodsDescriptionSubCode = Some("7.9"),
           currencyCode                = Some("EU"),
           taxableAmount               = BigDecimal(456),
           vatAmount                   = BigDecimal(345),
@@ -530,7 +529,7 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
         supplierAddressLine2        = None,
         supplierAddressLine3        = None,
         supplierCountryCode         = Some("FR"),
-        goodsDescriptionCategory    = "1",
+        goodsDescriptionCode    = "1",
         currencyCode                = Some("EUR"),
         taxableAmount               = Some(BigDecimal(300)),
         vatAmount                   = Some(BigDecimal(200)),
@@ -539,7 +538,7 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
         sadReferenceNumber          = None,
         referenceInformation        = None,
         goodsDescriptionText        = Some("Import details"),
-        goodsDescriptionSubcategory = Some("1.2.3"),
+        goodsDescriptionSubCode = Some("1.2.3"),
         updateSequenceNumber        = 7
       )
 
@@ -699,9 +698,9 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
         encryptionStatus = Some(EncryptionStatus.M.toString)
       )
 
-      when(mockCryptoProvider.encrypt("plain IBAN code")).thenReturn(Crypted("encrypted IBAN code"))
-      when(mockCryptoProvider.encrypt("plain BIC code")).thenReturn(Crypted("encrypted BIC code"))
-      when(mockCryptoProvider.knownCipherText).thenReturn(Crypted("encrypted cipherText"))
+      when(mockAesEncryptionProvider.encrypt("plain IBAN code")).thenReturn("encrypted IBAN code")
+      when(mockAesEncryptionProvider.encrypt("plain BIC code")).thenReturn("encrypted BIC code")
+      when(mockAesEncryptionProvider.knownCipherText).thenReturn("encrypted cipherText")
       when(mockHttp.put(any())(any())).thenReturn(mockRequestBuilder)
       when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)
       when(mockRequestBuilder.execute[UpdateApplicationDetailsResponse](any(), any()))
@@ -713,9 +712,9 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
 
       verify(mockHttp).put(url"$baseUrl/update-application-details")
       verify(mockRequestBuilder).execute[UpdateApplicationDetailsResponse](any(), any())
-      verify(mockCryptoProvider).encrypt("plain IBAN code")
-      verify(mockCryptoProvider).encrypt("plain BIC code")
-      verify(mockCryptoProvider).knownCipherText
+      verify(mockAesEncryptionProvider).encrypt("plain IBAN code")
+      verify(mockAesEncryptionProvider).encrypt("plain BIC code")
+      verify(mockAesEncryptionProvider).knownCipherText
     }
 
     "call the correct URL, but NOT encrypt bank details and return the expected response when encryptionStatus = E" in {
@@ -741,9 +740,9 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
 
       val failure = new RuntimeException("boom")
 
-      when(mockCryptoProvider.encrypt("plain IBAN code")).thenReturn(Crypted("encrypted IBAN code"))
-      when(mockCryptoProvider.encrypt("plain BIC code")).thenReturn(Crypted("encrypted BIC code"))
-      when(mockCryptoProvider.knownCipherText).thenReturn(Crypted("encrypted cipherText"))
+      when(mockAesEncryptionProvider.encrypt("plain IBAN code")).thenReturn("encrypted IBAN code")
+      when(mockAesEncryptionProvider.encrypt("plain BIC code")).thenReturn("encrypted BIC code")
+      when(mockAesEncryptionProvider.knownCipherText).thenReturn("encrypted cipherText")
 
       when(mockHttp.put(any())(any())).thenReturn(mockRequestBuilder)
       when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)

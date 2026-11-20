@@ -25,9 +25,9 @@ import java.time.LocalDateTime
 
 case class AddPurchaseRequest(
   applicationId: Long,
-  goodsDescriptionCategory: String,
+  goodsDescriptionCode: String,
+  goodsDescriptionSubCode: Option[String] = None,
   goodsDescriptionText: Option[String] = None,
-  purchaseSubcategory: Option[String] = None,
   simplifiedInvoiceIndicator: Option[String] = None,
   supplierName: Option[String] = None,
   supplierAddress1: Option[String] = None,
@@ -48,9 +48,9 @@ object AddPurchaseRequest {
 
   def from(answers: UserAnswers, purchaseType: PurchaseOrImportType, claimResponse: ApplicationResponse): AddPurchaseRequest = {
     AddPurchaseRequest(
-      applicationId            = claimResponse.applicationId,
-      goodsDescriptionCategory = PurchaseOrImportType.codes(purchaseType),
-      updateSequenceNumber     = answers.get(UpdateSequenceNumberQuery).getOrElse(claimResponse.updateSeqNumber)
+      applicationId        = claimResponse.applicationId,
+      goodsDescriptionCode = PurchaseOrImportType.codes(purchaseType),
+      updateSequenceNumber = answers.get(UpdateSequenceNumberQuery).getOrElse(claimResponse.updateSeqNumber)
     )
   }
 }

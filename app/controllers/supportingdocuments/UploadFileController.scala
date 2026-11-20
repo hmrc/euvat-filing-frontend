@@ -18,6 +18,7 @@ package controllers.supportingdocuments
 
 import controllers.actions.*
 import forms.supportingdocuments.UploadFileFormProvider
+import forms.supportingdocuments.UploadFileFormProvider.{fileErrorKey, fileInputName}
 import models.YourFile
 import pages.supportingdocuments.YourFilePage
 import play.api.data.Form
