@@ -43,7 +43,11 @@ class YourFileController @Inject() (
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     request.userAnswers.get(YourFileNamePage) match {
-      case None           => Redirect(routes.UploadFileController.onPageLoad())
+      // TODO: F6.1/F6.4 - show the real filename from the backend upload summary; the upscan reference is a placeholder
+      case None =>
+        request.getQueryString("key")
+          .map(reference => Ok(view(reference)))
+          .getOrElse(Redirect(routes.UploadFileController.onPageLoad()))
       case Some(filename) => Ok(view(filename))
     }
   }

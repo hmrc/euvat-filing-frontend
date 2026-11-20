@@ -17,9 +17,11 @@
 package controllers.supportingdocuments
 
 import base.SpecBase
-import org.jsoup.Jsoup
 import models.UserAnswers
-import pages.supportingdocuments.YourFileNamePage
+import models.YourFile
+import org.jsoup.Jsoup
+import forms.supportingdocuments.YourFileFormProvider.{descriptionFieldName, descriptionMaxLength, descriptionMaxLengthMessage}
+import pages.supportingdocuments.YourFilePage
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -28,7 +30,7 @@ import repositories.SessionRepository
 class YourFileControllerSpec extends SpecBase {
 
   private val uploadAnswers = emptyUserAnswers
-    .set(YourFileNamePage, "receipt1.jpg")
+    .set(YourFilePage, YourFile("receipt1.jpg", Some("Supporting evidence")))
     .success
     .value
 
@@ -58,6 +60,11 @@ class YourFileControllerSpec extends SpecBase {
         content must include("govuk-tag--green")
         content must include("Uploaded")
         content must include("File uploaded.")
+        val description = Jsoup.parse(content).select("#fileupload-description")
+        description.size mustBe 1
+        description.text() mustBe "Supporting evidence"
+        content must include(s"You have $descriptionMaxLength characters remaining")
+        content must include(messages(application)("supportingDocuments.yourFile.description.label"))
         content must not include "govuk-tag--yellow"
         content must not include "disabled"
         content must not include "Refresh page to update file upload progress"
@@ -73,10 +80,35 @@ class YourFileControllerSpec extends SpecBase {
 
       running(application) {
         val request = FakeRequest(POST, routes.YourFileController.onSubmit().url)
+          .withFormUrlEncodedBody(descriptionFieldName -> "A receipt for travel")
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
+        val savedAnswers = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
+        org.mockito.Mockito.verify(mockSessionRepository).set(savedAnswers.capture())
+        savedAnswers.getValue.get(YourFilePage) mustBe Some(YourFile("receipt1.jpg", Some("A receipt for travel")))
+      }
+    }
+
+    "show the description validation error and retain the invalid value" in {
+      val application = applicationWithMockSessionRepository()
+      val invalidDescription = "x" * (descriptionMaxLength + 1)
+
+      running(application) {
+        val request = FakeRequest(POST, routes.YourFileController.onSubmit().url)
+          .withFormUrlEncodedBody(descriptionFieldName -> invalidDescription)
+        val result = route(application, request).value
+        val content = contentAsString(result)
+
+        status(result) mustEqual BAD_REQUEST
+        content must include(
+          messages(application)(descriptionMaxLengthMessage, descriptionMaxLength)
+        )
+        val document = Jsoup.parse(content)
+        document.select(".govuk-error-summary__list a").attr("href") mustBe "#fileupload-description"
+        document.select("#fileupload-description").text() mustBe invalidDescription
+        document.select("#file-upload-1-hint").first().nextElementSibling().hasClass("govuk-error-summary") mustBe true
       }
     }
 
@@ -91,7 +123,7 @@ class YourFileControllerSpec extends SpecBase {
         redirectLocation(result).value mustEqual routes.UploadFileController.onPageLoad().url
         val savedAnswers = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
         org.mockito.Mockito.verify(mockSessionRepository).set(savedAnswers.capture())
-        savedAnswers.getValue.get(YourFileNamePage) mustBe None
+        savedAnswers.getValue.get(YourFilePage) mustBe None
       }
     }
   }
