@@ -70,10 +70,6 @@ class InvoiceDateController @Inject() (
             Future.successful(
               BadRequest(view(errorForm, formAction(mode), "purchase.caption", "invoiceDate.title", "invoiceDate.heading"))
             )
-          } else if (value.isBefore(java.time.LocalDate.of(2021, 1, 1))) {
-            val errorForm = form.bindFromRequest().withError("value", "invoiceDate.error.minimum", messagesApi.preferred(request)("date.error.year"))
-            Future.successful(
-              BadRequest(view(errorForm, formAction(mode), "purchase.caption", "invoiceDate.title", "invoiceDate.heading")))
           } else {
             handleSubmission(value, mode)(request)
           }

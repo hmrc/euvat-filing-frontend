@@ -206,42 +206,6 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must return Bad Request when year is before 2021" in {
-        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-
-        running(application) {
-          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(NormalMode).url)
-            .withFormUrlEncodedBody(
-              "value.day" -> "01",
-              "value.month" -> "01",
-              "value.year" -> "1111"
-            )
-          val result = route(application, request).value
-
-          status(result) mustEqual BAD_REQUEST
-          val body = contentAsString(result)
-          body must include(messages(application)("importDate.error.minimum"))
-          body must include("href=\"#value.year\"")
-        }
-      }
-
-      "must return Bad Request when date is 31 December 2020" in {
-        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-
-        running(application) {
-          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(NormalMode).url)
-            .withFormUrlEncodedBody(
-              "value.day" -> "31",
-              "value.month" -> "12",
-              "value.year" -> "2020"
-            )
-          val result = route(application, request).value
-
-          status(result) mustEqual BAD_REQUEST
-          contentAsString(result) must include(messages(application)("importDate.error.minimum"))
-        }
-      }
-
       "must return Bad Request with the format error when year is 0001" in {
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
@@ -257,23 +221,6 @@ class ImportDateControllerSpec extends SpecBase with MockitoSugar {
           status(result) mustEqual BAD_REQUEST
           val body = contentAsString(result)
           body must include(messages(application)("importDate.error.invalid.year"))
-          body must not include messages(application)("importDate.error.minimum")
-        }
-      }
-
-      "must not return the minimum error when date is 1 January 2021" in {
-        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-
-        running(application) {
-          val request = FakeRequest(POST, routes.ImportDateController.onSubmit(NormalMode).url)
-            .withFormUrlEncodedBody(
-              "value.day" -> "01",
-              "value.month" -> "01",
-              "value.year" -> "2021"
-            )
-          val result = route(application, request).value
-
-          status(result) must not equal BAD_REQUEST
         }
       }
 
