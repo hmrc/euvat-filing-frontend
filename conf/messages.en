@@ -831,3 +831,6 @@ supportingDocuments.uploadFile.error.size = Total selected files must be smaller
 supportingDocuments.uploadFile.error.type = The selected file must be a JPEG, TIFF, PDF or ZIP
 supportingDocuments.uploadFile.error.upload = The selected file could not be uploaded
 supportingDocuments.uploadFile.error.description.maxLength = Additional information must be {0} characters or less
+supportingDocuments.uploadFile.status.uploaded = File uploaded.
+supportingDocuments.uploadFile.status.uploadedTag = Uploaded
+supportingDocuments.uploadFile.remove = Remove
