@@ -19,18 +19,16 @@ package controllers.supportingdocuments
 import base.SpecBase
 import forms.RemoveFileFormProvider
 import models.responses.{ApplicationResponse, AttachmentDetailsResponse, DeleteAttachmentResponse}
-import models.{NormalMode, UserAnswers}
-import navigation.{FakeNavigator, Navigator}
+import models.UserAnswers
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.RemoveFilePage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import queries.{ClaimApplicationResponseQuery, UpdateSequenceNumberQuery}
+import queries.{ClaimApplicationResponseQuery, RemoveFileAttachmentQuery, UpdateSequenceNumberQuery}
 import repositories.SessionRepository
 import views.html.supportingdocuments.RemoveFileView
 
@@ -54,7 +52,7 @@ class RemoveFileControllerSpec extends SpecBase with MockitoSugar {
       .set(ClaimApplicationResponseQuery, ApplicationResponse(123, "APP123", 1))
       .success
       .value
-      .set(UpdateSequenceNumberQuery, 1)
+      .set(UpdateSequenceNumberQuery, updateSequenceNumber)
       .success
       .value
 
@@ -64,10 +62,32 @@ class RemoveFileControllerSpec extends SpecBase with MockitoSugar {
       fileType             = None,
       fileDescription      = None,
       fileSize             = None,
-      updateSequenceNumber = 1
+      updateSequenceNumber = updateSequenceNumber
     )
 
     "must return OK and the correct view for a GET" in {
+
+      when(mockEuVatRefundsService.getAttachmentDetails(any(), any())(any()))
+        .thenReturn(Future.successful(getAttachmentDetailsResponse))
+
+      val application = applicationBuilder(userAnswers = Some(populatedAnswers))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, removeFileRoute)
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[RemoveFileView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, getAttachmentDetailsResponse)(request, messages(application)).toString
+
+        verify(mockEuVatRefundsService).getAttachmentDetails(any(), any())(any())
+      }
+    }
+
+    "must update UpdateSequenceNumberQuery after calling the getAttachmentDetails for a GET" in {
 
       when(mockEuVatRefundsService.getAttachmentDetails(any(), any())(any()))
         .thenReturn(Future.successful(getAttachmentDetailsResponse))
@@ -109,10 +129,12 @@ class RemoveFileControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+
+        verify(mockEuVatRefundsService).getAttachmentDetails(any(), any())(any())
       }
     }
 
-//    "must not call the getAttachmentDetails when we have the attachment details in session for a GET" in {
+//    "must not call the getAttachmentDetails when the specific attachment details in session for a GET" in {
 //
 //      val attachmentInSession = AttachmentDetailsResponse(
 //        attachmentNumber     = attachmentNumber,
@@ -120,14 +142,14 @@ class RemoveFileControllerSpec extends SpecBase with MockitoSugar {
 //        fileType             = None,
 //        fileDescription      = None,
 //        fileSize             = None,
-//        updateSequenceNumber = 2
+//        updateSequenceNumber = updateSequenceNumber
 //      )
 //
 //      val userAnswers: UserAnswers = emptyUserAnswers
 //        .set(ClaimApplicationResponseQuery, ApplicationResponse(123, "APP123", 1))
 //        .success
 //        .value
-//        .set(, attachmentInSession)
+//        .set(RemoveFileAttachmentQuery, attachmentInSession)
 //        .success
 //        .value
 //
@@ -148,9 +170,8 @@ class RemoveFileControllerSpec extends SpecBase with MockitoSugar {
 //        verify(mockEuVatRefundsService, never()).getAttachmentDetails(any(), any())(any())
 //      }
 //    }
-//
 
-    "must redirect to the UploadedFilesC page when valid data (true) is submitted" in {
+    "must redirect to the UploadedFiles page when valid data (true) is submitted" in {
 
       when(mockEuVatRefundsService.deleteAttachment(any())(any()))
         .thenReturn(Future.successful(DeleteAttachmentResponse(updateSequenceNumber + 1)))
@@ -168,13 +189,41 @@ class RemoveFileControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.PurchaseImportSummaryController.onPageLoad.url
+
+        verify(mockEuVatRefundsService).deleteAttachment(any())(any())
       }
     }
 
-    "must redirect to the UploadedFilesC page when valid data (false) is submitted" in {
+    "must update UpdateSequenceNumberQuery when valid data (true) is submitted" in {
 
       when(mockEuVatRefundsService.deleteAttachment(any())(any()))
         .thenReturn(Future.successful(DeleteAttachmentResponse(updateSequenceNumber + 1)))
+
+      val application =
+        applicationBuilder(userAnswers = Some(populatedAnswers))
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, removeFileRoute)
+            .withFormUrlEncodedBody(("value", "true"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.PurchaseImportSummaryController.onPageLoad.url
+
+        val savedAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(mockSessionRepository).set(savedAnswersCaptor.capture())
+        savedAnswersCaptor.getValue.get(UpdateSequenceNumberQuery) mustBe Some(getAttachmentDetailsResponse.updateSequenceNumber + 1)
+      }
+    }
+
+    "must redirect to Journey Recovery if deleteAttachment fail when valid data (true) is submitted" in {
+
+      when(mockEuVatRefundsService.deleteAttachment(any())(any()))
+        .thenReturn(Future.failed(new RuntimeException("boom")))
 
       val application =
         applicationBuilder(userAnswers = Some(populatedAnswers))
@@ -183,12 +232,33 @@ class RemoveFileControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, removeFileRoute)
-            .withFormUrlEncodedBody(("value", "false"))
+            .withFormUrlEncodedBody(("value", "true"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+
+        verify(mockEuVatRefundsService).deleteAttachment(any())(any())
+      }
+    }
+
+    "must redirect to the UploadedFiles page when valid data (false) is submitted" in {
+      val application =
+        applicationBuilder(userAnswers = Some(populatedAnswers))
+          .build()
+
+      running(application) {
+        val request =
+        FakeRequest(POST, removeFileRoute)
+          .withFormUrlEncodedBody(("value", "false"))
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.PurchaseImportSummaryController.onPageLoad.url
+
+        verify(mockEuVatRefundsService, never()).deleteAttachment(any())(any())
       }
     }
 
@@ -212,8 +282,52 @@ class RemoveFileControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual BAD_REQUEST
         contentAsString(result) mustEqual view(boundForm, getAttachmentDetailsResponse)(request, messages(application)).toString
+
+        verify(mockEuVatRefundsService).getAttachmentDetails(any(), any())(any())
       }
     }
+
+//    "must not call the getAttachmentDetails if the specific attachment details are in session when invalid data is submitted" in {
+//
+//      val attachmentInSession = AttachmentDetailsResponse(
+//        attachmentNumber = attachmentNumber,
+//        fileName = None,
+//        fileType = None,
+//        fileDescription = None,
+//        fileSize = None,
+//        updateSequenceNumber = updateSequenceNumber
+//      )
+//
+//      val userAnswers: UserAnswers = emptyUserAnswers
+//        .set(ClaimApplicationResponseQuery, ApplicationResponse(123, "APP123", 1))
+//        .success
+//        .value
+//        .set(RemoveFileAttachmentQuery, attachmentInSession)
+//        .success
+//        .value
+//
+//      when(mockEuVatRefundsService.getAttachmentDetails(any(), any())(any()))
+//        .thenReturn(Future.successful(getAttachmentDetailsResponse))
+//
+//      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+//
+//      running(application) {
+//        val request =
+//          FakeRequest(POST, removeFileRoute)
+//            .withFormUrlEncodedBody(("value", ""))
+//
+//        val boundForm = form.bind(Map("value" -> ""))
+//
+//        val view = application.injector.instanceOf[RemoveFileView]
+//
+//        val result = route(application, request).value
+//
+//        status(result) mustEqual BAD_REQUEST
+//        contentAsString(result) mustEqual view(boundForm, getAttachmentDetailsResponse)(request, messages(application)).toString
+//
+//        verify(mockEuVatRefundsService, never).getAttachmentDetails(any(), any())(any())
+//      }
+//    }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
 
@@ -223,6 +337,28 @@ class RemoveFileControllerSpec extends SpecBase with MockitoSugar {
         val request = FakeRequest(GET, removeFileRoute)
 
         val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+
+        verify(mockEuVatRefundsService, never()).getAttachmentDetails(any(), any())(any())
+      }
+    }
+
+    "must redirect to Journey Recovery for a GET if applicationId is not found in session" in {
+
+      when(mockEuVatRefundsService.getAttachmentDetails(any(), any())(any()))
+        .thenReturn(Future.successful(getAttachmentDetailsResponse))
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, removeFileRoute)
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[RemoveFileView]
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
@@ -248,5 +384,52 @@ class RemoveFileControllerSpec extends SpecBase with MockitoSugar {
         verify(mockEuVatRefundsService, never()).getAttachmentDetails(any(), any())(any())
       }
     }
+
+    "must redirect to Journey Recovery for a POST if applicationId is not found in session" in {
+
+      val userAnswers: UserAnswers = emptyUserAnswers
+        .set(UpdateSequenceNumberQuery, updateSequenceNumber)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, removeFileRoute)
+            .withFormUrlEncodedBody(("value", "true"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+
+        verify(mockEuVatRefundsService, never()).getAttachmentDetails(any(), any())(any())
+      }
+    }
+
+    "must redirect to Journey Recovery for a POST if UpdateSequenceNumberQuery is not found in session" in {
+
+      val userAnswers: UserAnswers = emptyUserAnswers
+        .set(ClaimApplicationResponseQuery, ApplicationResponse(123, "APP123", 1))
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, removeFileRoute)
+            .withFormUrlEncodedBody(("value", "true"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+
+        verify(mockEuVatRefundsService, never()).getAttachmentDetails(any(), any())(any())
+      }
+    }
+
   }
 }

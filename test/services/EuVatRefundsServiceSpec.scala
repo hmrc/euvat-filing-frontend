@@ -624,6 +624,50 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
       when(mockConnector.getAllAttachments(any())(any())).thenReturn(Future.failed(new RuntimeException("boom")))
 
       service.getAllAttachments(request).failed.futureValue mustBe a[RuntimeException]
+
+  "EuVatRefundsService.getAttachmentDetails" - {
+    val expectedResponse = AttachmentDetailsResponse(
+      attachmentNumber     = 11,
+      fileName             = Some("test.pdf"),
+      fileType             = Some("pdf"),
+      fileDescription      = Some("pdf file attached"),
+      fileSize             = Some(42),
+      updateSequenceNumber = 10
+    )
+
+    "should return the attachment details from the connector" in {
+      when(mockConnector.getAttachmentDetails(any(), any())(any())).thenReturn(Future.successful(expectedResponse))
+
+      service.getAttachmentDetails(123L, 11)(hc).futureValue mustEqual expectedResponse
+    }
+
+    "should propagate an exception from the connector" in {
+      val failure = new RuntimeException("Connector failed")
+      when(mockConnector.getAttachmentDetails(any(), any())(any())).thenReturn(Future.failed(failure))
+
+      whenReady(service.getAttachmentDetails(123L, 11).failed) { ex =>
+        ex mustEqual failure
+      }
+    }
+  }
+
+  "EuVatRefundsService.deleteAttachment" - {
+    val request = DeleteAttachmentRequest(applicationId = 123L, attachmentNumber = 5, updateSequenceNumber = 9)
+    val expectedResponse = DeleteAttachmentResponse(updateSequenceNumber = 10)
+
+    "should return the updateSequenceNumber from the connector" in {
+      when(mockConnector.deleteAttachment(any())(any())).thenReturn(Future.successful(expectedResponse))
+
+      service.deleteAttachment(request)(hc).futureValue mustEqual expectedResponse
+    }
+
+    "should propagate an exception from the connector" in {
+      val failure = new RuntimeException("Connector failed")
+      when(mockConnector.deleteAttachment(any())(any())).thenReturn(Future.failed(failure))
+
+      whenReady(service.deleteAttachment(request).failed) { ex =>
+        ex mustEqual failure
+      }
     }
   }
 }
