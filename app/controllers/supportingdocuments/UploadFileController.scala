@@ -66,8 +66,11 @@ class UploadFileController @Inject() (
 
         euVatRefundsService
           .createUploadTracking(applicationId)
-          .map { uploadTracking =>
-            Ok(view(preparedForm, uploadTracking.uploadUrl, uploadTracking.fields))
+          .map { upscanResponse =>
+            println(s"************** Ref: ${upscanResponse.fileReference}")
+            println(s"************** Target: ${upscanResponse.postTarget}")
+            println(s"************** Fields: ${upscanResponse.formFields}")
+            Ok(view(preparedForm, upscanResponse))
               .withHeaders("Cache-Control" -> "no-store")
           }
           .recover { case ex =>

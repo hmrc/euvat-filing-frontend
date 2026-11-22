@@ -29,7 +29,7 @@
      mainErrorSummary: MainErrorSummary
  )
 
- @(yourFile: models.YourFile, form: Form[Option[String]])(implicit request: RequestHeader, messages: Messages)
+ @(yourFile: YourFile, form: Form[Option[String]])(implicit request: RequestHeader, messages: Messages)
 
  @layout(pageTitle = title(form, messages("supportingDocuments.uploadFile.title")).trim) {
     <h1 class="govuk-heading-l govuk-!-margin-bottom-3">
@@ -48,11 +48,18 @@
     <dl class="govuk-summary-list govuk-summary-list--long-key">
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">
-                @* TODO: Replace with proper download link perhaps? *@
-                <a class="govuk-link" href="#">@yourFile.filename</a>
+                <a class="govuk-link" href="#">
+                    @if(yourFile.filename.contains("UploadedSuccessfully")) {
+                        @yourFile.filename.split(":", 2).lift(1).getOrElse(yourFile.filename)
+                    }
+                </a>
             </dt>
             <dd class="govuk-summary-list__value">
-                <strong class="govuk-tag govuk-tag--green">@messages("supportingDocuments.uploadFile.status.uploadedTag")</strong>
+                @if(yourFile.filename.contains("InProgress")) {
+                    <strong class="govuk-tag govuk-tag--green">Uploading</strong>
+                } else {
+                    <strong class="govuk-tag govuk-tag--green">@messages("supportingDocuments.uploadFile.status.uploadedTag")</strong>
+                }
             </dd>
             <dd class="govuk-summary-list__actions">
                 @formHelper(action = controllers.supportingdocuments.routes.YourFileController.onRemove()) {

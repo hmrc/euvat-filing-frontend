@@ -93,6 +93,6 @@ class EuVatRefundsService @Inject() (euVatRefundsConnector: EuVatRefundsConnecto
   def getReferenceInfoCount(request: ReferenceInfoCountRequest)(implicit headerCarrier: HeaderCarrier): Future[ReferenceInfoCountResponse] =
     euVatRefundsConnector.getReferenceInfoCount(request)
 
-  def createUploadTracking(applicationId: Long)(implicit hc: HeaderCarrier): Future[CreateUploadTrackingResponse] =
+  def createUploadTracking(applicationId: Long)(implicit hc: HeaderCarrier): Future[UpscanInitiateResponse] =
     euVatRefundsConnector.createUploadTracking(applicationId)
 }

@@ -47,20 +47,18 @@ class YourFileController @Inject() (
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     request.userAnswers.get(YourFilePage) match {
-      case Some(yourFile) =>
-        Future.successful(Ok(view(yourFile, formProvider().fill(yourFile.description))))
+      case Some(yourFile) => Future.successful(Ok(view(yourFile, formProvider().fill(yourFile.description))))
 
       case None =>
         // TODO: F6.1/F6.4 - use the real filename from the backend upload summary; the upscan reference is a placeholder
-        request.getQueryString("key") match {
+        request.getQueryString("uploadStatus") match {
           case Some(reference) =>
             val yourFile = YourFile(filename = reference, description = None)
             Future
               .fromTry(request.userAnswers.set(YourFilePage, yourFile))
               .flatMap(sessionRepository.set)
               .map(_ => Ok(view(yourFile, formProvider())))
-          case None =>
-            Future.successful(Redirect(routes.UploadFileController.onPageLoad()))
+          case None => Future.successful(Redirect(routes.UploadFileController.onPageLoad()))
         }
     }
   }

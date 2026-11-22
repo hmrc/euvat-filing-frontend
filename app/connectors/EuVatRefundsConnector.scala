@@ -208,9 +208,9 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
       .withBody(Json.toJson(request))
       .execute[ReferenceInfoCountResponse]
 
-  def createUploadTracking(applicationId: Long)(implicit hc: HeaderCarrier): Future[CreateUploadTrackingResponse] =
+  def createUploadTracking(applicationId: Long)(implicit hc: HeaderCarrier): Future[UpscanInitiateResponse] =
     http
       .post(url"$euVatRefundsBaseUrl/$applicationId/create-upload-tracking")
-      .execute[CreateUploadTrackingResponse]
+      .execute[UpscanInitiateResponse]
 
 }

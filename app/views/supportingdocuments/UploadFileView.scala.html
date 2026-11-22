@@ -23,6 +23,7 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.label.Label
 @import forms.supportingdocuments.UploadFileFormProvider.{fileErrorKey, fileInputName}
 @import views.html.components.*
+@import models.responses.*
 
 @this(
     layout: templates.Layout,
@@ -32,7 +33,7 @@
     mainErrorSummary: MainErrorSummary
 )
 
-@(form: Form[Option[String]], uploadUrl: String, fields: Map[String, String])(implicit request: Request[_], messages: Messages)
+@(form: Form[Option[String]], upscanResponse: UpscanInitiateResponse)(implicit request: Request[_], messages: Messages)
 
 @fileUploadErrorId = @{ s"$fileInputName-error" }
 @fileUploadHintId = @{ s"$fileInputName-hint" }
@@ -54,15 +55,13 @@
     }
 }
 
-@layout(
-    pageTitle = title(form, messages("supportingDocuments.uploadFile.title")).trim
-) {
+@layout(pageTitle = title(form, messages("supportingDocuments.uploadFile.title")).trim) {
     @mainErrorSummary(form, Map(fileErrorKey -> fileInputName))
 
-    <form id="upscan-form" action="@uploadUrl" method="post" enctype="multipart/form-data" autocomplete="off" novalidate>
+    <form id="upscan-form" action="@upscanResponse.postTarget" method="post" enctype="multipart/form-data" autocomplete="off" novalidate>
 
-        @for((fieldName, fieldValue) <- fields) {
-            <input type="hidden" name="@fieldName" value="@fieldValue">
+        @for(field <- upscanResponse.formFields) {
+            <input type="hidden" name="@field._1" value="@field._2"/>
         }
 
         <div class="govuk-form-group @if(form.error(fileErrorKey).isDefined){govuk-form-group--error}">
