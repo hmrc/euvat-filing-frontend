@@ -17,6 +17,7 @@
 package forms
 
 import forms.behaviours.BooleanFieldBehaviours
+import forms.supportingdocuments.RemoveFileFormProvider
 import play.api.data.FormError
 
 class RemoveFileFormProviderSpec extends BooleanFieldBehaviours {

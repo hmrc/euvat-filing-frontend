@@ -91,6 +91,7 @@ class Navigator @Inject() (
     case RemoveItemPage                    => userAnswers => navigateFromRemoveItemPage(userAnswers)
     case AccountHolderPage                 => _ => controllers.bankdetails.routes.BankDetailsController.onPageLoad(NormalMode)
     case BankDetailsPage                   => _ => controllers.bankdetails.routes.CheckYourBankDetailsController.onPageLoad()
+    case RemoveFilePage                    => _ => supportingDocumentsNavigator.navigateFromRemoveFilePage()
     case _                                 => _ => controllers.routes.IndexController.onPageLoad()
   }
 

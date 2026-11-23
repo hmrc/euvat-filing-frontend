@@ -17,7 +17,7 @@
 package controllers.supportingdocuments
 
 import base.SpecBase
-import forms.RemoveFileFormProvider
+import forms.supportingdocuments.RemoveFileFormProvider
 import models.responses.{ApplicationResponse, AttachmentDetailsResponse, DeleteAttachmentResponse}
 import models.UserAnswers
 import org.mockito.ArgumentCaptor
@@ -134,42 +134,42 @@ class RemoveFileControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-//    "must not call the getAttachmentDetails when the specific attachment details in session for a GET" in {
-//
-//      val attachmentInSession = AttachmentDetailsResponse(
-//        attachmentNumber     = attachmentNumber,
-//        fileName             = None,
-//        fileType             = None,
-//        fileDescription      = None,
-//        fileSize             = None,
-//        updateSequenceNumber = updateSequenceNumber
-//      )
-//
-//      val userAnswers: UserAnswers = emptyUserAnswers
-//        .set(ClaimApplicationResponseQuery, ApplicationResponse(123, "APP123", 1))
-//        .success
-//        .value
-//        .set(RemoveFileAttachmentQuery, attachmentInSession)
-//        .success
-//        .value
-//
-//      val application = applicationBuilder(userAnswers = Some(userAnswers))
-//        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
-//        .build()
-//
-//      running(application) {
-//        val request = FakeRequest(GET, removeFileRoute)
-//
-//        val result = route(application, request).value
-//
-//        val view = application.injector.instanceOf[RemoveFileView]
-//
-//        status(result) mustEqual OK
-//        contentAsString(result) mustEqual view(form, attachmentInSession)(request, messages(application)).toString
-//
-//        verify(mockEuVatRefundsService, never()).getAttachmentDetails(any(), any())(any())
-//      }
-//    }
+    "must not call the getAttachmentDetails when the specific attachment details in session for a GET" in {
+
+      val attachmentInSession = AttachmentDetailsResponse(
+        attachmentNumber     = attachmentNumber,
+        fileName             = None,
+        fileType             = None,
+        fileDescription      = None,
+        fileSize             = None,
+        updateSequenceNumber = updateSequenceNumber
+      )
+
+      val userAnswers: UserAnswers = emptyUserAnswers
+        .set(ClaimApplicationResponseQuery, ApplicationResponse(123, "APP123", 1))
+        .success
+        .value
+        .set(RemoveFileAttachmentQuery, attachmentInSession)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, removeFileRoute)
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[RemoveFileView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, attachmentInSession)(request, messages(application)).toString
+
+        verify(mockEuVatRefundsService, never()).getAttachmentDetails(any(), any())(any())
+      }
+    }
 
     "must redirect to the UploadedFiles page when valid data (true) is submitted" in {
 
@@ -287,47 +287,50 @@ class RemoveFileControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-//    "must not call the getAttachmentDetails if the specific attachment details are in session when invalid data is submitted" in {
-//
-//      val attachmentInSession = AttachmentDetailsResponse(
-//        attachmentNumber = attachmentNumber,
-//        fileName = None,
-//        fileType = None,
-//        fileDescription = None,
-//        fileSize = None,
-//        updateSequenceNumber = updateSequenceNumber
-//      )
-//
-//      val userAnswers: UserAnswers = emptyUserAnswers
-//        .set(ClaimApplicationResponseQuery, ApplicationResponse(123, "APP123", 1))
-//        .success
-//        .value
-//        .set(RemoveFileAttachmentQuery, attachmentInSession)
-//        .success
-//        .value
-//
-//      when(mockEuVatRefundsService.getAttachmentDetails(any(), any())(any()))
-//        .thenReturn(Future.successful(getAttachmentDetailsResponse))
-//
-//      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
-//
-//      running(application) {
-//        val request =
-//          FakeRequest(POST, removeFileRoute)
-//            .withFormUrlEncodedBody(("value", ""))
-//
-//        val boundForm = form.bind(Map("value" -> ""))
-//
-//        val view = application.injector.instanceOf[RemoveFileView]
-//
-//        val result = route(application, request).value
-//
-//        status(result) mustEqual BAD_REQUEST
-//        contentAsString(result) mustEqual view(boundForm, getAttachmentDetailsResponse)(request, messages(application)).toString
-//
-//        verify(mockEuVatRefundsService, never).getAttachmentDetails(any(), any())(any())
-//      }
-//    }
+    "must not call the getAttachmentDetails if the specific attachment details are in session when invalid data is submitted" in {
+
+      val attachmentInSession = AttachmentDetailsResponse(
+        attachmentNumber = attachmentNumber,
+        fileName = None,
+        fileType = None,
+        fileDescription = None,
+        fileSize = None,
+        updateSequenceNumber = updateSequenceNumber
+      )
+
+      val userAnswers: UserAnswers = emptyUserAnswers
+        .set(ClaimApplicationResponseQuery, ApplicationResponse(123, "APP123", 1))
+        .success
+        .value
+        .set(UpdateSequenceNumberQuery, updateSequenceNumber)
+        .success
+        .value
+        .set(RemoveFileAttachmentQuery, attachmentInSession)
+        .success
+        .value
+
+      when(mockEuVatRefundsService.getAttachmentDetails(any(), any())(any()))
+        .thenReturn(Future.successful(getAttachmentDetailsResponse))
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, removeFileRoute)
+            .withFormUrlEncodedBody(("value", ""))
+
+        val boundForm = form.bind(Map("value" -> ""))
+
+        val view = application.injector.instanceOf[RemoveFileView]
+
+        val result = route(application, request).value
+
+        status(result) mustEqual BAD_REQUEST
+        contentAsString(result) mustEqual view(boundForm, getAttachmentDetailsResponse)(request, messages(application)).toString
+
+        verify(mockEuVatRefundsService, never).getAttachmentDetails(any(), any())(any())
+      }
+    }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
 

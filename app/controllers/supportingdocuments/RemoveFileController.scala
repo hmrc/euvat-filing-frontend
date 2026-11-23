@@ -17,16 +17,17 @@
 package controllers.supportingdocuments
 
 import controllers.actions.*
-import forms.RemoveFileFormProvider
+import forms.supportingdocuments.RemoveFileFormProvider
 import models.NormalMode
 import models.requests.{DataRequest, DeleteAttachmentRequest}
+import models.responses.AttachmentDetailsResponse
 import navigation.Navigator
 import pages.RemoveFilePage
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.*
-import queries.{ClaimApplicationResponseQuery, UpdateSequenceNumberQuery}
+import queries.{ClaimApplicationResponseQuery, RemoveFileAttachmentQuery, UpdateSequenceNumberQuery}
 import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -53,29 +54,25 @@ class RemoveFileController @Inject() (
 
   val form: Form[Boolean] = formProvider()
 
-  // todo wire it after rebase
-//  private val uploadedFilesPage = controllers.supportingdocuments.routes.UploadedFilesController.onPageLoad()
-  private def uploadedFilesPage = controllers.routes.PurchaseImportSummaryController.onPageLoad
-//  private val journeyRecovery = controllers.routes.JourneyRecoveryController.onPageLoad()
-
   def onPageLoad(attachmentNumber: Int): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
 
     request.userAnswers
       .get(ClaimApplicationResponseQuery)
       .map(_.applicationId)
       .fold(recoveryPage("Missing or invalid applicationId")) { applicationId =>
-        service
-          .getAttachmentDetails(applicationId, attachmentNumber)
-          .flatMap { response =>
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(UpdateSequenceNumberQuery, response.updateSequenceNumber))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Ok(view(form, response))
-          }
-          .recoverWith { case e: Exception =>
-            logger.error(s"Failed to retrieve attachment for applicationId: $applicationId,attachmentNumber: $attachmentNumber", e)
-            recoveryPage("Get attachment failed")
-          }
+           getAttachment(applicationId, attachmentNumber)
+            .flatMap { response =>
+              for {
+                updatedAnswers <- Future.fromTry(request.userAnswers
+                                  .set(UpdateSequenceNumberQuery, response.updateSequenceNumber)
+                                  .flatMap(_.set(RemoveFileAttachmentQuery, response)))
+                _              <- sessionRepository.set(updatedAnswers)
+              } yield Ok(view(form, response))
+            }
+            .recoverWith { case e: Exception =>
+              logger.error(s"Failed to retrieve attachment for applicationId: $applicationId,attachmentNumber: $attachmentNumber", e)
+              recoveryPage("Get attachment failed")
+            }
       }
 
   }
@@ -89,30 +86,28 @@ class RemoveFileController @Inject() (
         form
           .bindFromRequest()
           .fold(
-            formWithErrors => {
-              service
-                .getAttachmentDetails(applicationId, attachmentNumber)
-                .flatMap { response =>
+            formWithErrors =>
+                 getAttachment(applicationId, attachmentNumber)
+                  .map (response => BadRequest(view(formWithErrors, response)))
+                  .recoverWith { case e: Exception =>
+                    logger.error(s"Failed to retrieve attachment for applicationId: $applicationId, attachmentNumber: $attachmentNumber", e)
+                    recoveryPage("Get attachment failed")
+                  },
 
-                  for {
-                    updatedAnswers <- Future.fromTry(request.userAnswers.set(UpdateSequenceNumberQuery, response.updateSequenceNumber))
-                    _              <- sessionRepository.set(updatedAnswers)
-                  } yield BadRequest(view(formWithErrors, response))
-
-                }
-            },
             value =>
               if (!value) {
-                Future.successful(Redirect(uploadedFilesPage))
+                Future.successful(Redirect(navigator.nextPage(RemoveFilePage, NormalMode, request.userAnswers)))
               } else {
                 service
                   .deleteAttachment(DeleteAttachmentRequest(applicationId, attachmentNumber, updateSequenceNumber))
                   .flatMap { response =>
 
                     for {
-                      updatedAnswers <- Future.fromTry(request.userAnswers.set(UpdateSequenceNumberQuery, response.updateSequenceNumber))
+                      updatedAnswers <- Future.fromTry(request.userAnswers
+                                                          .set(UpdateSequenceNumberQuery, response.updateSequenceNumber)
+                                                          .flatMap(_.remove(RemoveFileAttachmentQuery)))
                       _              <- sessionRepository.set(updatedAnswers)
-                    } yield Redirect(uploadedFilesPage)
+                    } yield Redirect(navigator.nextPage(RemoveFilePage, NormalMode, request.userAnswers))
                   }
                   .recoverWith { case e: Exception =>
                     logger.error(s"Failed to delete attachments for applicationId: $applicationId, attachmentNumber: $attachmentNumber", e)
@@ -124,6 +119,16 @@ class RemoveFileController @Inject() (
       case _ => recoveryPage("Missing or invalid applicationId, updateSequenceNumber")
     }
   }
+
+  private def getAttachment(applicationId: Long, attachmentNumber: Int)(implicit
+    request: DataRequest[AnyContent]
+  ): Future[AttachmentDetailsResponse] =
+    request.userAnswers.get(RemoveFileAttachmentQuery) match {
+      case Some(saved) if saved.attachmentNumber == attachmentNumber =>
+        Future.successful(saved)
+      case _ =>
+        service.getAttachmentDetails(applicationId, attachmentNumber)
+    }
 
   private def recoveryPage(msg: String): Future[Result] = {
     logger.warn(msg)
