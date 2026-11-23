@@ -188,7 +188,7 @@ class RemoveFileControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.PurchaseImportSummaryController.onPageLoad.url
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url //TODO: replace with UploadedFilesController once it is merged
 
         verify(mockEuVatRefundsService).deleteAttachment(any())(any())
       }
@@ -212,11 +212,32 @@ class RemoveFileControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.PurchaseImportSummaryController.onPageLoad.url
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url //TODO: replace with UploadedFilesController once it is merged
 
         val savedAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository).set(savedAnswersCaptor.capture())
         savedAnswersCaptor.getValue.get(UpdateSequenceNumberQuery) mustBe Some(getAttachmentDetailsResponse.updateSequenceNumber + 1)
+      }
+    }
+
+    "must redirect to Journey Recovery if getAttachmentDetails fails when invalid data is submitted" in {
+
+      when(mockEuVatRefundsService.getAttachmentDetails(any(), any())(any()))
+        .thenReturn(Future.failed(new RuntimeException("boom")))
+
+      val application = applicationBuilder(userAnswers = Some(populatedAnswers)).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, removeFileRoute)
+            .withFormUrlEncodedBody(("value", ""))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+
+        verify(mockEuVatRefundsService).getAttachmentDetails(any(), any())(any())
       }
     }
 
@@ -256,7 +277,7 @@ class RemoveFileControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.PurchaseImportSummaryController.onPageLoad.url
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url //TODO: replace with UploadedFilesController once it is merged
 
         verify(mockEuVatRefundsService, never()).deleteAttachment(any())(any())
       }
@@ -433,6 +454,5 @@ class RemoveFileControllerSpec extends SpecBase with MockitoSugar {
         verify(mockEuVatRefundsService, never()).getAttachmentDetails(any(), any())(any())
       }
     }
-
   }
 }
