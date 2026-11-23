@@ -220,6 +220,53 @@ class RemoveFileControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must remove RemoveFileAttachmentQuery from session when valid data (true) is submitted" in {
+
+      val attachmentInSession = AttachmentDetailsResponse(
+        attachmentNumber = attachmentNumber,
+        fileName = None,
+        fileType = None,
+        fileDescription = None,
+        fileSize = None,
+        updateSequenceNumber = updateSequenceNumber
+      )
+
+      val userAnswers: UserAnswers = emptyUserAnswers
+        .set(ClaimApplicationResponseQuery, ApplicationResponse(123, "APP123", 1))
+        .success
+        .value
+        .set(UpdateSequenceNumberQuery, updateSequenceNumber)
+        .success
+        .value
+        .set(RemoveFileAttachmentQuery, attachmentInSession)
+        .success
+        .value
+
+      when(mockEuVatRefundsService.deleteAttachment(any())(any()))
+        .thenReturn(Future.successful(DeleteAttachmentResponse(updateSequenceNumber + 1)))
+
+      val application =
+        applicationBuilder(userAnswers = Some(populatedAnswers))
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, removeFileRoute)
+            .withFormUrlEncodedBody(("value", "true"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.PurchaseImportSummaryController.onPageLoad.url
+
+        val savedAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(mockSessionRepository).set(savedAnswersCaptor.capture())
+        savedAnswersCaptor.getValue.get(RemoveFileAttachmentQuery) mustBe None
+
+      }
+    }
+
     "must redirect to Journey Recovery if getAttachmentDetails fails when invalid data is submitted" in {
 
       when(mockEuVatRefundsService.getAttachmentDetails(any(), any())(any()))
