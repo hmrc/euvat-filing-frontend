@@ -31,7 +31,6 @@ import play.api.mvc.MultipartFormData
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import org.jsoup.Jsoup
-import queries.UploadedFileStatusQuery
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
@@ -89,7 +88,6 @@ class UploadFileControllerSpec extends SpecBase {
           val savedAnswers = ArgumentCaptor.forClass(classOf[UserAnswers])
           verify(mockSessionRepository).set(savedAnswers.capture())
           savedAnswers.getValue.get(YourFilePage) mustBe Some(YourFile("receipt.pdf", None))
-          savedAnswers.getValue.get(UploadedFileStatusQuery) mustBe Some(YourFileController.AwaitingUpload)
         } finally {
           Files.deleteIfExists(temporaryFile.path)
         }

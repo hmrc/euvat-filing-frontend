@@ -240,25 +240,25 @@ class CheckYourPurchaseDetailsController @Inject() (
       case (Some(appId), Some(itemNumber), Some(updateSequenceNumber)) =>
         val currentDetails = currentPurchaseDetails(request.userAnswers)
         val updateReq = UpdatePurchaseRequest(
-          applicationId               = appId,
-          itemNumber                  = itemNumber,
-          goodsDescriptionCode    = currentDetails.goodsDescriptionCode,
-          goodsDescriptionSubCode = currentDetails.goodsDescriptionSubCode,
-          goodsDescriptionText        = currentDetails.goodsDescriptionText,
-          simplifiedInvoiceIndicator  = currentDetails.simplifiedInvoiceIndicator,
-          supplierName                = currentDetails.supplierName,
-          supplierAddress1            = currentDetails.supplierAddressLine1,
-          supplierAddress2            = currentDetails.supplierAddressLine2,
-          supplierAddress3            = currentDetails.supplierAddressLine3,
-          supplierVatRegNumber        = currentDetails.supplierVatNumber,
-          supplierTaxIdentifier       = currentDetails.supplierTaxIdentifier,
-          invoiceDate                 = currentDetails.invoiceDate,
-          invoiceNumber               = currentDetails.invoiceNumber,
-          currencyCode                = currentDetails.currencyCode,
-          taxableAmount               = currentDetails.taxableAmount,
-          vatAmount                   = currentDetails.vatAmount,
-          deductibleVatAmount         = currentDetails.deductibleVatAmount,
-          updateSequenceNumber        = updateSequenceNumber
+          applicationId              = appId,
+          itemNumber                 = itemNumber,
+          goodsDescriptionCode       = currentDetails.goodsDescriptionCode,
+          goodsDescriptionSubCode    = currentDetails.goodsDescriptionSubCode,
+          goodsDescriptionText       = currentDetails.goodsDescriptionText,
+          simplifiedInvoiceIndicator = currentDetails.simplifiedInvoiceIndicator,
+          supplierName               = currentDetails.supplierName,
+          supplierAddress1           = currentDetails.supplierAddressLine1,
+          supplierAddress2           = currentDetails.supplierAddressLine2,
+          supplierAddress3           = currentDetails.supplierAddressLine3,
+          supplierVatRegNumber       = currentDetails.supplierVatNumber,
+          supplierTaxIdentifier      = currentDetails.supplierTaxIdentifier,
+          invoiceDate                = currentDetails.invoiceDate,
+          invoiceNumber              = currentDetails.invoiceNumber,
+          currencyCode               = currentDetails.currencyCode,
+          taxableAmount              = currentDetails.taxableAmount,
+          vatAmount                  = currentDetails.vatAmount,
+          deductibleVatAmount        = currentDetails.deductibleVatAmount,
+          updateSequenceNumber       = updateSequenceNumber
         )
 
         euVatRefundsService
