@@ -246,7 +246,7 @@ class RemoveFileControllerSpec extends SpecBase with MockitoSugar {
         .thenReturn(Future.successful(DeleteAttachmentResponse(updateSequenceNumber + 1)))
 
       val application =
-        applicationBuilder(userAnswers = Some(populatedAnswers))
+        applicationBuilder(userAnswers = Some(userAnswers))
           .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
           .build()
 
@@ -258,7 +258,7 @@ class RemoveFileControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.PurchaseImportSummaryController.onPageLoad.url
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url //TODO: replace with UploadedFilesController once it is merged
 
         val savedAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository).set(savedAnswersCaptor.capture())
