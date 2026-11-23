@@ -30,9 +30,9 @@
 
     @formHelper(action = controllers.purchase.routes.SupplierVatRegCheckController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
-        @if(form.errors.nonEmpty) {
-            @govukErrorSummary(ErrorSummaryViewModel(form))
-        }
+    @if(form.errors.nonEmpty) {
+        @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value_0")))
+    }
         <div class="govuk-form-group @if(isError){govuk-form-group--error}">
             <span class="govuk-caption-l">@messages("purchase.caption")</span>
 
@@ -46,12 +46,12 @@
                     ),
                     items = Seq(
                         RadioItem(
-                            id      = Some("value"),
+                            id      = Some("value_0"),
                             value   = Some("true"),
                             content = Text(messages("site.yes"))
                         ),
                         RadioItem(
-                            id      = Some("value-2"),
+                            id      = Some("value_1"),
                             value   = Some("false"),
                             content = Text(messages("site.no"))
                             )

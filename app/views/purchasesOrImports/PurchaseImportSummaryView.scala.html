@@ -49,7 +49,7 @@
 
 @layout(pageTitle = title(form, messages("purchaseImportSummary.title", totalItems, itemLabel)), useFullGrid = true, showBackLink = false) {
     @formHelper(action = controllers.routes.PurchaseImportSummaryController.onSubmit) {
-        @mainErrorSummary(form)
+    @mainErrorSummary(form, errorLinkOverrides = Map("value" -> "value_0"))
         <span class="govuk-caption-l">@messages("purchaseImportSummary.caption")</span>
         <h1 class="govuk-heading-l">@messages("purchaseImportSummary.heading", totalItems, itemLabel)</h1>
         <p class = "govuk-body">@messages("purchaseImportSummary.p1", amountFormat(totalVatClaim))</p>
@@ -65,8 +65,8 @@
                 field  = form("value"),
                 legend = LegendViewModel(messages("purchaseImportSummary.add.item")).withCssClass("govuk-fieldset__legend--m"),
                 items  = Seq(
-                    RadioItem(id = Some("value"), value = Some("true"), content = Text(messages("site.yes"))),
-                    RadioItem(id = Some("value-2"), value = Some("false"), content = Text(messages("site.no")))
+                    RadioItem(id = Some("value_0"), value = Some("true"), content = Text(messages("site.yes"))),
+                    RadioItem(id = Some("value_1"), value = Some("false"), content = Text(messages("site.no")))
                 )
             )
         )
