@@ -54,7 +54,7 @@ class YourFileController @Inject() (
         // TODO: F6.1/F6.4 - use the real filename from the backend upload summary; the upscan reference is a placeholder
         request.getQueryString("key") match {
           case Some(reference) =>
-            val yourFile = YourFile(fileName = reference, description = None)
+            val yourFile = YourFile(filename = reference, description = None)
             Future
               .fromTry(request.userAnswers.set(YourFilePage, yourFile))
               .flatMap(sessionRepository.set)

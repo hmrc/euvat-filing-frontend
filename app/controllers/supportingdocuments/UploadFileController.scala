@@ -22,137 +22,61 @@ import forms.supportingdocuments.UploadFileFormProvider.fileErrorKey
 import models.UploadFileError
 import play.api.Logging
 import play.api.data.Form
-import play.api.http.Status.REQUEST_ENTITY_TOO_LARGE
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.Logging
-import play.api.libs.Files.TemporaryFile
-import play.api.mvc.{Action, AnyContent, BodyParser, MessagesControllerComponents, MultipartFormData, Results}
-import play.api.mvc.MultipartFormData.FilePart
-import queries.UploadedFileStatusQuery
+import play.api.mvc.*
+import queries.ClaimApplicationResponseQuery
+import services.EuVatRefundsService
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import repositories.SessionRepository
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.supportingdocuments.UploadFileView
 
-import java.io.IOException
-import java.nio.file.Files
-import java.util.Locale
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
+// There is no onSubmit: the form posts the file straight to upscan, which then
+// redirects the user to the success page or back here with an errorCode.
 class UploadFileController @Inject() (
-  override val messagesApi: MessagesApi,
-  identify: IdentifierAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
-  sessionRepository: SessionRepository,
-  formProvider: UploadFileFormProvider,
-  val controllerComponents: MessagesControllerComponents,
-  view: UploadFileView
-)(implicit ec: ExecutionContext)
-    extends FrontendBaseController
+                                       override val messagesApi: MessagesApi,
+                                       identify: IdentifierAction,
+                                       getData: DataRetrievalAction,
+                                       requireData: DataRequiredAction,
+                                       formProvider: UploadFileFormProvider,
+                                       euVatRefundsService: EuVatRefundsService,
+                                       val controllerComponents: MessagesControllerComponents,
+                                       view: UploadFileView
+                                     )(implicit ec: ExecutionContext)
+  extends FrontendBaseController
     with I18nSupport
     with Logging {
 
-  private val maxFileSize = 5 * 1024 * 1024
-  private val maxRequestSize = 6 * 1024 * 1024
-  private val acceptedExtensions = Set("jpg", "jpeg", "tif", "tiff", "pdf", "zip")
-
   private def form: Form[Option[String]] = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    Ok(view(form))
-      .withHeaders("Cache-Control" -> "no-store")
-  }
+  // TODO: check for a reusable upload first (F6.1 - Get Upload Summary) once it is built.
+  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-  def onSubmit(): Action[MultipartFormData[TemporaryFile]] =
-    (identify andThen getData andThen requireData)
-      .async(multipartFormDataParser) { implicit request =>
-        val boundForm = form.bind(request.body.dataParts.view.mapValues(_.headOption.getOrElse("")).toMap)
-        val formWithFileErrors =
-          request.body.file(fileInputName) match {
-            case None =>
-              boundForm.withError(fileErrorKey, "supportingDocuments.uploadFile.error.required")
-            case Some(file) if file.filename.trim.isEmpty =>
-              boundForm.withError(fileErrorKey, "supportingDocuments.uploadFile.error.required")
-            case Some(file) =>
-              validateFile(file, boundForm) match {
-                case Right(validatedForm) =>
-                  validatedForm
-                case Left(error) =>
-                  logger.error("Unable to determine the size of the selected supporting document", error)
-                  boundForm.withError(fileErrorKey, "supportingDocuments.uploadFile.error.upload")
-              }
-          }
+    request.userAnswers.get(ClaimApplicationResponseQuery).map(_.applicationId) match {
+      case None =>
+        logger.warn("Missing applicationId when starting a supporting document upload")
+        Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
 
-        val orderedForm = formWithFileErrors.copy(
-          errors = formWithFileErrors.errors.filter(_.key == fileErrorKey) ++
-            formWithFileErrors.errors.filterNot(_.key == fileErrorKey)
-        )
+      case Some(applicationId) =>
+        val preparedForm = request
+          .getQueryString("errorCode")
+          .map(UploadFileError.fromUpscanErrorCode)
+          .fold(form)(error => form.withError(fileErrorKey, error.messageKey))
 
-        if (orderedForm.hasErrors) {
-          Future.successful(BadRequest(view(orderedForm)).withHeaders("Cache-Control" -> "no-store"))
-        } else {
-          val filename = request.body.file("file-upload-1").map(_.filename).get
-          val updatedAnswers = for {
-            withFilename <- request.userAnswers.set(YourFileNamePage, filename)
-            withStatus   <- withFilename.set(UploadedFileStatusQuery, YourFileController.AwaitingUpload)
-          } yield withStatus
-
-          for {
-            answers <- Future.fromTry(updatedAnswers)
-            _       <- sessionRepository.set(answers)
-          } yield {
-            // TODO: call Upscan initiate and add-attachment instead of using the UI-only placeholder status.
-            Redirect(routes.YourFileController.onPageLoad())
-          }
-        }
-      }
-
-  private def multipartFormDataParser: BodyParser[MultipartFormData[TemporaryFile]] = {
-    val parser = parse.multipartFormData(maxLength = maxRequestSize, allowEmptyFiles = true)
-
-    BodyParser("supporting-document-upload") { request =>
-      parser(request).map {
-        case Left(result) if result.header.status == REQUEST_ENTITY_TOO_LARGE =>
-          val errorForm = form.withError(fileErrorKey, "supportingDocuments.uploadFile.error.size")
-          val messages = messagesApi.preferred(request)
-          Left(
-            Results
-              .Status(REQUEST_ENTITY_TOO_LARGE)(view(errorForm)(request, messages))
+        euVatRefundsService
+          .createUploadTracking(applicationId)
+          .map { uploadTracking =>
+            Ok(view(preparedForm, uploadTracking.uploadUrl, uploadTracking.fields))
               .withHeaders("Cache-Control" -> "no-store")
-          )
-        case parseResult =>
-          parseResult
-      }
+          }
+          .recover { case ex =>
+            logger.error(s"Could not start a supporting document upload for application $applicationId", ex)
+            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+          }
     }
   }
-
-  private[supportingdocuments] def validateFile(
-    file: FilePart[TemporaryFile],
-    form: Form[Option[String]]
-  ): Either[IOException, Form[Option[String]]] =
-    try {
-      val fileSize = Files.size(file.ref.path)
-      Right(
-        if (fileSize == 0) {
-          form.withError(fileErrorKey, "supportingDocuments.uploadFile.error.empty")
-        } else if (fileSize > maxFileSize) {
-          form.withError(fileErrorKey, "supportingDocuments.uploadFile.error.size")
-        } else if (!hasAcceptedExtension(file.filename)) {
-          form.withError(fileErrorKey, "supportingDocuments.uploadFile.error.type")
-        } else {
-          form
-        }
-      )
-    } catch {
-      case error: IOException => Left(error)
-    }
-
-  private def hasAcceptedExtension(filename: String): Boolean =
-    filename.lastIndexOf('.') match {
-      case dotIndex if dotIndex >= 0 =>
-        acceptedExtensions.contains(filename.substring(dotIndex + 1).toLowerCase(Locale.ROOT))
-      case _ =>
-        false
-    }
 }
