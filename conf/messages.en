@@ -800,7 +800,6 @@ removeItem.heading = Remove item
 removeItem.list1 = Type
 removeItem.list2 = VAT claim
 removeItem.legend = Are you sure you want to remove this item?
-removeItem.notProvided = Not provided
 removeItem.error.required = Select yes if you want to remove this item
 
 supportingDocuments.anyDocuments.title = Do you have any supporting documents to upload?
@@ -846,7 +845,6 @@ supportingDocuments.uploadedFiles.table.fileName = File name
 supportingDocuments.uploadedFiles.table.description = Description
 supportingDocuments.uploadedFiles.table.fileSize = File size
 supportingDocuments.uploadedFiles.table.action = Action
-supportingDocuments.uploadedFiles.notProvided = Not provided
 
 supportingDocuments.yourFile.description.label = Additional information (optional)
 supportingDocuments.yourFile.description.hint = You can give the details in your preferred language
