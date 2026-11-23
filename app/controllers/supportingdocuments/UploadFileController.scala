@@ -34,19 +34,17 @@ import views.html.supportingdocuments.UploadFileView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-// There is no onSubmit: the form posts the file straight to upscan, which then
-// redirects the user to the success page or back here with an errorCode.
 class UploadFileController @Inject() (
-                                       override val messagesApi: MessagesApi,
-                                       identify: IdentifierAction,
-                                       getData: DataRetrievalAction,
-                                       requireData: DataRequiredAction,
-                                       formProvider: UploadFileFormProvider,
-                                       euVatRefundsService: EuVatRefundsService,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       view: UploadFileView
-                                     )(implicit ec: ExecutionContext)
-  extends FrontendBaseController
+  override val messagesApi: MessagesApi,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: UploadFileFormProvider,
+  euVatRefundsService: EuVatRefundsService,
+  val controllerComponents: MessagesControllerComponents,
+  view: UploadFileView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
     with I18nSupport
     with Logging {
 

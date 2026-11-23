@@ -45,8 +45,6 @@ class UploadFileControllerSpec extends SpecBase {
       .success
       .value
 
-  // SpecBase binds mockEuVatRefundsService into every application and resets it before each test,
-  // so each test only needs to stub it
   private def uploadTrackingReturns(result: Future[CreateUploadTrackingResponse]): Unit =
     when(mockEuVatRefundsService.createUploadTracking(any[Long]())(any())).thenReturn(result)
 

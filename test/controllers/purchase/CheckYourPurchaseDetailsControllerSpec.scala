@@ -141,9 +141,9 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
         status(result) mustEqual SEE_OTHER
 
         val sent = captor.getValue
-        sent.goodsDescriptionCode    must include("1")
-        sent.goodsDescriptionSubCode must contain("1.2")
-        sent.simplifiedInvoiceIndicator  must contain("true")
+        sent.goodsDescriptionCode       must include("1")
+        sent.goodsDescriptionSubCode    must contain("1.2")
+        sent.simplifiedInvoiceIndicator must contain("true")
       }
     }
 
@@ -964,12 +964,12 @@ class CheckYourPurchaseDetailsControllerSpec extends SpecBase with MockitoSugar 
 
         val sent = captor.getValue
         sent.goodsDescriptionSubCode must contain("7.1")
-        sent.invoiceDate                 must contain(invoiceDate.atStartOfDay())
-        sent.supplierAddress1            must contain("L1")
-        sent.supplierAddress2            must contain("L2")
-        sent.supplierAddress3            must contain("L3")
-        sent.supplierVatRegNumber        must contain("VAT123")
-        sent.supplierTaxIdentifier       must contain("TAX456")
+        sent.invoiceDate             must contain(invoiceDate.atStartOfDay())
+        sent.supplierAddress1        must contain("L1")
+        sent.supplierAddress2        must contain("L2")
+        sent.supplierAddress3        must contain("L3")
+        sent.supplierVatRegNumber    must contain("VAT123")
+        sent.supplierTaxIdentifier   must contain("TAX456")
       }
     }
 

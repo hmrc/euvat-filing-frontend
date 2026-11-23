@@ -222,9 +222,9 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
 
     val request = AddPurchaseRequest(
       applicationId              = 123456,
-      goodsDescriptionCode   = "1",
+      goodsDescriptionCode       = "1",
       goodsDescriptionText       = Some("Fuel"),
-      goodsDescriptionSubCode        = None,
+      goodsDescriptionSubCode    = None,
       simplifiedInvoiceIndicator = None,
       supplierName               = None,
       supplierAddress1           = None,
@@ -265,9 +265,9 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
   "EuVatRefundsService.addImport" - {
 
     val request = AddImportRequest(
-      applicationId            = 123456,
+      applicationId        = 123456,
       goodsDescriptionCode = "1",
-      updateSequenceNumber     = 1
+      updateSequenceNumber = 1
     )
 
     val expectedResponse = AddImportResponse(itemNumber = 4, updateSequenceNumber = 1)
@@ -294,25 +294,25 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
   "EuVatRefundsService.updatePurchase" - {
 
     val updateRequest = models.requests.UpdatePurchaseRequest(
-      applicationId               = 123L,
-      itemNumber                  = 1,
-      goodsDescriptionCode    = "1.2",
-      goodsDescriptionSubCode = None,
-      goodsDescriptionText        = Some("Fuel"),
-      simplifiedInvoiceIndicator  = Some("true"),
-      supplierName                = Some("Supplier"),
-      supplierAddress1            = None,
-      supplierAddress2            = None,
-      supplierAddress3            = None,
-      supplierVatRegNumber        = None,
-      supplierTaxIdentifier       = None,
-      invoiceDate                 = None,
-      invoiceNumber               = None,
-      currencyCode                = None,
-      taxableAmount               = None,
-      vatAmount                   = None,
-      deductibleVatAmount         = None,
-      updateSequenceNumber        = 1
+      applicationId              = 123L,
+      itemNumber                 = 1,
+      goodsDescriptionCode       = "1.2",
+      goodsDescriptionSubCode    = None,
+      goodsDescriptionText       = Some("Fuel"),
+      simplifiedInvoiceIndicator = Some("true"),
+      supplierName               = Some("Supplier"),
+      supplierAddress1           = None,
+      supplierAddress2           = None,
+      supplierAddress3           = None,
+      supplierVatRegNumber       = None,
+      supplierTaxIdentifier      = None,
+      invoiceDate                = None,
+      invoiceNumber              = None,
+      currencyCode               = None,
+      taxableAmount              = None,
+      vatAmount                  = None,
+      deductibleVatAmount        = None,
+      updateSequenceNumber       = 1
     )
 
     val expectedResponse = models.responses.UpdatePurchaseResponse(updateSequenceNumber = 42)
@@ -338,25 +338,25 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
 
   "EuVatRefundsService.updateImport" - {
     val updateRequest = UpdateImportDetailsRequest(
-      applicationId               = 123L,
-      itemNumber                  = 4,
+      applicationId           = 123L,
+      itemNumber              = 4,
       goodsDescriptionCode    = "10",
       goodsDescriptionSubCode = Some("10.4.1"),
-      goodsDescriptionText        = Some("Equipment"),
-      hasSadReferenceNumber       = Some("true"),
-      sadReferenceNumber          = Some("SAD123456789"),
-      referenceInformation        = None,
-      supplierName                = Some("Supplier"),
-      supplierAddressLine1        = Some("1 High Street"),
-      supplierAddressLine2        = None,
-      supplierAddressLine3        = None,
-      supplierCountryCode         = Some("GB"),
-      issuingDate                 = Some(LocalDateTime.of(2026, 5, 14, 0, 0)),
-      currencyCode                = Some("EUR"),
-      taxableAmount               = Some(BigDecimal(1000)),
-      vatAmount                   = Some(BigDecimal(99)),
-      deductibleVatAmount         = Some(BigDecimal(40)),
-      updateSequenceNumber        = 2
+      goodsDescriptionText    = Some("Equipment"),
+      hasSadReferenceNumber   = Some("true"),
+      sadReferenceNumber      = Some("SAD123456789"),
+      referenceInformation    = None,
+      supplierName            = Some("Supplier"),
+      supplierAddressLine1    = Some("1 High Street"),
+      supplierAddressLine2    = None,
+      supplierAddressLine3    = None,
+      supplierCountryCode     = Some("GB"),
+      issuingDate             = Some(LocalDateTime.of(2026, 5, 14, 0, 0)),
+      currencyCode            = Some("EUR"),
+      taxableAmount           = Some(BigDecimal(1000)),
+      vatAmount               = Some(BigDecimal(99)),
+      deductibleVatAmount     = Some(BigDecimal(40)),
+      updateSequenceNumber    = 2
     )
     val expectedResponse = UpdateImportDetailsResponse(updateSequenceNumber = 3)
 
@@ -418,25 +418,25 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
 
   "EuVatRefundsService.getImportDetails" - {
     val expectedResponse = ImportDetailsResponse(
-      applicationId               = 123L,
-      itemNumber                  = 4,
-      issuingDate                 = Some(LocalDateTime.of(2026, 5, 14, 0, 0)),
-      supplierName                = Some("Supplier"),
-      supplierAddressLine1        = Some("1 High Street"),
-      supplierAddressLine2        = None,
-      supplierAddressLine3        = None,
-      supplierCountryCode         = Some("GB"),
+      applicationId           = 123L,
+      itemNumber              = 4,
+      issuingDate             = Some(LocalDateTime.of(2026, 5, 14, 0, 0)),
+      supplierName            = Some("Supplier"),
+      supplierAddressLine1    = Some("1 High Street"),
+      supplierAddressLine2    = None,
+      supplierAddressLine3    = None,
+      supplierCountryCode     = Some("GB"),
       goodsDescriptionCode    = "10",
       goodsDescriptionSubCode = None,
-      goodsDescriptionText        = Some("Equipment"),
-      hasSadReferenceNumber       = Some("false"),
-      sadReferenceNumber          = None,
-      referenceInformation        = Some("Document"),
-      currencyCode                = Some("EUR"),
-      taxableAmount               = Some(BigDecimal(1000)),
-      vatAmount                   = Some(BigDecimal(99)),
-      deductibleVatAmount         = Some(BigDecimal(40)),
-      updateSequenceNumber        = 2
+      goodsDescriptionText    = Some("Equipment"),
+      hasSadReferenceNumber   = Some("false"),
+      sadReferenceNumber      = None,
+      referenceInformation    = Some("Document"),
+      currencyCode            = Some("EUR"),
+      taxableAmount           = Some(BigDecimal(1000)),
+      vatAmount               = Some(BigDecimal(99)),
+      deductibleVatAmount     = Some(BigDecimal(40)),
+      updateSequenceNumber    = 2
     )
 
     "should return the saved import from the connector" in {

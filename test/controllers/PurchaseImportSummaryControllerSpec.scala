@@ -43,24 +43,24 @@ class PurchaseImportSummaryControllerSpec extends SpecBase {
       totalVatClaims = BigDecimal(334),
       purchaseImportList = List(
         PurchaseImport(
-          itemNumber                  = 123,
-          itemType                    = "P",
+          itemNumber              = 123,
+          itemType                = "P",
           goodsDescriptionCode    = "1",
           goodsDescriptionSubCode = Some("1.2.3"),
-          currencyCode                = Some("EU"),
-          taxableAmount               = BigDecimal(300),
-          vatAmount                   = BigDecimal(200),
-          deductibleVatAmount         = BigDecimal(100)
+          currencyCode            = Some("EU"),
+          taxableAmount           = BigDecimal(300),
+          vatAmount               = BigDecimal(200),
+          deductibleVatAmount     = BigDecimal(100)
         ),
         PurchaseImport(
-          itemNumber                  = 456,
-          itemType                    = "I",
+          itemNumber              = 456,
+          itemType                = "I",
           goodsDescriptionCode    = "7",
           goodsDescriptionSubCode = Some("7.9"),
-          currencyCode                = Some("EU"),
-          taxableAmount               = BigDecimal(456),
-          vatAmount                   = BigDecimal(345),
-          deductibleVatAmount         = BigDecimal(234)
+          currencyCode            = Some("EU"),
+          taxableAmount           = BigDecimal(456),
+          vatAmount               = BigDecimal(345),
+          deductibleVatAmount     = BigDecimal(234)
         )
       )
     )
@@ -144,24 +144,24 @@ class PurchaseImportSummaryControllerSpec extends SpecBase {
         totalVatClaims = BigDecimal(100),
         purchaseImportList = List(
           PurchaseImport(
-            itemNumber                  = 123,
-            itemType                    = "P",
+            itemNumber              = 123,
+            itemType                = "P",
             goodsDescriptionCode    = "1",
             goodsDescriptionSubCode = Some("1.2.3"),
-            currencyCode                = Some("EU"),
-            taxableAmount               = BigDecimal(300),
-            vatAmount                   = BigDecimal(200),
-            deductibleVatAmount         = BigDecimal(100)
+            currencyCode            = Some("EU"),
+            taxableAmount           = BigDecimal(300),
+            vatAmount               = BigDecimal(200),
+            deductibleVatAmount     = BigDecimal(100)
           ),
           PurchaseImport(
-            itemNumber                  = 456,
-            itemType                    = "I",
+            itemNumber              = 456,
+            itemType                = "I",
             goodsDescriptionCode    = "7",
             goodsDescriptionSubCode = None,
-            currencyCode                = None,
-            taxableAmount               = 0,
-            vatAmount                   = 0,
-            deductibleVatAmount         = 0
+            currencyCode            = None,
+            taxableAmount           = 0,
+            vatAmount               = 0,
+            deductibleVatAmount     = 0
           )
         )
       )

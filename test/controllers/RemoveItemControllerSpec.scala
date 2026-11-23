@@ -37,25 +37,25 @@ class RemoveItemControllerSpec extends SpecBase {
   "RemoveItem Controller" - {
 
     val importDetailsResponse = ImportDetailsResponse(
-      applicationId               = 111,
-      itemNumber                  = 2,
-      issuingDate                 = Some(java.time.LocalDateTime.of(2026, 10, 21, 0, 0)),
-      supplierName                = Some("Supplier"),
-      supplierAddressLine1        = Some("Address line 1"),
-      supplierAddressLine2        = None,
-      supplierAddressLine3        = None,
-      supplierCountryCode         = Some("FR"),
+      applicationId           = 111,
+      itemNumber              = 2,
+      issuingDate             = Some(java.time.LocalDateTime.of(2026, 10, 21, 0, 0)),
+      supplierName            = Some("Supplier"),
+      supplierAddressLine1    = Some("Address line 1"),
+      supplierAddressLine2    = None,
+      supplierAddressLine3    = None,
+      supplierCountryCode     = Some("FR"),
       goodsDescriptionCode    = "1",
-      currencyCode                = Some("EU"),
-      taxableAmount               = Some(BigDecimal(300)),
-      vatAmount                   = Some(BigDecimal(200)),
-      deductibleVatAmount         = Some(BigDecimal(42)),
-      hasSadReferenceNumber       = Some("false"),
-      sadReferenceNumber          = None,
-      referenceInformation        = None,
-      goodsDescriptionText        = Some("Import details"),
+      currencyCode            = Some("EU"),
+      taxableAmount           = Some(BigDecimal(300)),
+      vatAmount               = Some(BigDecimal(200)),
+      deductibleVatAmount     = Some(BigDecimal(42)),
+      hasSadReferenceNumber   = Some("false"),
+      sadReferenceNumber      = None,
+      referenceInformation    = None,
+      goodsDescriptionText    = Some("Import details"),
       goodsDescriptionSubCode = Some("1.2.3"),
-      updateSequenceNumber        = 7
+      updateSequenceNumber    = 7
     )
 
     val purchaseDetailsResponse = PurchaseDetailsResponse(
