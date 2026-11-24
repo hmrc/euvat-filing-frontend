@@ -9,4 +9,4 @@ POST        /upload-file                          controllers.supportingdocument
 
 GET         /your-file                            controllers.supportingdocuments.YourFileController.onPageLoad()
 POST        /your-file                            controllers.supportingdocuments.YourFileController.onSubmit()
-POST        /your-file/remove                     controllers.supportingdocuments.YourFileController.onRemove()
+GET         /your-file/remove                     controllers.supportingdocuments.YourFileController.onRemove()

@@ -61,6 +61,9 @@ class YourFileControllerSpec extends SpecBase {
         content must include("govuk-tag--green")
         content must include("Uploaded")
         content must include("File uploaded.")
+        val removeLink = document.select(s"a[href='${routes.YourFileController.onRemove().url}']")
+        removeLink.text() must include(messages(application)("supportingDocuments.uploadFile.remove"))
+        removeLink.text() must include("receipt1.jpg")
         val description = Jsoup.parse(content).select("#fileupload-description")
         description.size mustBe 1
         description.text() mustBe "Supporting evidence"
@@ -123,7 +126,7 @@ class YourFileControllerSpec extends SpecBase {
       val application = applicationWithMockSessionRepository()
 
       running(application) {
-        val request = FakeRequest(POST, routes.YourFileController.onRemove().url)
+        val request = FakeRequest(GET, routes.YourFileController.onRemove().url)
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
