@@ -107,7 +107,8 @@ private[mappings] class LocalDateFormatter(
                 .map(_ => Seq(FormError(key, yearInvalidKey, args)))
                 .flatMap(parsed =>
                   if (!parsed.toString.matches(yearRegexp)) Left(Seq(FormError(key, yearInvalidKey, args)))
-                  else Right(parsed))
+                  else Right(parsed)
+                )
           }
 
       override def unbind(key: String, value: Int) = Map(key -> value.toString)

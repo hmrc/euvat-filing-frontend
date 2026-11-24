@@ -214,22 +214,22 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
         val requestCaptor = ArgumentCaptor.forClass(classOf[UpdateImportDetailsRequest])
         verify(mockEuVatRefundsService).updateImport(requestCaptor.capture())(any())
         requestCaptor.getValue mustBe UpdateImportDetailsRequest(
-          applicationId               = 404,
-          itemNumber                  = 4,
+          applicationId           = 404,
+          itemNumber              = 4,
           goodsDescriptionCode    = "10",
           goodsDescriptionSubCode = Some("10.99"),
-          goodsDescriptionText        = Some("Imported equipment"),
-          hasSadReferenceNumber       = Some("true"),
-          sadReferenceNumber          = Some("SAD123"),
-          supplierName                = Some("Example Supplier"),
-          supplierAddressLine1        = Some("10 Street"),
-          supplierCountryCode         = Some("IN"),
-          issuingDate                 = Some(LocalDateTime.of(2026, 10, 1, 0, 0)),
-          currencyCode                = Some("EUR"),
-          taxableAmount               = Some(BigDecimal(100)),
-          vatAmount                   = Some(BigDecimal(20)),
-          deductibleVatAmount         = Some(BigDecimal(10)),
-          updateSequenceNumber        = 2
+          goodsDescriptionText    = Some("Imported equipment"),
+          hasSadReferenceNumber   = Some("true"),
+          sadReferenceNumber      = Some("SAD123"),
+          supplierName            = Some("Example Supplier"),
+          supplierAddressLine1    = Some("10 Street"),
+          supplierCountryCode     = Some("IN"),
+          issuingDate             = Some(LocalDateTime.of(2026, 10, 1, 0, 0)),
+          currencyCode            = Some("EUR"),
+          taxableAmount           = Some(BigDecimal(100)),
+          vatAmount               = Some(BigDecimal(20)),
+          deductibleVatAmount     = Some(BigDecimal(10)),
+          updateSequenceNumber    = 2
         )
 
         val answersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
@@ -350,25 +350,25 @@ class CheckYourImportDetailsControllerSpec extends SpecBase {
 
     // the saved import as returned by get-import-details: the same import as savedAnswers
     val savedImport = ImportDetailsResponse(
-      applicationId               = 404,
-      itemNumber                  = 4,
-      issuingDate                 = Some(LocalDateTime.of(2026, 10, 1, 0, 0)),
-      supplierName                = Some("Example Supplier"),
-      supplierAddressLine1        = Some("10 Street"),
-      supplierAddressLine2        = None,
-      supplierAddressLine3        = None,
-      supplierCountryCode         = Some("IN"),
+      applicationId           = 404,
+      itemNumber              = 4,
+      issuingDate             = Some(LocalDateTime.of(2026, 10, 1, 0, 0)),
+      supplierName            = Some("Example Supplier"),
+      supplierAddressLine1    = Some("10 Street"),
+      supplierAddressLine2    = None,
+      supplierAddressLine3    = None,
+      supplierCountryCode     = Some("IN"),
       goodsDescriptionCode    = "10",
       goodsDescriptionSubCode = Some("10.99"),
-      goodsDescriptionText        = Some("Imported equipment"),
-      hasSadReferenceNumber       = Some("true"),
-      sadReferenceNumber          = Some("SAD123"),
-      referenceInformation        = None,
-      currencyCode                = Some("EUR"),
-      taxableAmount               = Some(BigDecimal(100)),
-      vatAmount                   = Some(BigDecimal(20)),
-      deductibleVatAmount         = Some(BigDecimal(10)),
-      updateSequenceNumber        = 2
+      goodsDescriptionText    = Some("Imported equipment"),
+      hasSadReferenceNumber   = Some("true"),
+      sadReferenceNumber      = Some("SAD123"),
+      referenceInformation    = None,
+      currencyCode            = Some("EUR"),
+      taxableAmount           = Some(BigDecimal(100)),
+      vatAmount               = Some(BigDecimal(20)),
+      deductibleVatAmount     = Some(BigDecimal(10)),
+      updateSequenceNumber    = 2
     )
 
     val changeUrl = routes.CheckYourImportDetailsController.changeYourAnswers(404, 4).url

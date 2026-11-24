@@ -18,7 +18,9 @@ package controllers.supportingdocuments
 
 import controllers.actions.*
 import forms.supportingdocuments.UploadFileFormProvider
-import forms.supportingdocuments.UploadFileFormProvider.{descriptionFieldName, fileErrorKey, fileInputName}
+import forms.supportingdocuments.UploadFileFormProvider.{fileErrorKey, fileInputName}
+import models.YourFile
+import pages.supportingdocuments.YourFilePage
 import play.api.data.Form
 import play.api.http.Status.REQUEST_ENTITY_TOO_LARGE
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -27,6 +29,7 @@ import play.api.libs.Files.TemporaryFile
 import play.api.mvc.{Action, AnyContent, BodyParser, MessagesControllerComponents, MultipartFormData, Results}
 import play.api.mvc.MultipartFormData.FilePart
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import repositories.SessionRepository
 import views.html.supportingdocuments.UploadFileView
 
 import java.io.IOException
@@ -40,6 +43,7 @@ class UploadFileController @Inject() (
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
+  sessionRepository: SessionRepository,
   formProvider: UploadFileFormProvider,
   val controllerComponents: MessagesControllerComponents,
   view: UploadFileView
@@ -87,8 +91,16 @@ class UploadFileController @Inject() (
         if (orderedForm.hasErrors) {
           Future.successful(BadRequest(view(orderedForm)).withHeaders("Cache-Control" -> "no-store"))
         } else {
-          // TODO: redirect to the RA6.2 uploading page when it is implemented.
-          Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+          val filename = request.body.file("file-upload-1").map(_.filename).get
+          val updatedAnswers = request.userAnswers.set(YourFilePage, YourFile(filename, None))
+
+          for {
+            answers <- Future.fromTry(updatedAnswers)
+            _       <- sessionRepository.set(answers)
+          } yield {
+            // TODO: Initiate Upscan, upload the file, and save it as an attachment before showing this page.
+            Redirect(routes.YourFileController.onPageLoad())
+          }
         }
       }
 
