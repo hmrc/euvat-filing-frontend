@@ -87,12 +87,20 @@ class RemoveFileController @Inject() (
           .bindFromRequest()
           .fold(
             formWithErrors =>
-                 getAttachment(applicationId, attachmentNumber)
-                  .map (response => BadRequest(view(formWithErrors, response)))
-                  .recoverWith { case e: Exception =>
-                    logger.error(s"Failed to retrieve attachment for applicationId: $applicationId, attachmentNumber: $attachmentNumber", e)
-                    recoveryPage("Get attachment failed")
-                  },
+              getAttachment(applicationId, attachmentNumber)
+                .flatMap(response =>
+                  for {
+                    updatedAnswers <- Future.fromTry(request.userAnswers
+                                        .set(UpdateSequenceNumberQuery, response.updateSequenceNumber)
+                                        .flatMap(_.set(RemoveFileAttachmentQuery, response))
+                                      )
+                    _ <- sessionRepository.set(updatedAnswers)
+                  } yield BadRequest(view(formWithErrors, response))
+                )
+                .recoverWith { case e: Exception =>
+                  logger.error(s"Failed to retrieve attachment for applicationId: $applicationId, attachmentNumber: $attachmentNumber", e)
+                  recoveryPage("Get attachment failed")
+                },
 
             value =>
               if (!value) {
