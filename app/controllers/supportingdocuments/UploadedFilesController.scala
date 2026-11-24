@@ -26,10 +26,13 @@ import queries.{ClaimApplicationResponseQuery, SupportingDocumentsCompletedQuery
 import repositories.SessionRepository
 import services.{EuVatRefundsService, PaginationService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.AttachmentMimeType
 import views.html.supportingdocuments.UploadedFilesView
 
+import java.util.Base64
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 class UploadedFilesController @Inject() (
   override val messagesApi: MessagesApi,
@@ -61,6 +64,34 @@ class UploadedFilesController @Inject() (
       _              <- sessionRepository.set(updatedAnswers)
     } yield Redirect(navigator.navigateFromUploadedFilesPage())
   }
+
+  def onDownload(attachmentNumber: Int): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+    request.userAnswers.get(ClaimApplicationResponseQuery).map(_.applicationId) match {
+      case None                => recoveryPage("Missing or invalid applicationId")
+      case Some(applicationId) => downloadAttachment(applicationId, attachmentNumber)
+    }
+  }
+
+  private def downloadAttachment(applicationId: Long, attachmentNumber: Int)(implicit request: DataRequest[AnyContent]): Future[Result] =
+    service
+      .getFullAttachmentDetails(applicationId, attachmentNumber)
+      .flatMap { response =>
+        response.fileContent.flatMap(content => Try(Base64.getDecoder.decode(content)).toOption) match {
+          case Some(bytes) =>
+            val fileName = response.fileName.getOrElse(s"attachment-$attachmentNumber").replace("\"", "")
+            Future.successful(
+              Ok(bytes)
+                .as(AttachmentMimeType.forFileType(response.fileType))
+                .withHeaders(CONTENT_DISPOSITION -> s"""attachment; filename="$fileName"""")
+            )
+          case None =>
+            recoveryPage(s"No valid file content for applicationId: $applicationId, attachmentNumber: $attachmentNumber")
+        }
+      }
+      .recoverWith { case e: Exception =>
+        logger.error(s"Failed to retrieve full attachment for applicationId: $applicationId, attachmentNumber: $attachmentNumber", e)
+        recoveryPage("Get full attachment failed")
+      }
 
   private def retrieveAttachments(applicationId: Long, page: Int)(implicit request: DataRequest[AnyContent]): Future[Result] =
     service

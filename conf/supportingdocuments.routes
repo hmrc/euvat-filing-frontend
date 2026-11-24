@@ -12,3 +12,4 @@ GET         /your-file/remove                     controllers.supportingdocument
 
 GET         /uploaded-files                       controllers.supportingdocuments.UploadedFilesController.onPageLoad(page: Int ?= 1)
 POST        /uploaded-files                       controllers.supportingdocuments.UploadedFilesController.onSubmit()
+GET         /uploaded-files/download/:attachmentNumber controllers.supportingdocuments.UploadedFilesController.onDownload(attachmentNumber: Int)
