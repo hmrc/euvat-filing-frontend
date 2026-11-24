@@ -77,7 +77,7 @@ class UploadedFilesControllerSpec extends SpecBase {
           document.text() must include("hotel-invoice.pdf")
           document.text() must include("1.78MB")
           document.text() must include("0.20MB")
-          document.text() must include(msgs("supportingDocuments.uploadedFiles.notProvided"))
+          document.text() must include(msgs("site.notProvided"))
           document.select("a[href='/file-eu-vat/supporting-documents/remove-file/1']").size() mustBe 1
           document.select(s"a[href='${routes.UploadFileController.onPageLoad().url}']").text() mustEqual
             msgs("supportingDocuments.uploadedFiles.uploadAnother")

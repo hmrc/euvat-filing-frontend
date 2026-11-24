@@ -57,7 +57,7 @@
             <dd class="govuk-summary-list__actions">
                 @formHelper(action = controllers.supportingdocuments.routes.YourFileController.onRemove()) {
                     <button class="govuk-link" type="submit" style="background: none; border: 0; padding: 0; font: inherit; cursor: pointer;">
-                        @messages("supportingDocuments.uploadFile.remove")<span class="govuk-visually-hidden"> @yourFile.filename</span>
+                        @messages("site.remove")<span class="govuk-visually-hidden"> @yourFile.filename</span>
                     </button>
                 }
             </dd>
