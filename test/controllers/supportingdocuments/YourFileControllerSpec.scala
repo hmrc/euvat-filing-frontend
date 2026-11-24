@@ -53,14 +53,18 @@ class YourFileControllerSpec extends SpecBase {
         status(result) mustEqual OK
         content must include("<title>Upload file - EU VAT - GOV.UK</title>")
         content must include("<h1 class=\"govuk-heading-l govuk-!-margin-bottom-3\">")
-        Jsoup
-          .parse(content)
-          .select("#main-content > .govuk-grid-row > .govuk-grid-column-two-thirds > h1")
-          .size mustBe 1
+        val document = Jsoup.parse(content)
+        val heading = document.select("#main-content > .govuk-grid-row > .govuk-grid-column-two-thirds > h1")
+        heading.size mustBe 1
+        heading.text() mustBe messages(application)("supportingDocuments.uploadFile.heading")
+        heading.first().previousElementSibling().hasClass("govuk-caption-l") mustBe true
         content must include("receipt1.jpg")
         content must include("govuk-tag--green")
         content must include("Uploaded")
         content must include("File uploaded.")
+        val removeLink = document.select(s"a[href='${routes.YourFileController.onRemove().url}']")
+        removeLink.text() must include(messages(application)("supportingDocuments.uploadFile.remove"))
+        removeLink.text() must include("receipt1.jpg")
         val description = Jsoup.parse(content).select("#fileupload-description")
         description.size mustBe 1
         description.text() mustBe "Supporting evidence"
@@ -72,6 +76,7 @@ class YourFileControllerSpec extends SpecBase {
         val continueButton = Jsoup.parse(content).select(s"form[action='${routes.YourFileController.onSubmit().url}'] button")
         continueButton.text() mustBe messages(application)("site.continue")
         continueButton.attr("type") mustBe "submit"
+        document.select(s"form[action='${routes.YourFileController.onSubmit().url}']").attr("autocomplete") mustBe "off"
         header("Refresh", result) mustBe None
       }
     }
@@ -109,7 +114,12 @@ class YourFileControllerSpec extends SpecBase {
         val document = Jsoup.parse(content)
         document.select(".govuk-error-summary__list a").attr("href") mustBe "#fileupload-description"
         document.select("#fileupload-description").text() mustBe invalidDescription
-        document.select("#file-upload-1-hint").first().nextElementSibling().hasClass("govuk-error-summary") mustBe true
+        val errorSummaryPosition = content.indexOf("govuk-error-summary")
+        val captionPosition = content.indexOf("govuk-caption-l")
+        val headingPosition = content.indexOf("<h1")
+        errorSummaryPosition must be >= 0
+        errorSummaryPosition must be < captionPosition
+        captionPosition      must be < headingPosition
       }
     }
 
@@ -117,7 +127,7 @@ class YourFileControllerSpec extends SpecBase {
       val application = applicationWithMockSessionRepository()
 
       running(application) {
-        val request = FakeRequest(POST, routes.YourFileController.onRemove().url)
+        val request = FakeRequest(GET, routes.YourFileController.onRemove().url)
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
