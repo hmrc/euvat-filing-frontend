@@ -401,25 +401,25 @@ class ImportTypeControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(savedCaptor.capture())) thenReturn Future.successful(true)
 
       val importDetail = ImportDetailsResponse(
-        applicationId               = 123L,
-        itemNumber                  = 7,
-        issuingDate                 = None,
-        supplierName                = None,
-        supplierAddressLine1        = None,
-        supplierAddressLine2        = None,
-        supplierAddressLine3        = None,
-        supplierCountryCode         = None,
+        applicationId           = 123L,
+        itemNumber              = 7,
+        issuingDate             = None,
+        supplierName            = None,
+        supplierAddressLine1    = None,
+        supplierAddressLine2    = None,
+        supplierAddressLine3    = None,
+        supplierCountryCode     = None,
         goodsDescriptionCode    = "1",
         goodsDescriptionSubCode = None,
-        goodsDescriptionText        = None,
-        hasSadReferenceNumber       = None,
-        sadReferenceNumber          = None,
-        referenceInformation        = None,
-        currencyCode                = None,
-        taxableAmount               = None,
-        vatAmount                   = None,
-        deductibleVatAmount         = None,
-        updateSequenceNumber        = 5
+        goodsDescriptionText    = None,
+        hasSadReferenceNumber   = None,
+        sadReferenceNumber      = None,
+        referenceInformation    = None,
+        currencyCode            = None,
+        taxableAmount           = None,
+        vatAmount               = None,
+        deductibleVatAmount     = None,
+        updateSequenceNumber    = 5
       )
 
       when(mockEuVatRefundsService.getImportDetails(org.mockito.ArgumentMatchers.eq(123L), org.mockito.ArgumentMatchers.eq(7))(any()))
@@ -460,25 +460,25 @@ class ImportTypeControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(savedCaptor.capture())) thenReturn Future.successful(true)
 
       val importDetail = ImportDetailsResponse(
-        applicationId               = 123L,
-        itemNumber                  = 7,
-        issuingDate                 = None,
-        supplierName                = None,
-        supplierAddressLine1        = None,
-        supplierAddressLine2        = None,
-        supplierAddressLine3        = None,
-        supplierCountryCode         = None,
+        applicationId           = 123L,
+        itemNumber              = 7,
+        issuingDate             = None,
+        supplierName            = None,
+        supplierAddressLine1    = None,
+        supplierAddressLine2    = None,
+        supplierAddressLine3    = None,
+        supplierCountryCode     = None,
         goodsDescriptionCode    = "1",
         goodsDescriptionSubCode = None,
-        goodsDescriptionText        = None,
-        hasSadReferenceNumber       = None,
-        sadReferenceNumber          = None,
-        referenceInformation        = None,
-        currencyCode                = None,
-        taxableAmount               = None,
-        vatAmount                   = None,
-        deductibleVatAmount         = None,
-        updateSequenceNumber        = 5
+        goodsDescriptionText    = None,
+        hasSadReferenceNumber   = None,
+        sadReferenceNumber      = None,
+        referenceInformation    = None,
+        currencyCode            = None,
+        taxableAmount           = None,
+        vatAmount               = None,
+        deductibleVatAmount     = None,
+        updateSequenceNumber    = 5
       )
 
       when(mockEuVatRefundsService.getImportDetails(org.mockito.ArgumentMatchers.eq(123L), org.mockito.ArgumentMatchers.eq(7))(any()))
@@ -559,25 +559,25 @@ class ImportTypeControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(savedCaptor.capture())) thenReturn Future.successful(true)
 
       val importDetail = ImportDetailsResponse(
-        applicationId               = 123L,
-        itemNumber                  = 7,
-        issuingDate                 = None,
-        supplierName                = None,
-        supplierAddressLine1        = None,
-        supplierAddressLine2        = None,
-        supplierAddressLine3        = None,
-        supplierCountryCode         = None,
+        applicationId           = 123L,
+        itemNumber              = 7,
+        issuingDate             = None,
+        supplierName            = None,
+        supplierAddressLine1    = None,
+        supplierAddressLine2    = None,
+        supplierAddressLine3    = None,
+        supplierCountryCode     = None,
         goodsDescriptionCode    = "111",
         goodsDescriptionSubCode = None,
-        goodsDescriptionText        = None,
-        hasSadReferenceNumber       = None,
-        sadReferenceNumber          = None,
-        referenceInformation        = None,
-        currencyCode                = None,
-        taxableAmount               = None,
-        vatAmount                   = None,
-        deductibleVatAmount         = None,
-        updateSequenceNumber        = 5
+        goodsDescriptionText    = None,
+        hasSadReferenceNumber   = None,
+        sadReferenceNumber      = None,
+        referenceInformation    = None,
+        currencyCode            = None,
+        taxableAmount           = None,
+        vatAmount               = None,
+        deductibleVatAmount     = None,
+        updateSequenceNumber    = 5
       )
 
       when(mockEuVatRefundsService.getImportDetails(org.mockito.ArgumentMatchers.eq(123L), org.mockito.ArgumentMatchers.eq(7))(any()))

@@ -293,25 +293,25 @@ class CheckYourImportDetailsController @Inject() (
     }
 
     UpdateImportDetailsRequest(
-      applicationId               = applicationId,
-      itemNumber                  = addResponse.itemNumber,
+      applicationId           = applicationId,
+      itemNumber              = addResponse.itemNumber,
       goodsDescriptionCode    = PurchaseOrImportType.codes(importType),
       goodsDescriptionSubCode = subCategory,
-      goodsDescriptionText        = real(answers.get(DescribeItemsOnImportDocPage)),
-      hasSadReferenceNumber       = hasSad.map(_.toString),
-      sadReferenceNumber          = if (hasSad.contains(true)) real(answers.get(SadReferenceNumberPage)) else None,
-      referenceInformation        = if (hasSad.contains(false)) real(answers.get(ImportDetailsInfoPage)) else None,
-      supplierName                = answers.get(ImportSuppliersNamePage),
-      supplierAddressLine1        = address.map(_.addressLine1),
-      supplierAddressLine2        = address.flatMap(_.addressLine2),
-      supplierAddressLine3        = address.flatMap(_.addressLine3),
-      supplierCountryCode         = address.map(_.country),
-      issuingDate                 = answers.get(ImportDatePage).map(_.atStartOfDay()),
-      currencyCode                = currencyCode,
-      taxableAmount               = answers.get(TotalAmountWithoutVatPage),
-      vatAmount                   = answers.get(TotalVatPaidImportPage),
-      deductibleVatAmount         = answers.get(ImportTotalVatClaimPage),
-      updateSequenceNumber        = answers.get(UpdateSequenceNumberQuery).getOrElse(addResponse.updateSequenceNumber)
+      goodsDescriptionText    = real(answers.get(DescribeItemsOnImportDocPage)),
+      hasSadReferenceNumber   = hasSad.map(_.toString),
+      sadReferenceNumber      = if (hasSad.contains(true)) real(answers.get(SadReferenceNumberPage)) else None,
+      referenceInformation    = if (hasSad.contains(false)) real(answers.get(ImportDetailsInfoPage)) else None,
+      supplierName            = answers.get(ImportSuppliersNamePage),
+      supplierAddressLine1    = address.map(_.addressLine1),
+      supplierAddressLine2    = address.flatMap(_.addressLine2),
+      supplierAddressLine3    = address.flatMap(_.addressLine3),
+      supplierCountryCode     = address.map(_.country),
+      issuingDate             = answers.get(ImportDatePage).map(_.atStartOfDay()),
+      currencyCode            = currencyCode,
+      taxableAmount           = answers.get(TotalAmountWithoutVatPage),
+      vatAmount               = answers.get(TotalVatPaidImportPage),
+      deductibleVatAmount     = answers.get(ImportTotalVatClaimPage),
+      updateSequenceNumber    = answers.get(UpdateSequenceNumberQuery).getOrElse(addResponse.updateSequenceNumber)
     )
   }
 }

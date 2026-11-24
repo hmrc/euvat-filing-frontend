@@ -39,25 +39,25 @@ class UpdatePurchaseRequestSpec extends SpecBase {
   private val invoiceDate: LocalDateTime = LocalDateTime.of(year, month, dayOfMonth, hour, minute)
 
   private val request = UpdatePurchaseRequest(
-    applicationId               = 404,
-    itemNumber                  = 4,
-    goodsDescriptionCode    = "10",
-    goodsDescriptionSubCode = Some("10.4.1"),
-    goodsDescriptionText        = Some("Some goods"),
-    simplifiedInvoiceIndicator  = Some("true"),
-    supplierName                = Some("Finnish International"),
-    supplierAddress1            = Some("356 High Street"),
-    supplierAddress2            = Some("Rochdale"),
-    supplierAddress3            = Some("Country"),
-    supplierVatRegNumber        = Some("12345"),
-    supplierTaxIdentifier       = Some("123456"),
-    invoiceDate                 = Some(invoiceDate),
-    invoiceNumber               = Some("0987"),
-    currencyCode                = Some("EUR"),
-    taxableAmount               = Some(BigDecimal(1000)),
-    vatAmount                   = Some(BigDecimal(99)),
-    deductibleVatAmount         = Some(BigDecimal(40)),
-    updateSequenceNumber        = 1
+    applicationId              = 404,
+    itemNumber                 = 4,
+    goodsDescriptionCode       = "10",
+    goodsDescriptionSubCode    = Some("10.4.1"),
+    goodsDescriptionText       = Some("Some goods"),
+    simplifiedInvoiceIndicator = Some("true"),
+    supplierName               = Some("Finnish International"),
+    supplierAddress1           = Some("356 High Street"),
+    supplierAddress2           = Some("Rochdale"),
+    supplierAddress3           = Some("Country"),
+    supplierVatRegNumber       = Some("12345"),
+    supplierTaxIdentifier      = Some("123456"),
+    invoiceDate                = Some(invoiceDate),
+    invoiceNumber              = Some("0987"),
+    currencyCode               = Some("EUR"),
+    taxableAmount              = Some(BigDecimal(1000)),
+    vatAmount                  = Some(BigDecimal(99)),
+    deductibleVatAmount        = Some(BigDecimal(40)),
+    updateSequenceNumber       = 1
   )
 
   "UpdatePurchaseRequest JSON" - {

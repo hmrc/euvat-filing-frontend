@@ -25,25 +25,25 @@ import java.time.LocalDateTime
 class UpdateImportDetailsRequestSpec extends AnyFreeSpec with Matchers {
 
   private val request = UpdateImportDetailsRequest(
-    applicationId               = 404,
-    itemNumber                  = 4,
+    applicationId           = 404,
+    itemNumber              = 4,
     goodsDescriptionCode    = "10",
     goodsDescriptionSubCode = Some("10.4.1"),
-    goodsDescriptionText        = Some("Equipment"),
-    hasSadReferenceNumber       = Some("true"),
-    sadReferenceNumber          = Some("SAD123456789"),
-    referenceInformation        = None,
-    supplierName                = Some("Finnish International"),
-    supplierAddressLine1        = Some("356 High Street"),
-    supplierAddressLine2        = Some("Rochdale"),
-    supplierAddressLine3        = None,
-    supplierCountryCode         = Some("GB"),
-    issuingDate                 = Some(LocalDateTime.of(2026, 5, 14, 0, 0)),
-    currencyCode                = Some("EUR"),
-    taxableAmount               = Some(BigDecimal(1000)),
-    vatAmount                   = Some(BigDecimal(99)),
-    deductibleVatAmount         = Some(BigDecimal(40)),
-    updateSequenceNumber        = 1
+    goodsDescriptionText    = Some("Equipment"),
+    hasSadReferenceNumber   = Some("true"),
+    sadReferenceNumber      = Some("SAD123456789"),
+    referenceInformation    = None,
+    supplierName            = Some("Finnish International"),
+    supplierAddressLine1    = Some("356 High Street"),
+    supplierAddressLine2    = Some("Rochdale"),
+    supplierAddressLine3    = None,
+    supplierCountryCode     = Some("GB"),
+    issuingDate             = Some(LocalDateTime.of(2026, 5, 14, 0, 0)),
+    currencyCode            = Some("EUR"),
+    taxableAmount           = Some(BigDecimal(1000)),
+    vatAmount               = Some(BigDecimal(99)),
+    deductibleVatAmount     = Some(BigDecimal(40)),
+    updateSequenceNumber    = 1
   )
 
   "UpdateImportDetailsRequest JSON" - {

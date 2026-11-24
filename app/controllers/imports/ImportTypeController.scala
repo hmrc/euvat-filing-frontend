@@ -114,9 +114,9 @@ class ImportTypeController @Inject() (
       case (NormalMode, Some(claim), None) =>
         implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
         val addRequest = AddImportRequest(
-          applicationId            = claim.applicationId,
+          applicationId        = claim.applicationId,
           goodsDescriptionCode = PurchaseOrImportType.codes(importType),
-          updateSequenceNumber     = answers.get(UpdateSequenceNumberQuery).getOrElse(claim.updateSeqNumber)
+          updateSequenceNumber = answers.get(UpdateSequenceNumberQuery).getOrElse(claim.updateSeqNumber)
         )
         euVatRefundsService
           .addImport(addRequest)

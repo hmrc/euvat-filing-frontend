@@ -115,7 +115,7 @@ class YourFileControllerSpec extends SpecBase {
         val headingPosition = content.indexOf("<h1")
         errorSummaryPosition must be >= 0
         errorSummaryPosition must be < captionPosition
-        captionPosition must be < headingPosition
+        captionPosition      must be < headingPosition
       }
     }
 
