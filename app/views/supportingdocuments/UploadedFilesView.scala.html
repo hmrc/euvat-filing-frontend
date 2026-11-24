@@ -90,7 +90,7 @@
             rows = attachments.map { attachment =>
                 Seq(
                     TableRow(content = HtmlContent(fileNameLink(attachment))),
-                    TableRow(content = Text(attachment.fileDescription.filter(_.trim.nonEmpty).getOrElse(messages("supportingDocuments.uploadedFiles.notProvided")))),
+                    TableRow(content = Text(attachment.fileDescription.filter(_.trim.nonEmpty).getOrElse(messages("site.notProvided")))),
                     TableRow(content = Text(fileSizeInMb(attachment.fileSize))),
                     TableRow(content = HtmlContent(removeLink(attachment)))
                 )
