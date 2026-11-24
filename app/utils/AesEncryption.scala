@@ -16,6 +16,8 @@
 
 package utils
 
+import play.api.Logging
+
 import java.nio.charset.StandardCharsets.UTF_8
 import java.util.Base64
 import javax.crypto.Cipher
@@ -23,13 +25,14 @@ import javax.crypto.spec.IvParameterSpec
 import javax.inject.{Inject, Singleton}
 
 @Singleton
-class AesEncryption @Inject() (keyStoreService: EncryptionKeyStore) {
+class AesEncryption @Inject() (keyStoreService: EncryptionKeyStore) extends Logging {
   private val transformation = "AES/CBC/PKCS5Padding"
 
   def encrypt(value: String): String = {
     val cipher = Cipher.getInstance(transformation)
     val iv = new Array[Byte](cipher.getBlockSize)
 
+    logger.info(s"******* keyStoreService.secretKey: ${keyStoreService.secretKey}")
     cipher.init(Cipher.ENCRYPT_MODE, keyStoreService.secretKey, new IvParameterSpec(iv))
     val encrypted = cipher.doFinal(value.getBytes(UTF_8))
 
@@ -37,12 +40,15 @@ class AesEncryption @Inject() (keyStoreService: EncryptionKeyStore) {
   }
 
   def decrypt(encryptedValue: String): String = {
+
     val cipher = Cipher.getInstance(transformation)
     val decoded = Base64.getDecoder.decode(encryptedValue)
     var (iv, encrypted) = decoded.splitAt(cipher.getBlockSize) // works for to-be encrypted data
     if (decoded.length == cipher.getBlockSize) {
       iv = new Array[Byte](cipher.getBlockSize) // works for as-is encrypted data
     }
+
+    logger.info(s"******* keyStoreService.secretKey: ${keyStoreService.secretKey}")
 
     cipher.init(Cipher.DECRYPT_MODE, keyStoreService.secretKey, new IvParameterSpec(iv))
     if (decoded.length == cipher.getBlockSize) {

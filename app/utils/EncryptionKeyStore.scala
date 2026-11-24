@@ -38,9 +38,6 @@ class EncryptionKeyStore @Inject() (config: Configuration) extends Logging {
   lazy val secretKey: SecretKey = {
     val keyStore = KeyStore.getInstance(keyStoreType)
 
-    logger.info(s"******* keyStorePath: $keyStorePath")
-    logger.info(s"******** keyStoreLocation+keyStoreFile: $keyStoreLocation/$keyStoreFile ")
-
     Using.resource(new FileInputStream(keyStorePath.toFile)) { inputStream =>
       keyStore.load(inputStream, keyStorePwd)
     }
