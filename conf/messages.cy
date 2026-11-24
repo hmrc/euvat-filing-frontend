@@ -380,7 +380,6 @@ invoiceDate.error.required = Enter a {0}
 invoiceDate.error.required.all = Enter a date
 invoiceDate.error.required.two = Enter a {0} and {1}
 invoiceDate.error.past = The invoice date must be in the past
-invoiceDate.error.minimum = The invoice date must be after 2021
 invoiceDate.error.outsideRefundPeriod = The invoice date must be within the refund period
 invoiceDate.checkYourAnswersLabel = Date
 invoiceDate.change.hidden = Change invoice date
@@ -545,7 +544,6 @@ importDate.error.required = Enter a {0}
 importDate.error.required.all = Enter a date
 importDate.error.required.two = Enter a {0} and {1}
 importDate.error.past = The import date must be in the past
-importDate.error.minimum = The import date must be after 2021
 importDate.checkYourAnswersLabel = Import date
 importDate.change.hidden = Change import date
 

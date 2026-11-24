@@ -38,7 +38,7 @@
 
   @formHelper(action = actionCall) {
 
-        @mainErrorSummary(form, Map("value" -> "value"))
+        @mainErrorSummary(form, Map("value" -> "value_0"))
         <span class="govuk-caption-l">@messages("claim.caption")</span>
 
         @{govukRadios(
@@ -46,8 +46,8 @@
             field  = form("value"),
             legend = LegendViewModel(messages(headingKey)).asPageHeading(LegendSize.Large),
             items  = Seq(
-              RadioItem(value = Some("true"), content = Text(messages("site.yes"))),
-              RadioItem(value = Some("false"), content = Text(messages("site.no")))
+                RadioItem(id = Some("value_0"), value = Some("true"),  content = Text(messages("site.yes"))),
+                RadioItem(id = Some("value_1"), value = Some("false"), content = Text(messages("site.no")))
             )
           )
         )}

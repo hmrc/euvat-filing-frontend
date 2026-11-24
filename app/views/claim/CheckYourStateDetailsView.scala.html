@@ -33,7 +33,7 @@
 @layout(pageTitle = views.ViewUtils.title(form, "checkYourStateDetails.title")) {
 
     @formHelper(action = controllers.claim.routes.CheckYourStateDetailsController.onSubmit(mode)) {
-        @mainErrorSummary(form)
+    @mainErrorSummary(form, errorLinkOverrides = Map("value" -> "value_0"))
         <span class="govuk-caption-l">@messages("claim.caption")</span>
         <h1 class="govuk-heading-l">@messages("checkYourStateDetails.heading")</h1>
 
@@ -52,12 +52,12 @@
                 }
                 <div class="govuk-radios" data-module="govuk-radios">
                     <div class="govuk-radios__item">
-                        <input class="govuk-radios__input" id="value" name="value" type="radio" value="true" @if(form("value").value.contains("true")){checked}>
-                        <label class="govuk-label govuk-radios__label" for="value">@messages("checkYourStateDetails.yes")</label>
+                        <input class="govuk-radios__input" id="value_0" name="value" type="radio" value="true" @if(form("value").value.contains("true")){checked}>
+                        <label class="govuk-label govuk-radios__label" for="value_0">@messages("checkYourStateDetails.yes")</label>
                     </div>
                     <div class="govuk-radios__item">
-                        <input class="govuk-radios__input" id="value-2" name="value" type="radio" value="false" @if(form("value").value.contains("false")){checked}>
-                        <label class="govuk-label govuk-radios__label" for="value-2">@messages("checkYourStateDetails.no")</label>
+                        <input class="govuk-radios__input" id="value_1" name="value" type="radio" value="false" @if(form("value").value.contains("false")){checked}>
+                        <label class="govuk-label govuk-radios__label" for="value_1">@messages("checkYourStateDetails.no")</label>
                     </div>
                 </div>
             </fieldset>
