@@ -80,6 +80,8 @@ class UploadedFilesControllerSpec extends SpecBase {
           document.text() must include("0.20MB")
           document.text() must include(msgs("site.notProvided"))
           document.select("a[href='/file-eu-vat/supporting-documents/remove-file/1']").size() mustBe 1
+          document.select(s"a[href='${routes.UploadedFilesController.onDownload(1).url}']").text() mustEqual "hotel-invoice.pdf"
+          document.select(s"a[href='${routes.UploadedFilesController.onDownload(2).url}']").text() mustEqual "fuel-receipt.jpg"
           document.select(s"a[href='${routes.UploadFileController.onPageLoad().url}']").text() mustEqual
             msgs("supportingDocuments.uploadedFiles.uploadAnother")
           document.select("nav.govuk-pagination").size() mustBe 0
@@ -304,6 +306,19 @@ class UploadedFilesControllerSpec extends SpecBase {
       "must redirect to Journey Recovery when the file content is missing" in {
         when(mockEuVatRefundsService.getFullAttachmentDetails(any(), any())(any()))
           .thenReturn(Future.successful(fullAttachment.copy(fileContent = None)))
+        val app = application()
+
+        running(app) {
+          val result = route(app, downloadRequest).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        }
+      }
+
+      "must redirect to Journey Recovery when the file content is not valid Base64" in {
+        when(mockEuVatRefundsService.getFullAttachmentDetails(any(), any())(any()))
+          .thenReturn(Future.successful(fullAttachment.copy(fileContent = Some("not-base64!!"))))
         val app = application()
 
         running(app) {
