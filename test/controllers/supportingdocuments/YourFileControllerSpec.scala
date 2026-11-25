@@ -70,7 +70,7 @@ class YourFileControllerSpec extends SpecBase {
         uploadedTag.text() mustBe messages(application)("supportingDocuments.uploadFile.status.uploadedTag")
         content must include("File uploaded.")
         val removeLink = document.select(s"a[href='${routes.YourFileController.onRemove().url}']")
-        removeLink.text() must include(messages(application)("supportingDocuments.uploadFile.remove"))
+        removeLink.text() must include(messages(application)("site.remove"))
         removeLink.text() must include("receipt1.jpg")
         val description = Jsoup.parse(content).select("#fileupload-description")
         description.size mustBe 1
