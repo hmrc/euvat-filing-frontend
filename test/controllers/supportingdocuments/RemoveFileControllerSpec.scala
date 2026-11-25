@@ -188,8 +188,7 @@ class RemoveFileControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url //TODO: replace with UploadedFilesController once it is merged
-
+        redirectLocation(result).value mustEqual controllers.supportingdocuments.routes.UploadedFilesController.onPageLoad().url
         verify(mockEuVatRefundsService).deleteAttachment(any())(any())
       }
     }
@@ -212,7 +211,7 @@ class RemoveFileControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url //TODO: replace with UploadedFilesController once it is merged
+        redirectLocation(result).value mustEqual controllers.supportingdocuments.routes.UploadedFilesController.onPageLoad().url
 
         val savedAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository).set(savedAnswersCaptor.capture())
@@ -258,7 +257,7 @@ class RemoveFileControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url //TODO: replace with UploadedFilesController once it is merged
+        redirectLocation(result).value mustEqual controllers.supportingdocuments.routes.UploadedFilesController.onPageLoad().url
 
         val savedAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository).set(savedAnswersCaptor.capture())
@@ -324,7 +323,7 @@ class RemoveFileControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url //TODO: replace with UploadedFilesController once it is merged
+        redirectLocation(result).value mustEqual controllers.supportingdocuments.routes.UploadedFilesController.onPageLoad().url
 
         verify(mockEuVatRefundsService, never()).deleteAttachment(any())(any())
       }

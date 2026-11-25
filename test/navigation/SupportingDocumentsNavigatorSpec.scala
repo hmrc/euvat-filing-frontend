@@ -66,5 +66,9 @@ class SupportingDocumentsNavigatorSpec extends SpecBase {
     "must go from the your file page to YourFileController when the upload status is missing" in {
       navigator.navigateFromYourFilePage(emptyUserAnswers) mustBe supportingDocumentsRoutes.YourFileController.onPageLoad()
     }
+
+    "must go from RemoveFilePage to the Uploaded files page" in {
+      navigator.navigateFromRemoveFilePage() mustBe supportingDocumentsRoutes.UploadedFilesController.onPageLoad()
+    }
   }
 }

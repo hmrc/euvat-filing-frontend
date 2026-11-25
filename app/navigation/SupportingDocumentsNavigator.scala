@@ -47,5 +47,5 @@ class SupportingDocumentsNavigator @Inject() () {
     controllers.routes.TaskListDashboardController.onPageLoad()
 
   def navigateFromRemoveFilePage(): Call =
-    controllers.routes.JourneyRecoveryController.onPageLoad() //TODO: replace with UploadedFilesController once it is merged
+    supportingDocumentsRoutes.UploadedFilesController.onPageLoad()
 }

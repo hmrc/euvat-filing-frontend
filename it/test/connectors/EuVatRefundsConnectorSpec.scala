@@ -870,13 +870,13 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
   "EuVatRefundsConnector.getAllAttachments" should {
     val requestPayload = GetAllAttachmentsRequest(
       applicationId = 111,
-      orderBy       = Some(0),
-      sortOrder     = Some("ASC"),
-      startAt       = Some(0),
-      maxNumber     = Some(10)
+      orderBy = Some(0),
+      sortOrder = Some("ASC"),
+      startAt = Some(0),
+      maxNumber = Some(10)
     )
     val expectedResponse = GetAllAttachmentsResponse(
-      attachments      = List(Attachment(1, Some("hotel-invoice.pdf"), Some("pdf"), Some("Hotel invoice"), Some(1825))),
+      attachments = List(Attachment(1, Some("hotel-invoice.pdf"), Some("pdf"), Some("Hotel invoice"), Some(1825))),
       totalAttachments = 1
     )
 
@@ -904,6 +904,8 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
       whenReady(connector.getAllAttachments(requestPayload).failed) { ex =>
         ex shouldBe a[RuntimeException]
       }
+    }
+  } 
 
   "EuVatRefundsConnector.getAttachmentDetails" should {
 

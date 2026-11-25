@@ -624,6 +624,8 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
       when(mockConnector.getAllAttachments(any())(any())).thenReturn(Future.failed(new RuntimeException("boom")))
 
       service.getAllAttachments(request).failed.futureValue mustBe a[RuntimeException]
+    }
+  }
 
   "EuVatRefundsService.getAttachmentDetails" - {
     val expectedResponse = AttachmentDetailsResponse(
