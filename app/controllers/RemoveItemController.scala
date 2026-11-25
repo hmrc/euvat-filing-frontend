@@ -178,7 +178,7 @@ class RemoveItemController @Inject() (
   ): (String, String) = {
     val displayType = if (itemType == "P") "Purchase" else "Import"
     val vatClaim =
-      if (deductibleVatAmount == 0) messagesApi.preferred(request)("removeItem.notProvided")
+      if (deductibleVatAmount == 0) messagesApi.preferred(request)("site.notProvided")
       else {
         val currencySymbol = ControllerHelpers.currencySymbolFromSession(userAnswers, currencyConfig.currencyConfig)
         s"$currencySymbol${amountFormat(deductibleVatAmount)}"

@@ -25,6 +25,7 @@ import pages.supportingdocuments.YourFilePage
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import queries.UploadedFileStatusQuery
 import repositories.SessionRepository
 
 class YourFileControllerSpec extends SpecBase {
@@ -69,7 +70,7 @@ class YourFileControllerSpec extends SpecBase {
         uploadedTag.text() mustBe messages(application)("supportingDocuments.uploadFile.status.uploadedTag")
         content must include("File uploaded.")
         val removeLink = document.select(s"a[href='${routes.YourFileController.onRemove().url}']")
-        removeLink.text() must include(messages(application)("supportingDocuments.uploadFile.remove"))
+        removeLink.text() must include(messages(application)("site.remove"))
         removeLink.text() must include("receipt1.jpg")
         val description = Jsoup.parse(content).select("#fileupload-description")
         description.size mustBe 1
@@ -87,7 +88,7 @@ class YourFileControllerSpec extends SpecBase {
       }
     }
 
-    "navigate to journey recovery when Continue is submitted for a file" in {
+    "return to the your file page when Continue is submitted and the upload status is missing" in {
       val application = applicationWithMockSessionRepository()
 
       running(application) {
@@ -96,7 +97,7 @@ class YourFileControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustBe routes.YourFileController.onPageLoad().url
         val savedAnswers = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
         org.mockito.Mockito.verify(mockSessionRepository).set(savedAnswers.capture())
         savedAnswers.getValue.get(YourFilePage) mustBe Some(YourFile("receipt1.jpg", Some("A receipt for travel")))
@@ -141,6 +142,7 @@ class YourFileControllerSpec extends SpecBase {
         val savedAnswers = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
         org.mockito.Mockito.verify(mockSessionRepository).set(savedAnswers.capture())
         savedAnswers.getValue.get(YourFilePage) mustBe None
+        savedAnswers.getValue.get(UploadedFileStatusQuery) mustBe None
       }
     }
   }

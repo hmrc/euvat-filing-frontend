@@ -20,7 +20,7 @@ import models.{NormalMode, UserAnswers}
 import pages.PurchaseImportSummaryPage
 import pages.supportingdocuments.AnyDocumentsPage
 import play.api.i18n.Messages
-import queries.{BankDetailsCompletedQuery, ClaimDetailsCompletedQuery, PurchaseImportSummaryIncompleteQuery}
+import queries.{BankDetailsCompletedQuery, ClaimDetailsCompletedQuery, PurchaseImportSummaryIncompleteQuery, SupportingDocumentsCompletedQuery, UploadedFilesQuery}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 import uk.gov.hmrc.govukfrontend.views.viewmodels.tag.Tag
@@ -86,7 +86,9 @@ class TaskListViewModel @Inject() {
                                     cannotStartStatus: TaskListItemStatus,
                                     completedStatus: TaskListItemStatus
                                    ): TaskListItem = {
-    val supportingDocumentsComplete = answers.get(AnyDocumentsPage).contains(false)
+    val supportingDocumentsComplete =
+      answers.get(AnyDocumentsPage).contains(false) || answers.get(SupportingDocumentsCompletedQuery).contains(true)
+    val hasUploadedFiles = answers.get(UploadedFilesQuery).exists(_.nonEmpty)
     TaskListItem(
       title = TaskListItemTitle(content = Text(messages("taskListDashboard.listItem3"))),
       status = if (claimDetailsDone) {
@@ -94,7 +96,10 @@ class TaskListViewModel @Inject() {
       } else {
         cannotStartStatus
       },
-      href = if (claimDetailsDone) Some(controllers.supportingdocuments.routes.BeforeYouStartSupportingDocsController.onPageLoad().url) else None
+      href = if (claimDetailsDone) {
+        if (hasUploadedFiles) Some(controllers.supportingdocuments.routes.UploadedFilesController.onPageLoad().url)
+        else Some(controllers.supportingdocuments.routes.BeforeYouStartSupportingDocsController.onPageLoad().url)
+      } else None
     )
   }
 

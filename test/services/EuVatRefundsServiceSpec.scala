@@ -19,7 +19,7 @@ package services
 import base.SpecBase
 import config.FrontendAppConfig
 import connectors.EuVatRefundsConnector
-import models.ApplicationDetails
+import models.{ApplicationDetails, Attachment}
 import models.requests.*
 import models.responses.*
 import org.mockito.ArgumentMatchers.*
@@ -580,6 +580,23 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
       val result = service.getReferenceInfoCount(request).failed.futureValue
 
       result mustEqual exception
+    }
+  }
+
+  "EuVatRefundsService.getAllAttachments" - {
+    val request = GetAllAttachmentsRequest(applicationId = 111)
+    val expected = GetAllAttachmentsResponse(List(Attachment(1, Some("a.pdf"), Some("pdf"), None, Some(1825))), 1)
+
+    "must return the response from the connector" in {
+      when(mockConnector.getAllAttachments(any())(any())).thenReturn(Future.successful(expected))
+
+      service.getAllAttachments(request).futureValue mustEqual expected
+    }
+
+    "must propagate failures from the connector" in {
+      when(mockConnector.getAllAttachments(any())(any())).thenReturn(Future.failed(new RuntimeException("boom")))
+
+      service.getAllAttachments(request).failed.futureValue mustBe a[RuntimeException]
     }
   }
 }

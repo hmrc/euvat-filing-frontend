@@ -170,7 +170,7 @@ class RemoveItemControllerSpec extends SpecBase {
         val result = route(application, request).value
         status(result) mustEqual OK
         contentAsString(result) must include("Import")
-        contentAsString(result) must include(messages(application)("removeItem.notProvided"))
+        contentAsString(result) must include(messages(application)("site.notProvided"))
       }
     }
 
