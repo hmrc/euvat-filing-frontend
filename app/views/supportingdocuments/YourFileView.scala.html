@@ -21,6 +21,7 @@
  @import uk.gov.hmrc.govukfrontend.views.viewmodels.label.Label
  @import uk.gov.hmrc.govukfrontend.views.viewmodels.charactercount.CharacterCount
  @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Actions, Key, SummaryList, SummaryListRow, Value}
+ @import uk.gov.hmrc.govukfrontend.views.viewmodels.tag.Tag
  @import forms.supportingdocuments.YourFileFormProvider.{descriptionFieldName, descriptionMaxLength}
  @import play.twirl.api.{Html, HtmlFormat}
  @import views.html.components.*
@@ -30,6 +31,7 @@
      layout: templates.Layout,
      formHelper: FormWithCSRF,
      govukSummaryList: GovukSummaryList,
+     govukTag: GovukTag,
      govukCharacterCount: GovukCharacterCount,
      mainErrorSummary: MainErrorSummary
  )
@@ -61,8 +63,11 @@
                     ),
                     value = Value(
                         content = HtmlContent(
-                            Html(
-                                s"""<strong class="govuk-tag govuk-tag--green">${HtmlFormat.escape(messages("supportingDocuments.uploadFile.status.uploadedTag")).body}</strong>"""
+                            govukTag(
+                                Tag(
+                                    content = Text(messages("supportingDocuments.uploadFile.status.uploadedTag")),
+                                    classes = "govuk-tag--green"
+                                )
                             )
                         )
                     ),

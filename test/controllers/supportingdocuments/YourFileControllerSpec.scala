@@ -59,8 +59,15 @@ class YourFileControllerSpec extends SpecBase {
         heading.text() mustBe messages(application)("supportingDocuments.uploadFile.heading")
         heading.first().previousElementSibling().hasClass("govuk-caption-l") mustBe true
         content must include("receipt1.jpg")
+        val filenameLink = document.select(".govuk-summary-list__key a.govuk-link")
+        filenameLink.size mustBe 1
+        filenameLink.attr("href") mustBe "#"
+        filenameLink.text() mustBe "receipt1.jpg"
         content must include("govuk-tag--green")
         content must include("Uploaded")
+        val uploadedTag = document.select("strong.govuk-tag.govuk-tag--green")
+        uploadedTag.size mustBe 1
+        uploadedTag.text() mustBe messages(application)("supportingDocuments.uploadFile.status.uploadedTag")
         content must include("File uploaded.")
         val removeLink = document.select(s"a[href='${routes.YourFileController.onRemove().url}']")
         removeLink.text() must include(messages(application)("supportingDocuments.uploadFile.remove"))
