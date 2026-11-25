@@ -25,6 +25,7 @@ import pages.supportingdocuments.YourFilePage
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import queries.UploadedFileStatusQuery
 import repositories.SessionRepository
 
 class YourFileControllerSpec extends SpecBase {
@@ -52,14 +53,25 @@ class YourFileControllerSpec extends SpecBase {
         status(result) mustEqual OK
         content must include("<title>Upload file - EU VAT - GOV.UK</title>")
         content must include("<h1 class=\"govuk-heading-l govuk-!-margin-bottom-3\">")
-        Jsoup
-          .parse(content)
-          .select("#main-content > .govuk-grid-row > .govuk-grid-column-two-thirds > h1")
-          .size mustBe 1
+        val document = Jsoup.parse(content)
+        val heading = document.select("#main-content > .govuk-grid-row > .govuk-grid-column-two-thirds > h1")
+        heading.size mustBe 1
+        heading.text() mustBe messages(application)("supportingDocuments.uploadFile.heading")
+        heading.first().previousElementSibling().hasClass("govuk-caption-l") mustBe true
         content must include("receipt1.jpg")
+        val filenameLink = document.select(".govuk-summary-list__key a.govuk-link")
+        filenameLink.size mustBe 1
+        filenameLink.attr("href") mustBe "#"
+        filenameLink.text() mustBe "receipt1.jpg"
         content must include("govuk-tag--green")
         content must include("Uploaded")
+        val uploadedTag = document.select("strong.govuk-tag.govuk-tag--green")
+        uploadedTag.size mustBe 1
+        uploadedTag.text() mustBe messages(application)("supportingDocuments.uploadFile.status.uploadedTag")
         content must include("File uploaded.")
+        val removeLink = document.select(s"a[href='${routes.YourFileController.onRemove().url}']")
+        removeLink.text() must include(messages(application)("site.remove"))
+        removeLink.text() must include("receipt1.jpg")
         val description = Jsoup.parse(content).select("#fileupload-description")
         description.size mustBe 1
         description.text() mustBe "Supporting evidence"
@@ -71,11 +83,12 @@ class YourFileControllerSpec extends SpecBase {
         val continueButton = Jsoup.parse(content).select(s"form[action='${routes.YourFileController.onSubmit().url}'] button")
         continueButton.text() mustBe messages(application)("site.continue")
         continueButton.attr("type") mustBe "submit"
+        document.select(s"form[action='${routes.YourFileController.onSubmit().url}']").attr("autocomplete") mustBe "off"
         header("Refresh", result) mustBe None
       }
     }
 
-    "navigate to journey recovery when Continue is submitted for a file" in {
+    "return to the your file page when Continue is submitted and the upload status is missing" in {
       val application = applicationWithMockSessionRepository()
 
       running(application) {
@@ -84,7 +97,7 @@ class YourFileControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustBe routes.YourFileController.onPageLoad().url
         val savedAnswers = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
         org.mockito.Mockito.verify(mockSessionRepository).set(savedAnswers.capture())
         savedAnswers.getValue.get(YourFilePage) mustBe Some(YourFile("receipt1.jpg", Some("A receipt for travel")))
@@ -108,7 +121,12 @@ class YourFileControllerSpec extends SpecBase {
         val document = Jsoup.parse(content)
         document.select(".govuk-error-summary__list a").attr("href") mustBe "#fileupload-description"
         document.select("#fileupload-description").text() mustBe invalidDescription
-        document.select("#file-upload-1-hint").first().nextElementSibling().hasClass("govuk-error-summary") mustBe true
+        val errorSummaryPosition = content.indexOf("govuk-error-summary")
+        val captionPosition = content.indexOf("govuk-caption-l")
+        val headingPosition = content.indexOf("<h1")
+        errorSummaryPosition must be >= 0
+        errorSummaryPosition must be < captionPosition
+        captionPosition      must be < headingPosition
       }
     }
 
@@ -116,7 +134,7 @@ class YourFileControllerSpec extends SpecBase {
       val application = applicationWithMockSessionRepository()
 
       running(application) {
-        val request = FakeRequest(POST, routes.YourFileController.onRemove().url)
+        val request = FakeRequest(GET, routes.YourFileController.onRemove().url)
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -124,6 +142,33 @@ class YourFileControllerSpec extends SpecBase {
         val savedAnswers = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
         org.mockito.Mockito.verify(mockSessionRepository).set(savedAnswers.capture())
         savedAnswers.getValue.get(YourFilePage) mustBe None
+        savedAnswers.getValue.get(UploadedFileStatusQuery) mustBe None
+      }
+    }
+
+    "save the upscan reference as a placeholder file and show it when there is no file yet" in {
+      val application = applicationWithMockSessionRepository(emptyUserAnswers)
+
+      running(application) {
+        val request = FakeRequest(GET, s"${routes.YourFileController.onPageLoad().url}?key=ref-123")
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) must include("ref-123")
+        val savedAnswers = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
+        org.mockito.Mockito.verify(mockSessionRepository).set(savedAnswers.capture())
+        savedAnswers.getValue.get(YourFilePage) mustBe Some(YourFile("ref-123", None))
+      }
+    }
+
+    "redirect to the upload page when there is no file and no upscan reference" in {
+      val application = applicationWithMockSessionRepository(emptyUserAnswers)
+
+      running(application) {
+        val result = route(application, FakeRequest(GET, routes.YourFileController.onPageLoad().url)).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UploadFileController.onPageLoad().url
       }
     }
   }

@@ -15,16 +15,23 @@
  *@
 
  @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+ @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
  @import uk.gov.hmrc.govukfrontend.views.viewmodels.errormessage.ErrorMessage
  @import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
  @import uk.gov.hmrc.govukfrontend.views.viewmodels.label.Label
  @import uk.gov.hmrc.govukfrontend.views.viewmodels.charactercount.CharacterCount
+ @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Actions, Key, SummaryList, SummaryListRow, Value}
+ @import uk.gov.hmrc.govukfrontend.views.viewmodels.tag.Tag
  @import forms.supportingdocuments.YourFileFormProvider.{descriptionFieldName, descriptionMaxLength}
+ @import play.twirl.api.{Html, HtmlFormat}
  @import views.html.components.*
+ @import viewmodels.govuk.summarylist.*
 
  @this(
      layout: templates.Layout,
      formHelper: FormWithCSRF,
+     govukSummaryList: GovukSummaryList,
+     govukTag: GovukTag,
      govukCharacterCount: GovukCharacterCount,
      mainErrorSummary: MainErrorSummary
  )
@@ -32,40 +39,58 @@
  @(yourFile: models.YourFile, form: Form[Option[String]])(implicit request: RequestHeader, messages: Messages)
 
  @layout(pageTitle = title(form, messages("supportingDocuments.uploadFile.title")).trim) {
+     @mainErrorSummary(form, Map(descriptionFieldName -> "fileupload-description"))
+
+    <span class="govuk-caption-l">@messages("supportingDocuments.caption")</span>
     <h1 class="govuk-heading-l govuk-!-margin-bottom-3">
-        <span class="govuk-caption-l">@messages("supportingDocuments.caption")</span>
         @messages("supportingDocuments.uploadFile.heading")
     </h1>
 
     <p id="file-upload-1-hint" class="govuk-hint">@messages("supportingDocuments.uploadFile.file.hint")</p>
 
-    @mainErrorSummary(form, Map(descriptionFieldName -> "fileupload-description"))
-
     <div class="govuk-visually-hidden" aria-live="polite" id="statusInformation">
         @messages("supportingDocuments.uploadFile.status.uploaded")
     </div>
 
-    <dl class="govuk-summary-list govuk-summary-list--long-key">
-        <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">
-                @* TODO: Replace with proper download link perhaps? *@
-                <a class="govuk-link" href="#">@yourFile.filename</a>
-            </dt>
-            <dd class="govuk-summary-list__value">
-                <strong class="govuk-tag govuk-tag--green">@messages("supportingDocuments.uploadFile.status.uploadedTag")</strong>
-            </dd>
-            <dd class="govuk-summary-list__actions">
-                @formHelper(action = controllers.supportingdocuments.routes.YourFileController.onRemove()) {
-                    <button class="govuk-link" type="submit" style="background: none; border: 0; padding: 0; font: inherit; cursor: pointer;">
-                        @messages("supportingDocuments.uploadFile.remove")<span class="govuk-visually-hidden"> @yourFile.filename</span>
-                    </button>
-                }
-            </dd>
-        </div>
-    </dl>
+    @govukSummaryList(
+        SummaryList(
+            rows = Seq(
+                SummaryListRow(
+                    key = Key(
+                        content = HtmlContent(
+                            Html(s"""<a class="govuk-link" href="#">${HtmlFormat.escape(yourFile.filename).body}</a>""")
+                        )
+                    ),
+                    value = Value(
+                        content = HtmlContent(
+                            govukTag(
+                                Tag(
+                                    content = Text(messages("supportingDocuments.uploadFile.status.uploadedTag")),
+                                    classes = "govuk-tag--green"
+                                )
+                            )
+                        )
+                    ),
+                    actions = Some(
+                        Actions(
+                            items = Seq(
+                                ActionItem(
+                                    content = Text(messages("site.remove")),
+                                    href = controllers.supportingdocuments.routes.YourFileController.onRemove().url,
+                                    visuallyHiddenText = Some(yourFile.filename)
+                                )
+                            )
+                        )
+                    )
+                )
+            ),
+            classes = "govuk-summary-list--long-key"
+        )
+    )
 
     @formHelper(
         action = controllers.supportingdocuments.routes.YourFileController.onSubmit(),
+        Symbol("autoComplete") -> "off",
         Symbol("novalidate") -> "novalidate"
     ) {
         @govukCharacterCount(

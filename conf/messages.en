@@ -18,6 +18,12 @@ site.notProvided = Not provided
 site.none = None
 site.add = Add details
 
+site.pagination.goToPage = Go to page {0}
+site.pagination.landmark = Pagination
+site.pagination.previous = Previous
+site.pagination.next = Next
+site.pagination.pageTitle = (page {0} of {1})
+
 date.day = Day
 date.month = Month
 date.year = Year
@@ -54,7 +60,7 @@ purchase.caption = Purchase details
 purchasesAndImports.caption = Purchases and imports
 import.caption = Import details
 bankDetails.caption = Bank details
-supportingDocuments.caption = 	Supporting documents
+supportingDocuments.caption = Supporting documents
 
 taskListDashboard.title = Make a claim for an EU VAT refund
 taskListDashboard.heading = Make a claim for an EU VAT refund
@@ -710,19 +716,43 @@ supportingDocuments.beforeYouStart.simplifiedInvoice.detail = You can still uplo
 supportingDocuments.anyDocuments.title = Do you have any supporting documents to upload?
 supportingDocuments.anyDocuments.heading = Do you have any supporting documents to upload?
 supportingDocuments.anyDocuments.error.required = Select yes if you have supporting documents to upload
+
 supportingDocuments.uploadFile.title = Upload file
 supportingDocuments.uploadFile.heading = Upload file
-supportingDocuments.uploadFile.file.label = Upload file
 supportingDocuments.uploadFile.file.hint = Upload a scanned version or photo of the original document. We accept the following file types: JPEG, TIFF, PDF or ZIP.
-supportingDocuments.uploadFile.description.label = Additional information (optional)
-supportingDocuments.uploadFile.description.hint = You can give the details in your preferred language
-supportingDocuments.uploadFile.description.remaining = You have '%{count}' characters remaining
 supportingDocuments.uploadFile.error.required = Select a file
 supportingDocuments.uploadFile.error.empty = The selected file is empty
 supportingDocuments.uploadFile.error.size = Total selected files must be smaller than 5MB
 supportingDocuments.uploadFile.error.type = The selected file must be a JPEG, TIFF, PDF or ZIP
-supportingDocuments.uploadFile.error.description.maxLength = Additional information must be 255 characters or less
 supportingDocuments.uploadFile.error.unknown = The selected file could not be uploaded
+supportingDocuments.uploadFile.error.verificationFailed = The selected file failed the virus scan. Select another file.
+supportingDocuments.uploadFile.error.validationFailed = The selected file could not be uploaded. Select the file again.
+supportingDocuments.uploadFile.error.uploadFailed = The selected file could not be uploaded
+supportingDocuments.uploadFile.status.uploading = File upload in progress.
+supportingDocuments.uploadFile.status.uploaded = File uploaded.
+supportingDocuments.uploadFile.status.uploadingTag = Uploading
+supportingDocuments.uploadFile.status.uploadedTag = Uploaded
+supportingDocuments.uploadFile.refresh = Refresh page to update file upload progress
+
+supportingDocuments.uploadedFiles.title = Your uploaded files
+supportingDocuments.uploadedFiles.heading = Your uploaded files
+supportingDocuments.uploadedFiles.hint = Total size of all uploaded files must be less than 5MB.
+supportingDocuments.uploadedFiles.count.none = You have no files uploaded
+supportingDocuments.uploadedFiles.count.single = 1 file uploaded
+supportingDocuments.uploadedFiles.count.multiple = {0} files uploaded
+supportingDocuments.uploadedFiles.pagination.viewCount = Showing {0} to {1} of {2} files
+supportingDocuments.uploadedFiles.uploadFile = Upload a file
+supportingDocuments.uploadedFiles.uploadAnother = Upload another file
+supportingDocuments.uploadedFiles.table.caption = List of files uploaded
+supportingDocuments.uploadedFiles.table.fileName = File name
+supportingDocuments.uploadedFiles.table.description = Description
+supportingDocuments.uploadedFiles.table.fileSize = File size
+supportingDocuments.uploadedFiles.table.action = Action
+
+supportingDocuments.yourFile.description.label = Additional information (optional)
+supportingDocuments.yourFile.description.hint = You can give the details in your preferred language
+supportingDocuments.yourFile.description.remaining = You have '%{count}' characters remaining
+supportingDocuments.yourFile.description.maxLength = Additional information must be {0} characters or less
 
 # Warning messages
 refundPeriodStartDateWarning.title = Are you sure the refund period start date is correct?
@@ -809,25 +839,4 @@ removeItem.heading = Remove item
 removeItem.list1 = Type
 removeItem.list2 = VAT claim
 removeItem.legend = Are you sure you want to remove this item?
-removeItem.notProvided = Not provided
 removeItem.error.required = Select yes if you want to remove this item
-
-supportingDocuments.anyDocuments.title = Do you have any supporting documents to upload?
-supportingDocuments.anyDocuments.heading = Do you have any supporting documents to upload?
-supportingDocuments.anyDocuments.error.required = Select yes if you have supporting documents to upload
-supportingDocuments.uploadFile.title = Upload file
-supportingDocuments.uploadFile.heading = Upload file
-supportingDocuments.uploadFile.file.label = Upload file
-supportingDocuments.uploadFile.file.hint = Upload a scanned version or photo of the original document. We accept the following file types: JPEG, TIFF, PDF or ZIP.
-supportingDocuments.yourFile.description.label = Additional information (optional)
-supportingDocuments.yourFile.description.hint = You can give the details in your preferred language
-supportingDocuments.yourFile.description.remaining = You have '%{count}' characters remaining
-supportingDocuments.uploadFile.error.required = Select a file
-supportingDocuments.uploadFile.error.empty = The selected file is empty
-supportingDocuments.uploadFile.error.size = Total selected files must be smaller than 5MB
-supportingDocuments.uploadFile.error.type = The selected file must be a JPEG, TIFF, PDF or ZIP
-supportingDocuments.uploadFile.error.upload = The selected file could not be uploaded
-supportingDocuments.yourFile.description.maxLength = Additional information must be {0} characters or less
-supportingDocuments.uploadFile.status.uploaded = File uploaded.
-supportingDocuments.uploadFile.status.uploadedTag = Uploaded
-supportingDocuments.uploadFile.remove = Remove

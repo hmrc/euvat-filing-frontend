@@ -82,8 +82,9 @@ class YourFileController @Inject() (
             request.userAnswers.set(YourFilePage, yourFile.copy(description = boundForm.value.flatten))
           Future
             .fromTry(updatedAnswers)
-            .flatMap(sessionRepository.set)
-            .map(_ => Redirect(navigator.navigateFromYourFilePage()))
+            .flatMap { answers =>
+              sessionRepository.set(answers).map(_ => Redirect(navigator.navigateFromYourFilePage(answers)))
+            }
         }
     }
   }

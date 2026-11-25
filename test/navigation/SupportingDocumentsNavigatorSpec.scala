@@ -19,6 +19,7 @@ package navigation
 import base.SpecBase
 import controllers.supportingdocuments.routes as supportingDocumentsRoutes
 import pages.supportingdocuments.AnyDocumentsPage
+import queries.UploadedFileStatusQuery
 
 class SupportingDocumentsNavigatorSpec extends SpecBase {
 
@@ -46,8 +47,24 @@ class SupportingDocumentsNavigatorSpec extends SpecBase {
       navigator.navigateFromAnyDocumentsPage(emptyUserAnswers) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 
-    "must go from YourFilePage to Journey Recovery" in {
-      navigator.navigateFromYourFilePage() mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
+    "must go from the your file page to UploadedFilesController when the upload is validated" in {
+      val answers = emptyUserAnswers.set(UploadedFileStatusQuery, "VALIDATED").success.value
+
+      navigator.navigateFromYourFilePage(answers) mustBe supportingDocumentsRoutes.UploadedFilesController.onPageLoad()
+    }
+
+    "must go from the your file page back to YourFileController when the upload is not validated" in {
+      val answers = emptyUserAnswers.set(UploadedFileStatusQuery, "UPLOADING").success.value
+
+      navigator.navigateFromYourFilePage(answers) mustBe supportingDocumentsRoutes.YourFileController.onPageLoad()
+    }
+
+    "must go from the uploaded files page to TaskListDashboardController" in {
+      navigator.navigateFromUploadedFilesPage() mustBe controllers.routes.TaskListDashboardController.onPageLoad()
+    }
+
+    "must go from the your file page to YourFileController when the upload status is missing" in {
+      navigator.navigateFromYourFilePage(emptyUserAnswers) mustBe supportingDocumentsRoutes.YourFileController.onPageLoad()
     }
   }
 }

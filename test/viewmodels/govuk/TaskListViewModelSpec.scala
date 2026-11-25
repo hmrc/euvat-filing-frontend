@@ -17,12 +17,13 @@
 package viewmodels.govuk
 
 import base.SpecBase
+import models.Attachment
 import pages.PurchaseImportSummaryPage
 import pages.supportingdocuments.AnyDocumentsPage
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
 import viewmodels.TaskListViewModel
-import queries.{BankDetailsCompletedQuery, ClaimDetailsCompletedQuery, PurchaseImportSummaryIncompleteQuery}
+import queries.{BankDetailsCompletedQuery, ClaimDetailsCompletedQuery, PurchaseImportSummaryIncompleteQuery, SupportingDocumentsCompletedQuery, UploadedFilesQuery}
 
 class TaskListViewModelSpec extends SpecBase {
   implicit val messages: Messages = stubMessages()
@@ -136,6 +137,27 @@ class TaskListViewModelSpec extends SpecBase {
       "must link supporting documents to the start page" in {
         val taskList = viewModel.buildTaskList(answers)
         taskList.items(2).href mustBe Some(controllers.supportingdocuments.routes.BeforeYouStartSupportingDocsController.onPageLoad().url)
+      }
+
+      "must show supporting documents as completed when the uploaded files page is continued" in {
+        val userAnswers = answers.set(SupportingDocumentsCompletedQuery, true).success.value
+        val item = viewModel.buildTaskList(userAnswers).items(2)
+        item.status.content.asHtml.body must include("taskListDashboard.status3")
+      }
+
+      "must link supporting documents to the uploaded files page when files exist" in {
+        val userAnswers = answers
+          .set(UploadedFilesQuery, List(Attachment(1, Some("a.pdf"), Some("pdf"), None, Some(1825))))
+          .success
+          .value
+        viewModel.buildTaskList(userAnswers).items(2).href mustBe
+          Some(controllers.supportingdocuments.routes.UploadedFilesController.onPageLoad().url)
+      }
+
+      "must link supporting documents to the start page when the uploaded files list is empty" in {
+        val userAnswers = answers.set(UploadedFilesQuery, List.empty[Attachment]).success.value
+        viewModel.buildTaskList(userAnswers).items(2).href mustBe
+          Some(controllers.supportingdocuments.routes.BeforeYouStartSupportingDocsController.onPageLoad().url)
       }
 
       "must show bank details as Not yet started with a link" in {

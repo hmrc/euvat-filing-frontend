@@ -68,6 +68,10 @@ class EuVatRefundsService @Inject() (euVatRefundsConnector: EuVatRefundsConnecto
     euVatRefundsConnector.getPurchaseImportList(request)
   }
 
+  def getAllAttachments(request: GetAllAttachmentsRequest)(implicit hc: HeaderCarrier): Future[GetAllAttachmentsResponse] = {
+    euVatRefundsConnector.getAllAttachments(request)
+  }
+
   def getImportDetails(applicationId: Long, itemNumber: Int)(implicit hc: HeaderCarrier): Future[ImportDetailsResponse] =
     euVatRefundsConnector.getImportDetails(applicationId, itemNumber)
 
