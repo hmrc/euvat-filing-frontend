@@ -583,6 +583,33 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
     }
   }
 
+  "EuVatRefundsService.createUploadTracking" - {
+
+    val expectedResponse = CreateUploadTrackingResponse(
+      reference = "ref-123",
+      uploadUrl = "https://upscan.example/upload",
+      fields    = Map("key" -> "ref-123")
+    )
+
+    "should return the upload details from the connector" in {
+      when(mockConnector.createUploadTracking(org.mockito.ArgumentMatchers.eq(133L))(any()))
+        .thenReturn(Future.successful(expectedResponse))
+
+      service.createUploadTracking(133L)(hc).futureValue mustEqual expectedResponse
+    }
+
+    "should propagate an exception from the connector" in {
+      val failure = new RuntimeException("Connector failed")
+
+      when(mockConnector.createUploadTracking(any[Long]())(any()))
+        .thenReturn(Future.failed(failure))
+
+      whenReady(service.createUploadTracking(133L).failed) { ex =>
+        ex mustEqual failure
+      }
+    }
+  }
+
   "EuVatRefundsService.getAllAttachments" - {
     val request = GetAllAttachmentsRequest(applicationId = 111)
     val expected = GetAllAttachmentsResponse(List(Attachment(1, Some("a.pdf"), Some("pdf"), None, Some(1825))), 1)

@@ -26,15 +26,13 @@
 
 @this(
     layout: templates.Layout,
-    formHelper: FormWithCSRF,
     govukFileUpload: GovukFileUpload,
     govukHint: GovukHint,
     govukErrorMessage: GovukErrorMessage,
-    govukButton: GovukButton,
     mainErrorSummary: MainErrorSummary
 )
 
-@(form: Form[Option[String]])(implicit request: RequestHeader, messages: Messages)
+@(form: Form[Option[String]], uploadUrl: String, fields: Map[String, String])(implicit request: Request[_], messages: Messages)
 
 @fileUploadErrorId = @{ s"$fileInputName-error" }
 @fileUploadHintId = @{ s"$fileInputName-hint" }
@@ -59,13 +57,13 @@
 @layout(
     pageTitle = title(form, messages("supportingDocuments.uploadFile.title")).trim
 ) {
-    @formHelper(
-        action = controllers.supportingdocuments.routes.UploadFileController.onSubmit(),
-        Symbol("autoComplete") -> "off",
-        Symbol("enctype") -> "multipart/form-data",
-        Symbol("novalidate") -> "novalidate"
-    ) {
-        @mainErrorSummary(form, Map(fileErrorKey -> fileInputName))
+    @mainErrorSummary(form, Map(fileErrorKey -> fileInputName))
+
+    <form id="upscan-form" action="@uploadUrl" method="post" enctype="multipart/form-data" autocomplete="off" novalidate>
+
+        @for((fieldName, fieldValue) <- fields) {
+            <input type="hidden" name="@fieldName" value="@fieldValue">
+        }
 
         <div class="govuk-form-group @if(form.error(fileErrorKey).isDefined){govuk-form-group--error}">
             <span class="govuk-caption-l">@messages("supportingDocuments.caption")</span>
@@ -86,11 +84,14 @@
                         beforeInput = Some(HtmlContent(fileUploadAdditionalContent))
                     ),
                     classes = if (form.error(fileErrorKey).isDefined) "govuk-file-upload--error" else "",
-                    javascript = Some(true)
-                )
+                    javascript = Some(true),
+                    attributes = Map("accept" -> ".jpg,.jpeg,.tif,.tiff,.pdf,.zip")
+                 )
             )
         </div>
 
-        @govukButton(ButtonViewModel(messages("site.continue")))
-    }
+        <button type="submit" class="govuk-button" data-module="govuk-button">
+            @messages("site.continue")
+        </button>
+    </form>
 }

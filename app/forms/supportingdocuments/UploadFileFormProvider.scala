@@ -22,14 +22,13 @@ import play.api.data.Forms.{optional, text}
 import javax.inject.Inject
 
 object UploadFileFormProvider {
+
+  val fileInputName = "file"
   val fileErrorKey = "file"
-  val fileInputName = "file-upload-1"
 }
 
 class UploadFileFormProvider @Inject() {
 
   def apply(): Form[Option[String]] =
-    Form(
-      UploadFileFormProvider.fileErrorKey -> optional(text)
-    )
+    Form(UploadFileFormProvider.fileErrorKey -> optional(text))
 }

@@ -145,5 +145,31 @@ class YourFileControllerSpec extends SpecBase {
         savedAnswers.getValue.get(UploadedFileStatusQuery) mustBe None
       }
     }
+
+    "save the upscan reference as a placeholder file and show it when there is no file yet" in {
+      val application = applicationWithMockSessionRepository(emptyUserAnswers)
+
+      running(application) {
+        val request = FakeRequest(GET, s"${routes.YourFileController.onPageLoad().url}?key=ref-123")
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) must include("ref-123")
+        val savedAnswers = org.mockito.ArgumentCaptor.forClass(classOf[models.UserAnswers])
+        org.mockito.Mockito.verify(mockSessionRepository).set(savedAnswers.capture())
+        savedAnswers.getValue.get(YourFilePage) mustBe Some(YourFile("ref-123", None))
+      }
+    }
+
+    "redirect to the upload page when there is no file and no upscan reference" in {
+      val application = applicationWithMockSessionRepository(emptyUserAnswers)
+
+      running(application) {
+        val result = route(application, FakeRequest(GET, routes.YourFileController.onPageLoad().url)).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UploadFileController.onPageLoad().url
+      }
+    }
   }
 }

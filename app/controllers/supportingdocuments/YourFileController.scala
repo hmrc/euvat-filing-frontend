@@ -45,10 +45,23 @@ class YourFileController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     request.userAnswers.get(YourFilePage) match {
-      case None           => Redirect(routes.UploadFileController.onPageLoad())
-      case Some(yourFile) => Ok(view(yourFile, formProvider().fill(yourFile.description)))
+      case Some(yourFile) =>
+        Future.successful(Ok(view(yourFile, formProvider().fill(yourFile.description))))
+
+      case None =>
+        // TODO: F6.1/F6.4 - use the real filename from the backend upload summary; the upscan reference is a placeholder
+        request.getQueryString("key") match {
+          case Some(reference) =>
+            val yourFile = YourFile(filename = reference, description = None)
+            Future
+              .fromTry(request.userAnswers.set(YourFilePage, yourFile))
+              .flatMap(sessionRepository.set)
+              .map(_ => Ok(view(yourFile, formProvider())))
+          case None =>
+            Future.successful(Redirect(routes.UploadFileController.onPageLoad()))
+        }
     }
   }
 
