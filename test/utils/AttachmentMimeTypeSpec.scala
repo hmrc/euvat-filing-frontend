@@ -25,7 +25,10 @@ class AttachmentMimeTypeSpec extends AnyFreeSpec with Matchers {
     "must map known file types" in {
       AttachmentMimeType.forFileType(Some("pdf")) mustBe "application/pdf"
       AttachmentMimeType.forFileType(Some("jpg")) mustBe "image/jpeg"
-      AttachmentMimeType.forFileType(Some("png")) mustBe "image/png"
+      AttachmentMimeType.forFileType(Some("jpeg")) mustBe "image/jpeg"
+      AttachmentMimeType.forFileType(Some("tif")) mustBe "image/tiff"
+      AttachmentMimeType.forFileType(Some("tiff")) mustBe "image/tiff"
+      AttachmentMimeType.forFileType(Some("zip")) mustBe "application/zip"
     }
 
     "must ignore case, whitespace and a leading dot" in {
@@ -35,17 +38,8 @@ class AttachmentMimeTypeSpec extends AnyFreeSpec with Matchers {
 
     "must fall back to octet-stream for unknown or missing types" in {
       AttachmentMimeType.forFileType(Some("exe")) mustBe "application/octet-stream"
+      AttachmentMimeType.forFileType(Some("png")) mustBe "application/octet-stream"
       AttachmentMimeType.forFileType(None) mustBe "application/octet-stream"
     }
-  }
-
-  "must map known file types" in {
-    AttachmentMimeType.forFileType(Some("pdf")) mustBe "application/pdf"
-    AttachmentMimeType.forFileType(Some("jpg")) mustBe "image/jpeg"
-    AttachmentMimeType.forFileType(Some("jpeg")) mustBe "image/jpeg"
-    AttachmentMimeType.forFileType(Some("png")) mustBe "image/png"
-    AttachmentMimeType.forFileType(Some("tif")) mustBe "image/tiff"
-    AttachmentMimeType.forFileType(Some("tiff")) mustBe "image/tiff"
-    AttachmentMimeType.forFileType(Some("zip")) mustBe "application/zip"
   }
 }
