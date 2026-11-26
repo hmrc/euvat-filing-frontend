@@ -204,6 +204,7 @@ class TaskListViewModelSpec extends SpecBase {
         item.href mustBe defined
         item.status.content.asHtml.body must include("taskListDashboard.status3")
       }
+
     }
 
     "must use the correct idPrefix" in {
@@ -220,6 +221,20 @@ class TaskListViewModelSpec extends SpecBase {
         val answers = emptyUserAnswers.set(ClaimDetailsCompletedQuery, true).success.value
         viewModel.showDeleteLink(answers) mustBe true
       }
+    }
+
+    "link Submit claim to the declaration page when bank details are completed" in {
+      val answers = emptyUserAnswers
+        .set(ClaimDetailsCompletedQuery, true)
+        .success
+        .value
+        .set(BankDetailsCompletedQuery, true)
+        .success
+        .value
+      val item = viewModel.buildTaskList(answers).items(4)
+
+      item.href mustBe Some(controllers.routes.SubmitClaimDeclarationController.onPageLoad.url)
+      item.status.tag.map(_.content.asHtml.body) must contain("taskListDashboard.status1")
     }
   }
 }

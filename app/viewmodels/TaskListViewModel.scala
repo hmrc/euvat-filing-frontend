@@ -46,18 +46,11 @@ class TaskListViewModel @Inject() {
     val supportingDocsItem =
       supportingDocItemList(answers, messages, claimDetailsDone, notStartedStatus, cannotStartStatus, completedStatus)
     val bankDetailsItem = bankDetailsTaskList(messages, claimDetailsDone, bankDetailsDone, notStartedStatus, cannotStartStatus, completedStatus)
-    val submitClaimItem = submitClaimTaskList(messages, cannotStartStatus)
+    val submitClaimItem = submitClaimTaskList(messages, bankDetailsDone, notStartedStatus, cannotStartStatus)
 
     TaskList(
       items    = Seq(claimDetailsItem, purchaseImportItems, supportingDocsItem, bankDetailsItem, submitClaimItem),
       idPrefix = "make-a-claim-eu-vat-refund"
-    )
-  }
-
-  private def submitClaimTaskList(messages: Messages, cannotStartStatus: TaskListItemStatus): TaskListItem = {
-    TaskListItem(
-      title  = TaskListItemTitle(content = Text(messages("taskListDashboard.listItem5"))),
-      status = cannotStartStatus
     )
   }
 
@@ -151,6 +144,19 @@ class TaskListViewModel @Inject() {
         if (claimDetailsDone) { controllers.claim.routes.CheckYourClaimDetailsController.onPageLoad().url }
         else { controllers.claim.routes.RefundingCountryController.onPageLoad(NormalMode).url }
       )
+    )
+  }
+
+  private def submitClaimTaskList(
+    messages: Messages,
+    bankDetailsDone: Boolean,
+    notStartedStatus: TaskListItemStatus,
+    cannotStartStatus: TaskListItemStatus
+  ): TaskListItem = {
+    TaskListItem(
+      title  = TaskListItemTitle(content = Text(messages("taskListDashboard.listItem5"))),
+      status = if (bankDetailsDone) notStartedStatus else cannotStartStatus,
+      href   = if (bankDetailsDone) Some(controllers.routes.SubmitClaimDeclarationController.onPageLoad.url) else None
     )
   }
 }

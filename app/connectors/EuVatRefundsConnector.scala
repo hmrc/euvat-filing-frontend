@@ -224,4 +224,9 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
       .get(url"$euVatRefundsBaseUrl/get-full-attachment-details/$applicationId/$attachmentNumber")
       .execute[GetFullAttachmentDetailsResponse]
 
+  def getApplicationCounts(applicationId: Long)(implicit hc: HeaderCarrier): Future[ApplicationCountsResponse] =
+    http
+      .get(url"$euVatRefundsBaseUrl/get-application-counts/$applicationId")
+      .execute[ApplicationCountsResponse]
+
 }

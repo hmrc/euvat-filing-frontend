@@ -1,0 +1,69 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import models.responses.ApplicationCountsResponse
+@import uk.gov.hmrc.govukfrontend.views.html.components.*
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Key, SummaryList, SummaryListRow, Value}
+
+@this(
+    layout: templates.Layout,
+    formHelper: FormWithCSRF,
+    govukSummaryList: GovukSummaryList,
+    govukButton: GovukButton
+)
+
+@(refundingCountry: String, periodStart: String, periodEnd: String, counts: ApplicationCountsResponse)(implicit request: Request[_], messages: Messages)
+
+@defining(counts.purchaseCount + counts.importCount) { itemCount =>
+    @defining(if (itemCount == 1) messages("submitClaimDeclaration.item.singular") else messages("submitClaimDeclaration.item.plural", itemCount)) { itemsText =>
+        @defining(if (counts.attachmentCount == 0) messages("submitClaimDeclaration.files.none") else if (counts.attachmentCount == 1) messages("submitClaimDeclaration.files.singular") else messages("submitClaimDeclaration.files.plural", counts.attachmentCount)) { filesText =>
+            @layout(pageTitle = s"${messages("submitClaimDeclaration.title")} – EU VAT – GOV.UK") {
+
+                @formHelper(
+                        action = controllers.routes.SubmitClaimDeclarationController.onSubmit,
+                        Symbol("autoComplete") -> "off"
+                    ) {
+                    <h1 class="govuk-heading-l">@messages("submitClaimDeclaration.heading")</h1>
+                    <p class="govuk-body-l">@messages("submitClaimDeclaration.review")</p>
+
+                    <h2 class="govuk-heading-m">@messages("submitClaimDeclaration.summary.heading")</h2>
+                    @govukSummaryList(
+                        SummaryList(
+                            rows = Seq(
+                                SummaryListRow(key = Key(content = Text(messages("submitClaimDeclaration.summary.country")), classes = "govuk-!-width-one-half"), value = Value(content = Text(refundingCountry))),
+                                SummaryListRow(key = Key(content = Text(messages("submitClaimDeclaration.summary.start")), classes = "govuk-!-width-one-half"), value = Value(content = Text(periodStart))),
+                                SummaryListRow(key = Key(content = Text(messages("submitClaimDeclaration.summary.end")), classes = "govuk-!-width-one-half"), value = Value(content = Text(periodEnd))),
+                                SummaryListRow(key = Key(content = Text(messages("submitClaimDeclaration.summary.items")), classes = "govuk-!-width-one-half"), value = Value(content = Text(itemsText))),
+                                SummaryListRow(key = Key(content = Text(messages("submitClaimDeclaration.summary.documents")), classes = "govuk-!-width-one-half"), value = Value(content = Text(filesText)))
+                            )
+                        )
+                    )
+
+                    <h2 class="govuk-heading-m">@messages("submitClaimDeclaration.declaration.heading")</h2>
+                    <p class="govuk-body">@messages("submitClaimDeclaration.declaration.intro")</p>
+                    <ul class="govuk-list govuk-list--bullet">
+                        <li>@messages("submitClaimDeclaration.declaration.point1")</li>
+                        <li>@messages("submitClaimDeclaration.declaration.point2")</li>
+                    </ul>
+                    <p class="govuk-body">@messages("submitClaimDeclaration.declaration.email")</p>
+
+                    @govukButton(ButtonViewModel(messages("submitClaimDeclaration.button")))
+                }
+            }
+        }
+    }
+}
