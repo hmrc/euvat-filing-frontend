@@ -22,16 +22,16 @@ import controllers.actions.*
 import controllers.imports.routes as importRoutes
 import forms.imports.TotalAmountWithoutVatFormProvider
 import models.Mode
+import models.requests.DataRequest
 import navigation.Navigator
-import pages.imports.{SadReferenceCheckPage, SadReferenceNumberPage, TotalAmountWithoutVatPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ControllerHelpers.*
-import utils.{CountryCode, CurrencyConfig}
-import views.html.imports.TotalAmountWithoutVatView
+import utils.CurrencyConfig
+import views.html.purchasesOrImports.PurchaseOrImportTotalAmountWithoutVatView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -46,7 +46,7 @@ class TotalAmountWithoutVatController @Inject() (
   requireData: DataRequiredAction,
   formProvider: TotalAmountWithoutVatFormProvider,
   val controllerComponents: MessagesControllerComponents,
-  view: TotalAmountWithoutVatView
+  view: PurchaseOrImportTotalAmountWithoutVatView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
@@ -55,16 +55,14 @@ class TotalAmountWithoutVatController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val preparedForm = request.userAnswers.get(TotalAmountWithoutVatPage).fold(form)(form.fill)
-    val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)
-    Ok(view(preparedForm, mode, prefix, currencyName))
+    Ok(renderView(preparedForm, mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, prefix, currencyName))),
+        formWithErrors => Future.successful(BadRequest(renderView(formWithErrors, mode))),
         value =>
           saveAnswerAndResetDependents(
             page              = TotalAmountWithoutVatPage,
@@ -76,4 +74,15 @@ class TotalAmountWithoutVatController @Inject() (
       )
   }
 
+  private def renderView(form: Form[?], mode: Mode)(implicit request: DataRequest[?]) = {
+    val (currencyName, prefix) = currencyNameAndPrefix(request.userAnswers, currencyConfig.currencyConfig)
+    view(
+      form,
+      importRoutes.TotalAmountWithoutVatController.onSubmit(mode),
+      "import.totalAmountWithoutVat",
+      "import.caption",
+      prefix,
+      currencyName
+    )
+  }
 }

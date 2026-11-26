@@ -22,10 +22,10 @@ import forms.purchase.TotalPurchaseAmountBeforeVatFormProvider
 
 class TotalPurchaseAmountBeforeVatFormProviderSpec extends CurrencyFieldBehaviours with StringFieldBehaviours {
 
-  val requiredKey = "totalPurchaseAmountBeforeVat.error.required"
-  val invalidNumeric = "totalPurchaseAmountBeforeVat.error.invalidNumeric"
-  val nonNumeric = "totalPurchaseAmountBeforeVat.error.nonNumeric"
-  val aboveMaximum = "totalPurchaseAmountBeforeVat.error.aboveMaximum"
+  val requiredKey = "totalAmountWithoutVat.error.required"
+  val invalidNumeric = "totalAmountWithoutVat.error.invalidNumeric"
+  val nonNumeric = "totalAmountWithoutVat.error.nonNumeric"
+  val aboveMaximum = "totalAmountWithoutVat.error.aboveMaximum"
   val max = BigDecimal("999999999.99")
   val maxLength = 15
 

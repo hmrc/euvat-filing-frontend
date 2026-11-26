@@ -450,19 +450,6 @@ supplierTaxIdentifierNumber.error.length = Supplier’s tax identifier number ca
 supplierTaxIdentifierNumber.checkYourAnswersLabel = Tax identifier number
 supplierTaxIdentifierNumber.change.hidden = Change supplier’s tax identifier number
 
-totalPurchaseAmountBeforeVat.title = Total purchase amount before VAT
-totalPurchaseAmountBeforeVat.heading = Total purchase amount before VAT
-totalPurchaseAmountBeforeVat.h2 = How much did the purchase cost before VAT?
-totalPurchaseAmountBeforeVat.inset = The currency for this claim is in {0} ({1}). For invoices in any other currency, you must convert the amounts before adding them to your claim. Use the <a href="https://data.ecb.europa.eu/currency-converter" class="govuk-link" rel="noreferrer noopener" target="_blank">European Central Bank currency converter (opens in new tab).</a>
-totalPurchaseAmountBeforeVat.p1 = This is the purchase amount before VAT is added. If your invoice does not show this amount, you’ll need to <a href="https://www.gov.uk/charge-reclaim-record-vat" class="govuk-link" target="_blank" rel="noreferrer noopener">calculate it (opens in new tab)</a>.
-totalPurchaseAmountBeforeVat.hint = For example, {0}150 or {0}120.45
-totalPurchaseAmountBeforeVat.checkYourAnswersLabel = Amount without VAT
-totalPurchaseAmountBeforeVat.change.hidden = Total purchase amount without VAT
-totalPurchaseAmountBeforeVat.error.nonNumeric = Enter the total purchase amount before VAT in the correct format
-totalPurchaseAmountBeforeVat.error.required = Enter the total purchase amount before VAT
-totalPurchaseAmountBeforeVat.error.aboveMaximum = Total purchase amount before VAT must be between -999,999,999.99 and 999,999,999.99
-totalPurchaseAmountBeforeVat.error.invalidNumeric = Enter the total purchase amount before VAT in the correct format
-
 totalVatPaid.title = Total VAT paid
 totalVatPaid.heading = Total VAT paid
 totalVatPaid.h2 = How much VAT did you pay?
@@ -557,15 +544,23 @@ purchaseOrImportDate.hint = For example, 27 3 2025
 
 totalAmountWithoutVat.title = Total amount without VAT
 totalAmountWithoutVat.heading = Total amount without VAT
-totalAmountWithoutVat.inset = The currency for this claim is in {0} ({1}). For import documents in any other currency, you must convert the amounts before adding them to your claim. Use the <a href="https://data.ecb.europa.eu/currency-converter" class="govuk-link" rel="noreferrer noopener" target="_blank">European Central Bank currency converter (opens in new tab)</a>.
-totalAmountWithoutVat.p1 = If this amount is not on your import document, you’ll need to calculate it. Use the standard VAT rate of the country you’re claiming from.
-totalAmountWithoutVat.h2 = How much did the import cost without VAT?
+totalAmountWithoutVat.inset = The currency for this claim is in {0} ({1}). For invoices in any other currency, you must convert the amounts before adding them to your claim.  Use the <a href="https://data.ecb.europa.eu/currency-converter" class="govuk-link" rel="noreferrer noopener" target="_blank">European Central Bank currency converter (opens in new tab)</a>.
+totalAmountWithoutVat.p1 = If this amount is not on your invoice, you’ll need to calculate it. Use the standard VAT rate of the country you’re claiming from.
+totalAmountWithoutVat.h2 = How much did the purchase cost without VAT?
 totalAmountWithoutVat.hint = For example, {0}150 or {0}120.45
 totalAmountWithoutVat.change.hidden = Total amount without VAT
-totalAmountWithoutVat.error.required = Enter the total amount without VAT
-totalAmountWithoutVat.error.invalidNumeric = Enter the total amount without VAT in the correct format
-totalAmountWithoutVat.error.nonNumeric = Enter the total amount without VAT in the correct format
-totalAmountWithoutVat.error.aboveMaximum = Total amount without VAT must be between -999,999,999.99 and 999,999,999.99
+totalAmountWithoutVat.error.required = Enter the total purchase amount without VAT
+totalAmountWithoutVat.error.invalidNumeric = Enter the total purchase amount without VAT in the correct format
+totalAmountWithoutVat.error.nonNumeric = Enter the total purchase amount without VAT in the correct format
+totalAmountWithoutVat.error.aboveMaximum = Total purchase amount without VAT must be between -999,999,999.99 and 999,999,999.99
+
+import.totalAmountWithoutVat.inset = The currency for this claim is in {0} ({1}). For import documents in any other currency, you must convert the amounts before adding them to your claim. Use the <a href="https://data.ecb.europa.eu/currency-converter" class="govuk-link" rel="noreferrer noopener" target="_blank">European Central Bank currency converter (opens in new tab)</a>.
+import.totalAmountWithoutVat.p1 = If this amount is not on your import document, you’ll need to calculate it. Use the standard VAT rate of the country you’re claiming from.
+import.totalAmountWithoutVat.h2 = How much did the import cost without VAT?
+import.totalAmountWithoutVat.error.required = Enter the total amount without VAT
+import.totalAmountWithoutVat.error.invalidNumeric = Enter the total amount without VAT in the correct format
+import.totalAmountWithoutVat.error.nonNumeric = Enter the total amount without VAT in the correct format
+import.totalAmountWithoutVat.error.aboveMaximum = Total amount without VAT must be between -999,999,999.99 and 999,999,999.99
 
 totalVatPaidImport.p1 = If this amount is not on your import document, you’ll need to calculate it. Use the standard VAT rate of the country you’re claiming from.
 
