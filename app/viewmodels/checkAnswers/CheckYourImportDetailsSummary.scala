@@ -113,8 +113,10 @@ object CheckYourImportDetailsSummary {
                    )
       } yield options
     ).getOrElse(Seq.empty)
+    println(s"******* subCodeOptions: $subCodeOptions")
 
     val selectedSubCode = answers.get(ImportSubCodePage)
+    println(s"******* selectedSubCode: $selectedSubCode")
 
     val descriptionRequired =
       importType.contains(Other) &&
@@ -122,17 +124,11 @@ object CheckYourImportDetailsSummary {
           subCodeOptions.isEmpty ||
             selectedSubCode.exists(isNoneSelection)
         )
+    println(s"******* descriptionRequired: $descriptionRequired")
 
     if (descriptionRequired) {
       Seq(
         typeRow,
-        row(
-          "otherImportType",
-          text(answers.get(ImportDetailsInfoPage)),
-          routes.ImportDetailsInfoController
-            .onPageLoad(CheckMode)
-            .url
-        ),
         row(
           "importDescription",
           text(answers.get(DescribeItemsOnImportDocPage)),
