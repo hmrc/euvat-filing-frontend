@@ -21,10 +21,10 @@ import play.api.data.FormError
 
 class TotalAmountWithoutVatFormProviderSpec extends CurrencyFieldBehaviours with StringFieldBehaviours {
 
-  val requiredKey = "totalAmountWithoutVat.error.required"
-  val invalidNumeric = "totalAmountWithoutVat.error.invalidNumeric"
-  val nonNumeric = "totalAmountWithoutVat.error.nonNumeric"
-  val aboveMaximum = "totalAmountWithoutVat.error.aboveMaximum"
+  val requiredKey = "import.totalAmountWithoutVat.error.required"
+  val invalidNumeric = "import.totalAmountWithoutVat.error.invalidNumeric"
+  val nonNumeric = "import.totalAmountWithoutVat.error.nonNumeric"
+  val aboveMaximum = "import.totalAmountWithoutVat.error.aboveMaximum"
   val max = BigDecimal("999999999.99")
 
   val form = new TotalAmountWithoutVatFormProvider()()
