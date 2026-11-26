@@ -31,7 +31,7 @@
 @(attachments: List[Attachment], totalAttachments: Int, paginationViewModel: PaginationViewModel, currentPage: Int, totalPages: Int, firstRecord: Int)(implicit request: Request[_], messages: Messages)
 
 @fileNameLink(attachment: Attachment) = {
-    <a class="govuk-link" href="#">@attachment.fileName.getOrElse("")</a>
+    <a class="govuk-link" href="@controllers.supportingdocuments.routes.UploadedFilesController.onDownload(attachment.attachmentNumber)">@attachment.fileName.getOrElse("")</a>
 }
 
 @removeLink(attachment: Attachment) = {

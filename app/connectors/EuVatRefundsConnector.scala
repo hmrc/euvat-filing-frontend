@@ -219,4 +219,9 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
       .post(url"$euVatRefundsBaseUrl/$applicationId/create-upload-tracking")
       .execute[CreateUploadTrackingResponse]
 
+  def getFullAttachmentDetails(applicationId: Long, attachmentNumber: Int)(implicit hc: HeaderCarrier): Future[GetFullAttachmentDetailsResponse] =
+    http
+      .get(url"$euVatRefundsBaseUrl/get-full-attachment-details/$applicationId/$attachmentNumber")
+      .execute[GetFullAttachmentDetailsResponse]
+
 }

@@ -18,11 +18,11 @@ package controllers.supportingdocuments
 
 import base.SpecBase
 import models.requests.GetAllAttachmentsRequest
-import models.responses.{ApplicationResponse, GetAllAttachmentsResponse}
+import models.responses.*
 import models.{Attachment, UserAnswers}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.{any, eq as mockitoEq}
 import org.mockito.Mockito.{verify, when}
 import play.api.Application
 import play.api.inject.bind
@@ -31,6 +31,7 @@ import play.api.test.Helpers.*
 import queries.{ClaimApplicationResponseQuery, SupportingDocumentsCompletedQuery, UploadedFilesQuery}
 import repositories.SessionRepository
 
+import java.util.Base64
 import scala.concurrent.Future
 
 class UploadedFilesControllerSpec extends SpecBase {
@@ -79,6 +80,8 @@ class UploadedFilesControllerSpec extends SpecBase {
           document.text() must include("0.20MB")
           document.text() must include(msgs("site.notProvided"))
           document.select("a[href='/file-eu-vat/supporting-documents/remove-file/1']").size() mustBe 1
+          document.select(s"a[href='${routes.UploadedFilesController.onDownload(1).url}']").text() mustEqual "hotel-invoice.pdf"
+          document.select(s"a[href='${routes.UploadedFilesController.onDownload(2).url}']").text() mustEqual "fuel-receipt.jpg"
           document.select(s"a[href='${routes.UploadFileController.onPageLoad().url}']").text() mustEqual
             msgs("supportingDocuments.uploadedFiles.uploadAnother")
           document.select("nav.govuk-pagination").size() mustBe 0
@@ -241,6 +244,88 @@ class UploadedFilesControllerSpec extends SpecBase {
           val savedAnswers = ArgumentCaptor.forClass(classOf[UserAnswers])
           verify(mockSessionRepository).set(savedAnswers.capture())
           savedAnswers.getValue.get(SupportingDocumentsCompletedQuery) mustEqual Some(true)
+        }
+      }
+    }
+
+    "onDownload" - {
+
+      val fileBytes = "test file content".getBytes("UTF-8")
+
+      val fullAttachment = GetFullAttachmentDetailsResponse(
+        attachmentNumber     = 1,
+        fileName             = Some("hotel-invoice.pdf"),
+        fileType             = Some("pdf"),
+        fileDescription      = Some("Hotel invoice"),
+        fileSize             = Some(1825),
+        fileContent          = Some(Base64.getEncoder.encodeToString(fileBytes)),
+        updateSequenceNumber = 1
+      )
+
+      def downloadRequest = FakeRequest(GET, routes.UploadedFilesController.onDownload(1).url)
+
+      "must return the decoded file with the correct content type and download header" in {
+        when(mockEuVatRefundsService.getFullAttachmentDetails(mockitoEq(111L), mockitoEq(1))(any()))
+          .thenReturn(Future.successful(fullAttachment))
+        val app = application()
+
+        running(app) {
+          val result = route(app, downloadRequest).value
+
+          status(result) mustEqual OK
+          contentType(result).value mustEqual "application/pdf"
+          header(CONTENT_DISPOSITION, result).value mustEqual """attachment; filename="hotel-invoice.pdf""""
+          contentAsBytes(result).toArray mustEqual fileBytes
+        }
+      }
+
+      "must redirect to Journey Recovery when the applicationId is missing" in {
+        val app = application(emptyUserAnswers)
+
+        running(app) {
+          val result = route(app, downloadRequest).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        }
+      }
+
+      "must redirect to Journey Recovery when retrieving the attachment fails" in {
+        when(mockEuVatRefundsService.getFullAttachmentDetails(any(), any())(any()))
+          .thenReturn(Future.failed(new RuntimeException("boom")))
+        val app = application()
+
+        running(app) {
+          val result = route(app, downloadRequest).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        }
+      }
+
+      "must redirect to Journey Recovery when the file content is missing" in {
+        when(mockEuVatRefundsService.getFullAttachmentDetails(any(), any())(any()))
+          .thenReturn(Future.successful(fullAttachment.copy(fileContent = None)))
+        val app = application()
+
+        running(app) {
+          val result = route(app, downloadRequest).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        }
+      }
+
+      "must redirect to Journey Recovery when the file content is not valid Base64" in {
+        when(mockEuVatRefundsService.getFullAttachmentDetails(any(), any())(any()))
+          .thenReturn(Future.successful(fullAttachment.copy(fileContent = Some("not-base64!!"))))
+        val app = application()
+
+        running(app) {
+          val result = route(app, downloadRequest).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
         }
       }
     }

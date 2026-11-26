@@ -41,7 +41,7 @@ class SupportingDocumentsNavigator @Inject() () {
     userAnswers.get(UploadedFileStatusQuery) match {
       case Some("VALIDATED") => supportingDocumentsRoutes.UploadedFilesController.onPageLoad()
 //      TODO: This should be implemented when upscan is working end to end and the status is dynamically available on page
-      case _                 => supportingDocumentsRoutes.YourFileController.onPageLoad()
+      case _ => supportingDocumentsRoutes.YourFileController.onPageLoad()
     }
 
   def navigateFromUploadedFilesPage(): Call =
