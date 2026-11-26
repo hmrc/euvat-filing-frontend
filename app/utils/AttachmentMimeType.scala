@@ -23,10 +23,9 @@ object AttachmentMimeType {
     "jpg"  -> "image/jpeg",
     "jpeg" -> "image/jpeg",
     "png"  -> "image/png",
-    "doc"  -> "application/msword",
-    "docx" -> "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    "xls"  -> "application/vnd.ms-excel",
-    "xlsx" -> "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    "tif"  -> "image/tiff",
+    "tiff" -> "image/tiff",
+    "zip"  -> "application/zip"
   )
 
   def forFileType(fileType: Option[String]): String =

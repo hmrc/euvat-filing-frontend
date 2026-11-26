@@ -38,4 +38,14 @@ class AttachmentMimeTypeSpec extends AnyFreeSpec with Matchers {
       AttachmentMimeType.forFileType(None) mustBe "application/octet-stream"
     }
   }
+
+  "must map known file types" in {
+    AttachmentMimeType.forFileType(Some("pdf")) mustBe "application/pdf"
+    AttachmentMimeType.forFileType(Some("jpg")) mustBe "image/jpeg"
+    AttachmentMimeType.forFileType(Some("jpeg")) mustBe "image/jpeg"
+    AttachmentMimeType.forFileType(Some("png")) mustBe "image/png"
+    AttachmentMimeType.forFileType(Some("tif")) mustBe "image/tiff"
+    AttachmentMimeType.forFileType(Some("tiff")) mustBe "image/tiff"
+    AttachmentMimeType.forFileType(Some("zip")) mustBe "application/zip"
+  }
 }
