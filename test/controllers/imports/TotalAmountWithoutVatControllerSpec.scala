@@ -44,13 +44,13 @@ class TotalAmountWithoutVatControllerSpec extends SpecBase with MockitoSugar {
   lazy val totalAmountWithoutVatRoute: String = routes.TotalAmountWithoutVatController.onPageLoad(NormalMode).url
 
   private def expectedView(
-                            application: Application,
-                            request: Request[?],
-                            boundForm: Form[?],
-                            mode: Mode = NormalMode,
-                            currencySymbol: String = "€",
-                            currencyName: String = "Euro"
-                          ): String = {
+    application: Application,
+    request: Request[?],
+    boundForm: Form[?],
+    mode: Mode = NormalMode,
+    currencySymbol: String = "€",
+    currencyName: String = "Euro"
+  ): String = {
     val view = application.injector.instanceOf[PurchaseOrImportTotalAmountWithoutVatView]
     view(
       boundForm,
