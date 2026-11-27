@@ -31,7 +31,7 @@
 @defining(counts.purchaseCount + counts.importCount) { itemCount =>
     @defining(if (itemCount == 1) messages("submitClaimDeclaration.item.singular") else messages("submitClaimDeclaration.item.plural", itemCount)) { itemsText =>
         @defining(if (counts.attachmentCount == 0) messages("submitClaimDeclaration.files.none") else if (counts.attachmentCount == 1) messages("submitClaimDeclaration.files.singular") else messages("submitClaimDeclaration.files.plural", counts.attachmentCount)) { filesText =>
-            @layout(pageTitle = s"${messages("submitClaimDeclaration.title")} – EU VAT – GOV.UK") {
+            @layout(pageTitle = titleNoForm(messages("submitClaimDeclaration.title"))) {
 
                 @formHelper(
                         action = controllers.routes.SubmitClaimDeclarationController.onSubmit,

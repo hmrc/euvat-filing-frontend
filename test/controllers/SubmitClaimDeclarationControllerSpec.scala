@@ -80,7 +80,7 @@ class SubmitClaimDeclarationControllerSpec extends SpecBase {
         body must include(
           "I understand and accept that further communications about this application will be conducted by email to the email address I supplied."
         )
-        body must include("Make declaration and submit your claim – EU VAT – GOV.UK")
+        body must include("Make declaration and submit your claim - EU VAT - GOV.UK")
         document.select(".govuk-summary-list__key.govuk-\\!-width-one-half").size() mustBe 5
         document.select(".govuk-summary-list.govuk-\\!-width-one-half").size() mustBe 0
         document.select(".govuk-summary-list__actions").size() mustBe 0
