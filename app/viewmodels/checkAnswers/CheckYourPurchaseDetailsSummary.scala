@@ -227,9 +227,9 @@ object CheckYourPurchaseDetailsSummary {
       val url = routes.TotalPurchaseAmountBeforeVatController.onPageLoad(CheckMode).url
       val formattedNumber = amountFormat(amt)
       val display = maybeSymbol.map(_ + formattedNumber).getOrElse(formattedNumber)
-      (messages("totalPurchaseAmountBeforeVat.checkYourAnswersLabel"),
-       Some(display),
-       Seq((url, "site.change", "totalPurchaseAmountBeforeVat.change.hidden"))
+      (messages("totalAmountWithoutVat.checkYourAnswersLabel"),
+        Some(display),
+        Seq((url, "site.change", "totalAmountWithoutVat.change.hidden"))
       )
     }
 
