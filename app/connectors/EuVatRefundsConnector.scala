@@ -206,9 +206,7 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
       .execute[SadReferenceCountResponse]
   }
 
-  def getReferenceInfoCount(
-    request: ReferenceInfoCountRequest
-  )(implicit hc: HeaderCarrier): Future[ReferenceInfoCountResponse] =
+  def getReferenceInfoCount(request: ReferenceInfoCountRequest)(implicit hc: HeaderCarrier): Future[ReferenceInfoCountResponse] =
     http
       .post(url"$euVatRefundsBaseUrl/get-reference-information-count")
       .withBody(Json.toJson(request))
@@ -224,4 +222,14 @@ class EuVatRefundsConnector @Inject() (config: ServicesConfig, http: HttpClientV
       .get(url"$euVatRefundsBaseUrl/get-full-attachment-details/$applicationId/$attachmentNumber")
       .execute[GetFullAttachmentDetailsResponse]
 
+  def getAttachmentDetails(applicationId: Long, attachmentNumber: Int)(implicit hc: HeaderCarrier): Future[AttachmentDetailsResponse] =
+    http
+      .get(url"$euVatRefundsBaseUrl/get-attachment-details/$applicationId/$attachmentNumber")
+      .execute[AttachmentDetailsResponse]
+
+  def deleteAttachment(request: DeleteAttachmentRequest)(implicit hc: HeaderCarrier): Future[DeleteAttachmentResponse] =
+    http
+      .delete(url"$euVatRefundsBaseUrl/delete-attachment")
+      .withBody(Json.toJson(request))
+      .execute[DeleteAttachmentResponse]
 }

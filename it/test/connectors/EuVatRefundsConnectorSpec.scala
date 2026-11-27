@@ -870,13 +870,13 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
   "EuVatRefundsConnector.getAllAttachments" should {
     val requestPayload = GetAllAttachmentsRequest(
       applicationId = 111,
-      orderBy       = Some(0),
-      sortOrder     = Some("ASC"),
-      startAt       = Some(0),
-      maxNumber     = Some(10)
+      orderBy = Some(0),
+      sortOrder = Some("ASC"),
+      startAt = Some(0),
+      maxNumber = Some(10)
     )
     val expectedResponse = GetAllAttachmentsResponse(
-      attachments      = List(Attachment(1, Some("hotel-invoice.pdf"), Some("pdf"), Some("Hotel invoice"), Some(1825))),
+      attachments = List(Attachment(1, Some("hotel-invoice.pdf"), Some("pdf"), Some("Hotel invoice"), Some(1825))),
       totalAttachments = 1
     )
 
@@ -904,6 +904,48 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
       whenReady(connector.getAllAttachments(requestPayload).failed) { ex =>
         ex shouldBe a[RuntimeException]
       }
+    }
+  } 
+
+  "EuVatRefundsConnector.getAttachmentDetails" should {
+
+    "call the attachment details URL and return the attachment details response" in {
+      reset(mockHttp, mockRequestBuilder)
+      val expectedResponse = AttachmentDetailsResponse(
+        attachmentNumber     = 11,
+        fileName             = Some("test.pdf"),
+        fileType             = Some("pdf"),
+        fileDescription      = Some("pdf file attached"),
+        fileSize             = Some(42),
+        updateSequenceNumber = 10
+      )
+
+      when(mockHttp.get(any())(any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.execute[PurchaseDetailsResponse](any(), any())).thenReturn(Future.successful(expectedResponse))
+
+      connector.getAttachmentDetails(123L, 11).futureValue shouldBe expectedResponse
+      verify(mockHttp).get(url"$baseUrl/get-attachment-details/123/11")
+      verify(mockRequestBuilder).execute[AttachmentDetailsResponse](any(), any())
+    }
+  }
+
+  "EuVatRefundsConnector.deleteAttachment" should {
+
+    "call the Attachment delete endpoint with the JSON body and return the sequence number" in {
+      reset(mockHttp, mockRequestBuilder)
+      val request = DeleteAttachmentRequest(applicationId = 123L, attachmentNumber = 5, updateSequenceNumber = 9)
+      val response = DeleteAttachmentResponse(updateSequenceNumber = 10)
+
+      when(mockHttp.delete(any())(any())).thenReturn(mockRequestBuilder)
+      doReturn(mockRequestBuilder).when(mockRequestBuilder).withBody(any[JsValue]())(any(), any(), any())
+      doReturn(Future.successful(response)).when(mockRequestBuilder).execute[DeleteAttachmentResponse](any(), any())
+
+      connector.deleteAttachment(request).futureValue shouldBe response
+      verify(mockHttp).delete(url"$baseUrl/delete-attachment")
+      val bodyCaptor: ArgumentCaptor[JsValue] = ArgumentCaptor.forClass(classOf[JsValue])
+      verify(mockRequestBuilder).withBody(bodyCaptor.capture())(any(), any(), any())
+      bodyCaptor.getValue shouldBe Json.toJson(request)
+      verify(mockRequestBuilder).execute[DeleteAttachmentResponse](any(), any())
     }
   }
 

@@ -836,3 +836,11 @@ removeItem.list1 = Type
 removeItem.list2 = VAT claim
 removeItem.legend = Are you sure you want to remove this item?
 removeItem.error.required = Select yes if you want to remove this item
+
+removeFile.title = Remove file
+removeFile.heading = Remove file
+removeFile.list1 = File name
+removeFile.list2 = Description
+removeFile.list3 = File size
+removeFile.legend = Are you sure you want to remove this file?
+removeFile.error.required = Select yes if you want to remove this file

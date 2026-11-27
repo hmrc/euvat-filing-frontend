@@ -18,16 +18,20 @@ package services
 
 import config.FrontendAppConfig
 import connectors.EuVatRefundsConnector
+import models.UserAnswers
 import models.requests.*
 import models.responses.*
 import play.api.Logging
+import queries.UpdateSequenceNumberQuery
+import repositories.SessionRepository
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class EuVatRefundsService @Inject() (euVatRefundsConnector: EuVatRefundsConnector, config: FrontendAppConfig)(implicit ec: ExecutionContext)
-    extends Logging {
+class EuVatRefundsService @Inject() (euVatRefundsConnector: EuVatRefundsConnector, config: FrontendAppConfig, sessionRepository: SessionRepository)(
+  implicit ec: ExecutionContext
+) extends Logging {
   def retrieveTraderKnownFacts()(implicit hc: HeaderCarrier): Future[TraderKnownFactsResponse] = {
     euVatRefundsConnector.retrieveTradersKnownFacts()
   }
@@ -102,4 +106,28 @@ class EuVatRefundsService @Inject() (euVatRefundsConnector: EuVatRefundsConnecto
 
   def createUploadTracking(applicationId: Long)(implicit hc: HeaderCarrier): Future[CreateUploadTrackingResponse] =
     euVatRefundsConnector.createUploadTracking(applicationId)
+
+  def getAttachmentDetails(applicationId: Long, attachmentNumber: Int, userAnswers: UserAnswers)(implicit
+    hc: HeaderCarrier
+  ): Future[AttachmentDetailsResponse] = {
+    for {
+      response <- euVatRefundsConnector.getAttachmentDetails(applicationId, attachmentNumber)
+      _        <- setAndSaveUpdateSequenceNumber(userAnswers = userAnswers, updateSequenceNumber = response.updateSequenceNumber)
+    } yield response
+  }
+
+  def deleteAttachment(request: DeleteAttachmentRequest, userAnswers: UserAnswers)(implicit hc: HeaderCarrier): Future[Unit] = {
+    for {
+      response <- euVatRefundsConnector.deleteAttachment(request)
+      _        <- setAndSaveUpdateSequenceNumber(userAnswers = userAnswers, updateSequenceNumber = response.updateSequenceNumber)
+    } yield ()
+  }
+
+  private def setAndSaveUpdateSequenceNumber(userAnswers: UserAnswers, updateSequenceNumber: Int): Future[Unit] = {
+    for {
+      updated <- Future.fromTry(userAnswers.set(UpdateSequenceNumberQuery, updateSequenceNumber))
+      _       <- sessionRepository.set(updated)
+    } yield ()
+  }
+
 }

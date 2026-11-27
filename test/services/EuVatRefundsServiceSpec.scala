@@ -19,7 +19,7 @@ package services
 import base.SpecBase
 import config.FrontendAppConfig
 import connectors.EuVatRefundsConnector
-import models.{ApplicationDetails, Attachment}
+import models.{ApplicationDetails, Attachment, UserAnswers}
 import models.requests.*
 import models.responses.*
 import org.mockito.ArgumentMatchers.*
@@ -29,6 +29,8 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import com.typesafe.config.ConfigFactory
 import play.api.Configuration
+import queries.UpdateSequenceNumberQuery
+import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.LocalDateTime
@@ -41,7 +43,7 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
 
   val mockConnector: EuVatRefundsConnector = mock[EuVatRefundsConnector]
   val mockConfig: FrontendAppConfig = mock[FrontendAppConfig]
-  val service = new EuVatRefundsService(mockConnector, mockConfig)
+  val service = new EuVatRefundsService(mockConnector, mockConfig, mockSessionRepository)
 
   "EuVatRefundsService.retrieveTraderKnownFacts" - {
     val expected = TraderKnownFactsResponse(
@@ -653,6 +655,79 @@ class EuVatRefundsServiceSpec extends SpecBase with MockitoSugar with ScalaFutur
       whenReady(service.getFullAttachmentDetails(123L, 4).failed) { ex =>
         ex mustEqual failure
       }
+    }
+  }
+
+  "EuVatRefundsService.getAttachmentDetails" - {
+    val userAnswers = emptyUserAnswers
+
+    val expectedResponse = AttachmentDetailsResponse(
+      attachmentNumber     = 11,
+      fileName             = Some("test.pdf"),
+      fileType             = Some("pdf"),
+      fileDescription      = Some("pdf file attached"),
+      fileSize             = Some(42),
+      updateSequenceNumber = 10
+    )
+
+    "should return the attachment details from the connector and update updateSequenceNumber in session repo" in {
+      when(mockConnector.getAttachmentDetails(any(), any())(any())).thenReturn(Future.successful(expectedResponse))
+
+      when(mockSessionRepository.set(any[UserAnswers]))
+        .thenReturn(Future.successful(true))
+
+      service.getAttachmentDetails(123L, 11, userAnswers)(hc).futureValue mustEqual expectedResponse
+
+      verify(mockSessionRepository).set(
+        org.mockito.ArgumentMatchers.argThat { (saved: UserAnswers) =>
+          saved.get(UpdateSequenceNumberQuery).contains(expectedResponse.updateSequenceNumber)
+        }
+      )
+
+    }
+
+    "should propagate an exception from the connector" in {
+      val failure = new RuntimeException("Connector failed")
+      when(mockConnector.getAttachmentDetails(any(), any())(any())).thenReturn(Future.failed(failure))
+
+      whenReady(service.getAttachmentDetails(123L, 11, userAnswers).failed) { ex =>
+        ex mustEqual failure
+      }
+
+      verify(mockSessionRepository, never()).set(any[UserAnswers])
+    }
+  }
+
+  "EuVatRefundsService.deleteAttachment" - {
+    val userAnswers = emptyUserAnswers
+
+    val request = DeleteAttachmentRequest(applicationId = 123L, attachmentNumber = 5, updateSequenceNumber = 9)
+    val expectedResponse = DeleteAttachmentResponse(updateSequenceNumber = 10)
+
+    "should update session repo updateSequenceNumber returning from the connector and return ()" in {
+      when(mockConnector.deleteAttachment(any())(any())).thenReturn(Future.successful(expectedResponse))
+
+      when(mockSessionRepository.set(any[UserAnswers]))
+        .thenReturn(Future.successful(true))
+
+      service.deleteAttachment(request, userAnswers)(hc).futureValue mustEqual ()
+
+      verify(mockSessionRepository).set(
+        org.mockito.ArgumentMatchers.argThat { (saved: UserAnswers) =>
+          saved.get(UpdateSequenceNumberQuery).contains(expectedResponse.updateSequenceNumber)
+        }
+      )
+    }
+
+    "should propagate an exception from the connector" in {
+      val failure = new RuntimeException("Connector failed")
+      when(mockConnector.deleteAttachment(any())(any())).thenReturn(Future.failed(failure))
+
+      whenReady(service.deleteAttachment(request, userAnswers).failed) { ex =>
+        ex mustEqual failure
+      }
+
+      verify(mockSessionRepository, never()).set(any[UserAnswers])
     }
   }
 }

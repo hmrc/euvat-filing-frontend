@@ -36,7 +36,6 @@ class SupportingDocumentsNavigator @Inject() () {
       case Some(false) => controllers.routes.TaskListDashboardController.onPageLoad()
       case None        => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
-
   def navigateFromYourFilePage(userAnswers: UserAnswers): Call =
     userAnswers.get(UploadedFileStatusQuery) match {
       case Some("VALIDATED") => supportingDocumentsRoutes.UploadedFilesController.onPageLoad()
@@ -46,4 +45,7 @@ class SupportingDocumentsNavigator @Inject() () {
 
   def navigateFromUploadedFilesPage(): Call =
     controllers.routes.TaskListDashboardController.onPageLoad()
+
+  def navigateFromRemoveFilePage(): Call =
+    supportingDocumentsRoutes.UploadedFilesController.onPageLoad()
 }
