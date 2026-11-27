@@ -19,15 +19,14 @@ package controllers.supportingdocuments
 import controllers.actions.*
 import forms.supportingdocuments.RemoveFileFormProvider
 import models.NormalMode
-import models.requests.{DataRequest, DeleteAttachmentRequest}
-import models.responses.AttachmentDetailsResponse
+import models.requests.DeleteAttachmentRequest
 import navigation.Navigator
 import pages.RemoveFilePage
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.*
-import queries.{ClaimApplicationResponseQuery, RemoveFileAttachmentQuery, UpdateSequenceNumberQuery}
+import queries.{ClaimApplicationResponseQuery, UpdateSequenceNumberQuery}
 import repositories.SessionRepository
 import services.EuVatRefundsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -56,23 +55,19 @@ class RemoveFileController @Inject() (
 
   def onPageLoad(attachmentNumber: Int): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
 
-    request.userAnswers
+    val ua = request.userAnswers
+
+    ua
       .get(ClaimApplicationResponseQuery)
       .map(_.applicationId)
       .fold(recoveryPage("Missing or invalid applicationId")) { applicationId =>
-           getAttachment(applicationId, attachmentNumber)
-            .flatMap { response =>
-              for {
-                updatedAnswers <- Future.fromTry(request.userAnswers
-                                  .set(UpdateSequenceNumberQuery, response.updateSequenceNumber)
-                                  .flatMap(_.set(RemoveFileAttachmentQuery, response)))
-                _              <- sessionRepository.set(updatedAnswers)
-              } yield Ok(view(form, response))
-            }
-            .recoverWith { case e: Exception =>
-              logger.error(s"Failed to retrieve attachment for applicationId: $applicationId,attachmentNumber: $attachmentNumber", e)
-              recoveryPage("Get attachment failed")
-            }
+        service
+          .getAttachmentDetails(applicationId, attachmentNumber, ua)
+          .map(response => Ok(view(form, response)))
+          .recoverWith { case e: Exception =>
+            logger.error(s"Failed to retrieve attachment for applicationId: $applicationId,attachmentNumber: $attachmentNumber", e)
+            recoveryPage("Get attachment failed")
+          }
       }
 
   }
@@ -87,36 +82,20 @@ class RemoveFileController @Inject() (
           .bindFromRequest()
           .fold(
             formWithErrors =>
-              getAttachment(applicationId, attachmentNumber)
-                .flatMap(response =>
-                  for {
-                    updatedAnswers <- Future.fromTry(request.userAnswers
-                                        .set(UpdateSequenceNumberQuery, response.updateSequenceNumber)
-                                        .flatMap(_.set(RemoveFileAttachmentQuery, response))
-                                      )
-                    _ <- sessionRepository.set(updatedAnswers)
-                  } yield BadRequest(view(formWithErrors, response))
-                )
+              service
+                .getAttachmentDetails(applicationId, attachmentNumber, ua)
+                .map(response => BadRequest(view(formWithErrors, response)))
                 .recoverWith { case e: Exception =>
                   logger.error(s"Failed to retrieve attachment for applicationId: $applicationId, attachmentNumber: $attachmentNumber", e)
                   recoveryPage("Get attachment failed")
                 },
-
             value =>
               if (!value) {
                 Future.successful(Redirect(navigator.nextPage(RemoveFilePage, NormalMode, request.userAnswers)))
               } else {
                 service
-                  .deleteAttachment(DeleteAttachmentRequest(applicationId, attachmentNumber, updateSequenceNumber))
-                  .flatMap { response =>
-
-                    for {
-                      updatedAnswers <- Future.fromTry(request.userAnswers
-                                                          .set(UpdateSequenceNumberQuery, response.updateSequenceNumber)
-                                                          .flatMap(_.remove(RemoveFileAttachmentQuery)))
-                      _              <- sessionRepository.set(updatedAnswers)
-                    } yield Redirect(navigator.nextPage(RemoveFilePage, NormalMode, request.userAnswers))
-                  }
+                  .deleteAttachment(DeleteAttachmentRequest(applicationId, attachmentNumber, updateSequenceNumber), ua)
+                  .map(_ => Redirect(navigator.nextPage(RemoveFilePage, NormalMode, request.userAnswers)))
                   .recoverWith { case e: Exception =>
                     logger.error(s"Failed to delete attachments for applicationId: $applicationId, attachmentNumber: $attachmentNumber", e)
                     recoveryPage("Delete attachments failed")
@@ -127,16 +106,6 @@ class RemoveFileController @Inject() (
       case _ => recoveryPage("Missing or invalid applicationId, updateSequenceNumber")
     }
   }
-
-  private def getAttachment(applicationId: Long, attachmentNumber: Int)(implicit
-    request: DataRequest[AnyContent]
-  ): Future[AttachmentDetailsResponse] =
-    request.userAnswers.get(RemoveFileAttachmentQuery) match {
-      case Some(saved) if saved.attachmentNumber == attachmentNumber =>
-        Future.successful(saved)
-      case _ =>
-        service.getAttachmentDetails(applicationId, attachmentNumber)
-    }
 
   private def recoveryPage(msg: String): Future[Result] = {
     logger.warn(msg)
