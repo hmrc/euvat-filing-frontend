@@ -948,4 +948,43 @@ class EuVatRefundsConnectorSpec extends AnyWordSpec with Matchers with MockitoSu
       verify(mockRequestBuilder).execute[DeleteAttachmentResponse](any(), any())
     }
   }
+
+  "EuVatRefundsConnector.getFullAttachmentDetails" should {
+    val expectedResponse = GetFullAttachmentDetailsResponse(
+      attachmentNumber = 4,
+      fileName = Some("test.pdf"),
+      fileType = Some("pdf"),
+      fileDescription = Some("pdf file attached"),
+      fileSize = Some(596),
+      fileContent = Some("dGVzdCBmaWxlIGNvbnRlbnQ="),
+      updateSequenceNumber = 10
+    )
+
+    "call the correct URL and return the expected response" in {
+      reset(mockHttp, mockRequestBuilder)
+
+      when(mockHttp.get(any())(any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.execute[GetFullAttachmentDetailsResponse](any(), any()))
+        .thenReturn(Future.successful(expectedResponse))
+
+      val result = connector.getFullAttachmentDetails(123L, 4).futureValue
+
+      result shouldBe expectedResponse
+
+      verify(mockHttp).get(url"$baseUrl/get-full-attachment-details/123/4")
+      verify(mockRequestBuilder).execute[GetFullAttachmentDetailsResponse](any(), any())
+    }
+
+    "propagate failures from the HTTP client" in {
+      val failure = new RuntimeException("boom")
+
+      when(mockHttp.get(any())(any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.execute[GetFullAttachmentDetailsResponse](any(), any()))
+        .thenReturn(Future.failed(failure))
+
+      whenReady(connector.getFullAttachmentDetails(123L, 4).failed) { ex =>
+        ex shouldBe failure
+      }
+    }
+  }
 }
