@@ -842,5 +842,4 @@ removeFile.list1 = File name
 removeFile.list2 = Description
 removeFile.list3 = File size
 removeFile.legend = Are you sure you want to remove this file?
-removeFile.notProvided = Not provided
 removeFile.error.required = Select yes if you want to remove this file
